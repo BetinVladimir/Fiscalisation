@@ -9,46 +9,57 @@ import (
 	"syscall"
 	"time"
 
+	"fiscalisation/fiscal-backend/internal/api"
 	"fiscalisation/fiscal-backend/internal/config"
+	"fiscalisation/fiscal-backend/internal/domain"
 	"fiscalisation/fiscal-backend/internal/mqttclient"
+	"fiscalisation/fiscal-backend/internal/persistence"
+	"fiscalisation/fiscal-backend/internal/startup"
+	"fiscalisation/fiscal-backend/internal/webhook"
 )
 
 func main() {
 	cfg := config.Load()
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("ok"))
-	})
-
-	srv := &http.Server{
-		Addr:         cfg.HTTPAddr,
-		Handler:      mux,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  30 * time.Second,
+	if err := cfg.Validate(); err != nil {
+		log.Fatal(err)
 	}
-
+	repo := domain.Repository(domain.NewMemoryRepository())
+	if cfg.DatabaseURL != "" {
+		startupContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		store, e := startup.Retry(startupContext, 500*time.Millisecond, func() (*persistence.Postgres, error) {
+			return persistence.Open(cfg.DatabaseURL)
+		})
+		if e != nil {
+			log.Fatal(e)
+		}
+		defer store.Close()
+		persistent, e := domain.NewPersistentRepository(store)
+		if e != nil {
+			log.Fatal(e)
+		}
+		repo = persistent
+	}
+	svc := domain.NewService(repo, domain.NewSimulatorWithCardTerminal(cfg.AllowStubAdapters, cfg.SimulatorCardTerminalAvailable))
+	svc.SetBLESigningKey(cfg.BLESigningKey)
+	srv := &http.Server{Addr: cfg.HTTPAddr, Handler: api.NewHandler(svc, cfg), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-
 	mqttCleanup, err := mqttclient.Start(ctx, cfg, log.Default())
 	if err != nil {
-		log.Fatalf("mqtt init failed: %v", err)
+		log.Fatal(err)
 	}
 	if mqttCleanup != nil {
 		defer mqttCleanup()
 	}
-
+	go webhook.New(svc, cfg.WebhookTargetURL, cfg.WebhookSigningKey).Run(ctx)
 	go func() {
 		<-ctx.Done()
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		c, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		_ = srv.Shutdown(shutdownCtx)
+		_ = srv.Shutdown(c)
 	}()
-
-	log.Printf("fiscal-backend listening on %s", cfg.HTTPAddr)
+	log.Printf("fiscal-backend listening on %s env=%s", cfg.HTTPAddr, cfg.AppEnv)
 	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		log.Fatal(err)
 	}

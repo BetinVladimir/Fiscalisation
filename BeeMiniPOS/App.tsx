@@ -1,43 +1,66 @@
 import { StatusBar } from "expo-status-bar";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import { useEffect, useMemo, useRef, useState } from "react";
+import { Platform, Pressable, SafeAreaView, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import {fiscalCheckout,probeFinalDevice} from "./src/fiscalCheckout.ts";
+import type {ActiveBleBinding} from "./src/fiscalCheckout.ts";
+import {WebBleBootstrap,webBluetoothSupported} from "./src/webBle.ts";
+import type {BleSessionPackage} from "./src/webBle.ts";
+import {getRandomBytes} from "expo-crypto";
+import {configureRandomSource} from "./src/portableCrypto.ts";
+import {createNativeBleBootstrap,requestNativeBlePermissions} from "./src/nativeBle";
+import type {NativeBleBootstrapContract} from "./src/nativeBle";
+configureRandomSource(getRandomBytes);
 
-export default function App() {
-  return (
-    <SafeAreaView style={styles.container}>
-      <View style={styles.card}>
-        <Text style={styles.title}>BeeMiniPOS</Text>
-        <Text style={styles.subtitle}>Expo app initialized</Text>
-      </View>
-      <StatusBar style="auto" />
-    </SafeAreaView>
-  );
-}
+type Money={amount:string;currency:"EUR"};
+type Product={id:string;sku:string;name:string;price:Money;tax_group:string;active:boolean};
+type Employee={id:string;first_name:string;last_name:string;operator_code:string};
+type CartLine={product:Product;quantity:number};
+type Shift={id:string;state:string};
+type Order={id:string;state:string;version:number;fiscal_sale_id?:string;fiscal_operation_id?:string};
+type Configuration={id:string;location_name:string;location_address:string;workstation_name:string;fiscal_register_id:string;version:number};
+type SalesReport={from:string;to:string;currency:"EUR";gross:Money;payments:{type:string;amount:Money}[];generated_at:string};
+const apiBase=(process.env.EXPO_PUBLIC_MINIPOS_API_URL||"http://localhost:8081/public/v1/minipos").replace(/\/$/,"");
+const apiVersion="2026-08-07";
+const authToken=process.env.EXPO_PUBLIC_MINIPOS_AUTH_TOKEN||"";
+const fiscalBase=(process.env.EXPO_PUBLIC_FISCAL_API_URL||"http://localhost:8080/public/v1").replace(/\/$/,"");
+const fiscalToken=process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN||"";
+const tenantId=process.env.EXPO_PUBLIC_TENANT_ID||"";
+const registerId=process.env.EXPO_PUBLIC_REGISTER_ID||"FD000001";
+const fiscalDeviceId=process.env.EXPO_PUBLIC_FISCAL_DEVICE_ID||`${registerId}-device`;
+const appInstanceId=process.env.EXPO_PUBLIC_APP_INSTANCE_ID||"00000000-0000-4000-8000-000000000001";
+const key=()=>`${Date.now()}-${Math.random().toString(16).slice(2)}`;
+const uuid=()=>"xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g,c=>{const r=Math.floor(Math.random()*16);return(c==="x"?r:(r&3)|8).toString(16)});
+async function call<T>(path:string,init:RequestInit={}):Promise<T>{const r=await fetch(apiBase+path,{...init,headers:{"Content-Type":"application/json","X-Api-Version":apiVersion,"Idempotency-Key":key(),...(authToken?{Authorization:`Bearer ${authToken}`}:{ }),...(init.headers||{})}});const text=await r.text();if(!r.ok)throw new Error(text||`HTTP ${r.status}`);return text?JSON.parse(text):{} as T}
+async function fiscalCall<T>(path:string,init:RequestInit={}):Promise<T>{const controller=new AbortController(),timer=setTimeout(()=>controller.abort(),4000);try{const r=await fetch(fiscalBase+path,{...init,signal:controller.signal,headers:{"Content-Type":"application/json","X-Api-Version":apiVersion,"Idempotency-Key":key(),...(fiscalToken?{Authorization:`Bearer ${fiscalToken}`}:{ }),...(init.headers||{})}});const text=await r.text();if(!r.ok)throw new Error(text||`Fiscal HTTP ${r.status}`);return text?JSON.parse(text):{} as T}finally{clearTimeout(timer)}}
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f5f3ea",
-    padding: 16,
-  },
-  card: {
-    width: "100%",
-    maxWidth: 420,
-    backgroundColor: "#ffffff",
-    borderRadius: 12,
-    padding: 24,
-    borderWidth: 1,
-    borderColor: "#d9d5c4",
-  },
-  title: {
-    fontSize: 28,
-    fontWeight: "700",
-    color: "#2d2a21",
-    marginBottom: 8,
-  },
-  subtitle: {
-    fontSize: 16,
-    color: "#5f5b4f",
-  },
-});
+export default function App(){
+ const [products,setProducts]=useState<Product[]>([]),[employees,setEmployees]=useState<Employee[]>([]),[shift,setShift]=useState<Shift|null>(null),[cart,setCart]=useState<CartLine[]>([]);
+ const [status,setStatus]=useState("Зареждане…"),[search,setSearch]=useState(""),[busy,setBusy]=useState(false),[admin,setAdmin]=useState(false);
+ const [pName,setPName]=useState(""),[pPrice,setPPrice]=useState(""),[eFirst,setEFirst]=useState(""),[eLast,setELast]=useState(""),[eCode,setECode]=useState("");
+ const [configuration,setConfiguration]=useState<Configuration|null>(null),[locationName,setLocationName]=useState("Магазин 1"),[locationAddress,setLocationAddress]=useState(""),[workstationName,setWorkstationName]=useState("Каса 01"),[configuredRegister,setConfiguredRegister]=useState(registerId),[selectedEmployeeId,setSelectedEmployeeId]=useState(""),[salesReport,setSalesReport]=useState<SalesReport|null>(null);
+ const ble=useRef<WebBleBootstrap|NativeBleBootstrapContract>(Platform.OS==="web"?new WebBleBootstrap():createNativeBleBootstrap()),[bleBinding,setBleBinding]=useState<(ActiveBleBinding&BleSessionPackage&{device_id:string})|null>(null),[bleReady,setBleReady]=useState(false);
+ const total=useMemo(()=>cart.reduce((n,x)=>n+Number(x.product.price.amount)*x.quantity,0),[cart]);
+ const activeRegisterId=configuration?.fiscal_register_id||configuredRegister||registerId;
+ const selectedEmployee=employees.find(x=>x.id===selectedEmployeeId)||employees[0];
+ const refresh=async()=>{try{const [p,e]=await Promise.all([call<{items:Product[]}>("/products"),call<{items:Employee[]}>("/employees")]);setProducts(p.items.filter(x=>x.active));setEmployees(e.items);setSelectedEmployeeId(v=>v||e.items[0]?.id||"");const cfg=await call<Configuration>("/configuration").catch(()=>null);if(cfg){setConfiguration(cfg);setLocationName(cfg.location_name);setLocationAddress(cfg.location_address);setWorkstationName(cfg.workstation_name);setConfiguredRegister(cfg.fiscal_register_id)}setStatus("Готово • отворете смяна")}catch(e){setStatus("MiniPOS API е недостъпен • продажбата е блокирана")}};
+ useEffect(()=>{void refresh()},[]);
+ const add=(p:Product)=>{if(!shift){setStatus("Продажбата е блокирана: няма отворена смяна");return}setCart(v=>{const x=v.find(i=>i.product.id===p.id);return x?v.map(i=>i.product.id===p.id?{...i,quantity:i.quantity+1}:i):[...v,{product:p,quantity:1}]})};
+ const toggleShift=async()=>{if(busy)return;setBusy(true);try{if(shift){await call(`/shifts/${shift.id}/close`,{method:"POST",body:"{}"});setShift(null);setCart([]);setStatus("Смяната е затворена")}else{if(!selectedEmployee)throw new Error("Създайте и изберете служител");const opened=await call<Shift>("/shifts",{method:"POST",body:JSON.stringify({register_id:activeRegisterId,employee_id:selectedEmployee.id})});setShift(opened);setStatus("Смяната е отворена • проверете готовността на ФУ")}}catch(e){setStatus(`Операцията е отказана: ${message(e)}`)}finally{setBusy(false)}};
+ const connectBle=async()=>{if(busy)return;setBusy(true);try{if(Platform.OS==="web"&&!webBluetoothSupported())throw new Error("Web Bluetooth изисква Chrome/secure context");if(Platform.OS!=="web"&&!(await requestNativeBlePermissions()))throw new Error("Bluetooth permission е отказано");if(!tenantId)throw new Error("EXPO_PUBLIC_TENANT_ID е задължителен за BLE");if(!selectedEmployee)throw new Error("Създайте служител");const session=await fiscalCall<BleSessionPackage&{edge_id:string;device_id:string;binding_version:number}>(`/registers/${activeRegisterId}/ble-sessions`,{method:"POST",body:JSON.stringify({operator_id:selectedEmployee.operator_code,app_instance_id:appInstanceId})});const binding={...session,tenant_id:tenantId,register_id:activeRegisterId};const connected=await ble.current.connectFromUserGesture(session,()=>{});await connected.ready;setBleBinding(binding);setBleReady(true);setStatus("Локалният BLE контур е READY")}catch(e){setBleReady(false);setStatus(`BLE не е готов: ${message(e)}`)}finally{setBusy(false)}};
+ const checkout=async(type:"CASH"|"CARD")=>{if(busy||!shift||!cart.length||!selectedEmployee)return;setBusy(true);setStatus(type==="CARD"?"Картово плащане и фискализация…":"Фискализация…");try{let order=await call<Order&{external_id?:string}>("/orders",{method:"POST",body:JSON.stringify({shift_id:shift.id})});for(const x of cart){order=await call<typeof order>(`/orders/${order.id}/lines`,{method:"POST",headers:{"If-Match":String(order.version)},body:JSON.stringify({line_id:uuid(),product_id:x.product.id,name:x.product.name,quantity:x.quantity.toFixed(3),unit_price:x.product.price,tax_group:x.product.tax_group})})}const payment={payment_id:uuid(),type,amount:{amount:total.toFixed(2),currency:"EUR"},terminal_policy:type==="CARD"?"AUTO_IF_AVAILABLE":"NONE"};let cloudReady=false,deviceReady=false;try{await fiscalCall("/version");cloudReady=true;const ready=await fiscalCall<{ready:boolean}>(`/devices/${bleBinding?.device_id||fiscalDeviceId}/readiness`);deviceReady=ready.ready}catch{cloudReady=false;if(bleReady&&bleBinding)deviceReady=await probeFinalDevice(uuid(),bleBinding,ble.current).catch(()=>false)}const operationId=uuid(),outcome=await fiscalCheckout({cloudRoute:cloudReady?"READY":"UNAVAILABLE",bleAdapter:bleReady?"READY":"UNAVAILABLE",edgeRuntime:bleReady?"READY":"UNAVAILABLE",fiscalDevice:deviceReady?"READY":"UNAVAILABLE",bleSessionExpiresAt:bleBinding?.expires_at,observedAt:new Date().toISOString()},operationId,{external_id:order.external_id||order.id,operator_id:selectedEmployee.operator_code,currency:"EUR",items:cart.map(x=>({line_id:uuid(),product_id:x.product.id,name:x.product.name,quantity:x.quantity.toFixed(3),unit_price:x.product.price,tax_group:x.product.tax_group})),payments:[payment],metadata:{source:"BeeMiniPOS",order_id:order.id}},bleBinding||undefined,()=>call<Order>(`/orders/${order.id}/checkout`,{method:"POST",body:JSON.stringify(payment)}),ble.current);if(outcome.state!=="COMPLETED")throw new Error(`${outcome.state}: ${outcome.reason||"RECONCILE"}`);setCart([]);setStatus(`Успешен фискален бон • ${outcome.route} • ${outcome.fiscalReference||operationId} • EUR ${total.toFixed(2)}`)}catch(e){setStatus(`Няма потвърден фискален успех: ${message(e)}`)}finally{setBusy(false)}};
+ const createProduct=async()=>{try{await call("/products",{method:"POST",body:JSON.stringify({sku:`SKU-${Date.now()}`,name:pName,price:{amount:Number(pPrice).toFixed(2),currency:"EUR"},tax_group:"B"})});setPName("");setPPrice("");await refresh()}catch(e){setStatus(message(e))}};
+ const createEmployee=async()=>{try{await call("/employees",{method:"POST",body:JSON.stringify({first_name:eFirst,last_name:eLast,operator_code:eCode})});setEFirst("");setELast("");setECode("");await refresh()}catch(e){setStatus(message(e))}};
+ const saveConfiguration=async()=>{if(shift){setStatus("Затворете смяната преди промяна на касовото място");return}try{const cfg=await call<Configuration>("/configuration",{method:"PATCH",headers:configuration?{"If-Match":String(configuration.version)}:{},body:JSON.stringify({location_name:locationName,location_address:locationAddress,workstation_name:workstationName,fiscal_register_id:configuredRegister})});setConfiguration(cfg);setBleBinding(null);setBleReady(false);setStatus("Точката и касовото място са записани; BLE сесията трябва да се активира отново")}catch(e){setStatus(message(e))}};
+ const loadReport=async()=>{try{const report=await call<SalesReport>("/reports/sales");setSalesReport(report);setStatus(`Търговски отчет • EUR ${report.gross.amount}`)}catch(e){setStatus(message(e))}};
+ const changeQuantity=(productId:string,delta:number)=>setCart(lines=>lines.map(line=>line.product.id===productId?{...line,quantity:line.quantity+delta}:line).filter(line=>line.quantity>0));
+ return <SafeAreaView style={s.root}><StatusBar style="dark"/><View style={s.top}><View><Text style={s.brand}>BeeMiniPOS</Text><Text style={s.caption}>{configuration?.location_name||"1 точка"} • {configuration?.workstation_name||"каса 01"} • {activeRegisterId} • EUR • BLE {bleReady?"READY":"OFF"}</Text></View><View style={s.topActions}><Pressable disabled={busy||bleReady} style={s.adminButton} onPress={connectBle}><Text>{bleReady?"BLE свързан":"Свържи BLE"}</Text></Pressable><Pressable style={s.adminButton} onPress={()=>setAdmin(v=>!v)}><Text>{admin?"Продажби":"Обекти"}</Text></Pressable><Pressable disabled={busy} style={[s.shift,shift&&s.shiftOpen]} onPress={toggleShift}><Text style={s.shiftText}>{shift?"Затвори смяна":"Отвори смяна"}</Text></Pressable></View></View>
+ {admin?<Admin products={products} employees={employees} selectedEmployeeId={selectedEmployee?.id||""} salesReport={salesReport} values={{pName,pPrice,eFirst,eLast,eCode,locationName,locationAddress,workstationName,configuredRegister}} setters={{setPName,setPPrice,setEFirst,setELast,setECode,setLocationName,setLocationAddress,setWorkstationName,setConfiguredRegister,setSelectedEmployeeId}} createProduct={createProduct} createEmployee={createEmployee} saveConfiguration={saveConfiguration} loadReport={loadReport}/>:<View style={s.body}><View style={s.catalog}><TextInput value={search} onChangeText={setSearch} placeholder="Търсене или баркод" style={s.search}/><ScrollView contentContainerStyle={s.grid}>{products.filter(p=>p.name.toLowerCase().includes(search.toLowerCase())).map(p=><Pressable key={p.id} style={s.product} onPress={()=>add(p)}><Text style={s.productName}>{p.name}</Text><Text style={s.price}>€ {Number(p.price.amount).toFixed(2)}</Text><Text style={s.tax}>ДДС {p.tax_group}</Text></Pressable>)}</ScrollView></View><View style={s.cart}><Text style={s.cartTitle}>Текуща продажба</Text><ScrollView style={s.lines}>{cart.length===0?<Text style={s.empty}>Докоснете продукт</Text>:cart.map(x=><View style={s.line} key={x.product.id}><View><Text style={s.lineName}>{x.quantity} × {x.product.name}</Text><View style={s.quantity}><Pressable style={s.qtyButton} onPress={()=>changeQuantity(x.product.id,-1)}><Text>−</Text></Pressable><Pressable style={s.qtyButton} onPress={()=>changeQuantity(x.product.id,1)}><Text>+</Text></Pressable></View></View><Text style={s.linePrice}>€ {(Number(x.product.price.amount)*x.quantity).toFixed(2)}</Text></View>)}</ScrollView><View style={s.total}><Text style={s.totalLabel}>ОБЩО</Text><Text style={s.totalValue}>€ {total.toFixed(2)}</Text></View><View style={s.payRow}><Pressable disabled={busy||!cart.length} style={s.cash} onPress={()=>checkout("CASH")}><Text style={s.payText}>В брой</Text></Pressable><Pressable disabled={busy||!cart.length} style={s.card} onPress={()=>checkout("CARD")}><Text style={s.payText}>Карта</Text></Pressable></View></View></View>}
+ <View style={s.footer}><View style={[s.dot,(status.includes("блокирана")||status.includes("Няма")||status.includes("отказана"))&&s.dotBad]}/><Text style={s.status}>{status}</Text></View></SafeAreaView>}
+function Admin({products,employees,selectedEmployeeId,salesReport,values,setters,createProduct,createEmployee,saveConfiguration,loadReport}:any){return <ScrollView contentContainerStyle={s.admin}><Text style={s.adminTitle}>Минимални редактори и отчети</Text>
+ <View style={s.editor}><Text style={s.cartTitle}>Точка и касово място</Text><TextInput style={s.search} placeholder="Име на точката" value={values.locationName} onChangeText={setters.setLocationName}/><TextInput style={s.search} placeholder="Адрес" value={values.locationAddress} onChangeText={setters.setLocationAddress}/><TextInput style={s.search} placeholder="Име на касата" value={values.workstationName} onChangeText={setters.setWorkstationName}/><TextInput style={s.search} placeholder="Fiscal register ID" value={values.configuredRegister} onChangeText={setters.setConfiguredRegister}/><Pressable style={s.cash} onPress={saveConfiguration}><Text style={s.payText}>Запиши конфигурацията</Text></Pressable></View>
+ <View style={s.editor}><Text style={s.cartTitle}>Продукт ({products.length})</Text><TextInput style={s.search} placeholder="Име" value={values.pName} onChangeText={setters.setPName}/><TextInput style={s.search} placeholder="Цена EUR" keyboardType="decimal-pad" value={values.pPrice} onChangeText={setters.setPPrice}/><Pressable style={s.cash} onPress={createProduct}><Text style={s.payText}>Добави продукт</Text></Pressable></View>
+ <View style={s.editor}><Text style={s.cartTitle}>Служител ({employees.length})</Text><View style={s.employeeList}>{employees.map((employee:Employee)=><Pressable key={employee.id} style={[s.employee,selectedEmployeeId===employee.id&&s.employeeSelected]} onPress={()=>setters.setSelectedEmployeeId(employee.id)}><Text>{employee.first_name} {employee.last_name} • {employee.operator_code}</Text></Pressable>)}</View><TextInput style={s.search} placeholder="Име" value={values.eFirst} onChangeText={setters.setEFirst}/><TextInput style={s.search} placeholder="Фамилия" value={values.eLast} onChangeText={setters.setELast}/><TextInput style={s.search} maxLength={4} placeholder="Код (4)" value={values.eCode} onChangeText={setters.setECode}/><Pressable style={s.card} onPress={createEmployee}><Text style={s.payText}>Добави служител</Text></Pressable></View>
+ <View style={s.editor}><Text style={s.cartTitle}>Търговски отчет</Text><Pressable style={s.card} onPress={loadReport}><Text style={s.payText}>Обнови отчета</Text></Pressable>{salesReport&&<View style={s.report}><Text style={s.totalValue}>€ {salesReport.gross.amount}</Text><Text>{salesReport.from} — {salesReport.to}</Text>{salesReport.payments.map((payment:any)=><Text key={payment.type}>{payment.type}: € {payment.amount.amount}</Text>)}</View>}</View>
+ </ScrollView>}
+function message(e:unknown){return e instanceof Error?e.message:String(e)}
+const s=StyleSheet.create({root:{flex:1,backgroundColor:"#f3f1ea"},top:{padding:18,flexDirection:"row",justifyContent:"space-between",alignItems:"center",borderBottomWidth:1,borderColor:"#d8d4c7"},brand:{fontSize:28,fontWeight:"800",color:"#17251d"},caption:{color:"#637067",marginTop:2},topActions:{flexDirection:"row",gap:10,alignItems:"center",flexWrap:"wrap"},adminButton:{backgroundColor:"#e8e4d8",padding:12,borderRadius:10},shift:{backgroundColor:"#39453e",padding:12,borderRadius:10},shiftOpen:{backgroundColor:"#99573f"},shiftText:{color:"white",fontWeight:"700"},body:{flex:1,flexDirection:"row"},catalog:{flex:3,padding:16},search:{backgroundColor:"white",borderWidth:1,borderColor:"#d8d4c7",borderRadius:12,padding:14,fontSize:17,marginBottom:14},grid:{flexDirection:"row",flexWrap:"wrap",gap:12},product:{width:"47%",minHeight:120,backgroundColor:"white",borderRadius:14,padding:16,borderWidth:1,borderColor:"#ddd8ca",justifyContent:"space-between"},productName:{fontSize:19,fontWeight:"700"},price:{fontSize:22,fontWeight:"800",color:"#17613a"},tax:{color:"#777"},cart:{flex:2,backgroundColor:"#fff",borderLeftWidth:1,borderColor:"#d8d4c7",padding:16},cartTitle:{fontSize:20,fontWeight:"800",marginBottom:12},lines:{marginVertical:12},empty:{color:"#888",textAlign:"center",marginTop:40},line:{flexDirection:"row",justifyContent:"space-between",paddingVertical:12,borderBottomWidth:1,borderColor:"#eee"},lineName:{fontSize:16},linePrice:{fontSize:16,fontWeight:"700"},quantity:{flexDirection:"row",gap:8,marginTop:8},qtyButton:{minWidth:40,minHeight:36,backgroundColor:"#e8e4d8",borderRadius:8,alignItems:"center",justifyContent:"center"},total:{flexDirection:"row",justifyContent:"space-between",paddingVertical:16,borderTopWidth:2,borderColor:"#222"},totalLabel:{fontSize:18,fontWeight:"800"},totalValue:{fontSize:26,fontWeight:"900"},payRow:{flexDirection:"row",gap:10},cash:{flex:1,backgroundColor:"#17613a",padding:18,borderRadius:12,alignItems:"center"},card:{flex:1,backgroundColor:"#174a61",padding:18,borderRadius:12,alignItems:"center"},payText:{color:"white",fontSize:17,fontWeight:"800"},footer:{padding:12,flexDirection:"row",alignItems:"center",backgroundColor:"#17251d"},dot:{width:10,height:10,borderRadius:5,backgroundColor:"#57dc8b",marginRight:8},dotBad:{backgroundColor:"#ff765f"},status:{color:"white",fontWeight:"600",flex:1},admin:{padding:20,gap:16},adminTitle:{fontSize:24,fontWeight:"800"},editor:{backgroundColor:"white",padding:18,borderRadius:14,maxWidth:620},employeeList:{gap:8,marginBottom:14},employee:{padding:12,borderWidth:1,borderColor:"#d8d4c7",borderRadius:10},employeeSelected:{borderColor:"#17613a",borderWidth:2,backgroundColor:"#e7f4eb"},report:{paddingTop:14,gap:5}});

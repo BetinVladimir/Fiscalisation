@@ -3,53 +3,65 @@ package main
 import (
 	"context"
 	"errors"
+	"fiscalisation/beeminipos-backend/internal/api"
+	"fiscalisation/beeminipos-backend/internal/config"
+	"fiscalisation/beeminipos-backend/internal/domain"
+	"fiscalisation/beeminipos-backend/internal/mqttclient"
+	"fiscalisation/beeminipos-backend/internal/persistence"
+	"fiscalisation/beeminipos-backend/internal/startup"
 	"log"
 	"net/http"
 	"os/signal"
 	"syscall"
 	"time"
-
-	"fiscalisation/beeminipos-backend/internal/config"
-	"fiscalisation/beeminipos-backend/internal/mqttclient"
 )
 
 func main() {
-	cfg := config.Load()
-
-	mux := http.NewServeMux()
-	mux.HandleFunc("/healthz", func(w http.ResponseWriter, _ *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		_, _ = w.Write([]byte("ok"))
-	})
-
-	srv := &http.Server{
-		Addr:         cfg.HTTPAddr,
-		Handler:      mux,
-		ReadTimeout:  10 * time.Second,
-		WriteTimeout: 10 * time.Second,
-		IdleTimeout:  30 * time.Second,
+	c := config.Load()
+	if e := c.Validate(); e != nil {
+		log.Fatal(e)
 	}
-
+	var svc *domain.Service
+	if c.DatabaseURL != "" {
+		startupContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		store, e := startup.Retry(startupContext, 500*time.Millisecond, func() (*persistence.Postgres, error) {
+			return persistence.Open(c.DatabaseURL)
+		})
+		if e != nil {
+			log.Fatal(e)
+		}
+		defer store.Close()
+		svc, e = domain.NewPersistentService(c.FiscalBaseURL, c.APIVersion, store)
+		if e != nil {
+			log.Fatal(e)
+		}
+	} else {
+		svc = domain.NewService(c.FiscalBaseURL, c.APIVersion)
+	}
+	if c.OAuthTokenURL != "" {
+		svc.SetFiscalAuthProvider(domain.NewClientCredentialsProvider(c.OAuthTokenURL, c.OAuthClientID, c.OAuthClientSecret, c.OAuthScope, c.OAuthAudience, nil))
+	} else {
+		svc.SetFiscalAuthToken(c.FiscalAuthToken)
+	}
+	h := api.New(svc, c)
+	s := &http.Server{Addr: c.HTTPAddr, Handler: h, ReadHeaderTimeout: 5 * time.Second}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-
-	mqttCleanup, err := mqttclient.Start(ctx, cfg, log.Default())
+	mqttCleanup, err := mqttclient.Start(ctx, c, log.Default())
 	if err != nil {
-		log.Fatalf("mqtt init failed: %v", err)
+		log.Fatal(err)
 	}
 	if mqttCleanup != nil {
 		defer mqttCleanup()
 	}
-
 	go func() {
 		<-ctx.Done()
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		x, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 		defer cancel()
-		_ = srv.Shutdown(shutdownCtx)
+		_ = s.Shutdown(x)
 	}()
-
-	log.Printf("beeminipos-backend listening on %s", cfg.HTTPAddr)
-	if err := srv.ListenAndServe(); err != nil && !errors.Is(err, http.ErrServerClosed) {
-		log.Fatal(err)
+	if e := s.ListenAndServe(); e != nil && !errors.Is(e, http.ErrServerClosed) {
+		log.Fatal(e)
 	}
 }

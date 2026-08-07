@@ -1,0 +1,10 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {buildOfflineSaleEnvelope,executeCheckout} from "./checkoutTransport.ts";
+import type {TransportSnapshot} from "./transport.ts";
+
+const now=new Date("2026-08-07T10:00:00Z"),base:TransportSnapshot={cloudRoute:"READY",bleAdapter:"READY",edgeRuntime:"READY",fiscalDevice:"READY",bleSessionExpiresAt:"2026-08-07T11:00:00Z",observedAt:now.toISOString()};
+test("checkout selects one route before send",async()=>{let rest=0,ble=0;const a=await executeCheckout(base,"op-1",async()=>{rest++;return{state:"COMPLETED"}},async()=>{ble++;return{state:"COMPLETED"}},now);assert.equal(a.route,"REST");const b=await executeCheckout({...base,cloudRoute:"UNAVAILABLE"},"op-2",async()=>{rest++;return{state:"COMPLETED"}},async()=>{ble++;return{state:"ACCEPTED"}},now);assert.equal(b.route,"BLE");assert.deepEqual({rest,ble},{rest:1,ble:1})});
+test("ambiguous REST send never falls through to BLE",async()=>{let ble=0;const result=await executeCheckout(base,"op-1",async()=>{throw new Error("connection reset after send")},async()=>{ble++;return{state:"COMPLETED"}},now);assert.equal(result.state,"UNKNOWN");assert.equal(result.requiredAction,"RECONCILE");assert.equal(ble,0)});
+test("loss of final fiscal device blocks without calling either route",async()=>{let calls=0;const result=await executeCheckout({...base,fiscalDevice:"UNAVAILABLE"},"op",async()=>{calls++;return{state:"COMPLETED"}},async()=>{calls++;return{state:"COMPLETED"}},now);assert.equal(result.state,"BLOCKED");assert.equal(calls,0)});
+test("offline envelope has canonical payload hash and bounded expiry",async()=>{const envelope=await buildOfflineSaleEnvelope("00112233-4455-6677-8899-aabbccddeeff",{external_id:"order-1",operator_id:"A001",currency:"EUR",items:[{line_id:"l1"}],payments:[{payment_id:"p1"}],metadata:{}},{tenantId:"tenant",registerId:"register",deviceId:"device",fencingToken:7},now);assert.match(envelope.payload_sha256,/^[a-f0-9]{64}$/);assert.equal(new Date(envelope.expires_at).getTime()-new Date(envelope.issued_at).getTime(),60_000);assert.equal(envelope.command_type,"FISCAL_SALE")});

@@ -1,0 +1,8 @@
+services:
+  fiscal-backend:
+    environment:
+      APP_ENV: dev
+      ALLOW_STUB_ADAPTERS: "true"
+  caddy:
+    environment:
+      FISCAL_SITE: :80

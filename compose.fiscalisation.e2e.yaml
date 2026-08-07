@@ -1,0 +1,6 @@
+services:
+  postgres:
+    volumes: !override
+      - ./database/fiscal:/docker-entrypoint-initdb.d:ro
+    tmpfs:
+      - /var/lib/postgresql/data:size=256m

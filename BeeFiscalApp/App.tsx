@@ -1,99 +1,35 @@
-import { StatusBar } from "expo-status-bar";
-import { SafeAreaView, StyleSheet, Text, View } from "react-native";
+import {StatusBar} from "expo-status-bar";
+import {useCallback,useEffect,useState} from "react";
+import {Pressable,SafeAreaView,ScrollView,StyleSheet,Text,TextInput,View} from "react-native";
 
-const tenant = {
-  name: "Demo Tenant",
-  id: "tenant-001",
-  status: "active",
-  devicesOnline: 24,
-  alerts: 2,
-};
+const base=(process.env.EXPO_PUBLIC_FISCAL_API_URL||"http://localhost:8080/public/v1").replace(/\/$/,"");
+const version="2026-08-07";
+const authToken=process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN||"";
+type Item=Record<string,unknown>;
+type Page={items?:Item[]};
 
-export default function App() {
-  return (
-    <SafeAreaView style={styles.container}>
-      <Text style={styles.header}>BeeFiscalApp</Text>
-      <Text style={styles.subheader}>Monitoring and tenant administration</Text>
-
-      <View style={styles.card}>
-        <Text style={styles.cardTitle}>{tenant.name}</Text>
-        <Text style={styles.cardText}>Tenant ID: {tenant.id}</Text>
-        <Text style={styles.cardText}>Status: {tenant.status}</Text>
-        <Text style={styles.cardText}>Devices online: {tenant.devicesOnline}</Text>
-        <Text style={styles.cardText}>Open alerts: {tenant.alerts}</Text>
-      </View>
-
-      <View style={styles.row}>
-        <View style={styles.statBox}>
-          <Text style={styles.statLabel}>Revenue Today</Text>
-          <Text style={styles.statValue}>$12,940</Text>
-        </View>
-        <View style={styles.statBox}>
-          <Text style={styles.statLabel}>Receipts</Text>
-          <Text style={styles.statValue}>1,128</Text>
-        </View>
-      </View>
-
-      <StatusBar style="dark" />
-    </SafeAreaView>
-  );
+async function call(path:string,init:RequestInit={}){
+  const mutation=!!init.method&&init.method!=="GET";
+  const r=await fetch(base+path,{...init,headers:{"Content-Type":"application/json","X-Api-Version":version,...(mutation?{"Idempotency-Key":`${Date.now()}-${Math.random().toString(16).slice(2)}-admin`}:{}),...(authToken?{Authorization:`Bearer ${authToken}`}:{ }),...(init.headers||{})}});
+  const text=await r.text();
+  if(!r.ok)throw new Error(text||`HTTP ${r.status}`);
+  return text?JSON.parse(text):{};
 }
+const label=(v:unknown)=>typeof v==="string"?v:typeof v==="number"?String(v):"—";
 
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    paddingHorizontal: 16,
-    paddingTop: 24,
-    backgroundColor: "#f2f6f8",
-  },
-  header: {
-    fontSize: 30,
-    fontWeight: "800",
-    color: "#0f2438",
-  },
-  subheader: {
-    fontSize: 14,
-    color: "#3e5a6f",
-    marginTop: 6,
-    marginBottom: 18,
-  },
-  card: {
-    backgroundColor: "#ffffff",
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: "#d7e3ea",
-    padding: 16,
-    marginBottom: 14,
-  },
-  cardTitle: {
-    fontSize: 20,
-    fontWeight: "700",
-    color: "#122a3f",
-    marginBottom: 8,
-  },
-  cardText: {
-    fontSize: 14,
-    color: "#314e63",
-    marginBottom: 4,
-  },
-  row: {
-    flexDirection: "row",
-    gap: 10,
-  },
-  statBox: {
-    flex: 1,
-    backgroundColor: "#122a3f",
-    borderRadius: 12,
-    padding: 14,
-  },
-  statLabel: {
-    color: "#b5d0e2",
-    fontSize: 12,
-    marginBottom: 6,
-  },
-  statValue: {
-    color: "#ffffff",
-    fontSize: 22,
-    fontWeight: "700",
-  },
-});
+export default function App(){
+  const[tab,setTab]=useState("Устройства"),[message,setMessage]=useState("Зареждане на данните от публичния API…"),[core,setCore]=useState("CHECKING"),[items,setItems]=useState<Item[]>([]),[selected,setSelected]=useState<Item|null>(null),[register,setRegister]=useState("FD000001"),[policy,setPolicy]=useState<Item|null>(null),[loading,setLoading]=useState(false);
+  const refresh=useCallback(async(next=tab)=>{setLoading(true);try{
+    if(next==="Устройства"){const v:Page=await call("/devices?limit=100");setItems(v.items||[]);setSelected(x=>x||(v.items?.[0]||null));}
+    if(next==="Операции"){const v:Page=await call(`/operations?limit=100${register?`&register_id=${encodeURIComponent(register)}`:""}`);setItems(v.items||[]);}
+    if(next==="Отчети"){const v:Page=await call(`/reports?limit=100${register?`&register_id=${encodeURIComponent(register)}`:""}`);setItems(v.items||[]);}
+    if(next==="Настройки"){const [p,t]=await Promise.all([call("/country-policy"),call("/tax-groups")]);setPolicy({...p,tax_groups:t});setItems([]);}
+    setMessage(`${next}: данните са обновени от BeeFiscal API`);setCore("CORE READY");
+  }catch(e){setCore("CORE OFFLINE");setMessage(`API отказ: ${e instanceof Error?e.message:String(e)}`);}finally{setLoading(false)}},[register,tab]);
+  useEffect(()=>{refresh("Устройства")},[]);
+  const changeTab=(next:string)=>{setTab(next);void refresh(next)};
+  const probe=async()=>{if(!selected){setMessage("Няма регистрирано устройство за probe");return}setMessage("Проверка на cloud route, Edge, driver и крайното ФУ…");try{const id=label(selected.id);const route=await call(`/registers/${encodeURIComponent(register)}/connectivity-probes`,{method:"POST",body:"{}"});const device=await call(`/devices/${encodeURIComponent(id)}/readiness`);setMessage(`Cloud ${route.hops?.cloud?.state||route.state} → Edge ${route.hops?.edge?.state||"?"} → Driver ${device.driver} → ФУ ${device.fiscal_device}`)}catch(e){setMessage(`Probe отказан: ${e instanceof Error?e.message:String(e)}`)}};
+  const report=async(type:string)=>{setMessage(`${type} отчет…`);try{const v=await call(`/registers/${encodeURIComponent(register)}/reports`,{method:"POST",body:JSON.stringify({type})});setMessage(`${type}: ${v.state} • ${v.fiscal_reference||v.id}`);await refresh("Отчети")}catch(e){setMessage(`Отчетът е отказан: ${e instanceof Error?e.message:String(e)}`)}};
+  return <SafeAreaView style={s.root}><StatusBar style="dark"/><View style={s.header}><View><Text style={s.title}>BeeFiscal</Text><Text style={s.sub}>BG • EUR • публичен API • без локално симулирани записи</Text></View><View style={[s.ready,core.includes("OFFLINE")&&s.offline]}><Text style={s.readyText}>{core}</Text></View></View><View style={s.body}><View style={s.nav}>{["Устройства","Операции","Отчети","Настройки"].map(x=><Pressable key={x} style={[s.navItem,tab===x&&s.active]} onPress={()=>changeTab(x)}><Text style={[s.navText,tab===x&&s.activeText]}>{x}</Text></Pressable>)}</View><ScrollView style={s.content}><View style={s.toolbar}><Text style={s.section}>{tab}</Text><TextInput accessibilityLabel="Fiscal register ID" value={register} onChangeText={setRegister} style={s.input} placeholder="Register ID" autoCapitalize="characters"/><Pressable style={s.secondary} onPress={()=>refresh()}><Text style={s.probeText}>{loading?"…":"Обнови"}</Text></Pressable></View>{tab==="Устройства"?items.map(d=><Pressable key={label(d.id)} style={[s.card,selected?.id===d.id&&s.selected]} onPress={()=>{setSelected(d);setMessage(`${label(d.name||d.id)} е избрано`)}}><View><Text style={s.device}>{label(d.name||d.model||d.id)}</Text><Text style={s.meta}>{label(d.vendor)} • {label(d.model)} • {label(d.connection_type||d.transport)}</Text></View><View style={s.state}><Text style={s.stateText}>{label(d.status||d.state)}</Text></View></Pressable>):tab==="Операции"?items.map(o=><View key={label(o.id)} style={s.card}><View><Text style={s.device}>{label(o.type)} • {label(o.state)}</Text><Text style={s.meta}>{label(o.id)} • УНП {label(o.unp)} • {label(o.created_at)}</Text></View></View>):tab==="Отчети"?<><View style={s.panel}><Text style={s.panelTitle}>Команда към фискалното устройство</Text><Text style={s.meta}>UI показва само резултати и артефакти, получени от BeeFiscal API.</Text><View style={s.actions}>{["X","Z","KLEN","FISCAL_MEMORY"].map(x=><Pressable key={x} style={s.action} onPress={()=>report(x)}><Text style={s.probeText}>{x}</Text></Pressable>)}</View></View>{items.map(r=><View key={label(r.id)} style={s.card}><View><Text style={s.device}>{label(r.type)} • {label(r.state)}</Text><Text style={s.meta}>{label(r.fiscal_reference||r.id)} • {label(r.created_at)}</Text></View></View>)}</>:<View style={s.panel}><Text style={s.panelTitle}>Ефективна регулаторна политика</Text><Text style={s.meta}>ID: {label(policy?.policy_id||policy?.id)} • валута {label(policy?.currency)} • държава {label(policy?.country_code)}</Text><Text style={s.json}>{policy?JSON.stringify(policy,null,2):"Политиката не е заредена"}</Text></View>}{items.length===0&&tab!=="Настройки"&&tab!=="Отчети"?<Text style={s.empty}>Няма записи в API за избрания филтър.</Text>:null}</ScrollView></View><View style={s.footer}><Text style={s.footerText}>{message}</Text><Pressable style={s.probe} onPress={probe}><Text style={s.probeText}>Сквозен probe</Text></Pressable></View></SafeAreaView>}
+
+const s=StyleSheet.create({root:{flex:1,backgroundColor:"#eef3f4"},header:{padding:20,backgroundColor:"white",flexDirection:"row",justifyContent:"space-between",alignItems:"center",borderBottomWidth:1,borderColor:"#d7e0e3"},title:{fontSize:29,fontWeight:"900",color:"#102b38"},sub:{color:"#58717c",marginTop:3},ready:{backgroundColor:"#dff3e7",padding:10,borderRadius:20},offline:{backgroundColor:"#f3d7d7"},readyText:{color:"#17613a",fontWeight:"900"},body:{flex:1,flexDirection:"row"},nav:{width:190,backgroundColor:"#102b38",padding:12,gap:6},navItem:{padding:14,borderRadius:10},active:{backgroundColor:"#285266"},navText:{color:"#abc0ca",fontWeight:"700"},activeText:{color:"white"},content:{flex:1,padding:20},toolbar:{flexDirection:"row",gap:10,alignItems:"center",marginBottom:16},section:{fontSize:25,fontWeight:"900",color:"#102b38",flex:1},input:{backgroundColor:"white",borderWidth:1,borderColor:"#c8d5da",padding:10,borderRadius:9,minWidth:150},secondary:{backgroundColor:"#607884",padding:11,borderRadius:9},card:{backgroundColor:"white",padding:18,borderRadius:14,marginBottom:12,flexDirection:"row",justifyContent:"space-between",alignItems:"center",borderWidth:1,borderColor:"#d7e0e3"},selected:{borderWidth:2,borderColor:"#17613a"},device:{fontSize:18,fontWeight:"800",color:"#163645"},meta:{color:"#607884",marginTop:5},state:{paddingHorizontal:11,paddingVertical:8,borderRadius:8,backgroundColor:"#285266"},stateText:{color:"white",fontSize:11,fontWeight:"900"},panel:{backgroundColor:"white",borderRadius:14,padding:20,marginBottom:14},panelTitle:{fontSize:18,fontWeight:"800"},empty:{paddingVertical:60,textAlign:"center",color:"#78909a"},actions:{flexDirection:"row",gap:10,marginTop:20,flexWrap:"wrap"},action:{backgroundColor:"#285266",padding:14,borderRadius:9},json:{marginTop:16,fontFamily:"monospace",color:"#294955"},footer:{padding:12,backgroundColor:"white",borderTopWidth:1,borderColor:"#d7e0e3",flexDirection:"row",justifyContent:"space-between",alignItems:"center"},footerText:{color:"#425d69",flex:1},probe:{backgroundColor:"#17613a",padding:11,borderRadius:9},probeText:{color:"white",fontWeight:"800"}});

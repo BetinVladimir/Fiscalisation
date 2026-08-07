@@ -1,5 +1,7 @@
 # Node / Expo
 node_modules/
+.regression-web/
+.regression-native/
 .npm/
 .expo/
 .expo-shared/
@@ -13,6 +15,17 @@ coverage.out
 .gradle/
 local.properties
 *.keystore
+android/build/
+android/app/build/
+
+# iOS generated dependencies / build products
+ios/Pods/
+ios/build/
+
+# Standalone Android smart-device adapters
+SmartDevices/.gradle/
+SmartDevices/build/
+SmartDevices/*/build/
 
 # Environment files
 .env

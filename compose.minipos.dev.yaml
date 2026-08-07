@@ -1,0 +1,7 @@
+services:
+  beeminipos-backend:
+    environment:
+      APP_ENV: dev
+  caddy:
+    environment:
+      MINIPOS_SITE: :80

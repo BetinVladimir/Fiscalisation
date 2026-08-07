@@ -1,0 +1,255 @@
+openapi: 3.1.0
+info:
+  title: BeeFiscal runtime and MiniPOS completion API
+  version: '2026-08-07'
+  description: >-
+    OpenAPI completion document for executable endpoints not present in the
+    regulatory public contract lock. Business schemas remain compatible with
+    openapi-public-v1.yaml. Internal Edge endpoints are DEV/HIL only and are
+    not mounted in PROD.
+servers:
+  - url: https://pos.example.invalid/public/v1
+    description: MiniPOS public Caddy ingress
+  - url: http://127.0.0.1:8082
+    description: Edge loopback DEV/HIL listener
+paths:
+  /minipos/configuration:
+    get:
+      operationId: getMiniPosConfiguration
+      parameters: [{$ref: '#/components/parameters/ApiVersion'}]
+      responses:
+        '200':
+          description: Autonomous single-location/workstation configuration
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosConfiguration'}}}
+        '404': {$ref: '#/components/responses/Problem'}
+    patch:
+      operationId: saveMiniPosConfiguration
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+        - name: If-Match
+          in: header
+          required: false
+          description: Omit only when creating the singleton; required for updates.
+          schema: {type: integer, minimum: 1}
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosConfigurationInput'}}}
+      responses:
+        '200':
+          description: Created or updated autonomous configuration
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosConfiguration'}}}
+        '409': {$ref: '#/components/responses/Problem'}
+  /minipos/shifts:
+    post:
+      operationId: openMiniPosShift
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/MiniPosOpenShiftRequest'}
+      responses:
+        '201':
+          description: Shift opened
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosShift'}}}
+        '409': {$ref: '#/components/responses/Problem'}
+  /minipos/shifts/{shift_id}/close:
+    post:
+      operationId: closeMiniPosShift
+      parameters:
+        - $ref: '#/components/parameters/ShiftId'
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: {application/json: {schema: {type: object, additionalProperties: false}}}
+      responses:
+        '200':
+          description: Shift closed
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosShift'}}}
+        '409': {$ref: '#/components/responses/Problem'}
+  /fiscal-webhooks:
+    post:
+      operationId: receiveFiscalWebhookAtMiniPos
+      security: [{webhookHmac: []}]
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - name: BeeFiscal-Signature
+          in: header
+          required: true
+          schema: {type: string, pattern: '^[0-9a-f]{64}$'}
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/FiscalWebhookEvent'}}}
+      responses:
+        '204': {description: Durably accepted and applied idempotently}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+  /internal/v1/final-device:
+    get:
+      operationId: probeFinalDeviceForHIL
+      tags: [Edge DEV HIL]
+      security: [{localBearer: []}]
+      responses:
+        '200':
+          description: Final device is reachable
+          content: {application/json: {schema: {$ref: '#/components/schemas/DeviceProbeResult'}}}
+        '503':
+          description: Final device is unavailable; fiscal sale must be blocked
+          content: {application/json: {schema: {$ref: '#/components/schemas/DeviceProbeResult'}}}
+  /internal/v1/commands:
+    post:
+      operationId: executeCanonicalEdgeCommandForHIL
+      tags: [Edge DEV HIL]
+      security: [{localBearer: []}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/EdgeRuntimeCommand'}}}
+      responses:
+        '200':
+          description: Durable command result or replayed terminal result
+          content: {application/json: {schema: {$ref: '#/components/schemas/EdgeRuntimeResult'}}}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+  /internal/v1/storage:
+    get:
+      operationId: getEdgeStorageStatusForHIL
+      tags: [Edge DEV HIL]
+      security: [{localBearer: []}]
+      responses:
+        '200':
+          description: SQLite durable-media occupancy and threshold state
+          content: {application/json: {schema: {$ref: '#/components/schemas/EdgeStorageStatus'}}}
+        '503': {$ref: '#/components/responses/Problem'}
+components:
+  securitySchemes:
+    localBearer: {type: http, scheme: bearer}
+    webhookHmac: {type: apiKey, in: header, name: BeeFiscal-Signature}
+  parameters:
+    ApiVersion: {name: X-Api-Version, in: header, required: true, schema: {type: string, const: '2026-08-07'}}
+    IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 16, maxLength: 255}}
+    ShiftId: {name: shift_id, in: path, required: true, schema: {type: string, format: uuid}}
+  responses:
+    Problem:
+      description: RFC 9457 problem
+      content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}
+  schemas:
+    Money:
+      type: object
+      additionalProperties: false
+      required: [amount, currency]
+      properties:
+        amount: {type: string, pattern: '^-?[0-9]+\.[0-9]{2}$'}
+        currency: {type: string, const: EUR}
+    MiniPosOpenShiftRequest:
+      type: object
+      additionalProperties: false
+      required: [register_id, employee_id]
+      properties:
+        register_id: {type: string}
+        employee_id: {type: string, format: uuid}
+    MiniPosConfigurationInput:
+      type: object
+      additionalProperties: false
+      required: [location_name, location_address, workstation_name, fiscal_register_id]
+      properties:
+        location_name: {type: string, minLength: 1, maxLength: 120}
+        location_address: {type: string, maxLength: 240}
+        workstation_name: {type: string, minLength: 1, maxLength: 120}
+        fiscal_register_id: {type: string, minLength: 1, maxLength: 120}
+    MiniPosConfiguration:
+      type: object
+      additionalProperties: false
+      required: [id, location_name, location_address, workstation_name, fiscal_register_id, version, created_at, updated_at]
+      properties:
+        id: {type: string, format: uuid}
+        tenant_id: {type: string}
+        location_name: {type: string, minLength: 1, maxLength: 120}
+        location_address: {type: string, maxLength: 240}
+        workstation_name: {type: string, minLength: 1, maxLength: 120}
+        fiscal_register_id: {type: string, minLength: 1, maxLength: 120}
+        version: {type: integer, minimum: 1}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    MiniPosShift:
+      type: object
+      additionalProperties: false
+      required: [id, register_id, employee_id, state, opened_at, version, created_at, updated_at]
+      properties:
+        id: {type: string, format: uuid}
+        tenant_id: {type: string}
+        register_id: {type: string}
+        employee_id: {type: string, format: uuid}
+        state: {type: string, enum: [OPEN, CLOSED]}
+        opened_at: {type: string, format: date-time}
+        closed_at: {type: [string, 'null'], format: date-time}
+        version: {type: integer, minimum: 1}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    FiscalWebhookEvent:
+      type: object
+      additionalProperties: true
+      required: [event_id, event_type, api_version, tenant_id, resource_id, resource_version, data]
+      properties:
+        event_id: {type: string}
+        event_type: {type: string}
+        api_version: {type: string, const: '2026-08-07'}
+        tenant_id: {type: string}
+        resource_id: {type: string}
+        resource_version: {type: integer, minimum: 1}
+        data:
+          type: object
+          required: [state, operation_id]
+          properties:
+            state: {type: string}
+            operation_id: {type: string}
+            external_id: {type: string}
+    EdgeRuntimeCommand:
+      type: object
+      additionalProperties: false
+      required: [command_id, tenant_id, register_id, device_id, type, fencing_token, payload]
+      properties:
+        command_id: {type: string}
+        tenant_id: {type: string}
+        register_id: {type: string}
+        device_id: {type: string}
+        type: {type: string}
+        fencing_token: {type: integer, minimum: 1}
+        payload: {type: object}
+    EdgeRuntimeResult:
+      type: object
+      additionalProperties: false
+      required: [command_id, state]
+      properties:
+        command_id: {type: string}
+        state: {type: string, enum: [FISCALIZED, FAILED, FISCAL_RESULT_UNKNOWN, BLOCKED]}
+        fiscal_reference: {type: string}
+        error_code: {type: string}
+        operation_sequence: {type: integer, minimum: 1}
+        unp_sequence: {type: integer, minimum: 1}
+    DeviceProbeResult:
+      type: object
+      additionalProperties: false
+      required: [state]
+      properties:
+        state: {type: string, enum: [READY, BLOCK]}
+        error_code: {type: string, enum: [FISCAL_DEVICE_UNREACHABLE]}
+    EdgeStorageStatus:
+      type: object
+      additionalProperties: false
+      required: [used_bytes, quota_bytes, percent, state]
+      properties:
+        used_bytes: {type: integer, minimum: 0}
+        quota_bytes: {type: integer, minimum: 1}
+        percent: {type: integer, minimum: 0}
+        state: {type: string, enum: [NORMAL, WARNING, HIGH, CRITICAL, FULL]}
+    Problem:
+      type: object
+      required: [status]
+      properties:
+        status: {type: integer}
+        code: {type: string}
+        detail: {type: string}

@@ -1,0 +1,9 @@
+{$MINIPOS_SITE:http://localhost} {
+  encode zstd gzip
+  reverse_proxy {env.MINIPOS_UPSTREAM}
+  header {
+    X-Content-Type-Options nosniff
+    Referrer-Policy no-referrer
+    -Server
+  }
+}

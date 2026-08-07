@@ -9,6 +9,8 @@
     ],
     "android": {
       "package": "com.beeminipos.app"
-    }
+    },
+    "ios": {"bundleIdentifier": "com.beeminipos.app"},
+    "plugins": [["react-native-ble-plx", {"isBackgroundEnabled": false, "neverForLocation": true, "bluetoothAlwaysPermission": "BeeMiniPOS uses Bluetooth to connect securely to the local fiscal device."}]]
   }
 }

@@ -1,0 +1,458 @@
+package domain
+
+import (
+	"crypto/hmac"
+	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/hex"
+	"encoding/json"
+	"errors"
+	"fmt"
+	"strconv"
+	"strings"
+	"sync/atomic"
+	"time"
+)
+
+var seq atomic.Uint64
+
+func newID(prefix string) string {
+	return fmt.Sprintf("%s-%d-%d", prefix, time.Now().UnixNano(), seq.Add(1))
+}
+func pad7(n int64) string  { return fmt.Sprintf("%07d", n) }
+func Hash(b []byte) string { v := sha256.Sum256(b); return hex.EncodeToString(v[:]) }
+
+type Driver interface {
+	Execute(Operation, Sale, PaymentRequest) (string, string)
+	Probe() error
+}
+type Simulator struct {
+	enabled               bool
+	cardTerminalAvailable bool
+	outcomeUnknown        bool
+}
+
+func NewSimulator(enabled bool) *Simulator { return &Simulator{enabled: enabled} }
+func NewSimulatorWithCardTerminal(enabled, available bool) *Simulator {
+	return &Simulator{enabled: enabled, cardTerminalAvailable: available}
+}
+func (s *Simulator) SetOutcomeUnknown(v bool) { s.outcomeUnknown = v }
+func (s *Simulator) Execute(op Operation, sale Sale, p PaymentRequest) (string, string) {
+	if !s.enabled {
+		return "", "SIMULATOR_DISABLED"
+	}
+	if p.Type == "CARD" && !s.cardTerminalAvailable {
+		return "", "PAYMENT_TERMINAL_UNAVAILABLE"
+	}
+	if s.outcomeUnknown {
+		return "", "FISCAL_RESULT_UNKNOWN"
+	}
+	return "SIM-" + op.ID, ""
+}
+func (s *Simulator) Probe() error {
+	if !s.enabled {
+		return errors.New("fiscal device unavailable")
+	}
+	return nil
+}
+
+type Service struct {
+	repo          Repository
+	driver        Driver
+	bleSigningKey []byte
+	policy        PolicyCatalog
+}
+
+func (s *Service) CountryPolicy(at time.Time) (CountryPolicy, error) { return s.policy.Policy(at) }
+func (s *Service) TaxGroups(at time.Time) ([]TaxGroup, error)        { return s.policy.TaxGroups(at) }
+
+func (s *Service) OpenShift(register, operator, tenant string) (Shift, error) {
+	if register == "" || len(operator) != 4 {
+		return Shift{}, errors.New("invalid shift")
+	}
+	return s.repo.OpenShift(register, operator, tenant)
+}
+func (s *Service) CloseShift(id string) (Shift, error) {
+	return s.repo.CloseShift(id)
+}
+func (s *Service) GetShift(id, tenant string) (Shift, error) {
+	v, e := s.repo.Shift(id)
+	if e != nil || (tenant != "" && v.TenantID != tenant) {
+		return Shift{}, ErrNotFound
+	}
+	return v, nil
+}
+func (s *Service) Shifts(tenant string) []Shift { return s.repo.Shifts(tenant) }
+func (s *Service) Reverse(saleID, reason string) (Operation, error) {
+	sale, e := s.repo.Sale(saleID)
+	if e != nil {
+		return Operation{}, e
+	}
+	if sale.State != "COMPLETED" || reason == "" {
+		return Operation{}, errors.New("reversal not allowed")
+	}
+	now := time.Now().UTC()
+	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, Type: "REVERSAL", State: "FISCALIZED", Version: 2, FiscalReference: "SIM-REV-" + saleID, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	sale.Version++
+	sale.UpdatedAt = now
+	return op, s.repo.CommitSaleOperation(sale, op)
+}
+func (s *Service) FiscalOperation(register, typ, tenant string) (Operation, error) {
+	if register == "" {
+		return Operation{}, errors.New("register required")
+	}
+	allowed := []string{"CASH_IN", "CASH_OUT", "X", "Z", "KLEN", "FISCAL_MEMORY", "OPERATOR", "DEPARTMENT", "PLU"}
+	if !contains(allowed, typ) {
+		return Operation{}, errors.New("unsupported operation")
+	}
+	now := time.Now().UTC()
+	op := Operation{ID: newID("op"), TenantID: tenant, Type: typ, State: "FISCALIZED", Version: 2, FiscalReference: "SIM-" + typ + "-" + register, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	return op, s.repo.PutOperation(op)
+}
+func (s *Service) Connectivity(register, tenant string) (ConnectivityProbe, error) {
+	now := time.Now().UTC()
+	v := ConnectivityProbe{ProbeID: newID("probe"), TenantID: tenant, RegisterID: register, State: "SUCCEEDED", ObservedAt: now, RecommendedTransport: "REST", Hops: map[string]map[string]any{"public_api": {"state": "READY", "latency_ms": 0}, "fiscal_core": {"state": "READY", "latency_ms": 0}, "edge_runtime": {"state": "READY", "latency_ms": 0}, "driver": {"state": "READY", "latency_ms": 0}, "fiscal_device": {"state": "READY", "latency_ms": 0}}}
+	if register == "" || s.driver == nil || s.driver.Probe() != nil {
+		v.State, v.RecommendedTransport = "FAILED", "BLOCK"
+		v.Hops["driver"] = map[string]any{"state": "UNAVAILABLE", "latency_ms": 0}
+		v.Hops["fiscal_device"] = map[string]any{"state": "UNAVAILABLE", "latency_ms": 0}
+	}
+	return v, s.repo.PutConnectivityProbe(v)
+}
+func (s *Service) GetConnectivityProbe(id, tenant string) (ConnectivityProbe, error) {
+	v, e := s.repo.ConnectivityProbe(id)
+	if e != nil || (tenant != "" && v.TenantID != tenant) {
+		return ConnectivityProbe{}, ErrNotFound
+	}
+	return v, nil
+}
+func (s *Service) SetBLESigningKey(v string) { s.bleSigningKey = []byte(v) }
+func (s *Service) BLESession(register, operator, app, tenant string) (map[string]any, error) {
+	if register == "" || operator == "" || app == "" || len(s.bleSigningKey) < 16 {
+		return nil, errors.New("BLE session unavailable")
+	}
+	nonceBytes := make([]byte, 16)
+	if _, e := rand.Read(nonceBytes); e != nil {
+		return nil, e
+	}
+	v := BLESessionRecord{SessionID: newID("ble"), TenantID: tenant, RegisterID: register, OperatorID: operator, AppInstanceID: app, DeviceID: register + "-edge", Scopes: []string{"fiscal.execute", "fiscal.read"}, FencingToken: time.Now().UnixNano(), ExpiresAt: time.Now().UTC().Add(8 * time.Hour), Nonce: base64.RawURLEncoding.EncodeToString(nonceBytes)}
+	if e := s.repo.PutBLESession(v); e != nil {
+		return nil, e
+	}
+	return s.bleResponse(v)
+}
+func (s *Service) RefreshBLE(id, tenant string) (map[string]any, error) {
+	v, e := s.repo.BLESession(id)
+	if e != nil || v.Revoked || (tenant != "" && v.TenantID != tenant) || !time.Now().UTC().Before(v.ExpiresAt) {
+		return nil, errors.New("BLE session inactive")
+	}
+	v.ExpiresAt = time.Now().UTC().Add(8 * time.Hour)
+	if e = s.repo.PutBLESession(v); e != nil {
+		return nil, e
+	}
+	return s.bleResponse(v)
+}
+func (s *Service) RevokeBLE(id, tenant string) error {
+	v, e := s.repo.BLESession(id)
+	if e != nil || (tenant != "" && v.TenantID != tenant) {
+		return ErrNotFound
+	}
+	v.Revoked = true
+	now := time.Now().UTC()
+	event := WebhookEvent{EventID: "event-ble-revoke-" + v.SessionID, EventType: "ble.session.revoked", APIVersion: "2026-08-07", TenantID: v.TenantID, ResourceID: v.SessionID, ResourceVersion: v.FencingToken, OccurredAt: now, Data: map[string]any{"ble_session_id": v.SessionID, "edge_id": v.DeviceID, "expires_at": v.ExpiresAt}}
+	return s.repo.CommitBLESessionEvent(v, OutboxItem{ID: event.EventID, Event: event, NextAttempt: now})
+}
+func (s *Service) bleResponse(v BLESessionRecord) (map[string]any, error) {
+	ticket := struct {
+		SessionID, TenantID, RegisterID, DeviceID, AppInstanceID string
+		Scopes                                                   []string
+		FencingToken                                             int64
+		ExpiresAt                                                time.Time
+		Nonce                                                    string
+	}{v.SessionID, v.TenantID, v.RegisterID, v.DeviceID, v.AppInstanceID, v.Scopes, v.FencingToken, v.ExpiresAt, v.Nonce}
+	b, e := json.Marshal(ticket)
+	if e != nil {
+		return nil, e
+	}
+	m := hmac.New(sha256.New, s.bleSigningKey)
+	m.Write(b)
+	wrapped, e := json.Marshal(struct {
+		Payload   string `json:"payload"`
+		Signature string `json:"signature"`
+	}{base64.RawURLEncoding.EncodeToString(b), base64.RawURLEncoding.EncodeToString(m.Sum(nil))})
+	if e != nil {
+		return nil, e
+	}
+	raw := base64.RawURLEncoding.EncodeToString(wrapped)
+	return map[string]any{
+		"ble_session_id": v.SessionID, "register_id": v.RegisterID,
+		"edge_id": v.DeviceID, "device_id": v.RegisterID + "-device", "binding_version": v.FencingToken,
+		"operator_id": v.OperatorID, "app_instance_id": v.AppInstanceID,
+		"protocol_version": "2026-08-07", "expires_at": v.ExpiresAt, "scopes": v.Scopes,
+		"service_uuid":                "7b6f0000-7c6d-4c7a-9e4f-424545464953",
+		"command_characteristic_uuid": "7b6f0002-7c6d-4c7a-9e4f-424545464953",
+		"event_characteristic_uuid":   "7b6f0003-7c6d-4c7a-9e4f-424545464953",
+		"advertising_identity":        v.DeviceID,
+		"signed_session_ticket":       raw,
+	}, nil
+}
+func NewService(r Repository, d Driver) *Service {
+	return &Service{repo: r, driver: d, policy: DefaultBGPolicyCatalog()}
+}
+
+type CreateSale struct {
+	TenantID   string `json:"-"`
+	ExternalID string `json:"external_id"`
+	RegisterID string `json:"register_id"`
+	OperatorID string `json:"operator_id"`
+}
+
+func (s *Service) CreateSale(in CreateSale) (Sale, error) {
+	if in.ExternalID == "" || in.RegisterID == "" || len(in.OperatorID) != 4 {
+		return Sale{}, errors.New("invalid sale")
+	}
+	now := time.Now().UTC()
+	v := Sale{ID: newID("sale"), TenantID: in.TenantID, ExternalID: in.ExternalID, RegisterID: in.RegisterID, OperatorID: in.OperatorID, State: "DRAFT", Version: 1, Lines: []SaleLine{}, Payments: []PaymentRecord{}, CreatedAt: now, UpdatedAt: now}
+	return v, s.repo.PutSale(v)
+}
+func (s *Service) AddLine(id string, line SaleLine) (Sale, error) {
+	v, e := s.repo.Sale(id)
+	if e != nil {
+		return v, e
+	}
+	if v.State != "DRAFT" && v.State != "OPEN" {
+		return v, errors.New("sale not editable")
+	}
+	if line.LineID == "" || line.Name == "" || !validMoney(line.UnitPrice) || !validQuantity(line.Quantity) || !validTax(line.TaxGroup) || !s.policy.AllowsTaxGroup(line.TaxGroup, time.Now().UTC()) {
+		return v, errors.New("invalid line")
+	}
+	if v.UNP == "" {
+		v.UNP, e = s.repo.NextUNP(v.RegisterID, v.OperatorID)
+		if e != nil {
+			return v, e
+		}
+		v.State = "OPEN"
+	}
+	v.Lines = append(v.Lines, line)
+	v.Version++
+	v.UpdatedAt = time.Now().UTC()
+	return v, s.repo.PutSale(v)
+}
+func (s *Service) Pay(id string, p PaymentRequest) (Operation, error) {
+	sale, e := s.repo.Sale(id)
+	if e != nil {
+		return Operation{}, e
+	}
+	if sale.State != "OPEN" || len(sale.Lines) == 0 || p.PaymentID == "" || !validMoney(p.Amount) || !contains([]string{"CASH", "CARD"}, p.Type) {
+		return Operation{}, errors.New("payment not allowed")
+	}
+	if s.driver == nil || s.driver.Probe() != nil {
+		return Operation{}, errors.New("fiscal device unavailable")
+	}
+	amount, _ := parseFixed(p.Amount.Amount, 2)
+	total := saleTotal(sale)
+	paid := int64(0)
+	for _, x := range sale.Payments {
+		if x.PaymentID == p.PaymentID {
+			return Operation{}, errors.New("duplicate payment id")
+		}
+		v, _ := parseFixed(x.Amount.Amount, 2)
+		paid += v
+	}
+	if amount <= 0 || paid+amount > total {
+		return Operation{}, errors.New("payment amount exceeds balance")
+	}
+	now := time.Now().UTC()
+	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: id, Type: "FISCAL_SALE", State: "EXECUTING", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	if e = s.repo.PutOperation(op); e != nil {
+		return Operation{}, e
+	}
+	ref, code := s.driver.Execute(op, sale, p)
+	op.Version++
+	op.UpdatedAt = time.Now().UTC()
+	if code == "FISCAL_RESULT_UNKNOWN" {
+		op.State = "UNKNOWN"
+		op.ErrorCode = code
+		op.AllowedActions = []string{"RECONCILE"}
+		sale.State = "UNKNOWN"
+	} else if code != "" {
+		op.State = "FAILED"
+		op.ErrorCode = code
+		sale.State = "OPEN"
+	} else {
+		op.FiscalReference = ref
+		sale.Payments = append(sale.Payments, PaymentRecord{PaymentID: p.PaymentID, Type: p.Type, Amount: p.Amount, FiscalReference: ref, CreatedAt: op.UpdatedAt})
+		if paid+amount == total {
+			op.State = "FISCALIZED"
+			sale.State = "COMPLETED"
+			sale.FiscalOperationID = op.ID
+			sale.ReceiptArtifactID, e = newUUID()
+			if e != nil {
+				return Operation{}, e
+			}
+			receiptBytes, _ := json.Marshal(map[string]any{"sale_id": sale.ID, "operation_id": op.ID, "unp": sale.UNP, "fiscal_reference": op.FiscalReference, "issued_at": op.UpdatedAt, "total": Money{Amount: formatFixed(total), Currency: "EUR"}, "lines": sale.Lines, "payments": sale.Payments})
+			if e = s.repo.PutArtifact(sale.ReceiptArtifactID, receiptBytes); e != nil {
+				return Operation{}, e
+			}
+		} else {
+			op.State = "PAYMENT_ACCEPTED"
+			sale.State = "OPEN"
+		}
+	}
+	sale.Version++
+	sale.UpdatedAt = op.UpdatedAt
+	return op, s.repo.CommitSaleOperation(sale, op)
+}
+func (s *Service) GetSale(id string) (Sale, error)           { return s.repo.Sale(id) }
+func (s *Service) GetOperation(id string) (Operation, error) { return s.repo.Operation(id) }
+func (s *Service) GetSaleForTenant(id, tenant string) (Sale, error) {
+	if r, ok := s.repo.(interface {
+		SaleForTenant(string, string) (Sale, error)
+	}); ok {
+		return r.SaleForTenant(id, tenant)
+	}
+	v, e := s.repo.Sale(id)
+	if e != nil || v.TenantID != tenant {
+		return Sale{}, ErrNotFound
+	}
+	return v, nil
+}
+func (s *Service) GetOperationForTenant(id, tenant string) (Operation, error) {
+	if r, ok := s.repo.(interface {
+		OperationForTenant(string, string) (Operation, error)
+	}); ok {
+		return r.OperationForTenant(id, tenant)
+	}
+	v, e := s.repo.Operation(id)
+	if e != nil || v.TenantID != tenant {
+		return Operation{}, ErrNotFound
+	}
+	return v, nil
+}
+func (s *Service) Operations(tenant string) []Operation {
+	if r, ok := s.repo.(interface{ OperationsForTenant(string) []Operation }); ok {
+		return r.OperationsForTenant(tenant)
+	}
+	all := s.repo.Operations()
+	if tenant == "" {
+		return all
+	}
+	v := make([]Operation, 0)
+	for _, x := range all {
+		if x.TenantID == tenant {
+			v = append(v, x)
+		}
+	}
+	return v
+}
+func (s *Service) CancelSale(id string) (Operation, error) {
+	v, e := s.repo.Sale(id)
+	if e != nil {
+		return Operation{}, e
+	}
+	if (v.State != "DRAFT" && v.State != "OPEN") || len(v.Payments) != 0 {
+		return Operation{}, errors.New("sale cannot be cancelled")
+	}
+	now := time.Now().UTC()
+	op := Operation{ID: newID("op"), TenantID: v.TenantID, SaleID: v.ID, Type: "CANCEL_SALE", State: "CANCELLED", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	v.State, v.UpdatedAt, v.Version = "CANCELLED", now, v.Version+1
+	return op, s.repo.CommitSaleOperation(v, op)
+}
+func (s *Service) ReconcileOperation(id string) (Operation, error) {
+	op, e := s.repo.Operation(id)
+	if e != nil {
+		return op, e
+	}
+	if op.State != "UNKNOWN" {
+		return op, errors.New("operation does not require reconciliation")
+	}
+	op.State, op.Version, op.UpdatedAt = "RECONCILING", op.Version+1, time.Now().UTC()
+	op.AllowedActions = []string{}
+	return op, s.repo.PutOperation(op)
+}
+func (s *Service) Receipt(id string) (map[string]any, error) {
+	v, e := s.repo.Sale(id)
+	if e != nil {
+		return nil, e
+	}
+	if v.State != "COMPLETED" {
+		return nil, errors.New("receipt unavailable")
+	}
+	ref := ""
+	if len(v.Payments) > 0 {
+		ref = v.Payments[len(v.Payments)-1].FiscalReference
+	}
+	return map[string]any{"sale_id": v.ID, "operation_id": v.FiscalOperationID, "unp": v.UNP, "state": v.State, "fiscal_reference": ref, "issued_at": v.UpdatedAt, "total": Money{Amount: formatFixed(saleTotal(v)), Currency: "EUR"}, "artifact_id": v.ReceiptArtifactID, "lines": v.Lines, "payments": v.Payments}, nil
+}
+func (s *Service) Replay(k string) (ReplayRecord, bool)     { return s.repo.Replay(k) }
+func (s *Service) PutReplay(k string, v ReplayRecord) error { return s.repo.PutReplay(k, v) }
+func (s *Service) QueueFiscalEvent(saleID string, op Operation) error {
+	e := WebhookEvent{EventID: "event-" + op.ID, EventType: "fiscal.operation.updated", APIVersion: "2026-08-07", TenantID: op.TenantID, ResourceID: saleID, ResourceVersion: op.Version, OccurredAt: time.Now().UTC(), Data: map[string]any{"state": op.State, "operation_id": op.ID, "fiscal_reference": op.FiscalReference, "error_code": op.ErrorCode}}
+	return s.repo.AddOutbox(OutboxItem{ID: e.EventID, Event: e, NextAttempt: time.Now().UTC()})
+}
+func (s *Service) PendingOutbox(now time.Time) []OutboxItem { return s.repo.PendingOutbox(now) }
+func (s *Service) UpdateOutbox(v OutboxItem) error          { return s.repo.UpdateOutbox(v) }
+func (s *Service) Readiness(device string) map[string]any {
+	ready := s.driver != nil && s.driver.Probe() == nil
+	state, transport := "READY", "REST"
+	if !ready {
+		state, transport = "UNAVAILABLE", "BLOCK"
+	}
+	return map[string]any{"ready": ready, "device_id": device, "observed_at": time.Now().UTC(), "components": map[string]string{"driver": state, "fiscal_device": state}, "recommended_transport": transport}
+}
+func validTax(v string) bool { return len(v) == 1 && strings.Contains("ABCDEFGH", v) }
+func validMoney(m Money) bool {
+	if m.Currency != "EUR" {
+		return false
+	}
+	parts := strings.Split(m.Amount, ".")
+	if len(parts) != 2 || len(parts[1]) != 2 {
+		return false
+	}
+	_, e := strconv.ParseInt(strings.ReplaceAll(m.Amount, ".", ""), 10, 64)
+	return e == nil
+}
+func validQuantity(v string) bool { x, e := parseFixed(v, 3); return e == nil && x > 0 }
+func parseFixed(v string, scale int) (int64, error) {
+	parts := strings.Split(v, ".")
+	if len(parts) > 2 || parts[0] == "" {
+		return 0, errors.New("invalid decimal")
+	}
+	frac := ""
+	if len(parts) == 2 {
+		frac = parts[1]
+	}
+	if len(frac) > scale {
+		return 0, errors.New("scale")
+	}
+	for len(frac) < scale {
+		frac += "0"
+	}
+	return strconv.ParseInt(parts[0]+frac, 10, 64)
+}
+func saleTotal(s Sale) int64 {
+	var total int64
+	for _, l := range s.Lines {
+		price, _ := parseFixed(l.UnitPrice.Amount, 2)
+		qty, _ := parseFixed(l.Quantity, 3)
+		total += (price*qty + 500) / 1000
+	}
+	return total
+}
+func formatFixed(v int64) string {
+	sign := ""
+	if v < 0 {
+		sign = "-"
+		v = -v
+	}
+	return fmt.Sprintf("%s%d.%02d", sign, v/100, v%100)
+}
+func contains(a []string, v string) bool {
+	for _, x := range a {
+		if x == v {
+			return true
+		}
+	}
+	return false
+}

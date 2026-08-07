@@ -1,4 +1,34 @@
-# Fiscalisation Monorepo
+# BeeFiscal / BeeMiniPOS MVP
+
+Исполняемая реализация двух изолированных продуктов: BeeFiscal и автономного BeeMiniPOS. Canonical документация, OpenAPI, roadmap и Н-18 traceability находятся в [`../BeeloyBackend/docs/Fiscal`](../BeeloyBackend/docs/Fiscal/README.md); их контрольные SHA-256 закреплены в [`contracts/CONTRACT_LOCK.md`](contracts/CONTRACT_LOCK.md).
+
+## Проверка baseline
+
+```bash
+make regression
+make compose-e2e
+make full-regression
+./scripts/verify-contract-lock.sh
+make evidence-test
+```
+
+`make regression` запускает Go race tests трёх модулей, TypeScript-проверку двух Expo UI, C++ protocol tests, CycloneDX/release-evidence gate и render всех четырёх Compose-конфигураций. `make compose-e2e` поднимает два независимых Compose-проекта и проверяет сквозную продажу, restart recovery, backup/restore и автономность базы MiniPOS; `make full-regression` выполняет оба набора.
+
+## Запуск DEV
+
+```bash
+cp .env.example .env
+docker compose -p beefiscal-dev -f compose.fiscalisation.yaml -f compose.fiscalisation.dev.yaml up --build
+docker compose -p beeminipos-dev -f compose.minipos.yaml -f compose.minipos.dev.yaml up --build
+```
+
+Fiscal и MiniPOS имеют отдельные PostgreSQL, сети, Caddy и lifecycle. MiniPOS обращается к Fiscal только через `FISCAL_PUBLIC_BASE_URL` и публичный API. Для PROD обязательны `OIDC_ISSUER`, `OIDC_AUDIENCE`, `OIDC_JWKS_URL`, `FISCAL_OAUTH_TOKEN_URL`, client credentials, сильные `BLE_SIGNING_KEY`, webhook keys, DB passwords и HTTPS site names; HMAC JWT, статический `FISCAL_AUTH_TOKEN`, simulator и STUB запрещены конфигурационными guards.
+
+Текущие доказательства перечислены в [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md), строгий gap-аудит — в [`MVP_COMPLETION_AUDIT.md`](MVP_COMPLETION_AUDIT.md), exact версии — в [`TOOLCHAIN.md`](TOOLCHAIN.md), hardware/vendor/legal ограничения — в [`MVP_GATES.md`](MVP_GATES.md).
+
+---
+
+# Historical repository overview
 
 Universal IoT Middleware Platform for Fiscal Devices.
 

@@ -1,56 +1,65 @@
 package config
 
 import (
+	"errors"
+	"net/url"
 	"os"
 	"strings"
 )
 
 type Config struct {
-	HTTPAddr      string
-	EMQXBroker    string
-	EMQXClientID  string
-	EMQXUsername  string
-	EMQXToken     string
-	EMQXSubTopics []string
+	HTTPAddr, AppEnv, FiscalBaseURL, APIVersion, WebhookVerificationKey, DatabaseURL, CORSAllowedOrigins, AuthHMACKey, OIDCIssuer, OIDCAudience, OIDCJWKSURL, FiscalAuthToken, OAuthTokenURL, OAuthClientID, OAuthClientSecret, OAuthScope, OAuthAudience string
+	EMQXBroker, EMQXClientID, EMQXUsername, EMQXToken                                                                                                                                                                                                     string
+	EMQXSubTopics                                                                                                                                                                                                                                         []string
 }
 
 func Load() Config {
-	addr := os.Getenv("HTTP_ADDR")
-	if addr == "" {
-		addr = ":8081"
-	}
-
-	broker := getenv("EMQX_BROKER", "tcp://emqx:1883")
-	clientID := getenv("EMQX_CLIENT_ID", "beeminipos-backend")
-	username := getenv("EMQX_USERNAME", "beeminipos-backend")
-	token := os.Getenv("EMQX_TOKEN")
-	subTopics := splitCSV(getenv("EMQX_SUB_TOPICS", "devices/+/telemetry,devices/+/status"))
-
-	return Config{
-		HTTPAddr:      addr,
-		EMQXBroker:    broker,
-		EMQXClientID:  clientID,
-		EMQXUsername:  username,
-		EMQXToken:     token,
-		EMQXSubTopics: subTopics,
-	}
+	return Config{HTTPAddr: get("HTTP_ADDR", ":8081"), AppEnv: get("APP_ENV", "dev"), FiscalBaseURL: get("FISCAL_PUBLIC_BASE_URL", "http://localhost:8080/public/v1"), APIVersion: get("API_VERSION", "2026-08-07"), WebhookVerificationKey: get("WEBHOOK_VERIFICATION_KEY", "dev-only-webhook-key"), DatabaseURL: os.Getenv("DATABASE_URL"), CORSAllowedOrigins: get("CORS_ALLOWED_ORIGINS", "http://localhost:19006"), AuthHMACKey: os.Getenv("AUTH_HMAC_KEY"), OIDCIssuer: os.Getenv("OIDC_ISSUER"), OIDCAudience: os.Getenv("OIDC_AUDIENCE"), OIDCJWKSURL: os.Getenv("OIDC_JWKS_URL"), FiscalAuthToken: os.Getenv("FISCAL_AUTH_TOKEN"), OAuthTokenURL: os.Getenv("FISCAL_OAUTH_TOKEN_URL"), OAuthClientID: os.Getenv("FISCAL_OAUTH_CLIENT_ID"), OAuthClientSecret: os.Getenv("FISCAL_OAUTH_CLIENT_SECRET"), OAuthScope: get("FISCAL_OAUTH_SCOPE", "fiscal.base"), OAuthAudience: os.Getenv("FISCAL_OAUTH_AUDIENCE"), EMQXBroker: os.Getenv("EMQX_BROKER"), EMQXClientID: get("EMQX_CLIENT_ID", "beeminipos-backend"), EMQXUsername: os.Getenv("EMQX_USERNAME"), EMQXToken: os.Getenv("EMQX_TOKEN"), EMQXSubTopics: splitCSV(os.Getenv("EMQX_SUB_TOPICS"))}
 }
 
-func getenv(key, fallback string) string {
-	if v := os.Getenv(key); v != "" {
-		return v
-	}
-	return fallback
-}
-
-func splitCSV(v string) []string {
-	parts := strings.Split(v, ",")
-	out := make([]string, 0, len(parts))
-	for _, p := range parts {
-		item := strings.TrimSpace(p)
-		if item != "" {
-			out = append(out, item)
+func splitCSV(value string) []string {
+	var values []string
+	for _, item := range strings.Split(value, ",") {
+		if item = strings.TrimSpace(item); item != "" {
+			values = append(values, item)
 		}
 	}
-	return out
+	return values
+}
+func (c Config) Validate() error {
+	if strings.Contains(c.FiscalBaseURL, "postgres") || os.Getenv("FISCAL_DATABASE_URL") != "" {
+		return errors.New("MiniPOS may use Fiscal only through public API")
+	}
+	if c.AppEnv == "prod" && strings.Contains(c.WebhookVerificationKey, "dev-") {
+		return errors.New("development webhook key forbidden in PROD")
+	}
+	if c.AppEnv == "prod" && c.DatabaseURL == "" {
+		return errors.New("DATABASE_URL required in PROD")
+	}
+	if c.AppEnv == "prod" && (c.OIDCIssuer == "" || c.OIDCAudience == "" || c.OIDCJWKSURL == "") {
+		return errors.New("OIDC_ISSUER, OIDC_AUDIENCE and OIDC_JWKS_URL required in PROD")
+	}
+	if c.AppEnv == "prod" && (!httpsURL(c.OIDCIssuer) || !httpsURL(c.OIDCJWKSURL)) {
+		return errors.New("OIDC issuer and JWKS URL must use HTTPS in PROD")
+	}
+	if c.AppEnv == "prod" && c.AuthHMACKey != "" {
+		return errors.New("AUTH_HMAC_KEY forbidden in PROD; use OIDC RS256")
+	}
+	if c.AppEnv == "prod" && c.FiscalAuthToken != "" {
+		return errors.New("FISCAL_AUTH_TOKEN forbidden in PROD; use client credentials")
+	}
+	if c.AppEnv == "prod" && (!httpsURL(c.OAuthTokenURL) || c.OAuthClientID == "" || len(c.OAuthClientSecret) < 16 || c.OAuthScope == "") {
+		return errors.New("HTTPS Fiscal OAuth client credentials required in PROD")
+	}
+	return nil
+}
+func httpsURL(raw string) bool {
+	parsed, err := url.Parse(raw)
+	return err == nil && parsed.Scheme == "https" && parsed.Host != "" && parsed.User == nil
+}
+func get(k, d string) string {
+	if v := os.Getenv(k); v != "" {
+		return v
+	}
+	return d
 }

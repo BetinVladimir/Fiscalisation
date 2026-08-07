@@ -1,0 +1,5 @@
+import test from "node:test";
+import assert from "node:assert/strict";
+import {aesGcmDecrypt,aesGcmEncrypt,base64urlDecode,base64urlEncode,hash256,hkdf256,hmac256,x25519Pair,x25519Shared} from "./portableCrypto.ts";
+test("portable crypto primitives work without WebCrypto",()=>{const a=x25519Pair(),b=x25519Pair();assert.deepEqual(x25519Shared(a.privateKey,b.publicKey),x25519Shared(b.privateKey,a.publicKey));const secret=hkdf256(x25519Shared(a.privateKey,b.publicKey),hash256(new Uint8Array([1])),new Uint8Array([2])),nonce=new Uint8Array(12),aad=new Uint8Array([3]),plain=new TextEncoder().encode("fiscal");assert.equal(new TextDecoder().decode(aesGcmDecrypt(secret,nonce,aesGcmEncrypt(secret,nonce,plain,aad),aad)),"fiscal");assert.equal(hmac256(secret,plain).length,32)});
+test("base64url codec has no browser globals",()=>{for(const v of [new Uint8Array(),new Uint8Array([1]),new Uint8Array([1,2]),new Uint8Array([1,2,3]),new Uint8Array(31).fill(255)])assert.deepEqual(base64urlDecode(base64urlEncode(v)),v);assert.throws(()=>base64urlDecode("%%%"),/BASE64URL_INVALID/) });

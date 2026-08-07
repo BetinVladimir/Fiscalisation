@@ -1,0 +1,21 @@
+services:
+  beeminipos-backend:
+    environment:
+      APP_ENV: prod
+      AUTH_HMAC_KEY: ""
+      OIDC_ISSUER: "${OIDC_ISSUER:?required}"
+      OIDC_AUDIENCE: "${OIDC_AUDIENCE:?required}"
+      OIDC_JWKS_URL: "${OIDC_JWKS_URL:?required}"
+      FISCAL_AUTH_TOKEN: ""
+      FISCAL_OAUTH_TOKEN_URL: "${FISCAL_OAUTH_TOKEN_URL:?required}"
+      FISCAL_OAUTH_CLIENT_ID: "${FISCAL_OAUTH_CLIENT_ID:?required}"
+      FISCAL_OAUTH_CLIENT_SECRET: "${FISCAL_OAUTH_CLIENT_SECRET:?required}"
+      FISCAL_OAUTH_SCOPE: "${FISCAL_OAUTH_SCOPE:-fiscal.base}"
+      FISCAL_OAUTH_AUDIENCE: "${FISCAL_OAUTH_AUDIENCE:-beefiscal}"
+    read_only: true
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
+  caddy:
+    environment:
+      MINIPOS_SITE: "${MINIPOS_SITE:?required}"
+    security_opt: [no-new-privileges:true]
