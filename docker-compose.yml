@@ -1,0 +1,121 @@
+services:
+  postgres:
+    image: postgres:16
+    container_name: fiscal-postgres
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: fiscal
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d fiscal"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: fiscal-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  fiscal-backend:
+    build:
+      context: ./fiscal-backend
+    environment:
+      HTTP_ADDR: ":8080"
+      DATABASE_URL: "postgres://postgres:postgres@postgres:5432/fiscal?sslmode=disable"
+      REDIS_URL: "redis://redis:6379/0"
+      EMQX_BROKER: "tcp://emqx:1883"
+      EMQX_CLIENT_ID: "fiscal-backend"
+      EMQX_USERNAME: "fiscal-backend"
+      EMQX_TOKEN: ${FISCAL_BACKEND_EMQX_TOKEN:-}
+      EMQX_SUB_TOPICS: "devices/+/telemetry,devices/+/status"
+    ports:
+      - "8080:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      emqx:
+        condition: service_started
+
+  beeminipos-backend:
+    build:
+      context: ./beeminipos-backend
+    environment:
+      HTTP_ADDR: ":8081"
+      DATABASE_URL: "postgres://postgres:postgres@postgres:5432/fiscal?sslmode=disable"
+      REDIS_URL: "redis://redis:6379/1"
+      EMQX_BROKER: "tcp://emqx:1883"
+      EMQX_CLIENT_ID: "beeminipos-backend"
+      EMQX_USERNAME: "beeminipos-backend"
+      EMQX_TOKEN: ${BEEMINIPOS_BACKEND_EMQX_TOKEN:-}
+      EMQX_SUB_TOPICS: "devices/+/telemetry,devices/+/status"
+    ports:
+      - "8081:8081"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      emqx:
+        condition: service_started
+
+  emqx:
+    image: emqx/emqx:5
+    container_name: fiscal-emqx
+    environment:
+      EMQX_NAME: emqx
+      EMQX_HOST: 127.0.0.1
+      EMQX_ALLOW_ANONYMOUS: "false"
+      EMQX_DASHBOARD__DEFAULT_USERNAME: ${EMQX_DASHBOARD_USERNAME:-admin}
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: ${EMQX_DASHBOARD_PASSWORD:-public}
+
+      # JWT auth: token is expected in MQTT password field.
+      EMQX_AUTHENTICATION__1__ENABLE: "true"
+      EMQX_AUTHENTICATION__1__MECHANISM: password_based
+      EMQX_AUTHENTICATION__1__BACKEND: jwt
+      EMQX_AUTHENTICATION__1__FROM: password
+      EMQX_AUTHENTICATION__1__ALGORITHM: hmac-based
+      EMQX_AUTHENTICATION__1__SECRET: ${EMQX_JWT_SECRET:-change_me_super_secret}
+      EMQX_AUTHENTICATION__1__VERIFY_CLAIMS__USERNAME: "$${username}"
+
+      # ACL rules are read from JWT claim "acl".
+      EMQX_AUTHENTICATION__1__ACL_CLAIM_NAME: acl
+      EMQX_AUTHORIZATION__NO_MATCH: deny
+    ports:
+      - "1883:1883"   # MQTT
+      - "8083:8083"   # MQTT over WebSocket
+      - "8084:8084"   # MQTT over WSS
+      - "8883:8883"   # MQTT over TLS
+      - "18083:18083" # Dashboard
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: fiscal-rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    ports:
+      - "5672:5672"   # AMQP
+      - "15672:15672" # Management UI
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+
+volumes:
+  postgres_data:
+  redis_data:
+  rabbitmq_data:

@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "BeeFiscalApp",
+    "slug": "beefiscalapp",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "package": "com.beefiscal.app"
+    }
+  }
+}

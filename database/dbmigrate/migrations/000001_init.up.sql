@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS healthcheck (
+    id BIGSERIAL PRIMARY KEY,
+    service_name TEXT NOT NULL,
+    created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
+);

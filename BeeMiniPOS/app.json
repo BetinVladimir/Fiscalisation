@@ -1,0 +1,14 @@
+{
+  "expo": {
+    "name": "BeeMiniPOS",
+    "slug": "beeminipos",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "assetBundlePatterns": [
+      "**/*"
+    ],
+    "android": {
+      "package": "com.beeminipos.app"
+    }
+  }
+}
