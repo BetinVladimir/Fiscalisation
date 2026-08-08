@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-type Postgres struct{ db *sql.DB }
+type Postgres struct{ db, reader *sql.DB }
 
 func Open(url string) (*Postgres, error) {
 	if url == "" {
@@ -37,7 +37,32 @@ func Open(url string) (*Postgres, error) {
 		db.Close()
 		return nil, e
 	}
-	return &Postgres{db}, nil
+	return &Postgres{db: db, reader: db}, nil
+}
+func OpenWithReader(writeURL, readURL string) (*Postgres, error) {
+	p, err := Open(writeURL)
+	if err != nil {
+		return nil, err
+	}
+	if readURL == "" || readURL == writeURL {
+		return p, nil
+	}
+	reader, err := sql.Open("pgx", readURL)
+	if err != nil {
+		p.Close()
+		return nil, err
+	}
+	reader.SetMaxOpenConns(20)
+	reader.SetConnMaxLifetime(time.Hour)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if err = reader.PingContext(ctx); err != nil {
+		reader.Close()
+		p.Close()
+		return nil, err
+	}
+	p.reader = reader
+	return p, nil
 }
 func (p *Postgres) Load() ([]byte, error) {
 	rows, err := p.db.Query(`select collection,entity_key,payload from fiscal_state_rows order by collection,entity_key`)
@@ -140,14 +165,19 @@ func (p *Postgres) Save(b []byte) error {
 	}
 	return tx.Commit()
 }
-func (p *Postgres) Close() error { return p.db.Close() }
+func (p *Postgres) Close() error {
+	if p.reader != nil && p.reader != p.db {
+		_ = p.reader.Close()
+	}
+	return p.db.Close()
+}
 
 // LoadTenantEntity is the typed, RLS-bound read path used by public hot-path GETs.
 func (p *Postgres) LoadTenantEntity(collection, tenant, id string) ([]byte, error) {
 	if tenant == "" || id == "" {
 		return nil, sql.ErrNoRows
 	}
-	tx, err := p.db.BeginTx(context.Background(), &sql.TxOptions{ReadOnly: true, Isolation: sql.LevelReadCommitted})
+	tx, err := p.reader.BeginTx(context.Background(), &sql.TxOptions{ReadOnly: true, Isolation: sql.LevelReadCommitted})
 	if err != nil {
 		return nil, err
 	}
@@ -179,7 +209,7 @@ func (p *Postgres) LoadTenantEntities(collection, tenant string) ([][]byte, erro
 	if tenant == "" {
 		return nil, errors.New("tenant required")
 	}
-	tx, err := p.db.BeginTx(context.Background(), &sql.TxOptions{ReadOnly: true, Isolation: sql.LevelReadCommitted})
+	tx, err := p.reader.BeginTx(context.Background(), &sql.TxOptions{ReadOnly: true, Isolation: sql.LevelReadCommitted})
 	if err != nil {
 		return nil, err
 	}

@@ -15,7 +15,7 @@ func TestSplitCSV(t *testing.T) {
 }
 
 func TestProdGuards(t *testing.T) {
-	base := Config{AppEnv: "prod", DatabaseURL: "postgres://db", WebhookSigningKey: "production-webhook", OIDCIssuer: "https://id.example", OIDCAudience: "beefiscal", OIDCJWKSURL: "https://id.example/jwks", BLESigningKey: strings.Repeat("b", 32)}
+	base := Config{AppEnv: "prod", DatabaseURL: "postgres://writer@db/fiscal", RLSDatabaseURL: "postgres://reader@db/fiscal", WebhookSigningKey: "production-webhook", OIDCIssuer: "https://id.example", OIDCAudience: "beefiscal", OIDCJWKSURL: "https://id.example/jwks", BLESigningKey: strings.Repeat("b", 32)}
 	if e := base.Validate(); e != nil {
 		t.Fatal(e)
 	}
@@ -43,5 +43,15 @@ func TestProdGuards(t *testing.T) {
 	x.DatabaseURL = ""
 	if x.Validate() == nil {
 		t.Fatal("missing db accepted")
+	}
+	x = base
+	x.RLSDatabaseURL = ""
+	if x.Validate() == nil {
+		t.Fatal("missing RLS db accepted")
+	}
+	x = base
+	x.RLSDatabaseURL = x.DatabaseURL
+	if x.Validate() == nil {
+		t.Fatal("shared writer/reader identity accepted")
 	}
 }

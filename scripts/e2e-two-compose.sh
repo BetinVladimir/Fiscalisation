@@ -12,16 +12,18 @@ fiscal_base_url=http://fiscal-public/public/v1
 api_version=2026-08-07
 fiscal_secret=e2e-fiscal-db-password
 minipos_secret=e2e-minipos-db-password
+fiscal_rls_secret=e2e-fiscal-rls-password
+minipos_rls_secret=e2e-minipos-rls-password
 webhook_key=e2e-webhook-signing-key-32-bytes
 ble_key=e2e-ble-signing-key-32-bytes-000
 fiscal_backup=/tmp/beeloy-fiscal-backup-$$.dump
 minipos_backup=/tmp/beeloy-minipos-backup-$$.dump
 
 fiscal_compose() {
-  APP_ENV=dev FISCAL_HTTP_PORT="$fiscal_publish_port" FISCAL_HTTPS_PORT=0 FISCAL_DB_PASSWORD="$fiscal_secret" FISCAL_DB_HOST="${fiscal_db_host:-postgres}" FISCAL_UPSTREAM="${fiscal_upstream:-fiscal-backend:8080}" WEBHOOK_SIGNING_KEY="$webhook_key" BLE_SIGNING_KEY="$ble_key" docker compose -p "$fiscal_project" -f "$root/compose.fiscalisation.yaml" -f "$root/compose.fiscalisation.dev.yaml" -f "$root/compose.fiscalisation.e2e.yaml" "$@"
+  APP_ENV=dev FISCAL_HTTP_PORT="$fiscal_publish_port" FISCAL_HTTPS_PORT=0 FISCAL_DB_PASSWORD="$fiscal_secret" FISCAL_RLS_DB_PASSWORD="$fiscal_rls_secret" FISCAL_DB_HOST="${fiscal_db_host:-postgres}" FISCAL_UPSTREAM="${fiscal_upstream:-fiscal-backend:8080}" WEBHOOK_SIGNING_KEY="$webhook_key" BLE_SIGNING_KEY="$ble_key" docker compose -p "$fiscal_project" -f "$root/compose.fiscalisation.yaml" -f "$root/compose.fiscalisation.dev.yaml" -f "$root/compose.fiscalisation.e2e.yaml" "$@"
 }
 minipos_compose() {
-  APP_ENV=dev MINIPOS_HTTP_PORT="$minipos_publish_port" MINIPOS_HTTPS_PORT=0 MINIPOS_DB_PASSWORD="$minipos_secret" MINIPOS_DB_HOST="${minipos_db_host:-postgres}" MINIPOS_UPSTREAM="${minipos_upstream:-beeminipos-backend:8081}" FISCAL_PUBLIC_BASE_URL="$fiscal_base_url" WEBHOOK_VERIFICATION_KEY="$webhook_key" docker compose -p "$minipos_project" -f "$root/compose.minipos.yaml" -f "$root/compose.minipos.dev.yaml" -f "$root/compose.minipos.e2e.yaml" "$@"
+  APP_ENV=dev MINIPOS_HTTP_PORT="$minipos_publish_port" MINIPOS_HTTPS_PORT=0 MINIPOS_DB_PASSWORD="$minipos_secret" MINIPOS_RLS_DB_PASSWORD="$minipos_rls_secret" MINIPOS_DB_HOST="${minipos_db_host:-postgres}" MINIPOS_UPSTREAM="${minipos_upstream:-beeminipos-backend:8081}" FISCAL_PUBLIC_BASE_URL="$fiscal_base_url" WEBHOOK_VERIFICATION_KEY="$webhook_key" docker compose -p "$minipos_project" -f "$root/compose.minipos.yaml" -f "$root/compose.minipos.dev.yaml" -f "$root/compose.minipos.e2e.yaml" "$@"
 }
 cleanup() {
   docker rm -f "$client_name" >/dev/null 2>&1 || true
@@ -100,7 +102,8 @@ docker network create "$shared_ingress" >/dev/null
 fiscal_compose up -d postgres
 fiscal_db_host=$(docker inspect -f "{{(index .NetworkSettings.Networks \"${fiscal_project}_private\").IPAddress}}" "$(fiscal_compose ps -q postgres)")
 fiscal_compose up -d --build fiscal-backend
-fiscal_upstream=$(docker inspect -f "{{(index .NetworkSettings.Networks \"${fiscal_project}_private\").IPAddress}}:8080" "$(fiscal_compose ps -q fiscal-backend)")
+docker network connect "$shared_ingress" "$(fiscal_compose ps -q fiscal-backend)"
+fiscal_upstream=$(docker inspect -f "{{(index .NetworkSettings.Networks \"${shared_ingress}\").IPAddress}}:8080" "$(fiscal_compose ps -q fiscal-backend)")
 fiscal_compose up -d caddy
 docker network connect --alias fiscal-public "$shared_ingress" "$(fiscal_compose ps -q caddy)"
 fiscal_public_ip=$(docker inspect -f "{{(index .NetworkSettings.Networks \"${shared_ingress}\").IPAddress}}" "$(fiscal_compose ps -q caddy)")
@@ -116,7 +119,7 @@ docker network connect --alias minipos-public "$shared_ingress" "$(minipos_compo
 docker run -d --name "$client_name" --network "$shared_ingress" --entrypoint sleep curlimages/curl:8.12.1 600 >/dev/null
 members=$(docker network inspect -f '{{range .Containers}}{{.Name}} {{end}}' "$shared_ingress")
 member_count=$(printf '%s' "$members" | wc -w | tr -d ' ')
-test "$member_count" = 4
+test "$member_count" = 5
 case "$members" in
   *postgres*) echo "private database attached to shared ingress: $members" >&2; exit 1 ;;
 esac

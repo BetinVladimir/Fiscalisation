@@ -26,7 +26,7 @@ func main() {
 		startupContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
 		store, e := startup.Retry(startupContext, 500*time.Millisecond, func() (*persistence.Postgres, error) {
-			return persistence.Open(c.DatabaseURL)
+			return persistence.OpenWithReader(c.DatabaseURL, c.RLSDatabaseURL)
 		})
 		if e != nil {
 			log.Fatal(e)

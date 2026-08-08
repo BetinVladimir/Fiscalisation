@@ -13,6 +13,8 @@ SQL в `fiscal/` и `minipos/` является каноническим DDL д�
 - `003_runtime_typed.sql` — authoritative typed hot-path projection: Fiscal
   sales/operations и MiniPOS products/employees/shifts/orders, EUR/money/version/
   uniqueness constraints, indexes и FORCE RLS.
+- `004_runtime_login.sh` — включает LOGIN для минимально привилегированной
+  tenant-reader роли, используя отдельный обязательный secret из окружения.
 
 Fiscal transaction обязан выполнить `SET LOCAL ROLE beefiscal_tenant` и
 `SET LOCAL app.tenant_id = '<uuid>'` до typed SQL. MiniPOS использует
@@ -22,9 +24,10 @@ Fiscal transaction обязан выполнить `SET LOCAL ROLE beefiscal_ten
 Отсутствующий или неверный context fail-closed: RLS не возвращает строки и
 отклоняет mutation.
 
-`FORCE RLS` обязателен, чтобы владелец таблицы не обходил policies. Production
-runtime должен подключаться не superuser-ролью. Миграционный владелец и runtime
-identity должны быть разными секретами/ролями.
+`FORCE RLS` обязателен, чтобы владелец таблицы не обходил policies. Backend имеет
+два физически отдельных пула: system writer (`DATABASE_URL`) для переходной
+aggregate transaction и non-owner tenant reader (`RLS_DATABASE_URL`) для typed
+GET/list. В PROD разные database users обязательны и проверяются при старте.
 
 ## Проверка
 
@@ -33,6 +36,7 @@ identity должны быть разными секретами/ролями.
 
 - другой tenant/organization невидим;
 - cross-tenant insert отклоняется самой БД;
+- typed GET/list подключаются отдельным LOGIN/non-owner credential;
 - persistence restart/legacy migration/differential update работают на
   настоящем PostgreSQL.
 
@@ -45,7 +49,7 @@ aggregate и поэтому намеренно не выдают ложную г
 Они применяют дифференциальные upsert/delete и не трогают неизменённые строки.
 Ключевые aggregates одновременно нормализуются в `*_runtime_*` typed tables в
 той же serializable transaction: constraint failure откатывает обе модели.
-Single-entity hot-path GET/authorization уже читает typed tables внутри
-read-only transaction под non-owner ролью с обязательным `SET LOCAL`; RLS
-отсекает чужой tenant до domain layer. Оставшийся переход — collection reads,
-mutations и остальные aggregates.
+Single-entity и collection hot-path GET/authorization уже читают typed tables
+через отдельный non-owner pool внутри read-only transaction с обязательным
+`SET LOCAL`; RLS отсекает чужой tenant до domain layer. Оставшийся переход —
+tenant-bound typed mutations и остальные aggregates.

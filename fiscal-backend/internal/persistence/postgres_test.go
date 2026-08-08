@@ -204,7 +204,7 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 	if url == "" {
 		t.Skip("PG_INTEGRATION_URL not set")
 	}
-	p, err := Open(url)
+	p, err := OpenWithReader(url, os.Getenv("PG_RLS_INTEGRATION_URL"))
 	if err != nil {
 		t.Fatal(err)
 	}

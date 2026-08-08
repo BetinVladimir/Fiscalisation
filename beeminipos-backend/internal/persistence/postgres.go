@@ -12,7 +12,7 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
-type Postgres struct{ db *sql.DB }
+type Postgres struct{ db, reader *sql.DB }
 type stateRow struct {
 	Collection, Key string
 	Payload         json.RawMessage
@@ -42,7 +42,32 @@ func Open(url string) (*Postgres, error) {
 			return nil, e
 		}
 	}
-	return &Postgres{db: db}, nil
+	return &Postgres{db: db, reader: db}, nil
+}
+func OpenWithReader(writeURL, readURL string) (*Postgres, error) {
+	p, e := Open(writeURL)
+	if e != nil {
+		return nil, e
+	}
+	if readURL == "" || readURL == writeURL {
+		return p, nil
+	}
+	reader, e := sql.Open("pgx", readURL)
+	if e != nil {
+		p.Close()
+		return nil, e
+	}
+	reader.SetMaxOpenConns(20)
+	reader.SetConnMaxLifetime(time.Hour)
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	if e = reader.PingContext(ctx); e != nil {
+		reader.Close()
+		p.Close()
+		return nil, e
+	}
+	p.reader = reader
+	return p, nil
 }
 func (p *Postgres) Load() ([]byte, error) {
 	rows, e := p.db.Query(`select collection,entity_key,payload from minipos_state_rows order by collection,entity_key`)
@@ -144,13 +169,18 @@ func (p *Postgres) Save(raw []byte) error {
 	}
 	return tx.Commit()
 }
-func (p *Postgres) Close() error { return p.db.Close() }
+func (p *Postgres) Close() error {
+	if p.reader != nil && p.reader != p.db {
+		_ = p.reader.Close()
+	}
+	return p.db.Close()
+}
 
 func (p *Postgres) LoadTenantEntity(collection, tenant, id string) ([]byte, error) {
 	if tenant == "" || id == "" {
 		return nil, sql.ErrNoRows
 	}
-	tx, e := p.db.BeginTx(context.Background(), &sql.TxOptions{ReadOnly: true, Isolation: sql.LevelReadCommitted})
+	tx, e := p.reader.BeginTx(context.Background(), &sql.TxOptions{ReadOnly: true, Isolation: sql.LevelReadCommitted})
 	if e != nil {
 		return nil, e
 	}
@@ -186,7 +216,7 @@ func (p *Postgres) LoadTenantEntities(collection, tenant string) ([][]byte, erro
 	if tenant == "" {
 		return nil, errors.New("tenant required")
 	}
-	tx, e := p.db.BeginTx(context.Background(), &sql.TxOptions{ReadOnly: true, Isolation: sql.LevelReadCommitted})
+	tx, e := p.reader.BeginTx(context.Background(), &sql.TxOptions{ReadOnly: true, Isolation: sql.LevelReadCommitted})
 	if e != nil {
 		return nil, e
 	}

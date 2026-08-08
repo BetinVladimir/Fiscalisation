@@ -43,12 +43,12 @@ wait_schema() {
 
 docker network create "$network" >/dev/null
 docker run -d --name "$fiscal_db" --network "$network" \
-  -e POSTGRES_PASSWORD=test -e POSTGRES_DB=app \
+  -e POSTGRES_PASSWORD=test -e POSTGRES_DB=app -e FISCAL_RLS_DB_PASSWORD=test-reader \
   --tmpfs /var/lib/postgresql/data:rw,size=256m \
   -v "$root/database/fiscal:/docker-entrypoint-initdb.d:ro" \
   "$postgres_image" >/dev/null
 docker run -d --name "$minipos_db" --network "$network" \
-  -e POSTGRES_PASSWORD=test -e POSTGRES_DB=app \
+  -e POSTGRES_PASSWORD=test -e POSTGRES_DB=app -e MINIPOS_RLS_DB_PASSWORD=test-reader \
   --tmpfs /var/lib/postgresql/data:rw,size=256m \
   -v "$root/database/minipos:/docker-entrypoint-initdb.d:ro" \
   "$postgres_image" >/dev/null
@@ -104,9 +104,11 @@ minipos_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}
 
 docker run --rm --network "$network" -v "$root:/src:ro" -w /src/fiscal-backend \
   -e "PG_INTEGRATION_URL=postgres://postgres:test@$fiscal_ip:5432/app?sslmode=disable" \
+  -e "PG_RLS_INTEGRATION_URL=postgres://beefiscal_tenant:test-reader@$fiscal_ip:5432/app?sslmode=disable" \
   "$go_image" go test ./internal/persistence
 docker run --rm --network "$network" -v "$root:/src:ro" -w /src/beeminipos-backend \
   -e "PG_INTEGRATION_URL=postgres://postgres:test@$minipos_ip:5432/app?sslmode=disable" \
+  -e "PG_RLS_INTEGRATION_URL=postgres://beeminipos_tenant:test-reader@$minipos_ip:5432/app?sslmode=disable" \
   "$go_image" go test ./internal/persistence
 
 echo "PostgreSQL persistence integration tests passed"

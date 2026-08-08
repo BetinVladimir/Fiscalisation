@@ -27,7 +27,7 @@
 
 | Gap | Почему completion не доказан | Следующее доказательство |
 |---|---|---|
-| PostgreSQL typed persistence + RLS | Ключевые aggregates имеют atomic differential typed projections; single-entity GET/authorization выполняется через non-owner `SET LOCAL` RLS transaction с реальными allow/deny tests. Collection reads/mutations ещё используют compatibility model | typed collection/mutation repositories, оставшиеся aggregates и отдельные runtime credentials |
+| PostgreSQL typed persistence + RLS | Ключевые aggregates имеют atomic differential typed projections; single/list GET выполняется через отдельный LOGIN/non-owner pool и fail-closed RLS transaction. PROD требует раздельных writer/reader users; реальные PostgreSQL tests используют reader credential и покрывают allow/deny | tenant-bound typed mutation repositories и оставшиеся aggregates |
 | Production OIDC/OAuth 2.1 | PASS на уровне software: inbound RS256/JWKS cache+rotation/issuer/audience; outbound MiniPOS→Fiscal client credentials с cache, refresh и однократным 401 retry; HMAC/static service token запрещены в PROD | для deployment GO требуется evidence принятого внешнего IdP/client registration |
 | Full card orchestration | Simulator/STUB не доказывает approve/decline/timeout/reversal/STAN/RRN semantics реального terminal SDK | vendor/acquirer adapter plus failure/reconciliation HIL |
 | Per-command protocol semantics | Полная классификация не равна encoder/parser semantics каждой поддерживаемой команды | golden request/response vector and semantic test for every `SUPPORTED` command |

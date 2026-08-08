@@ -79,7 +79,7 @@ func TestMiniPOSTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 	if url == "" {
 		t.Skip("PG_INTEGRATION_URL not set")
 	}
-	p, e := Open(url)
+	p, e := OpenWithReader(url, os.Getenv("PG_RLS_INTEGRATION_URL"))
 	if e != nil {
 		t.Fatal(e)
 	}
