@@ -32,6 +32,62 @@ func TestMiniPOSStateRowsRoundTrip(t *testing.T) {
 	}
 }
 
+func TestMiniPOSIdentityBindingTypedPersistenceAndRLS(t *testing.T) {
+	url := os.Getenv("PG_INTEGRATION_URL")
+	if url == "" {
+		t.Skip("PG_INTEGRATION_URL not set")
+	}
+	p, err := OpenWithReader(url, os.Getenv("PG_RLS_INTEGRATION_URL"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer p.Close()
+	if _, err = p.db.Exec(`delete from minipos_state_rows;delete from minipos_state_meta;delete from minipos_runtime_operator_sessions;delete from minipos_runtime_identity_bindings;delete from minipos_runtime_employees`); err != nil {
+		t.Fatal(err)
+	}
+	const hash = "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa"
+	bindingKey := "org-auth\n" + hash
+	sessionKey := "org-auth\nfingerprint-1"
+	employee := map[string]any{"id": "employee-auth", "tenant_id": "org-auth", "first_name": "Ada", "last_name": "Lovelace", "operator_code": "A001", "roles": []string{"CASHIER"}, "active": true, "status": "ACTIVE", "version": 1, "created_at": "2026-08-09T10:00:00Z", "updated_at": "2026-08-09T10:00:00Z"}
+	binding := map[string]any{"tenant_id": "org-auth", "employee_id": "employee-auth", "subject_hash": hash, "identity_issuer": "https://identity.example.test", "bound_at": "2026-08-09T10:00:00Z"}
+	session := map[string]any{"tenant_id": "org-auth", "employee_id": "employee-auth", "app_instance_id": "00000000-0000-4000-8000-000000000001", "token_hash": "fingerprint-1", "state": "REVOKED", "first_seen": "2026-08-09T10:00:00Z", "expires_at": "2026-08-09T11:00:00Z", "revoked_at": "2026-08-09T10:05:00Z"}
+	state := map[string]any{"products": map[string]any{}, "employees": map[string]any{"employee-auth": employee}, "identity_bindings": map[string]any{bindingKey: binding}, "operator_sessions": map[string]any{sessionKey: session}, "shifts": map[string]any{}, "orders": map[string]any{}, "checkouts": map[string]any{}, "checkout_hashes": map[string]any{}, "api_replays": map[string]any{}, "webhook_inbox": map[string]any{}, "configurations": map[string]any{}, "sequence": 1}
+	raw, _ := json.Marshal(state)
+	if err = p.Save(raw); err != nil {
+		t.Fatal(err)
+	}
+	var tenant, employeeID, issuer, persistedHash string
+	if err = p.db.QueryRow(`select organization_id,employee_id,identity_issuer,subject_hash from minipos_runtime_identity_bindings where binding_key=$1`, bindingKey).Scan(&tenant, &employeeID, &issuer, &persistedHash); err != nil || tenant != "org-auth" || employeeID != "employee-auth" || issuer != "https://identity.example.test" || persistedHash != hash {
+		t.Fatalf("typed binding mismatch: %q %q %q %q %v", tenant, employeeID, issuer, persistedHash, err)
+	}
+	var sessionState, fingerprint, appInstance string
+	if err = p.db.QueryRow(`select state,credential_fingerprint,app_instance_id from minipos_runtime_operator_sessions where session_key=$1`, sessionKey).Scan(&sessionState, &fingerprint, &appInstance); err != nil || sessionState != "REVOKED" || fingerprint != "fingerprint-1" || appInstance != "00000000-0000-4000-8000-000000000001" {
+		t.Fatalf("typed session mismatch: %q %q %q %v", sessionState, fingerprint, appInstance, err)
+	}
+	restarted, _, err := p.LoadVersioned()
+	if err != nil || !bytes.Contains(restarted, []byte(`"identity_bindings"`)) || !bytes.Contains(restarted, []byte(`"operator_sessions"`)) || !bytes.Contains(restarted, []byte(hash)) {
+		t.Fatalf("binding did not survive typed restart: %s %v", restarted, err)
+	}
+	tx, err := p.reader.BeginTx(context.Background(), &sql.TxOptions{ReadOnly: true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer tx.Rollback()
+	if _, err = tx.Exec(`set local role beeminipos_tenant`); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = tx.Exec(`select set_config('app.organization_id','org-other',true)`); err != nil {
+		t.Fatal(err)
+	}
+	var visible int
+	if err = tx.QueryRow(`select count(*) from minipos_runtime_identity_bindings`).Scan(&visible); err != nil || visible != 0 {
+		t.Fatalf("cross-tenant binding visible: %d %v", visible, err)
+	}
+	if err = tx.QueryRow(`select count(*) from minipos_runtime_operator_sessions`).Scan(&visible); err != nil || visible != 0 {
+		t.Fatalf("cross-tenant operator session visible: %d %v", visible, err)
+	}
+}
+
 func TestMiniPOSDifferentialSavePreservesUntouchedRows(t *testing.T) {
 	url := os.Getenv("PG_INTEGRATION_URL")
 	if url == "" {
@@ -89,20 +145,23 @@ func TestMiniPOSTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 		t.Fatal(e)
 	}
 	defer p.Close()
-	if _, e = p.db.Exec(`delete from minipos_state_rows;delete from minipos_state_meta;delete from minipos_runtime_orders;delete from minipos_runtime_shifts;delete from minipos_runtime_employees;delete from minipos_runtime_products;delete from minipos_runtime_configurations`); e != nil {
+	if _, e = p.db.Exec(`delete from minipos_state_rows;delete from minipos_state_meta;delete from minipos_runtime_orders;delete from minipos_runtime_shifts;delete from minipos_runtime_operator_sessions;delete from minipos_runtime_identity_bindings;delete from minipos_runtime_employees;delete from minipos_runtime_products;delete from minipos_runtime_configurations`); e != nil {
 		t.Fatal(e)
 	}
-	base := `{"products":{"product-typed":{"id":"product-typed","tenant_id":"org-a","sku":"SKU-A","name":"Coffee","unit":"pcs","price":{"amount":"%s","currency":"EUR"},"tax_group":"B","active":true,"status":"ACTIVE","version":%d,"created_at":"2026-08-07T10:00:00Z","updated_at":"2026-08-07T10:01:00Z"}},"employees":{},"shifts":{},"orders":{},"checkouts":{},"checkout_hashes":{},"api_replays":{},"webhook_inbox":{},"configurations":{"org-a":{"id":"configuration-typed","tenant_id":"org-a","location_name":"Shop","location_address":"Sofia","workstation_name":"POS 1","fiscal_register_id":"FD1","version":1,"created_at":"2026-08-07T10:00:00Z","updated_at":"2026-08-07T10:01:00Z"}},"sequence":1}`
+	base := `{"products":{"product-typed":{"id":"product-typed","tenant_id":"org-a","sku":"SKU-A","barcode":"380000000001","name":"Coffee","unit":"pcs","price":{"amount":"%s","currency":"EUR"},"tax_group":"B","active":true,"status":"ACTIVE","version":%d,"created_at":"2026-08-07T10:00:00Z","updated_at":"2026-08-07T10:01:00Z"}},"employees":{},"shifts":{},"orders":{},"checkouts":{},"checkout_hashes":{},"api_replays":{},"webhook_inbox":{},"configurations":{"org-a":{"id":"configuration-typed","tenant_id":"org-a","location_name":"Shop","location_address":"Sofia","workstation_name":"POS 1","fiscal_register_id":"FD1","version":1,"created_at":"2026-08-07T10:00:00Z","updated_at":"2026-08-07T10:01:00Z"}},"sequence":1}`
 	if e = p.Save([]byte(fmt.Sprintf(base, "2.50", 1))); e != nil {
 		t.Fatal(e)
 	}
-	var tenant, amount string
+	var tenant, amount, barcode string
 	var version int64
 	if e = p.db.QueryRow(`select organization_id,amount::text,version from minipos_runtime_products where id='product-typed'`).Scan(&tenant, &amount, &version); e != nil || tenant != "org-a" || amount != "2.50" || version != 1 {
 		t.Fatal(tenant, amount, version, e)
 	}
+	if e = p.db.QueryRow(`select barcode from minipos_runtime_products where id='product-typed'`).Scan(&barcode); e != nil || barcode != "380000000001" {
+		t.Fatal("barcode was not persisted", barcode, e)
+	}
 	raw, e := p.LoadTenantEntity("products", "org-a", "product-typed")
-	if e != nil || !json.Valid(raw) {
+	if e != nil || !json.Valid(raw) || !bytes.Contains(raw, []byte(`380000000001`)) {
 		t.Fatal("tenant typed read failed", string(raw), e)
 	}
 	if _, e = p.LoadTenantEntity("products", "org-b", "product-typed"); e == nil {
@@ -157,7 +216,7 @@ func TestMiniPOSTypedEmployeeSurvivesIdempotencyOnlySave(t *testing.T) {
 		t.Fatal(e)
 	}
 	defer p.Close()
-	if _, e = p.db.Exec(`delete from minipos_state_rows;delete from minipos_state_meta;delete from minipos_runtime_orders;delete from minipos_runtime_shifts;delete from minipos_runtime_employees;delete from minipos_runtime_products;delete from minipos_runtime_configurations;delete from minipos_runtime_api_replays;delete from minipos_runtime_webhook_inbox`); e != nil {
+	if _, e = p.db.Exec(`delete from minipos_state_rows;delete from minipos_state_meta;delete from minipos_runtime_orders;delete from minipos_runtime_shifts;delete from minipos_runtime_operator_sessions;delete from minipos_runtime_identity_bindings;delete from minipos_runtime_employees;delete from minipos_runtime_products;delete from minipos_runtime_configurations;delete from minipos_runtime_api_replays;delete from minipos_runtime_webhook_inbox`); e != nil {
 		t.Fatal(e)
 	}
 	first := []byte(`{"products":{},"employees":{"employee-1":{"id":"employee-1","tenant_id":"org-e2e","first_name":"Ada","last_name":"Lovelace","operator_code":"A001","roles":[],"active":true,"status":"ACTIVE","version":1,"created_at":"2026-08-08T10:00:00Z","updated_at":"2026-08-08T10:00:00Z"}},"shifts":{},"orders":{},"checkouts":{},"checkout_hashes":{},"api_replays":{"org-e2e\nPATCH\n/public/v1/minipos/configuration\nconfig-key":{"hash":"a","status":200,"body":"e30=","content_type":"application/json"}},"webhook_inbox":{"event-1":{"event_id":"event-1","tenant_id":"org-e2e","hash":"c","raw":"e30=","received_at":"2026-08-08T10:00:00Z"}},"configurations":{"org-e2e":{"id":"configuration-1","tenant_id":"org-e2e","location_name":"E2E Shop","location_address":"Sofia","workstation_name":"POS 01","fiscal_register_id":"FD000001","version":1,"created_at":"2026-08-08T10:00:00Z","updated_at":"2026-08-08T10:00:00Z"}},"sequence":2}`)
@@ -291,7 +350,7 @@ func TestMiniPOSPostgresRestartLegacyAndEmptyState(t *testing.T) {
 	}
 	assertJSONEqual(t, raw, loaded)
 	legacy := []byte(`{"products":{"legacy-product":{"id":"legacy-product","tenant_id":"org-migration","sku":"LEGACY-1","name":"Legacy product","unit":"pcs","price":{"amount":"1.00","currency":"EUR"},"tax_group":"B","active":true,"status":"ACTIVE","version":1,"created_at":"2026-08-08T10:00:00Z","updated_at":"2026-08-08T10:00:00Z"}},"employees":{},"shifts":{},"orders":{},"checkouts":{},"checkout_hashes":{},"api_replays":{},"webhook_inbox":{},"configurations":{},"sequence":8}`)
-	if _, e = p.db.Exec(`delete from minipos_state_rows;delete from minipos_state_meta;delete from minipos_runtime_products;delete from minipos_runtime_employees;delete from minipos_runtime_shifts;delete from minipos_runtime_orders;delete from minipos_runtime_configurations;delete from minipos_runtime_api_replays;delete from minipos_runtime_webhook_inbox;delete from minipos_runtime_checkout_results;delete from minipos_runtime_checkout_hashes`); e != nil {
+	if _, e = p.db.Exec(`delete from minipos_state_rows;delete from minipos_state_meta;delete from minipos_runtime_products;delete from minipos_runtime_operator_sessions;delete from minipos_runtime_identity_bindings;delete from minipos_runtime_employees;delete from minipos_runtime_shifts;delete from minipos_runtime_orders;delete from minipos_runtime_configurations;delete from minipos_runtime_api_replays;delete from minipos_runtime_webhook_inbox;delete from minipos_runtime_checkout_results;delete from minipos_runtime_checkout_hashes`); e != nil {
 		t.Fatal(e)
 	}
 	if _, e = p.db.Exec(`insert into runtime_snapshots(aggregate,payload,version,updated_at) values('minipos',$1::jsonb,1,now()) on conflict(aggregate) do update set payload=excluded.payload`, string(legacy)); e != nil {
@@ -397,7 +456,7 @@ func TestMiniPOSTypedOnlyRestartAndRollback(t *testing.T) {
 		t.Fatal(e)
 	}
 	defer p.Close()
-	if _, e = p.db.Exec(`delete from minipos_state_rows;delete from minipos_state_meta;delete from minipos_runtime_products;delete from minipos_runtime_employees;delete from minipos_runtime_shifts;delete from minipos_runtime_orders;delete from minipos_runtime_configurations;delete from minipos_runtime_api_replays;delete from minipos_runtime_webhook_inbox;delete from minipos_runtime_checkout_results;delete from minipos_runtime_checkout_hashes`); e != nil {
+	if _, e = p.db.Exec(`delete from minipos_state_rows;delete from minipos_state_meta;delete from minipos_runtime_products;delete from minipos_runtime_operator_sessions;delete from minipos_runtime_identity_bindings;delete from minipos_runtime_employees;delete from minipos_runtime_shifts;delete from minipos_runtime_orders;delete from minipos_runtime_configurations;delete from minipos_runtime_api_replays;delete from minipos_runtime_webhook_inbox;delete from minipos_runtime_checkout_results;delete from minipos_runtime_checkout_hashes`); e != nil {
 		t.Fatal(e)
 	}
 	empty := []byte(`{"products":{},"employees":{},"shifts":{},"orders":{},"checkouts":{},"checkout_hashes":{},"api_replays":{},"webhook_inbox":{},"configurations":{},"sequence":0}`)

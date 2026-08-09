@@ -45,7 +45,7 @@ func main() {
 		svc.SetFiscalAuthToken(c.FiscalAuthToken)
 	}
 	h := api.New(svc, c)
-	s := &http.Server{Addr: c.HTTPAddr, Handler: h, ReadHeaderTimeout: 5 * time.Second}
+	s := newHTTPServer(c.HTTPAddr, h)
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
 	mqttCleanup, err := mqttclient.Start(ctx, c, log.Default())
@@ -63,5 +63,16 @@ func main() {
 	}()
 	if e := s.ListenAndServe(); e != nil && !errors.Is(e, http.ErrServerClosed) {
 		log.Fatal(e)
+	}
+}
+
+func newHTTPServer(addr string, handler http.Handler) *http.Server {
+	return &http.Server{
+		Addr:              addr,
+		Handler:           handler,
+		ReadHeaderTimeout: 5 * time.Second,
+		ReadTimeout:       15 * time.Second,
+		WriteTimeout:      30 * time.Second,
+		IdleTimeout:       60 * time.Second,
 	}
 }

@@ -21,6 +21,7 @@
     {"id":"F21-017","category":"retention","scenario":"acknowledged record before and after three months","source":"edge-agent/journal/journal_test.go","test":"TestDurableHashAckRetention","invariant":"no early deletion; eligible prefix is safely removed"},
     {"id":"F21-018","category":"retention","scenario":"unacknowledged gap in retained prefix","source":"edge-agent/journal/journal_test.go","test":"TestPurgeNeverCreatesGap","invariant":"GC never creates a journal gap"},
     {"id":"F21-019","category":"clock","scenario":"clock rollback and early boundary","source":"edge-agent/journal/journal_test.go","test":"TestClockRollbackCannotMakeAcknowledgedEventEligible","invariant":"rollback cannot shorten retention"},
-    {"id":"F21-020","category":"routing","scenario":"cloud partition with live or dead final device","source":"BeeMiniPOS/src/checkoutTransport.test.ts","test":"ambiguous REST send never falls through to BLE","invariant":"route is frozen; ambiguous REST never causes double execution"}
+    {"id":"F21-020","category":"routing","scenario":"cloud partition with live or dead final device","source":"BeeMiniPOS/src/checkoutTransport.test.ts","test":"ambiguous REST send never falls through to BLE","invariant":"route is frozen; ambiguous REST never causes double execution"},
+    {"id":"F21-021","category":"timeout","scenario":"MiniPOS or Fiscal HTTP endpoint accepts a connection but never completes","source":"BeeMiniPOS/src/http.test.ts","test":"bounded fetch aborts a hung request","invariant":"all UI public-API calls leave the busy state through a deterministic four-second abort instead of waiting forever"}
   ]
 }

@@ -2,6 +2,7 @@
   "expo": {
     "name": "BeeFiscalApp",
     "slug": "beefiscalapp",
+    "scheme": "beefiscalapp",
     "version": "0.1.0",
     "orientation": "portrait",
     "assetBundlePatterns": [
@@ -9,6 +10,7 @@
     ],
     "android": {
       "package": "com.beefiscal.app"
-    }
+    },
+    "ios": { "bundleIdentifier": "com.beefiscal.app" }
   }
 }

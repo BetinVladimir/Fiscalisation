@@ -11,8 +11,10 @@ import (
 
 type ExecuteFunc func(edgeruntime.Command) (edgeruntime.Result, error)
 type SessionBinding struct {
-	TenantID, RegisterID, DeviceID string
-	FencingToken                   int64
+	TenantID, RegisterID, DeviceID, SessionID string
+	FencingToken                              int64
+	ExpiresAt                                 time.Time
+	IsRevoked                                 func(string, time.Time) bool
 }
 
 type Processor struct {
@@ -33,7 +35,7 @@ type AcceptResult struct {
 }
 
 func NewProcessor(session *ble.Session, binding SessionBinding, execute ExecuteFunc, attMTU int) (*Processor, error) {
-	if session == nil || execute == nil || binding.TenantID == "" || binding.RegisterID == "" || binding.DeviceID == "" || binding.FencingToken < 1 || (attMTU != 185 && attMTU != 247 && attMTU != 517) {
+	if session == nil || execute == nil || binding.TenantID == "" || binding.RegisterID == "" || binding.DeviceID == "" || binding.SessionID == "" || binding.FencingToken < 1 || binding.ExpiresAt.IsZero() || binding.IsRevoked == nil || (attMTU != 185 && attMTU != 247 && attMTU != 517) {
 		return nil, errors.New("invalid BLE processor configuration")
 	}
 	return &Processor{session: session, reassembler: ble.NewReassembler(1024), execute: execute, now: time.Now, attMTU: attMTU, binding: binding}, nil
@@ -42,6 +44,10 @@ func NewProcessor(session *ble.Session, binding SessionBinding, execute ExecuteF
 // AcceptCommandFrame is the transport-neutral GATT command handler. The OS
 // adapter only forwards characteristic bytes and publishes returned frames.
 func (p *Processor) AcceptCommandFrame(raw []byte) (AcceptResult, error) {
+	now := p.now().UTC()
+	if !now.Before(p.binding.ExpiresAt) || p.binding.IsRevoked(p.binding.SessionID, now) {
+		return AcceptResult{}, errors.New("BLE session authority inactive")
+	}
 	frame, plain, err := p.session.OpenFrame(raw)
 	if err != nil {
 		return AcceptResult{}, err
@@ -57,7 +63,7 @@ func (p *Processor) AcceptCommandFrame(raw []byte) (AcceptResult, error) {
 	if err = ble.StrictUnmarshal(complete, &envelope); err != nil {
 		return AcceptResult{Flow: flow}, errors.New("invalid command CBOR")
 	}
-	if err = envelope.Validate(p.now().UTC()); err != nil {
+	if err = envelope.Validate(now); err != nil {
 		return AcceptResult{Flow: flow}, err
 	}
 	if envelope.TenantID != p.binding.TenantID || envelope.RegisterID != p.binding.RegisterID || envelope.DeviceID != p.binding.DeviceID || envelope.FencingToken != p.binding.FencingToken {

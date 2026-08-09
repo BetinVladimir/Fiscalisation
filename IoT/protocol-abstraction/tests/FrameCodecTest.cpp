@@ -633,11 +633,697 @@ static void testExtendedDatecsReadCommands() {
     assert(std::string(modemSpec.canonical) == "GetDiagnosticInfo");
 }
 
+static void testDatecsOptionalPeripheralCommands() {
+    std::vector<uint8_t> payload;
+    std::string error;
+    for (uint16_t command : {33, 46, 63}) {
+        assert(buildDatecsOptionalNoParameters(command, payload, error));
+        assert(payload.empty());
+    }
+    assert(!buildDatecsOptionalNoParameters(48, payload, error));
+
+    assert(buildDatecsDisplayText(35, "Test text display", payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "Test text display\t");
+    assert(buildDatecsDisplayText(47, "Upper line", payload, error));
+    assert(!buildDatecsDisplayText(47, "This display text is too long", payload, error));
+    assert(!buildDatecsDisplayText(33, "Wrong command", payload, error));
+
+    assert(buildDatecsPaperFeed(4, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "4\t");
+    assert(buildDatecsPaperFeed(0, payload, error));
+    assert(payload.empty());
+    assert(!buildDatecsPaperFeed(100, payload, error));
+
+    SoundPayload sound{250, 1150};
+    assert(buildDatecsSound(sound, payload));
+    assert(std::string(payload.begin(), payload.end()) == "250\t1150\t");
+
+    BarcodePayload barcode{1, "12345678", 0};
+    assert(buildDatecsBarcode(barcode, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "1\t12345678\t\t");
+    barcode = BarcodePayload{2, "123456789012", 0};
+    assert(!buildDatecsBarcode(barcode, payload, error));
+    barcode = BarcodePayload{4, "https://beeloy.example", 4};
+    assert(buildDatecsBarcode(barcode, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "4\thttps://beeloy.example\t4\t");
+    barcode = BarcodePayload{3, "ABC", 4};
+    assert(!buildDatecsBarcode(barcode, payload, error));
+
+    assert(buildDatecsSeparator(1, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "1\t");
+    assert(!buildDatecsSeparator(0, payload, error));
+    assert(!buildDatecsSeparator(5, payload, error));
+
+    assert(buildDatecsDrawer(0, payload));
+    assert(std::string(payload.begin(), payload.end()) == "0\t");
+    assert(buildDatecsDrawer(65535, payload));
+    assert(std::string(payload.begin(), payload.end()) == "65535\t");
+
+    const std::string ackRaw = "0\t";
+    assert(parseDatecsAcknowledge(
+        std::vector<uint8_t>(ackRaw.begin(), ackRaw.end()), error));
+    for (uint16_t command : {33, 35, 44, 46, 47, 63, 80, 84, 92, 106}) {
+        CommandSpec spec;
+        assert(datecsCommandSpec(command, spec));
+        assert(spec.disposition == Disposition::Optional);
+    }
+}
+
+static void testDatecsOptionalInvoiceAndClients() {
+    std::vector<uint8_t> payload;
+    std::string error;
+    InvoiceDataPayload invoice{"Seller", "Receiver", "Buyer", "Address 1", "", 0,
+                               "000713391", "BG000713391"};
+    assert(buildDatecsInvoiceData(invoice, payload, error));
+    assert(std::string(payload.begin(), payload.end()) ==
+           "Seller\tReceiver\tBuyer\tAddress 1\t\t0\t000713391\tBG000713391\t");
+    invoice.taxNumber = "1234567";
+    assert(!buildDatecsInvoiceData(invoice, payload, error));
+    invoice.taxNumber = "000713391";
+    invoice.seller = std::string(37, 'S');
+    assert(!buildDatecsInvoiceData(invoice, payload, error));
+
+    assert(buildDatecsClientInfo(payload));
+    assert(std::string(payload.begin(), payload.end()) == "I\t");
+    ClientRecordPayload client{1, "NAME", 1, "9503216616", "RECEIVER NAME", "",
+                               "ADDR1", "ADDR2"};
+    assert(buildDatecsClientProgram(client, payload, error));
+    assert(std::string(payload.begin(), payload.end()) ==
+           "P\t1\tNAME\t1\t9503216616\tRECEIVER NAME\t\tADDR1\tADDR2\t");
+    client.index = 1001;
+    assert(!buildDatecsClientProgram(client, payload, error));
+
+    assert(buildDatecsClientDelete(1, 20, false, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "D\t1\t20\t");
+    assert(buildDatecsClientDelete(0, 0, true, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "D\tA\t\t");
+    assert(!buildDatecsClientDelete(20, 10, false, payload, error));
+    assert(!buildDatecsClientDelete(1, 0, true, payload, error));
+
+    assert(buildDatecsClientRead(1000, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "R\t1000\t");
+    assert(!buildDatecsClientRead(0, payload, error));
+    assert(buildDatecsClientSeek('F', 0, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "F\t\t");
+    assert(buildDatecsClientSeek('L', 1000, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "L\t1000\t");
+    assert(!buildDatecsClientSeek('N', 1, payload, error));
+    assert(buildDatecsClientNext(payload));
+    assert(std::string(payload.begin(), payload.end()) == "N\t");
+    assert(buildDatecsClientFindByTaxNumber("9503216616", payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "T\t9503216616\t");
+    assert(!buildDatecsClientFindByTaxNumber("ABC", payload, error));
+    assert(buildDatecsClientFindUnprogrammed(false, 0, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "X\t\t");
+    assert(buildDatecsClientFindUnprogrammed(true, 1000, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "x\t1000\t");
+    assert(!buildDatecsClientFindUnprogrammed(false, 1001, payload, error));
+
+    ClientDirectoryInfoResult info;
+    const std::string infoRaw = "0\t1000\t17\t36\t";
+    assert(parseDatecsClientInfo(std::vector<uint8_t>(infoRaw.begin(), infoRaw.end()),
+                                 info, error));
+    assert(info.total == 1000 && info.programmed == 17 && info.nameLength == 36);
+    const std::string badInfoRaw = "0\t999\t17\t36\t";
+    assert(!parseDatecsClientInfo(std::vector<uint8_t>(badInfoRaw.begin(), badInfoRaw.end()),
+                                  info, error));
+
+    ClientRecordResult record;
+    const std::string recordRaw =
+        "0\t1\t9503216616\t1\t\tNAME\tRECEIVER NAME\tADDR1\tADDR2\t";
+    assert(parseDatecsClientRecord(
+        std::vector<uint8_t>(recordRaw.begin(), recordRaw.end()), record, error));
+    assert(record.index == 1 && record.taxNumberType == 1 && record.name == "NAME" &&
+           record.vatNumber.empty() && record.address2 == "ADDR2");
+    const std::string shortRecordRaw = "0\t2\t9202252212\t1\t\tNAME 2\t";
+    assert(parseDatecsClientRecord(
+        std::vector<uint8_t>(shortRecordRaw.begin(), shortRecordRaw.end()), record, error));
+    assert(record.index == 2 && record.receiverName.empty() && record.address2.empty());
+    const std::string badRecordRaw = "0\t1001\t9503216616\t1\t\tNAME\t";
+    assert(!parseDatecsClientRecord(
+        std::vector<uint8_t>(badRecordRaw.begin(), badRecordRaw.end()), record, error));
+
+    uint16_t index = 0;
+    const std::string indexRaw = "0\t1000\t";
+    assert(parseDatecsClientIndex(std::vector<uint8_t>(indexRaw.begin(), indexRaw.end()),
+                                  index, error) && index == 1000);
+    assert(!parseDatecsClientIndex({'0', '\t', '0', '\t'}, index, error));
+    assert(parseDatecsAcknowledge({'0', '\t'}, error));
+
+    for (uint16_t command : {57, 140}) {
+        CommandSpec spec;
+        assert(datecsCommandSpec(command, spec));
+        assert(spec.disposition == Disposition::Optional);
+        assert(spec.retry == RetryClass::LookupThenDecide);
+    }
+    CommandSpec invoiceSpec;
+    assert(datecsCommandSpec(57, invoiceSpec));
+    assert(std::string(invoiceSpec.canonical) == "SetInvoiceData");
+    CommandSpec clientsSpec;
+    assert(datecsCommandSpec(140, clientsSpec));
+    assert(std::string(clientsSpec.canonical) == "ClientDirectory");
+}
+
 struct ExtendedDatecsReadCommandTests {
     ExtendedDatecsReadCommandTests() { testExtendedDatecsReadCommands(); }
 };
 
 static ExtendedDatecsReadCommandTests extendedDatecsReadCommandTests;
+struct DatecsOptionalPeripheralCommandTests {
+    DatecsOptionalPeripheralCommandTests() { testDatecsOptionalPeripheralCommands(); }
+};
+static DatecsOptionalPeripheralCommandTests datecsOptionalPeripheralCommandTests;
+struct DatecsOptionalInvoiceAndClientTests {
+    DatecsOptionalInvoiceAndClientTests() { testDatecsOptionalInvoiceAndClients(); }
+};
+static DatecsOptionalInvoiceAndClientTests datecsOptionalInvoiceAndClientTests;
+
+static void testDaisyFiscalMemoryReadCommands() {
+    std::vector<uint8_t> payload;
+    std::string error;
+
+    assert(buildDaisyTaxRatesPeriod("010126", "310126", payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "010126,310126");
+    assert(buildDaisyTaxRatesPeriod("", "", payload, error) && payload.empty());
+    assert(!buildDaisyTaxRatesPeriod("310126", "010126", payload, error));
+    assert(!buildDaisyTaxRatesPeriod("010126", "", payload, error));
+
+    SubtotalPayload subtotalRequest{true, false, 2, "10.00"};
+    assert(buildDaisySubtotal(subtotalRequest, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "10,-10.00");
+    subtotalRequest.discountType = 0;
+    subtotalRequest.discountValue = "10.00";
+    assert(!buildDaisySubtotal(subtotalRequest, payload, error));
+
+    assert(buildDaisyFiscalTotals('T', payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "T");
+    assert(buildDaisyFiscalTotals('\0', payload, error) && payload.empty());
+    assert(!buildDaisyFiscalTotals('X', payload, error));
+
+    DaisyTaxRatesResult taxRates;
+    const std::string taxRaw = "P,0.00,20.00,20.00,9.00,0.00,0.00,0.00,0.00,010126";
+    assert(parseDaisyTaxRates(std::vector<uint8_t>(taxRaw.begin(), taxRaw.end()),
+                              taxRates, error));
+    assert(taxRates.found && taxRates.rates[1] == "20.00" &&
+           taxRates.effectiveDate == "010126");
+    assert(parseDaisyTaxRates({'F'}, taxRates, error) && !taxRates.found);
+    assert(!parseDaisyTaxRates({'P', ',', '2', '0', '.', '0', '0'}, taxRates, error));
+
+    DaisyFiscalTotalsResult subtotal;
+    std::string subtotalAmount;
+    const std::string subtotalRaw =
+        "35.77,0.00,35.77,0.00,0.00,0.00,0.00,0.00,0.00";
+    assert(parseDaisySubtotal(
+        std::vector<uint8_t>(subtotalRaw.begin(), subtotalRaw.end()), subtotal,
+        subtotalAmount, error));
+    assert(subtotalAmount == "35.77" && subtotal.sales[1] == "35.77");
+
+    std::string clock;
+    const std::string clockRaw = "14.05.26 11:32:13";
+    assert(parseDaisyDateTime(std::vector<uint8_t>(clockRaw.begin(), clockRaw.end()),
+                              clock, error));
+    assert(!parseDaisyDateTime({'1', '4', '-', '0', '5', '-', '2', '6'}, clock, error));
+
+    DaisyLastFiscalRecordResult last;
+    const std::string lastRaw =
+        "6,0.00,20.00,0.00,0.00,0.00,0.00,0.00,0.00,"
+        "0.00,1.00,0.00,0.00,0.00,0.00,0.00,0.00,080526";
+    assert(parseDaisyLastFiscalRecord(
+        std::vector<uint8_t>(lastRaw.begin(), lastRaw.end()), last, error));
+    assert(last.reportNumber == 6 && last.sales[1] == "20.00" &&
+           last.reversals[1] == "1.00" && last.date == "080526");
+
+    DaisyFiscalTotalsResult current;
+    const std::string currentRaw =
+        "0.00,20.00,0.00,0.00,0.00,0.00,0.00,0.00,"
+        "0.00,1.00,0.00,0.00,0.00,0.00,0.00,0.00";
+    assert(parseDaisyCurrentFiscalTotals(
+        std::vector<uint8_t>(currentRaw.begin(), currentRaw.end()), current, error));
+    assert(current.sales[1] == "20.00" && current.reversals[1] == "1.00");
+
+    DaisyFiscalizationResult fiscalization;
+    const std::string fiscalizationRaw = "010126,4,9";
+    assert(parseDaisyFiscalization(
+        std::vector<uint8_t>(fiscalizationRaw.begin(), fiscalizationRaw.end()),
+        fiscalization, error));
+    assert(fiscalization.date == "010126" && fiscalization.lastBgnReport == 4 &&
+           fiscalization.lastReport == 9);
+    const std::string badFiscalizationRaw = "010126,10,9";
+    assert(!parseDaisyFiscalization(
+        std::vector<uint8_t>(badFiscalizationRaw.begin(), badFiscalizationRaw.end()),
+        fiscalization, error));
+
+    DaisyFreeFiscalRecordsResult freeRecords;
+    assert(parseDaisyFreeFiscalRecords({'3', '6', '5', '0', ',', '3', '6', '5', '0'},
+                                        freeRecords, error));
+    assert(freeRecords.logical == 3650 && freeRecords.physical == 3650);
+    assert(!parseDaisyFreeFiscalRecords({'3', ',', '2'}, freeRecords, error));
+}
+
+static void testDaisyDeviceAndCurrencyInfoCommands() {
+    std::vector<uint8_t> payload;
+    std::string error;
+    assert(buildDaisyDiagnostic(true, payload));
+    assert(std::string(payload.begin(), payload.end()) == "1");
+    assert(buildDaisyDiagnostic(false, payload) && payload.empty());
+    assert(buildDaisyErrorDescription(127, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "127");
+    assert(!buildDaisyErrorDescription(0, payload, error));
+    assert(buildDaisyCurrencyTransition('I', 0, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "I");
+    assert(buildDaisyCurrencyTransition('R', 2, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "R2");
+    assert(!buildDaisyCurrencyTransition('I', 1, payload, error));
+    assert(!buildDaisyCurrencyTransition('R', 5, payload, error));
+
+    DaisyDiagnosticResult diagnostic;
+    const std::string diagnosticRaw =
+        "01.02.03 14-05-2026 11:32,12AF,0101,6,DY123456,12345678";
+    assert(parseDaisyDiagnostic(
+        std::vector<uint8_t>(diagnosticRaw.begin(), diagnosticRaw.end()), diagnostic,
+        error));
+    assert(diagnostic.firmwareRevision == "01.02.03" && diagnostic.country == 6 &&
+           diagnostic.fiscalMemoryNumber == "12345678");
+    const std::string badDiagnostic =
+        "short 14/05/2026 11:32,12AF,0101,6,DY123456,12345678";
+    assert(!parseDaisyDiagnostic(
+        std::vector<uint8_t>(badDiagnostic.begin(), badDiagnostic.end()), diagnostic,
+        error));
+
+    std::array<std::string, 8> rates;
+    const std::string ratesRaw = "0.00,20.00,20.00,9.00,0.00,0.00,0.00,0.00";
+    assert(parseDaisyCurrentTaxRates(
+        std::vector<uint8_t>(ratesRaw.begin(), ratesRaw.end()), rates, error));
+    assert(rates[1] == "20.00");
+    assert(!parseDaisyCurrentTaxRates({'2', '0', '.', '0', '0'}, rates, error));
+
+    std::string taxNumber;
+    bool fiscalized = false;
+    assert(parseDaisyTaxNumber({'1','2','3','4','5','6','7','8','9'}, taxNumber,
+                               fiscalized, error));
+    assert(fiscalized && taxNumber == "123456789");
+    assert(parseDaisyTaxNumber({'-','-','-','-','-','-','-','-','-'}, taxNumber,
+                               fiscalized, error) && !fiscalized);
+    assert(!parseDaisyTaxNumber({'1','2','-','4','5','6','7','8','9'}, taxNumber,
+                                fiscalized, error));
+
+    DaisyReceiptInfoResult receipt;
+    const std::string receiptRaw =
+        "1,0.00,20.00,0.00,0.00,0.00,0.00,0.00,0.00,1,0000000042";
+    assert(parseDaisyReceiptInfo(
+        std::vector<uint8_t>(receiptRaw.begin(), receiptRaw.end()), receipt, error));
+    assert(receipt.canVoid && receipt.invoice && receipt.nextInvoiceNumber == "0000000042");
+    const std::string noInvoiceRaw =
+        "0,0.00,20.00,0.00,0.00,0.00,0.00,0.00,0.00,0";
+    assert(parseDaisyReceiptInfo(
+        std::vector<uint8_t>(noInvoiceRaw.begin(), noInvoiceRaw.end()), receipt, error));
+    assert(!receipt.invoice && receipt.nextInvoiceNumber.empty());
+
+    uint32_t document = 0;
+    assert(parseDaisyLastDocumentNumber({'4','2'}, document, error) && document == 42);
+    assert(!parseDaisyLastDocumentNumber({'X'}, document, error));
+
+    bool allSent = false;
+    std::string deviceError;
+    assert(parseDaisyFirstUnsentReceipt({'4','3'}, document, allSent, deviceError,
+                                        error));
+    assert(document == 43 && !allSent && deviceError.empty());
+    assert(parseDaisyFirstUnsentReceipt({'-','-','-'}, document, allSent, deviceError,
+                                        error) && allSent);
+    const std::string unsentError = "error17";
+    assert(parseDaisyFirstUnsentReceipt(
+        std::vector<uint8_t>(unsentError.begin(), unsentError.end()), document, allSent,
+        deviceError, error));
+    assert(deviceError == "error17");
+
+    DaisyFirmwareResult firmware;
+    const std::string firmwareRaw = "10,FD-CERT-2026,NRA-CERT-2026";
+    assert(parseDaisyFirmware(
+        std::vector<uint8_t>(firmwareRaw.begin(), firmwareRaw.end()), firmware, error));
+    assert(firmware.eShopSupported && !firmware.eShopActive &&
+           firmware.confirmedCertificate == "NRA-CERT-2026");
+    const std::string badFirmwareRaw = "12,FD-CERT,NRA-CERT";
+    assert(!parseDaisyFirmware(
+        std::vector<uint8_t>(badFirmwareRaw.begin(), badFirmwareRaw.end()), firmware,
+        error));
+
+    DaisyErrorDescriptionResult description;
+    const std::string descriptionRaw = "17,Invalid fiscal memory state";
+    assert(parseDaisyErrorDescription(
+        std::vector<uint8_t>(descriptionRaw.begin(), descriptionRaw.end()), 17,
+        description, error));
+    assert(description.code == 17 && description.description == "Invalid fiscal memory state");
+    assert(!parseDaisyErrorDescription(
+        std::vector<uint8_t>(descriptionRaw.begin(), descriptionRaw.end()), 18,
+        description, error));
+
+    DaisyCurrencyTransitionResult transition;
+    const std::string transitionRaw =
+        "4,0,010126,XXXXXX,XXXXXX,XXXXXX,1.95583,080826";
+    assert(parseDaisyCurrencyTransitionInfo(
+        std::vector<uint8_t>(transitionRaw.begin(), transitionRaw.end()), transition,
+        error));
+    assert(transition.zone == 4 && !transition.dailyReportRequired &&
+           transition.currencyRate == "1.95583");
+    const std::string badTransitionRaw =
+        "5,0,010126,XXXXXX,XXXXXX,XXXXXX,1.95583,080826";
+    assert(!parseDaisyCurrencyTransitionInfo(
+        std::vector<uint8_t>(badTransitionRaw.begin(), badTransitionRaw.end()), transition,
+        error));
+
+    DaisyCurrencyTransitionDateResult transitionDate;
+    const std::string dateTwoRaw = "010126,1.95583";
+    assert(parseDaisyCurrencyTransitionDate(
+        std::vector<uint8_t>(dateTwoRaw.begin(), dateTwoRaw.end()), 2,
+        transitionDate, error));
+    assert(transitionDate.date == "010126" && transitionDate.currencyRate == "1.95583");
+    assert(parseDaisyCurrencyTransitionDate({'X','X','X','X','X','X'}, 4,
+                                             transitionDate, error));
+    assert(!parseDaisyCurrencyTransitionDate(
+        std::vector<uint8_t>(dateTwoRaw.begin(), dateTwoRaw.end()), 4,
+        transitionDate, error));
+}
+
+static void testDaisySaleAndReportCommands() {
+    std::vector<uint8_t> payload;
+    std::string error;
+    SaleItemPayload displayed{"Coffee", 'B', "2.65", "2.000", 0, "", 0, ""};
+    assert(buildDaisySaleAndDisplay(displayed, payload, error));
+    assert(payload[7] == 0xC1 &&
+           std::string(payload.begin() + 8, payload.end()) == "2.65*2.000");
+
+    DaisyProgrammedItemPayload plu{false, "1234567890123", "2.000", "3.50", 2,
+                                   "5.00"};
+    assert(buildDaisyProgrammedItem(plu, payload, error));
+    assert(std::string(payload.begin(), payload.end()) ==
+           "1234567890123*2.000@3.50,-5.00");
+    plu.correction = true;
+    assert(!buildDaisyProgrammedItem(plu, payload, error));
+    plu.discountType = 0;
+    plu.discountValue.clear();
+    assert(buildDaisyProgrammedItem(plu, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "-1234567890123*2.000@3.50");
+    plu.pluNumber = "bad/value";
+    assert(!buildDaisyProgrammedItem(plu, payload, error));
+
+    assert(buildDaisyFiscalMemoryNumberReport(1, 3650, true, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "1,3650,PAY");
+    assert(!buildDaisyFiscalMemoryNumberReport(20, 10, false, payload, error));
+    assert(buildDaisyFiscalMemoryDateReport("010126", "310126", false, payload,
+                                            error));
+    assert(std::string(payload.begin(), payload.end()) == "010126,310126");
+    assert(buildDaisyFiscalMemoryDateReport("010126", "310126", true, payload,
+                                            error));
+    assert(std::string(payload.begin(), payload.end()) == "010126,310126,PAY");
+    assert(!buildDaisyFiscalMemoryDateReport("310126", "010126", false, payload,
+                                             error));
+
+    assert(buildDaisyDailyReportOption(0, true, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "0N");
+    assert(buildDaisyDailyReportOption(9, false, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "9");
+    assert(!buildDaisyDailyReportOption(4, false, payload, error));
+
+    assert(buildDaisyPluReport('\0', payload, error) && payload.empty());
+    assert(buildDaisyPluReport('Z', payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "Z");
+    assert(!buildDaisyPluReport('X', payload, error));
+    assert(buildDaisyDepartmentReport('X', payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "X");
+    assert(!buildDaisyDepartmentReport('Q', payload, error));
+
+    for (uint16_t command : {105, 130, 166}) {
+        assert(buildDaisySupportedNoData(command, payload, error));
+        assert(payload.empty());
+    }
+    assert(!buildDaisySupportedNoData(104, payload, error));
+
+    bool passed = false;
+    assert(parseDaisyPassFail({'P'}, passed, error) && passed);
+    assert(parseDaisyPassFail({'F'}, passed, error) && !passed);
+    assert(!parseDaisyPassFail({'O', 'K'}, passed, error));
+
+    DaisyDailyReportResult report;
+    const std::string reportRaw =
+        "42,0.00,20.00,0.00,0.00,0.00,0.00,0.00,0.00,"
+        "0.00,1.00,0.00,0.00,0.00,0.00,0.00,0.00";
+    assert(parseDaisyDailyReport(
+        std::vector<uint8_t>(reportRaw.begin(), reportRaw.end()), report, error));
+    assert(report.closure == 42 && report.totals.sales[1] == "20.00" &&
+           report.totals.reversals[1] == "1.00");
+    assert(!parseDaisyDailyReport({'4', '2', ',', '0'}, report, error));
+}
+
+static void testDaisyRemainingSupportedCommands() {
+    std::vector<uint8_t> payload;
+    std::string error;
+
+    assert(buildDaisyCurrentDay(true, payload));
+    assert(std::string(payload.begin(), payload.end()) == "A");
+    assert(buildDaisyCurrentDay(false, payload) && payload.empty());
+    DaisyCurrentDayResult day;
+    const std::string dayRaw =
+        "10.00,1.00,2.00,3.00,4.00,5.00,42,1234,0000000123";
+    assert(parseDaisyCurrentDay(
+        std::vector<uint8_t>(dayRaw.begin(), dayRaw.end()), day, error));
+    assert(day.payments.size() == 6 && day.payments[5] == "5.00" &&
+           day.lastZReport == 42 && day.nextDocument == 1234 &&
+           day.nextInvoice == "0000000123");
+    assert(!parseDaisyCurrentDay({'1', ',', '2'}, day, error));
+
+    assert(buildDaisyOperatorInfo(7, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "7");
+    assert(!buildDaisyOperatorInfo(0, payload, error));
+    DaisyOperatorResult op;
+    const std::string opRaw =
+        "12,10;25.00,2;1.00,1;0.50,3;4.00,Ada\t"
+        "1,0,1,2;3.00,1;1.00,4;5.00";
+    assert(parseDaisyOperatorInfo(
+        std::vector<uint8_t>(opRaw.begin(), opRaw.end()), op, error));
+    assert(op.receipts == 12 && op.sales.count == 10 &&
+           op.refundEnabled[0] && !op.refundEnabled[1] &&
+           op.refunds[2].amount == "5.00");
+    assert(!parseDaisyOperatorInfo({'1', ',', 'x'}, op, error));
+
+    assert(buildDaisyFmInformationNumber(10, 4, 20, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "10,4,20");
+    assert(buildDaisyFmInformationNumber(10, 3, 0, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "10,3");
+    assert(!buildDaisyFmInformationNumber(10, 2, 20, payload, error));
+    assert(buildDaisyFmInformationDate("010126", 6, "310126", payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "010126,6,310126");
+    assert(!buildDaisyFmInformationDate("310126", 4, "010126", payload, error));
+    DaisyFmQueryResult fm;
+    const std::string fmRaw =
+        "P,0.00,20.00,0.00,0.00,0.00,0.00,0.00,0.00,"
+        "0.00,1.00,0.00,0.00,0.00,0.00,0.00,0.00";
+    assert(parseDaisyFmInformation(
+        std::vector<uint8_t>(fmRaw.begin(), fmRaw.end()), 4, fm, error));
+    assert(fm.state == DaisyFmQueryState::Valid && fm.hasReversals &&
+           fm.values[1] == "20.00" && fm.reversals[1] == "1.00");
+    assert(parseDaisyFmInformation({'F'}, 4, fm, error) &&
+           fm.state == DaisyFmQueryState::InvalidChecksum);
+    assert(parseDaisyFmInformation({'E'}, 4, fm, error) &&
+           fm.state == DaisyFmQueryState::NoData);
+    assert(!parseDaisyFmInformation({'P', ',', '0'}, 4, fm, error));
+
+    assert(buildDaisyQrDocument(10, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "9");
+    assert(buildDaisyQrDocument(0, payload, error) && payload.empty());
+    DaisyQrDocumentResult qr;
+    const std::string qrRaw =
+        "PS,14,36940099*000123*2026-08-09*09:19:02*2.50";
+    assert(parseDaisyQrDocument(
+        std::vector<uint8_t>(qrRaw.begin(), qrRaw.end()), qr, error));
+    assert(qr.found && qr.overallType == 'S' && qr.hasQr &&
+           qr.documentType == 14);
+    assert(parseDaisyQrDocument({'P','F',',','X','X','X','X','X'}, qr, error) &&
+           qr.found && !qr.hasQr);
+    assert(parseDaisyQrDocument({'F'}, qr, error) && !qr.found);
+
+    assert(buildDaisyIssuedDocument(246, true, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "246,S");
+    assert(buildDaisyIssuedDocument(0, true, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "S");
+    DaisyIssuedDocumentResult document;
+    const std::string documentRaw =
+        "P000246\t04.05.2023 08:49:12\t65\t0\t10\t1\t"
+        "DY999636-OP01-1234567\t000000,SHA1:"
+        "70BCE-5EAC9-4CEFE-64231\n73FF1-A8D54-B193C-885E8";
+    assert(parseDaisyIssuedDocument(
+        std::vector<uint8_t>(documentRaw.begin(), documentRaw.end()), true,
+        document, error));
+    assert(document.found && document.number == 246 && document.description == 65 &&
+           document.multiplier100 && document.sha1.size() == 47);
+    assert(!parseDaisyIssuedDocument(
+        std::vector<uint8_t>(documentRaw.begin(), documentRaw.end()), false,
+        document, error));
+    assert(parseDaisyIssuedDocument({'F'}, false, document, error) && !document.found);
+
+    for (uint16_t command : {128, 153}) {
+        assert(buildDaisySupportedNoData(command, payload, error));
+        assert(payload.empty());
+    }
+    DaisyConstantsResult constants;
+    const std::string constantsRaw =
+        "384,120,12,8,,,A,8,48,48,32,8,8,0,13,20,100000,1,1,0,20,16,0,0,0,0";
+    assert(parseDaisyConstants(
+        std::vector<uint8_t>(constantsRaw.begin(), constantsRaw.end()), constants,
+        error));
+    assert(constants.logoWidth == 384 && constants.paymentCount == 12 &&
+           constants.taxGroupCount == 8 && constants.pluCount == 100000 &&
+           constants.operatorCount == 20);
+    assert(!parseDaisyConstants({'1', ',', '2'}, constants, error));
+
+    DaisyDepartmentSalePayload department{false, 12, "5.50", "2.000", 2, "10.00"};
+    assert(buildDaisyDepartmentSale(department, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "12@5.50*2.000,-10.00");
+    department.correction = true;
+    assert(!buildDaisyDepartmentSale(department, payload, error));
+    department.discountType = 0;
+    department.discountValue.clear();
+    assert(buildDaisyDepartmentSale(department, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "-12@5.50*2.000");
+
+    DaisyTextReportLine line;
+    const std::vector<uint8_t> reportLine = {
+        0x1a,'0','0','0','0','4','2','\t','N','\t','T','o','t','a','l','\r','\n'};
+    assert(parseDaisyTextReportLine(reportLine, line, error));
+    assert(!line.end && line.lineNumber == 42 && line.font == 'N' &&
+           line.text == "Total");
+    assert(parseDaisyTextReportLine({0x1a,'\t','E','\r','\n'}, line, error) &&
+           line.end && line.font == 'E');
+    assert(!parseDaisyTextReportLine({0x1a,'0','0','0','0','4','2','\t','X','\r','\n'},
+                                     line, error));
+}
+
+static void testDaisyOptionalCommands() {
+    std::vector<uint8_t> payload;
+    std::string error;
+    for (uint16_t command : {33, 63, 71, 176}) {
+        assert(buildDaisyOptionalNoData(command, payload, error));
+        assert(payload.empty());
+    }
+    assert(!buildDaisyOptionalNoData(34, payload, error));
+    assert(parseDaisyNoData({}, error));
+    assert(!parseDaisyNoData({'P'}, error));
+
+    assert(buildDaisyDisplayText(35, "Customer total", payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "Customer total");
+    assert(buildDaisyDisplayText(47, "Welcome", payload, error));
+    assert(!buildDaisyDisplayText(46, "wrong overload", payload, error));
+    assert(!buildDaisyDisplayText(35, "bad\ntext", payload, error));
+    assert(buildDaisyDisplayLine(2, "EUR 2.50", payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "2,EUR 2.50");
+    assert(!buildDaisyDisplayLine(0, "EUR", payload, error));
+
+    assert(buildDaisyPaperFeed(0, payload, error) && payload.empty());
+    assert(buildDaisyPaperFeed(12, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "12");
+    assert(!buildDaisyPaperFeed(1000, payload, error));
+    assert(buildDaisyPaperCut(0, payload, error) && payload.empty());
+    assert(buildDaisyPaperCut(2, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "2");
+    assert(!buildDaisyPaperCut(3, payload, error));
+    bool passed = false;
+    assert(parseDaisyPassFail({'P'}, passed, error) && passed);
+
+    DaisyInvoiceCustomerPayload invoice{
+        "123456789", "BG123456789", "Seller", "Ada", "Analytical Engines",
+        {"1 Main Street", "Sofia"}};
+    assert(buildDaisyInvoiceCustomer(invoice, payload, error));
+    assert(std::string(payload.begin(), payload.end()) ==
+           "123456789\tBG123456789\tSeller\tAda\tAnalytical Engines\t"
+           "1 Main Street\tSofia");
+    invoice.identificationNumber = "bad\tvalue";
+    assert(!buildDaisyInvoiceCustomer(invoice, payload, error));
+
+    DaisyBarcodePayload barcode{2, "123456789012", 'R', 2, 15, false, true};
+    assert(buildDaisyBarcode(barcode, payload, error));
+    assert(std::string(payload.begin(), payload.end()) ==
+           "2,123456789012\tR,2,15,0");
+    barcode.data = "123";
+    assert(!buildDaisyBarcode(barcode, payload, error));
+    barcode = DaisyBarcodePayload{12, "A12D", 'C', 0, 0, true, false};
+    assert(buildDaisyBarcode(barcode, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "12,A12D");
+    barcode.data = "E123";
+    assert(!buildDaisyBarcode(barcode, payload, error));
+
+    assert(buildDaisyCustomerQr('Q', {"customer-reference"}, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "Q,customer-reference");
+    assert(buildDaisyCustomerQr('P', {"DNO", "DT", "TAM"}, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "P,DNO,DT,TAM");
+    assert(buildDaisyCustomerQr('R', {}, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "R");
+    assert(!buildDaisyCustomerQr('P', {"UNKNOWN"}, payload, error));
+    std::vector<std::string> qrFields;
+    assert(parseDaisyCustomerQr({}, 'Q', passed, qrFields, error) && passed);
+    assert(parseDaisyCustomerQr({'P'}, 'P', passed, qrFields, error) && passed);
+    assert(parseDaisyCustomerQr({'F','2'}, 'P', passed, qrFields, error) &&
+           !passed && qrFields[0] == "2");
+    const std::string qrTemplate = "DNO,DT,TAM";
+    assert(parseDaisyCustomerQr(
+        std::vector<uint8_t>(qrTemplate.begin(), qrTemplate.end()), 'R', passed,
+        qrFields, error));
+    assert(qrFields.size() == 3 && qrFields[2] == "TAM");
+
+    assert(buildDaisyDrawer(0, payload, error) && payload.empty());
+    assert(buildDaisyDrawer(50, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "50");
+    assert(!buildDaisyDrawer(49, payload, error));
+
+    assert(buildDaisyDisplayConfiguration('R', "2", payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "R,2");
+    assert(buildDaisyDisplayConfiguration('0', "I1B2C3D4E5F60718293A4,100",
+                                          payload, error));
+    assert(std::string(payload.begin(), payload.end()) ==
+           "0,I1B2C3D4E5F60718293A4,100");
+    assert(buildDaisyDisplayConfiguration('9', "D", payload, error));
+    assert(!buildDaisyDisplayConfiguration('0', "Ixyz", payload, error));
+
+    DaisyCustomerRecord customer{"123456789", "BG123456789", "Ada", "Engine Ltd",
+                                 "Sofia 1", "Floor 2"};
+    assert(buildDaisyCustomerProgram(customer, payload, error));
+    assert(std::string(payload.begin(), payload.end()) ==
+           "P123456789\tBG123456789\tAda\tEngine Ltd\tSofia 1\tFloor 2");
+    assert(buildDaisyCustomerDelete("", true, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "DA");
+    assert(buildDaisyCustomerDelete("123456789", false, payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "D123456789");
+    assert(buildDaisyCustomerRead("123456789", payload, error));
+    assert(std::string(payload.begin(), payload.end()) == "R123456789");
+    assert(buildDaisyCustomerIteration('F', payload, error));
+    assert(!buildDaisyCustomerIteration('R', payload, error));
+    const std::string customerRaw =
+        "P,P123456789\tBG123456789\tAda\tEngine Ltd\tSofia 1\tFloor 2";
+    bool found = false;
+    DaisyCustomerRecord readCustomer;
+    assert(parseDaisyCustomerRecord(
+        std::vector<uint8_t>(customerRaw.begin(), customerRaw.end()), readCustomer,
+        found, error));
+    assert(found && readCustomer.eik == "123456789" &&
+           readCustomer.address2 == "Floor 2");
+    assert(parseDaisyCustomerRecord({'F'}, readCustomer, found, error) && !found);
+
+    assert(buildDaisyBattery(payload));
+    assert(std::string(payload.begin(), payload.end()) == "15");
+    DaisyBatteryResult battery;
+    assert(parseDaisyBattery({'3','8','5','0',' ','9','2'}, battery, error));
+    assert(battery.millivolts == 3850 && battery.capacityPercent == 92);
+    assert(!parseDaisyBattery({'4','0','0','1',' ','5','0'}, battery, error));
+}
+
+struct DaisyFiscalMemoryReadCommandTests {
+    DaisyFiscalMemoryReadCommandTests() {
+        testDaisyFiscalMemoryReadCommands();
+        testDaisyDeviceAndCurrencyInfoCommands();
+        testDaisySaleAndReportCommands();
+        testDaisyRemainingSupportedCommands();
+        testDaisyOptionalCommands();
+    }
+};
+static DaisyFiscalMemoryReadCommandTests daisyFiscalMemoryReadCommandTests;
 static std::vector<uint8_t>daisyResponse(){std::vector<uint8_t>v{1,0x2a,0x20,74,4,0x80,0x80,0x80,0x80,0x80,0x80,5};uint16_t s=0;for(size_t i=1;i<v.size();i++)s+=v[i];const char*h="0123456789ABCDEF";v.push_back(h[(s>>12)&15]);v.push_back(h[(s>>8)&15]);v.push_back(h[(s>>4)&15]);v.push_back(h[s&15]);v.push_back(3);return v;}
 static void addWord(std::vector<uint8_t>&v,uint16_t x){for(int n:{12,8,4,0})v.push_back(uint8_t(((x>>n)&15)+0x30));}
 static std::vector<uint8_t>datecsResponse(){std::vector<uint8_t>v{1};addWord(v,0x2f);v.push_back(0x20);addWord(v,74);v.push_back(4);for(int i=0;i<8;i++)v.push_back(0x80);v.push_back(5);uint16_t s=0;for(size_t i=1;i<v.size();i++)s+=v[i];addWord(v,s);v.push_back(3);return v;}

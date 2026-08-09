@@ -49,7 +49,11 @@ func (s *Service) CreateResource(kind, tenant string, data map[string]any) (map[
 		return nil, err
 	}
 	now := time.Now().UTC()
-	v := ResourceRecord{Kind: kind, TenantID: tenant, ID: id, Version: 1, Data: cloneMap(data), CreatedAt: now, UpdatedAt: now}
+	storedData := cloneMap(data)
+	if kind == "register" {
+		normalizeRegisterBindingTimes(nil, storedData, now)
+	}
+	v := ResourceRecord{Kind: kind, TenantID: tenant, ID: id, Version: 1, Data: storedData, CreatedAt: now, UpdatedAt: now}
 	if err = s.repo.PutResource(v); err != nil {
 		return nil, err
 	}
@@ -76,7 +80,12 @@ func (s *Service) UpdateResource(kind, id, tenant string, expected int64, data m
 	if err = s.ensureUniqueResource(kind, tenant, data, id); err != nil {
 		return nil, err
 	}
-	v.Data, v.Version, v.UpdatedAt = cloneMap(data), v.Version+1, time.Now().UTC()
+	now := time.Now().UTC()
+	storedData := cloneMap(data)
+	if kind == "register" {
+		normalizeRegisterBindingTimes(v.Data, storedData, now)
+	}
+	v.Data, v.Version, v.UpdatedAt = storedData, v.Version+1, now
 	if err = s.repo.PutResource(v); err != nil {
 		return nil, err
 	}
@@ -210,8 +219,36 @@ func (s *Service) validateResourceReferences(kind, tenant string, v map[string]a
 		if _, err := s.GetResource("location", stringField(v, "location_id"), tenant); err != nil {
 			return errors.New("location not found")
 		}
+		for _, binding := range []struct {
+			field string
+			kinds []string
+		}{{"fiscal_device_id", []string{"FISCAL_DEVICE", "SMART_DEVICE"}}, {"payment_terminal_id", []string{"PAYMENT_TERMINAL", "SMART_DEVICE"}}} {
+			id := stringField(v, binding.field)
+			if id == "" {
+				continue
+			}
+			device, err := s.repo.Resource("device", id)
+			if err != nil || device.TenantID != tenant || stringField(device.Data, "status") != "ACTIVE" || !oneOf(stringField(device.Data, "kind"), binding.kinds...) {
+				return errors.New("invalid active register device reference")
+			}
+		}
 	}
 	return nil
+}
+
+func normalizeRegisterBindingTimes(previous, next map[string]any, now time.Time) {
+	for _, binding := range []struct{ id, active string }{{"fiscal_device_id", "fiscal_device_active_from"}, {"payment_terminal_id", "payment_terminal_active_from"}} {
+		id := stringField(next, binding.id)
+		if id == "" {
+			delete(next, binding.active)
+			continue
+		}
+		if previous != nil && id == stringField(previous, binding.id) && stringField(previous, binding.active) != "" {
+			next[binding.active] = stringField(previous, binding.active)
+			continue
+		}
+		next[binding.active] = now.UTC().Format(time.RFC3339Nano)
+	}
 }
 func (s *Service) ensureUniqueResource(kind, tenant string, data map[string]any, except string) error {
 	key := map[string]string{"location": "code", "register": "code", "operator": "code", "device": "serial"}[kind]
@@ -251,23 +288,30 @@ func (s *Service) BindRegister(registerID, tenant, deviceID, role, activeFrom st
 		return nil, errors.New("not a payment terminal")
 	}
 	field := "fiscal_device_id"
+	activeField := "fiscal_device_active_from"
 	if role == "OPTIONAL_PAYMENT_TERMINAL" {
 		field = "payment_terminal_id"
+		activeField = "payment_terminal_active_from"
 	}
-	register.Data[field] = deviceID
-	register.Version++
-	register.UpdatedAt = time.Now().UTC()
-	if err = s.repo.PutResource(register); err != nil {
-		return nil, err
+	if activeFrom == "" {
+		activeFrom = time.Now().UTC().Format(time.RFC3339Nano)
+	}
+	parsedActiveFrom, err := time.Parse(time.RFC3339, activeFrom)
+	if err != nil {
+		return nil, errors.New("invalid binding active_from")
 	}
 	id, err := newUUID()
 	if err != nil {
 		return nil, err
 	}
-	if activeFrom == "" {
-		activeFrom = time.Now().UTC().Format(time.RFC3339Nano)
+	register.Data[field] = deviceID
+	register.Data[activeField] = parsedActiveFrom.UTC().Format(time.RFC3339Nano)
+	register.Version++
+	register.UpdatedAt = time.Now().UTC()
+	if err = s.repo.PutResource(register); err != nil {
+		return nil, err
 	}
-	return map[string]any{"id": id, "register_id": registerID, "device_id": deviceID, "role": role, "version": int64(1), "active_from": activeFrom}, nil
+	return map[string]any{"id": id, "register_id": registerID, "device_id": deviceID, "role": role, "version": int64(1), "active_from": parsedActiveFrom.UTC().Format(time.RFC3339Nano)}, nil
 }
 
 func (s *Service) DeviceCapabilities(deviceID, tenant string) (map[string]any, error) {

@@ -15,14 +15,39 @@ func TestSplitCSV(t *testing.T) {
 }
 
 func TestProdGuards(t *testing.T) {
-	base := Config{AppEnv: "prod", DatabaseURL: "postgres://writer@db/fiscal", RLSDatabaseURL: "postgres://reader@db/fiscal", WebhookSigningKey: "production-webhook", OIDCIssuer: "https://id.example", OIDCAudience: "beefiscal", OIDCJWKSURL: "https://id.example/jwks", BLESigningKey: strings.Repeat("b", 32)}
+	base := Config{AppEnv: "prod", PublicBaseURL: "https://fiscal.example/public/v1", CORSAllowedOrigins: "https://admin.example,https://pos.example", DatabaseURL: "postgres://writer@db/fiscal", RLSDatabaseURL: "postgres://reader@db/fiscal", WebhookSigningKey: strings.Repeat("w", 32), OIDCIssuer: "https://id.example", OIDCAudience: "beefiscal", OIDCJWKSURL: "https://id.example/jwks", BLESigningKey: strings.Repeat("b", 32)}
 	if e := base.Validate(); e != nil {
 		t.Fatal(e)
 	}
 	x := base
+	x.WebhookSigningKey = "too-short"
+	if x.Validate() == nil {
+		t.Fatal("weak webhook signing key accepted")
+	}
+	x = base
+	x.PublicBaseURL = "http://fiscal.example/public/v1"
+	if x.Validate() == nil {
+		t.Fatal("insecure public base URL accepted")
+	}
+	x = base
+	x.CORSAllowedOrigins = "*"
+	if x.Validate() == nil {
+		t.Fatal("wildcard CORS accepted")
+	}
+	x = base
+	x.CORSAllowedOrigins = "https://admin.example/path"
+	if x.Validate() == nil {
+		t.Fatal("non-origin CORS URL accepted")
+	}
+	x = base
 	x.AllowStubAdapters = true
 	if x.Validate() == nil {
 		t.Fatal("stub accepted")
+	}
+	x = base
+	x.SimulatorCardTerminalAvailable = true
+	if x.Validate() == nil {
+		t.Fatal("simulated card terminal accepted in PROD")
 	}
 	x = base
 	x.AuthHMACKey = "dev-key"

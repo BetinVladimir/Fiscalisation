@@ -2,6 +2,8 @@
 node_modules/
 .regression-web/
 .regression-native/
+.ui-e2e-web/
+.ui-e2e-prod-web/
 .npm/
 .expo/
 .expo-shared/

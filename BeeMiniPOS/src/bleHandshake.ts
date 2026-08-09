@@ -5,7 +5,7 @@ import {aesGcmEncrypt,base64urlDecode,base64urlEncode,hash256,hkdf256,randomByte
 export const BLE_PROTOCOL_VERSION="2026-08-07";
 export type ControlMessage={type:"HELLO"|"CHALLENGE"|"AUTH_PROOF"|"READY"|"ACK"|"NACK";protocol_version:string;session_id:string;counter:number;message_id?:string|null;payload:Record<string,unknown>};
 export type HandshakeSession={ble_session_id:string;signed_session_ticket:string;protocol_version:string;expires_at:string};
-type Ticket={SessionID:string;TenantID:string;RegisterID:string;DeviceID:string;Scopes:string[]};
+type Ticket={SessionID:string;TenantID:string;RegisterID:string;DeviceID:string;ClientPublicKey:string;Scopes:string[]};
 
 const te=new TextEncoder();
 function concat(...v:Uint8Array[]){const out=new Uint8Array(v.reduce((n,x)=>n+x.length,0));let p=0;for(const x of v){out.set(x,p);p+=x.length}return out}
@@ -18,12 +18,13 @@ export class BleClientHandshake{
  get currentState(){return this.state}
  get sessionId(){return this.session?.ble_session_id}
  get canExecuteFiscalCommand(){return this.state==="READY"&&!!this.sessionKey}
+ prepareSessionPublicKey(){if(this.state!=="NEW")throw new Error("BLE_HANDSHAKE_STATE");if(!this.pair)this.pair=x25519Pair();return base64urlEncode(this.pair.publicKey)}
  async start(session:HandshakeSession):Promise<Uint8Array>{
   if(this.state!=="NEW")throw new Error("BLE_HANDSHAKE_STATE");
   if(session.protocol_version!==BLE_PROTOCOL_VERSION)throw new Error("BLE_PROTOCOL_MISMATCH");
   if(new Date(session.expires_at).getTime()<=Date.now())throw new Error("BLE_SESSION_EXPIRED");
-  const ticket=parseTicket(session.signed_session_ticket);if(ticket.SessionID!==session.ble_session_id||!ticket.Scopes.includes("fiscal.execute"))throw new Error("BLE_TICKET_BINDING");
-  this.pair=x25519Pair();this.clientNonce=randomBytes(16);this.session=session;this.state="HELLO_SENT";
+  if(!this.pair)throw new Error("BLE_CLIENT_KEY_NOT_PREPARED");const ticket=parseTicket(session.signed_session_ticket);if(ticket.SessionID!==session.ble_session_id||!ticket.Scopes.includes("fiscal.execute")||ticket.ClientPublicKey!==base64urlEncode(this.pair.publicKey))throw new Error("BLE_TICKET_BINDING");
+  this.clientNonce=randomBytes(16);this.session=session;this.state="HELLO_SENT";
   return encodeCanonical({type:"HELLO",protocol_version:BLE_PROTOCOL_VERSION,session_id:session.ble_session_id,counter:0,payload:{ticket:session.signed_session_ticket,client_nonce:base64urlEncode(this.clientNonce),ephemeral_public_key:base64urlEncode(this.pair.publicKey)}} satisfies ControlMessage)
  }
  async challenge(raw:Uint8Array):Promise<Uint8Array>{

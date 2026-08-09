@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"path/filepath"
+	"strings"
 	"testing"
 	"time"
 
@@ -14,6 +15,43 @@ import (
 	"fiscalisation/edge-agent/journal"
 	edgeruntime "fiscalisation/edge-agent/runtime"
 )
+
+func TestEdgeGeneratedSuccessResponseMiddlewareFailsClosed(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/internal/v1/storage", nil)
+	w := httptest.NewRecorder()
+	enforceEdgeSuccess(w, r, func(inner http.ResponseWriter, _ *http.Request) {
+		inner.Header().Set("Content-Type", "text/plain")
+		inner.WriteHeader(http.StatusOK)
+		_, _ = inner.Write([]byte(`{}`))
+	})
+	if w.Code != http.StatusInternalServerError || !strings.Contains(w.Body.String(), "response contract violation") {
+		t.Fatalf("undocumented Edge media accepted: %d %s", w.Code, w.Body.String())
+	}
+}
+
+func TestEdgeProblemResponseFailsClosed(t *testing.T) {
+	r := httptest.NewRequest(http.MethodGet, "/internal/v1/storage", nil)
+	w := httptest.NewRecorder()
+	enforceEdgeSuccess(w, r, func(inner http.ResponseWriter, _ *http.Request) {
+		inner.Header().Set("Content-Type", "application/problem+json")
+		inner.WriteHeader(http.StatusConflict)
+		_, _ = inner.Write([]byte(`{"type":"urn:test","title":"bad","status":400,"code":"BAD","retryable":false,"trace_id":"trace"}`))
+	})
+	if w.Code != http.StatusInternalServerError || !strings.Contains(w.Body.String(), "response contract violation") {
+		t.Fatalf("invalid Problem accepted: %d %s", w.Code, w.Body.String())
+	}
+}
+
+func TestEdgeRequestContractRejectsUnknownField(t *testing.T) {
+	called := false
+	r := httptest.NewRequest(http.MethodPost, "/internal/v1/commands", bytes.NewBufferString(`{"command_id":"c","tenant_id":"t","register_id":"r","device_id":"d","type":"FISCAL_SALE","fencing_token":1,"payload":{},"unexpected":true}`))
+	r.Header.Set("Content-Type", "application/json")
+	w := httptest.NewRecorder()
+	enforceEdgeSuccess(w, r, func(http.ResponseWriter, *http.Request) { called = true })
+	if w.Code != http.StatusUnprocessableEntity || called || !strings.Contains(w.Body.String(), "REQUEST_CONTRACT_VIOLATION") {
+		t.Fatalf("invalid Edge request reached runtime: %d called=%v %s", w.Code, called, w.Body.String())
+	}
+}
 
 func TestExecutableCommandIsDurableIdempotentAndBound(t *testing.T) {
 	j, err := journal.Open(filepath.Join(t.TempDir(), "edge.db"))
@@ -30,6 +68,7 @@ func TestExecutableCommandIsDurableIdempotentAndBound(t *testing.T) {
 	call := func(v edgeruntime.Command) *httptest.ResponseRecorder {
 		body, _ := json.Marshal(v)
 		r := httptest.NewRequest(http.MethodPost, "/internal/v1/commands", bytes.NewReader(body))
+		r.Header.Set("Content-Type", "application/json")
 		r.Header.Set("Authorization", "Bearer 1234567890123456")
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)

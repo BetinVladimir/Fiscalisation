@@ -2,5 +2,21 @@ services:
   postgres:
     volumes: !override
       - ./database/minipos:/docker-entrypoint-initdb.d:ro
+      - minipos_db_socket:/var/run/postgresql
     tmpfs:
       - /var/lib/postgresql/data:size=256m
+    networks: !override [dbroute]
+  beeminipos-backend:
+    networks: !override [dbroute]
+    volumes:
+      - minipos_db_socket:/var/run/postgresql
+    environment:
+      DATABASE_URL: "postgres://minipos:${MINIPOS_DB_PASSWORD}@/minipos?host=/var/run/postgresql&sslmode=disable"
+      RLS_DATABASE_URL: "postgres://beeminipos_tenant:${MINIPOS_RLS_DB_PASSWORD}@/minipos?host=/var/run/postgresql&sslmode=disable"
+  caddy:
+    networks: !override [dbroute]
+networks:
+  dbroute:
+    internal: true
+volumes:
+  minipos_db_socket:

@@ -2,6 +2,7 @@ package config
 
 import (
 	"reflect"
+	"strings"
 	"testing"
 )
 
@@ -14,11 +15,31 @@ func TestSplitCSV(t *testing.T) {
 }
 
 func TestProdGuards(t *testing.T) {
-	base := Config{AppEnv: "prod", DatabaseURL: "postgres://writer@db/minipos", RLSDatabaseURL: "postgres://reader@db/minipos", FiscalBaseURL: "https://fiscal/public/v1", WebhookVerificationKey: "production-webhook", OIDCIssuer: "https://id.example", OIDCAudience: "beeminipos", OIDCJWKSURL: "https://id.example/jwks", OAuthTokenURL: "https://id.example/token", OAuthClientID: "minipos", OAuthClientSecret: "production-secret-32-bytes", OAuthScope: "fiscal.base"}
+	base := Config{AppEnv: "prod", DatabaseURL: "postgres://writer@db/minipos", RLSDatabaseURL: "postgres://reader@db/minipos", FiscalBaseURL: "https://fiscal.example/public/v1", CORSAllowedOrigins: "https://pos.example", WebhookVerificationKey: strings.Repeat("w", 32), OIDCIssuer: "https://id.example", OIDCAudience: "beeminipos", OIDCJWKSURL: "https://id.example/jwks", OAuthTokenURL: "https://id.example/token", OAuthClientID: "minipos", OAuthClientSecret: "production-secret-32-bytes", OAuthScope: "fiscal.base"}
 	if e := base.Validate(); e != nil {
 		t.Fatal(e)
 	}
 	x := base
+	x.WebhookVerificationKey = "too-short"
+	if x.Validate() == nil {
+		t.Fatal("weak webhook verification key accepted")
+	}
+	x = base
+	x.FiscalBaseURL = "http://fiscal.example/public/v1"
+	if x.Validate() == nil {
+		t.Fatal("insecure Fiscal public API accepted")
+	}
+	x = base
+	x.CORSAllowedOrigins = "*"
+	if x.Validate() == nil {
+		t.Fatal("wildcard CORS accepted")
+	}
+	x = base
+	x.CORSAllowedOrigins = "https://pos.example/path"
+	if x.Validate() == nil {
+		t.Fatal("non-origin CORS URL accepted")
+	}
+	x = base
 	x.OAuthClientSecret = ""
 	if x.Validate() == nil {
 		t.Fatal("missing OAuth secret accepted")

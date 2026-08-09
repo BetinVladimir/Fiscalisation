@@ -3,6 +3,7 @@ package domain
 import (
 	"fmt"
 	"testing"
+	"time"
 )
 
 func TestSplitPaymentAndExactTotal(t *testing.T) {
@@ -69,6 +70,54 @@ func TestLostFiscalDeviceBlocksBeforeOperation(t *testing.T) {
 	}
 	if len(r.Operations()) != 0 {
 		t.Fatal("operation created before device reachability was established")
+	}
+}
+
+func TestCardPaymentRequiresActiveRegisterTerminal(t *testing.T) {
+	repo := NewMemoryRepository()
+	s := NewService(repo, NewSimulatorWithCardTerminal(true, true))
+	registerID, _ := prepareBLERegister(t, s, "tenant-card")
+	newSale := func(externalID string) Sale {
+		sale, err := s.CreateSale(CreateSale{TenantID: "tenant-card", ExternalID: externalID, RegisterID: registerID, OperatorID: "A001"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		sale, err = s.AddLineExpectedForTenant(sale.ID, sale.Version, SaleLine{LineID: externalID + "-line", Name: "Item", Quantity: "1.000", UnitPrice: Money{Amount: "2.50", Currency: "EUR"}, TaxGroup: "B"}, "tenant-card")
+		if err != nil {
+			t.Fatal(err)
+		}
+		return sale
+	}
+	sale := newSale("card-without-terminal")
+	if _, err := s.PayForTenant(sale.ID, PaymentRequest{PaymentID: "card-1", Type: "CARD", TerminalPolicy: "AUTO_IF_AVAILABLE", Amount: Money{Amount: "2.50", Currency: "EUR"}}, "tenant-card"); err == nil {
+		t.Fatal("card payment accepted without an active bound terminal")
+	}
+	if len(repo.Operations()) != 0 {
+		t.Fatal("operation created before payment-terminal registry gate")
+	}
+	terminal, err := s.CreateResource("device", "tenant-card", map[string]any{"kind": "PAYMENT_TERMINAL", "vendor": "Simulator", "model": "CARD-STUB", "serial": "CARD-001", "status": "DRAFT", "environment": "DEV", "simulated": true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	terminal = activateTestDevice(t, s, "tenant-card", terminal)
+	if _, err = s.BindRegister(registerID, "tenant-card", terminal["id"].(string), "OPTIONAL_PAYMENT_TERMINAL", time.Now().UTC().Add(time.Hour).Format(time.RFC3339)); err != nil {
+		t.Fatal(err)
+	}
+	sale = newSale("card-with-future-terminal")
+	if _, err = s.PayForTenant(sale.ID, PaymentRequest{PaymentID: "card-future", Type: "CARD", TerminalPolicy: "AUTO_IF_AVAILABLE", Amount: Money{Amount: "2.50", Currency: "EUR"}}, "tenant-card"); err == nil {
+		t.Fatal("future-dated payment-terminal binding was treated as active")
+	}
+	if _, err = s.BindRegister(registerID, "tenant-card", terminal["id"].(string), "OPTIONAL_PAYMENT_TERMINAL", ""); err != nil {
+		t.Fatal(err)
+	}
+	sale = newSale("card-with-terminal")
+	op, err := s.PayForTenant(sale.ID, PaymentRequest{PaymentID: "card-2", Type: "CARD", TerminalPolicy: "AUTO_IF_AVAILABLE", Amount: Money{Amount: "2.50", Currency: "EUR"}}, "tenant-card")
+	if err != nil || op.State != "FISCALIZED" {
+		t.Fatalf("active bound terminal did not enable card payment: %+v %v", op, err)
+	}
+	sale = newSale("card-none-policy")
+	if _, err = s.PayForTenant(sale.ID, PaymentRequest{PaymentID: "card-3", Type: "CARD", TerminalPolicy: "NONE", Amount: Money{Amount: "2.50", Currency: "EUR"}}, "tenant-card"); err == nil {
+		t.Fatal("CARD with terminal_policy=NONE was accepted")
 	}
 }
 

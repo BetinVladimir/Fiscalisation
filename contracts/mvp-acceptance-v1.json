@@ -1,0 +1,56 @@
+{
+  "schema_version": "1.0",
+  "profile": "BG_MVP_FUNCTIONAL_NONPROD",
+  "evaluated_at": "2026-08-09",
+  "acceptance_state": "READY_FOR_HUMAN_SIGNATURE",
+  "base_profile_status": "PASS",
+  "pilot_status": "NO_GO",
+  "production_status": "NO_GO",
+  "release_evidence_status": "UNSIGNED_NO_GO",
+  "regression": {
+    "command": "make full-regression",
+    "status": "PASS",
+    "required_consecutive_clean_runs": 2,
+    "observed_consecutive_clean_runs": 2
+  },
+  "contract_surface": {
+    "canonical_operations": 73,
+    "runtime_operations": 17,
+    "request_contracts": 90,
+    "successful_response_contracts": 90
+  },
+  "requirement_trace": {
+    "total": 25,
+    "pass": 7,
+    "partial_external_only": 12,
+    "external_blocked": 5,
+    "excluded_mvp": 1
+  },
+  "accepted_software_capabilities": [
+    "isolated Fiscal and MiniPOS Compose projects with separate Caddy and PostgreSQL",
+    "public OpenAPI-only MiniPOS to Fiscal integration",
+    "cash and registry-bound card simulator verticals",
+    "REST-issued BLE authority, Edge SQLite journal, signed sync ACK and retention",
+    "Android iOS and Web build surfaces for both Expo applications",
+    "Daisy SMART S contract-complete STUB with production hard guard",
+    "typed PostgreSQL persistence with FORCE RLS",
+    "BG requirement trace and release-evidence fail-closed gates"
+  ],
+  "external_no_go_gates": [
+    "Daisy SMART S vendor SDK and supported firmware evidence",
+    "Daisy Compact S 01 electrical USB and EUR firmware HIL",
+    "DP-150 MX electrical EUR firmware and protocol HIL",
+    "BlueCash or BluePad vendor and acquirer approval",
+    "physical SD power-loss endurance and BLE USB UART HIL",
+    "organization passwordless IdP deployment evidence",
+    "approved vulnerability scan and protected release signing key",
+    "NAP BIM legal and authorized-service acceptance"
+  ],
+  "signoffs": [
+    {"role": "PRODUCT", "status": "PENDING_EXTERNAL_SIGNATURE"},
+    {"role": "ENGINEERING", "status": "PENDING_EXTERNAL_SIGNATURE"},
+    {"role": "QA", "status": "PENDING_EXTERNAL_SIGNATURE"},
+    {"role": "SECURITY", "status": "PENDING_EXTERNAL_SIGNATURE"},
+    {"role": "COMPLIANCE", "status": "PENDING_EXTERNAL_SIGNATURE"}
+  ]
+}

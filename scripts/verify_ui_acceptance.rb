@@ -12,7 +12,7 @@ abort "duplicate UI case id" unless ids.uniq.length == ids.length
 %w[BeeMiniPOS BeeFiscalApp both].each do |app|
   abort "UI matrix missing #{app}" unless cases.any? { |item| item.fetch("app") == app }
 end
-%w[touch accessibility test_ids unknown final_device web_ble public_api readiness reports admin_editors platforms].each do |category|
+%w[touch accessibility test_ids unknown final_device web_ble public_api readiness reports admin_editors platforms interaction_e2e].each do |category|
   abort "UI matrix missing category #{category}" unless cases.any? { |item| item.fetch("category") == category }
 end
 

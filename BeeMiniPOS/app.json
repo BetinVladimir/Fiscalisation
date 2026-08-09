@@ -2,6 +2,7 @@
   "expo": {
     "name": "BeeMiniPOS",
     "slug": "beeminipos",
+    "scheme": "beeminipos",
     "version": "0.1.0",
     "orientation": "portrait",
     "assetBundlePatterns": [

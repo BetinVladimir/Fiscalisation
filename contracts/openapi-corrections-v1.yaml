@@ -1,0 +1,93 @@
+overlay: 1.0.0
+info:
+  title: BeeFiscal canonical transport corrections
+  version: 1.1.0
+extends: ../../BeeloyBackend/docs/Fiscal/api/openapi-public-v1.yaml
+actions:
+  - target: $.paths['/webhook-endpoints'].post.responses['201']
+    description: Describe the already implemented one-time webhook secret response omitted by the locked canonical document.
+    update:
+      description: Registered endpoint with a one-time secret
+      content:
+        application/json:
+          schema:
+            type: object
+            additionalProperties: false
+            required: [id, version, url, events, status, created_at, updated_at, secret]
+            properties:
+              id: {type: string, format: uuid}
+              version: {type: integer, minimum: 1}
+              url: {type: string, format: uri}
+              events: {type: array, minItems: 1, uniqueItems: true, items: {type: string}}
+              status: {type: string, const: ACTIVE}
+              created_at: {type: string, format: date-time}
+              updated_at: {type: string, format: date-time}
+              secret: {type: string, minLength: 43, maxLength: 43, writeOnly: true}
+  - target: $.paths['/organizations'].patch.requestBody.content['application/json'].schema
+    description: Exclude server-owned ResourceMeta from the organization command body.
+    update: {$ref: '#/components/schemas/Organization/allOf/1'}
+  - target: $.paths['/locations'].post.requestBody.content['application/json'].schema
+    description: Exclude server-owned ResourceMeta from the location create command.
+    update: {$ref: '#/components/schemas/Location/allOf/1'}
+  - target: $.paths['/locations/{location_id}'].patch.requestBody.content['application/json'].schema
+    description: Exclude server-owned ResourceMeta from the full location replacement command.
+    update: {$ref: '#/components/schemas/Location/allOf/1'}
+  - target: $.paths['/registers'].post.requestBody.content['application/json'].schema
+    description: Exclude server-owned ResourceMeta from the register create command.
+    update: {$ref: '#/components/schemas/Register/allOf/1'}
+  - target: $.paths['/registers/{register_id}'].patch.requestBody.content['application/json'].schema
+    description: Exclude server-owned ResourceMeta from the full register replacement command.
+    update: {$ref: '#/components/schemas/Register/allOf/1'}
+  - target: $.paths['/operators'].post.requestBody.content['application/json'].schema
+    description: Exclude server-owned ResourceMeta from the operator create command.
+    update: {$ref: '#/components/schemas/Operator/allOf/1'}
+  - target: $.paths['/operators/{operator_id}'].patch.requestBody.content['application/json'].schema
+    description: Exclude server-owned ResourceMeta from the full operator replacement command.
+    update: {$ref: '#/components/schemas/Operator/allOf/1'}
+  - target: $.paths['/devices'].post.requestBody.content['application/json'].schema
+    description: Exclude server-owned ResourceMeta from the device registration command.
+    update: {$ref: '#/components/schemas/Device/allOf/1'}
+  - target: $.paths['/devices/{device_id}'].patch.requestBody.content['application/json'].schema
+    description: Exclude server-owned ResourceMeta from the full device replacement command.
+    update: {$ref: '#/components/schemas/Device/allOf/1'}
+  - target: $.paths['/minipos/products'].post.requestBody.content['application/json'].schema
+    description: Define the MiniPOS product command fields while keeping resource metadata and defaults server-owned.
+    update: &miniPosProductInput
+      type: object
+      additionalProperties: false
+      required: [sku, name, price, tax_group]
+      properties:
+        sku: {type: string, minLength: 1}
+        barcode: {type: [string, 'null']}
+        name: {type: string, minLength: 1}
+        unit: {type: string, default: pcs}
+        price: {$ref: '#/components/schemas/Money'}
+        tax_group: {type: string, enum: [A, B, C, D, E, F, G, H]}
+        status: {type: string, enum: [ACTIVE, INACTIVE], default: ACTIVE}
+  - target: $.paths['/minipos/products/{product_id}'].patch.requestBody.content['application/json'].schema
+    description: Define the full MiniPOS product replacement without server-owned metadata.
+    update: *miniPosProductInput
+  - target: $.paths['/minipos/employees'].post.requestBody.content['application/json'].schema
+    description: Define the MiniPOS employee command fields while keeping roles/status defaults and metadata server-owned.
+    update: &miniPosEmployeeInput
+      type: object
+      additionalProperties: false
+      required: [first_name, last_name, operator_code]
+      properties:
+        first_name: {type: string, minLength: 1}
+        last_name: {type: string, minLength: 1}
+        operator_code: {type: string, pattern: '^[A-Za-z0-9]{4}$'}
+        roles: {type: array, minItems: 1, items: {type: string}}
+        status: {type: string, enum: [ACTIVE, INACTIVE], default: ACTIVE}
+        fiscal_operator_id: {type: [string, 'null'], format: uuid}
+  - target: $.paths['/minipos/employees/{employee_id}'].patch.requestBody.content['application/json'].schema
+    description: Define the full MiniPOS employee replacement without server-owned metadata.
+    update: *miniPosEmployeeInput
+  - target: $.paths['/minipos/orders'].post.requestBody.content['application/json'].schema
+    description: Order identity, state, totals and lines are server-owned at creation; the client selects the open shift only.
+    update:
+      type: object
+      additionalProperties: false
+      required: [shift_id]
+      properties:
+        shift_id: {type: string, format: uuid}

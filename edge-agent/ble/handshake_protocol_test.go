@@ -9,12 +9,12 @@ import (
 
 func TestEncryptedHandshakeReachesReadyAndRejectsReplay(t *testing.T) {
 	key := []byte("01234567890123456789012345678901")
-	ticket := Ticket{SessionID: "session-1", TenantID: "tenant-1", RegisterID: "register-1", DeviceID: "device-1", AppInstanceID: "app-1", Scopes: []string{"fiscal.execute"}, FencingToken: 7, ExpiresAt: time.Now().Add(time.Hour)}
-	rawTicket, err := IssueTicket(ticket, key)
+	client, clientPublic, err := NewEphemeralKey()
 	if err != nil {
 		t.Fatal(err)
 	}
-	client, clientPublic, err := NewEphemeralKey()
+	ticket := Ticket{SessionID: "session-1", TenantID: "tenant-1", RegisterID: "register-1", DeviceID: "device-1", AppInstanceID: "app-1", ClientPublicKey: base64.RawURLEncoding.EncodeToString(clientPublic), Scopes: []string{"fiscal.execute"}, FencingToken: 7, ExpiresAt: time.Now().Add(time.Hour)}
+	rawTicket, err := IssueTicket(ticket, key)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -50,9 +50,9 @@ func TestEncryptedHandshakeReachesReadyAndRejectsReplay(t *testing.T) {
 func TestHandshakeRejectsWrongBindingScopeAndCorruptedProof(t *testing.T) {
 	key := []byte("01234567890123456789012345678901")
 	for _, scopes := range [][]string{{"fiscal.read"}, {"fiscal.execute"}} {
-		ticket := Ticket{SessionID: "session-x", TenantID: "tenant", RegisterID: "register", DeviceID: "device", AppInstanceID: "app", Scopes: scopes, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
-		raw, _ := IssueTicket(ticket, key)
 		_, pub, _ := NewEphemeralKey()
+		ticket := Ticket{SessionID: "session-x", TenantID: "tenant", RegisterID: "register", DeviceID: "device", AppInstanceID: "app", ClientPublicKey: base64.RawURLEncoding.EncodeToString(pub), Scopes: scopes, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
+		raw, _ := IssueTicket(ticket, key)
 		server := NewHandshakeServer(key, 128, 4)
 		challenge, err := server.HandleHello(ControlMessage{Type: "HELLO", ProtocolVersion: BLEProtocolVersion, SessionID: ticket.SessionID, Payload: map[string]any{"ticket": raw, "client_nonce": base64.RawURLEncoding.EncodeToString([]byte("0123456789abcdef")), "ephemeral_public_key": base64.RawURLEncoding.EncodeToString(pub)}})
 		if len(scopes) == 1 && scopes[0] == "fiscal.read" {
@@ -72,13 +72,26 @@ func TestHandshakeRejectsWrongBindingScopeAndCorruptedProof(t *testing.T) {
 
 func TestHandshakeRejectsRevokedTicketBeforeChallenge(t *testing.T) {
 	key := []byte("01234567890123456789012345678901")
-	ticket := Ticket{SessionID: "revoked", TenantID: "tenant", RegisterID: "register", DeviceID: "device", AppInstanceID: "app", Scopes: []string{"fiscal.execute"}, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
-	raw, _ := IssueTicket(ticket, key)
 	_, public, _ := NewEphemeralKey()
+	ticket := Ticket{SessionID: "revoked", TenantID: "tenant", RegisterID: "register", DeviceID: "device", AppInstanceID: "app", ClientPublicKey: base64.RawURLEncoding.EncodeToString(public), Scopes: []string{"fiscal.execute"}, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
+	raw, _ := IssueTicket(ticket, key)
 	server := NewHandshakeServer(key, 128, 4)
 	server.SetRevocationChecker(func(id string, _ time.Time) bool { return id == "revoked" })
 	_, err := server.HandleHello(ControlMessage{Type: "HELLO", ProtocolVersion: BLEProtocolVersion, SessionID: ticket.SessionID, Payload: map[string]any{"ticket": raw, "client_nonce": base64.RawURLEncoding.EncodeToString([]byte("0123456789abcdef")), "ephemeral_public_key": base64.RawURLEncoding.EncodeToString(public)}})
 	if err == nil {
 		t.Fatal("revoked session accepted")
+	}
+}
+
+func TestHandshakeRejectsBearerTicketUsedWithDifferentClientKey(t *testing.T) {
+	key := []byte("01234567890123456789012345678901")
+	_, boundPublic, _ := NewEphemeralKey()
+	_, attackerPublic, _ := NewEphemeralKey()
+	ticket := Ticket{SessionID: "bound", TenantID: "tenant", RegisterID: "register", DeviceID: "device", AppInstanceID: "app", ClientPublicKey: base64.RawURLEncoding.EncodeToString(boundPublic), Scopes: []string{"fiscal.execute"}, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
+	raw, _ := IssueTicket(ticket, key)
+	server := NewHandshakeServer(key, 128, 4)
+	_, err := server.HandleHello(ControlMessage{Type: "HELLO", ProtocolVersion: BLEProtocolVersion, SessionID: ticket.SessionID, Payload: map[string]any{"ticket": raw, "client_nonce": base64.RawURLEncoding.EncodeToString([]byte("0123456789abcdef")), "ephemeral_public_key": base64.RawURLEncoding.EncodeToString(attackerPublic)}})
+	if err == nil {
+		t.Fatal("bearer ticket accepted from a different client private key")
 	}
 }

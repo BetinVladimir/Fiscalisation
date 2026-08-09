@@ -1,8 +1,8 @@
-import {gcm} from "@noble/ciphers/aes";
-import {x25519} from "@noble/curves/ed25519";
-import {hkdf} from "@noble/hashes/hkdf";
-import {hmac} from "@noble/hashes/hmac";
-import {sha256} from "@noble/hashes/sha256";
+import {gcm} from "@noble/ciphers/aes.js";
+import {x25519} from "@noble/curves/ed25519.js";
+import {hkdf} from "@noble/hashes/hkdf.js";
+import {hmac} from "@noble/hashes/hmac.js";
+import {sha256} from "@noble/hashes/sha2.js";
 
 export const hash256=(v:Uint8Array)=>sha256(v);
 export const hmac256=(key:Uint8Array,v:Uint8Array)=>hmac(sha256,key,v);

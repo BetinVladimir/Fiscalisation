@@ -77,6 +77,7 @@ type Repository interface {
 	Sale(string) (Sale, error)
 	Sales(string) []Sale
 	PutSale(Sale) error
+	AddSaleLineExpected(string, string, int64, SaleLine) (Sale, error)
 	Operation(string) (Operation, error)
 	Operations() []Operation
 	PutOperation(Operation) error
@@ -793,6 +794,39 @@ func (r *MemoryRepository) PutSale(v Sale) error {
 	r.appendAuditLocked(v.TenantID, v.OperatorID, "UPSERT", "sale", v.ID, v.UNP, before, asMap(v))
 	return r.persistLocked()
 }
+func (r *MemoryRepository) AddSaleLineExpected(id, tenant string, expected int64, line SaleLine) (Sale, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	v, ok := r.sales[id]
+	if !ok || v.TenantID != tenant {
+		return Sale{}, ErrNotFound
+	}
+	if v.Version != expected {
+		return v, errors.New("sale version conflict")
+	}
+	if v.State != "DRAFT" && v.State != "OPEN" {
+		return v, errors.New("sale not editable")
+	}
+	before := asMap(v)
+	if v.UNP == "" {
+		key := v.RegisterID
+		if v.TenantID != "" {
+			key = v.TenantID + "\n" + v.RegisterID
+		}
+		r.unp[key]++
+		v.UNP = v.RegisterID + "-" + v.OperatorID + "-" + pad7(r.unp[key])
+		v.State = "OPEN"
+	}
+	v.Lines = append(v.Lines, line)
+	v.Version++
+	v.UpdatedAt = time.Now().UTC()
+	r.sales[v.ID] = v
+	r.appendAuditLocked(v.TenantID, v.OperatorID, "UPSERT", "sale", v.ID, v.UNP, before, asMap(v))
+	if err := r.persistLocked(); err != nil {
+		return Sale{}, err
+	}
+	return v, nil
+}
 func (r *MemoryRepository) Operation(id string) (Operation, error) {
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -884,7 +918,12 @@ func (r *MemoryRepository) OpenShift(register, operator, tenant string) (Shift, 
 			return Shift{}, errors.New("shift already open")
 		}
 	}
-	v := Shift{ID: newID("shift"), TenantID: tenant, RegisterID: register, OperatorID: operator, State: "OPEN", Version: 1, OpenedAt: time.Now().UTC()}
+	now := time.Now().UTC()
+	id, err := newUUID()
+	if err != nil {
+		return Shift{}, err
+	}
+	v := Shift{ID: id, TenantID: tenant, RegisterID: register, OperatorID: operator, State: "OPEN", Version: 1, OpenedAt: now, CreatedAt: now, UpdatedAt: now}
 	r.shifts[v.ID] = v
 	return v, r.persistLocked()
 }

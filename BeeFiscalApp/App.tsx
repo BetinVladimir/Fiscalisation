@@ -9,12 +9,18 @@ import {
   TextInput,
   View,
 } from "react-native";
+import { fetchWithTimeout } from "./src/http";
+import { useAdminOidc } from "./src/adminOidc";
 
 const base = (
   process.env.EXPO_PUBLIC_FISCAL_API_URL || "http://localhost:8080/public/v1"
 ).replace(/\/$/, "");
 const version = "2026-08-07";
-const authToken = process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN || "";
+const appEnv = (process.env.EXPO_PUBLIC_APP_ENV || "dev").toLowerCase();
+const prodMode = appEnv === "prod";
+const devAuthToken = prodMode ? "" : process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN || "";
+let runtimeAuthToken = devAuthToken;
+let runtimeUnauthorized: (() => void) | undefined;
 type Item = Record<string, unknown>;
 type Page = { items?: Item[] };
 type AdminLists = {
@@ -26,7 +32,7 @@ type AdminLists = {
 
 async function call(path: string, init: RequestInit = {}) {
   const mutation = !!init.method && init.method !== "GET";
-  const r = await fetch(base + path, {
+  const r = await fetchWithTimeout(base + path, {
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -36,11 +42,12 @@ async function call(path: string, init: RequestInit = {}) {
             "Idempotency-Key": `${Date.now()}-${Math.random().toString(16).slice(2)}-admin`,
           }
         : {}),
-      ...(authToken ? { Authorization: `Bearer ${authToken}` } : {}),
+      ...(runtimeAuthToken ? { Authorization: `Bearer ${runtimeAuthToken}` } : {}),
       ...(init.headers || {}),
     },
   });
   const text = await r.text();
+  if (r.status === 401 && prodMode) runtimeUnauthorized?.();
   if (!r.ok) throw new Error(text || `HTTP ${r.status}`);
   return text ? JSON.parse(text) : {};
 }
@@ -48,6 +55,20 @@ const label = (v: unknown) =>
   typeof v === "string" ? v : typeof v === "number" ? String(v) : "—";
 
 export default function App() {
+  const oidc = useAdminOidc();
+  const roles = prodMode ? oidc.roles : ["ADMIN", "SUPERVISOR", "AUDITOR"];
+  const hasRole = (...allowed: string[]) => roles.some((role) => allowed.includes(role));
+  const canAdminister = hasRole("ADMIN");
+  const canRunReports = hasRole("SUPERVISOR", "ADMIN");
+  const canReconcile = hasRole("SUPERVISOR", "ADMIN");
+  const tabs = [
+    "Устройства",
+    "Операции",
+    ...(hasRole("SUPERVISOR", "ADMIN", "AUDITOR") ? ["Отчети"] : []),
+    ...(canAdminister ? ["Администриране"] : []),
+    "Настройки",
+  ];
+  runtimeUnauthorized = () => oidc.logout();
   const [tab, setTab] = useState("Устройства"),
     [message, setMessage] = useState("Зареждане на данните от публичния API…"),
     [core, setCore] = useState("CHECKING"),
@@ -80,6 +101,8 @@ export default function App() {
     async (next = tab) => {
       setLoading(true);
       try {
+        if (next === "Администриране" && !canAdminister) throw new Error("ROLE_ADMIN_REQUIRED");
+        if (next === "Отчети" && !hasRole("SUPERVISOR", "ADMIN", "AUDITOR")) throw new Error("ROLE_REPORT_READ_REQUIRED");
         if (next === "Устройства") {
           const v: Page = await call("/devices?limit=100");
           setItems(v.items || []);
@@ -137,11 +160,23 @@ export default function App() {
         setLoading(false);
       }
     },
-    [register, tab],
+    [register, tab, canAdminister, roles.join(",")],
   );
   useEffect(() => {
-    refresh("Устройства");
-  }, []);
+    runtimeAuthToken = oidc.accessToken || devAuthToken;
+    if (prodMode && !oidc.accessToken) {
+      setCore("AUTH REQUIRED");
+      setMessage("Влезте с персоналния си административен профил");
+      return;
+    }
+    void refresh("Устройства");
+  }, [oidc.accessToken]);
+  useEffect(() => {
+    if (!tabs.includes(tab)) {
+      setTab("Устройства");
+      setItems([]);
+    }
+  }, [roles.join(","), tab]);
   const changeTab = (next: string) => {
     setTab(next);
     void refresh(next);
@@ -169,6 +204,10 @@ export default function App() {
     }
   };
   const report = async (type: string) => {
+    if (!canRunReports) {
+      setMessage("Командата за отчет изисква роля SUPERVISOR или ADMIN");
+      return;
+    }
     setMessage(`${type} отчет…`);
     try {
       const v = await call(
@@ -181,6 +220,37 @@ export default function App() {
       setMessage(
         `Отчетът е отказан: ${e instanceof Error ? e.message : String(e)}`,
       );
+    }
+  };
+  const reconcileOperation = async (operation: Item) => {
+    if (!canReconcile) {
+      setMessage("Reconciliation изисква роля SUPERVISOR или ADMIN");
+      return;
+    }
+    const actions = Array.isArray(operation.allowed_actions)
+      ? operation.allowed_actions
+      : [];
+    if (!actions.includes("RECONCILE")) {
+      setMessage("Reconciliation е блокирано: backend не го разрешава");
+      return;
+    }
+    setLoading(true);
+    setMessage(`Reconciliation ${label(operation.id)}…`);
+    try {
+      const result = await call(
+        `/operations/${encodeURIComponent(label(operation.id))}/reconcile`,
+        { method: "POST", body: "{}" },
+      );
+      setMessage(
+        `Reconciliation: ${label(result.state)} • ${label(result.operation_id || result.id)}`,
+      );
+      await refresh("Операции");
+    } catch (e) {
+      setMessage(
+        `Reconciliation е отказано: ${e instanceof Error ? e.message : String(e)}`,
+      );
+    } finally {
+      setLoading(false);
     }
   };
   const mutateAdmin = async (
@@ -201,6 +271,22 @@ export default function App() {
       setAdminBusy(false);
     }
   };
+  if (prodMode && !oidc.accessToken) {
+    return (
+      <SafeAreaView style={s.root}>
+        <StatusBar style="dark" />
+        <View testID="admin-login" style={s.login}>
+          <Text style={s.loginTitle}>BeeFiscal • административен вход</Text>
+          <Text style={s.loginText}>OIDC Authorization Code + PKCE. Публични статични токени са забранени в production build.</Text>
+          {!oidc.configured ? <Text style={s.loginError}>OIDC не е конфигуриран: задайте issuer и client ID.</Text> : null}
+          {oidc.error ? <Text style={s.loginError}>{oidc.error}</Text> : null}
+          <Pressable testID="admin-login-start" accessibilityRole="button" accessibilityLabel="Влез с административен профил" accessibilityState={{ disabled: !oidc.ready }} disabled={!oidc.ready} style={s.loginButton} onPress={() => void oidc.login()}>
+            <Text style={s.loginButtonText}>Влез</Text>
+          </Pressable>
+        </View>
+      </SafeAreaView>
+    );
+  }
   return (
     <SafeAreaView style={s.root}>
       <StatusBar style="dark" />
@@ -220,18 +306,14 @@ export default function App() {
         >
           <Text style={s.readyText}>{core}</Text>
         </View>
+        {prodMode ? <Pressable testID="admin-logout" accessibilityRole="button" accessibilityLabel="Излез от административния профил" style={s.logout} onPress={() => { runtimeAuthToken = ""; oidc.logout(); }}><Text style={s.readyText}>Излез</Text></Pressable> : null}
       </View>
       <View style={s.body}>
         <View style={s.nav}>
-          {[
-            "Устройства",
-            "Операции",
-            "Отчети",
-            "Администриране",
-            "Настройки",
-          ].map((x) => (
+          {tabs.map((x) => (
             <Pressable
               key={x}
+              testID={`tab-${x}`}
               accessibilityRole="tab"
               accessibilityState={{ selected: tab === x }}
               accessibilityLabel={`Отвори ${x}`}
@@ -305,7 +387,7 @@ export default function App() {
               <View
                 key={label(o.id)}
                 testID={
-                  String(o.state).includes("UNKNOWN")
+                  String(o.state).includes("UNKNOWN") && Array.isArray(o.allowed_actions) && o.allowed_actions.includes("RECONCILE")
                     ? "operation-unknown"
                     : undefined
                 }
@@ -319,7 +401,23 @@ export default function App() {
                   <Text style={s.meta}>
                     {label(o.id)} • УНП {label(o.unp)} • {label(o.created_at)}
                   </Text>
+                  <Text style={s.meta}>
+                    Разрешени действия: {Array.isArray(o.allowed_actions) && o.allowed_actions.length > 0 ? o.allowed_actions.join(", ") : "няма"}
+                  </Text>
                 </View>
+                {canReconcile && Array.isArray(o.allowed_actions) && o.allowed_actions.includes("RECONCILE") && (
+                  <Pressable
+                    testID={`operation-reconcile-${label(o.id)}`}
+                    accessibilityRole="button"
+                    accessibilityLabel={`Reconcile операция ${label(o.id)}`}
+                    accessibilityState={{ disabled: loading }}
+                    disabled={loading}
+                    style={s.action}
+                    onPress={() => void reconcileOperation(o)}
+                  >
+                    <Text style={s.probeText}>Reconcile</Text>
+                  </Pressable>
+                )}
               </View>
             ))
           ) : tab === "Отчети" ? (
@@ -332,7 +430,7 @@ export default function App() {
                   UI показва само резултати и артефакти, получени от BeeFiscal
                   API.
                 </Text>
-                <View style={s.actions}>
+                {canRunReports ? <View style={s.actions}>
                   {["X", "Z", "KLEN", "FISCAL_MEMORY"].map((x) => (
                     <Pressable
                       key={x}
@@ -344,7 +442,7 @@ export default function App() {
                       <Text style={s.probeText}>{x}</Text>
                     </Pressable>
                   ))}
-                </View>
+                </View> : <Text style={s.meta}>Преглед само за одитор; създаването на отчет изисква SUPERVISOR или ADMIN.</Text>}
               </View>
               {items.map((r) => (
                 <View key={label(r.id)} style={s.card}>
@@ -360,7 +458,7 @@ export default function App() {
                 </View>
               ))}
             </>
-          ) : tab === "Администриране" ? (
+          ) : tab === "Администриране" && canAdminister ? (
             <View testID="admin-editors" style={s.adminGrid}>
               <AdminCard
                 title="Точка на продажба"
@@ -841,6 +939,13 @@ function Choices({
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#eef3f4" },
+  login: { alignSelf: "center", width: "90%", maxWidth: 540, marginTop: 80, padding: 28, backgroundColor: "white", borderRadius: 16, gap: 18 },
+  loginTitle: { fontSize: 24, fontWeight: "900", color: "#102b38" },
+  loginText: { fontSize: 16, color: "#526b76", lineHeight: 23 },
+  loginError: { fontSize: 15, color: "#9a2f24", fontWeight: "700" },
+  loginButton: { minHeight: 56, backgroundColor: "#17613a", borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  loginButtonText: { color: "white", fontSize: 17, fontWeight: "800" },
+  logout: { minHeight: 48, paddingHorizontal: 14, backgroundColor: "#285266", borderRadius: 9, justifyContent: "center" },
   header: {
     padding: 20,
     backgroundColor: "white",

@@ -14,10 +14,12 @@ import (
 
 type Claims struct {
 	Subject   string   `json:"sub"`
+	Issuer    string   `json:"iss"`
 	TenantID  string   `json:"tenant_id"`
 	Roles     []string `json:"roles"`
 	Scope     string   `json:"scope"`
 	ExpiresAt int64    `json:"exp"`
+	TokenHash string   `json:"-"`
 }
 type key struct{}
 
@@ -26,6 +28,9 @@ func Middleware(secret string, next http.Handler) http.Handler {
 	return MiddlewareWithOIDC(secret, nil, next)
 }
 func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) http.Handler {
+	return MiddlewareWithOIDCAndRevocation(secret, oidc, nil, next)
+}
+func MiddlewareWithOIDCAndRevocation(secret string, oidc *OIDCVerifier, revoked func(Claims) bool, next http.Handler) http.Handler {
 	if secret == "" && oidc == nil {
 		return next
 	}
@@ -47,6 +52,12 @@ func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) ht
 			c, e = Parse(raw, []byte(secret), time.Now())
 		}
 		if e != nil {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		digest := sha256.Sum256([]byte(raw))
+		c.TokenHash = base64.RawURLEncoding.EncodeToString(digest[:])
+		if revoked != nil && revoked(c) {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -88,6 +99,9 @@ func hasAny(c Claims, allowed ...string) bool {
 
 func Allowed(c Claims, method, path string) bool {
 	if method == http.MethodGet {
+		if strings.Contains(path, "/employees") || path == "/public/v1/minipos/reports/sales" {
+			return hasAny(c, "SUPERVISOR", "ADMIN", "AUDITOR")
+		}
 		return hasAny(c, "CASHIER", "SUPERVISOR", "ADMIN", "AUDITOR")
 	}
 	if path == "/public/v1/minipos/configuration" || strings.Contains(path, "/products") || strings.Contains(path, "/employees") {

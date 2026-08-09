@@ -3,11 +3,14 @@ services:
     environment:
       APP_ENV: prod
       ALLOW_STUB_ADAPTERS: "false"
+      PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:?required}"
+      CORS_ALLOWED_ORIGINS: "${FISCAL_CORS_ALLOWED_ORIGINS:?required}"
       AUTH_HMAC_KEY: ""
       OIDC_ISSUER: "${OIDC_ISSUER:?required}"
       OIDC_AUDIENCE: "${OIDC_AUDIENCE:?required}"
       OIDC_JWKS_URL: "${OIDC_JWKS_URL:?required}"
       BLE_SIGNING_KEY: "${BLE_SIGNING_KEY:?required}"
+      WEBHOOK_SIGNING_KEY: "${WEBHOOK_SIGNING_KEY:?required}"
     read_only: true
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]

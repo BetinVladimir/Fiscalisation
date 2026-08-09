@@ -76,4 +76,13 @@ all.each do |method, path, operation_id|
 end
 abort "OpenAPI operations without router registration:\n#{missing.join("\n")}" unless missing.empty?
 
-puts "contract surface OK: #{operations(canonical).length} canonical + #{operations(runtime).length} runtime operations; AsyncAPI #{asyncapi['asyncapi']}"
+generated = [
+  File.join(ROOT, "contracts/generated/openapi-public-v1.d.ts"),
+  File.join(ROOT, "contracts/generated/openapi-runtime-v1.d.ts"),
+]
+generated.each { |path| abort "generated OpenAPI artifact missing: #{path}" unless File.file?(path) }
+generated_body = generated.map { |path| File.read(path) }.join("\n")
+missing_generated = all.map(&:last).reject { |operation_id| generated_body.include?(%Q{"#{operation_id}"}) }
+abort "OpenAPI operations missing from generated client surface: #{missing_generated.join(', ')}" unless missing_generated.empty?
+
+puts "contract surface OK: #{operations(canonical).length} canonical + #{operations(runtime).length} runtime operations; generated TypeScript complete; AsyncAPI #{asyncapi['asyncapi']}"

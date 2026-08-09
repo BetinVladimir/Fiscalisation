@@ -41,6 +41,7 @@ func New(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/public/v1/minipos/products/", h.product)
 	m.HandleFunc("/public/v1/minipos/employees", h.employees)
 	m.HandleFunc("/public/v1/minipos/employees/", h.employee)
+	m.HandleFunc("/public/v1/minipos/operator-session", h.operatorSession)
 	m.HandleFunc("/public/v1/minipos/shifts", h.shifts)
 	m.HandleFunc("/public/v1/minipos/shifts/", h.shift)
 	m.HandleFunc("/public/v1/minipos/orders", h.orders)
@@ -49,7 +50,9 @@ func New(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/public/v1/fiscal-webhooks", h.webhook)
 	m.HandleFunc("/public/v1/minipos/configuration", h.configuration)
 	oidc := auth.NewOIDCVerifier(c.OIDCIssuer, c.OIDCAudience, c.OIDCJWKSURL)
-	return cors(c.CORSAllowedOrigins, auth.MiddlewareWithOIDC(c.AuthHMACKey, oidc, rateLimit(600, time.Minute, apiVersion(c.APIVersion, idempotency(s, m)))))
+	return cors(c.CORSAllowedOrigins, auth.MiddlewareWithOIDCAndRevocation(c.AuthHMACKey, oidc, func(claims auth.Claims) bool {
+		return s.OperatorSessionRevoked(claims.TenantID, claims.TokenHash)
+	}, rateLimit(600, time.Minute, apiVersion(c.APIVersion, enforceSuccessResponses(idempotency(s, m))))))
 }
 
 func (h *handler) configuration(w http.ResponseWriter, r *http.Request) {
@@ -177,16 +180,22 @@ func (h *handler) webhook(w http.ResponseWriter, r *http.Request) {
 		ResourceID      string `json:"resource_id"`
 		ResourceVersion int64  `json:"resource_version"`
 		Data            struct {
-			State       string `json:"state"`
-			OperationID string `json:"operation_id"`
-			ExternalID  string `json:"external_id"`
+			State           string `json:"state"`
+			OperationID     string `json:"operation_id"`
+			OperationType   string `json:"operation_type"`
+			ExternalID      string `json:"external_id"`
+			FiscalReference string `json:"fiscal_reference"`
 		} `json:"data"`
 	}
 	if json.Unmarshal(b, &v) != nil || v.EventID == "" || v.EventType == "" || v.APIVersion != h.c.APIVersion || v.TenantID == "" || v.ResourceID == "" || v.ResourceVersion < 1 {
 		problem(w, 400, "invalid json")
 		return
 	}
-	if e = h.s.ProcessFiscalWebhookLinkedForTenant(v.TenantID, v.EventID, b, v.ResourceID, v.Data.ExternalID, v.Data.State, v.Data.OperationID, v.ResourceVersion); e != nil {
+	state := v.Data.State
+	if v.Data.OperationType == "REVERSAL" && state == "FISCALIZED" {
+		state = "REVERSED"
+	}
+	if e = h.s.ProcessFiscalWebhookLinkedForTenantWithReference(v.TenantID, v.EventID, b, v.ResourceID, v.Data.ExternalID, state, v.Data.OperationID, v.Data.FiscalReference, v.ResourceVersion); e != nil {
 		problem(w, 409, e.Error())
 		return
 	}
@@ -308,12 +317,43 @@ func (h *handler) employees(w http.ResponseWriter, r *http.Request) {
 	problem(w, 405, "method")
 }
 func (h *handler) employee(w http.ResponseWriter, r *http.Request) {
-	id := lastID(r.URL.Path, "employees")
+	tail := lastID(r.URL.Path, "employees")
+	parts := strings.Split(tail, "/")
+	id := parts[0]
 	if id == "" {
 		problem(w, 404, "not found")
 		return
 	}
 	if !h.authorizeEmployee(w, r, id) {
+		return
+	}
+	if len(parts) == 2 && parts[1] == "identity-binding" {
+		claims, authenticated := auth.ClaimsFrom(r.Context())
+		if !authenticated || !claimHasRole(claims, "ADMIN") {
+			problem(w, http.StatusForbidden, "administrator required")
+			return
+		}
+		if r.Method != http.MethodPost {
+			problem(w, http.StatusMethodNotAllowed, "method")
+			return
+		}
+		var input struct {
+			Subject string `json:"subject"`
+			Issuer  string `json:"issuer"`
+		}
+		if !decode(w, r, &input) {
+			return
+		}
+		binding, err := h.s.BindEmployeeIdentity(claims.TenantID, id, input.Subject, input.Issuer)
+		if err != nil {
+			problem(w, http.StatusConflict, err.Error())
+			return
+		}
+		write(w, http.StatusCreated, map[string]any{"employee_id": binding.EmployeeID, "issuer": binding.IdentityIssuer, "bound_at": binding.BoundAt})
+		return
+	}
+	if len(parts) != 1 {
+		problem(w, http.StatusNotFound, "not found")
 		return
 	}
 	if r.Method == "GET" {
@@ -346,7 +386,56 @@ func (h *handler) employee(w http.ResponseWriter, r *http.Request) {
 	}
 	problem(w, 405, "method")
 }
+func (h *handler) operatorSession(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet && r.Method != http.MethodPost {
+		problem(w, http.StatusMethodNotAllowed, "method")
+		return
+	}
+	claims, ok := auth.ClaimsFrom(r.Context())
+	if !ok {
+		problem(w, http.StatusUnauthorized, "authenticated operator required")
+		return
+	}
+	appInstanceID := strings.TrimSpace(r.Header.Get("X-App-Instance-Id"))
+	if appInstanceID == "" {
+		problem(w, http.StatusBadRequest, "X-App-Instance-Id required")
+		return
+	}
+	if r.Method == http.MethodPost {
+		if _, err := h.s.RevokeOperatorSession(claims.TenantID, claims.TokenHash); err != nil {
+			problem(w, http.StatusConflict, err.Error())
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
+	employee, err := h.s.EmployeeForIdentity(claims.TenantID, claims.Issuer, claims.Subject)
+	if err != nil {
+		problem(w, http.StatusForbidden, "operator identity is not bound")
+		return
+	}
+	expiresAt := time.Unix(claims.ExpiresAt, 0).UTC()
+	if _, err = h.s.RegisterOperatorSession(claims.TenantID, employee.ID, appInstanceID, claims.TokenHash, expiresAt); err != nil {
+		problem(w, http.StatusForbidden, err.Error())
+		return
+	}
+	write(w, http.StatusOK, domain.OperatorSession{Authenticated: true, Employee: &employee, SessionID: claims.TokenHash, ExpiresAt: expiresAt})
+}
 func (h *handler) shifts(w http.ResponseWriter, r *http.Request) {
+	if r.Method == http.MethodGet {
+		employeeID := strings.TrimSpace(r.URL.Query().Get("employee_id"))
+		state := strings.TrimSpace(r.URL.Query().Get("state"))
+		if employeeID == "" || state != "" && state != "OPEN" && state != "CLOSING" && state != "BLOCKED_RECONCILIATION" && state != "CLOSED" {
+			problem(w, http.StatusBadRequest, "invalid shift recovery filter")
+			return
+		}
+		if !h.authorizeEmployeeActor(w, r, employeeID) {
+			return
+		}
+		items := h.s.ShiftsFor(tenantID(r), employeeID, strings.TrimSpace(r.URL.Query().Get("register_id")), state)
+		write(w, http.StatusOK, map[string]any{"items": items, "page": map[string]any{"next_cursor": nil, "has_more": false}})
+		return
+	}
 	if r.Method != "POST" {
 		problem(w, 405, "method")
 		return
@@ -356,6 +445,9 @@ func (h *handler) shifts(w http.ResponseWriter, r *http.Request) {
 		EmployeeID string `json:"employee_id"`
 	}
 	if !decode(w, r, &v) {
+		return
+	}
+	if !h.authorizeEmployeeActor(w, r, v.EmployeeID) {
 		return
 	}
 	x, e := h.s.OpenShiftForTenant(v.RegisterID, v.EmployeeID, tenantID(r))
@@ -372,14 +464,20 @@ func (h *handler) shift(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	p := strings.Split(strings.Trim(r.URL.Path[i+len("/shifts/"):], "/"), "/")
-	if len(p) != 2 || p[1] != "close" || r.Method != "POST" {
+	if len(p) != 2 || (p[1] != "close" && p[1] != "reconcile") || r.Method != "POST" {
 		problem(w, 404, "not found")
 		return
 	}
 	if !h.authorizeShift(w, r, p[0]) {
 		return
 	}
-	v, e := h.s.CloseShiftForTenant(p[0], tenantID(r))
+	var v domain.Shift
+	var e error
+	if p[1] == "reconcile" {
+		v, e = h.s.ReconcileShiftCloseForTenant(p[0], tenantID(r))
+	} else {
+		v, e = h.s.CloseShiftForTenant(p[0], tenantID(r))
+	}
 	if e != nil {
 		problem(w, 409, e.Error())
 		return
@@ -388,7 +486,20 @@ func (h *handler) shift(w http.ResponseWriter, r *http.Request) {
 }
 func (h *handler) orders(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		write(w, 200, map[string]any{"items": h.s.OrdersFor(tenantID(r)), "page": map[string]any{"has_more": false}})
+		items := h.s.OrdersFor(tenantID(r))
+		if claims, authenticated := auth.ClaimsFrom(r.Context()); authenticated && claimHasRole(claims, "CASHIER") && !claimHasRole(claims, "SUPERVISOR") && !claimHasRole(claims, "ADMIN") {
+			employee, err := h.s.EmployeeForIdentity(claims.TenantID, claims.Issuer, claims.Subject)
+			if err != nil {
+				problem(w, http.StatusForbidden, "operator identity is not bound")
+				return
+			}
+			if !h.s.OperatorSessionActive(claims.TenantID, claims.TokenHash, employee.ID, strings.TrimSpace(r.Header.Get("X-App-Instance-Id")), time.Now().UTC()) {
+				problem(w, http.StatusUnauthorized, "operator session is not active")
+				return
+			}
+			items = h.s.OrdersForEmployee(claims.TenantID, employee.ID)
+		}
+		write(w, 200, map[string]any{"items": items, "page": map[string]any{"has_more": false}})
 		return
 	}
 	if r.Method != "POST" {
@@ -397,6 +508,9 @@ func (h *handler) orders(w http.ResponseWriter, r *http.Request) {
 	}
 	var v domain.Order
 	if !decode(w, r, &v) {
+		return
+	}
+	if !h.authorizeShiftActor(w, r, v.ShiftID) {
 		return
 	}
 	v.TenantID = tenantID(r)
@@ -456,17 +570,78 @@ func (h *handler) order(w http.ResponseWriter, r *http.Request) {
 		write(w, 200, x)
 		return
 	}
-	if p[1] == "checkout" {
+	if p[1] == "checkout" || p[1] == "checkout-batch" {
 		var v map[string]any
 		if !decode(w, r, &v) {
 			return
 		}
-		x, e := h.s.CheckoutForTenant(p[0], r.Header.Get("Idempotency-Key"), v, tenantID(r))
+		var x domain.Order
+		var e error
+		if p[1] == "checkout-batch" {
+			rawPayments, ok := v["payments"].([]any)
+			if !ok {
+				problem(w, 422, "payments are required")
+				return
+			}
+			payments := make([]map[string]any, 0, len(rawPayments))
+			for _, raw := range rawPayments {
+				payment, valid := raw.(map[string]any)
+				if !valid {
+					problem(w, 422, "invalid payment")
+					return
+				}
+				payments = append(payments, payment)
+			}
+			metadata, _ := v["metadata"].(map[string]any)
+			x, e = h.s.CheckoutBatchForTenant(p[0], r.Header.Get("Idempotency-Key"), payments, metadata, tenantID(r))
+		} else {
+			x, e = h.s.CheckoutForTenant(p[0], r.Header.Get("Idempotency-Key"), v, tenantID(r))
+		}
 		if e != nil {
 			problem(w, 502, e.Error())
 			return
 		}
-		write(w, 202, x)
+		state := "UNKNOWN"
+		switch x.State {
+		case "COMPLETED":
+			state = "FISCALIZED"
+		case "FAILED":
+			state = "FAILED"
+		}
+		write(w, 202, map[string]any{
+			"operation_id":     x.FiscalOperationID,
+			"type":             "FISCAL_SALE",
+			"state":            state,
+			"fiscal_reference": x.ReceiptReference,
+			"allowed_actions":  []string{},
+			"simulated":        true,
+			"created_at":       x.UpdatedAt,
+			"updated_at":       x.UpdatedAt,
+		})
+		return
+	}
+	if p[1] == "reversals" {
+		var v struct {
+			ReasonCode string `json:"reason_code"`
+		}
+		if !decode(w, r, &v) {
+			return
+		}
+		x, e := h.s.ReverseOrderForTenant(p[0], r.Header.Get("Idempotency-Key"), v.ReasonCode, tenantID(r))
+		if e != nil {
+			problem(w, 502, e.Error())
+			return
+		}
+		write(w, 202, map[string]any{
+			"operation_id":     x.OperationID,
+			"type":             "REVERSAL",
+			"state":            x.State,
+			"fiscal_reference": x.FiscalReference,
+			"allowed_actions":  []string{},
+			"simulated":        x.Simulated,
+			"created_at":       x.CreatedAt,
+			"updated_at":       x.UpdatedAt,
+		})
 		return
 	}
 	problem(w, 404, "not found")
@@ -503,13 +678,54 @@ func write(w http.ResponseWriter, s int, v any) {
 	_ = json.NewEncoder(w).Encode(v)
 }
 func problem(w http.ResponseWriter, s int, d string) {
-	write(w, s, map[string]any{"status": s, "code": "MINIPOS_ERROR", "detail": d})
+	code := d
+	if !strings.Contains(code, "_") || strings.Contains(code, " ") {
+		code = "MINIPOS_ERROR"
+	}
+	w.Header().Set("Content-Type", "application/problem+json")
+	w.WriteHeader(s)
+	_ = json.NewEncoder(w).Encode(map[string]any{"type": "urn:beeminipos:error:" + strings.ToLower(code), "title": code, "status": s, "code": code, "retryable": false, "detail": d, "trace_id": time.Now().UTC().Format("20060102150405.000000000")})
 }
 func tenantID(r *http.Request) string {
 	if c, ok := auth.ClaimsFrom(r.Context()); ok {
 		return c.TenantID
 	}
 	return ""
+}
+func claimHasRole(claims auth.Claims, role string) bool {
+	for _, current := range claims.Roles {
+		if strings.EqualFold(current, role) {
+			return true
+		}
+	}
+	return false
+}
+func (h *handler) authorizeEmployeeActor(w http.ResponseWriter, r *http.Request, employeeID string) bool {
+	claims, authenticated := auth.ClaimsFrom(r.Context())
+	if !authenticated {
+		if !strings.EqualFold(h.c.AppEnv, "prod") {
+			return true
+		}
+		problem(w, http.StatusUnauthorized, "authenticated operator required")
+		return false
+	}
+	if !h.s.IdentityMatchesEmployee(claims.TenantID, claims.Issuer, claims.Subject, employeeID) {
+		problem(w, http.StatusForbidden, "operator identity does not match employee")
+		return false
+	}
+	if !h.s.OperatorSessionActive(claims.TenantID, claims.TokenHash, employeeID, strings.TrimSpace(r.Header.Get("X-App-Instance-Id")), time.Now().UTC()) {
+		problem(w, http.StatusUnauthorized, "operator session is not active")
+		return false
+	}
+	return true
+}
+func (h *handler) authorizeShiftActor(w http.ResponseWriter, r *http.Request, shiftID string) bool {
+	shift, err := h.s.ShiftForTenant(shiftID, tenantID(r))
+	if err != nil {
+		problem(w, http.StatusNotFound, "not found")
+		return false
+	}
+	return h.authorizeEmployeeActor(w, r, shift.EmployeeID)
 }
 func (h *handler) authorizeProduct(w http.ResponseWriter, r *http.Request, id string) bool {
 	_, e := h.s.ProductForTenant(id, tenantID(r))
@@ -528,12 +744,12 @@ func (h *handler) authorizeEmployee(w http.ResponseWriter, r *http.Request, id s
 	return true
 }
 func (h *handler) authorizeOrder(w http.ResponseWriter, r *http.Request, id string) bool {
-	_, e := h.s.OrderForTenant(id, tenantID(r))
+	order, e := h.s.OrderForTenant(id, tenantID(r))
 	if e != nil {
 		problem(w, 404, "not found")
 		return false
 	}
-	return true
+	return h.authorizeShiftActor(w, r, order.ShiftID)
 }
 func (h *handler) authorizeShift(w http.ResponseWriter, r *http.Request, id string) bool {
 	_, e := h.s.ShiftForTenant(id, tenantID(r))
@@ -541,7 +757,7 @@ func (h *handler) authorizeShift(w http.ResponseWriter, r *http.Request, id stri
 		problem(w, 404, "not found")
 		return false
 	}
-	return true
+	return h.authorizeShiftActor(w, r, id)
 }
 func apiVersion(v string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -569,7 +785,7 @@ func cors(allowed string, next http.Handler) http.Handler {
 		if origin != "" && set[origin] {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Vary", "Origin")
-			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Idempotency-Key, If-Match, X-Api-Version")
+			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Idempotency-Key, If-Match, X-Api-Version, X-App-Instance-Id")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
 		}
 		if r.Method == "OPTIONS" {

@@ -4,7 +4,33 @@ import (
 	"errors"
 	"sync"
 	"testing"
+	"time"
 )
+
+func TestOperatorSessionRevocationSurvivesRestart(t *testing.T) {
+	store := &memoryStore{}
+	service, err := NewPersistentService("http://fiscal", "v1", store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	employee, err := service.CreateEmployee(Employee{TenantID: "org-session", FirstName: "Ada", LastName: "Lovelace", OperatorCode: "A001"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = service.RegisterOperatorSession("org-session", employee.ID, "00000000-0000-4000-8000-000000000001", "fingerprint-1", time.Now().Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = service.RevokeOperatorSession("org-session", "fingerprint-1"); err != nil {
+		t.Fatal(err)
+	}
+	restarted, err := NewPersistentService("http://fiscal", "v1", store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if !restarted.OperatorSessionRevoked("org-session", "fingerprint-1") || restarted.OperatorSessionActive("org-session", "fingerprint-1", employee.ID, "00000000-0000-4000-8000-000000000001", time.Now()) {
+		t.Fatal("revoked operator session became active after restart")
+	}
+}
 
 type memoryStore struct {
 	mu   sync.Mutex

@@ -62,6 +62,10 @@ func (s *HandshakeServer) HandleHello(v ControlMessage) (ControlMessage, error) 
 	if err != nil {
 		return ControlMessage{}, err
 	}
+	ticketPublic, err := base64.RawURLEncoding.DecodeString(ticket.ClientPublicKey)
+	if err != nil || len(ticketPublic) != 32 || subtle.ConstantTimeCompare(ticketPublic, clientPublic) != 1 {
+		return ControlMessage{}, errors.New("client proof-of-possession key rejected")
+	}
 	edge, edgePublic, err := NewEphemeralKey()
 	if err != nil {
 		return ControlMessage{}, err

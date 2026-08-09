@@ -9,10 +9,14 @@ import (
 	edgeruntime "fiscalisation/edge-agent/runtime"
 )
 
+func activeBinding(tenant, register, device string, fence int64) SessionBinding {
+	return SessionBinding{TenantID: tenant, RegisterID: register, DeviceID: device, SessionID: "session", FencingToken: fence, ExpiresAt: time.Now().UTC().Add(time.Hour), IsRevoked: func(string, time.Time) bool { return false }}
+}
+
 func TestEncryptedCommandProducesEncryptedCorrelatedResult(t *testing.T) {
 	client, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "client")
 	edge, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "edge")
-	p, err := NewProcessor(edge, SessionBinding{TenantID: "tenant", RegisterID: "register", DeviceID: "device", FencingToken: 7}, func(c edgeruntime.Command) (edgeruntime.Result, error) {
+	p, err := NewProcessor(edge, activeBinding("tenant", "register", "device", 7), func(c edgeruntime.Command) (edgeruntime.Result, error) {
 		if c.TenantID != "tenant" || c.DeviceID != "device" {
 			t.Fatal("binding lost")
 		}
@@ -71,7 +75,7 @@ func TestProcessorRejectsExpiredEnvelopeBeforeExecution(t *testing.T) {
 	client, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "client")
 	edge, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "edge")
 	calls := 0
-	p, _ := NewProcessor(edge, SessionBinding{TenantID: "t", RegisterID: "r", DeviceID: "d", FencingToken: 1}, func(c edgeruntime.Command) (edgeruntime.Result, error) { calls++; return edgeruntime.Result{}, nil }, 185)
+	p, _ := NewProcessor(edge, activeBinding("t", "r", "d", 1), func(c edgeruntime.Command) (edgeruntime.Result, error) { calls++; return edgeruntime.Result{}, nil }, 185)
 	now := time.Now().UTC()
 	payload := map[string]any{"currency": "EUR"}
 	hash, _ := ble.PayloadHash(payload)
@@ -88,7 +92,7 @@ func TestDeviceProbeDoesNotExecuteFiscalCommand(t *testing.T) {
 	client, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "client")
 	edge, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "edge")
 	calls := 0
-	p, _ := NewProcessor(edge, SessionBinding{TenantID: "t", RegisterID: "r", DeviceID: "d", FencingToken: 1}, func(c edgeruntime.Command) (edgeruntime.Result, error) { calls++; return edgeruntime.Result{}, nil }, 185)
+	p, _ := NewProcessor(edge, activeBinding("t", "r", "d", 1), func(c edgeruntime.Command) (edgeruntime.Result, error) { calls++; return edgeruntime.Result{}, nil }, 185)
 	p.SetFinalDeviceProbe(func() error { return nil })
 	now := time.Now().UTC()
 	p.now = func() time.Time { return now }
@@ -120,7 +124,7 @@ func TestSessionBindingMismatchNeverReachesRuntime(t *testing.T) {
 	client, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "client")
 	edge, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "edge")
 	calls := 0
-	p, _ := NewProcessor(edge, SessionBinding{TenantID: "tenant-a", RegisterID: "r", DeviceID: "d", FencingToken: 4}, func(c edgeruntime.Command) (edgeruntime.Result, error) { calls++; return edgeruntime.Result{}, nil }, 185)
+	p, _ := NewProcessor(edge, activeBinding("tenant-a", "r", "d", 4), func(c edgeruntime.Command) (edgeruntime.Result, error) { calls++; return edgeruntime.Result{}, nil }, 185)
 	now := time.Now().UTC()
 	p.now = func() time.Time { return now }
 	payload := map[string]any{}
@@ -130,5 +134,49 @@ func TestSessionBindingMismatchNeverReachesRuntime(t *testing.T) {
 	raw, _ := client.SealFrame([16]byte{3}, 0, 1, 0, encoded)
 	if _, err := p.AcceptCommandFrame(raw); err == nil || calls != 0 {
 		t.Fatal("cross-tenant BLE command accepted")
+	}
+}
+
+func TestProcessorRejectsExpiredOrRevokedSessionBeforeDecryptAndExecution(t *testing.T) {
+	now := time.Now().UTC()
+	for _, test := range []struct {
+		name      string
+		expiresAt time.Time
+		revoked   bool
+	}{
+		{name: "expired", expiresAt: now.Add(-time.Second)},
+		{name: "revoked", expiresAt: now.Add(time.Hour), revoked: true},
+	} {
+		t.Run(test.name, func(t *testing.T) {
+			client, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "client")
+			edge, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "edge")
+			calls := 0
+			binding := SessionBinding{TenantID: "tenant", RegisterID: "register", DeviceID: "device", SessionID: "session", FencingToken: 7, ExpiresAt: test.expiresAt, IsRevoked: func(id string, at time.Time) bool {
+				return test.revoked && id == "session" && at.Equal(now)
+			}}
+			p, err := NewProcessor(edge, binding, func(c edgeruntime.Command) (edgeruntime.Result, error) {
+				calls++
+				return edgeruntime.Result{}, nil
+			}, 185)
+			if err != nil {
+				t.Fatal(err)
+			}
+			p.now = func() time.Time { return now }
+			payload := map[string]any{"currency": "EUR"}
+			hash, _ := ble.PayloadHash(payload)
+			envelope := ble.DeviceCommandEnvelope{OperationID: "operation", TenantID: "tenant", RegisterID: "register", DeviceID: "device", FencingToken: 7, CommandType: "FISCAL_SALE", IssuedAt: now.Format(time.RFC3339Nano), ExpiresAt: now.Add(time.Minute).Format(time.RFC3339Nano), Payload: payload, PayloadSHA256: hash}
+			encoded, _ := ble.CanonicalMarshal(envelope)
+			raw, _ := client.SealFrame([16]byte{9}, 0, 1, 0, encoded)
+			if _, err = p.AcceptCommandFrame(raw); err == nil || calls != 0 {
+				t.Fatalf("inactive session reached runtime: calls=%d err=%v", calls, err)
+			}
+			// Authority is checked before decrypt; rejecting an inactive session
+			// must not consume the encrypted frame's replay counter.
+			p.binding.ExpiresAt = now.Add(time.Hour)
+			p.binding.IsRevoked = func(string, time.Time) bool { return false }
+			if _, err = p.AcceptCommandFrame(raw); err != nil || calls != 1 {
+				t.Fatalf("inactive rejection consumed frame: calls=%d err=%v", calls, err)
+			}
+		})
 	}
 }

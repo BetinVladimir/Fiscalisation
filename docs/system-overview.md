@@ -16,14 +16,14 @@
 
 ## Scope of Current Monorepo
 
-- IoT firmware and shared modules
-- Protocol abstraction stubs in `IoT/protocol-abstraction` (Arduino/C++)
-- Edge agent stub
-- Cloud core layer stubs
-- Backend APIs (Go)
-- Mobile apps (Expo)
-- DB migrations (PostgreSQL)
-- Messaging (EMQX MQTT, RabbitMQ, Redis)
+- Fiscal and autonomous MiniPOS Go backends with separate PostgreSQL/FORCE-RLS persistence.
+- Two independent DEV/PROD Compose products with separate Caddy ingress.
+- Generated and runtime-enforced OpenAPI/AsyncAPI/webhook/BLE contracts.
+- Edge agent with SQLite journal, BLE authority, signed sync/ACK, retention and OTA policy.
+- Daisy/Datecs protocol abstraction with explicit semantic/unsupported matrices.
+- BeeMiniPOS and BeeFiscalApp Expo applications for Android, iOS and Web.
+- Daisy SMART S contract STUB, hard-disabled in production.
+- Regression, evidence, recovery and Stage-25 handover gates.
 
 ## IoT Protocol Build Model
 
@@ -31,10 +31,6 @@
 - The target fiscal protocol is selected at compile time via preprocessor configuration.
 - Different firmware builds can enable different adapters (for example Epson/Datecs/Tremol).
 
-## Next Technical Milestones
+## Remaining milestones
 
-1. Define canonical transaction contract and protocol adapter interface.
-2. Implement edge local queue + reconciliation policy.
-3. Implement transaction engine with idempotency persistence.
-4. Implement audit chain and signature workflow.
-5. Publish first OpenAPI spec for ERP integration.
+The base non-production software profile is implemented and regression-tested. Pilot and Bulgarian production remain NO-GO until a selected device/payment track has vendor, electrical, firmware, HIL and acquirer evidence; an organization passwordless IdP is deployed; an approved clean vulnerability scan and protected release signature exist; and NAP/BIM/legal/service acceptance is signed. These external gates are authoritative in `MVP_GATES.md` and cannot be closed by simulator results.

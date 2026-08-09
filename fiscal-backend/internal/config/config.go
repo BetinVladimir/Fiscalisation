@@ -21,8 +21,20 @@ func (c Config) Validate() error {
 	if c.AppEnv == "prod" && c.AllowStubAdapters {
 		return errors.New("ALLOW_STUB_ADAPTERS must be false in PROD")
 	}
+	if c.AppEnv == "prod" && c.SimulatorCardTerminalAvailable {
+		return errors.New("SIMULATOR_CARD_TERMINAL_AVAILABLE must be false in PROD")
+	}
 	if c.AppEnv == "prod" && strings.Contains(c.WebhookSigningKey, "dev-") {
 		return errors.New("development webhook key forbidden in PROD")
+	}
+	if c.AppEnv == "prod" && len(c.WebhookSigningKey) < 32 {
+		return errors.New("WEBHOOK_SIGNING_KEY must contain at least 32 bytes in PROD")
+	}
+	if c.AppEnv == "prod" && !httpsURL(c.PublicBaseURL) {
+		return errors.New("PUBLIC_BASE_URL must use HTTPS in PROD")
+	}
+	if c.AppEnv == "prod" && !secureOrigins(c.CORSAllowedOrigins) {
+		return errors.New("CORS_ALLOWED_ORIGINS must be an explicit HTTPS origin list in PROD")
 	}
 	if c.AppEnv == "prod" && c.DatabaseURL == "" {
 		return errors.New("DATABASE_URL required in PROD")
@@ -57,6 +69,19 @@ func separateDatabaseUsers(writeURL, readURL string) bool {
 	read, readErr := url.Parse(readURL)
 	return writeErr == nil && readErr == nil && write.User != nil && read.User != nil &&
 		write.User.Username() != "" && read.User.Username() != "" && write.User.Username() != read.User.Username()
+}
+func secureOrigins(raw string) bool {
+	values := splitCSV(raw)
+	if len(values) == 0 {
+		return false
+	}
+	for _, value := range values {
+		parsed, err := url.Parse(value)
+		if err != nil || parsed.Scheme != "https" || parsed.Host == "" || parsed.User != nil || parsed.Path != "" || parsed.RawQuery != "" || parsed.Fragment != "" {
+			return false
+		}
+	}
+	return true
 }
 func getenv(k, d string) string {
 	if v := os.Getenv(k); v != "" {

@@ -14,11 +14,11 @@ import (
 )
 
 type Ticket struct {
-	SessionID, TenantID, RegisterID, DeviceID, AppInstanceID string
-	Scopes                                                   []string
-	FencingToken                                             int64
-	ExpiresAt                                                time.Time
-	Nonce                                                    string
+	SessionID, TenantID, RegisterID, DeviceID, AppInstanceID, ActorSubject, ClientPublicKey string
+	Scopes                                                                                  []string
+	FencingToken                                                                            int64
+	ExpiresAt                                                                               time.Time
+	Nonce                                                                                   string
 }
 type signedTicket struct {
 	Payload   string `json:"payload"`

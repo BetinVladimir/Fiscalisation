@@ -11,6 +11,8 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"net/url"
+	"regexp"
 	"strconv"
 	"strings"
 	"time"
@@ -24,6 +26,84 @@ import (
 type Handler struct {
 	svc *domain.Service
 	cfg config.Config
+}
+
+var apiUUIDPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
+
+type webhookCreatedResponse struct {
+	ID        string    `json:"id"`
+	Version   int64     `json:"version"`
+	URL       string    `json:"url"`
+	Events    []string  `json:"events"`
+	Status    string    `json:"status"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+	Secret    string    `json:"secret"`
+}
+
+func typedWebhookCreated(v map[string]any) (webhookCreatedResponse, error) {
+	var out webhookCreatedResponse
+	allowed := map[string]bool{"id": true, "version": true, "url": true, "events": true, "status": true, "created_at": true, "updated_at": true, "secret": true}
+	if len(v) != len(allowed) {
+		return out, errors.New("webhook response property count")
+	}
+	for key := range v {
+		if !allowed[key] {
+			return out, errors.New("webhook response contains undocumented property")
+		}
+	}
+	var ok bool
+	out.ID, ok = v["id"].(string)
+	if !ok || !apiUUIDPattern.MatchString(out.ID) {
+		return out, errors.New("invalid webhook response id")
+	}
+	switch version := v["version"].(type) {
+	case int64:
+		out.Version = version
+	case int:
+		out.Version = int64(version)
+	default:
+		return out, errors.New("invalid webhook response version")
+	}
+	if out.Version < 1 {
+		return out, errors.New("invalid webhook response version")
+	}
+	out.URL, ok = v["url"].(string)
+	parsedURL, parseErr := url.Parse(out.URL)
+	if !ok || parseErr != nil || parsedURL.Scheme != "https" || parsedURL.Host == "" {
+		return out, errors.New("invalid webhook response url")
+	}
+	rawEvents, ok := v["events"].([]any)
+	if !ok || len(rawEvents) == 0 {
+		return out, errors.New("invalid webhook response events")
+	}
+	seen := map[string]bool{}
+	for _, raw := range rawEvents {
+		event, valid := raw.(string)
+		if !valid || event == "" || seen[event] {
+			return out, errors.New("invalid webhook response event")
+		}
+		seen[event] = true
+		out.Events = append(out.Events, event)
+	}
+	out.Status, ok = v["status"].(string)
+	if !ok || out.Status != "ACTIVE" {
+		return out, errors.New("invalid webhook response status")
+	}
+	out.CreatedAt, ok = v["created_at"].(time.Time)
+	if !ok || out.CreatedAt.IsZero() {
+		return out, errors.New("invalid webhook response created_at")
+	}
+	out.UpdatedAt, ok = v["updated_at"].(time.Time)
+	if !ok || out.UpdatedAt.IsZero() {
+		return out, errors.New("invalid webhook response updated_at")
+	}
+	out.Secret, ok = v["secret"].(string)
+	secret, decodeErr := base64.RawURLEncoding.DecodeString(out.Secret)
+	if !ok || decodeErr != nil || len(out.Secret) != 43 || len(secret) != 32 {
+		return out, errors.New("invalid webhook response secret")
+	}
+	return out, nil
 }
 
 func NewHandler(s *domain.Service, c config.Config) http.Handler {
@@ -53,6 +133,7 @@ func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/public/v1/reports/", h.report)
 	m.HandleFunc("/public/v1/audit-events", h.auditEvents)
 	m.HandleFunc("/public/v1/exports", h.exports)
+	m.HandleFunc("/public/v1/exports/periodized", h.periodizedExports)
 	m.HandleFunc("/public/v1/exports/", h.export)
 	m.HandleFunc("/public/v1/tax-groups", h.taxGroups)
 	m.HandleFunc("/public/v1/country-policy", h.countryPolicy)
@@ -61,7 +142,7 @@ func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/public/v1/ble-sessions/", h.bleSession)
 	m.HandleFunc("/public/v1/edge-sync/batches", h.sync)
 	oidc := auth.NewOIDCVerifier(c.OIDCIssuer, c.OIDCAudience, c.OIDCJWKSURL)
-	return cors(c.CORSAllowedOrigins, auth.MiddlewareWithOIDC(c.AuthHMACKey, oidc, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, m)))))
+	return cors(c.CORSAllowedOrigins, auth.MiddlewareWithOIDC(c.AuthHMACKey, oidc, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, enforceSuccessResponses(m))))))
 }
 func (h *Handler) webhookEndpoints(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
@@ -82,7 +163,12 @@ func (h *Handler) webhookEndpoints(w http.ResponseWriter, r *http.Request) {
 		problem(w, http.StatusUnprocessableEntity, "WEBHOOK_ENDPOINT_REJECTED")
 		return
 	}
-	h.saveReplay(w, r, body, http.StatusCreated, v)
+	typed, err := typedWebhookCreated(v)
+	if err != nil {
+		problem(w, http.StatusInternalServerError, "RESPONSE_CONTRACT_VIOLATION")
+		return
+	}
+	h.saveReplay(w, r, body, http.StatusCreated, typed)
 }
 
 func (h *Handler) webhookEndpoint(w http.ResponseWriter, r *http.Request) {
@@ -380,12 +466,17 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 	}
 	switch parts[1] {
 	case "lines":
+		expected, ok := ifMatch(r)
+		if !ok {
+			problem(w, 428, "IF_MATCH_REQUIRED")
+			return
+		}
 		var in domain.SaleLine
 		if json.Unmarshal(body, &in) != nil {
 			problem(w, 400, "INVALID_JSON")
 			return
 		}
-		v, e := h.svc.AddLineForTenant(id, in, tenantID(r))
+		v, e := h.svc.AddLineExpectedForTenant(id, expected, in, tenantID(r))
 		if e != nil {
 			problem(w, 409, "SALE_LINE_REJECTED")
 			return
@@ -405,6 +496,12 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 		if e = h.svc.QueueFiscalEvent(id, v); e != nil {
 			problem(w, 500, "OUTBOX_PERSIST_FAILED")
 			return
+		}
+		// PAYMENT_ACCEPTED is an internal aggregate state: the tender was
+		// accepted, while the sale still has an outstanding balance. Expose
+		// it as the canonical in-progress FiscalOperation state.
+		if v.State == "PAYMENT_ACCEPTED" {
+			v.State = "EXECUTING"
 		}
 		h.saveReplay(w, r, body, 202, v)
 	case "cancel":
@@ -590,12 +687,13 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		var in struct {
 			OperatorID    string `json:"operator_id"`
 			AppInstanceID string `json:"app_instance_id"`
+			PublicKey     string `json:"public_key"`
 		}
 		if json.Unmarshal(body, &in) != nil {
 			problem(w, 400, "INVALID_JSON")
 			return
 		}
-		v, e := h.svc.BLESession(p[0], in.OperatorID, in.AppInstanceID, tenantID(r))
+		v, e := h.svc.BLESession(p[0], in.OperatorID, in.AppInstanceID, tenantID(r), actorSubject(r), in.PublicKey)
 		if e != nil {
 			problem(w, 503, "BLE_SESSION_UNAVAILABLE")
 			return
@@ -739,12 +837,61 @@ func (h *Handler) exports(w http.ResponseWriter, r *http.Request) {
 	}
 	h.saveReplay(w, r, body, 202, v)
 }
+
+func (h *Handler) periodizedExports(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		problem(w, http.StatusMethodNotAllowed, "METHOD_NOT_ALLOWED")
+		return
+	}
+	body, ok := readBody(w, r)
+	if !ok || h.replay(w, r, body) {
+		return
+	}
+	var in domain.ExportRequest
+	if json.Unmarshal(body, &in) != nil {
+		problem(w, http.StatusBadRequest, "INVALID_JSON")
+		return
+	}
+	v, err := h.svc.CreatePeriodizedExport(in, tenantID(r))
+	if err != nil {
+		problem(w, http.StatusUnprocessableEntity, "PERIODIZED_EXPORT_REJECTED")
+		return
+	}
+	h.saveReplay(w, r, body, http.StatusAccepted, v)
+}
+
 func (h *Handler) export(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "GET" {
 		problem(w, 405, "METHOD_NOT_ALLOWED")
 		return
 	}
-	id := strings.Trim(strings.TrimPrefix(r.URL.Path, "/public/v1/exports/"), "/")
+	parts := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, "/public/v1/exports/"), "/"), "/")
+	if len(parts) == 2 && parts[0] != "" && parts[1] == "periods" {
+		v, err := h.svc.ExportPeriods(parts[0], tenantID(r))
+		if err != nil {
+			problem(w, http.StatusNotFound, "EXPORT_NOT_FOUND")
+			return
+		}
+		write(w, http.StatusOK, v)
+		return
+	}
+	if len(parts) == 3 && parts[0] != "" && parts[1] == "artifacts" && parts[2] != "" {
+		artifact, media, err := h.svc.ExportPeriodArtifact(parts[0], parts[2], tenantID(r))
+		if err != nil {
+			problem(w, http.StatusNotFound, "EXPORT_ARTIFACT_NOT_FOUND")
+			return
+		}
+		w.Header().Set("Content-Type", media)
+		w.Header().Set("Content-Disposition", `attachment; filename="compliance-export-`+parts[2]+`"`)
+		w.WriteHeader(http.StatusOK)
+		_, _ = w.Write(artifact)
+		return
+	}
+	if len(parts) != 1 || parts[0] == "" {
+		problem(w, http.StatusNotFound, "EXPORT_NOT_FOUND")
+		return
+	}
+	id := parts[0]
 	v, e := h.svc.Export(id, tenantID(r))
 	if e != nil {
 		problem(w, 404, "EXPORT_NOT_FOUND")
@@ -780,18 +927,18 @@ func (h *Handler) bleSession(w http.ResponseWriter, r *http.Request) {
 	}
 	switch p[1] {
 	case "refresh":
-		v, e := h.svc.RefreshBLE(p[0], tenantID(r))
+		v, e := h.svc.RefreshBLE(p[0], tenantID(r), actorSubject(r))
 		if e != nil {
 			problem(w, 409, "BLE_SESSION_INACTIVE")
 			return
 		}
 		h.saveReplay(w, r, body, 200, v)
 	case "revoke":
-		if e := h.svc.RevokeBLE(p[0], tenantID(r)); e != nil {
+		if e := h.svc.RevokeBLE(p[0], tenantID(r), actorSubject(r)); e != nil {
 			problem(w, 404, "BLE_SESSION_NOT_FOUND")
 			return
 		}
-		h.saveReplay(w, r, body, 200, map[string]any{"ble_session_id": p[0], "revoked": true})
+		h.saveEmptyReplay(w, r, body, http.StatusNoContent)
 	default:
 		problem(w, 404, "NOT_FOUND")
 	}
@@ -977,6 +1124,12 @@ func tenantID(r *http.Request) string {
 	}
 	return ""
 }
+func actorSubject(r *http.Request) string {
+	if c, ok := auth.ClaimsFrom(r.Context()); ok {
+		return c.Subject
+	}
+	return ""
+}
 func replayKey(r *http.Request) string {
 	return tenantID(r) + " " + r.Method + " " + r.URL.Path + " " + r.Header.Get("Idempotency-Key")
 }
@@ -1032,7 +1185,8 @@ func (h *Handler) authorizeSale(w http.ResponseWriter, r *http.Request, id strin
 }
 func problem(w http.ResponseWriter, status int, code string) {
 	w.Header().Set("Content-Type", "application/problem+json")
-	write(w, status, map[string]any{"type": "urn:beefiscal:error:" + strings.ToLower(code), "title": code, "status": status, "code": code, "retryable": false, "trace_id": time.Now().UTC().Format("20060102150405.000000000")})
+	w.WriteHeader(status)
+	_ = json.NewEncoder(w).Encode(map[string]any{"type": "urn:beefiscal:error:" + strings.ToLower(code), "title": code, "status": status, "code": code, "retryable": false, "trace_id": time.Now().UTC().Format("20060102150405.000000000")})
 }
 func version(v string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -1064,7 +1218,7 @@ func cors(allowed string, next http.Handler) http.Handler {
 			w.Header().Set("Access-Control-Allow-Origin", origin)
 			w.Header().Set("Vary", "Origin")
 			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Idempotency-Key, If-Match, X-Api-Version, X-Tenant-ID")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
 		}
 		if r.Method == "OPTIONS" {
 			if origin == "" || !set[origin] {

@@ -47,7 +47,8 @@ create index fiscal_runtime_outbox_pending on fiscal_runtime_outbox(tenant_id,ne
 
 create table fiscal_runtime_ble_sessions(
   id text primary key, tenant_id text not null, register_id text not null,
-  operator_id text not null, app_instance_id text not null, device_id text not null,
+  operator_id text not null, app_instance_id text not null, actor_subject text,
+  client_public_key text, device_id text not null,
   fencing_token bigint not null check(fencing_token>0), expires_at timestamptz not null,
   revoked boolean not null, payload jsonb not null check(jsonb_typeof(payload)='object')
 );

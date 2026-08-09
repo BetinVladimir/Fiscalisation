@@ -38,6 +38,12 @@ func TestRBACLeastPrivilege(t *testing.T) {
 	if Allowed(cashier, "POST", "/public/v1/minipos/products") {
 		t.Fatal("cashier can edit catalog")
 	}
+	if Allowed(cashier, "GET", "/public/v1/minipos/employees") || Allowed(cashier, "GET", "/public/v1/minipos/reports/sales") {
+		t.Fatal("cashier can read employee directory or tenant-wide report")
+	}
+	if !Allowed(cashier, "GET", "/public/v1/minipos/products") || !Allowed(cashier, "GET", "/public/v1/minipos/orders") {
+		t.Fatal("cashier cannot read required POS resources")
+	}
 	if !Allowed(supervisor, "PATCH", "/public/v1/minipos/configuration") {
 		t.Fatal("supervisor cannot configure")
 	}

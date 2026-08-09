@@ -32,6 +32,15 @@ func TestAdminResourcesTenantVersionAndBinding(t *testing.T) {
 	if _, err = s.BindRegister(register["id"].(string), "tenant-1", device["id"].(string), "FISCAL_DEVICE", ""); err != nil {
 		t.Fatal(err)
 	}
+	bound, err := s.GetResource("register", register["id"].(string), "tenant-1")
+	if err != nil || bound["fiscal_device_active_from"] == "" {
+		t.Fatal("binding activation time was not persisted", bound, err)
+	}
+	activeFrom := bound["fiscal_device_active_from"]
+	updatedRegister, err := s.UpdateResource("register", register["id"].(string), "tenant-1", bound["version"].(int64), map[string]any{"location_id": location["id"], "code": "R01", "status": "ACTIVE", "fiscal_device_id": device["id"]})
+	if err != nil || updatedRegister["fiscal_device_active_from"] != activeFrom {
+		t.Fatal("unchanged binding activation time was not preserved", updatedRegister, err)
+	}
 	if _, err = s.GetResource("device", device["id"].(string), "tenant-2"); err == nil {
 		t.Fatal("cross tenant device leaked")
 	}
@@ -46,6 +55,17 @@ func TestAdminResourcesTenantVersionAndBinding(t *testing.T) {
 	got, err := s.GetResource("register", register["id"].(string), "tenant-1")
 	if err != nil || got["fiscal_device_id"] != device["id"] {
 		t.Fatal(got, err)
+	}
+}
+
+func TestRegisterCannotBypassBindingWithInvalidDeviceReference(t *testing.T) {
+	s := NewService(NewMemoryRepository(), NewSimulator(true))
+	location, err := s.CreateResource("location", "tenant-1", map[string]any{"code": "SOF", "name": "Sofia", "address": "1 Main", "status": "ACTIVE"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.CreateResource("register", "tenant-1", map[string]any{"location_id": location["id"], "code": "R01", "status": "ACTIVE", "payment_terminal_id": "00000000-0000-4000-8000-000000000099"}); err == nil {
+		t.Fatal("register accepted an unknown payment terminal reference")
 	}
 }
 

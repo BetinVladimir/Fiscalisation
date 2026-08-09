@@ -1,6 +1,9 @@
 package domain
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 func TestCancelOnlyUnpaidSale(t *testing.T) {
 	s := NewService(NewMemoryRepository(), NewSimulator(true))
@@ -31,6 +34,26 @@ func TestReceiptAfterFiscalization(t *testing.T) {
 	receipt, err := s.Receipt(sale.ID)
 	if err != nil || receipt["fiscal_reference"] == "" {
 		t.Fatal(receipt, err)
+	}
+}
+
+func TestAddLineRejectsStaleVersionWithoutMutation(t *testing.T) {
+	s := NewService(NewMemoryRepository(), NewSimulator(true))
+	sale, err := s.CreateSale(CreateSale{ExternalID: "concurrent-1", RegisterID: "FD000001", OperatorID: "A001"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	line := SaleLine{LineID: "l1", Name: "Coffee", Quantity: "1.000", UnitPrice: Money{Amount: "2.50", Currency: "EUR"}, TaxGroup: "B"}
+	updated, err := s.AddLineExpectedForTenant(sale.ID, sale.Version, line, sale.TenantID)
+	if err != nil || updated.Version != sale.Version+1 {
+		t.Fatalf("first versioned mutation failed: %+v %v", updated, err)
+	}
+	if _, err = s.AddLineExpectedForTenant(sale.ID, sale.Version, SaleLine{LineID: "l2", Name: "Tea", Quantity: "1.000", UnitPrice: Money{Amount: "1.50", Currency: "EUR"}, TaxGroup: "B"}, sale.TenantID); err == nil {
+		t.Fatal("stale sale version accepted")
+	}
+	stored, err := s.GetSale(sale.ID)
+	if err != nil || stored.Version != updated.Version || len(stored.Lines) != 1 {
+		t.Fatalf("stale mutation changed sale: %+v %v", stored, err)
 	}
 }
 
@@ -72,5 +95,27 @@ func TestReversalPersistsReasonAndOriginalFiscalReference(t *testing.T) {
 	}
 	if _, err = s.Reverse(sale.ID, "SECOND_REVERSAL"); err == nil {
 		t.Fatal("second reversal accepted")
+	}
+}
+
+func TestReversalRejectsUnknownReasonAndExpiredOperatorErrorBeforeExecution(t *testing.T) {
+	r := NewMemoryRepository()
+	s := NewService(r, NewSimulator(true))
+	sale, _ := s.CreateSale(CreateSale{ExternalID: "reverse-deadline", RegisterID: "FD000001", OperatorID: "A001"})
+	sale, _ = s.AddLine(sale.ID, SaleLine{LineID: "l1", Name: "Coffee", Quantity: "1.000", UnitPrice: Money{Amount: "2.50", Currency: "EUR"}, TaxGroup: "B"})
+	original, err := s.Pay(sale.ID, PaymentRequest{PaymentID: "p1", Type: "CASH", Amount: Money{Amount: "2.50", Currency: "EUR"}})
+	if err != nil {
+		t.Fatal(err)
+	}
+	before := len(r.Operations())
+	if _, err = s.ReverseForTenantWithReference(sale.ID, "OTHER", original.FiscalReference, ""); err == nil || len(r.Operations()) != before {
+		t.Fatal("unknown reversal reason reached execution", err)
+	}
+	original.CreatedAt = time.Now().UTC().AddDate(0, -3, 0)
+	if err = r.PutOperation(original); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.ReverseForTenantWithReference(sale.ID, "OPERATOR_ERROR", original.FiscalReference, ""); err == nil || len(r.Operations()) != before {
+		t.Fatal("expired operator-error reversal reached execution", err)
 	}
 }

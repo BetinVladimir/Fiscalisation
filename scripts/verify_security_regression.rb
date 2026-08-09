@@ -6,7 +6,7 @@ cases = JSON.parse(File.read(File.join(root, 'contracts/security-regression-matr
 abort 'security matrix must contain at least 18 executable cases' if cases.length < 18
 ids = cases.map { |item| item.fetch('id') }
 abort 'duplicate security IDs' unless ids.uniq.length == ids.length
-required = %w[authentication authorization webhook ssrf replay revoke rate_limit idempotency production_guard secret_rotation]
+required = %w[authentication authorization webhook ssrf replay revoke rate_limit idempotency production_guard secret_rotation ota supply_chain]
 missing = required - cases.map { |item| item.fetch('category') }.uniq
 abort "missing security categories: #{missing.join(', ')}" unless missing.empty?
 cases.each do |item|

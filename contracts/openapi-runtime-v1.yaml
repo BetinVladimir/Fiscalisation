@@ -8,11 +8,67 @@ info:
     openapi-public-v1.yaml. Internal Edge endpoints are DEV/HIL only and are
     not mounted in PROD.
 servers:
+  - url: https://fiscal.example.invalid/public/v1
+    description: BeeFiscal public Caddy ingress
   - url: https://pos.example.invalid/public/v1
     description: MiniPOS public Caddy ingress
   - url: http://127.0.0.1:8082
     description: Edge loopback DEV/HIL listener
 paths:
+  /exports/periodized:
+    post:
+      operationId: createPeriodizedComplianceExport
+      description: >-
+        Additive BG-020 export path using a half-open [from,to) interval. A
+        request crossing 2026-01-01T00:00:00 Europe/Sofia produces separate
+        BGN and EUR artifacts and never aggregates the two official currencies.
+      security: [{oidcBearer: []}]
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/PeriodizedComplianceExportRequest'}}}
+      responses:
+        '202':
+          description: Export completed or accepted under the durable operation contract
+          content: {application/json: {schema: {$ref: '#/components/schemas/FiscalOperationSummary'}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+  /exports/{export_id}/periods:
+    get:
+      operationId: getPeriodizedComplianceExport
+      description: Returns non-overlapping official-currency period manifests for one export.
+      security: [{oidcBearer: []}]
+      parameters:
+        - $ref: '#/components/parameters/ExportId'
+        - $ref: '#/components/parameters/ApiVersion'
+      responses:
+        '200':
+          description: Periodized export
+          content: {application/json: {schema: {$ref: '#/components/schemas/PeriodizedComplianceExport'}}}
+        '404': {$ref: '#/components/responses/Problem'}
+  /exports/{export_id}/artifacts/{artifact_id}:
+    get:
+      operationId: downloadPeriodizedComplianceExportArtifact
+      description: Downloads an artifact only when it belongs to the tenant-owned export.
+      security: [{oidcBearer: []}]
+      parameters:
+        - $ref: '#/components/parameters/ExportId'
+        - $ref: '#/components/parameters/ArtifactId'
+        - $ref: '#/components/parameters/ApiVersion'
+      responses:
+        '200':
+          description: Immutable compliance export artifact
+          headers:
+            Content-Disposition: {schema: {type: string}}
+          content:
+            application/json: {schema: {type: string, format: binary}}
+            text/csv: {schema: {type: string, format: binary}}
+            application/vnd.openxmlformats-officedocument.spreadsheetml.sheet: {schema: {type: string, format: binary}}
+        '404': {$ref: '#/components/responses/Problem'}
   /minipos/configuration:
     get:
       operationId: getMiniPosConfiguration
@@ -41,6 +97,29 @@ paths:
           content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosConfiguration'}}}
         '409': {$ref: '#/components/responses/Problem'}
   /minipos/shifts:
+    get:
+      operationId: listMiniPosShifts
+      description: Restores shifts owned by the authenticated operator after app restart or re-authentication.
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/AppInstanceId'
+        - name: employee_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+        - name: register_id
+          in: query
+          schema: {type: string}
+        - name: state
+          in: query
+          schema: {type: string, enum: [OPEN, CLOSING, BLOCKED_RECONCILIATION, CLOSED]}
+      responses:
+        '200':
+          description: Operator-owned shifts matching the recovery filters
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosShiftPage'}}}
+        '400': {$ref: '#/components/responses/Problem'}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
     post:
       operationId: openMiniPosShift
       parameters:
@@ -55,6 +134,56 @@ paths:
         '201':
           description: Shift opened
           content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosShift'}}}
+        '409': {$ref: '#/components/responses/Problem'}
+  /minipos/employees/{employee_id}/identity-binding:
+    post:
+      operationId: bindMiniPosEmployeeIdentity
+      description: >-
+        ADMIN-only immutable binding of one organization OIDC identity to one
+        active MiniPOS employee. Raw subjects are hashed before persistence and
+        are never returned by the API.
+      security: [{oidcBearer: []}]
+      parameters:
+        - $ref: '#/components/parameters/EmployeeId'
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosIdentityBindingRequest'}}}
+      responses:
+        '201':
+          description: Immutable identity binding created or idempotently returned
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosIdentityBinding'}}}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+  /minipos/operator-session:
+    get:
+      operationId: getMiniPosOperatorSession
+      description: Resolves the authenticated OIDC identity to exactly one active employee.
+      security: [{oidcBearer: []}]
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/AppInstanceId'
+      responses:
+        '200':
+          description: Current authenticated operator session
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosOperatorSession'}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+    post:
+      operationId: revokeMiniPosOperatorSession
+      description: Durably revokes the current token fingerprint before the UI discards credentials.
+      security: [{oidcBearer: []}]
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/AppInstanceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: {application/json: {schema: {type: object, additionalProperties: false}}}
+      responses:
+        '204': {description: Session revocation durably recorded}
+        '401': {$ref: '#/components/responses/Problem'}
         '409': {$ref: '#/components/responses/Problem'}
   /minipos/shifts/{shift_id}/close:
     post:
@@ -71,6 +200,84 @@ paths:
           description: Shift closed
           content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosShift'}}}
         '409': {$ref: '#/components/responses/Problem'}
+  /minipos/shifts/{shift_id}/reconcile:
+    post:
+      operationId: reconcileMiniPosShiftClose
+      description: >-
+        Resolves a BLOCKED_RECONCILIATION Z close without issuing a second fiscal
+        command. If the original response was lost before an operation id was
+        persisted, the same deterministic downstream idempotency key is replayed.
+      parameters:
+        - $ref: '#/components/parameters/ShiftId'
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: {application/json: {schema: {type: object, additionalProperties: false}}}
+      responses:
+        '200':
+          description: Shift closed with final Z operation and fiscal reference
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosShift'}}}
+        '409': {$ref: '#/components/responses/Problem'}
+  /minipos/orders/{order_id}:
+    get:
+      operationId: getMiniPosOrderRuntimeState
+      description: >-
+        Runtime completion of the locked MiniPosOrder response. allowed_actions
+        is derived by the backend state machine and clients must fail closed
+        when an action is absent.
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+        - $ref: '#/components/parameters/ApiVersion'
+      responses:
+        '200':
+          description: Authoritative MiniPOS order state and permitted actions
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosOrderRuntimeState'}}}
+        '404': {$ref: '#/components/responses/Problem'}
+  /minipos/orders/{order_id}/checkout-batch:
+    post:
+      operationId: checkoutMiniPosOrderBatch
+      description: >-
+        Executes an explicit ordered set of partial tenders against one Fiscal
+        sale. Each entry is independently CASH or CARD; the ambiguous
+        single-value MIXED tender is intentionally forbidden. The sum must
+        equal the order total and CARD entries require an active terminal.
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosCheckoutBatchRequest'}}}
+      responses:
+        '202':
+          description: Final fiscal operation after all ordered tenders
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosFiscalOperation'}}}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '502': {$ref: '#/components/responses/Problem'}
+  /minipos/orders/{order_id}/reversals:
+    post:
+      operationId: reverseMiniPosOrder
+      description: >-
+        Creates an append-only fiscal reversal for a completed MiniPOS order
+        through the Fiscal public API. A successful reversal never edits or
+        deletes the original order; an ambiguous result is retained as UNKNOWN
+        for webhook/poll reconciliation and must not be blindly retried.
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosReversalRequest'}}}
+      responses:
+        '202':
+          description: Reversal operation result
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosFiscalOperation'}}}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
+        '502': {$ref: '#/components/responses/Problem'}
   /fiscal-webhooks:
     post:
       operationId: receiveFiscalWebhookAtMiniPos
@@ -126,17 +333,79 @@ paths:
         '503': {$ref: '#/components/responses/Problem'}
 components:
   securitySchemes:
+    oidcBearer: {type: http, scheme: bearer, bearerFormat: JWT}
     localBearer: {type: http, scheme: bearer}
     webhookHmac: {type: apiKey, in: header, name: BeeFiscal-Signature}
   parameters:
     ApiVersion: {name: X-Api-Version, in: header, required: true, schema: {type: string, const: '2026-08-07'}}
     IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 16, maxLength: 255}}
     ShiftId: {name: shift_id, in: path, required: true, schema: {type: string, format: uuid}}
+    OrderId: {name: order_id, in: path, required: true, schema: {type: string, format: uuid}}
+    EmployeeId: {name: employee_id, in: path, required: true, schema: {type: string, format: uuid}}
+    AppInstanceId: {name: X-App-Instance-Id, in: header, required: true, schema: {type: string, format: uuid}}
+    ExportId: {name: export_id, in: path, required: true, schema: {type: string, format: uuid}}
+    ArtifactId: {name: artifact_id, in: path, required: true, schema: {type: string, format: uuid}}
   responses:
     Problem:
       description: RFC 9457 problem
       content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}
   schemas:
+    PeriodizedComplianceExportRequest:
+      type: object
+      additionalProperties: false
+      required: [type, from, to, format]
+      properties:
+        type: {type: string, enum: [SUPTO_18_1, SUPTO_18_2, SUPTO_18_3, SUPTO_18_4, SUPTO_18_5, SUPTO_18_9, KLEN, FISCAL_MEMORY]}
+        from: {type: string, format: date-time, description: Inclusive interval start}
+        to: {type: string, format: date-time, description: Exclusive interval end; must be later than from}
+        register_id: {type: [string, 'null'], format: uuid}
+        operator_id: {type: [string, 'null'], format: uuid}
+        format: {type: string, enum: [CSV, XLSX, JSON]}
+    FiscalOperationSummary:
+      type: object
+      additionalProperties: true
+      required: [operation_id, type, state, version, fiscal_reference, simulated, allowed_actions, created_at, updated_at]
+      properties:
+        operation_id: {type: string}
+        type: {type: string, const: COMPLIANCE_EXPORT}
+        state: {type: string, const: FISCALIZED}
+        version: {type: integer, minimum: 1}
+        fiscal_reference: {type: string, format: uuid}
+        simulated: {type: boolean}
+        allowed_actions: {type: array, items: {type: string}}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    ExportArtifactManifest:
+      type: object
+      additionalProperties: false
+      required: [artifact_id, media_type, sha256, size, created_at]
+      properties:
+        artifact_id: {type: string, format: uuid}
+        media_type: {type: string, enum: [application/json, text/csv, application/vnd.openxmlformats-officedocument.spreadsheetml.sheet]}
+        sha256: {type: string, pattern: '^[a-f0-9]{64}$'}
+        size: {type: integer, minimum: 1}
+        created_at: {type: string, format: date-time}
+    OfficialCurrencyPeriod:
+      type: object
+      additionalProperties: false
+      required: [official_currency, from_inclusive, to_exclusive, artifact]
+      properties:
+        official_currency: {type: string, enum: [BGN, EUR]}
+        from_inclusive: {type: string, format: date-time}
+        to_exclusive: {type: string, format: date-time}
+        artifact: {$ref: '#/components/schemas/ExportArtifactManifest'}
+    PeriodizedComplianceExport:
+      type: object
+      additionalProperties: false
+      required: [export_id, state, type, format, requested_at, completed_at, periods]
+      properties:
+        export_id: {type: string, format: uuid}
+        state: {type: string, const: COMPLETED}
+        type: {type: string}
+        format: {type: string, enum: [CSV, XLSX, JSON]}
+        requested_at: {type: string, format: date-time}
+        completed_at: {type: string, format: date-time}
+        periods: {type: array, minItems: 1, maxItems: 2, items: {$ref: '#/components/schemas/OfficialCurrencyPeriod'}}
     Money:
       type: object
       additionalProperties: false
@@ -144,6 +413,41 @@ components:
       properties:
         amount: {type: string, pattern: '^-?[0-9]+\.[0-9]{2}$'}
         currency: {type: string, const: EUR}
+    MiniPosIdentityBindingRequest:
+      type: object
+      additionalProperties: false
+      required: [subject, issuer]
+      properties:
+        subject: {type: string, minLength: 1, maxLength: 255, writeOnly: true}
+        issuer: {type: string, format: uri, pattern: '^https://', maxLength: 500}
+    MiniPosIdentityBinding:
+      type: object
+      additionalProperties: false
+      required: [employee_id, issuer, bound_at]
+      properties:
+        employee_id: {type: string, format: uuid}
+        issuer: {type: string, format: uri}
+        bound_at: {type: string, format: date-time}
+    MiniPosOperatorEmployee:
+      type: object
+      additionalProperties: true
+      required: [id, first_name, last_name, operator_code, active, status]
+      properties:
+        id: {type: string, format: uuid}
+        first_name: {type: string}
+        last_name: {type: string}
+        operator_code: {type: string, pattern: '^[0-9A-Za-z]{4}$'}
+        active: {type: boolean, const: true}
+        status: {type: string, const: ACTIVE}
+    MiniPosOperatorSession:
+      type: object
+      additionalProperties: false
+      required: [authenticated, employee, session_id, expires_at]
+      properties:
+        authenticated: {type: boolean, const: true}
+        employee: {$ref: '#/components/schemas/MiniPosOperatorEmployee'}
+        session_id: {type: string, minLength: 43, maxLength: 64, description: Non-secret SHA-256 token fingerprint}
+        expires_at: {type: string, format: date-time}
     MiniPosOpenShiftRequest:
       type: object
       additionalProperties: false
@@ -177,21 +481,98 @@ components:
     MiniPosShift:
       type: object
       additionalProperties: false
-      required: [id, register_id, employee_id, state, opened_at, version, created_at, updated_at]
+      required: [id, register_id, employee_id, state, opened_at, allowed_actions, version, created_at, updated_at]
       properties:
         id: {type: string, format: uuid}
         tenant_id: {type: string}
         register_id: {type: string}
         employee_id: {type: string, format: uuid}
-        state: {type: string, enum: [OPEN, CLOSED]}
+        state: {type: string, enum: [OPEN, CLOSING, BLOCKED_RECONCILIATION, CLOSED]}
         opened_at: {type: string, format: date-time}
         closed_at: {type: [string, 'null'], format: date-time}
+        z_operation_id: {type: [string, 'null']}
+        z_fiscal_reference: {type: [string, 'null']}
+        close_error: {type: [string, 'null']}
+        allowed_actions:
+          type: array
+          items: {type: string, enum: [SALE, CLOSE, READ, RECONCILE]}
         version: {type: integer, minimum: 1}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    MiniPosShiftPage:
+      type: object
+      additionalProperties: false
+      required: [items, page]
+      properties:
+        items:
+          type: array
+          items: {$ref: '#/components/schemas/MiniPosShift'}
+        page:
+          type: object
+          additionalProperties: false
+          required: [has_more]
+          properties:
+            next_cursor: {type: [string, 'null']}
+            has_more: {type: boolean, const: false}
+    MiniPosOrderRuntimeState:
+      type: object
+      additionalProperties: true
+      required: [id, state, version, allowed_actions]
+      properties:
+        id: {type: string, format: uuid}
+        state: {type: string, enum: [DRAFT, OPEN, CHECKOUT_REQUESTED, FISCAL_PENDING, COMPLETED, FAILED, UNKNOWN, REVERSED]}
+        version: {type: integer, minimum: 1}
+        receipt_reference: {type: [string, 'null']}
+        allowed_actions:
+          type: array
+          items: {type: string, enum: [ADD_LINE, CHECKOUT, READ, RECEIPT, REVERSE]}
+    MiniPosTender:
+      type: object
+      additionalProperties: false
+      required: [payment_id, type, amount]
+      properties:
+        payment_id: {type: string, format: uuid}
+        type: {type: string, enum: [CASH, CARD]}
+        amount: {$ref: '#/components/schemas/Money'}
+        terminal_policy: {type: string, enum: [REQUIRED, AUTO_IF_AVAILABLE, NONE]}
+    MiniPosCheckoutBatchRequest:
+      type: object
+      additionalProperties: false
+      required: [payments]
+      properties:
+        payments:
+          type: array
+          minItems: 2
+          maxItems: 10
+          items: {$ref: '#/components/schemas/MiniPosTender'}
+        metadata:
+          type: object
+          maxProperties: 32
+          additionalProperties: true
+    MiniPosReversalRequest:
+      type: object
+      additionalProperties: false
+      required: [reason_code]
+      properties:
+        reason_code:
+          type: string
+          enum: [OPERATOR_ERROR, CUSTOMER_RETURN, CUSTOMER_COMPLAINT, TAX_BASE_REDUCTION]
+    MiniPosFiscalOperation:
+      type: object
+      additionalProperties: false
+      required: [operation_id, type, state, simulated, allowed_actions, created_at, updated_at]
+      properties:
+        operation_id: {type: string}
+        type: {type: string, enum: [FISCAL_SALE, REVERSAL]}
+        state: {type: string, enum: [FISCALIZED, FAILED, UNKNOWN]}
+        fiscal_reference: {type: [string, 'null']}
+        simulated: {type: boolean}
+        allowed_actions: {type: array, items: {type: string}}
         created_at: {type: string, format: date-time}
         updated_at: {type: string, format: date-time}
     FiscalWebhookEvent:
       type: object
-      additionalProperties: true
+      additionalProperties: false
       required: [event_id, event_type, api_version, tenant_id, resource_id, resource_version, data]
       properties:
         event_id: {type: string}
@@ -200,13 +581,19 @@ components:
         tenant_id: {type: string}
         resource_id: {type: string}
         resource_version: {type: integer, minimum: 1}
+        occurred_at: {type: string, format: date-time}
         data:
           type: object
+          additionalProperties: false
           required: [state, operation_id]
           properties:
             state: {type: string}
             operation_id: {type: string}
+            operation_type: {type: string, minLength: 1}
+            sale_id: {type: string}
             external_id: {type: string}
+            fiscal_reference: {type: [string, 'null']}
+            error_code: {type: [string, 'null']}
     EdgeRuntimeCommand:
       type: object
       additionalProperties: false

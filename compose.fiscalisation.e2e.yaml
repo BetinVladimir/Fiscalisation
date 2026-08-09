@@ -2,5 +2,21 @@ services:
   postgres:
     volumes: !override
       - ./database/fiscal:/docker-entrypoint-initdb.d:ro
+      - fiscal_db_socket:/var/run/postgresql
     tmpfs:
       - /var/lib/postgresql/data:size=256m
+    networks: !override [dbroute]
+  fiscal-backend:
+    networks: !override [dbroute]
+    volumes:
+      - fiscal_db_socket:/var/run/postgresql
+    environment:
+      DATABASE_URL: "postgres://fiscal:${FISCAL_DB_PASSWORD}@/fiscal?host=/var/run/postgresql&sslmode=disable"
+      RLS_DATABASE_URL: "postgres://beefiscal_tenant:${FISCAL_RLS_DB_PASSWORD}@/fiscal?host=/var/run/postgresql&sslmode=disable"
+  caddy:
+    networks: !override [dbroute]
+networks:
+  dbroute:
+    internal: true
+volumes:
+  fiscal_db_socket:

@@ -24,6 +24,7 @@ type Product struct {
 	ID        string    `json:"id"`
 	TenantID  string    `json:"tenant_id"`
 	SKU       string    `json:"sku"`
+	Barcode   *string   `json:"barcode,omitempty"`
 	Name      string    `json:"name"`
 	Unit      string    `json:"unit"`
 	Price     Money     `json:"price"`
@@ -47,18 +48,60 @@ type Employee struct {
 	CreatedAt    time.Time `json:"created_at"`
 	UpdatedAt    time.Time `json:"updated_at"`
 }
-type Shift struct {
-	ID         string     `json:"id"`
-	TenantID   string     `json:"tenant_id"`
-	RegisterID string     `json:"register_id"`
-	EmployeeID string     `json:"employee_id"`
-	State      string     `json:"state"`
-	OpenedAt   time.Time  `json:"opened_at"`
-	ClosedAt   *time.Time `json:"closed_at,omitempty"`
-	Version    int64      `json:"version"`
-	CreatedAt  time.Time  `json:"created_at"`
-	UpdatedAt  time.Time  `json:"updated_at"`
+type IdentityBinding struct {
+	TenantID       string    `json:"tenant_id"`
+	EmployeeID     string    `json:"employee_id"`
+	SubjectHash    string    `json:"subject_hash"`
+	IdentityIssuer string    `json:"identity_issuer"`
+	BoundAt        time.Time `json:"bound_at"`
 }
+type OperatorSession struct {
+	Authenticated bool      `json:"authenticated"`
+	Employee      *Employee `json:"employee,omitempty"`
+	SessionID     string    `json:"session_id"`
+	ExpiresAt     time.Time `json:"expires_at"`
+}
+type OperatorSessionRecord struct {
+	TenantID      string     `json:"tenant_id"`
+	EmployeeID    string     `json:"employee_id"`
+	AppInstanceID string     `json:"app_instance_id"`
+	TokenHash     string     `json:"token_hash"`
+	State         string     `json:"state"`
+	FirstSeen     time.Time  `json:"first_seen"`
+	ExpiresAt     time.Time  `json:"expires_at"`
+	RevokedAt     *time.Time `json:"revoked_at,omitempty"`
+}
+type Shift struct {
+	ID               string     `json:"id"`
+	TenantID         string     `json:"tenant_id"`
+	RegisterID       string     `json:"register_id"`
+	EmployeeID       string     `json:"employee_id"`
+	State            string     `json:"state"`
+	OpenedAt         time.Time  `json:"opened_at"`
+	ClosedAt         *time.Time `json:"closed_at,omitempty"`
+	ZOperationID     string     `json:"z_operation_id,omitempty"`
+	ZFiscalReference string     `json:"z_fiscal_reference,omitempty"`
+	CloseError       string     `json:"close_error,omitempty"`
+	AllowedActions   []string   `json:"allowed_actions"`
+	Version          int64      `json:"version"`
+	CreatedAt        time.Time  `json:"created_at"`
+	UpdatedAt        time.Time  `json:"updated_at"`
+}
+
+func withShiftActions(shift Shift) Shift {
+	switch shift.State {
+	case "OPEN":
+		shift.AllowedActions = []string{"SALE", "CLOSE"}
+	case "CLOSING":
+		shift.AllowedActions = []string{"READ"}
+	case "BLOCKED_RECONCILIATION":
+		shift.AllowedActions = []string{"READ", "RECONCILE"}
+	default:
+		shift.AllowedActions = []string{}
+	}
+	return shift
+}
+
 type Configuration struct {
 	ID               string    `json:"id"`
 	TenantID         string    `json:"tenant_id"`
@@ -79,26 +122,64 @@ type Line struct {
 	TaxGroup  string `json:"tax_group"`
 }
 type Order struct {
-	ID                string    `json:"id"`
-	TenantID          string    `json:"tenant_id"`
-	ExternalID        string    `json:"external_id"`
-	ShiftID           string    `json:"shift_id"`
-	RegisterID        string    `json:"register_id"`
-	OperatorCode      string    `json:"operator_code"`
-	State             string    `json:"state"`
-	Lines             []Line    `json:"lines"`
-	Total             Money     `json:"total"`
-	FiscalSaleID      string    `json:"fiscal_sale_id,omitempty"`
-	FiscalOperationID string    `json:"fiscal_operation_id,omitempty"`
-	FiscalVersion     int64     `json:"fiscal_version,omitempty"`
-	Version           int64     `json:"version"`
-	CreatedAt         time.Time `json:"created_at"`
-	UpdatedAt         time.Time `json:"updated_at"`
+	ID                      string    `json:"id"`
+	TenantID                string    `json:"tenant_id"`
+	ExternalID              string    `json:"external_id"`
+	ShiftID                 string    `json:"shift_id"`
+	RegisterID              string    `json:"register_id"`
+	OperatorCode            string    `json:"operator_code"`
+	State                   string    `json:"state"`
+	Lines                   []Line    `json:"lines"`
+	Total                   Money     `json:"total"`
+	FiscalSaleID            string    `json:"fiscal_sale_id,omitempty"`
+	FiscalOperationID       string    `json:"fiscal_operation_id,omitempty"`
+	ReceiptReference        string    `json:"receipt_reference,omitempty"`
+	ReversalOperationID     string    `json:"reversal_operation_id,omitempty"`
+	ReversalFiscalReference string    `json:"reversal_fiscal_reference,omitempty"`
+	ReversalReasonCode      string    `json:"reversal_reason_code,omitempty"`
+	FiscalVersion           int64     `json:"fiscal_version,omitempty"`
+	Version                 int64     `json:"version"`
+	CreatedAt               time.Time `json:"created_at"`
+	UpdatedAt               time.Time `json:"updated_at"`
 }
+
+func (o Order) MarshalJSON() ([]byte, error) {
+	type orderAlias Order
+	actions := []string{}
+	switch o.State {
+	case "DRAFT", "OPEN":
+		actions = append(actions, "ADD_LINE")
+		if len(o.Lines) > 0 {
+			actions = append(actions, "CHECKOUT")
+		}
+	case "FISCAL_PENDING", "UNKNOWN":
+		actions = append(actions, "READ")
+	case "COMPLETED":
+		actions = append(actions, "RECEIPT", "REVERSE")
+	case "REVERSED":
+		actions = append(actions, "RECEIPT")
+	}
+	return json.Marshal(struct {
+		orderAlias
+		AllowedActions []string `json:"allowed_actions"`
+	}{orderAlias: orderAlias(o), AllowedActions: actions})
+}
+
+type ReversalResult struct {
+	OperationID     string    `json:"operation_id"`
+	State           string    `json:"state"`
+	FiscalReference string    `json:"fiscal_reference,omitempty"`
+	Simulated       bool      `json:"simulated"`
+	CreatedAt       time.Time `json:"created_at"`
+	UpdatedAt       time.Time `json:"updated_at"`
+}
+
 type Service struct {
 	mu                sync.RWMutex
 	products          map[string]Product
 	employees         map[string]Employee
+	identityBindings  map[string]IdentityBinding
+	operatorSessions  map[string]OperatorSessionRecord
 	shifts            map[string]Shift
 	orders            map[string]Order
 	checkouts         map[string]Order
@@ -142,20 +223,22 @@ type TenantEntityReader interface {
 	LoadTenantEntities(collection, tenant string) ([][]byte, error)
 }
 type snapshot struct {
-	Products       map[string]Product            `json:"products"`
-	Employees      map[string]Employee           `json:"employees"`
-	Shifts         map[string]Shift              `json:"shifts"`
-	Orders         map[string]Order              `json:"orders"`
-	Checkouts      map[string]Order              `json:"checkouts"`
-	CheckoutHashes map[string]string             `json:"checkout_hashes"`
-	APIReplays     map[string]APIReplay          `json:"api_replays"`
-	WebhookInbox   map[string]WebhookInboxRecord `json:"webhook_inbox"`
-	Configurations map[string]Configuration      `json:"configurations"`
-	Sequence       uint64                        `json:"sequence"`
+	Products         map[string]Product               `json:"products"`
+	Employees        map[string]Employee              `json:"employees"`
+	IdentityBindings map[string]IdentityBinding       `json:"identity_bindings"`
+	OperatorSessions map[string]OperatorSessionRecord `json:"operator_sessions"`
+	Shifts           map[string]Shift                 `json:"shifts"`
+	Orders           map[string]Order                 `json:"orders"`
+	Checkouts        map[string]Order                 `json:"checkouts"`
+	CheckoutHashes   map[string]string                `json:"checkout_hashes"`
+	APIReplays       map[string]APIReplay             `json:"api_replays"`
+	WebhookInbox     map[string]WebhookInboxRecord    `json:"webhook_inbox"`
+	Configurations   map[string]Configuration         `json:"configurations"`
+	Sequence         uint64                           `json:"sequence"`
 }
 
 func NewService(f, v string) *Service {
-	return &Service{products: map[string]Product{}, employees: map[string]Employee{}, shifts: map[string]Shift{}, orders: map[string]Order{}, checkouts: map[string]Order{}, checkoutHashes: map[string]string{}, apiReplays: map[string]APIReplay{}, webhookInbox: map[string]WebhookInboxRecord{}, configurations: map[string]Configuration{}, fiscal: f, version: v, client: &http.Client{Timeout: 10 * time.Second}}
+	return &Service{products: map[string]Product{}, employees: map[string]Employee{}, identityBindings: map[string]IdentityBinding{}, operatorSessions: map[string]OperatorSessionRecord{}, shifts: map[string]Shift{}, orders: map[string]Order{}, checkouts: map[string]Order{}, checkoutHashes: map[string]string{}, apiReplays: map[string]APIReplay{}, webhookInbox: map[string]WebhookInboxRecord{}, configurations: map[string]Configuration{}, fiscal: f, version: v, client: &http.Client{Timeout: 10 * time.Second}}
 }
 func NewPersistentService(f, v string, store Store) (*Service, error) {
 	s := NewService(f, v)
@@ -178,6 +261,14 @@ func NewPersistentService(f, v string, store Store) (*Service, error) {
 		}
 		s.products = x.Products
 		s.employees = x.Employees
+		s.identityBindings = x.IdentityBindings
+		if s.identityBindings == nil {
+			s.identityBindings = map[string]IdentityBinding{}
+		}
+		s.operatorSessions = x.OperatorSessions
+		if s.operatorSessions == nil {
+			s.operatorSessions = map[string]OperatorSessionRecord{}
+		}
 		s.shifts = x.Shifts
 		s.orders = x.Orders
 		s.checkouts = x.Checkouts
@@ -215,7 +306,7 @@ func (s *Service) persistLocked() error {
 	if s.store == nil {
 		return nil
 	}
-	b, e := json.Marshal(snapshot{Products: s.products, Employees: s.employees, Shifts: s.shifts, Orders: s.orders, Checkouts: s.checkouts, CheckoutHashes: s.checkoutHashes, APIReplays: s.apiReplays, WebhookInbox: s.webhookInbox, Configurations: s.configurations, Sequence: s.sequence})
+	b, e := json.Marshal(snapshot{Products: s.products, Employees: s.employees, IdentityBindings: s.identityBindings, OperatorSessions: s.operatorSessions, Shifts: s.shifts, Orders: s.orders, Checkouts: s.checkouts, CheckoutHashes: s.checkoutHashes, APIReplays: s.apiReplays, WebhookInbox: s.webhookInbox, Configurations: s.configurations, Sequence: s.sequence})
 	if e != nil {
 		return e
 	}
@@ -261,7 +352,13 @@ func (s *Service) restoreLocked() {
 	if json.Unmarshal(b, &x) != nil {
 		return
 	}
-	s.products, s.employees, s.shifts, s.orders = x.Products, x.Employees, x.Shifts, x.Orders
+	s.products, s.employees, s.identityBindings, s.operatorSessions, s.shifts, s.orders = x.Products, x.Employees, x.IdentityBindings, x.OperatorSessions, x.Shifts, x.Orders
+	if s.identityBindings == nil {
+		s.identityBindings = map[string]IdentityBinding{}
+	}
+	if s.operatorSessions == nil {
+		s.operatorSessions = map[string]OperatorSessionRecord{}
+	}
 	s.checkouts, s.checkoutHashes, s.apiReplays, s.webhookInbox, s.configurations = x.Checkouts, x.CheckoutHashes, x.APIReplays, x.WebhookInbox, x.Configurations
 	s.sequence = x.Sequence
 	if s.products == nil {
@@ -447,6 +544,17 @@ func (s *Service) CreateProduct(v Product) (Product, error) {
 		if x.TenantID == v.TenantID && strings.EqualFold(x.SKU, v.SKU) {
 			return v, errors.New("duplicate sku")
 		}
+		if v.Barcode != nil && strings.TrimSpace(*v.Barcode) != "" && x.TenantID == v.TenantID && x.Barcode != nil && *x.Barcode == strings.TrimSpace(*v.Barcode) {
+			return v, errors.New("duplicate barcode")
+		}
+	}
+	if v.Barcode != nil {
+		barcode := strings.TrimSpace(*v.Barcode)
+		if barcode == "" {
+			v.Barcode = nil
+		} else {
+			v.Barcode = &barcode
+		}
 	}
 	v.ID = s.nextID("product")
 	if v.Unit == "" {
@@ -506,6 +614,17 @@ func (s *Service) UpdateProduct(id string, expected int64, v Product) (Product, 
 	for _, x := range s.products {
 		if x.ID != id && x.TenantID == old.TenantID && strings.EqualFold(x.SKU, v.SKU) {
 			return v, errors.New("duplicate sku")
+		}
+		if x.ID != id && v.Barcode != nil && strings.TrimSpace(*v.Barcode) != "" && x.TenantID == old.TenantID && x.Barcode != nil && *x.Barcode == strings.TrimSpace(*v.Barcode) {
+			return v, errors.New("duplicate barcode")
+		}
+	}
+	if v.Barcode != nil {
+		barcode := strings.TrimSpace(*v.Barcode)
+		if barcode == "" {
+			v.Barcode = nil
+		} else {
+			v.Barcode = &barcode
 		}
 	}
 	v.TenantID = old.TenantID
@@ -662,8 +781,139 @@ func (s *Service) UpdateEmployeeForTenant(id string, expected int64, v Employee,
 	v.TenantID = tenant
 	return s.UpdateEmployee(id, expected, v)
 }
+func identityBindingKey(tenant, issuer, subject string) string {
+	sum := sha256.Sum256([]byte(tenant + "\x00" + issuer + "\x00" + subject))
+	return tenant + "\n" + fmt.Sprintf("%x", sum[:])
+}
+func (s *Service) BindEmployeeIdentity(tenant, employeeID, subject, issuer string) (IdentityBinding, error) {
+	if tenant == "" || employeeID == "" || strings.TrimSpace(subject) == "" || strings.TrimSpace(issuer) == "" {
+		return IdentityBinding{}, errors.New("invalid identity binding")
+	}
+	if _, err := s.EmployeeForTenant(employeeID, tenant); err != nil {
+		return IdentityBinding{}, errors.New("employee not found")
+	}
+	key := identityBindingKey(tenant, issuer, subject)
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if current, ok := s.identityBindings[key]; ok {
+		if current.EmployeeID != employeeID || current.IdentityIssuer != issuer {
+			return IdentityBinding{}, errors.New("identity already bound")
+		}
+		return current, nil
+	}
+	for _, current := range s.identityBindings {
+		if current.TenantID == tenant && current.EmployeeID == employeeID {
+			return IdentityBinding{}, errors.New("employee already bound")
+		}
+	}
+	now := time.Now().UTC()
+	binding := IdentityBinding{TenantID: tenant, EmployeeID: employeeID, SubjectHash: strings.TrimPrefix(key, tenant+"\n"), IdentityIssuer: issuer, BoundAt: now}
+	s.identityBindings[key] = binding
+	return binding, s.persistLocked()
+}
+func (s *Service) EmployeeForIdentity(tenant, issuer, subject string) (Employee, error) {
+	if tenant == "" || subject == "" {
+		return Employee{}, errors.New("identity not bound")
+	}
+	s.mu.RLock()
+	binding, ok := s.identityBindings[identityBindingKey(tenant, issuer, subject)]
+	s.mu.RUnlock()
+	if !ok {
+		return Employee{}, errors.New("identity not bound")
+	}
+	employee, err := s.EmployeeForTenant(binding.EmployeeID, tenant)
+	if err != nil || !employee.Active || employee.Status != "ACTIVE" {
+		return Employee{}, errors.New("employee inactive")
+	}
+	return employee, nil
+}
+func (s *Service) IdentityMatchesEmployee(tenant, issuer, subject, employeeID string) bool {
+	employee, err := s.EmployeeForIdentity(tenant, issuer, subject)
+	return err == nil && employee.ID == employeeID
+}
+func (s *Service) RegisterOperatorSession(tenant, employeeID, appInstanceID, tokenHash string, expiresAt time.Time) (OperatorSessionRecord, error) {
+	if tenant == "" || employeeID == "" || appInstanceID == "" || tokenHash == "" || !expiresAt.After(time.Now().UTC()) {
+		return OperatorSessionRecord{}, errors.New("invalid operator session")
+	}
+	if _, err := s.EmployeeForTenant(employeeID, tenant); err != nil {
+		return OperatorSessionRecord{}, errors.New("employee not found")
+	}
+	key := tenant + "\n" + tokenHash
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if current, ok := s.operatorSessions[key]; ok {
+		if current.EmployeeID != employeeID || current.AppInstanceID != appInstanceID || current.State != "ACTIVE" {
+			return OperatorSessionRecord{}, errors.New("operator session revoked or mismatched")
+		}
+		return current, nil
+	}
+	now := time.Now().UTC()
+	record := OperatorSessionRecord{TenantID: tenant, EmployeeID: employeeID, AppInstanceID: appInstanceID, TokenHash: tokenHash, State: "ACTIVE", FirstSeen: now, ExpiresAt: expiresAt}
+	s.operatorSessions[key] = record
+	return record, s.persistLocked()
+}
+func (s *Service) RevokeOperatorSession(tenant, tokenHash string) (OperatorSessionRecord, error) {
+	key := tenant + "\n" + tokenHash
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	record, ok := s.operatorSessions[key]
+	if !ok || record.TenantID != tenant {
+		return OperatorSessionRecord{}, errors.New("operator session not found")
+	}
+	if record.State == "REVOKED" {
+		return record, nil
+	}
+	now := time.Now().UTC()
+	record.State, record.RevokedAt = "REVOKED", &now
+	s.operatorSessions[key] = record
+	return record, s.persistLocked()
+}
+func (s *Service) OperatorSessionActive(tenant, tokenHash, employeeID, appInstanceID string, now time.Time) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	record, ok := s.operatorSessions[tenant+"\n"+tokenHash]
+	return ok && record.TenantID == tenant && record.EmployeeID == employeeID && record.AppInstanceID == appInstanceID && record.State == "ACTIVE" && record.ExpiresAt.After(now)
+}
+func (s *Service) OperatorSessionRevoked(tenant, tokenHash string) bool {
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	record, ok := s.operatorSessions[tenant+"\n"+tokenHash]
+	return ok && record.State == "REVOKED"
+}
 func (s *Service) OpenShift(register, employee string) (Shift, error) {
 	return s.OpenShiftForTenant(register, employee, "")
+}
+func (s *Service) ShiftsFor(tenant, employee, register, state string) []Shift {
+	var all []Shift
+	if reader, ok := s.store.(TenantEntityReader); ok && tenant != "" {
+		rows, err := reader.LoadTenantEntities("shifts", tenant)
+		if err != nil {
+			return []Shift{}
+		}
+		all = make([]Shift, 0, len(rows))
+		for _, raw := range rows {
+			var shift Shift
+			if json.Unmarshal(raw, &shift) != nil {
+				return []Shift{}
+			}
+			all = append(all, shift)
+		}
+	} else {
+		s.mu.RLock()
+		all = make([]Shift, 0, len(s.shifts))
+		for _, shift := range s.shifts {
+			all = append(all, shift)
+		}
+		s.mu.RUnlock()
+	}
+	out := make([]Shift, 0, len(all))
+	for _, shift := range all {
+		if tenant != "" && shift.TenantID != tenant || employee != "" && shift.EmployeeID != employee || register != "" && shift.RegisterID != register || state != "" && shift.State != state {
+			continue
+		}
+		out = append(out, withShiftActions(shift))
+	}
+	return out
 }
 func (s *Service) OpenShiftForTenant(register, employee, tenant string) (Shift, error) {
 	if tenant != "" {
@@ -678,12 +928,12 @@ func (s *Service) OpenShiftForTenant(register, employee, tenant string) (Shift, 
 		return Shift{}, errors.New("employee not found")
 	}
 	for _, v := range s.shifts {
-		if v.RegisterID == register && v.State == "OPEN" {
+		if v.RegisterID == register && v.State != "CLOSED" {
 			return Shift{}, errors.New("shift already open")
 		}
 	}
 	now := time.Now().UTC()
-	v := Shift{ID: s.nextID("shift"), TenantID: tenant, RegisterID: register, EmployeeID: employee, State: "OPEN", OpenedAt: now, Version: 1, CreatedAt: now, UpdatedAt: now}
+	v := withShiftActions(Shift{ID: s.nextID("shift"), TenantID: tenant, RegisterID: register, EmployeeID: employee, State: "OPEN", OpenedAt: now, Version: 1, CreatedAt: now, UpdatedAt: now})
 	s.shifts[v.ID] = v
 	return v, s.persistLocked()
 }
@@ -698,12 +948,13 @@ func (s *Service) CloseShift(id string) (Shift, error) {
 		return v, errors.New("shift not open")
 	}
 	for _, o := range s.orders {
-		if o.ShiftID == id && (o.State == "OPEN" || o.State == "FISCAL_PENDING" || o.State == "UNKNOWN") {
+		if o.ShiftID == id && (o.State == "DRAFT" || o.State == "OPEN" || o.State == "FISCAL_PENDING" || o.State == "UNKNOWN") {
 			return v, errors.New("unresolved order blocks close")
 		}
 	}
 	now := time.Now().UTC()
 	v.State = "CLOSED"
+	v = withShiftActions(v)
 	v.ClosedAt = &now
 	v.Version++
 	v.UpdatedAt = now
@@ -711,11 +962,102 @@ func (s *Service) CloseShift(id string) (Shift, error) {
 	return v, s.persistLocked()
 }
 func (s *Service) CloseShiftForTenant(id, tenant string) (Shift, error) {
+	if tenant == "" {
+		return s.CloseShift(id)
+	}
 	current, err := s.ShiftForTenant(id, tenant)
 	if err != nil || current.State != "OPEN" {
 		return Shift{}, errors.New("shift not open")
 	}
-	return s.CloseShift(id)
+	s.mu.Lock()
+	current = s.shifts[id]
+	for _, order := range s.orders {
+		if order.ShiftID == id && (order.State == "DRAFT" || order.State == "OPEN" || order.State == "FISCAL_PENDING" || order.State == "UNKNOWN") {
+			s.mu.Unlock()
+			return Shift{}, errors.New("unresolved order blocks close")
+		}
+	}
+	previous := current
+	current.State = "CLOSING"
+	current = withShiftActions(current)
+	current.Version++
+	current.UpdatedAt = time.Now().UTC()
+	s.shifts[id] = current
+	if err = s.persistLocked(); err != nil {
+		s.shifts[id] = previous
+		s.mu.Unlock()
+		return Shift{}, err
+	}
+	s.mu.Unlock()
+	var operation struct {
+		ID              string `json:"operation_id"`
+		State           string `json:"state"`
+		FiscalReference string `json:"fiscal_reference"`
+	}
+	err = s.call("POST", "/registers/"+current.RegisterID+"/reports", "minipos-shift-"+id+"-z", map[string]any{"type": "Z"}, &operation)
+	if err != nil || operation.State != "FISCALIZED" || operation.ID == "" || operation.FiscalReference == "" {
+		detail := "Z report result is not final"
+		if err != nil {
+			detail = err.Error()
+		}
+		return s.finishShiftClose(id, "BLOCKED_RECONCILIATION", operation.ID, operation.FiscalReference, detail)
+	}
+	return s.finishShiftClose(id, "CLOSED", operation.ID, operation.FiscalReference, "")
+}
+
+func (s *Service) ReconcileShiftCloseForTenant(id, tenant string) (Shift, error) {
+	current, err := s.ShiftForTenant(id, tenant)
+	if err != nil || current.State != "BLOCKED_RECONCILIATION" {
+		return Shift{}, errors.New("shift does not require reconciliation")
+	}
+	var operation struct {
+		ID              string `json:"operation_id"`
+		State           string `json:"state"`
+		FiscalReference string `json:"fiscal_reference"`
+	}
+	if current.ZOperationID == "" {
+		err = s.call("POST", "/registers/"+current.RegisterID+"/reports", "minipos-shift-"+id+"-z", map[string]any{"type": "Z"}, &operation)
+	} else {
+		err = s.call("GET", "/operations/"+current.ZOperationID, "", nil, &operation)
+	}
+	if err != nil {
+		return s.finishShiftClose(id, "BLOCKED_RECONCILIATION", current.ZOperationID, current.ZFiscalReference, err.Error())
+	}
+	if operation.ID == "" {
+		operation.ID = current.ZOperationID
+	}
+	if operation.State != "FISCALIZED" || operation.ID == "" || operation.FiscalReference == "" {
+		detail := "Z report remains non-final: " + operation.State
+		return s.finishShiftClose(id, "BLOCKED_RECONCILIATION", operation.ID, operation.FiscalReference, detail)
+	}
+	return s.finishShiftClose(id, "CLOSED", operation.ID, operation.FiscalReference, "")
+}
+
+func (s *Service) finishShiftClose(id, state, operationID, reference, closeError string) (Shift, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	shift, ok := s.shifts[id]
+	if !ok || (shift.State != "CLOSING" && shift.State != "BLOCKED_RECONCILIATION") {
+		return Shift{}, errors.New("shift close state changed")
+	}
+	previous := shift
+	now := time.Now().UTC()
+	shift.State, shift.ZOperationID, shift.ZFiscalReference, shift.CloseError = state, operationID, reference, closeError
+	shift = withShiftActions(shift)
+	shift.Version++
+	shift.UpdatedAt = now
+	if state == "CLOSED" {
+		shift.ClosedAt = &now
+	}
+	s.shifts[id] = shift
+	if err := s.persistLocked(); err != nil {
+		s.shifts[id] = previous
+		return Shift{}, err
+	}
+	if state != "CLOSED" {
+		return shift, errors.New("Z report requires reconciliation")
+	}
+	return shift, nil
 }
 func (s *Service) Shift(id string) (Shift, error) {
 	s.mu.RLock()
@@ -724,7 +1066,7 @@ func (s *Service) Shift(id string) (Shift, error) {
 	if !ok {
 		return v, errors.New("not found")
 	}
-	return v, nil
+	return withShiftActions(v), nil
 }
 func (s *Service) ShiftForTenant(id, tenant string) (Shift, error) {
 	if reader, ok := s.store.(TenantEntityReader); ok && tenant != "" {
@@ -734,13 +1076,13 @@ func (s *Service) ShiftForTenant(id, tenant string) (Shift, error) {
 		}
 		var v Shift
 		e = json.Unmarshal(raw, &v)
-		return v, e
+		return withShiftActions(v), e
 	}
 	v, e := s.Shift(id)
 	if e != nil || v.TenantID != tenant {
 		return Shift{}, errors.New("not found")
 	}
-	return v, nil
+	return withShiftActions(v), nil
 }
 func (s *Service) CreateOrder(v Order) (Order, error) {
 	if v.TenantID != "" {
@@ -805,6 +1147,17 @@ func (s *Service) OrdersFor(tenant string) []Order {
 		}
 	}
 	return v
+}
+func (s *Service) OrdersForEmployee(tenant, employee string) []Order {
+	all := s.OrdersFor(tenant)
+	out := make([]Order, 0, len(all))
+	for _, order := range all {
+		shift, err := s.ShiftForTenant(order.ShiftID, tenant)
+		if err == nil && shift.EmployeeID == employee {
+			out = append(out, order)
+		}
+	}
+	return out
 }
 func (s *Service) SalesReport() map[string]any {
 	return s.SalesReportFor("")
@@ -950,9 +1303,9 @@ func (s *Service) ApplyFiscalEvent(aggregateID, state, operation string, version
 	return s.ApplyFiscalEventLinked(aggregateID, "", state, operation, version)
 }
 func (s *Service) ApplyFiscalEventLinked(aggregateID, externalID, state, operation string, version int64) error {
-	return s.applyFiscalEventLinkedForTenant("", aggregateID, externalID, state, operation, version)
+	return s.applyFiscalEventLinkedForTenant("", aggregateID, externalID, state, operation, "", version)
 }
-func (s *Service) applyFiscalEventLinkedForTenant(tenant, aggregateID, externalID, state, operation string, version int64) error {
+func (s *Service) applyFiscalEventLinkedForTenant(tenant, aggregateID, externalID, state, operation, fiscalReference string, version int64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	for id, o := range s.orders {
@@ -962,7 +1315,7 @@ func (s *Service) applyFiscalEventLinkedForTenant(tenant, aggregateID, externalI
 		if o.FiscalSaleID != aggregateID && (externalID == "" || o.ExternalID != externalID) {
 			continue
 		}
-		if version <= o.FiscalVersion {
+		if version <= o.FiscalVersion && operation != o.ReversalOperationID && !(state == "REVERSED" && o.State == "UNKNOWN") {
 			return nil
 		}
 		switch state {
@@ -974,10 +1327,19 @@ func (s *Service) applyFiscalEventLinkedForTenant(tenant, aggregateID, externalI
 			o.State = "UNKNOWN"
 		case "REVERSED":
 			o.State = "REVERSED"
+			o.ReversalOperationID = operation
+			if fiscalReference != "" {
+				o.ReversalFiscalReference = fiscalReference
+			}
 		default:
 			return errors.New("unknown fiscal state")
 		}
-		o.FiscalOperationID = operation
+		if state != "REVERSED" {
+			o.FiscalOperationID = operation
+			if fiscalReference != "" {
+				o.ReceiptReference = fiscalReference
+			}
+		}
 		if o.FiscalSaleID == "" {
 			o.FiscalSaleID = aggregateID
 		}
@@ -999,6 +1361,9 @@ func (s *Service) ProcessFiscalWebhookLinked(eventID string, raw []byte, resourc
 	return s.ProcessFiscalWebhookLinkedForTenant(envelope.TenantID, eventID, raw, resourceID, externalID, state, operation, version)
 }
 func (s *Service) ProcessFiscalWebhookLinkedForTenant(tenant, eventID string, raw []byte, resourceID, externalID, state, operation string, version int64) error {
+	return s.ProcessFiscalWebhookLinkedForTenantWithReference(tenant, eventID, raw, resourceID, externalID, state, operation, "", version)
+}
+func (s *Service) ProcessFiscalWebhookLinkedForTenantWithReference(tenant, eventID string, raw []byte, resourceID, externalID, state, operation, fiscalReference string, version int64) error {
 	if eventID == "" {
 		return errors.New("event id required")
 	}
@@ -1025,7 +1390,7 @@ func (s *Service) ProcessFiscalWebhookLinkedForTenant(tenant, eventID string, ra
 		}
 	}
 	s.mu.Unlock()
-	err := s.applyFiscalEventLinkedForTenant(tenant, resourceID, externalID, state, operation, version)
+	err := s.applyFiscalEventLinkedForTenant(tenant, resourceID, externalID, state, operation, fiscalReference, version)
 	s.mu.Lock()
 	v := s.webhookInbox[eventID]
 	now := time.Now().UTC()
@@ -1043,12 +1408,22 @@ func (s *Service) ProcessFiscalWebhookLinkedForTenant(tenant, eventID string, ra
 	return persistErr
 }
 func (s *Service) Checkout(order, key string, p map[string]any) (Order, error) {
-	return s.checkoutForTenant(order, key, p, "")
+	return s.checkoutForTenant(order, key, []map[string]any{p}, p, "")
 }
 func (s *Service) CheckoutForTenant(order, key string, p map[string]any, tenant string) (Order, error) {
-	return s.checkoutForTenant(order, key, p, tenant)
+	return s.checkoutForTenant(order, key, []map[string]any{p}, p, tenant)
 }
-func (s *Service) checkoutForTenant(order, key string, p map[string]any, tenant string) (Order, error) {
+func (s *Service) CheckoutBatchForTenant(order, key string, payments []map[string]any, metadata map[string]any, tenant string) (Order, error) {
+	if len(payments) < 2 || len(payments) > 10 {
+		return Order{}, errors.New("split checkout requires 2 to 10 payments")
+	}
+	payload := map[string]any{"payments": payments}
+	if metadata != nil {
+		payload["metadata"] = metadata
+	}
+	return s.checkoutForTenant(order, key, payments, payload, tenant)
+}
+func (s *Service) checkoutForTenant(order, key string, payments []map[string]any, hashPayload any, tenant string) (Order, error) {
 	if tenant != "" {
 		current, err := s.OrderForTenant(order, tenant)
 		if err != nil {
@@ -1061,7 +1436,7 @@ func (s *Service) checkoutForTenant(order, key string, p map[string]any, tenant 
 			return Order{}, errors.New("order state changed; retry")
 		}
 	}
-	requestBody, e := json.Marshal(p)
+	requestBody, e := json.Marshal(hashPayload)
 	if e != nil {
 		return Order{}, errors.New("invalid payment payload")
 	}
@@ -1073,16 +1448,25 @@ func (s *Service) checkoutForTenant(order, key string, p map[string]any, tenant 
 		resultMissing := errors.Is(resultErr, sql.ErrNoRows)
 		hashMissing := errors.Is(hashErr, sql.ErrNoRows)
 		if resultErr == nil || hashErr == nil {
-			if resultErr != nil || hashErr != nil {
+			if hashErr != nil {
 				return Order{}, errors.New("incomplete checkout checkpoint")
 			}
-			var done Order
 			var storedHash string
-			if json.Unmarshal(rawResult, &done) != nil || json.Unmarshal(rawHash, &storedHash) != nil {
+			if json.Unmarshal(rawHash, &storedHash) != nil {
 				return Order{}, errors.New("invalid checkout checkpoint")
 			}
 			if storedHash != requestHash {
 				return Order{}, errors.New("idempotency key payload mismatch")
+			}
+			// A durable hash without a result is an in-flight intent. The
+			// downstream sale, line and payment calls all use deterministic
+			// idempotency keys, so retrying the sequence is the recovery path.
+			if resultMissing {
+				goto loadOrder
+			}
+			var done Order
+			if json.Unmarshal(rawResult, &done) != nil {
+				return Order{}, errors.New("invalid checkout checkpoint")
 			}
 			return done, nil
 		}
@@ -1090,6 +1474,7 @@ func (s *Service) checkoutForTenant(order, key string, p map[string]any, tenant 
 			return Order{}, errors.New("checkout checkpoint unavailable")
 		}
 	}
+loadOrder:
 	s.mu.Lock()
 	o, ok := s.orders[order]
 	if !ok {
@@ -1105,16 +1490,35 @@ func (s *Service) checkoutForTenant(order, key string, p map[string]any, tenant 
 		s.mu.Unlock()
 		return done, nil
 	}
-	if o.State != "OPEN" {
+	intentHash, intentExists := s.checkoutHashes[replayKey]
+	if intentExists && intentHash != requestHash {
+		s.mu.Unlock()
+		return o, errors.New("idempotency key payload mismatch")
+	}
+	resuming := intentExists && o.State == "FISCAL_PENDING"
+	if o.State != "OPEN" && !resuming {
 		s.mu.Unlock()
 		return o, errors.New("not payable")
 	}
-	o.State = "FISCAL_PENDING"
-	o.Version++
+	if e = validateCheckoutPayments(o.Total, payments); e != nil {
+		s.mu.Unlock()
+		return o, e
+	}
 	previous := s.orders[o.ID]
-	s.orders[o.ID] = o
+	oldIntent, oldIntentExists := s.checkoutHashes[replayKey]
+	if !resuming {
+		o.State = "FISCAL_PENDING"
+		o.Version++
+		s.orders[o.ID] = o
+	}
+	s.checkoutHashes[replayKey] = requestHash
 	if e := s.persistLocked(); e != nil {
 		s.orders[o.ID] = previous
+		if oldIntentExists {
+			s.checkoutHashes[replayKey] = oldIntent
+		} else {
+			delete(s.checkoutHashes, replayKey)
+		}
 		s.mu.Unlock()
 		return o, e
 	}
@@ -1128,26 +1532,58 @@ func (s *Service) checkoutForTenant(order, key string, p map[string]any, tenant 
 		return s.fail(o, errors.New("fiscal response missing sale id"))
 	}
 	o.FiscalSaleID = saleID
+	fiscalVersion, ok := sale["version"].(float64)
+	if !ok || fiscalVersion < 1 || fiscalVersion != float64(int64(fiscalVersion)) {
+		return s.fail(o, errors.New("fiscal response missing sale version"))
+	}
 	for i, l := range o.Lines {
-		var ignored map[string]any
-		if e := s.call("POST", "/sales/"+o.FiscalSaleID+"/lines", fmt.Sprintf("%s-line-%d", key, i), l, &ignored); e != nil {
+		var updated map[string]any
+		if e := s.callWithIfMatch("POST", "/sales/"+o.FiscalSaleID+"/lines", fmt.Sprintf("%s-line-%d", key, i), strconv.FormatInt(int64(fiscalVersion), 10), l, &updated); e != nil {
 			return s.fail(o, e)
 		}
+		nextVersion, valid := updated["version"].(float64)
+		if !valid || nextVersion != fiscalVersion+1 {
+			return s.fail(o, errors.New("invalid fiscal sale version progression"))
+		}
+		fiscalVersion = nextVersion
 	}
-	var op map[string]any
-	if e := s.call("POST", "/sales/"+o.FiscalSaleID+"/payments", key+"-payment", p, &op); e != nil {
-		return s.fail(o, e)
+	state := ""
+	for index, payment := range payments {
+		var op map[string]any
+		paymentKey := key + "-payment"
+		if len(payments) > 1 {
+			paymentKey = fmt.Sprintf("%s-payment-%d", key, index)
+		}
+		if e := s.call("POST", "/sales/"+o.FiscalSaleID+"/payments", paymentKey, payment, &op); e != nil {
+			return s.fail(o, e)
+		}
+		operationID, valid := op["operation_id"].(string)
+		if !valid || operationID == "" {
+			return s.fail(o, errors.New("fiscal response missing operation id"))
+		}
+		state, valid = op["state"].(string)
+		if !valid || state == "" {
+			return s.fail(o, errors.New("fiscal response missing operation state"))
+		}
+		o.FiscalOperationID = operationID
+		if fiscalReference, valid := op["fiscal_reference"].(string); valid && fiscalReference != "" {
+			o.ReceiptReference = fiscalReference
+		}
+		last := index == len(payments)-1
+		if !last && (state == "PAYMENT_ACCEPTED" || state == "EXECUTING") {
+			continue
+		}
+		if !last && (state == "FAILED" || state == "CANCELLED" || state == "UNKNOWN") {
+			break
+		}
+		if !last || state == "PAYMENT_ACCEPTED" || state == "EXECUTING" {
+			return s.fail(o, errors.New("invalid split payment state progression"))
+		}
 	}
-	operationID, ok := op["operation_id"].(string)
-	if !ok || operationID == "" {
-		return s.fail(o, errors.New("fiscal response missing operation id"))
-	}
-	state, ok := op["state"].(string)
-	if !ok || state == "" {
-		return s.fail(o, errors.New("fiscal response missing operation state"))
-	}
-	o.FiscalOperationID = operationID
 	if state == "FISCALIZED" {
+		if o.ReceiptReference == "" {
+			return s.fail(o, errors.New("fiscal response missing fiscal reference"))
+		}
 		o.State = "COMPLETED"
 	} else if state == "FAILED" || state == "CANCELLED" {
 		o.State = "FAILED"
@@ -1179,6 +1615,135 @@ func (s *Service) checkoutForTenant(order, key string, p map[string]any, tenant 
 	s.mu.Unlock()
 	return o, e
 }
+
+func (s *Service) ReverseOrderForTenant(orderID, key, reason, tenant string) (ReversalResult, error) {
+	reason = strings.TrimSpace(reason)
+	allowed := map[string]bool{"OPERATOR_ERROR": true, "CUSTOMER_RETURN": true, "CUSTOMER_COMPLAINT": true, "TAX_BASE_REDUCTION": true}
+	if !allowed[reason] {
+		return ReversalResult{}, errors.New("invalid reversal reason")
+	}
+	s.mu.Lock()
+	order, ok := s.orders[orderID]
+	if !ok || order.TenantID != tenant || order.State != "COMPLETED" || order.FiscalSaleID == "" || order.FiscalOperationID == "" {
+		s.mu.Unlock()
+		return ReversalResult{}, errors.New("order is not reversible")
+	}
+	s.mu.Unlock()
+
+	var operation map[string]any
+	payload := map[string]any{"reason_code": reason}
+	if err := s.call("POST", "/sales/"+order.FiscalSaleID+"/reversals", key+"-fiscal-reversal", payload, &operation); err != nil {
+		// The request may have reached the fiscal system. Freeze the order and
+		// reconcile through the signed webhook/read path; never issue a blind
+		// second storno against the original receipt.
+		s.mu.Lock()
+		current := s.orders[orderID]
+		if current.TenantID == tenant && current.State == "COMPLETED" {
+			previous := current
+			current.State = "UNKNOWN"
+			current.ReversalReasonCode = reason
+			current.Version++
+			current.UpdatedAt = time.Now().UTC()
+			s.orders[orderID] = current
+			if persistErr := s.persistLocked(); persistErr != nil {
+				s.orders[orderID] = previous
+				s.mu.Unlock()
+				return ReversalResult{}, fmt.Errorf("%v; persist reversal UNKNOWN: %w", err, persistErr)
+			}
+		}
+		s.mu.Unlock()
+		return ReversalResult{}, err
+	}
+	operationID, _ := operation["operation_id"].(string)
+	state, _ := operation["state"].(string)
+	fiscalReference, _ := operation["fiscal_reference"].(string)
+	simulated, _ := operation["simulated"].(bool)
+	if operationID == "" || (state != "FISCALIZED" && state != "FAILED" && state != "CANCELLED" && state != "UNKNOWN" && state != "RECONCILING") {
+		return ReversalResult{}, errors.New("invalid fiscal reversal response")
+	}
+	now := time.Now().UTC()
+	publicState := state
+	if publicState == "RECONCILING" {
+		publicState = "UNKNOWN"
+	} else if publicState == "CANCELLED" {
+		publicState = "FAILED"
+	}
+	result := ReversalResult{OperationID: operationID, State: publicState, FiscalReference: fiscalReference, Simulated: simulated, CreatedAt: now, UpdatedAt: now}
+	s.mu.Lock()
+	current := s.orders[orderID]
+	if current.TenantID != tenant || current.State != "COMPLETED" {
+		s.mu.Unlock()
+		return ReversalResult{}, errors.New("order state changed during reversal")
+	}
+	previous := current
+	current.ReversalOperationID = operationID
+	current.ReversalFiscalReference = fiscalReference
+	current.ReversalReasonCode = reason
+	if state == "FISCALIZED" {
+		current.State = "REVERSED"
+	} else if state == "UNKNOWN" || state == "RECONCILING" {
+		current.State = "UNKNOWN"
+	}
+	current.Version++
+	current.UpdatedAt = now
+	s.orders[orderID] = current
+	if err := s.persistLocked(); err != nil {
+		s.orders[orderID] = previous
+		s.mu.Unlock()
+		return ReversalResult{}, err
+	}
+	s.mu.Unlock()
+	return result, nil
+}
+
+func validateCheckoutPayments(total Money, payments []map[string]any) error {
+	if len(payments) == 0 || len(payments) > 10 {
+		return errors.New("invalid payment count")
+	}
+	want, err := moneyCents(total)
+	if err != nil || want <= 0 {
+		return errors.New("invalid order total")
+	}
+	seen := map[string]bool{}
+	var sum int64
+	for _, raw := range payments {
+		paymentID, _ := raw["payment_id"].(string)
+		paymentType, _ := raw["type"].(string)
+		policy, _ := raw["terminal_policy"].(string)
+		amount := Money{}
+		switch amountMap := raw["amount"].(type) {
+		case map[string]any:
+			amount.Amount, _ = amountMap["amount"].(string)
+			amount.Currency, _ = amountMap["currency"].(string)
+		case map[string]string:
+			amount.Amount = amountMap["amount"]
+			amount.Currency = amountMap["currency"]
+		}
+		cents, amountErr := moneyCents(amount)
+		if !validUUID(paymentID) || seen[paymentID] || amountErr != nil || cents <= 0 || (paymentType != "CASH" && paymentType != "CARD") {
+			return errors.New("invalid checkout payment")
+		}
+		if paymentType == "CARD" && policy != "REQUIRED" && policy != "AUTO_IF_AVAILABLE" {
+			return errors.New("card payment requires terminal policy")
+		}
+		if paymentType == "CASH" && policy != "" && policy != "NONE" {
+			return errors.New("cash payment cannot require terminal")
+		}
+		seen[paymentID] = true
+		sum += cents
+	}
+	if sum != want {
+		return errors.New("payment total does not equal order total")
+	}
+	return nil
+}
+
+func moneyCents(value Money) (int64, error) {
+	if !validMoney(value) {
+		return 0, errors.New("invalid money")
+	}
+	return strconv.ParseInt(strings.ReplaceAll(value.Amount, ".", ""), 10, 64)
+}
 func (s *Service) fail(o Order, e error) (Order, error) {
 	o.State = "UNKNOWN"
 	o.Version++
@@ -1194,14 +1759,23 @@ func (s *Service) fail(o Order, e error) (Order, error) {
 	return o, e
 }
 func (s *Service) call(method, path, key string, in, out any) error {
-	b, _ := json.Marshal(in)
-	return s.callAttempt(context.Background(), method, path, key, b, out, true)
+	return s.callWithIfMatch(method, path, key, "", in, out)
 }
-func (s *Service) callAttempt(ctx context.Context, method, path, key string, b []byte, out any, allowAuthRetry bool) error {
+func (s *Service) callWithIfMatch(method, path, key, expected string, in, out any) error {
+	var b []byte
+	if in != nil {
+		b, _ = json.Marshal(in)
+	}
+	return s.callAttempt(context.Background(), method, path, key, expected, b, out, true)
+}
+func (s *Service) callAttempt(ctx context.Context, method, path, key, expected string, b []byte, out any, allowAuthRetry bool) error {
 	r, _ := http.NewRequestWithContext(ctx, method, s.fiscal+path, bytes.NewReader(b))
 	r.Header.Set("Content-Type", "application/json")
 	r.Header.Set("X-Api-Version", s.version)
 	r.Header.Set("Idempotency-Key", key)
+	if expected != "" {
+		r.Header.Set("If-Match", expected)
+	}
 	token := ""
 	if s.authProvider != nil {
 		var e error
@@ -1220,7 +1794,7 @@ func (s *Service) callAttempt(ctx context.Context, method, path, key string, b [
 	defer resp.Body.Close()
 	if resp.StatusCode == http.StatusUnauthorized && allowAuthRetry && s.authProvider != nil {
 		s.authProvider.Invalidate(token)
-		return s.callAttempt(ctx, method, path, key, b, out, false)
+		return s.callAttempt(ctx, method, path, key, expected, b, out, false)
 	}
 	if resp.StatusCode >= 300 {
 		return fmt.Errorf("fiscal status %d", resp.StatusCode)

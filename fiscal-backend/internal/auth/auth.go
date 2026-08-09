@@ -94,10 +94,31 @@ func Allowed(c Claims, method, path string) bool {
 		if strings.Contains(path, "/diagnostics") {
 			return hasAny(c, "ADMIN", "SERVICE")
 		}
+		// These collections contain workforce, compliance, financial or delivery
+		// configuration for the whole tenant. A cashier may poll the operation
+		// and device objects needed by the active sale, but must not acquire a
+		// tenant-wide administrative/reporting view merely because it is a GET.
+		if strings.HasPrefix(path, "/public/v1/operators") ||
+			path == "/public/v1/organizations" ||
+			strings.HasPrefix(path, "/public/v1/audit-events") ||
+			strings.HasPrefix(path, "/public/v1/webhook-endpoints") {
+			return hasAny(c, "ADMIN", "AUDITOR")
+		}
+		if strings.Contains(path, "/provisioning-sessions") {
+			return hasAny(c, "ADMIN", "SERVICE")
+		}
+		if strings.Contains(path, "/reports") ||
+			strings.Contains(path, "/cash-movements") ||
+			strings.HasPrefix(path, "/public/v1/exports") {
+			return hasAny(c, "SUPERVISOR", "ADMIN", "AUDITOR")
+		}
 		return hasAny(c, "CASHIER", "SUPERVISOR", "ADMIN", "AUDITOR", "SERVICE")
 	}
 	if strings.HasPrefix(path, "/public/v1/edge-sync/") {
 		return hasAny(c, "SERVICE")
+	}
+	if strings.Contains(path, "/ble-sessions") {
+		return hasAny(c, "CASHIER", "SUPERVISOR", "ADMIN")
 	}
 	if strings.Contains(path, "/reports") || strings.Contains(path, "/cash-movements") || strings.Contains(path, "/reconcile") || strings.Contains(path, "/reversals") || strings.HasPrefix(path, "/public/v1/exports") || strings.Contains(path, "/bindings") {
 		return hasAny(c, "SUPERVISOR", "ADMIN")

@@ -2,6 +2,10 @@
 
 Исполняемая реализация двух изолированных продуктов: BeeFiscal и автономного BeeMiniPOS. Canonical документация, OpenAPI, roadmap и Н-18 traceability находятся в [`../BeeloyBackend/docs/Fiscal`](../BeeloyBackend/docs/Fiscal/README.md); их контрольные SHA-256 закреплены в [`contracts/CONTRACT_LOCK.md`](contracts/CONTRACT_LOCK.md).
 
+Машиночитаемое соответствие всех 25 этапов roadmap находится в [`contracts/roadmap-stage-acceptance.json`](contracts/roadmap-stage-acceptance.json) и проверяется командой `make roadmap-acceptance-test`. Реестр отличает реализованный software MVP от формально исключённых hardware/vendor/legal этапов и не позволяет выдать ожидающие внешние подписи за `MVP_ACCEPTED`.
+
+Stage 1 governance закреплён в [`contracts/implementation-governance.json`](contracts/implementation-governance.json): два независимых продукта, владельцы всех обязательных модулей, единая нумерация requirements/tests/defects/releases и полный P0 decision register. `make governance-test` проверяет владельцев, evidence paths и обязательный production block для каждого внешнего P0.
+
 ## Проверка baseline
 
 ```bash
@@ -12,7 +16,16 @@ make full-regression
 make evidence-test
 ```
 
-`make regression` запускает Go race tests трёх модулей, TypeScript-проверку двух Expo UI, C++ protocol tests, CycloneDX/release-evidence gate и render всех четырёх Compose-конфигураций. `make compose-e2e` поднимает два независимых Compose-проекта и проверяет сквозную продажу, restart recovery, backup/restore и автономность базы MiniPOS; `make full-regression` выполняет оба набора.
+`make regression` запускает Go race tests и `go vet` трёх модулей, TypeScript-проверку двух Expo UI, Playwright Web interaction E2E, C++ protocol tests, CycloneDX/release-evidence gate и render всех четырёх Compose-конфигураций. Для каждого модуля используется отдельный воспроизводимый cache в `/tmp`, поэтому gate не зависит от пользовательского Go build cache. `make compose-e2e` поднимает два независимых Compose-проекта и проверяет cash/card/split/reversal, сохранение исходной и storno fiscal references, restart recovery, backup/restore и автономность базы MiniPOS; `make full-regression` выполняет оба набора.
+
+`make generate-openapi` пересоздаёт versioned TypeScript surface из locked canonical и runtime OpenAPI. Обычный `make contract-test` не изменяет tree: он генерирует контрольную копию во временном каталоге, проверяет byte-for-byte drift, наличие всех 92 `operationId`, 92 runtime request contracts (body + path/query/header parameters), 92 successful response contracts, canonical Problem Details и компиляцию типизированных client factories. Runtime middleware валидирует запрос до business handler, а недокументированный 2xx/3xx или некорректный 4xx/5xx fail-close как contract violation.
+
+Release evidence по умолчанию намеренно создаётся как `UNSIGNED_NO_GO`. Для подписанного пакета передайте путь к закрытому Ed25519 PKCS#8 PEM через `RELEASE_SIGNING_PRIVATE_KEY`; проверяющая сторона должна независимо передать доверенный SPKI public key через `RELEASE_TRUSTED_PUBLIC_KEY`. Вложенный в пакет public key не считается источником доверия. Генератор также выпускает подписанно-привязанный in-toto/SLSA provenance и может принять точный SBOM-bound scan через `RELEASE_VULNERABILITY_REPORT`; формат и воспроизводимый двухшаговый процесс описаны в [`docs/release-evidence.md`](docs/release-evidence.md). Даже корректная подпись и zero-Critical/High scan не снимают hardware/vendor и legal `PROD_NO_GO`.
+
+```bash
+RELEASE_SIGNING_PRIVATE_KEY=/secure/release-private.pem ruby scripts/generate_release_evidence.rb artifacts/evidence/rc
+RELEASE_TRUSTED_PUBLIC_KEY=/trusted/release-public.pem ruby scripts/verify_release_evidence.rb artifacts/evidence/rc
+```
 
 ## Запуск DEV
 
@@ -22,9 +35,11 @@ docker compose -p beefiscal-dev -f compose.fiscalisation.yaml -f compose.fiscali
 docker compose -p beeminipos-dev -f compose.minipos.yaml -f compose.minipos.dev.yaml up --build
 ```
 
-Fiscal и MiniPOS имеют отдельные PostgreSQL, сети, Caddy и lifecycle. MiniPOS обращается к Fiscal только через `FISCAL_PUBLIC_BASE_URL` и публичный API. Для PROD обязательны `OIDC_ISSUER`, `OIDC_AUDIENCE`, `OIDC_JWKS_URL`, `FISCAL_OAUTH_TOKEN_URL`, client credentials, сильные `BLE_SIGNING_KEY`, webhook keys, DB passwords и HTTPS site names; HMAC JWT, статический `FISCAL_AUTH_TOKEN`, simulator и STUB запрещены конфигурационными guards.
+Fiscal и MiniPOS имеют отдельные PostgreSQL, сети, Caddy и lifecycle. MiniPOS обращается к Fiscal только через `FISCAL_PUBLIC_BASE_URL` и публичный API. `.env.example` является запускаемым DEV-профилем и проверяется `make compose-check`; его значения нельзя переносить в PROD. Для PROD обязательны `OIDC_ISSUER`, `OIDC_AUDIENCE`, `OIDC_JWKS_URL`, `FISCAL_OAUTH_TOKEN_URL`, client credentials, 32+ byte `BLE_SIGNING_KEY`/webhook keys, DB passwords, HTTPS public/Caddy URLs и явные HTTPS CORS origins; HMAC JWT, статический `FISCAL_AUTH_TOKEN`, wildcard CORS, HTTP upstream, simulator и STUB запрещены конфигурационными guards.
 
-Текущие доказательства перечислены в [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md), строгий gap-аудит — в [`MVP_COMPLETION_AUDIT.md`](MVP_COMPLETION_AUDIT.md), exact версии — в [`TOOLCHAIN.md`](TOOLCHAIN.md), hardware/vendor/legal ограничения — в [`MVP_GATES.md`](MVP_GATES.md).
+Текущие доказательства перечислены в [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md), строгий gap-аудит — в [`MVP_COMPLETION_AUDIT.md`](MVP_COMPLETION_AUDIT.md), unresolved contract P0 и запрещённые обходы — в [`MVP_BLOCKERS.md`](MVP_BLOCKERS.md), exact версии — в [`TOOLCHAIN.md`](TOOLCHAIN.md), hardware/vendor/legal ограничения — в [`MVP_GATES.md`](MVP_GATES.md).
+
+Stage-25 handover: [`RELEASE_NOTES.md`](RELEASE_NOTES.md), [`contracts/mvp-acceptance-v1.json`](contracts/mvp-acceptance-v1.json), [`docs/operations-runbook.md`](docs/operations-runbook.md), [`docs/rollback-plan.md`](docs/rollback-plan.md) и [`docs/support-guide.md`](docs/support-guide.md). `make handover-test` подтверждает base software PASS, но намеренно запрещает локально подделывать human signatures или повышать `PILOT/PROD NO-GO` без внешнего evidence.
 
 ---
 

@@ -697,9 +697,9 @@ values($1,$2::jsonb->'event'->>'tenant_id',$2::jsonb->'event'->>'event_type',$2:
 on conflict(id) do update set tenant_id=excluded.tenant_id,event_type=excluded.event_type,resource_id=excluded.resource_id,attempts=excluded.attempts,next_attempt=excluded.next_attempt,delivered_at=excluded.delivered_at,payload=excluded.payload where fiscal_runtime_outbox is distinct from excluded`, row.Key, payload)
 		return err
 	case "ble_sessions":
-		_, err := tx.Exec(`insert into fiscal_runtime_ble_sessions(id,tenant_id,register_id,operator_id,app_instance_id,device_id,fencing_token,expires_at,revoked,payload)
-values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'register_id',$2::jsonb->>'operator_id',$2::jsonb->>'app_instance_id',$2::jsonb->>'device_id',($2::jsonb->>'fencing_token')::bigint,($2::jsonb->>'expires_at')::timestamptz,coalesce(($2::jsonb->>'revoked')::boolean,false),$2::jsonb)
-on conflict(id) do update set tenant_id=excluded.tenant_id,register_id=excluded.register_id,operator_id=excluded.operator_id,app_instance_id=excluded.app_instance_id,device_id=excluded.device_id,fencing_token=excluded.fencing_token,expires_at=excluded.expires_at,revoked=excluded.revoked,payload=excluded.payload where fiscal_runtime_ble_sessions is distinct from excluded`, row.Key, payload)
+		_, err := tx.Exec(`insert into fiscal_runtime_ble_sessions(id,tenant_id,register_id,operator_id,app_instance_id,actor_subject,client_public_key,device_id,fencing_token,expires_at,revoked,payload)
+values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'register_id',$2::jsonb->>'operator_id',$2::jsonb->>'app_instance_id',$2::jsonb->>'actor_subject',$2::jsonb->>'client_public_key',$2::jsonb->>'device_id',($2::jsonb->>'fencing_token')::bigint,($2::jsonb->>'expires_at')::timestamptz,coalesce(($2::jsonb->>'revoked')::boolean,false),$2::jsonb)
+on conflict(id) do update set tenant_id=excluded.tenant_id,register_id=excluded.register_id,operator_id=excluded.operator_id,app_instance_id=excluded.app_instance_id,actor_subject=excluded.actor_subject,client_public_key=excluded.client_public_key,device_id=excluded.device_id,fencing_token=excluded.fencing_token,expires_at=excluded.expires_at,revoked=excluded.revoked,payload=excluded.payload where fiscal_runtime_ble_sessions is distinct from excluded`, row.Key, payload)
 		return err
 	case "connectivity_probes":
 		_, err := tx.Exec(`insert into fiscal_runtime_connectivity_probes(id,tenant_id,register_id,state,observed_at,recommended_transport,payload)

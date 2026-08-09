@@ -11,6 +11,8 @@ SQL в `fiscal/` и `minipos/` является каноническим DDL д�
   `ENABLE ROW LEVEL SECURITY`, `FORCE ROW LEVEL SECURITY`, policies и минимальные
   grants.
 - `003_runtime_typed.sql` — authoritative typed projection: Fiscal
+- `004_ble_actor_subject.sql` — backward-compatible Fiscal BLE authority migration; projects the issuing OIDC subject, leaves legacy sessions unbound/fail-closed, and indexes active subject-scoped leases.
+- `005_ble_client_public_key.sql` — projects and validates the ticket-bound X25519 public key used for client proof-of-possession at Edge HELLO.
   sales/operations/shifts/resources plus tenant-bound UNP sequences, API replay, webhook outbox, BLE sessions,
   connectivity probes, Edge pending commands and audit events; MiniPOS
   products/employees/shifts/orders/configuration plus API replay, webhook
@@ -20,6 +22,13 @@ SQL в `fiscal/` и `minipos/` является каноническим DDL д�
   tenant-reader роли, используя отдельный обязательный secret из окружения.
 - `005_typed_only_runtime.sql` — сохраняет точный domain payload рядом с
   constrained/indexed typed columns и добавляет versioned `storage_mode`.
+- MiniPOS migrations `006_operator_identity.sql`,
+  `007_order_reversal_evidence.sql` and `008_order_fiscal_reference.sql` add
+  durable passwordless identity/session bindings, constrained append-only
+  reversal evidence and the original fiscal receipt reference in both the
+  order and idempotent checkout projection. New `COMPLETED`/`REVERSED` rows
+  cannot be stored without the original receipt reference; the constraint is
+  `NOT VALID` only so historical rows can be backfilled without inventing data.
 
 Fiscal transaction обязан выполнить `SET LOCAL ROLE beefiscal_tenant` и
 `SET LOCAL app.tenant_id = '<uuid>'` до typed SQL. MiniPOS использует

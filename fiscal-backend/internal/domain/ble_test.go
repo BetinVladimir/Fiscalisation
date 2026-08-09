@@ -9,6 +9,8 @@ import (
 	"time"
 )
 
+const testBLEClientPublicKey = "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"
+
 func TestBLETicketSignatureRefreshRevokePersistence(t *testing.T) {
 	store := &testStore{}
 	repo, e := NewPersistentRepository(store)
@@ -19,7 +21,10 @@ func TestBLETicketSignatureRefreshRevokePersistence(t *testing.T) {
 	key := "01234567890123456789012345678901"
 	s.SetBLESigningKey(key)
 	registerID, deviceID := prepareBLERegister(t, s, "tenant1")
-	v, e := s.BLESession(registerID, "A001", "app1", "tenant1")
+	if _, err := s.BLESession(registerID, "A001", "app1", "tenant1", "subject-1", ""); err == nil {
+		t.Fatal("BLE bearer ticket issued without client proof-of-possession key")
+	}
+	v, e := s.BLESession(registerID, "A001", "app1", "tenant1", "subject-1", testBLEClientPublicKey)
 	if e != nil {
 		t.Fatal(e)
 	}
@@ -53,17 +58,17 @@ func TestBLETicketSignatureRefreshRevokePersistence(t *testing.T) {
 	}
 	s = NewService(repo, NewSimulator(true))
 	s.SetBLESigningKey(key)
-	if _, e = s.RefreshBLE(id, "tenant2"); e == nil {
+	if _, e = s.RefreshBLE(id, "tenant2", "subject-1"); e == nil {
 		t.Fatal("cross tenant refresh")
 	}
-	if e = s.RevokeBLE(id, "tenant1"); e != nil {
+	if e = s.RevokeBLE(id, "tenant1", "subject-1"); e != nil {
 		t.Fatal(e)
 	}
 	pending := s.PendingOutbox(time.Now().UTC().Add(time.Second))
 	if len(pending) != 1 || pending[0].Event.EventType != "ble.session.revoked" || pending[0].Event.ResourceID != id {
 		t.Fatalf("revocation event missing: %#v", pending)
 	}
-	if _, e = s.RefreshBLE(id, "tenant1"); e == nil {
+	if _, e = s.RefreshBLE(id, "tenant1", "subject-1"); e == nil {
 		t.Fatal("revoked refresh accepted")
 	}
 	_ = deviceID
@@ -73,13 +78,22 @@ func TestBLESessionRequiresActiveTenantRegisterAndFiscalDevice(t *testing.T) {
 	s := NewService(NewMemoryRepository(), NewSimulator(true))
 	s.SetBLESigningKey("01234567890123456789012345678901")
 	registerID, deviceID := prepareBLERegister(t, s, "tenant1")
-	if _, err := s.BLESession(registerID, "A001", "app1", "tenant2"); err == nil {
+	if _, err := s.BLESession(registerID, "A001", "app1", "tenant2", "subject-1", testBLEClientPublicKey); err == nil {
 		t.Fatal("cross-tenant BLE session accepted")
 	}
-	if _, err := s.BLESession("missing", "A001", "app1", "tenant1"); err == nil {
+	if _, err := s.BLESession("missing", "A001", "app1", "tenant1", "subject-1", testBLEClientPublicKey); err == nil {
 		t.Fatal("unknown register BLE session accepted")
 	}
-	v, err := s.BLESession(registerID, "A001", "app1", "tenant1")
+	if _, err := s.BLESession(registerID, "NONE", "app1", "tenant1", "subject-1", testBLEClientPublicKey); err == nil {
+		t.Fatal("unknown operator BLE session accepted")
+	}
+	if _, err := s.CreateResource("operator", "tenant1", map[string]any{"code": "F001", "first_name": "Future", "last_name": "Operator", "roles": []any{"CASHIER"}, "active_from": time.Now().UTC().Add(time.Hour).Format(time.RFC3339)}); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.BLESession(registerID, "F001", "app1", "tenant1", "subject-1", testBLEClientPublicKey); err == nil {
+		t.Fatal("future operator BLE session accepted")
+	}
+	v, err := s.BLESession(registerID, "A001", "app1", "tenant1", "subject-1", testBLEClientPublicKey)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -91,8 +105,57 @@ func TestBLESessionRequiresActiveTenantRegisterAndFiscalDevice(t *testing.T) {
 	if _, err = s.UpdateResource("device", deviceID, "tenant1", device["version"].(int64), device); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = s.RefreshBLE(v["ble_session_id"].(string), "tenant1"); err == nil {
+	if _, err = s.RefreshBLE(v["ble_session_id"].(string), "tenant1", "subject-1"); err == nil {
 		t.Fatal("BLE session refreshed after fiscal device was blocked")
+	}
+}
+
+func TestBLESessionRefreshRejectsDeactivatedOperator(t *testing.T) {
+	s := NewService(NewMemoryRepository(), NewSimulator(true))
+	s.SetBLESigningKey("01234567890123456789012345678901")
+	registerID, _ := prepareBLERegister(t, s, "tenant1")
+	v, err := s.BLESession(registerID, "A001", "app1", "tenant1", "subject-1", testBLEClientPublicKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	operators := s.repo.Resources("operator", "tenant1")
+	if len(operators) != 1 {
+		t.Fatalf("operator fixture missing: %d", len(operators))
+	}
+	data := cloneMap(operators[0].Data)
+	data["active_to"] = time.Now().UTC().Add(-time.Minute).Format(time.RFC3339)
+	if _, err = s.UpdateResource("operator", operators[0].ID, "tenant1", operators[0].Version, data); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.RefreshBLE(v["ble_session_id"].(string), "tenant1", "subject-1"); err == nil {
+		t.Fatal("BLE session refreshed after operator deactivation")
+	}
+}
+
+func TestBLESessionLifecycleIsSubjectBoundAndRefreshRotatesAuthority(t *testing.T) {
+	s := NewService(NewMemoryRepository(), NewSimulator(true))
+	s.SetBLESigningKey("01234567890123456789012345678901")
+	registerID, _ := prepareBLERegister(t, s, "tenant1")
+	created, err := s.BLESession(registerID, "A001", "app1", "tenant1", "subject-1", testBLEClientPublicKey)
+	if err != nil {
+		t.Fatal(err)
+	}
+	id := created["ble_session_id"].(string)
+	if _, err = s.RefreshBLE(id, "tenant1", "subject-2"); err == nil {
+		t.Fatal("different subject refreshed BLE authority")
+	}
+	if err = s.RevokeBLE(id, "tenant1", "subject-2"); err == nil {
+		t.Fatal("different subject revoked BLE authority")
+	}
+	refreshed, err := s.RefreshBLE(id, "tenant1", "subject-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if refreshed["binding_version"].(int64) <= created["binding_version"].(int64) {
+		t.Fatalf("fencing token did not advance: before=%v after=%v", created["binding_version"], refreshed["binding_version"])
+	}
+	if refreshed["signed_session_ticket"] == created["signed_session_ticket"] {
+		t.Fatal("refresh reused signed session ticket")
 	}
 }
 

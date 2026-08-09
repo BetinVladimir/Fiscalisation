@@ -48,6 +48,7 @@ DEV/HIL executable smoke использует `GET /internal/v1/final-device`, `
 - `localapi` — защищённый DEV/HIL executable transport для process/restart tests;
 - `gateway` — transport-neutral GATT command processor: decrypt/reassembly, strict envelope validation, runtime execution и encrypted correlated result;
 - `sync` — подписанные batch/ACK, HTTP uploader и restart recovery; после первой отправки границы/hash pending batch фиксируются в SQLite до валидного ACK, поэтому новые события не меняют idempotency key после ambiguous response loss;
+- `ota` — Ed25519-signed model/hardware/ring manifest, SHA-256 verification before staging and boot, monotonic anti-downgrade and SQLite-durable A/B health/rollback state. Rollback below the signed vulnerability floor becomes `RECOVERY_REQUIRED`; secure boot, physical flash/recovery partition and vendor compatibility remain hardware HIL gates.
 - `control` — аутентифицированное получение BLE revocation events;
 - `cmd/edge-agent` — production-guarded процесс, authority/device/runtime composition, sync loop, graceful shutdown и health/control HTTP.
 

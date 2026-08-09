@@ -117,6 +117,8 @@ type Shift struct {
 	Version    int64      `json:"version"`
 	OpenedAt   time.Time  `json:"opened_at"`
 	ClosedAt   *time.Time `json:"closed_at,omitempty"`
+	CreatedAt  time.Time  `json:"created_at"`
+	UpdatedAt  time.Time  `json:"updated_at"`
 }
 type WebhookEvent struct {
 	EventID         string    `json:"event_id"`
@@ -129,17 +131,19 @@ type WebhookEvent struct {
 	Data            any       `json:"data"`
 }
 type BLESessionRecord struct {
-	SessionID     string    `json:"session_id"`
-	TenantID      string    `json:"tenant_id,omitempty"`
-	RegisterID    string    `json:"register_id"`
-	OperatorID    string    `json:"operator_id"`
-	AppInstanceID string    `json:"app_instance_id"`
-	DeviceID      string    `json:"device_id"`
-	Scopes        []string  `json:"scopes"`
-	FencingToken  int64     `json:"fencing_token"`
-	ExpiresAt     time.Time `json:"expires_at"`
-	Revoked       bool      `json:"revoked"`
-	Nonce         string    `json:"nonce"`
+	SessionID       string    `json:"session_id"`
+	TenantID        string    `json:"tenant_id,omitempty"`
+	RegisterID      string    `json:"register_id"`
+	OperatorID      string    `json:"operator_id"`
+	AppInstanceID   string    `json:"app_instance_id"`
+	ActorSubject    string    `json:"actor_subject"`
+	ClientPublicKey string    `json:"client_public_key"`
+	DeviceID        string    `json:"device_id"`
+	Scopes          []string  `json:"scopes"`
+	FencingToken    int64     `json:"fencing_token"`
+	ExpiresAt       time.Time `json:"expires_at"`
+	Revoked         bool      `json:"revoked"`
+	Nonce           string    `json:"nonce"`
 }
 type SyncAck struct {
 	AckID               string                `json:"ack_id"`

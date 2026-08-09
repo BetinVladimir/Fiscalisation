@@ -8,11 +8,13 @@ import {BleResultWaiters} from "./bleResult.ts";
 import type {BleFiscalResult} from "./bleResult.ts";
 export type BleSessionPackage={ble_session_id:string;service_uuid:string;command_characteristic_uuid:string;event_characteristic_uuid:string;advertising_identity:string;signed_session_ticket:string;expires_at:string;protocol_version:string};
 type Characteristic={writeValueWithResponse?(v:BufferSource):Promise<void>;writeValue?(v:BufferSource):Promise<void>;startNotifications():Promise<Characteristic>;addEventListener(type:string,listener:(e:any)=>void):void};
-type Device={gatt?:{connect():Promise<{getPrimaryService(uuid:string):Promise<{getCharacteristic(uuid:string):Promise<Characteristic>}>}>}};
+type Device={gatt?:{connect():Promise<{getPrimaryService(uuid:string):Promise<{getCharacteristic(uuid:string):Promise<Characteristic>}>}>;disconnect?():void}};
 export function webBluetoothSupported(){return typeof navigator!=="undefined"&&!!(navigator as any).bluetooth&&globalThis.isSecureContext===true}
 export class WebBleBootstrap{
  private device?:Device;private control?:Characteristic;private command?:Characteristic;private event?:Characteristic;private flow?:Characteristic;private handshake=new BleClientHandshake();private assembler=new BleMessageAssembler();private results=new BleResultWaiters();
  get canExecuteFiscalCommand(){return this.handshake.canExecuteFiscalCommand}
+ prepareSessionPublicKey(){return this.handshake.prepareSessionPublicKey()}
+ resetSession(){this.results.cancelAll();this.device?.gatt?.disconnect?.();this.device=undefined;this.control=undefined;this.command=undefined;this.event=undefined;this.flow=undefined;this.handshake=new BleClientHandshake();this.assembler=new BleMessageAssembler();this.results=new BleResultWaiters()}
  async connectFromUserGesture(session:BleSessionPackage,onEvent:(raw:Uint8Array)=>void){
   if(!webBluetoothSupported())throw new Error("WEB_BLUETOOTH_UNAVAILABLE");
   if(new Date(session.expires_at).getTime()<=Date.now())throw new Error("BLE_SESSION_EXPIRED");
