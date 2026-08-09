@@ -1,0 +1,26 @@
+{
+  "version": "2026-08-09",
+  "roadmap_stage": 21,
+  "cases": [
+    {"id":"F21-001","category":"device","scenario":"final fiscal device unavailable","source":"edge-agent/runtime/runtime_test.go","test":"TestDeviceLossBlocksWithoutJournal","invariant":"BLOCKED before journal or sequence allocation"},
+    {"id":"F21-002","category":"device","scenario":"timeout after device accept","source":"edge-agent/runtime/runtime_test.go","test":"TestTimeoutNeverBlindRetries","invariant":"UNKNOWN is durable and never blindly re-executed"},
+    {"id":"F21-003","category":"device","scenario":"known paper/device failure","source":"edge-agent/runtime/runtime_test.go","test":"TestKnownDeviceFailureIsNotReportedUnknown","invariant":"known failure is stable and idempotent"},
+    {"id":"F21-004","category":"ble","scenario":"corrupted encrypted frame and replay","source":"edge-agent/ble/frame_test.go","test":"TestCanonicalFrameRoundTripAndReplay","invariant":"bad tag and replay are rejected"},
+    {"id":"F21-005","category":"ble","scenario":"chunk reorder, duplicate, resume and busy","source":"edge-agent/ble/flow_test.go","test":"TestFlowReorderResumeDuplicateAndBusy","invariant":"one canonical payload is assembled exactly once"},
+    {"id":"F21-006","category":"ble","scenario":"revoked or expired ticket","source":"edge-agent/ble/handshake_protocol_test.go","test":"TestHandshakeRejectsRevokedTicketBeforeChallenge","invariant":"execution is rejected before session readiness"},
+    {"id":"F21-007","category":"authority","scenario":"expired, exhausted or stale fencing lease","source":"edge-agent/authority/lease_test.go","test":"TestFenceExpiryExhaustion","invariant":"no allocation outside lease"},
+    {"id":"F21-008","category":"authority","scenario":"authority handback","source":"edge-agent/authority/lease_test.go","test":"TestAuthorityHandbackRequiresMonotonicFenceAndRanges","invariant":"new fence and ranges are monotonic; old owner is rejected"},
+    {"id":"F21-009","category":"restart","scenario":"restart between durable command and result","source":"edge-agent/runtime/runtime_test.go","test":"TestAllocationRestoredFromJournal","invariant":"sequence allocation never moves backwards"},
+    {"id":"F21-010","category":"sync","scenario":"journal sequence gap","source":"edge-agent/sync/batch_test.go","test":"TestBuildBatchRejectsJournalGap","invariant":"gapped batch is not uploaded"},
+    {"id":"F21-011","category":"sync","scenario":"partial ACK, backend rollback, malformed ACK, transport loss","source":"edge-agent/sync/uploader_test.go","test":"TestUploaderFaultMatrixNeverAcknowledgesAmbiguousFailure","invariant":"journal remains unacknowledged and identical batch recovers"},
+    {"id":"F21-012","category":"sync","scenario":"ACK for another batch","source":"edge-agent/sync/uploader_test.go","test":"TestUploaderRejectsAckForDifferentBatch","invariant":"batch/hash binding is mandatory"},
+    {"id":"F21-013","category":"sync","scenario":"signed contiguous ACK and verifier restart","source":"edge-agent/sync/ack_test.go","test":"TestOnlySignedContiguousAckMarksJournal","invariant":"cursor/hash acknowledgement survives restart"},
+    {"id":"F21-014","category":"storage","scenario":"70/85/95/100 percent thresholds","source":"edge-agent/journal/storage_test.go","test":"TestStorageThresholds","invariant":"WARNING/HIGH/CRITICAL/FULL boundaries are deterministic"},
+    {"id":"F21-015","category":"storage","scenario":"critical media pressure","source":"edge-agent/runtime/storage_test.go","test":"TestCriticalStorageBlocksBeforeProbeSequenceAndJournal","invariant":"95 percent blocks before any fiscal side effect"},
+    {"id":"F21-016","category":"storage","scenario":"warning and high media pressure","source":"edge-agent/runtime/storage_test.go","test":"TestWarningAndHighStorageRemainOperationalUntilCriticalBoundary","invariant":"70/85 percent remain operational and observable"},
+    {"id":"F21-017","category":"retention","scenario":"acknowledged record before and after three months","source":"edge-agent/journal/journal_test.go","test":"TestDurableHashAckRetention","invariant":"no early deletion; eligible prefix is safely removed"},
+    {"id":"F21-018","category":"retention","scenario":"unacknowledged gap in retained prefix","source":"edge-agent/journal/journal_test.go","test":"TestPurgeNeverCreatesGap","invariant":"GC never creates a journal gap"},
+    {"id":"F21-019","category":"clock","scenario":"clock rollback and early boundary","source":"edge-agent/journal/journal_test.go","test":"TestClockRollbackCannotMakeAcknowledgedEventEligible","invariant":"rollback cannot shorten retention"},
+    {"id":"F21-020","category":"routing","scenario":"cloud partition with live or dead final device","source":"BeeMiniPOS/src/checkoutTransport.test.ts","test":"ambiguous REST send never falls through to BLE","invariant":"route is frozen; ambiguous REST never causes double execution"}
+  ]
+}

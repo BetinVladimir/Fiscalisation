@@ -41,14 +41,16 @@ DEV/HIL executable smoke использует `GET /internal/v1/final-device`, `
 ## Реализованные слои
 
 - `authority` — lease, fencing и восстановление sequence после рестарта;
-- `journal` — hash-chain, ACK-gated хранение минимум три месяца, sync cursor и BLE revocation cache;
+- `journal` — hash-chain, ACK-gated хранение минимум три месяца, sync cursor, restart-durable frozen pending batch и BLE revocation cache;
 - `ble` — ticket validation, X25519/HKDF/AES-GCM, framing, reassembly и flow control;
 - `runtime` — durable-before-device execution и exactly-once/UNKNOWN semantics;
 - `device` — детерминированный DEV simulator и fail-closed unsupported adapter с разделением known rejection/ambiguous outcome;
 - `localapi` — защищённый DEV/HIL executable transport для process/restart tests;
 - `gateway` — transport-neutral GATT command processor: decrypt/reassembly, strict envelope validation, runtime execution и encrypted correlated result;
-- `sync` — подписанные batch/ACK, HTTP uploader и restart recovery;
+- `sync` — подписанные batch/ACK, HTTP uploader и restart recovery; после первой отправки границы/hash pending batch фиксируются в SQLite до валидного ACK, поэтому новые события не меняют idempotency key после ambiguous response loss;
 - `control` — аутентифицированное получение BLE revocation events;
 - `cmd/edge-agent` — production-guarded процесс, authority/device/runtime composition, sync loop, graceful shutdown и health/control HTTP.
 
 Аппаратный GATT server должен только передавать bytes в `gateway.Processor` и публиковать возвращённые event frames. OS-specific GATT server и Daisy/Datecs USB/UART adapter остаются vendor/HIL-gated и не должны подменяться симулятором в PROD.
+
+`make soak-regression-test` ускоренно моделирует 72 часа пяти-минутных network-flap слотов и семь суток десяти-минутных journal слотов. Gate проверяет zero loss/duplicate commit, replay того же batch после ambiguous loss, ежедневные SQLite restart, ACK cursor, hash chain и трёхмесячное retention. Это детерминированное software evidence; оно не заявляет физический SD-card/HIL или wall-clock endurance.

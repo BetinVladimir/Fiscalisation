@@ -29,7 +29,7 @@ func (s *Service) CreateReport(register, typ, tenant string) (Operation, error) 
 	b, _ := json.Marshal(payload)
 	sum := sha256.Sum256(b)
 	digest := hex.EncodeToString(sum[:])
-	if err = s.repo.PutArtifact(artifactID, b); err != nil {
+	if err = s.repo.PutArtifact(artifactID, tenant, b); err != nil {
 		return op, err
 	}
 	data := map[string]any{"register_id": register, "type": typ, "state": "COMPLETED", "requested_at": now, "completed_at": now, "policy_version": "BG-2026-EUR", "official_currency": "EUR", "artifacts": []any{map[string]any{"artifact_id": artifactID, "media_type": "application/json", "sha256": digest, "size": len(b), "created_at": now}}}
@@ -59,6 +59,6 @@ func (s *Service) ReportArtifact(reportID, artifactID, tenant string) ([]byte, e
 	if !found {
 		return nil, ErrNotFound
 	}
-	return s.repo.Artifact(artifactID)
+	return s.repo.Artifact(artifactID, tenant)
 }
 func (s *Service) AuditEvents(tenant string) []AuditEvent { return s.repo.AuditEvents(tenant) }

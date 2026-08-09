@@ -31,8 +31,8 @@ func TestCheckoutPublicAPIAndReplay(t *testing.T) {
 		}
 		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body)), Header: http.Header{"Content-Type": []string{"application/json"}}}, nil
 	})}
-	emp, _ := s.CreateEmployee(Employee{FirstName: "Ada", LastName: "Lovelace", OperatorCode: "A001"})
-	sh, _ := s.OpenShift("FD000001", emp.ID)
+	emp, _ := s.CreateEmployee(Employee{TenantID: "tenant-1", FirstName: "Ada", LastName: "Lovelace", OperatorCode: "A001"})
+	sh, _ := s.OpenShiftForTenant("FD000001", emp.ID, "tenant-1")
 	o, _ := s.CreateOrder(Order{ShiftID: sh.ID})
 	o, _ = s.AddLine(o.ID, Line{LineID: "00000000-0000-4000-8000-000000000001", Name: "Coffee", Quantity: "1.000", UnitPrice: Money{Amount: "2.50", Currency: "EUR"}, TaxGroup: "B"})
 	got, e := s.Checkout(o.ID, "1234567890123456", map[string]any{"type": "CASH", "amount": map[string]string{"amount": "2.50", "currency": "EUR"}})
@@ -62,16 +62,29 @@ func TestCheckoutPublicAPIAndReplay(t *testing.T) {
 
 func TestOfflineFiscalWebhookLinksOrderByExternalID(t *testing.T) {
 	s := NewService("http://fiscal.test", "2026-08-07")
-	emp, _ := s.CreateEmployee(Employee{FirstName: "Ada", LastName: "Lovelace", OperatorCode: "A001"})
-	sh, _ := s.OpenShift("FD000001", emp.ID)
+	emp, _ := s.CreateEmployee(Employee{TenantID: "tenant-1", FirstName: "Ada", LastName: "Lovelace", OperatorCode: "A001"})
+	sh, _ := s.OpenShiftForTenant("FD000001", emp.ID, "tenant-1")
 	order, _ := s.CreateOrder(Order{ShiftID: sh.ID})
-	raw := []byte(`{"event_id":"offline-event","event_type":"fiscal.operation.succeeded","api_version":"2026-08-07","tenant_id":"","resource_id":"edge-sale-op-1","resource_version":9,"data":{"state":"FISCALIZED","operation_id":"op-1","external_id":"` + order.ExternalID + `"}}`)
+	raw := []byte(`{"event_id":"offline-event","event_type":"fiscal.operation.succeeded","api_version":"2026-08-07","tenant_id":"` + order.TenantID + `","resource_id":"edge-sale-op-1","resource_version":9,"data":{"state":"FISCALIZED","operation_id":"op-1","external_id":"` + order.ExternalID + `"}}`)
 	if err := s.ProcessFiscalWebhookLinked("offline-event", raw, "edge-sale-op-1", order.ExternalID, "FISCALIZED", "op-1", 9); err != nil {
 		t.Fatal(err)
 	}
 	updated, _ := s.Order(order.ID)
 	if updated.State != "COMPLETED" || updated.FiscalSaleID != "edge-sale-op-1" || updated.FiscalOperationID != "op-1" {
 		t.Fatalf("offline order not linked: %+v", updated)
+	}
+}
+
+func TestFiscalWebhookCannotCrossTenantBoundary(t *testing.T) {
+	s := NewService("http://fiscal.test", "2026-08-07")
+	s.orders["order-a"] = Order{ID: "order-a", TenantID: "tenant-a", ExternalID: "external-a", FiscalSaleID: "sale-a", State: "UNKNOWN", Version: 1}
+	raw := []byte(`{"event_id":"cross-event","event_type":"fiscal.operation.succeeded","api_version":"2026-08-07","tenant_id":"tenant-b","resource_id":"sale-a","resource_version":2,"data":{"state":"FISCALIZED","operation_id":"op-b","external_id":"external-a"}}`)
+	if err := s.ProcessFiscalWebhookLinkedForTenant("tenant-b", "cross-event", raw, "sale-a", "external-a", "FISCALIZED", "op-b", 2); err == nil {
+		t.Fatal("cross-tenant webhook linked a foreign order")
+	}
+	order, _ := s.Order("order-a")
+	if order.State != "UNKNOWN" || order.FiscalOperationID != "" {
+		t.Fatal("cross-tenant webhook mutated order", order)
 	}
 }
 

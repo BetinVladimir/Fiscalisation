@@ -42,6 +42,22 @@ func (m *Manager) Allocate(now time.Time, fence int64) (int64, int64, error) {
 }
 func (m *Manager) Revoke() { m.mu.Lock(); defer m.mu.Unlock(); m.lease.Revoked = true }
 
+// Install performs authority handback/renewal without allowing an old owner or
+// an overlapping allocation range to become active again. Fencing tokens and
+// both leased sequences are strictly monotonic.
+func (m *Manager) Install(next Lease) error {
+	m.mu.Lock()
+	defer m.mu.Unlock()
+	if next.FencingToken <= m.lease.FencingToken || next.OperationFrom <= m.lease.OperationTo || next.UNPFrom <= m.lease.UNPTo || next.OperationTo < next.OperationFrom || next.UNPTo < next.UNPFrom || next.ExpiresAt.IsZero() {
+		return errors.New("non-monotonic authority handback")
+	}
+	next.NextOperation = next.OperationFrom
+	next.NextUNP = next.UNPFrom
+	next.Revoked = false
+	m.lease = next
+	return nil
+}
+
 // Restore advances counters from the durable journal after a process restart.
 // It never moves an allocation counter backwards.
 func (m *Manager) Restore(nextOperation, nextUNP int64) {

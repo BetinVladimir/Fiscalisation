@@ -11,11 +11,11 @@ const char* canonical(uint16_t code){
   case 49:case 52:case 58:case 138:return "AddItem"; case 50:case 97:return "GetTaxRates";
   case 51:return "GetSubtotal/AddAdjustment"; case 53:return "AddPayment"; case 56:return "CloseReceipt";
   case 60:case 130:return "CancelReceipt"; case 62:return "GetClock"; case 64:case 113:return "LookupLastReceipt";
-  case 69:case 108:return "XReport/ZReport"; case 70:return "CashIn/CashOut"; case 74:return "GetStatus/Probe";
+  case 69:case 108:return "XReport/ZReport"; case 70:return "CashIn/CashOut"; case 71:return "GetNapTransmissionStatus/GetDiagnosticInfo"; case 74:return "GetStatus/Probe";
   case 76:case 103:case 119:case 125:return "GetReceiptInfo"; case 73:case 79:case 94:case 95:return "FiscalMemoryReport";
   case 90:case 174:return "GetDiagnosticInfo"; case 99:return "GetDeviceIdentity"; case 105:return "OperatorReport";
   case 110:return "GetDailyInfo"; case 111:return "PluReport"; case 112:return "GetOperator";
-  case 116:return "FiscalMemoryExport"; case 117:case 135:return "GetNapTransmissionStatus";
+  case 116:return "FiscalMemoryExport"; case 117:return "GetNapTransmissionStatus"; case 135:return "GetDiagnosticInfo";
   case 118:case 123:return "GetFirmwareInfo/GetCapabilities"; case 128:return "GetCapabilities";
   case 153:return "ExportDeviceReport"; case 165:return "DepartmentReport"; case 166:return "SystemParametersReport";
   case 201:return "GetCurrencyTransition"; default:return "VendorCommand";

@@ -48,11 +48,15 @@ func EdgeBatchHash(v EdgeSyncBatch) string {
 }
 
 func (s *Service) SyncBatch(v EdgeSyncBatch) (SyncAck, error) {
+	return s.SyncBatchForTenant("", v)
+}
+
+func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, error) {
 	if len(s.bleSigningKey) < 16 || v.EdgeID == "" || v.SchemaVersion != "2026-08-07" || len(v.Events) < 1 || len(v.Events) > 100 || v.FirstSeq < 1 || v.LastSeq < v.FirstSeq || int64(len(v.Events)) != v.LastSeq-v.FirstSeq+1 {
 		return SyncAck{}, errors.New("invalid sync batch")
 	}
 	expectedPrevious := ""
-	if previous, ok := s.repo.LastSyncAck(v.EdgeID); ok {
+	if previous, ok := s.repo.LastSyncAck(tenant, v.EdgeID); ok {
 		if v.FirstSeq != previous.CommittedThroughSeq+1 {
 			return SyncAck{}, errors.New("journal gap")
 		}
@@ -106,6 +110,9 @@ func (s *Service) SyncBatch(v EdgeSyncBatch) (SyncAck, error) {
 		resultsByOperation[event.OperationID] = SyncOperationResult{OperationID: event.OperationID, State: state, Version: event.JournalSeq}
 		if event.EventType == "ACCEPTED" {
 			if pending, ok := pendingCommandFromEvent(event); ok {
+				if tenant != "" && pending.TenantID != tenant {
+					return SyncAck{}, errors.New("cross-tenant sync event")
+				}
 				pendingByOperation[event.OperationID] = pending
 				pendingUpserts = append(pendingUpserts, pending)
 			}
@@ -113,7 +120,7 @@ func (s *Service) SyncBatch(v EdgeSyncBatch) (SyncAck, error) {
 		if event.EventType == "FISCALIZED" || event.EventType == "UNKNOWN" || event.EventType == "FAILED" {
 			pending, ok := pendingByOperation[event.OperationID]
 			if !ok {
-				pending, err = s.repo.EdgePendingCommand(event.OperationID)
+				pending, err = s.repo.EdgePendingCommand(event.OperationID, tenant)
 				ok = err == nil
 			}
 			if ok {
@@ -146,7 +153,7 @@ func (s *Service) SyncBatch(v EdgeSyncBatch) (SyncAck, error) {
 	m = hmac.New(sha256.New, s.bleSigningKey)
 	m.Write(b)
 	ack.Signature = base64.RawURLEncoding.EncodeToString(m.Sum(nil))
-	return ack, s.repo.CommitEdgeSync(ack, sales, operations, artifacts, outbox, pendingUpserts, completedPending)
+	return ack, s.repo.CommitEdgeSync(tenant, ack, sales, operations, artifacts, outbox, pendingUpserts, completedPending)
 }
 
 type offlineSalePayload struct {

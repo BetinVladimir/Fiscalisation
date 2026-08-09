@@ -9,7 +9,8 @@ import (
 
 func TestComplianceExportsJSONCSVAndXLSX(t *testing.T) {
 	s := NewService(NewMemoryRepository(), NewSimulator(true))
-	sale, _ := s.CreateSale(CreateSale{TenantID: "tenant-1", ExternalID: "e1", RegisterID: "r1", OperatorID: "A001"})
+	registerID, _ := prepareBLERegister(t, s, "tenant-1")
+	sale, _ := s.CreateSale(CreateSale{TenantID: "tenant-1", ExternalID: "e1", RegisterID: registerID, OperatorID: "A001"})
 	_, _ = s.AddLine(sale.ID, SaleLine{LineID: "l1", Name: "Item", Quantity: "1.000", UnitPrice: Money{Amount: "1.00", Currency: "EUR"}, TaxGroup: "B"})
 	for _, format := range []string{"JSON", "CSV", "XLSX"} {
 		op, err := s.CreateExport(ExportRequest{Type: "SUPTO_18_1", From: time.Now().Add(-time.Hour), To: time.Now().Add(time.Hour), Format: format}, "tenant-1")

@@ -99,6 +99,7 @@ func Open(path string) (*Journal, error) {
 		`create table if not exists ble_revocations(session_id text primary key, revoked_at text not null, expires_at text not null)`,
 		`create index if not exists ble_revocations_expiry on ble_revocations(expires_at)`,
 		`create table if not exists sync_state(edge_id text primary key, committed_through_seq integer not null, committed_event_hash text not null, committed_at text not null)`,
+		`create table if not exists sync_pending(edge_id text primary key, first_seq integer not null, last_seq integer not null, batch_sha256 text not null, check(first_seq>0 and last_seq>=first_seq))`,
 		`insert or ignore into journal_meta(key,value) values('chain_anchor','')`,
 		`insert or ignore into journal_meta(key,value) values('last_sequence','0')`,
 	} {
@@ -213,6 +214,9 @@ func (j *Journal) ApplySyncAcknowledgement(edgeID string, through int64, eventHa
 	if _, err = tx.Exec(`insert into sync_state(edge_id,committed_through_seq,committed_event_hash,committed_at) values(?,?,?,?) on conflict(edge_id) do update set committed_through_seq=excluded.committed_through_seq,committed_event_hash=excluded.committed_event_hash,committed_at=excluded.committed_at`, edgeID, through, eventHash, formatTime(at)); err != nil {
 		return err
 	}
+	if _, err = tx.Exec(`delete from sync_pending where edge_id=?`, edgeID); err != nil {
+		return err
+	}
 	return tx.Commit()
 }
 
@@ -221,6 +225,37 @@ func (j *Journal) SyncState(edgeID string) (int64, string, bool) {
 	var hash string
 	err := j.db.QueryRow(`select committed_through_seq,committed_event_hash from sync_state where edge_id=?`, edgeID).Scan(&through, &hash)
 	return through, hash, err == nil
+}
+
+func (j *Journal) SyncPending(edgeID string) (int64, int64, string, bool) {
+	var first, last int64
+	var hash string
+	err := j.db.QueryRow(`select first_seq,last_seq,batch_sha256 from sync_pending where edge_id=?`, edgeID).Scan(&first, &last, &hash)
+	return first, last, hash, err == nil
+}
+
+// SetSyncPending freezes the exact first transmitted batch until a valid ACK.
+// Repeating the same marker is idempotent; changing it is fail-closed.
+func (j *Journal) SetSyncPending(edgeID string, first, last int64, batchHash string) error {
+	if edgeID == "" || first < 1 || last < first || batchHash == "" {
+		return errors.New("invalid pending sync batch")
+	}
+	j.mu.Lock()
+	defer j.mu.Unlock()
+	var existingFirst, existingLast int64
+	var existingHash string
+	err := j.db.QueryRow(`select first_seq,last_seq,batch_sha256 from sync_pending where edge_id=?`, edgeID).Scan(&existingFirst, &existingLast, &existingHash)
+	if err == nil {
+		if existingFirst != first || existingLast != last || existingHash != batchHash {
+			return errors.New("pending sync batch changed")
+		}
+		return nil
+	}
+	if !errors.Is(err, sql.ErrNoRows) {
+		return err
+	}
+	_, err = j.db.Exec(`insert into sync_pending(edge_id,first_seq,last_seq,batch_sha256) values(?,?,?,?)`, edgeID, first, last, batchHash)
+	return err
 }
 
 func (j *Journal) Eligible(now time.Time) []Event {

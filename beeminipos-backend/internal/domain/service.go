@@ -5,6 +5,7 @@ import (
 	"context"
 	"crypto/rand"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -95,22 +96,24 @@ type Order struct {
 	UpdatedAt         time.Time `json:"updated_at"`
 }
 type Service struct {
-	mu              sync.RWMutex
-	products        map[string]Product
-	employees       map[string]Employee
-	shifts          map[string]Shift
-	orders          map[string]Order
-	checkouts       map[string]Order
-	checkoutHashes  map[string]string
-	apiReplays      map[string]APIReplay
-	webhookInbox    map[string]WebhookInboxRecord
-	configurations  map[string]Configuration
-	fiscal, version string
-	client          *http.Client
-	authToken       string
-	authProvider    AccessTokenProvider
-	store           Store
-	sequence        uint64
+	mu                sync.RWMutex
+	products          map[string]Product
+	employees         map[string]Employee
+	shifts            map[string]Shift
+	orders            map[string]Order
+	checkouts         map[string]Order
+	checkoutHashes    map[string]string
+	apiReplays        map[string]APIReplay
+	webhookInbox      map[string]WebhookInboxRecord
+	configurations    map[string]Configuration
+	fiscal, version   string
+	client            *http.Client
+	authToken         string
+	authProvider      AccessTokenProvider
+	store             Store
+	sequence          uint64
+	generation        int64
+	confirmedSnapshot []byte
 }
 
 func (s *Service) SetFiscalAuthToken(v string) {
@@ -124,6 +127,15 @@ func (s *Service) SetFiscalAuthProvider(v AccessTokenProvider) { s.authProvider 
 type Store interface {
 	Load() ([]byte, error)
 	Save([]byte) error
+}
+type VersionedStore interface {
+	Store
+	LoadVersioned() ([]byte, int64, error)
+	SaveVersioned([]byte, int64) (int64, error)
+}
+type DeltaVersionedStore interface {
+	VersionedStore
+	SaveDeltaVersioned(previous, current []byte, expected int64) (int64, error)
 }
 type TenantEntityReader interface {
 	LoadTenantEntity(collection, tenant, id string) ([]byte, error)
@@ -148,10 +160,17 @@ func NewService(f, v string) *Service {
 func NewPersistentService(f, v string, store Store) (*Service, error) {
 	s := NewService(f, v)
 	s.store = store
-	b, e := store.Load()
+	var b []byte
+	var e error
+	if versioned, ok := store.(VersionedStore); ok {
+		b, s.generation, e = versioned.LoadVersioned()
+	} else {
+		b, e = store.Load()
+	}
 	if e != nil {
 		return nil, e
 	}
+	s.confirmedSnapshot = append([]byte(nil), b...)
 	if len(b) > 0 {
 		var x snapshot
 		if e = json.Unmarshal(b, &x); e != nil {
@@ -200,7 +219,78 @@ func (s *Service) persistLocked() error {
 	if e != nil {
 		return e
 	}
-	return s.store.Save(b)
+	if delta, ok := s.store.(DeltaVersionedStore); ok {
+		generation, err := delta.SaveDeltaVersioned(s.confirmedSnapshot, b, s.generation)
+		if err == nil {
+			s.generation = generation
+			s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
+			return nil
+		}
+		s.restoreLocked()
+		return err
+	}
+	if versioned, ok := s.store.(VersionedStore); ok {
+		generation, err := versioned.SaveVersioned(b, s.generation)
+		if err == nil {
+			s.generation = generation
+			s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
+			return nil
+		}
+		s.restoreLocked()
+		return err
+	}
+	if err := s.store.Save(b); err != nil {
+		s.restoreLocked()
+		return err
+	}
+	return nil
+}
+func (s *Service) restoreLocked() {
+	var b []byte
+	var err error
+	if versioned, ok := s.store.(VersionedStore); ok {
+		b, s.generation, err = versioned.LoadVersioned()
+	} else {
+		b, err = s.store.Load()
+	}
+	if err != nil || len(b) == 0 {
+		return
+	}
+	s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
+	var x snapshot
+	if json.Unmarshal(b, &x) != nil {
+		return
+	}
+	s.products, s.employees, s.shifts, s.orders = x.Products, x.Employees, x.Shifts, x.Orders
+	s.checkouts, s.checkoutHashes, s.apiReplays, s.webhookInbox, s.configurations = x.Checkouts, x.CheckoutHashes, x.APIReplays, x.WebhookInbox, x.Configurations
+	s.sequence = x.Sequence
+	if s.products == nil {
+		s.products = map[string]Product{}
+	}
+	if s.employees == nil {
+		s.employees = map[string]Employee{}
+	}
+	if s.shifts == nil {
+		s.shifts = map[string]Shift{}
+	}
+	if s.orders == nil {
+		s.orders = map[string]Order{}
+	}
+	if s.checkouts == nil {
+		s.checkouts = map[string]Order{}
+	}
+	if s.checkoutHashes == nil {
+		s.checkoutHashes = map[string]string{}
+	}
+	if s.apiReplays == nil {
+		s.apiReplays = map[string]APIReplay{}
+	}
+	if s.webhookInbox == nil {
+		s.webhookInbox = map[string]WebhookInboxRecord{}
+	}
+	if s.configurations == nil {
+		s.configurations = map[string]Configuration{}
+	}
 }
 
 type APIReplay struct {
@@ -211,6 +301,7 @@ type APIReplay struct {
 }
 type WebhookInboxRecord struct {
 	EventID     string     `json:"event_id"`
+	TenantID    string     `json:"tenant_id"`
 	Hash        string     `json:"hash"`
 	Raw         []byte     `json:"raw"`
 	ReceivedAt  time.Time  `json:"received_at"`
@@ -219,6 +310,20 @@ type WebhookInboxRecord struct {
 }
 
 func (s *Service) APIReplay(key string) (APIReplay, bool) {
+	if reader, ok := s.store.(TenantEntityReader); ok {
+		parts := strings.Split(key, "\n")
+		if len(parts) == 4 && parts[0] != "" {
+			raw, err := reader.LoadTenantEntity("api_replays", parts[0], key)
+			if err != nil {
+				return APIReplay{}, false
+			}
+			var v APIReplay
+			if json.Unmarshal(raw, &v) != nil {
+				return APIReplay{}, false
+			}
+			return v, true
+		}
+	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	v, ok := s.apiReplays[key]
@@ -230,11 +335,31 @@ func (s *Service) PutAPIReplay(key string, v APIReplay) error {
 	if old, ok := s.apiReplays[key]; ok && old.Hash != v.Hash {
 		return errors.New("idempotency mismatch")
 	}
+	old, existed := s.apiReplays[key]
 	s.apiReplays[key] = v
-	return s.persistLocked()
+	if err := s.persistLocked(); err != nil {
+		if existed {
+			s.apiReplays[key] = old
+		} else {
+			delete(s.apiReplays, key)
+		}
+		return err
+	}
+	return nil
 }
 
 func (s *Service) ConfigurationFor(tenant string) (Configuration, error) {
+	if reader, ok := s.store.(TenantEntityReader); ok && tenant != "" {
+		rows, err := reader.LoadTenantEntities("configurations", tenant)
+		if err != nil || len(rows) != 1 {
+			return Configuration{}, errors.New("configuration not found")
+		}
+		var v Configuration
+		if err = json.Unmarshal(rows[0], &v); err != nil {
+			return Configuration{}, err
+		}
+		return v, nil
+	}
 	s.mu.RLock()
 	defer s.mu.RUnlock()
 	v, ok := s.configurations[tenant]
@@ -398,6 +523,14 @@ func (s *Service) UpdateProduct(id string, expected int64, v Product) (Product, 
 	s.products[id] = v
 	return v, s.persistLocked()
 }
+func (s *Service) UpdateProductForTenant(id string, expected int64, v Product, tenant string) (Product, error) {
+	current, err := s.ProductForTenant(id, tenant)
+	if err != nil || current.Version != expected {
+		return Product{}, errors.New("version conflict")
+	}
+	v.TenantID = tenant
+	return s.UpdateProduct(id, expected, v)
+}
 func (s *Service) Employees() []Employee {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -521,10 +654,23 @@ func (s *Service) UpdateEmployee(id string, expected int64, v Employee) (Employe
 	s.employees[id] = v
 	return v, s.persistLocked()
 }
+func (s *Service) UpdateEmployeeForTenant(id string, expected int64, v Employee, tenant string) (Employee, error) {
+	current, err := s.EmployeeForTenant(id, tenant)
+	if err != nil || current.Version != expected {
+		return Employee{}, errors.New("version conflict")
+	}
+	v.TenantID = tenant
+	return s.UpdateEmployee(id, expected, v)
+}
 func (s *Service) OpenShift(register, employee string) (Shift, error) {
 	return s.OpenShiftForTenant(register, employee, "")
 }
 func (s *Service) OpenShiftForTenant(register, employee, tenant string) (Shift, error) {
+	if tenant != "" {
+		if _, err := s.EmployeeForTenant(employee, tenant); err != nil {
+			return Shift{}, errors.New("employee not found")
+		}
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	emp, ok := s.employees[employee]
@@ -564,6 +710,13 @@ func (s *Service) CloseShift(id string) (Shift, error) {
 	s.shifts[id] = v
 	return v, s.persistLocked()
 }
+func (s *Service) CloseShiftForTenant(id, tenant string) (Shift, error) {
+	current, err := s.ShiftForTenant(id, tenant)
+	if err != nil || current.State != "OPEN" {
+		return Shift{}, errors.New("shift not open")
+	}
+	return s.CloseShift(id)
+}
 func (s *Service) Shift(id string) (Shift, error) {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -590,6 +743,11 @@ func (s *Service) ShiftForTenant(id, tenant string) (Shift, error) {
 	return v, nil
 }
 func (s *Service) CreateOrder(v Order) (Order, error) {
+	if v.TenantID != "" {
+		if _, err := s.ShiftForTenant(v.ShiftID, v.TenantID); err != nil {
+			return v, errors.New("shift not open")
+		}
+	}
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	sh, ok := s.shifts[v.ShiftID]
@@ -652,24 +810,14 @@ func (s *Service) SalesReport() map[string]any {
 	return s.SalesReportFor("")
 }
 func (s *Service) SalesReportFor(tenant string) map[string]any {
-	s.mu.RLock()
-	defer s.mu.RUnlock()
+	orders := s.OrdersFor(tenant)
 	completed := 0
-	for _, x := range s.orders {
-		if tenant != "" && x.TenantID != tenant {
-			continue
-		}
+	for _, x := range orders {
 		if x.State == "COMPLETED" {
 			completed++
 		}
 	}
-	total := 0
-	for _, x := range s.orders {
-		if tenant == "" || x.TenantID == tenant {
-			total++
-		}
-	}
-	return map[string]any{"currency": "EUR", "completed_orders": completed, "total_orders": total, "generated_at": time.Now().UTC()}
+	return map[string]any{"currency": "EUR", "completed_orders": completed, "total_orders": len(orders), "generated_at": time.Now().UTC()}
 }
 func (s *Service) AddLine(order string, v Line) (Order, error) {
 	return s.AddLineExpected(order, 0, v)
@@ -703,6 +851,13 @@ func (s *Service) AddLineExpected(order string, expected int64, v Line) (Order, 
 	o.UpdatedAt = time.Now().UTC()
 	s.orders[o.ID] = o
 	return o, s.persistLocked()
+}
+func (s *Service) AddLineExpectedForTenant(order string, expected int64, v Line, tenant string) (Order, error) {
+	current, err := s.OrderForTenant(order, tenant)
+	if err != nil || (expected > 0 && current.Version != expected) {
+		return Order{}, errors.New("version conflict")
+	}
+	return s.AddLineExpected(order, expected, v)
 }
 func orderTotal(lines []Line) Money {
 	var cents int64
@@ -795,9 +950,15 @@ func (s *Service) ApplyFiscalEvent(aggregateID, state, operation string, version
 	return s.ApplyFiscalEventLinked(aggregateID, "", state, operation, version)
 }
 func (s *Service) ApplyFiscalEventLinked(aggregateID, externalID, state, operation string, version int64) error {
+	return s.applyFiscalEventLinkedForTenant("", aggregateID, externalID, state, operation, version)
+}
+func (s *Service) applyFiscalEventLinkedForTenant(tenant, aggregateID, externalID, state, operation string, version int64) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	for id, o := range s.orders {
+		if tenant != "" && o.TenantID != tenant {
+			continue
+		}
 		if o.FiscalSaleID != aggregateID && (externalID == "" || o.ExternalID != externalID) {
 			continue
 		}
@@ -831,14 +992,24 @@ func (s *Service) ProcessFiscalWebhook(eventID string, raw []byte, resourceID, s
 	return s.ProcessFiscalWebhookLinked(eventID, raw, resourceID, "", state, operation, version)
 }
 func (s *Service) ProcessFiscalWebhookLinked(eventID string, raw []byte, resourceID, externalID, state, operation string, version int64) error {
+	var envelope struct {
+		TenantID string `json:"tenant_id"`
+	}
+	_ = json.Unmarshal(raw, &envelope)
+	return s.ProcessFiscalWebhookLinkedForTenant(envelope.TenantID, eventID, raw, resourceID, externalID, state, operation, version)
+}
+func (s *Service) ProcessFiscalWebhookLinkedForTenant(tenant, eventID string, raw []byte, resourceID, externalID, state, operation string, version int64) error {
 	if eventID == "" {
 		return errors.New("event id required")
+	}
+	if tenant == "" {
+		return errors.New("tenant id required")
 	}
 	sum := sha256.Sum256(raw)
 	hash := fmt.Sprintf("%x", sum)
 	s.mu.Lock()
 	if old, ok := s.webhookInbox[eventID]; ok {
-		if old.Hash != hash {
+		if old.Hash != hash || old.TenantID != tenant {
 			s.mu.Unlock()
 			return errors.New("event id payload mismatch")
 		}
@@ -847,14 +1018,14 @@ func (s *Service) ProcessFiscalWebhookLinked(eventID string, raw []byte, resourc
 			return nil
 		}
 	} else {
-		s.webhookInbox[eventID] = WebhookInboxRecord{EventID: eventID, Hash: hash, Raw: append([]byte(nil), raw...), ReceivedAt: time.Now().UTC()}
+		s.webhookInbox[eventID] = WebhookInboxRecord{EventID: eventID, TenantID: tenant, Hash: hash, Raw: append([]byte(nil), raw...), ReceivedAt: time.Now().UTC()}
 		if e := s.persistLocked(); e != nil {
 			s.mu.Unlock()
 			return e
 		}
 	}
 	s.mu.Unlock()
-	err := s.ApplyFiscalEventLinked(resourceID, externalID, state, operation, version)
+	err := s.applyFiscalEventLinkedForTenant(tenant, resourceID, externalID, state, operation, version)
 	s.mu.Lock()
 	v := s.webhookInbox[eventID]
 	now := time.Now().UTC()
@@ -872,11 +1043,53 @@ func (s *Service) ProcessFiscalWebhookLinked(eventID string, raw []byte, resourc
 	return persistErr
 }
 func (s *Service) Checkout(order, key string, p map[string]any) (Order, error) {
+	return s.checkoutForTenant(order, key, p, "")
+}
+func (s *Service) CheckoutForTenant(order, key string, p map[string]any, tenant string) (Order, error) {
+	return s.checkoutForTenant(order, key, p, tenant)
+}
+func (s *Service) checkoutForTenant(order, key string, p map[string]any, tenant string) (Order, error) {
+	if tenant != "" {
+		current, err := s.OrderForTenant(order, tenant)
+		if err != nil {
+			return Order{}, errors.New("not payable")
+		}
+		s.mu.RLock()
+		mirror, exists := s.orders[order]
+		s.mu.RUnlock()
+		if !exists || mirror.TenantID != tenant || mirror.Version != current.Version || mirror.State != current.State {
+			return Order{}, errors.New("order state changed; retry")
+		}
+	}
 	requestBody, e := json.Marshal(p)
 	if e != nil {
 		return Order{}, errors.New("invalid payment payload")
 	}
 	requestHash := fmt.Sprintf("%x", sha256.Sum256(append([]byte(order+"\n"), requestBody...)))
+	if reader, ok := s.store.(TenantEntityReader); ok && tenant != "" {
+		replayKey := tenant + ":" + key
+		rawResult, resultErr := reader.LoadTenantEntity("checkouts", tenant, replayKey)
+		rawHash, hashErr := reader.LoadTenantEntity("checkout_hashes", tenant, replayKey)
+		resultMissing := errors.Is(resultErr, sql.ErrNoRows)
+		hashMissing := errors.Is(hashErr, sql.ErrNoRows)
+		if resultErr == nil || hashErr == nil {
+			if resultErr != nil || hashErr != nil {
+				return Order{}, errors.New("incomplete checkout checkpoint")
+			}
+			var done Order
+			var storedHash string
+			if json.Unmarshal(rawResult, &done) != nil || json.Unmarshal(rawHash, &storedHash) != nil {
+				return Order{}, errors.New("invalid checkout checkpoint")
+			}
+			if storedHash != requestHash {
+				return Order{}, errors.New("idempotency key payload mismatch")
+			}
+			return done, nil
+		}
+		if !resultMissing || !hashMissing {
+			return Order{}, errors.New("checkout checkpoint unavailable")
+		}
+	}
 	s.mu.Lock()
 	o, ok := s.orders[order]
 	if !ok {
@@ -898,8 +1111,10 @@ func (s *Service) Checkout(order, key string, p map[string]any) (Order, error) {
 	}
 	o.State = "FISCAL_PENDING"
 	o.Version++
+	previous := s.orders[o.ID]
 	s.orders[o.ID] = o
 	if e := s.persistLocked(); e != nil {
+		s.orders[o.ID] = previous
 		s.mu.Unlock()
 		return o, e
 	}
@@ -941,10 +1156,26 @@ func (s *Service) Checkout(order, key string, p map[string]any) (Order, error) {
 	}
 	o.Version++
 	s.mu.Lock()
+	previous = s.orders[o.ID]
+	oldCheckout, checkoutExisted := s.checkouts[replayKey]
+	oldHash, hashExisted := s.checkoutHashes[replayKey]
 	s.orders[o.ID] = o
 	s.checkouts[replayKey] = o
 	s.checkoutHashes[replayKey] = requestHash
 	e = s.persistLocked()
+	if e != nil {
+		s.orders[o.ID] = previous
+		if checkoutExisted {
+			s.checkouts[replayKey] = oldCheckout
+		} else {
+			delete(s.checkouts, replayKey)
+		}
+		if hashExisted {
+			s.checkoutHashes[replayKey] = oldHash
+		} else {
+			delete(s.checkoutHashes, replayKey)
+		}
+	}
 	s.mu.Unlock()
 	return o, e
 }
@@ -952,8 +1183,13 @@ func (s *Service) fail(o Order, e error) (Order, error) {
 	o.State = "UNKNOWN"
 	o.Version++
 	s.mu.Lock()
+	previous := s.orders[o.ID]
 	s.orders[o.ID] = o
-	_ = s.persistLocked()
+	if persistErr := s.persistLocked(); persistErr != nil {
+		s.orders[o.ID] = previous
+		s.mu.Unlock()
+		return previous, fmt.Errorf("%v; persist UNKNOWN state: %w", e, persistErr)
+	}
 	s.mu.Unlock()
 	return o, e
 }

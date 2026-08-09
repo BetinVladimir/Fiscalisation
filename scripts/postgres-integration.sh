@@ -60,9 +60,9 @@ wait_schema "$minipos_db" minipos_runtime_orders
 
 # Prove database-enforced isolation using the non-owner/no-BYPASSRLS roles.
 fiscal_forced=$(docker exec "$fiscal_db" psql -At -v ON_ERROR_STOP=1 -U postgres -d app -c \
-  "select count(*) from pg_class where relname=any(array['tenants','locations','registers','operators','shifts','devices','sales','sale_lines','fiscal_operations','operation_events','idempotency_records','audit_events','artifacts','edge_sync_acks','fiscal_runtime_sales','fiscal_runtime_operations']) and relrowsecurity and relforcerowsecurity")
-if [ "$fiscal_forced" != "16" ]; then
-  echo "Fiscal typed model does not FORCE RLS on every tenant table ($fiscal_forced/16)" >&2
+  "select count(*) from pg_class where relname=any(array['tenants','locations','registers','operators','shifts','devices','sales','sale_lines','fiscal_operations','operation_events','idempotency_records','audit_events','artifacts','edge_sync_acks','fiscal_runtime_sales','fiscal_runtime_operations','fiscal_runtime_shifts','fiscal_runtime_resources','fiscal_runtime_artifacts','fiscal_runtime_sync_acks']) and relrowsecurity and relforcerowsecurity")
+if [ "$fiscal_forced" != "20" ]; then
+  echo "Fiscal typed model does not FORCE RLS on every tenant table ($fiscal_forced/20)" >&2
   exit 1
 fi
 docker exec "$fiscal_db" psql -v ON_ERROR_STOP=1 -U postgres -d app -q -c \
@@ -80,9 +80,9 @@ if docker exec "$fiscal_db" psql -v ON_ERROR_STOP=1 -U postgres -d app -q -c \
 fi
 
 minipos_forced=$(docker exec "$minipos_db" psql -At -v ON_ERROR_STOP=1 -U postgres -d app -c \
-  "select count(*) from pg_class where relname=any(array['organizations','locations','registers','employees','products','shifts','orders','order_lines','webhook_inbox','outbox','minipos_runtime_products','minipos_runtime_employees','minipos_runtime_shifts','minipos_runtime_orders']) and relrowsecurity and relforcerowsecurity")
-if [ "$minipos_forced" != "14" ]; then
-  echo "MiniPOS typed model does not FORCE RLS on every organization table ($minipos_forced/14)" >&2
+  "select count(*) from pg_class where relname=any(array['organizations','locations','registers','employees','products','shifts','orders','order_lines','webhook_inbox','outbox','minipos_runtime_products','minipos_runtime_employees','minipos_runtime_shifts','minipos_runtime_orders','minipos_runtime_configurations']) and relrowsecurity and relforcerowsecurity")
+if [ "$minipos_forced" != "15" ]; then
+  echo "MiniPOS typed model does not FORCE RLS on every organization table ($minipos_forced/15)" >&2
   exit 1
 fi
 docker exec "$minipos_db" psql -v ON_ERROR_STOP=1 -U postgres -d app -q -c \

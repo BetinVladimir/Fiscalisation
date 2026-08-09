@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"strings"
 	"sync"
 	"time"
 )
@@ -15,9 +16,21 @@ type Store interface {
 	Load() ([]byte, error)
 	Save([]byte) error
 }
+type VersionedStore interface {
+	Store
+	LoadVersioned() ([]byte, int64, error)
+	SaveVersioned([]byte, int64) (int64, error)
+}
+type DeltaVersionedStore interface {
+	VersionedStore
+	SaveDeltaVersioned(previous, current []byte, expected int64) (int64, error)
+}
 type TenantEntityReader interface {
 	LoadTenantEntity(collection, tenant, id string) ([]byte, error)
 	LoadTenantEntities(collection, tenant string) ([][]byte, error)
+}
+type SystemEntityReader interface {
+	LoadSystemEntities(collection string) ([][]byte, error)
 }
 type ReplayRecord struct {
 	Hash   string `json:"hash"`
@@ -68,10 +81,11 @@ type Repository interface {
 	Operations() []Operation
 	PutOperation(Operation) error
 	CommitSaleOperation(Sale, Operation) error
-	NextUNP(string, string) (string, error)
+	NextUNP(string, string, string) (string, error)
 	OpenShift(string, string, string) (Shift, error)
 	CloseShift(string) (Shift, error)
 	Shift(string) (Shift, error)
+	ShiftForTenant(string, string) (Shift, error)
 	Shifts(string) []Shift
 	Replay(string) (ReplayRecord, bool)
 	PutReplay(string, ReplayRecord) error
@@ -81,17 +95,17 @@ type Repository interface {
 	PutBLESession(BLESessionRecord) error
 	CommitBLESessionEvent(BLESessionRecord, OutboxItem) error
 	BLESession(string) (BLESessionRecord, error)
-	LastSyncAck(string) (SyncAck, bool)
+	LastSyncAck(string, string) (SyncAck, bool)
 	PutSyncAck(SyncAck) error
-	CommitEdgeSync(SyncAck, []Sale, []Operation, map[string][]byte, []OutboxItem, []EdgePendingCommand, []string) error
-	EdgePendingCommand(string) (EdgePendingCommand, error)
+	CommitEdgeSync(string, SyncAck, []Sale, []Operation, map[string][]byte, []OutboxItem, []EdgePendingCommand, []string) error
+	EdgePendingCommand(string, string) (EdgePendingCommand, error)
 	PutConnectivityProbe(ConnectivityProbe) error
 	ConnectivityProbe(string) (ConnectivityProbe, error)
 	PutResource(ResourceRecord) error
 	Resource(string, string) (ResourceRecord, error)
 	Resources(string, string) []ResourceRecord
-	PutArtifact(string, []byte) error
-	Artifact(string) ([]byte, error)
+	PutArtifact(string, string, []byte) error
+	Artifact(string, string) ([]byte, error)
 	AuditEvents(string) []AuditEvent
 }
 type MemoryRepository struct {
@@ -111,6 +125,8 @@ type MemoryRepository struct {
 	audit              []AuditEvent
 	edgePending        map[string]EdgePendingCommand
 	store              Store
+	generation         int64
+	confirmedSnapshot  []byte
 }
 type repositorySnapshot struct {
 	Sales              map[string]Sale               `json:"sales"`
@@ -135,10 +151,17 @@ func NewMemoryRepository() *MemoryRepository {
 func NewPersistentRepository(store Store) (*MemoryRepository, error) {
 	r := NewMemoryRepository()
 	r.store = store
-	b, e := store.Load()
+	var b []byte
+	var e error
+	if versioned, ok := store.(VersionedStore); ok {
+		b, r.generation, e = versioned.LoadVersioned()
+	} else {
+		b, e = store.Load()
+	}
 	if e != nil {
 		return nil, e
 	}
+	r.confirmedSnapshot = append([]byte(nil), b...)
 	if len(b) > 0 {
 		var x repositorySnapshot
 		if e = json.Unmarshal(b, &x); e != nil {
@@ -196,9 +219,109 @@ func (r *MemoryRepository) persistLocked() error {
 	if e != nil {
 		return e
 	}
-	return r.store.Save(b)
+	if delta, ok := r.store.(DeltaVersionedStore); ok {
+		generation, err := delta.SaveDeltaVersioned(r.confirmedSnapshot, b, r.generation)
+		if err == nil {
+			r.generation = generation
+			r.confirmedSnapshot = append(r.confirmedSnapshot[:0], b...)
+			return nil
+		}
+		r.restoreLocked()
+		return err
+	}
+	if versioned, ok := r.store.(VersionedStore); ok {
+		generation, err := versioned.SaveVersioned(b, r.generation)
+		if err == nil {
+			r.generation = generation
+			r.confirmedSnapshot = append(r.confirmedSnapshot[:0], b...)
+			return nil
+		}
+		r.restoreLocked()
+		return err
+	}
+	if err := r.store.Save(b); err != nil {
+		r.restoreLocked()
+		return err
+	}
+	return nil
+}
+func (r *MemoryRepository) restoreLocked() {
+	var b []byte
+	var err error
+	if versioned, ok := r.store.(VersionedStore); ok {
+		b, r.generation, err = versioned.LoadVersioned()
+	} else {
+		b, err = r.store.Load()
+	}
+	if err != nil || len(b) == 0 {
+		return
+	}
+	r.confirmedSnapshot = append(r.confirmedSnapshot[:0], b...)
+	var x repositorySnapshot
+	if json.Unmarshal(b, &x) != nil {
+		return
+	}
+	r.sales, r.operations, r.devices, r.shifts, r.unp = x.Sales, x.Operations, x.Devices, x.Shifts, x.UNP
+	r.replays, r.outbox, r.bleSessions, r.syncAcks = x.Replays, x.Outbox, x.BLESessions, x.SyncAcks
+	r.connectivityProbes, r.resources, r.artifacts, r.audit, r.edgePending = x.ConnectivityProbes, x.Resources, x.Artifacts, x.Audit, x.EdgePending
+	if r.sales == nil {
+		r.sales = map[string]Sale{}
+	}
+	if r.operations == nil {
+		r.operations = map[string]Operation{}
+	}
+	if r.devices == nil {
+		r.devices = map[string]Device{}
+	}
+	if r.shifts == nil {
+		r.shifts = map[string]Shift{}
+	}
+	if r.unp == nil {
+		r.unp = map[string]int64{}
+	}
+	if r.replays == nil {
+		r.replays = map[string]ReplayRecord{}
+	}
+	if r.outbox == nil {
+		r.outbox = map[string]OutboxItem{}
+	}
+	if r.bleSessions == nil {
+		r.bleSessions = map[string]BLESessionRecord{}
+	}
+	if r.syncAcks == nil {
+		r.syncAcks = map[string]SyncAck{}
+	}
+	if r.connectivityProbes == nil {
+		r.connectivityProbes = map[string]ConnectivityProbe{}
+	}
+	if r.resources == nil {
+		r.resources = map[string]ResourceRecord{}
+	}
+	if r.artifacts == nil {
+		r.artifacts = map[string][]byte{}
+	}
+	if r.audit == nil {
+		r.audit = []AuditEvent{}
+	}
+	if r.edgePending == nil {
+		r.edgePending = map[string]EdgePendingCommand{}
+	}
 }
 func (r *MemoryRepository) Replay(k string) (ReplayRecord, bool) {
+	if reader, ok := r.store.(TenantEntityReader); ok {
+		parts := strings.SplitN(k, " ", 4)
+		if len(parts) == 4 && parts[0] != "" {
+			raw, err := reader.LoadTenantEntity("replays", parts[0], k)
+			if err != nil {
+				return ReplayRecord{}, false
+			}
+			var v ReplayRecord
+			if json.Unmarshal(raw, &v) != nil {
+				return ReplayRecord{}, false
+			}
+			return v, true
+		}
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	v, ok := r.replays[k]
@@ -219,6 +342,23 @@ func (r *MemoryRepository) AddOutbox(v OutboxItem) error {
 	return r.persistLocked()
 }
 func (r *MemoryRepository) PendingOutbox(now time.Time) []OutboxItem {
+	if reader, ok := r.store.(SystemEntityReader); ok {
+		rows, err := reader.LoadSystemEntities("outbox")
+		if err != nil {
+			return []OutboxItem{}
+		}
+		out := make([]OutboxItem, 0, len(rows))
+		for _, raw := range rows {
+			var v OutboxItem
+			if json.Unmarshal(raw, &v) != nil {
+				return []OutboxItem{}
+			}
+			if v.DeliveredAt == nil && !now.Before(v.NextAttempt) {
+				out = append(out, v)
+			}
+		}
+		return out
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	var v []OutboxItem
@@ -259,10 +399,43 @@ func (r *MemoryRepository) BLESession(id string) (BLESessionRecord, error) {
 	}
 	return v, nil
 }
-func (r *MemoryRepository) LastSyncAck(edge string) (SyncAck, bool) {
+func (r *MemoryRepository) BLESessionForTenant(id, tenant string) (BLESessionRecord, error) {
+	if reader, ok := r.store.(TenantEntityReader); ok && tenant != "" {
+		raw, err := reader.LoadTenantEntity("ble_sessions", tenant, id)
+		if err != nil {
+			return BLESessionRecord{}, err
+		}
+		var v BLESessionRecord
+		if err = json.Unmarshal(raw, &v); err != nil {
+			return BLESessionRecord{}, err
+		}
+		return v, nil
+	}
+	v, err := r.BLESession(id)
+	if err != nil || (tenant != "" && v.TenantID != tenant) {
+		return BLESessionRecord{}, ErrNotFound
+	}
+	return v, nil
+}
+func (r *MemoryRepository) LastSyncAck(tenant, edge string) (SyncAck, bool) {
+	if reader, ok := r.store.(TenantEntityReader); ok && tenant != "" {
+		raw, err := reader.LoadTenantEntity("sync_acks", tenant, edge)
+		if err != nil {
+			return SyncAck{}, false
+		}
+		var v SyncAck
+		if json.Unmarshal(raw, &v) != nil {
+			return SyncAck{}, false
+		}
+		return v, true
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
-	v, ok := r.syncAcks[edge]
+	key := edge
+	if tenant != "" {
+		key = tenant + "\n" + edge
+	}
+	v, ok := r.syncAcks[key]
 	return v, ok
 }
 func (r *MemoryRepository) PutSyncAck(v SyncAck) error {
@@ -271,9 +444,20 @@ func (r *MemoryRepository) PutSyncAck(v SyncAck) error {
 	r.syncAcks[v.EdgeID] = v
 	return r.persistLocked()
 }
-func (r *MemoryRepository) CommitEdgeSync(ack SyncAck, sales []Sale, operations []Operation, artifacts map[string][]byte, outbox []OutboxItem, pending []EdgePendingCommand, completed []string) error {
+func (r *MemoryRepository) CommitEdgeSync(tenant string, ack SyncAck, sales []Sale, operations []Operation, artifacts map[string][]byte, outbox []OutboxItem, pending []EdgePendingCommand, completed []string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	artifactTenants := make(map[string]string, len(artifacts))
+	for _, sale := range sales {
+		if sale.ReceiptArtifactID != "" && sale.TenantID != "" {
+			artifactTenants[sale.ReceiptArtifactID] = sale.TenantID
+		}
+	}
+	for id := range artifacts {
+		if artifactTenants[id] == "" {
+			return errors.New("edge artifact tenant ownership required")
+		}
+	}
 	for _, sale := range sales {
 		r.sales[sale.ID] = sale
 	}
@@ -281,8 +465,11 @@ func (r *MemoryRepository) CommitEdgeSync(ack SyncAck, sales []Sale, operations 
 		r.operations[operation.ID] = operation
 	}
 	for id, body := range artifacts {
-		if _, exists := r.artifacts[id]; !exists {
-			r.artifacts[id] = append([]byte(nil), body...)
+		key := artifactTenants[id] + "\n" + id
+		if _, exists := r.artifacts[key]; !exists {
+			if _, legacy := r.artifacts[id]; !legacy {
+				r.artifacts[key] = append([]byte(nil), body...)
+			}
 		}
 	}
 	for _, item := range outbox {
@@ -296,14 +483,29 @@ func (r *MemoryRepository) CommitEdgeSync(ack SyncAck, sales []Sale, operations 
 	for _, id := range completed {
 		delete(r.edgePending, id)
 	}
-	r.syncAcks[ack.EdgeID] = ack
+	ackKey := ack.EdgeID
+	if tenant != "" {
+		ackKey = tenant + "\n" + ack.EdgeID
+	}
+	r.syncAcks[ackKey] = ack
 	return r.persistLocked()
 }
-func (r *MemoryRepository) EdgePendingCommand(id string) (EdgePendingCommand, error) {
+func (r *MemoryRepository) EdgePendingCommand(id, tenant string) (EdgePendingCommand, error) {
+	if reader, ok := r.store.(TenantEntityReader); ok && tenant != "" {
+		raw, err := reader.LoadTenantEntity("edge_pending", tenant, id)
+		if err != nil {
+			return EdgePendingCommand{}, err
+		}
+		var v EdgePendingCommand
+		if err = json.Unmarshal(raw, &v); err != nil {
+			return EdgePendingCommand{}, err
+		}
+		return v, nil
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	v, ok := r.edgePending[id]
-	if !ok {
+	if !ok || (tenant != "" && v.TenantID != tenant) {
 		return v, ErrNotFound
 	}
 	return v, nil
@@ -323,6 +525,24 @@ func (r *MemoryRepository) ConnectivityProbe(id string) (ConnectivityProbe, erro
 	}
 	return v, nil
 }
+func (r *MemoryRepository) ConnectivityProbeForTenant(id, tenant string) (ConnectivityProbe, error) {
+	if reader, ok := r.store.(TenantEntityReader); ok && tenant != "" {
+		raw, err := reader.LoadTenantEntity("connectivity_probes", tenant, id)
+		if err != nil {
+			return ConnectivityProbe{}, err
+		}
+		var v ConnectivityProbe
+		if err = json.Unmarshal(raw, &v); err != nil {
+			return ConnectivityProbe{}, err
+		}
+		return v, nil
+	}
+	v, err := r.ConnectivityProbe(id)
+	if err != nil || (tenant != "" && v.TenantID != tenant) {
+		return ConnectivityProbe{}, ErrNotFound
+	}
+	return v, nil
+}
 func resourceKey(kind, id string) string { return kind + ":" + id }
 func (r *MemoryRepository) PutResource(v ResourceRecord) error {
 	r.mu.Lock()
@@ -336,6 +556,22 @@ func (r *MemoryRepository) PutResource(v ResourceRecord) error {
 	return r.persistLocked()
 }
 func (r *MemoryRepository) Resource(kind, id string) (ResourceRecord, error) {
+	if reader, ok := r.store.(TenantEntityReader); ok {
+		r.mu.RLock()
+		cached, exists := r.resources[resourceKey(kind, id)]
+		r.mu.RUnlock()
+		if exists && cached.TenantID != "" {
+			raw, err := reader.LoadTenantEntity("resources:"+kind, cached.TenantID, id)
+			if err != nil {
+				return ResourceRecord{}, err
+			}
+			var v ResourceRecord
+			if err = json.Unmarshal(raw, &v); err != nil {
+				return ResourceRecord{}, err
+			}
+			return v, nil
+		}
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	v, ok := r.resources[resourceKey(kind, id)]
@@ -345,6 +581,21 @@ func (r *MemoryRepository) Resource(kind, id string) (ResourceRecord, error) {
 	return v, nil
 }
 func (r *MemoryRepository) Resources(kind, tenant string) []ResourceRecord {
+	if reader, ok := r.store.(TenantEntityReader); ok && tenant != "" {
+		rows, err := reader.LoadTenantEntities("resources:"+kind, tenant)
+		if err != nil {
+			return []ResourceRecord{}
+		}
+		out := make([]ResourceRecord, 0, len(rows))
+		for _, raw := range rows {
+			var v ResourceRecord
+			if json.Unmarshal(raw, &v) != nil {
+				return []ResourceRecord{}
+			}
+			out = append(out, v)
+		}
+		return out
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	v := make([]ResourceRecord, 0)
@@ -355,25 +606,82 @@ func (r *MemoryRepository) Resources(kind, tenant string) []ResourceRecord {
 	}
 	return v
 }
-func (r *MemoryRepository) PutArtifact(id string, b []byte) error {
+func (r *MemoryRepository) PutArtifact(id, tenant string, b []byte) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	if _, exists := r.artifacts[id]; exists {
+	if id == "" {
+		return errors.New("artifact id required")
+	}
+	key := id
+	if tenant != "" {
+		key = tenant + "\n" + id
+	}
+	if _, exists := r.artifacts[key]; exists {
 		return errors.New("artifact immutable")
 	}
-	r.artifacts[id] = append([]byte(nil), b...)
+	if key != id {
+		if _, legacy := r.artifacts[id]; legacy {
+			return errors.New("artifact immutable")
+		}
+	}
+	r.artifacts[key] = append([]byte(nil), b...)
 	return r.persistLocked()
 }
-func (r *MemoryRepository) Artifact(id string) ([]byte, error) {
-	r.mu.RLock()
-	defer r.mu.RUnlock()
-	b, ok := r.artifacts[id]
+func (r *MemoryRepository) Artifact(id, tenant string) ([]byte, error) {
+	if reader, ok := r.store.(TenantEntityReader); ok && tenant != "" {
+		raw, err := reader.LoadTenantEntity("artifacts", tenant, id)
+		if err == nil {
+			var body []byte
+			if err = json.Unmarshal(raw, &body); err != nil {
+				return nil, err
+			}
+			return body, nil
+		}
+		return nil, err
+	}
+	if id == "" {
+		return nil, ErrNotFound
+	}
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	key := id
+	if tenant != "" {
+		key = tenant + "\n" + id
+	}
+	b, ok := r.artifacts[key]
+	if !ok && tenant != "" {
+		if legacy, exists := r.artifacts[id]; exists {
+			r.artifacts[key] = legacy
+			delete(r.artifacts, id)
+			if err := r.persistLocked(); err != nil {
+				delete(r.artifacts, key)
+				r.artifacts[id] = legacy
+				return nil, err
+			}
+			b, ok = legacy, true
+		}
+	}
 	if !ok {
 		return nil, ErrNotFound
 	}
 	return append([]byte(nil), b...), nil
 }
 func (r *MemoryRepository) AuditEvents(tenant string) []AuditEvent {
+	if reader, ok := r.store.(TenantEntityReader); ok && tenant != "" {
+		rows, err := reader.LoadTenantEntities("audit", tenant)
+		if err != nil {
+			return []AuditEvent{}
+		}
+		out := make([]AuditEvent, 0, len(rows))
+		for _, raw := range rows {
+			var v AuditEvent
+			if json.Unmarshal(raw, &v) != nil {
+				return []AuditEvent{}
+			}
+			out = append(out, v)
+		}
+		return out
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	v := make([]AuditEvent, 0)
@@ -550,11 +858,22 @@ func asMap(v any) map[string]any {
 	_ = json.Unmarshal(b, &out)
 	return out
 }
-func (r *MemoryRepository) NextUNP(register, operator string) (string, error) {
+func (r *MemoryRepository) NextUNP(register, operator, tenant string) (string, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
-	r.unp[register]++
-	v := register + "-" + operator + "-" + pad7(r.unp[register])
+	if tenant == "" {
+		r.unp[register]++ // explicit in-memory DEV compatibility; PROD auth always supplies a tenant
+		return register + "-" + operator + "-" + pad7(r.unp[register]), r.persistLocked()
+	}
+	key := tenant + "\n" + register
+	if _, exists := r.unp[key]; !exists {
+		if legacy, ok := r.unp[register]; ok {
+			r.unp[key] = legacy
+			delete(r.unp, register)
+		}
+	}
+	r.unp[key]++
+	v := register + "-" + operator + "-" + pad7(r.unp[key])
 	return v, r.persistLocked()
 }
 func (r *MemoryRepository) OpenShift(register, operator, tenant string) (Shift, error) {
@@ -578,7 +897,40 @@ func (r *MemoryRepository) Shift(id string) (Shift, error) {
 	}
 	return v, nil
 }
+func (r *MemoryRepository) ShiftForTenant(id, tenant string) (Shift, error) {
+	if reader, ok := r.store.(TenantEntityReader); ok && tenant != "" {
+		raw, err := reader.LoadTenantEntity("shifts", tenant, id)
+		if err != nil {
+			return Shift{}, err
+		}
+		var v Shift
+		if err = json.Unmarshal(raw, &v); err != nil {
+			return Shift{}, err
+		}
+		return v, nil
+	}
+	v, err := r.Shift(id)
+	if err != nil || (tenant != "" && v.TenantID != tenant) {
+		return Shift{}, ErrNotFound
+	}
+	return v, nil
+}
 func (r *MemoryRepository) Shifts(tenant string) []Shift {
+	if reader, ok := r.store.(TenantEntityReader); ok && tenant != "" {
+		rows, err := reader.LoadTenantEntities("shifts", tenant)
+		if err != nil {
+			return []Shift{}
+		}
+		out := make([]Shift, 0, len(rows))
+		for _, raw := range rows {
+			var v Shift
+			if json.Unmarshal(raw, &v) != nil {
+				return []Shift{}
+			}
+			out = append(out, v)
+		}
+		return out
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
 	v := make([]Shift, 0)

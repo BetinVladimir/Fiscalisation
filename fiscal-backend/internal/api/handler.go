@@ -359,7 +359,7 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	if len(parts) == 2 && parts[1] == "receipt" && r.Method == "GET" {
-		v, e := h.svc.Receipt(id)
+		v, e := h.svc.ReceiptForTenant(id, tenantID(r))
 		if e != nil {
 			problem(w, 409, "RECEIPT_UNAVAILABLE")
 			return
@@ -385,7 +385,7 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 			problem(w, 400, "INVALID_JSON")
 			return
 		}
-		v, e := h.svc.AddLine(id, in)
+		v, e := h.svc.AddLineForTenant(id, in, tenantID(r))
 		if e != nil {
 			problem(w, 409, "SALE_LINE_REJECTED")
 			return
@@ -397,7 +397,7 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 			problem(w, 400, "INVALID_JSON")
 			return
 		}
-		v, e := h.svc.Pay(id, in)
+		v, e := h.svc.PayForTenant(id, in, tenantID(r))
 		if e != nil {
 			problem(w, 409, "PAYMENT_REJECTED")
 			return
@@ -408,7 +408,7 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 		}
 		h.saveReplay(w, r, body, 202, v)
 	case "cancel":
-		v, e := h.svc.CancelSale(id)
+		v, e := h.svc.CancelSaleForTenant(id, tenantID(r))
 		if e != nil {
 			problem(w, 409, "SALE_CANCEL_REJECTED")
 			return
@@ -416,13 +416,14 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 		h.saveReplay(w, r, body, 202, v)
 	case "reversals":
 		var in struct {
-			ReasonCode string `json:"reason_code"`
+			ReasonCode              string `json:"reason_code"`
+			OriginalFiscalReference string `json:"original_fiscal_reference"`
 		}
 		if json.Unmarshal(body, &in) != nil {
 			problem(w, 400, "INVALID_JSON")
 			return
 		}
-		v, e := h.svc.Reverse(id, in.ReasonCode)
+		v, e := h.svc.ReverseForTenantWithReference(id, in.ReasonCode, in.OriginalFiscalReference, tenantID(r))
 		if e != nil {
 			problem(w, 409, "REVERSAL_REJECTED")
 			return
@@ -449,7 +450,7 @@ func (h *Handler) operations(w http.ResponseWriter, r *http.Request) {
 			continue
 		}
 		if register := r.URL.Query().Get("register_id"); register != "" {
-			sale, err := h.svc.GetSale(item.SaleID)
+			sale, err := h.svc.GetSaleForTenant(item.SaleID, tenantID(r))
 			if err != nil || sale.RegisterID != register {
 				continue
 			}
@@ -526,7 +527,7 @@ func (h *Handler) shift(w http.ResponseWriter, r *http.Request) {
 		problem(w, 404, "SHIFT_NOT_FOUND")
 		return
 	}
-	v, e := h.svc.CloseShift(p[0])
+	v, e := h.svc.CloseShiftForTenant(p[0], tenantID(r))
 	if e != nil {
 		problem(w, 409, "SHIFT_CLOSE_REJECTED")
 		return
@@ -818,7 +819,7 @@ func (h *Handler) sync(w http.ResponseWriter, r *http.Request) {
 		problem(w, 422, "INVALID_SYNC_BATCH")
 		return
 	}
-	v, e := h.svc.SyncBatch(in)
+	v, e := h.svc.SyncBatchForTenant(tenantID(r), in)
 	if e != nil {
 		problem(w, 409, "SYNC_GAP_OR_SIGNING_ERROR")
 		return
@@ -845,7 +846,7 @@ func (h *Handler) operation(w http.ResponseWriter, r *http.Request) {
 		if h.replay(w, r, body) {
 			return
 		}
-		v, e = h.svc.ReconcileOperation(id)
+		v, e = h.svc.ReconcileOperationForTenant(id, tenantID(r))
 		if e != nil {
 			problem(w, 409, "RECONCILIATION_REJECTED")
 			return
@@ -874,7 +875,7 @@ func (h *Handler) device(w http.ResponseWriter, r *http.Request) {
 		}
 	}
 	if len(parts) == 2 && parts[1] == "readiness" && r.Method == "GET" {
-		write(w, 200, h.svc.Readiness(parts[0]))
+		write(w, 200, h.svc.ReadinessForTenant(parts[0], tenantID(r)))
 		return
 	}
 	if len(parts) == 2 && parts[1] == "capabilities" && r.Method == "GET" {
@@ -905,7 +906,11 @@ func (h *Handler) device(w http.ResponseWriter, r *http.Request) {
 		}
 		v, e := h.svc.ProvisioningSession(parts[0], tenantID(r))
 		if e != nil {
-			problem(w, 404, "DEVICE_NOT_FOUND")
+			if errors.Is(e, domain.ErrNotFound) {
+				problem(w, 404, "DEVICE_NOT_FOUND")
+			} else {
+				problem(w, 409, "DEVICE_NOT_PROVISIONABLE")
+			}
 			return
 		}
 		h.saveReplay(w, r, body, 201, v)

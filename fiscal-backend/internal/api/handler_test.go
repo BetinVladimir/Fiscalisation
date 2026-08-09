@@ -11,6 +11,7 @@ import (
 	"github.com/fxamacker/cbor/v2"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -162,8 +163,10 @@ func apiSyncBatch() domain.EdgeSyncBatch {
 }
 func TestCrossTenantSaleIsHidden(t *testing.T) {
 	cfg := config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901"}
-	h := NewHandler(domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true)), cfg)
-	body := bytes.NewBufferString(`{"external_id":"e1","register_id":"r1","operator_id":"A001"}`)
+	svc := domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true))
+	registerID := provisionAPIRegister(t, svc, "tenant-a")
+	h := NewHandler(svc, cfg)
+	body := bytes.NewBufferString(`{"external_id":"e1","register_id":"` + registerID + `","operator_id":"A001"}`)
 	r := httptest.NewRequest("POST", "/public/v1/sales", body)
 	r.Header.Set("Authorization", "Bearer "+jwt("tenant-a"))
 	r.Header.Set("X-Api-Version", "2026-08-07")
@@ -183,6 +186,40 @@ func TestCrossTenantSaleIsHidden(t *testing.T) {
 	if w.Code != 404 {
 		t.Fatalf("cross tenant status=%d %s", w.Code, w.Body.String())
 	}
+}
+
+func provisionAPIRegister(t *testing.T, svc *domain.Service, tenant string) string {
+	t.Helper()
+	location, err := svc.CreateResource("location", tenant, map[string]any{"code": "SOF", "name": "Sofia", "address": "1 Main", "status": "ACTIVE"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	register, err := svc.CreateResource("register", tenant, map[string]any{"location_id": location["id"], "code": "R01", "status": "ACTIVE"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	deviceData := map[string]any{"kind": "FISCAL_DEVICE", "vendor": "Datecs", "model": "DP-150 MX", "serial": "API-FD-1", "status": "DRAFT", "environment": "DEV", "simulated": true}
+	device, err := svc.CreateResource("device", tenant, deviceData)
+	if err != nil {
+		t.Fatal(err)
+	}
+	deviceData["status"] = "PENDING_SERVICE_ACTIVATION"
+	device, err = svc.UpdateResource("device", device["id"].(string), tenant, device["version"].(int64), deviceData)
+	if err != nil {
+		t.Fatal(err)
+	}
+	deviceData["status"] = "ACTIVE"
+	device, err = svc.UpdateResource("device", device["id"].(string), tenant, device["version"].(int64), deviceData)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = svc.BindRegister(register["id"].(string), tenant, device["id"].(string), "FISCAL_DEVICE", ""); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = svc.CreateResource("operator", tenant, map[string]any{"code": "A001", "first_name": "Ada", "last_name": "Lovelace", "roles": []any{"CASHIER"}, "active_from": "2026-01-01T00:00:00Z"}); err != nil {
+		t.Fatal(err)
+	}
+	return register["id"].(string)
 }
 
 func TestAdministrativeSurfaceTenantIsolationAndBinding(t *testing.T) {
@@ -219,15 +256,32 @@ func TestAdministrativeSurfaceTenantIsolationAndBinding(t *testing.T) {
 	}
 	var register map[string]any
 	_ = json.Unmarshal(w.Body.Bytes(), &register)
-	w = call("POST", "/public/v1/devices", "tenant-a", "dev-key-123456789", map[string]any{"kind": "FISCAL_DEVICE", "vendor": "Datecs", "model": "DP-150 MX", "serial": "SN1", "status": "DRAFT", "environment": "DEV", "simulated": true}, "")
+	deviceBody := map[string]any{"kind": "FISCAL_DEVICE", "vendor": "Datecs", "model": "DP-150 MX", "serial": "SN1", "status": "DRAFT", "environment": "DEV", "simulated": true}
+	w = call("POST", "/public/v1/devices", "tenant-a", "dev-key-123456789", deviceBody, "")
 	if w.Code != 201 {
 		t.Fatal(w.Code, w.Body.String())
 	}
 	var device map[string]any
 	_ = json.Unmarshal(w.Body.Bytes(), &device)
+	deviceBody["status"] = "PENDING_SERVICE_ACTIVATION"
+	w = call("PATCH", "/public/v1/devices/"+device["id"].(string), "tenant-a", "dev-pending-key-1234", deviceBody, "1")
+	if w.Code != 200 {
+		t.Fatal(w.Code, w.Body.String())
+	}
+	_ = json.Unmarshal(w.Body.Bytes(), &device)
+	deviceBody["status"] = "ACTIVE"
+	w = call("PATCH", "/public/v1/devices/"+device["id"].(string), "tenant-a", "dev-active-key-12345", deviceBody, "2")
+	if w.Code != 200 {
+		t.Fatal(w.Code, w.Body.String())
+	}
+	_ = json.Unmarshal(w.Body.Bytes(), &device)
 	w = call("POST", "/public/v1/registers/"+register["id"].(string)+"/bindings", "tenant-a", "bind-key-12345678", map[string]any{"device_id": device["id"], "role": "FISCAL_DEVICE"}, "")
 	if w.Code != 201 {
 		t.Fatal(w.Code, w.Body.String())
+	}
+	w = call("POST", "/public/v1/devices/"+device["id"].(string)+"/provisioning-sessions", "tenant-a", "provision-key-123456789", map[string]any{}, "")
+	if w.Code != 409 || !strings.Contains(w.Body.String(), "DEVICE_NOT_PROVISIONABLE") {
+		t.Fatalf("active device provisioning status=%d %s", w.Code, w.Body.String())
 	}
 	w = call("GET", "/public/v1/devices/"+device["id"].(string), "tenant-b", "", nil, "")
 	if w.Code != 404 {

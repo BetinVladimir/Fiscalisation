@@ -48,3 +48,29 @@ func TestReconcileUnknownOperationOnly(t *testing.T) {
 		t.Fatal("duplicate reconciliation accepted")
 	}
 }
+
+func TestReversalPersistsReasonAndOriginalFiscalReference(t *testing.T) {
+	r := NewMemoryRepository()
+	s := NewService(r, NewSimulator(true))
+	sale, _ := s.CreateSale(CreateSale{ExternalID: "reverse-1", RegisterID: "FD000001", OperatorID: "A001"})
+	sale, _ = s.AddLine(sale.ID, SaleLine{LineID: "l1", Name: "Coffee", Quantity: "1.000", UnitPrice: Money{Amount: "2.50", Currency: "EUR"}, TaxGroup: "B"})
+	original, err := s.Pay(sale.ID, PaymentRequest{PaymentID: "p1", Type: "CASH", Amount: Money{Amount: "2.50", Currency: "EUR"}})
+	if err != nil || original.FiscalReference == "" {
+		t.Fatal(original, err)
+	}
+	before := len(r.Operations())
+	if _, err = s.ReverseForTenantWithReference(sale.ID, "CUSTOMER_RETURN", "wrong-reference", ""); err == nil || len(r.Operations()) != before {
+		t.Fatal("mismatched original reference changed state", err)
+	}
+	reversal, err := s.ReverseForTenantWithReference(sale.ID, "CUSTOMER_RETURN", original.FiscalReference, "")
+	if err != nil || reversal.Type != "REVERSAL" || reversal.ReasonCode != "CUSTOMER_RETURN" || reversal.OriginalFiscalReference != original.FiscalReference || reversal.SaleID != sale.ID {
+		t.Fatal("incomplete reversal evidence", reversal, err)
+	}
+	persisted, err := r.Operation(reversal.ID)
+	if err != nil || persisted.ReasonCode != reversal.ReasonCode || persisted.OriginalFiscalReference != original.FiscalReference {
+		t.Fatal("reversal compliance fields were not persisted", persisted, err)
+	}
+	if _, err = s.Reverse(sale.ID, "SECOND_REVERSAL"); err == nil {
+		t.Fatal("second reversal accepted")
+	}
+}

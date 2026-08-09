@@ -1,4 +1,4 @@
-.PHONY: deps test test-race postgres-integration typecheck contract-test bg-trace-test security-test web-build native-bundle android-build ios-build native-regression smart-device-test iot-test compose-check compose-e2e regression full-regression
+.PHONY: deps test test-race postgres-integration typecheck contract-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test web-build native-bundle android-build ios-build native-regression smart-device-test iot-test compose-check compose-e2e regression full-regression
 deps:
 	cd BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
 	cd BeeFiscalApp && npm ci --cache /tmp/beefiscalapp-npm-cache --no-audit --no-fund
@@ -23,8 +23,19 @@ contract-test:
 
 bg-trace-test:
 	ruby scripts/verify_bg_trace.rb
+
+driver-coverage-test:
+	ruby scripts/verify_driver_coverage.rb
+fault-regression-test:
+	ruby scripts/verify_fault_regression.rb
+
+soak-regression-test:
+	./scripts/run_soak_regression.sh /tmp/beeloy-soak-regression.jsonl
 security-test:
+	ruby scripts/verify_security_regression.rb
 	./scripts/verify_sensitive_data.sh
+ui-acceptance-test:
+	ruby scripts/verify_ui_acceptance.rb
 
 evidence-test:
 	ruby scripts/generate_release_evidence.rb /tmp/beeloy-release-evidence-test
@@ -50,7 +61,7 @@ smart-device-test:
 	test -f SmartDevices/daisy-smart-stub/build/outputs/apk/release/daisy-smart-stub-release-unsigned.apk
 	rg -q 'BuildConfig.STUB_ADAPTER && BuildConfig.DEBUG' SmartDevices/daisy-smart-stub/src/main/kotlin/com/beeloy/fiscal/daisy/DaisySmartStub.kt
 iot-test:
-	c++ -std=c++17 -Wall -Wextra -Werror -IIoT/protocol-abstraction/include IoT/protocol-abstraction/src/FrameCodec.cpp IoT/protocol-abstraction/src/AllCommands.cpp IoT/protocol-abstraction/src/CommandRegistry.cpp IoT/protocol-abstraction/tests/FrameCodecTest.cpp -o /tmp/beefiscal-frame-codec-test
+	c++ -std=c++17 -Wall -Wextra -Werror -IIoT/protocol-abstraction/include IoT/protocol-abstraction/src/FrameCodec.cpp IoT/protocol-abstraction/src/AllCommands.cpp IoT/protocol-abstraction/src/CommandRegistry.cpp IoT/protocol-abstraction/src/CommandPayload.cpp IoT/protocol-abstraction/tests/FrameCodecTest.cpp -o /tmp/beefiscal-frame-codec-test
 	/tmp/beefiscal-frame-codec-test
 compose-check:
 	FISCAL_DB_PASSWORD=test FISCAL_RLS_DB_PASSWORD=test-rls WEBHOOK_SIGNING_KEY=dev-key docker compose -f compose.fiscalisation.yaml -f compose.fiscalisation.dev.yaml config >/dev/null
@@ -59,5 +70,5 @@ compose-check:
 	MINIPOS_DB_PASSWORD=test MINIPOS_RLS_DB_PASSWORD=test-rls FISCAL_PUBLIC_BASE_URL=https://fiscal.example.test/public/v1 FISCAL_OAUTH_TOKEN_URL=https://id.example.test/token FISCAL_OAUTH_CLIENT_ID=minipos FISCAL_OAUTH_CLIENT_SECRET=production-client-secret OIDC_ISSUER=https://id.example.test OIDC_AUDIENCE=beeminipos OIDC_JWKS_URL=https://id.example.test/jwks WEBHOOK_VERIFICATION_KEY=prod-key MINIPOS_SITE=https://pos.example.test docker compose -f compose.minipos.yaml -f compose.minipos.prod.yaml config >/dev/null
 compose-e2e:
 	./scripts/e2e-two-compose.sh
-regression: test-race typecheck contract-test bg-trace-test security-test evidence-test web-build native-bundle smart-device-test iot-test compose-check
+regression: test-race typecheck contract-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test evidence-test web-build native-bundle smart-device-test iot-test compose-check
 full-regression: regression postgres-integration compose-e2e

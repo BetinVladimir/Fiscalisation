@@ -1,13 +1,53 @@
 package domain
 
 import (
+	"errors"
 	"sync"
 	"testing"
 )
 
 type memoryStore struct {
-	mu sync.Mutex
-	b  []byte
+	mu   sync.Mutex
+	b    []byte
+	fail bool
+}
+
+type versionedMemoryStore struct {
+	mu         sync.Mutex
+	b          []byte
+	generation int64
+	deltaCalls int
+}
+
+func (s *versionedMemoryStore) Load() ([]byte, error) {
+	b, _, err := s.LoadVersioned()
+	return b, err
+}
+func (s *versionedMemoryStore) Save(b []byte) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.b, s.generation = append([]byte(nil), b...), s.generation+1
+	return nil
+}
+func (s *versionedMemoryStore) LoadVersioned() ([]byte, int64, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]byte(nil), s.b...), s.generation, nil
+}
+func (s *versionedMemoryStore) SaveVersioned(b []byte, expected int64) (int64, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if expected != s.generation {
+		return s.generation, errors.New("generation conflict")
+	}
+	s.b, s.generation = append([]byte(nil), b...), s.generation+1
+	return s.generation, nil
+}
+func (s *versionedMemoryStore) SaveDeltaVersioned(_, current []byte, expected int64) (int64, error) {
+	s.mu.Lock()
+	s.deltaCalls++
+	s.mu.Unlock()
+	return s.SaveVersioned(current, expected)
 }
 
 func (m *memoryStore) Load() ([]byte, error) {
@@ -18,8 +58,25 @@ func (m *memoryStore) Load() ([]byte, error) {
 func (m *memoryStore) Save(b []byte) error {
 	m.mu.Lock()
 	defer m.mu.Unlock()
+	if m.fail {
+		return errors.New("injected persistence failure")
+	}
 	m.b = append([]byte(nil), b...)
 	return nil
+}
+
+func TestAPIReplayMutationRollsBackMemoryWhenPersistenceFails(t *testing.T) {
+	store := &memoryStore{fail: true}
+	s, err := NewPersistentService("http://fiscal", "v1", store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = s.PutAPIReplay("tenant\nPOST\n/path\nkey", APIReplay{Hash: "hash", Status: 201}); err == nil {
+		t.Fatal("persistence failure was ignored")
+	}
+	if _, exists := s.APIReplay("tenant\nPOST\n/path\nkey"); exists {
+		t.Fatal("failed replay mutation leaked into memory")
+	}
 }
 func TestPersistentServiceRestoresAutonomousStateAndSequence(t *testing.T) {
 	store := &memoryStore{}
@@ -55,7 +112,7 @@ func TestWebhookInboxPersistsRawBodyAndDeduplicates(t *testing.T) {
 		t.Fatal(err)
 	}
 	s.mu.Unlock()
-	raw := []byte(`{"event_id":"event-1","resource_id":"sale-1"}`)
+	raw := []byte(`{"event_id":"event-1","tenant_id":"tenant-1","resource_id":"sale-1"}`)
 	if err = s.ProcessFiscalWebhook("event-1", raw, "sale-1", "FISCALIZED", "op-1", 2); err != nil {
 		t.Fatal(err)
 	}
@@ -80,5 +137,33 @@ func TestWebhookInboxPersistsRawBodyAndDeduplicates(t *testing.T) {
 	}
 	if err = s.ProcessFiscalWebhook("event-1", []byte(`different`), "sale-1", "FAILED", "other", 3); err == nil {
 		t.Fatal("event id payload mismatch accepted")
+	}
+}
+
+func TestMiniPOSCoordinatorReloadsAfterGenerationConflict(t *testing.T) {
+	store := &versionedMemoryStore{}
+	s1, err := NewPersistentService("http://fiscal", "v1", store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s2, err := NewPersistentService("http://fiscal", "v1", store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	first, err := s1.CreateProduct(Product{TenantID: "tenant-1", SKU: "SKU-1", Name: "Coffee", Price: Money{Amount: "2.50", Currency: "EUR"}, TaxGroup: "B"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s2.CreateEmployee(Employee{TenantID: "tenant-1", FirstName: "Ada", LastName: "Lovelace", OperatorCode: "A001"}); err == nil {
+		t.Fatal("stale MiniPOS coordinator write was accepted")
+	}
+	if got, getErr := s2.Product(first.ID); getErr != nil || got.SKU != "SKU-1" {
+		t.Fatal("MiniPOS coordinator did not reload authoritative state", got, getErr)
+	}
+	if len(s2.Employees()) != 0 {
+		t.Fatal("failed stale employee mutation remained in memory")
+	}
+	if store.deltaCalls != 2 {
+		t.Fatal("MiniPOS coordinator did not use exact delta path", store.deltaCalls)
 	}
 }

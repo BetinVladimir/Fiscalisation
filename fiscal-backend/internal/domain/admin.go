@@ -32,6 +32,9 @@ func (s *Service) CreateResource(kind, tenant string, data map[string]any) (map[
 	if tenant == "" {
 		return nil, errors.New("tenant required")
 	}
+	if kind == "device" && stringField(data, "status") != "DRAFT" {
+		return nil, errors.New("new device must start in DRAFT")
+	}
 	if err := validateResource(kind, data); err != nil {
 		return nil, err
 	}
@@ -63,6 +66,9 @@ func (s *Service) UpdateResource(kind, id, tenant string, expected int64, data m
 	}
 	if err = validateResource(kind, data); err != nil {
 		return nil, err
+	}
+	if kind == "device" && !validDeviceTransition(stringField(v.Data, "status"), stringField(data, "status")) {
+		return nil, errors.New("invalid device status transition")
 	}
 	if err = s.validateResourceReferences(kind, tenant, data); err != nil {
 		return nil, err
@@ -176,11 +182,27 @@ func validateResource(kind string, v map[string]any) error {
 			if simulated, _ := v["simulated"].(bool); simulated {
 				return errors.New("simulated PROD device forbidden")
 			}
+			if stringField(v, "status") == "ACTIVE" && (stringField(v, "approved_type_evidence_id") == "" || stringField(v, "service_contract_evidence_id") == "") {
+				return errors.New("active PROD device evidence required")
+			}
 		}
 	default:
 		return errors.New("unsupported resource kind")
 	}
 	return nil
+}
+
+func validDeviceTransition(from, to string) bool {
+	if from == to {
+		return true
+	}
+	allowed := map[string][]string{
+		"DRAFT":                      {"PENDING_SERVICE_ACTIVATION", "BLOCKED", "RETIRED"},
+		"PENDING_SERVICE_ACTIVATION": {"ACTIVE", "BLOCKED", "RETIRED"},
+		"ACTIVE":                     {"BLOCKED", "RETIRED"},
+		"BLOCKED":                    {"ACTIVE", "RETIRED"},
+	}
+	return oneOf(to, allowed[from]...)
 }
 
 func (s *Service) validateResourceReferences(kind, tenant string, v map[string]any) error {
@@ -215,6 +237,12 @@ func (s *Service) BindRegister(registerID, tenant, deviceID, role, activeFrom st
 	}
 	if !oneOf(role, "FISCAL_DEVICE", "OPTIONAL_PAYMENT_TERMINAL") {
 		return nil, errors.New("invalid binding role")
+	}
+	if stringField(register.Data, "status") != "ACTIVE" {
+		return nil, errors.New("register is not active")
+	}
+	if stringField(device.Data, "status") != "ACTIVE" {
+		return nil, errors.New("device is not active")
 	}
 	if role == "FISCAL_DEVICE" && stringField(device.Data, "kind") != "FISCAL_DEVICE" && stringField(device.Data, "kind") != "SMART_DEVICE" {
 		return nil, errors.New("not a fiscal device")
@@ -258,6 +286,16 @@ func (s *Service) DeviceCapabilities(deviceID, tenant string) (map[string]any, e
 	return map[string]any{"device_id": deviceID, "driver_version": "mvp-0.1.0", "protocol_version": "2026-08-07", "capabilities": caps, "evidence_state": evidence}, nil
 }
 func (s *Service) ProvisioningSession(deviceID, tenant string) (map[string]any, error) {
+	device, err := s.repo.Resource("device", deviceID)
+	if err != nil || device.TenantID != tenant {
+		return nil, ErrNotFound
+	}
+	if !oneOf(stringField(device.Data, "status"), "DRAFT", "PENDING_SERVICE_ACTIVATION") {
+		return nil, errors.New("device is not provisionable")
+	}
+	if stringField(device.Data, "environment") == "PROD" && stringField(device.Data, "approved_type_evidence_id") == "" {
+		return nil, errors.New("approved type evidence required")
+	}
 	if _, err := s.GetResource("device", deviceID, tenant); err != nil {
 		return nil, err
 	}
@@ -265,7 +303,12 @@ func (s *Service) ProvisioningSession(deviceID, tenant string) (map[string]any, 
 	if err != nil {
 		return nil, err
 	}
-	return map[string]any{"session_id": id, "device_id": deviceID, "expires_at": time.Now().UTC().Add(15 * time.Minute), "state": "CREATED", "bootstrap_uri": "beefiscal://provision/" + id}, nil
+	now := time.Now().UTC()
+	data := map[string]any{"session_id": id, "device_id": deviceID, "expires_at": now.Add(15 * time.Minute), "state": "CREATED", "bootstrap_uri": "beefiscal://provision/" + id}
+	if err = s.repo.PutResource(ResourceRecord{Kind: "provisioning_session", TenantID: tenant, ID: id, Version: 1, Data: cloneMap(data), CreatedAt: now, UpdatedAt: now}); err != nil {
+		return nil, err
+	}
+	return data, nil
 }
 func (s *Service) DeviceDiagnostics(deviceID, tenant string) (map[string]any, error) {
 	if _, err := s.GetResource("device", deviceID, tenant); err != nil {

@@ -1,0 +1,23 @@
+{
+  "schema_version": 1,
+  "time_model": "ACCELERATED_DETERMINISTIC_SLOTS",
+  "hardware_claimed": false,
+  "scenarios": [
+    {
+      "id": "SOAK-72H-NETWORK-FLAP",
+      "simulated_duration_hours": 72,
+      "slot_minutes": 5,
+      "test": "TestAccelerated72HourNetworkFlapSoak",
+      "source": "edge-agent/sync/soak_test.go",
+      "invariants": ["no lost journal event", "no duplicate backend commit", "same idempotency key after ambiguous response loss", "pending batch survives process restart", "durable ACK cursor reaches final sequence"]
+    },
+    {
+      "id": "SOAK-7D-JOURNAL",
+      "simulated_duration_hours": 168,
+      "slot_minutes": 10,
+      "test": "TestAcceleratedSevenDayJournalSoak",
+      "source": "edge-agent/journal/soak_test.go",
+      "invariants": ["monotonic sequence across daily restart", "hash chain remains valid", "all events acknowledged", "three-month retention preserved", "post-purge chain anchor remains appendable"]
+    }
+  ]
+}

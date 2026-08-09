@@ -1,5 +1,6 @@
 -- MiniPOS uses organization_id as its autonomous tenant boundary.
 create role beeminipos_tenant noinherit nologin nosuperuser nocreatedb nocreaterole nobypassrls;
+grant beeminipos_tenant to current_user;
 
 create or replace function app_organization_id() returns uuid
 language sql stable parallel safe

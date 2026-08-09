@@ -71,29 +71,70 @@ func (s *Service) OpenShift(register, operator, tenant string) (Shift, error) {
 	if register == "" || len(operator) != 4 {
 		return Shift{}, errors.New("invalid shift")
 	}
+	if tenant != "" && !s.registerHasActiveFiscalDevice(register, tenant) {
+		return Shift{}, errors.New("fiscal device unavailable")
+	}
+	if tenant != "" && !s.activeOperatorForTenant(operator, tenant, time.Now().UTC()) {
+		return Shift{}, errors.New("operator unavailable")
+	}
 	return s.repo.OpenShift(register, operator, tenant)
 }
 func (s *Service) CloseShift(id string) (Shift, error) {
 	return s.repo.CloseShift(id)
 }
-func (s *Service) GetShift(id, tenant string) (Shift, error) {
-	v, e := s.repo.Shift(id)
-	if e != nil || (tenant != "" && v.TenantID != tenant) {
-		return Shift{}, ErrNotFound
+func (s *Service) CloseShiftForTenant(id, tenant string) (Shift, error) {
+	if _, err := s.repo.ShiftForTenant(id, tenant); err != nil {
+		return Shift{}, err
 	}
-	return v, nil
+	return s.repo.CloseShift(id)
+}
+func (s *Service) GetShift(id, tenant string) (Shift, error) {
+	return s.repo.ShiftForTenant(id, tenant)
 }
 func (s *Service) Shifts(tenant string) []Shift { return s.repo.Shifts(tenant) }
 func (s *Service) Reverse(saleID, reason string) (Operation, error) {
-	sale, e := s.repo.Sale(saleID)
+	return s.reverseForTenant(saleID, reason, "", "")
+}
+func (s *Service) ReverseForTenant(saleID, reason, tenant string) (Operation, error) {
+	return s.reverseForTenant(saleID, reason, "", tenant)
+}
+func (s *Service) ReverseForTenantWithReference(saleID, reason, originalReference, tenant string) (Operation, error) {
+	return s.reverseForTenant(saleID, reason, originalReference, tenant)
+}
+func (s *Service) reverseForTenant(saleID, reason, originalReference, tenant string) (Operation, error) {
+	sale, e := s.saleForTenantMutation(saleID, tenant)
 	if e != nil {
 		return Operation{}, e
 	}
-	if sale.State != "COMPLETED" || reason == "" {
+	reason = strings.TrimSpace(reason)
+	if sale.State != "COMPLETED" || reason == "" || len(reason) > 64 || strings.ContainsAny(reason, "\r\n\t") || sale.FiscalOperationID == "" {
 		return Operation{}, errors.New("reversal not allowed")
 	}
+	original, e := s.repo.Operation(sale.FiscalOperationID)
+	if e != nil || original.FiscalReference == "" || (originalReference != "" && originalReference != original.FiscalReference) {
+		return Operation{}, errors.New("original fiscal reference mismatch")
+	}
+	if sale.TenantID != "" && !s.registerHasActiveFiscalDevice(sale.RegisterID, sale.TenantID) {
+		return Operation{}, errors.New("fiscal device unavailable")
+	}
+	if s.driver == nil || s.driver.Probe() != nil {
+		return Operation{}, errors.New("fiscal device unavailable")
+	}
 	now := time.Now().UTC()
-	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, Type: "REVERSAL", State: "FISCALIZED", Version: 2, FiscalReference: "SIM-REV-" + saleID, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, Type: "REVERSAL", State: "EXECUTING", Version: 1, OriginalFiscalReference: original.FiscalReference, ReasonCode: reason, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	ref, code := s.driver.Execute(op, sale, PaymentRequest{})
+	op.Version++
+	op.UpdatedAt = time.Now().UTC()
+	if code == "FISCAL_RESULT_UNKNOWN" {
+		op.State, op.ErrorCode, op.AllowedActions = "UNKNOWN", code, []string{"RECONCILE"}
+		return op, s.repo.PutOperation(op)
+	}
+	if code != "" {
+		op.State, op.ErrorCode = "FAILED", code
+		return op, s.repo.PutOperation(op)
+	}
+	op.State, op.FiscalReference = "FISCALIZED", ref
+	sale.State = "REVERSED"
 	sale.Version++
 	sale.UpdatedAt = now
 	return op, s.repo.CommitSaleOperation(sale, op)
@@ -106,22 +147,53 @@ func (s *Service) FiscalOperation(register, typ, tenant string) (Operation, erro
 	if !contains(allowed, typ) {
 		return Operation{}, errors.New("unsupported operation")
 	}
+	if tenant != "" && !s.registerHasActiveFiscalDevice(register, tenant) {
+		return Operation{}, errors.New("fiscal device unavailable")
+	}
+	if s.driver == nil || s.driver.Probe() != nil {
+		return Operation{}, errors.New("fiscal device unavailable")
+	}
 	now := time.Now().UTC()
-	op := Operation{ID: newID("op"), TenantID: tenant, Type: typ, State: "FISCALIZED", Version: 2, FiscalReference: "SIM-" + typ + "-" + register, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: tenant, Type: typ, State: "EXECUTING", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	ref, code := s.driver.Execute(op, Sale{RegisterID: register, TenantID: tenant}, PaymentRequest{})
+	op.Version++
+	op.UpdatedAt = time.Now().UTC()
+	if code == "FISCAL_RESULT_UNKNOWN" {
+		op.State, op.ErrorCode, op.AllowedActions = "UNKNOWN", code, []string{"RECONCILE"}
+	} else if code != "" {
+		op.State, op.ErrorCode = "FAILED", code
+	} else {
+		op.State, op.FiscalReference = "FISCALIZED", ref
+	}
 	return op, s.repo.PutOperation(op)
 }
 func (s *Service) Connectivity(register, tenant string) (ConnectivityProbe, error) {
 	now := time.Now().UTC()
 	v := ConnectivityProbe{ProbeID: newID("probe"), TenantID: tenant, RegisterID: register, State: "SUCCEEDED", ObservedAt: now, RecommendedTransport: "REST", Hops: map[string]map[string]any{"public_api": {"state": "READY", "latency_ms": 0}, "fiscal_core": {"state": "READY", "latency_ms": 0}, "edge_runtime": {"state": "READY", "latency_ms": 0}, "driver": {"state": "READY", "latency_ms": 0}, "fiscal_device": {"state": "READY", "latency_ms": 0}}}
-	if register == "" || s.driver == nil || s.driver.Probe() != nil {
+	registerRecord, registerErr := s.repo.Resource("register", register)
+	deviceID := ""
+	registryReady := registerErr == nil && registerRecord.TenantID == tenant && stringField(registerRecord.Data, "status") == "ACTIVE"
+	if registryReady {
+		deviceID = stringField(registerRecord.Data, "fiscal_device_id")
+		registryReady = s.activeDeviceForTenant(deviceID, tenant)
+	}
+	if !registryReady {
+		v.Hops["fiscal_core"] = map[string]any{"state": "BLOCKED", "latency_ms": 0}
+	}
+	if !registryReady || s.driver == nil || s.driver.Probe() != nil {
 		v.State, v.RecommendedTransport = "FAILED", "BLOCK"
 		v.Hops["driver"] = map[string]any{"state": "UNAVAILABLE", "latency_ms": 0}
-		v.Hops["fiscal_device"] = map[string]any{"state": "UNAVAILABLE", "latency_ms": 0}
+		v.Hops["fiscal_device"] = map[string]any{"state": "UNAVAILABLE", "latency_ms": 0, "device_id": deviceID}
 	}
 	return v, s.repo.PutConnectivityProbe(v)
 }
 func (s *Service) GetConnectivityProbe(id, tenant string) (ConnectivityProbe, error) {
 	v, e := s.repo.ConnectivityProbe(id)
+	if r, ok := s.repo.(interface {
+		ConnectivityProbeForTenant(string, string) (ConnectivityProbe, error)
+	}); ok {
+		v, e = r.ConnectivityProbeForTenant(id, tenant)
+	}
 	if e != nil || (tenant != "" && v.TenantID != tenant) {
 		return ConnectivityProbe{}, ErrNotFound
 	}
@@ -130,6 +202,9 @@ func (s *Service) GetConnectivityProbe(id, tenant string) (ConnectivityProbe, er
 func (s *Service) SetBLESigningKey(v string) { s.bleSigningKey = []byte(v) }
 func (s *Service) BLESession(register, operator, app, tenant string) (map[string]any, error) {
 	if register == "" || operator == "" || app == "" || len(s.bleSigningKey) < 16 {
+		return nil, errors.New("BLE session unavailable")
+	}
+	if !s.registerHasActiveFiscalDevice(register, tenant) {
 		return nil, errors.New("BLE session unavailable")
 	}
 	nonceBytes := make([]byte, 16)
@@ -143,8 +218,8 @@ func (s *Service) BLESession(register, operator, app, tenant string) (map[string
 	return s.bleResponse(v)
 }
 func (s *Service) RefreshBLE(id, tenant string) (map[string]any, error) {
-	v, e := s.repo.BLESession(id)
-	if e != nil || v.Revoked || (tenant != "" && v.TenantID != tenant) || !time.Now().UTC().Before(v.ExpiresAt) {
+	v, e := s.bleSessionForTenant(id, tenant)
+	if e != nil || v.Revoked || (tenant != "" && v.TenantID != tenant) || !time.Now().UTC().Before(v.ExpiresAt) || !s.registerHasActiveFiscalDevice(v.RegisterID, v.TenantID) {
 		return nil, errors.New("BLE session inactive")
 	}
 	v.ExpiresAt = time.Now().UTC().Add(8 * time.Hour)
@@ -153,8 +228,35 @@ func (s *Service) RefreshBLE(id, tenant string) (map[string]any, error) {
 	}
 	return s.bleResponse(v)
 }
+
+func (s *Service) registerHasActiveFiscalDevice(registerID, tenant string) bool {
+	register, err := s.repo.Resource("register", registerID)
+	if err != nil || register.TenantID != tenant || stringField(register.Data, "status") != "ACTIVE" {
+		return false
+	}
+	return s.activeDeviceForTenant(stringField(register.Data, "fiscal_device_id"), tenant)
+}
+
+func (s *Service) activeOperatorForTenant(code, tenant string, at time.Time) bool {
+	for _, operator := range s.repo.Resources("operator", tenant) {
+		if stringField(operator.Data, "code") != code {
+			continue
+		}
+		activeFrom, err := time.Parse(time.RFC3339, stringField(operator.Data, "active_from"))
+		if err != nil || activeFrom.After(at) {
+			return false
+		}
+		activeTo := stringField(operator.Data, "active_to")
+		if activeTo == "" {
+			return true
+		}
+		until, err := time.Parse(time.RFC3339, activeTo)
+		return err == nil && at.Before(until)
+	}
+	return false
+}
 func (s *Service) RevokeBLE(id, tenant string) error {
-	v, e := s.repo.BLESession(id)
+	v, e := s.bleSessionForTenant(id, tenant)
 	if e != nil || (tenant != "" && v.TenantID != tenant) {
 		return ErrNotFound
 	}
@@ -162,6 +264,18 @@ func (s *Service) RevokeBLE(id, tenant string) error {
 	now := time.Now().UTC()
 	event := WebhookEvent{EventID: "event-ble-revoke-" + v.SessionID, EventType: "ble.session.revoked", APIVersion: "2026-08-07", TenantID: v.TenantID, ResourceID: v.SessionID, ResourceVersion: v.FencingToken, OccurredAt: now, Data: map[string]any{"ble_session_id": v.SessionID, "edge_id": v.DeviceID, "expires_at": v.ExpiresAt}}
 	return s.repo.CommitBLESessionEvent(v, OutboxItem{ID: event.EventID, Event: event, NextAttempt: now})
+}
+func (s *Service) bleSessionForTenant(id, tenant string) (BLESessionRecord, error) {
+	if r, ok := s.repo.(interface {
+		BLESessionForTenant(string, string) (BLESessionRecord, error)
+	}); ok {
+		return r.BLESessionForTenant(id, tenant)
+	}
+	v, err := s.repo.BLESession(id)
+	if err != nil || (tenant != "" && v.TenantID != tenant) {
+		return BLESessionRecord{}, ErrNotFound
+	}
+	return v, nil
 }
 func (s *Service) bleResponse(v BLESessionRecord) (map[string]any, error) {
 	ticket := struct {
@@ -212,12 +326,24 @@ func (s *Service) CreateSale(in CreateSale) (Sale, error) {
 	if in.ExternalID == "" || in.RegisterID == "" || len(in.OperatorID) != 4 {
 		return Sale{}, errors.New("invalid sale")
 	}
+	if in.TenantID != "" && !s.registerHasActiveFiscalDevice(in.RegisterID, in.TenantID) {
+		return Sale{}, errors.New("fiscal device unavailable")
+	}
+	if in.TenantID != "" && !s.activeOperatorForTenant(in.OperatorID, in.TenantID, time.Now().UTC()) {
+		return Sale{}, errors.New("operator unavailable")
+	}
 	now := time.Now().UTC()
 	v := Sale{ID: newID("sale"), TenantID: in.TenantID, ExternalID: in.ExternalID, RegisterID: in.RegisterID, OperatorID: in.OperatorID, State: "DRAFT", Version: 1, Lines: []SaleLine{}, Payments: []PaymentRecord{}, CreatedAt: now, UpdatedAt: now}
 	return v, s.repo.PutSale(v)
 }
 func (s *Service) AddLine(id string, line SaleLine) (Sale, error) {
-	v, e := s.repo.Sale(id)
+	return s.addLineForTenant(id, line, "")
+}
+func (s *Service) AddLineForTenant(id string, line SaleLine, tenant string) (Sale, error) {
+	return s.addLineForTenant(id, line, tenant)
+}
+func (s *Service) addLineForTenant(id string, line SaleLine, tenant string) (Sale, error) {
+	v, e := s.saleForTenantMutation(id, tenant)
 	if e != nil {
 		return v, e
 	}
@@ -228,7 +354,7 @@ func (s *Service) AddLine(id string, line SaleLine) (Sale, error) {
 		return v, errors.New("invalid line")
 	}
 	if v.UNP == "" {
-		v.UNP, e = s.repo.NextUNP(v.RegisterID, v.OperatorID)
+		v.UNP, e = s.repo.NextUNP(v.RegisterID, v.OperatorID, v.TenantID)
 		if e != nil {
 			return v, e
 		}
@@ -240,12 +366,21 @@ func (s *Service) AddLine(id string, line SaleLine) (Sale, error) {
 	return v, s.repo.PutSale(v)
 }
 func (s *Service) Pay(id string, p PaymentRequest) (Operation, error) {
-	sale, e := s.repo.Sale(id)
+	return s.payForTenant(id, p, "")
+}
+func (s *Service) PayForTenant(id string, p PaymentRequest, tenant string) (Operation, error) {
+	return s.payForTenant(id, p, tenant)
+}
+func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Operation, error) {
+	sale, e := s.saleForTenantMutation(id, tenant)
 	if e != nil {
 		return Operation{}, e
 	}
 	if sale.State != "OPEN" || len(sale.Lines) == 0 || p.PaymentID == "" || !validMoney(p.Amount) || !contains([]string{"CASH", "CARD"}, p.Type) {
 		return Operation{}, errors.New("payment not allowed")
+	}
+	if sale.TenantID != "" && !s.registerHasActiveFiscalDevice(sale.RegisterID, sale.TenantID) {
+		return Operation{}, errors.New("fiscal device unavailable")
 	}
 	if s.driver == nil || s.driver.Probe() != nil {
 		return Operation{}, errors.New("fiscal device unavailable")
@@ -292,7 +427,7 @@ func (s *Service) Pay(id string, p PaymentRequest) (Operation, error) {
 				return Operation{}, e
 			}
 			receiptBytes, _ := json.Marshal(map[string]any{"sale_id": sale.ID, "operation_id": op.ID, "unp": sale.UNP, "fiscal_reference": op.FiscalReference, "issued_at": op.UpdatedAt, "total": Money{Amount: formatFixed(total), Currency: "EUR"}, "lines": sale.Lines, "payments": sale.Payments})
-			if e = s.repo.PutArtifact(sale.ReceiptArtifactID, receiptBytes); e != nil {
+			if e = s.repo.PutArtifact(sale.ReceiptArtifactID, sale.TenantID, receiptBytes); e != nil {
 				return Operation{}, e
 			}
 		} else {
@@ -347,7 +482,13 @@ func (s *Service) Operations(tenant string) []Operation {
 	return v
 }
 func (s *Service) CancelSale(id string) (Operation, error) {
-	v, e := s.repo.Sale(id)
+	return s.cancelSaleForTenant(id, "")
+}
+func (s *Service) CancelSaleForTenant(id, tenant string) (Operation, error) {
+	return s.cancelSaleForTenant(id, tenant)
+}
+func (s *Service) cancelSaleForTenant(id, tenant string) (Operation, error) {
+	v, e := s.saleForTenantMutation(id, tenant)
 	if e != nil {
 		return Operation{}, e
 	}
@@ -360,7 +501,13 @@ func (s *Service) CancelSale(id string) (Operation, error) {
 	return op, s.repo.CommitSaleOperation(v, op)
 }
 func (s *Service) ReconcileOperation(id string) (Operation, error) {
-	op, e := s.repo.Operation(id)
+	return s.reconcileOperationForTenant(id, "")
+}
+func (s *Service) ReconcileOperationForTenant(id, tenant string) (Operation, error) {
+	return s.reconcileOperationForTenant(id, tenant)
+}
+func (s *Service) reconcileOperationForTenant(id, tenant string) (Operation, error) {
+	op, e := s.operationForTenantMutation(id, tenant)
 	if e != nil {
 		return op, e
 	}
@@ -372,7 +519,13 @@ func (s *Service) ReconcileOperation(id string) (Operation, error) {
 	return op, s.repo.PutOperation(op)
 }
 func (s *Service) Receipt(id string) (map[string]any, error) {
-	v, e := s.repo.Sale(id)
+	return s.receiptForTenant(id, "")
+}
+func (s *Service) ReceiptForTenant(id, tenant string) (map[string]any, error) {
+	return s.receiptForTenant(id, tenant)
+}
+func (s *Service) receiptForTenant(id, tenant string) (map[string]any, error) {
+	v, e := s.saleForTenantMutation(id, tenant)
 	if e != nil {
 		return nil, e
 	}
@@ -384,6 +537,18 @@ func (s *Service) Receipt(id string) (map[string]any, error) {
 		ref = v.Payments[len(v.Payments)-1].FiscalReference
 	}
 	return map[string]any{"sale_id": v.ID, "operation_id": v.FiscalOperationID, "unp": v.UNP, "state": v.State, "fiscal_reference": ref, "issued_at": v.UpdatedAt, "total": Money{Amount: formatFixed(saleTotal(v)), Currency: "EUR"}, "artifact_id": v.ReceiptArtifactID, "lines": v.Lines, "payments": v.Payments}, nil
+}
+func (s *Service) saleForTenantMutation(id, tenant string) (Sale, error) {
+	if tenant == "" {
+		return s.repo.Sale(id)
+	}
+	return s.GetSaleForTenant(id, tenant)
+}
+func (s *Service) operationForTenantMutation(id, tenant string) (Operation, error) {
+	if tenant == "" {
+		return s.repo.Operation(id)
+	}
+	return s.GetOperationForTenant(id, tenant)
 }
 func (s *Service) Replay(k string) (ReplayRecord, bool)     { return s.repo.Replay(k) }
 func (s *Service) PutReplay(k string, v ReplayRecord) error { return s.repo.PutReplay(k, v) }
@@ -400,6 +565,29 @@ func (s *Service) Readiness(device string) map[string]any {
 		state, transport = "UNAVAILABLE", "BLOCK"
 	}
 	return map[string]any{"ready": ready, "device_id": device, "observed_at": time.Now().UTC(), "components": map[string]string{"driver": state, "fiscal_device": state}, "recommended_transport": transport}
+}
+func (s *Service) ReadinessForTenant(device, tenant string) map[string]any {
+	registryReady := s.activeDeviceForTenant(device, tenant)
+	driverReady := registryReady && s.driver != nil && s.driver.Probe() == nil
+	state, transport := "READY", "REST"
+	if !driverReady {
+		state, transport = "UNAVAILABLE", "BLOCK"
+	}
+	registryState := "ACTIVE"
+	if !registryReady {
+		registryState = "UNAVAILABLE"
+	}
+	return map[string]any{"ready": driverReady, "device_id": device, "observed_at": time.Now().UTC(), "components": map[string]string{"registry": registryState, "driver": state, "fiscal_device": state}, "recommended_transport": transport}
+}
+func (s *Service) activeDeviceForTenant(device, tenant string) bool {
+	if device == "" || tenant == "" {
+		return false
+	}
+	v, err := s.repo.Resource("device", device)
+	if err != nil || v.TenantID != tenant || stringField(v.Data, "status") != "ACTIVE" {
+		return false
+	}
+	return oneOf(stringField(v.Data, "kind"), "FISCAL_DEVICE", "SMART_DEVICE")
 }
 func validTax(v string) bool { return len(v) == 1 && strings.Contains("ABCDEFGH", v) }
 func validMoney(m Money) bool {

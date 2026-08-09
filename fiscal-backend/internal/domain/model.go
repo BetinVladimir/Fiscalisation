@@ -83,18 +83,20 @@ type PaymentRequest struct {
 	TerminalPolicy string `json:"terminal_policy,omitempty"`
 }
 type Operation struct {
-	ID              string    `json:"operation_id"`
-	TenantID        string    `json:"tenant_id"`
-	SaleID          string    `json:"sale_id,omitempty"`
-	Type            string    `json:"type"`
-	State           string    `json:"state"`
-	Version         int64     `json:"version"`
-	FiscalReference string    `json:"fiscal_reference,omitempty"`
-	Simulated       bool      `json:"simulated"`
-	ErrorCode       string    `json:"error_code,omitempty"`
-	AllowedActions  []string  `json:"allowed_actions"`
-	CreatedAt       time.Time `json:"created_at"`
-	UpdatedAt       time.Time `json:"updated_at"`
+	ID                      string    `json:"operation_id"`
+	TenantID                string    `json:"tenant_id"`
+	SaleID                  string    `json:"sale_id,omitempty"`
+	Type                    string    `json:"type"`
+	State                   string    `json:"state"`
+	Version                 int64     `json:"version"`
+	FiscalReference         string    `json:"fiscal_reference,omitempty"`
+	OriginalFiscalReference string    `json:"original_fiscal_reference,omitempty"`
+	ReasonCode              string    `json:"reason_code,omitempty"`
+	Simulated               bool      `json:"simulated"`
+	ErrorCode               string    `json:"error_code,omitempty"`
+	AllowedActions          []string  `json:"allowed_actions"`
+	CreatedAt               time.Time `json:"created_at"`
+	UpdatedAt               time.Time `json:"updated_at"`
 }
 type Device struct {
 	ID            string `json:"id"`

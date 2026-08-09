@@ -93,3 +93,17 @@ func TestMiddlewareRejectsMissingScope(t *testing.T) {
 		t.Fatalf("missing scope status=%d", w.Code)
 	}
 }
+
+func TestMiddlewareRequiresExplicitBearerScheme(t *testing.T) {
+	next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) })
+	raw := token(`{"sub":"u1","tenant_id":"t1","roles":["CASHIER"],"scope":"fiscal.base","exp":4102444800}`, "secret")
+	for _, header := range []string{raw, "Basic " + raw, "Bearer", "Bearer " + raw + " extra"} {
+		r := httptest.NewRequest(http.MethodPost, "/public/v1/sales", nil)
+		r.Header.Set("Authorization", header)
+		w := httptest.NewRecorder()
+		Middleware("secret", next).ServeHTTP(w, r)
+		if w.Code != http.StatusUnauthorized {
+			t.Fatalf("malformed authorization accepted: %q status=%d", header, w.Code)
+		}
+	}
+}

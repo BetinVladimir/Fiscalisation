@@ -1,6 +1,7 @@
 -- Typed legal/reporting model tenant boundary. Runtime compatibility rows are
 -- intentionally excluded until their payloads have been replaced by typed writes.
 create role beefiscal_tenant noinherit nologin nosuperuser nocreatedb nocreaterole nobypassrls;
+grant beefiscal_tenant to current_user;
 
 create or replace function app_tenant_id() returns uuid
 language sql stable parallel safe

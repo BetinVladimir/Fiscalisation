@@ -44,6 +44,9 @@ func (u *Uploader) UploadOnce(ctx context.Context, limit int) (bool, error) {
 	if err = u.verifier.Expect(batch); err != nil {
 		return false, err
 	}
+	if err = u.journal.SetSyncPending(u.edgeID, batch.FirstSeq, batch.LastSeq, batch.BatchSHA256); err != nil {
+		return false, err
+	}
 	body, err := json.Marshal(batch)
 	if err != nil {
 		return false, err

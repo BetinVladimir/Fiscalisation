@@ -84,6 +84,31 @@ func TestSignedContiguousSyncBatchSurvivesRestart(t *testing.T) {
 	}
 }
 
+func TestSyncSequenceIsIsolatedByAuthenticatedTenant(t *testing.T) {
+	key := []byte("01234567890123456789012345678901")
+	s := NewService(NewMemoryRepository(), NewSimulator(true))
+	s.SetBLESigningKey(string(key))
+	if _, err := s.SyncBatchForTenant("tenant-a", signedBatch("shared-edge", 1, 1, nil, key)); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.SyncBatchForTenant("tenant-b", signedBatch("shared-edge", 1, 1, nil, key)); err != nil {
+		t.Fatal("another tenant inherited the first tenant journal cursor", err)
+	}
+}
+
+func TestSyncRejectsCommandOwnedByAnotherTenant(t *testing.T) {
+	key := []byte("01234567890123456789012345678901")
+	s := NewService(NewMemoryRepository(), NewSimulator(true))
+	s.SetBLESigningKey(string(key))
+	event := DeviceEventEnvelope{EventID: "accepted-cross", OperationID: "operation-cross", DeviceID: "device-1", EventType: "ACCEPTED", OccurredAt: "2026-08-07T10:00:01Z", Payload: map[string]any{
+		"operation_sequence": float64(1), "unp_sequence": float64(1),
+		"command": map[string]any{"command_id": "operation-cross", "tenant_id": "tenant-b", "register_id": "register-1", "device_id": "device-1", "type": "FISCAL_SALE", "payload": map[string]any{}},
+	}}
+	if _, err := s.SyncBatchForTenant("tenant-a", signCustomBatch("edge-1", 1, nil, []DeviceEventEnvelope{event}, key)); err == nil {
+		t.Fatal("cross-tenant Edge command accepted")
+	}
+}
+
 func TestSyncBatchRejectsTamperingAndBrokenEventChain(t *testing.T) {
 	key := []byte("01234567890123456789012345678901")
 	newService := func() *Service {

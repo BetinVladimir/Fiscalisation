@@ -12,7 +12,8 @@ func TestReportArtifactPersistenceAndTenantIsolation(t *testing.T) {
 		t.Fatal(err)
 	}
 	s := NewService(repo, NewSimulator(true))
-	op, err := s.CreateReport("register-1", "Z", "tenant-1")
+	registerID, _ := prepareBLERegister(t, s, "tenant-1")
+	op, err := s.CreateReport(registerID, "Z", "tenant-1")
 	if err != nil || op.State != "FISCALIZED" {
 		t.Fatal(op, err)
 	}

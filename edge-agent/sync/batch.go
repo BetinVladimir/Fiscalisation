@@ -68,6 +68,30 @@ func BuildBatch(edgeID, deviceID string, events []journal.Event, previous *strin
 	return v, nil
 }
 func BuildNextBatch(j *journal.Journal, edgeID, deviceID string, limit int, key []byte) (Batch, error) {
+	if first, last, expectedHash, pending := j.SyncPending(edgeID); pending {
+		count := last - first + 1
+		if count < 1 || count > 100 {
+			return Batch{}, errors.New("invalid persisted pending batch")
+		}
+		events := j.Unacknowledged(int(count))
+		if len(events) != int(count) || events[0].Sequence != first || events[len(events)-1].Sequence != last {
+			return Batch{}, errors.New("persisted pending batch gap")
+		}
+		var previous *string
+		if through, hash, ok := j.SyncState(edgeID); ok {
+			if first != through+1 {
+				return Batch{}, errors.New("persisted pending cursor gap")
+			}
+			previous = &hash
+		} else if first != 1 {
+			return Batch{}, errors.New("missing initial pending cursor")
+		}
+		batch, err := BuildBatch(edgeID, deviceID, events, previous, key)
+		if err != nil || batch.BatchSHA256 != expectedHash {
+			return Batch{}, errors.New("persisted pending batch changed")
+		}
+		return batch, nil
+	}
 	events := j.Unacknowledged(limit)
 	if len(events) == 0 {
 		return Batch{}, errors.New("no unacknowledged events")

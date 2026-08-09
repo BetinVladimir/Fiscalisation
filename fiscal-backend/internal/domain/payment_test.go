@@ -1,6 +1,9 @@
 package domain
 
-import "testing"
+import (
+	"fmt"
+	"testing"
+)
 
 func TestSplitPaymentAndExactTotal(t *testing.T) {
 	s := NewService(NewMemoryRepository(), NewSimulator(true))
@@ -66,5 +69,43 @@ func TestLostFiscalDeviceBlocksBeforeOperation(t *testing.T) {
 	}
 	if len(r.Operations()) != 0 {
 		t.Fatal("operation created before device reachability was established")
+	}
+}
+
+func TestEURTotalAndSplitPaymentPropertyMatrix(t *testing.T) {
+	for i := 1; i <= 120; i++ {
+		quantity := i%5 + 1
+		unitCents := (i*37)%997 + 1
+		totalCents := quantity * unitCents
+		firstCents := (i * 13) % (totalCents + 1)
+		secondCents := totalCents - firstCents
+		money := func(cents int) Money {
+			return Money{Amount: fmt.Sprintf("%d.%02d", cents/100, cents%100), Currency: "EUR"}
+		}
+		s := NewService(NewMemoryRepository(), NewSimulator(true))
+		sale, err := s.CreateSale(CreateSale{ExternalID: fmt.Sprintf("property-%d", i), RegisterID: "r1", OperatorID: "A001"})
+		if err != nil {
+			t.Fatal(err)
+		}
+		sale, err = s.AddLine(sale.ID, SaleLine{LineID: "l1", Name: "Property item", Quantity: fmt.Sprintf("%d.000", quantity), UnitPrice: money(unitCents), TaxGroup: "B"})
+		if err != nil {
+			t.Fatalf("case %d line: %v", i, err)
+		}
+		if firstCents > 0 {
+			op, payErr := s.Pay(sale.ID, PaymentRequest{PaymentID: "p1", Type: "CASH", Amount: money(firstCents)})
+			if payErr != nil || (secondCents > 0 && op.State != "PAYMENT_ACCEPTED") {
+				t.Fatalf("case %d first split: %+v %v", i, op, payErr)
+			}
+		}
+		if secondCents > 0 {
+			op, payErr := s.Pay(sale.ID, PaymentRequest{PaymentID: "p2", Type: "CASH", Amount: money(secondCents)})
+			if payErr != nil || op.State != "FISCALIZED" {
+				t.Fatalf("case %d final split: %+v %v", i, op, payErr)
+			}
+		}
+		completed, err := s.GetSale(sale.ID)
+		if err != nil || completed.State != "COMPLETED" {
+			t.Fatalf("case %d did not complete exactly: %+v %v", i, completed, err)
+		}
 	}
 }

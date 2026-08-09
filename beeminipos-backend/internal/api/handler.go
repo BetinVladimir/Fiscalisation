@@ -108,7 +108,7 @@ func (w *capturedResponse) Write(b []byte) (int, error) {
 }
 func idempotency(s *domain.Service, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !strings.HasPrefix(r.URL.Path, "/public/v1") || strings.HasSuffix(r.URL.Path, "/fiscal-webhooks") || (r.Method != "POST" && r.Method != "PATCH" && r.Method != "DELETE") {
+		if !strings.HasPrefix(r.URL.Path, "/public/v1") || r.URL.Path == "/public/v1/fiscal-webhooks" || (r.Method != "POST" && r.Method != "PATCH" && r.Method != "DELETE") {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -182,11 +182,11 @@ func (h *handler) webhook(w http.ResponseWriter, r *http.Request) {
 			ExternalID  string `json:"external_id"`
 		} `json:"data"`
 	}
-	if json.Unmarshal(b, &v) != nil || v.EventID == "" || v.EventType == "" || v.APIVersion != h.c.APIVersion || v.ResourceID == "" || v.ResourceVersion < 1 {
+	if json.Unmarshal(b, &v) != nil || v.EventID == "" || v.EventType == "" || v.APIVersion != h.c.APIVersion || v.TenantID == "" || v.ResourceID == "" || v.ResourceVersion < 1 {
 		problem(w, 400, "invalid json")
 		return
 	}
-	if e = h.s.ProcessFiscalWebhookLinked(v.EventID, b, v.ResourceID, v.Data.ExternalID, v.Data.State, v.Data.OperationID, v.ResourceVersion); e != nil {
+	if e = h.s.ProcessFiscalWebhookLinkedForTenant(v.TenantID, v.EventID, b, v.ResourceID, v.Data.ExternalID, v.Data.State, v.Data.OperationID, v.ResourceVersion); e != nil {
 		problem(w, 409, e.Error())
 		return
 	}
@@ -276,7 +276,7 @@ func (h *handler) product(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		v.TenantID = tenantID(r)
-		x, e := h.s.UpdateProduct(id, expected, v)
+		x, e := h.s.UpdateProductForTenant(id, expected, v, tenantID(r))
 		if e != nil {
 			problem(w, 409, e.Error())
 			return
@@ -336,7 +336,7 @@ func (h *handler) employee(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		v.TenantID = tenantID(r)
-		x, e := h.s.UpdateEmployee(id, expected, v)
+		x, e := h.s.UpdateEmployeeForTenant(id, expected, v, tenantID(r))
 		if e != nil {
 			problem(w, 409, e.Error())
 			return
@@ -379,7 +379,7 @@ func (h *handler) shift(w http.ResponseWriter, r *http.Request) {
 	if !h.authorizeShift(w, r, p[0]) {
 		return
 	}
-	v, e := h.s.CloseShift(p[0])
+	v, e := h.s.CloseShiftForTenant(p[0], tenantID(r))
 	if e != nil {
 		problem(w, 409, e.Error())
 		return
@@ -448,7 +448,7 @@ func (h *handler) order(w http.ResponseWriter, r *http.Request) {
 				return
 			}
 		}
-		x, e := h.s.AddLineExpected(p[0], expected, v)
+		x, e := h.s.AddLineExpectedForTenant(p[0], expected, v, tenantID(r))
 		if e != nil {
 			problem(w, 409, e.Error())
 			return
@@ -461,7 +461,7 @@ func (h *handler) order(w http.ResponseWriter, r *http.Request) {
 		if !decode(w, r, &v) {
 			return
 		}
-		x, e := h.s.Checkout(p[0], r.Header.Get("Idempotency-Key"), v)
+		x, e := h.s.CheckoutForTenant(p[0], r.Header.Get("Idempotency-Key"), v, tenantID(r))
 		if e != nil {
 			problem(w, 502, e.Error())
 			return
@@ -549,7 +549,7 @@ func apiVersion(v string, next http.Handler) http.Handler {
 			problem(w, 400, "api version required")
 			return
 		}
-		if strings.HasPrefix(r.URL.Path, "/public/v1") && !strings.HasSuffix(r.URL.Path, "/fiscal-webhooks") && (r.Method == "POST" || r.Method == "PATCH" || r.Method == "DELETE") {
+		if strings.HasPrefix(r.URL.Path, "/public/v1") && r.URL.Path != "/public/v1/fiscal-webhooks" && (r.Method == "POST" || r.Method == "PATCH" || r.Method == "DELETE") {
 			n := len(r.Header.Get("Idempotency-Key"))
 			if n < 16 || n > 255 {
 				problem(w, 400, "idempotency key must be 16..255 characters")

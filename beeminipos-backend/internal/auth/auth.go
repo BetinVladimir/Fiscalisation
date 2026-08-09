@@ -30,11 +30,15 @@ func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) ht
 		return next
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !strings.HasPrefix(r.URL.Path, "/public/v1") || strings.HasSuffix(r.URL.Path, "/fiscal-webhooks") {
+		if !strings.HasPrefix(r.URL.Path, "/public/v1") || r.URL.Path == "/public/v1/fiscal-webhooks" {
 			next.ServeHTTP(w, r)
 			return
 		}
-		raw := strings.TrimPrefix(r.Header.Get("Authorization"), "Bearer ")
+		raw, ok := bearerToken(r.Header.Get("Authorization"))
+		if !ok {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
 		var c Claims
 		var e error
 		if oidc != nil {
@@ -52,6 +56,14 @@ func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) ht
 		}
 		next.ServeHTTP(w, r.WithContext(context.WithValue(r.Context(), key{}, c)))
 	})
+}
+
+func bearerToken(header string) (string, bool) {
+	parts := strings.Fields(header)
+	if len(parts) != 2 || !strings.EqualFold(parts[0], "Bearer") || parts[1] == "" {
+		return "", false
+	}
+	return parts[1], true
 }
 
 func hasScope(c Claims, required string) bool {

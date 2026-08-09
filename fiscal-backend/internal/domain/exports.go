@@ -58,7 +58,7 @@ func (s *Service) CreateExport(in ExportRequest, tenant string) (Operation, erro
 	now := time.Now().UTC()
 	sum := sha256.Sum256(artifact)
 	digest := hex.EncodeToString(sum[:])
-	if err = s.repo.PutArtifact(artifactID, artifact); err != nil {
+	if err = s.repo.PutArtifact(artifactID, tenant, artifact); err != nil {
 		return Operation{}, err
 	}
 	manifest := map[string]any{"artifact_id": artifactID, "media_type": media, "sha256": digest, "size": len(artifact), "created_at": now}
@@ -126,6 +126,6 @@ func (s *Service) ExportArtifact(exportID, tenant string) ([]byte, string, error
 	}
 	id, _ := m["artifact_id"].(string)
 	media, _ := m["media_type"].(string)
-	b, err := s.repo.Artifact(id)
+	b, err := s.repo.Artifact(id, tenant)
 	return b, media, err
 }

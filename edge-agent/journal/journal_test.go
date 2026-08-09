@@ -69,3 +69,26 @@ func TestPurgeNeverCreatesGap(t *testing.T) {
 		t.Fatal("chain invalid")
 	}
 }
+
+func TestClockRollbackCannotMakeAcknowledgedEventEligible(t *testing.T) {
+	j, err := Open(filepath.Join(t.TempDir(), "clock.sqlite"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer j.Close()
+	event, err := j.Append("clock-op", "DONE", map[string]int{"n": 1})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if err = j.Acknowledge(event.Sequence, event.CreatedAt); err != nil {
+		t.Fatal(err)
+	}
+	for _, unsafeNow := range []time.Time{event.CreatedAt.Add(-24 * time.Hour), event.CreatedAt, event.RetainUntil.Add(-time.Nanosecond)} {
+		if eligible := j.Eligible(unsafeNow); len(eligible) != 0 {
+			t.Fatal("clock rollback/early time made retained data eligible", unsafeNow, eligible)
+		}
+		if purged, purgeErr := j.Purge(unsafeNow); purgeErr != nil || purged != 0 {
+			t.Fatal("clock rollback/early time purged retained data", unsafeNow, purged, purgeErr)
+		}
+	}
+}

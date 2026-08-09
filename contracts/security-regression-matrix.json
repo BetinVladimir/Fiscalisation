@@ -1,0 +1,25 @@
+{
+  "version":"2026-08-09",
+  "roadmap_stage":23,
+  "cases":[
+    {"id":"S23-001","category":"authentication","source":"fiscal-backend/internal/auth/oidc_test.go","test":"TestOIDCVerifierValidatesAndRefreshesRotatedKid","control":"RS256 JWKS rotation and cache refresh"},
+    {"id":"S23-002","category":"authentication","source":"fiscal-backend/internal/auth/oidc_test.go","test":"TestOIDCVerifierRejectsWrongTrustClaimsAndSignature","control":"issuer, audience and signature fail closed"},
+    {"id":"S23-003","category":"authentication","source":"fiscal-backend/internal/auth/auth_test.go","test":"TestMiddlewareRequiresExplicitBearerScheme","control":"JWT without an explicit Bearer scheme is rejected"},
+    {"id":"S23-004","category":"authorization","source":"fiscal-backend/internal/auth/auth_test.go","test":"TestRBACLeastPrivilege","control":"Fiscal least privilege RBAC"},
+    {"id":"S23-005","category":"authorization","source":"beeminipos-backend/internal/auth/auth_test.go","test":"TestRBACLeastPrivilege","control":"MiniPOS least privilege RBAC"},
+    {"id":"S23-006","category":"webhook","source":"beeminipos-backend/internal/api/handler_test.go","test":"TestCanonicalWebhookSignatureAndTimestamp","control":"canonical HMAC and bounded timestamp"},
+    {"id":"S23-007","category":"webhook","source":"beeminipos-backend/internal/auth/auth_test.go","test":"TestMiddlewareRequiresExplicitBearerAndExactWebhookExemption","control":"only the exact signed webhook route bypasses bearer auth"},
+    {"id":"S23-008","category":"ssrf","source":"fiscal-backend/internal/domain/webhook_endpoint_test.go","test":"TestWebhookRejectsSSRFAndUnsupportedEvents","control":"private/unsafe webhook targets fail closed"},
+    {"id":"S23-009","category":"ssrf","source":"fiscal-backend/internal/webhook/safe_transport_test.go","test":"TestSafeHTTPClientDisablesProxyAndRedirects","control":"delivery cannot escape through proxy or redirect"},
+    {"id":"S23-010","category":"replay","source":"edge-agent/ble/session_test.go","test":"TestTicketExpirySignatureAndReplay","control":"BLE ticket expiry, signature and replay protection"},
+    {"id":"S23-011","category":"revoke","source":"edge-agent/control/webhook_test.go","test":"TestRevocationWebhookIsAuthenticatedAndDurableAcrossRestart","control":"signed revocation survives restart"},
+    {"id":"S23-012","category":"revoke","source":"edge-agent/control/webhook_test.go","test":"TestRevocationWebhookRejectsStaleSignature","control":"stale revocation cannot alter authority"},
+    {"id":"S23-013","category":"rate_limit","source":"fiscal-backend/internal/api/rate_limit_test.go","test":"TestRateLimitRejectsBurstAndRecoversAtWindowBoundary","control":"tenant burst limit and deterministic recovery"},
+    {"id":"S23-014","category":"rate_limit","source":"beeminipos-backend/internal/api/rate_limit_test.go","test":"TestRateLimitRejectsBurstAndLeavesPrivateWebhookUnthrottled","control":"public API throttled without blocking authenticated webhook ingestion"},
+    {"id":"S23-015","category":"idempotency","source":"beeminipos-backend/internal/api/handler_test.go","test":"TestPublicIdempotencySurvivesRestartAndRejectsMismatch","control":"request hash replay survives restart"},
+    {"id":"S23-016","category":"production_guard","source":"edge-agent/cmd/edge-agent/main_test.go","test":"TestLoadConfigRejectsSimulatorAndLocalAPIInProd","control":"simulator and local debug API cannot run in PROD"},
+    {"id":"S23-017","category":"production_guard","source":"fiscal-backend/internal/config/config_test.go","test":"TestProdGuards","control":"weak/default production configuration fails startup"},
+    {"id":"S23-018","category":"secret_rotation","source":"fiscal-backend/internal/domain/webhook_endpoint_test.go","test":"TestWebhookLifecycleIsTenantScopedRedactedAndPersistent","control":"webhook secret lifecycle is tenant scoped and redacted"},
+    {"id":"S23-019","category":"device_authority","source":"fiscal-backend/internal/domain/connectivity_test.go","test":"TestFiscalExecutionNeverReachesDriverWithoutActiveTenantBinding","control":"sale, payment, shift and report execution fail before the driver for foreign, unbound or blocked fiscal-device authority; future and expired operator authority is rejected"}
+  ]
+}
