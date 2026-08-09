@@ -2,24 +2,10 @@ import { useEffect, useMemo, useState } from "react";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 import { nextOidcTokenAction } from "./oidcTokenLifetime";
+import { accessTokenRoles } from "./oidcRoles";
 
 WebBrowser.maybeCompleteAuthSession();
 const OIDC_SCOPES = ["openid", "profile", "offline_access", "fiscal.base"];
-const KNOWN_ROLES = new Set(["CASHIER", "SUPERVISOR", "ADMIN", "AUDITOR", "SERVICE"]);
-
-export function accessTokenRoles(accessToken: string): string[] {
-  const encoded = accessToken.split(".")[1];
-  if (!encoded) return [];
-  try {
-    const normalized = encoded.replace(/-/g, "+").replace(/_/g, "/").padEnd(Math.ceil(encoded.length / 4) * 4, "=");
-    const claims = JSON.parse(globalThis.atob(normalized)) as { roles?: unknown };
-    if (!Array.isArray(claims.roles)) return [];
-    return [...new Set(claims.roles.filter((role): role is string => typeof role === "string").map((role) => role.toUpperCase()).filter((role) => KNOWN_ROLES.has(role)))];
-  } catch {
-    return [];
-  }
-}
-
 export function useAdminOidc() {
   const issuer = (process.env.EXPO_PUBLIC_FISCAL_OIDC_ISSUER || "").replace(/\/$/, "");
   const clientId = process.env.EXPO_PUBLIC_FISCAL_OIDC_CLIENT_ID || "";

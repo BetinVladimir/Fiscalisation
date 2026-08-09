@@ -11,6 +11,8 @@ import (
 )
 
 var ErrNotFound = errors.New("not found")
+var ErrSaleExternalIDConflict = errors.New("sale external_id already exists")
+var ErrSaleUNPConflict = errors.New("sale unp already exists")
 
 type Store interface {
 	Load() ([]byte, error)
@@ -33,9 +35,12 @@ type SystemEntityReader interface {
 	LoadSystemEntities(collection string) ([][]byte, error)
 }
 type ReplayRecord struct {
-	Hash   string `json:"hash"`
-	Status int    `json:"status"`
-	Body   []byte `json:"body"`
+	Hash        string              `json:"hash"`
+	Status      int                 `json:"status"`
+	Body        []byte              `json:"body"`
+	ContentType string              `json:"content_type,omitempty"`
+	Headers     map[string][]string `json:"headers,omitempty"`
+	Pending     bool                `json:"pending,omitempty"`
 }
 type OutboxItem struct {
 	ID          string                    `json:"id"`
@@ -81,7 +86,15 @@ type Repository interface {
 	Operation(string) (Operation, error)
 	Operations() []Operation
 	PutOperation(Operation) error
+	CommitOperationEvent(Operation, OutboxItem) error
+	ReserveSalePayment(string, string, int64, Operation, FiscalDeviceSnapshot) (Sale, error)
+	ReserveSaleReversal(string, string, int64, Operation) (Sale, error)
 	CommitSaleOperation(Sale, Operation) error
+	CommitSaleOperationEvent(Sale, Operation, OutboxItem) error
+	CommitSaleOperationArtifact(Sale, Operation, string, string, []byte) error
+	CommitSaleOperationArtifactEvent(Sale, Operation, string, string, []byte, OutboxItem) error
+	CommitResourceArtifactsOperation(ResourceRecord, Operation, map[string][]byte) error
+	CommitResourceArtifactsOperationEvents(ResourceRecord, Operation, map[string][]byte, []OutboxItem) error
 	NextUNP(string, string, string) (string, error)
 	OpenShift(string, string, string) (Shift, error)
 	CloseShift(string) (Shift, error)
@@ -89,7 +102,9 @@ type Repository interface {
 	ShiftForTenant(string, string) (Shift, error)
 	Shifts(string) []Shift
 	Replay(string) (ReplayRecord, bool)
+	ClaimReplay(string, string) (ReplayRecord, bool, error)
 	PutReplay(string, ReplayRecord) error
+	PutAmbiguousReplay(string, ReplayRecord) error
 	AddOutbox(OutboxItem) error
 	PendingOutbox(time.Time) []OutboxItem
 	UpdateOutbox(OutboxItem) error
@@ -210,7 +225,66 @@ func NewPersistentRepository(store Store) (*MemoryRepository, error) {
 			r.edgePending = map[string]EdgePendingCommand{}
 		}
 	}
+	if e = r.recoverInterruptedOperations(); e != nil {
+		return nil, e
+	}
+	if e = r.recoverOrphanReplays(); e != nil {
+		return nil, e
+	}
 	return r, nil
+}
+
+func (r *MemoryRepository) recoverOrphanReplays() error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	changed := false
+	for key, replay := range r.replays {
+		if !replay.Pending || replay.Status != 102 || len(replay.Body) != 0 {
+			continue
+		}
+		replay.Status = 503
+		replay.ContentType = "application/problem+json"
+		replay.Body = []byte(`{"type":"urn:beefiscal:error:idempotency_outcome_unknown","title":"IDEMPOTENCY_OUTCOME_UNKNOWN","status":503,"code":"IDEMPOTENCY_OUTCOME_UNKNOWN","retryable":false}`)
+		r.replays[key] = replay
+		changed = true
+	}
+	if !changed {
+		return nil
+	}
+	return r.persistLocked()
+}
+
+func (r *MemoryRepository) recoverInterruptedOperations() error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	changed := false
+	now := time.Now().UTC()
+	for id, op := range r.operations {
+		if op.State != "EXECUTING" {
+			continue
+		}
+		op.State = "UNKNOWN"
+		op.ErrorCode = "INTERRUPTED_AFTER_DEVICE_DISPATCH"
+		op.AllowedActions = []string{"RECONCILE"}
+		op.Version++
+		op.UpdatedAt = now
+		r.operations[id] = op
+		if op.Type == "FISCAL_SALE" || op.Type == "REVERSAL" {
+			if sale, ok := r.sales[op.SaleID]; ok && ((op.Type == "FISCAL_SALE" && sale.State == "PAYMENT_PENDING") || (op.Type == "REVERSAL" && sale.State == "FISCALIZATION_PENDING")) {
+				before := asMap(sale)
+				sale.State = "UNKNOWN"
+				sale.Version++
+				sale.UpdatedAt = now
+				r.sales[sale.ID] = sale
+				r.appendAuditLocked(sale.TenantID, "system", "INTERRUPTED_FISCAL_OPERATION_RECOVERY", "sale", sale.ID, sale.UNP, before, asMap(sale))
+			}
+		}
+		changed = true
+	}
+	if !changed {
+		return nil
+	}
+	return r.persistLocked()
 }
 func (r *MemoryRepository) persistLocked() error {
 	if r.store == nil {
@@ -254,10 +328,14 @@ func (r *MemoryRepository) restoreLocked() {
 	} else {
 		b, err = r.store.Load()
 	}
-	if err != nil || len(b) == 0 {
+	if err != nil {
 		return
 	}
 	r.confirmedSnapshot = append(r.confirmedSnapshot[:0], b...)
+	if len(b) == 0 {
+		r.resetLocked()
+		return
+	}
 	var x repositorySnapshot
 	if json.Unmarshal(b, &x) != nil {
 		return
@@ -308,6 +386,23 @@ func (r *MemoryRepository) restoreLocked() {
 		r.edgePending = map[string]EdgePendingCommand{}
 	}
 }
+
+func (r *MemoryRepository) resetLocked() {
+	r.sales = map[string]Sale{}
+	r.operations = map[string]Operation{}
+	r.devices = map[string]Device{}
+	r.shifts = map[string]Shift{}
+	r.unp = map[string]int64{}
+	r.replays = map[string]ReplayRecord{}
+	r.outbox = map[string]OutboxItem{}
+	r.bleSessions = map[string]BLESessionRecord{}
+	r.syncAcks = map[string]SyncAck{}
+	r.connectivityProbes = map[string]ConnectivityProbe{}
+	r.resources = map[string]ResourceRecord{}
+	r.artifacts = map[string][]byte{}
+	r.audit = []AuditEvent{}
+	r.edgePending = map[string]EdgePendingCommand{}
+}
 func (r *MemoryRepository) Replay(k string) (ReplayRecord, bool) {
 	if reader, ok := r.store.(TenantEntityReader); ok {
 		parts := strings.SplitN(k, " ", 4)
@@ -328,9 +423,58 @@ func (r *MemoryRepository) Replay(k string) (ReplayRecord, bool) {
 	v, ok := r.replays[k]
 	return v, ok
 }
+func (r *MemoryRepository) ClaimReplay(k, hash string) (ReplayRecord, bool, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if versioned, ok := r.store.(VersionedStore); ok {
+		_, current, err := versioned.LoadVersioned()
+		if err != nil {
+			return ReplayRecord{}, false, err
+		}
+		if current != r.generation {
+			r.restoreLocked()
+			if r.generation != current {
+				return ReplayRecord{}, false, errors.New("idempotency snapshot refresh failed")
+			}
+		}
+	}
+	if old, ok := r.replays[k]; ok {
+		if old.Hash != hash {
+			return old, false, errors.New("idempotency mismatch")
+		}
+		return old, false, nil
+	}
+	pending := ReplayRecord{Hash: hash, Status: 102, Pending: true}
+	r.replays[k] = pending
+	if err := r.persistLocked(); err != nil {
+		if old, ok := r.replays[k]; ok {
+			if old.Hash != hash {
+				return old, false, errors.New("idempotency mismatch")
+			}
+			return old, false, nil
+		}
+		return ReplayRecord{}, false, err
+	}
+	return pending, true, nil
+}
 func (r *MemoryRepository) PutReplay(k string, v ReplayRecord) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if old, ok := r.replays[k]; ok && old.Hash != v.Hash {
+		return errors.New("idempotency mismatch")
+	}
+	v.Pending = false
+	r.replays[k] = v
+	return r.persistLocked()
+}
+func (r *MemoryRepository) PutAmbiguousReplay(k string, v ReplayRecord) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	old, ok := r.replays[k]
+	if !ok || old.Hash != v.Hash || !old.Pending {
+		return errors.New("idempotency claim unavailable")
+	}
+	v.Pending = true
 	r.replays[k] = v
 	return r.persistLocked()
 }
@@ -548,10 +692,28 @@ func resourceKey(kind, id string) string { return kind + ":" + id }
 func (r *MemoryRepository) PutResource(v ResourceRecord) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	uniqueField := map[string]string{"location": "code", "register": "code", "operator": "code", "device": "serial"}[v.Kind]
+	for _, existing := range r.resources {
+		if existing.ID == v.ID || existing.TenantID != v.TenantID || existing.Kind != v.Kind {
+			continue
+		}
+		if v.Kind == "organization" || (uniqueField != "" && strings.EqualFold(stringField(existing.Data, uniqueField), stringField(v.Data, uniqueField))) {
+			if v.Kind == "organization" {
+				return errors.New("duplicate organization")
+			}
+			return errors.New("duplicate " + uniqueField)
+		}
+	}
 	var before map[string]any
 	if old, ok := r.resources[resourceKey(v.Kind, v.ID)]; ok {
-		before = old.Data
+		if v.Version != old.Version+1 {
+			return errors.New("resource version conflict")
+		}
+		before = cloneMap(old.Data)
+	} else if v.Version != 1 {
+		return errors.New("new resource version must be 1")
 	}
+	v.Data = cloneMap(v.Data)
 	r.resources[resourceKey(v.Kind, v.ID)] = v
 	r.appendAuditLocked(v.TenantID, "system", "UPSERT", v.Kind, v.ID, "", before, v.Data)
 	return r.persistLocked()
@@ -579,6 +741,7 @@ func (r *MemoryRepository) Resource(kind, id string) (ResourceRecord, error) {
 	if !ok {
 		return v, ErrNotFound
 	}
+	v.Data = cloneMap(v.Data)
 	return v, nil
 }
 func (r *MemoryRepository) Resources(kind, tenant string) []ResourceRecord {
@@ -602,6 +765,7 @@ func (r *MemoryRepository) Resources(kind, tenant string) []ResourceRecord {
 	v := make([]ResourceRecord, 0)
 	for _, x := range r.resources {
 		if x.Kind == kind && (tenant == "" || x.TenantID == tenant) {
+			x.Data = cloneMap(x.Data)
 			v = append(v, x)
 		}
 	}
@@ -786,6 +950,17 @@ func (r *MemoryRepository) OperationsForTenant(tenant string) []Operation {
 func (r *MemoryRepository) PutSale(v Sale) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	for id, existing := range r.sales {
+		if id == v.ID || existing.TenantID != v.TenantID {
+			continue
+		}
+		if existing.ExternalID == v.ExternalID {
+			return ErrSaleExternalIDConflict
+		}
+		if v.UNP != "" && existing.UNP == v.UNP {
+			return ErrSaleUNPConflict
+		}
+	}
 	var before map[string]any
 	if old, ok := r.sales[v.ID]; ok {
 		before = asMap(old)
@@ -813,8 +988,14 @@ func (r *MemoryRepository) AddSaleLineExpected(id, tenant string, expected int64
 		if v.TenantID != "" {
 			key = v.TenantID + "\n" + v.RegisterID
 		}
-		r.unp[key]++
-		v.UNP = v.RegisterID + "-" + v.OperatorID + "-" + pad7(r.unp[key])
+		for {
+			r.unp[key]++
+			candidate := v.RegisterID + "-" + v.OperatorID + "-" + pad7(r.unp[key])
+			if !r.saleUNPExistsLocked(v.TenantID, candidate, v.ID) {
+				v.UNP = candidate
+				break
+			}
+		}
 		v.State = "OPEN"
 	}
 	v.Lines = append(v.Lines, line)
@@ -826,6 +1007,15 @@ func (r *MemoryRepository) AddSaleLineExpected(id, tenant string, expected int64
 		return Sale{}, err
 	}
 	return v, nil
+}
+
+func (r *MemoryRepository) saleUNPExistsLocked(tenant, unp, exceptID string) bool {
+	for id, sale := range r.sales {
+		if id != exceptID && sale.TenantID == tenant && sale.UNP == unp {
+			return true
+		}
+	}
+	return false
 }
 func (r *MemoryRepository) Operation(id string) (Operation, error) {
 	r.mu.RLock()
@@ -874,6 +1064,73 @@ func (r *MemoryRepository) PutOperation(v Operation) error {
 	r.appendAuditLocked(v.TenantID, "system", "UPSERT", "operation", v.ID, "", before, asMap(v))
 	return r.persistLocked()
 }
+
+func (r *MemoryRepository) CommitOperationEvent(operation Operation, event OutboxItem) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if operation.ID == "" || event.ID == "" || event.Event.EventID != event.ID || event.Event.TenantID != operation.TenantID {
+		return errors.New("invalid operation event commit")
+	}
+	var before map[string]any
+	if old, ok := r.operations[operation.ID]; ok {
+		before = asMap(old)
+	}
+	r.operations[operation.ID] = operation
+	if _, exists := r.outbox[event.ID]; !exists {
+		r.outbox[event.ID] = event
+	}
+	r.appendAuditLocked(operation.TenantID, "system", "FISCAL_OPERATION_RESULT", "operation", operation.ID, "", before, asMap(operation))
+	return r.persistLocked()
+}
+func (r *MemoryRepository) ReserveSalePayment(id, tenant string, expected int64, op Operation, device FiscalDeviceSnapshot) (Sale, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	sale, ok := r.sales[id]
+	if !ok || sale.TenantID != tenant {
+		return Sale{}, ErrNotFound
+	}
+	if sale.Version != expected || sale.State != "OPEN" {
+		return sale, errors.New("sale payment state conflict")
+	}
+	before := asMap(sale)
+	if sale.TenantID != "" && device.DeviceID == "" {
+		return sale, errors.New("fiscal device snapshot required")
+	}
+	sale.FiscalDevice = device
+	sale.State = "PAYMENT_PENDING"
+	sale.Version++
+	sale.UpdatedAt = op.CreatedAt
+	r.sales[id] = sale
+	r.operations[op.ID] = op
+	r.appendAuditLocked(sale.TenantID, sale.OperatorID, "PAYMENT_RESERVED", "sale", sale.ID, sale.UNP, before, asMap(sale))
+	if err := r.persistLocked(); err != nil {
+		return Sale{}, err
+	}
+	return sale, nil
+}
+
+func (r *MemoryRepository) ReserveSaleReversal(id, tenant string, expected int64, op Operation) (Sale, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	sale, ok := r.sales[id]
+	if !ok || sale.TenantID != tenant {
+		return Sale{}, ErrNotFound
+	}
+	if sale.Version != expected || sale.State != "COMPLETED" {
+		return sale, errors.New("sale reversal state conflict")
+	}
+	before := asMap(sale)
+	sale.State = "FISCALIZATION_PENDING"
+	sale.Version++
+	sale.UpdatedAt = op.CreatedAt
+	r.sales[id] = sale
+	r.operations[op.ID] = op
+	r.appendAuditLocked(sale.TenantID, sale.OperatorID, "REVERSAL_RESERVED", "sale", sale.ID, sale.UNP, before, asMap(sale))
+	if err := r.persistLocked(); err != nil {
+		return Sale{}, err
+	}
+	return sale, nil
+}
 func (r *MemoryRepository) CommitSaleOperation(s Sale, o Operation) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -884,6 +1141,142 @@ func (r *MemoryRepository) CommitSaleOperation(s Sale, o Operation) error {
 	r.sales[s.ID] = s
 	r.operations[o.ID] = o
 	r.appendAuditLocked(s.TenantID, s.OperatorID, o.Type, "sale", s.ID, s.UNP, before, asMap(s))
+	return r.persistLocked()
+}
+
+func (r *MemoryRepository) CommitSaleOperationEvent(s Sale, o Operation, event OutboxItem) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if event.ID == "" || event.Event.EventID != event.ID || event.Event.ResourceID != s.ID || event.Event.TenantID != s.TenantID {
+		return errors.New("invalid fiscal outbox event")
+	}
+	var before map[string]any
+	if old, ok := r.sales[s.ID]; ok {
+		before = asMap(old)
+	}
+	r.sales[s.ID] = s
+	r.operations[o.ID] = o
+	if _, exists := r.outbox[event.ID]; !exists {
+		r.outbox[event.ID] = event
+	}
+	r.appendAuditLocked(s.TenantID, s.OperatorID, o.Type, "sale", s.ID, s.UNP, before, asMap(s))
+	return r.persistLocked()
+}
+
+func (r *MemoryRepository) CommitSaleOperationArtifact(s Sale, o Operation, artifactID, tenant string, body []byte) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if artifactID == "" || artifactID != s.ReceiptArtifactID || tenant != s.TenantID || len(body) == 0 {
+		return errors.New("invalid sale artifact commit")
+	}
+	key := artifactID
+	if tenant != "" {
+		key = tenant + "\n" + artifactID
+	}
+	if _, exists := r.artifacts[key]; exists {
+		return errors.New("artifact immutable")
+	}
+	if key != artifactID {
+		if _, legacy := r.artifacts[artifactID]; legacy {
+			return errors.New("artifact immutable")
+		}
+	}
+	var before map[string]any
+	if old, ok := r.sales[s.ID]; ok {
+		before = asMap(old)
+	}
+	r.sales[s.ID] = s
+	r.operations[o.ID] = o
+	r.artifacts[key] = append([]byte(nil), body...)
+	r.appendAuditLocked(s.TenantID, s.OperatorID, o.Type, "sale", s.ID, s.UNP, before, asMap(s))
+	return r.persistLocked()
+}
+
+func (r *MemoryRepository) CommitSaleOperationArtifactEvent(s Sale, o Operation, artifactID, tenant string, body []byte, event OutboxItem) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if artifactID == "" || artifactID != s.ReceiptArtifactID || tenant != s.TenantID || len(body) == 0 || event.ID == "" || event.Event.EventID != event.ID || event.Event.ResourceID != s.ID || event.Event.TenantID != s.TenantID {
+		return errors.New("invalid sale artifact event commit")
+	}
+	key := artifactID
+	if tenant != "" {
+		key = tenant + "\n" + artifactID
+	}
+	if _, exists := r.artifacts[key]; exists {
+		return errors.New("artifact immutable")
+	}
+	if key != artifactID {
+		if _, legacy := r.artifacts[artifactID]; legacy {
+			return errors.New("artifact immutable")
+		}
+	}
+	var before map[string]any
+	if old, ok := r.sales[s.ID]; ok {
+		before = asMap(old)
+	}
+	r.sales[s.ID] = s
+	r.operations[o.ID] = o
+	r.artifacts[key] = append([]byte(nil), body...)
+	if _, exists := r.outbox[event.ID]; !exists {
+		r.outbox[event.ID] = event
+	}
+	r.appendAuditLocked(s.TenantID, s.OperatorID, o.Type, "sale", s.ID, s.UNP, before, asMap(s))
+	return r.persistLocked()
+}
+
+func (r *MemoryRepository) CommitResourceArtifactsOperation(resource ResourceRecord, operation Operation, artifacts map[string][]byte) error {
+	return r.commitResourceArtifactsOperationEvents(resource, operation, artifacts, nil)
+}
+
+func (r *MemoryRepository) CommitResourceArtifactsOperationEvents(resource ResourceRecord, operation Operation, artifacts map[string][]byte, events []OutboxItem) error {
+	return r.commitResourceArtifactsOperationEvents(resource, operation, artifacts, events)
+}
+
+func (r *MemoryRepository) commitResourceArtifactsOperationEvents(resource ResourceRecord, operation Operation, artifacts map[string][]byte, events []OutboxItem) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if resource.ID == "" || resource.Kind == "" || operation.ID == "" || operation.TenantID != resource.TenantID || operation.State != "FISCALIZED" || len(artifacts) == 0 {
+		return errors.New("invalid resource artifact commit")
+	}
+	key := resourceKey(resource.Kind, resource.ID)
+	if _, exists := r.resources[key]; exists {
+		return errors.New("resource version conflict")
+	}
+	for id, body := range artifacts {
+		if id == "" || len(body) == 0 {
+			return errors.New("invalid artifact")
+		}
+		key := id
+		if resource.TenantID != "" {
+			key = resource.TenantID + "\n" + id
+		}
+		if _, exists := r.artifacts[key]; exists {
+			return errors.New("artifact immutable")
+		}
+		if _, legacy := r.artifacts[id]; legacy {
+			return errors.New("artifact immutable")
+		}
+	}
+	for _, event := range events {
+		if event.ID == "" || event.Event.EventID != event.ID || event.Event.TenantID != operation.TenantID {
+			return errors.New("invalid resource outbox event")
+		}
+	}
+	r.resources[key] = resource
+	r.operations[operation.ID] = operation
+	for id, body := range artifacts {
+		key := id
+		if resource.TenantID != "" {
+			key = resource.TenantID + "\n" + id
+		}
+		r.artifacts[key] = append([]byte(nil), body...)
+	}
+	for _, event := range events {
+		if _, exists := r.outbox[event.ID]; !exists {
+			r.outbox[event.ID] = event
+		}
+	}
+	r.appendAuditLocked(resource.TenantID, "system", "PUBLISH", resource.Kind, resource.ID, "", nil, asMap(resource))
 	return r.persistLocked()
 }
 func asMap(v any) map[string]any {
@@ -914,7 +1307,7 @@ func (r *MemoryRepository) OpenShift(register, operator, tenant string) (Shift, 
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	for _, v := range r.shifts {
-		if v.RegisterID == register && v.State == "OPEN" {
+		if v.TenantID == tenant && v.RegisterID == register && (v.State == "OPEN" || v.State == "CLOSING" || v.State == "RECONCILIATION_REQUIRED") {
 			return Shift{}, errors.New("shift already open")
 		}
 	}
@@ -991,12 +1384,27 @@ func (r *MemoryRepository) CloseShift(id string) (Shift, error) {
 		return v, errors.New("shift not open")
 	}
 	for _, op := range r.operations {
-		if op.State == "UNKNOWN" || op.State == "FISCAL_RESULT_UNKNOWN" {
-			v.State = "RECONCILIATION_REQUIRED"
-			r.shifts[id] = v
-			_ = r.persistLocked()
-			return v, errors.New("unknown operation blocks close")
+		if op.State != "UNKNOWN" && op.State != "FISCAL_RESULT_UNKNOWN" && op.State != "RECONCILING" && op.State != "EXECUTING" {
+			continue
 		}
+		if op.TenantID != v.TenantID {
+			continue
+		}
+		registerID := op.RegisterID
+		if registerID == "" && op.SaleID != "" {
+			if sale, exists := r.sales[op.SaleID]; exists {
+				registerID = sale.RegisterID
+			}
+		}
+		// Legacy unresolved operations without a register remain fail-closed
+		// within their tenant, but can never block another tenant.
+		if registerID != "" && registerID != v.RegisterID {
+			continue
+		}
+		v.State = "RECONCILIATION_REQUIRED"
+		r.shifts[id] = v
+		_ = r.persistLocked()
+		return v, errors.New("unresolved register operation blocks close")
 	}
 	now := time.Now().UTC()
 	v.State = "CLOSED"

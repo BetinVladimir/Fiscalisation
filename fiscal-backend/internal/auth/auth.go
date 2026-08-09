@@ -14,6 +14,7 @@ import (
 
 type Claims struct {
 	Subject   string   `json:"sub"`
+	Issuer    string   `json:"iss"`
 	TenantID  string   `json:"tenant_id"`
 	Roles     []string `json:"roles"`
 	Scope     string   `json:"scope"`

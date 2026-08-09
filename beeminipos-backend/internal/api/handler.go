@@ -4,11 +4,14 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
+	"errors"
 	"fiscalisation/beeminipos-backend/internal/auth"
 	"fiscalisation/beeminipos-backend/internal/config"
 	"fiscalisation/beeminipos-backend/internal/domain"
+	"fmt"
 	"io"
 	"net/http"
 	"strconv"
@@ -115,25 +118,43 @@ func idempotency(s *domain.Service, next http.Handler) http.Handler {
 			next.ServeHTTP(w, r)
 			return
 		}
+		if n := len(r.Header.Get("Idempotency-Key")); n < 16 || n > 255 {
+			problem(w, 400, "idempotency key must be 16..255 characters")
+			return
+		}
 		body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 1<<20))
 		if err != nil {
 			problem(w, 400, "invalid body")
 			return
 		}
 		r.Body = io.NopCloser(bytes.NewReader(body))
-		sum := sha256.Sum256(body)
-		hash := hex.EncodeToString(sum[:])
+		hash := idempotencyFingerprint(r, body)
 		tenant := tenantID(r)
 		replayKey := tenant + "\n" + r.Method + "\n" + r.URL.Path + "\n" + r.Header.Get("Idempotency-Key")
-		if old, ok := s.APIReplay(replayKey); ok {
-			if old.Hash != hash {
+		old, owner, claimErr := s.ClaimAPIReplay(replayKey, hash)
+		if claimErr != nil {
+			if errors.Is(claimErr, domain.ErrAPIReplayMismatch) {
 				problem(w, 409, "idempotency payload mismatch")
+			} else {
+				problem(w, 503, "idempotency reservation failed")
+			}
+			return
+		}
+		if !owner {
+			if old.Pending {
+				applyReplayHeaders(w.Header(), old.Headers, old.ContentType)
+				w.Header().Set("Retry-After", "1")
+				if old.Status >= 500 && len(old.Body) > 0 {
+					w.Header().Set("Idempotency-Replayed", "true")
+					w.WriteHeader(old.Status)
+					_, _ = w.Write(old.Body)
+				} else {
+					problem(w, 409, "idempotency request in progress")
+				}
 				return
 			}
 			w.Header().Set("Idempotency-Replayed", "true")
-			if old.ContentType != "" {
-				w.Header().Set("Content-Type", old.ContentType)
-			}
+			applyReplayHeaders(w.Header(), old.Headers, old.ContentType)
 			w.WriteHeader(old.Status)
 			_, _ = w.Write(old.Body)
 			return
@@ -144,7 +165,15 @@ func idempotency(s *domain.Service, next http.Handler) http.Handler {
 			cw.status = 200
 		}
 		if cw.status < 500 {
-			if err = s.PutAPIReplay(replayKey, domain.APIReplay{Hash: hash, Status: cw.status, Body: append([]byte(nil), cw.body.Bytes()...), ContentType: cw.header.Get("Content-Type")}); err != nil {
+			if err = s.PutAPIReplay(replayKey, domain.APIReplay{Hash: hash, Status: cw.status, Body: append([]byte(nil), cw.body.Bytes()...), ContentType: cw.header.Get("Content-Type"), Headers: replayHeaders(cw.header)}); err != nil {
+				problem(w, 500, "idempotency persistence failed")
+				return
+			}
+		} else {
+			// Keep the durable PENDING claim after a server-side ambiguity. A
+			// retry must reconcile instead of re-executing a possible side effect.
+			cw.header.Set("Retry-After", "1")
+			if err = s.PutAPIAmbiguousReplay(replayKey, domain.APIReplay{Hash: hash, Status: cw.status, Body: append([]byte(nil), cw.body.Bytes()...), ContentType: cw.header.Get("Content-Type"), Headers: replayHeaders(cw.header), Pending: true}); err != nil {
 				problem(w, 500, "idempotency persistence failed")
 				return
 			}
@@ -157,6 +186,49 @@ func idempotency(s *domain.Service, next http.Handler) http.Handler {
 		w.WriteHeader(cw.status)
 		_, _ = w.Write(cw.body.Bytes())
 	})
+}
+
+var replayableHeader = map[string]bool{"Content-Type": true, "Etag": true, "Location": true, "Retry-After": true, "Cache-Control": true}
+
+func replayHeaders(source http.Header) map[string][]string {
+	result := map[string][]string{}
+	for key, values := range source {
+		canonical := http.CanonicalHeaderKey(key)
+		if replayableHeader[canonical] {
+			result[canonical] = append([]string(nil), values...)
+		}
+	}
+	return result
+}
+
+func applyReplayHeaders(target http.Header, headers map[string][]string, legacyContentType string) {
+	for key, values := range headers {
+		canonical := http.CanonicalHeaderKey(key)
+		if !replayableHeader[canonical] {
+			continue
+		}
+		for _, value := range values {
+			target.Add(canonical, value)
+		}
+	}
+	if target.Get("Content-Type") == "" && legacyContentType != "" {
+		target.Set("Content-Type", legacyContentType)
+	}
+}
+
+func idempotencyFingerprint(r *http.Request, body []byte) string {
+	h := sha256.New()
+	issuer, subject := "", ""
+	if claims, ok := auth.ClaimsFrom(r.Context()); ok {
+		issuer, subject = claims.Issuer, claims.Subject
+	}
+	for _, value := range []string{r.URL.Query().Encode(), r.Header.Get("If-Match"), r.Header.Get("X-App-Instance-Id"), issuer, subject} {
+		_, _ = fmt.Fprintf(h, "%d:", len(value))
+		_, _ = h.Write([]byte(value))
+	}
+	_, _ = fmt.Fprintf(h, "%d:", len(body))
+	_, _ = h.Write(body)
+	return hex.EncodeToString(h.Sum(nil))
 }
 func (h *handler) webhook(w http.ResponseWriter, r *http.Request) {
 	if r.Method != "POST" {
@@ -237,7 +309,12 @@ func (h *handler) health(w http.ResponseWriter, _ *http.Request) {
 }
 func (h *handler) products(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		write(w, 200, map[string]any{"items": h.s.ProductsFor(tenantID(r)), "page": map[string]any{"has_more": false}})
+		page, err := paginate(r, h.s.ProductsFor(tenantID(r)))
+		if err != nil {
+			problem(w, http.StatusBadRequest, "INVALID_PAGINATION")
+			return
+		}
+		write(w, 200, page)
 		return
 	}
 	if r.Method == "POST" {
@@ -297,7 +374,12 @@ func (h *handler) product(w http.ResponseWriter, r *http.Request) {
 }
 func (h *handler) employees(w http.ResponseWriter, r *http.Request) {
 	if r.Method == "GET" {
-		write(w, 200, map[string]any{"items": h.s.EmployeesFor(tenantID(r)), "page": map[string]any{"has_more": false}})
+		page, err := paginate(r, h.s.EmployeesFor(tenantID(r)))
+		if err != nil {
+			problem(w, http.StatusBadRequest, "INVALID_PAGINATION")
+			return
+		}
+		write(w, 200, page)
 		return
 	}
 	if r.Method == "POST" {
@@ -499,7 +581,12 @@ func (h *handler) orders(w http.ResponseWriter, r *http.Request) {
 			}
 			items = h.s.OrdersForEmployee(claims.TenantID, employee.ID)
 		}
-		write(w, 200, map[string]any{"items": items, "page": map[string]any{"has_more": false}})
+		page, err := paginate(r, items)
+		if err != nil {
+			problem(w, http.StatusBadRequest, "INVALID_PAGINATION")
+			return
+		}
+		write(w, 200, page)
 		return
 	}
 	if r.Method != "POST" {
@@ -520,6 +607,37 @@ func (h *handler) orders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	write(w, 201, x)
+}
+
+func paginate[T any](r *http.Request, all []T) (map[string]any, error) {
+	limit := 50
+	if raw := strings.TrimSpace(r.URL.Query().Get("limit")); raw != "" {
+		parsed, err := strconv.Atoi(raw)
+		if err != nil || parsed < 1 || parsed > 200 {
+			return nil, errors.New("invalid limit")
+		}
+		limit = parsed
+	}
+	start := 0
+	if cursor := strings.TrimSpace(r.URL.Query().Get("cursor")); cursor != "" {
+		decoded, err := base64.RawURLEncoding.DecodeString(cursor)
+		if err != nil {
+			return nil, errors.New("invalid cursor")
+		}
+		if n, err := fmt.Sscanf(string(decoded), "offset:%d", &start); err != nil || n != 1 || start < 0 || start > len(all) {
+			return nil, errors.New("invalid cursor")
+		}
+	}
+	end := start + limit
+	if end > len(all) {
+		end = len(all)
+	}
+	hasMore := end < len(all)
+	var next any
+	if hasMore {
+		next = base64.RawURLEncoding.EncodeToString([]byte(fmt.Sprintf("offset:%d", end)))
+	}
+	return map[string]any{"items": all[start:end], "page": map[string]any{"next_cursor": next, "has_more": hasMore}}, nil
 }
 func (h *handler) order(w http.ResponseWriter, r *http.Request) {
 	i := strings.Index(r.URL.Path, "/orders/")
@@ -552,6 +670,12 @@ func (h *handler) order(w http.ResponseWriter, r *http.Request) {
 		var v domain.Line
 		if !decode(w, r, &v) {
 			return
+		}
+		if v.Discount != nil && v.Discount.Amount != "0.00" {
+			if claims, authenticated := auth.ClaimsFrom(r.Context()); authenticated && !claimHasRole(claims, "SUPERVISOR") && !claimHasRole(claims, "ADMIN") {
+				problem(w, http.StatusForbidden, "manager role required for discount")
+				return
+			}
 		}
 		expected := int64(0)
 		if strings.HasPrefix(r.URL.Path, "/public/v1/") {
@@ -656,7 +780,13 @@ func (h *handler) salesReport(w http.ResponseWriter, r *http.Request) {
 		problem(w, 405, "method")
 		return
 	}
-	write(w, 200, h.s.SalesReportFor(tenantID(r)))
+	from, fromErr := time.Parse(time.RFC3339, strings.TrimSpace(r.URL.Query().Get("from")))
+	to, toErr := time.Parse(time.RFC3339, strings.TrimSpace(r.URL.Query().Get("to")))
+	if fromErr != nil || toErr != nil || !from.Before(to) {
+		problem(w, http.StatusBadRequest, "INVALID_REPORT_PERIOD")
+		return
+	}
+	write(w, 200, h.s.SalesReportForPeriod(tenantID(r), from, to))
 }
 func lastID(path, resource string) string {
 	i := strings.Index(path, "/"+resource+"/")
@@ -675,7 +805,39 @@ func decode(w http.ResponseWriter, r *http.Request, v any) bool {
 func write(w http.ResponseWriter, s int, v any) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(s)
-	_ = json.NewEncoder(w).Encode(v)
+	_ = json.NewEncoder(w).Encode(publicResponse(v))
+}
+
+func publicResponse(v any) any {
+	switch value := v.(type) {
+	case domain.Order:
+		return publicOrder(value)
+	case map[string]any:
+		items, ok := value["items"].([]domain.Order)
+		if !ok {
+			return value
+		}
+		copyValue := make(map[string]any, len(value))
+		for key, item := range value {
+			copyValue[key] = item
+		}
+		publicItems := make([]map[string]any, 0, len(items))
+		for _, order := range items {
+			publicItems = append(publicItems, publicOrder(order))
+		}
+		copyValue["items"] = publicItems
+		return copyValue
+	default:
+		return v
+	}
+}
+
+func publicOrder(order domain.Order) map[string]any {
+	raw, _ := json.Marshal(order)
+	result := map[string]any{}
+	_ = json.Unmarshal(raw, &result)
+	delete(result, "payments")
+	return result
 }
 func problem(w http.ResponseWriter, s int, d string) {
 	code := d

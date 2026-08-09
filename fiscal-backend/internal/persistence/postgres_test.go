@@ -300,7 +300,7 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from fiscal_runtime_operations;delete from fiscal_runtime_sales;delete from fiscal_runtime_shifts`); err != nil {
 		t.Fatal(err)
 	}
-	base := `{"sales":{"sale-typed":{"sale_id":"sale-typed","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":%d,"lines":[],"payments":[],"created_at":"2026-08-07T10:00:00Z","updated_at":"%s"}},"operations":{},"devices":{},"shifts":{"shift-typed":{"id":"shift-typed","tenant_id":"tenant-a","register_id":"register-a","operator_id":"A001","state":"OPEN","version":1,"opened_at":"2026-08-07T09:00:00Z"}},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{"device:device-typed":{"kind":"device","tenant_id":"tenant-a","id":"device-typed","version":1,"data":{"vendor":"Datecs","serial":"SN-TYPED"},"created_at":"2026-08-07T08:00:00Z","updated_at":"2026-08-07T08:00:00Z"}},"artifacts":{},"audit":[],"edge_pending":{}}`
+	base := `{"sales":{"sale-typed":{"sale_id":"sale-typed","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":%d,"lines":[],"payments":[],"fiscal_device":{"device_id":"device-typed","serial":"SN-TYPED","fiscal_device_number":"FD-TYPED","fiscal_memory_number":"FM-TYPED","vendor":"Datecs","model":"DP-150 MX","firmware":"2026-EUR"},"created_at":"2026-08-07T10:00:00Z","updated_at":"%s"}},"operations":{},"devices":{},"shifts":{"shift-typed":{"id":"shift-typed","tenant_id":"tenant-a","register_id":"register-a","operator_id":"A001","state":"OPEN","version":1,"opened_at":"2026-08-07T09:00:00Z"}},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{"device:device-typed":{"kind":"device","tenant_id":"tenant-a","id":"device-typed","version":1,"data":{"vendor":"Datecs","serial":"SN-TYPED"},"created_at":"2026-08-07T08:00:00Z","updated_at":"2026-08-07T08:00:00Z"}},"artifacts":{},"audit":[],"edge_pending":{}}`
 	if err = p.Save([]byte(fmt.Sprintf(base, 1, "2026-08-07T10:00:00Z"))); err != nil {
 		t.Fatal(err)
 	}
@@ -309,9 +309,16 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 	if err = p.db.QueryRow(`select tenant_id,state,version from fiscal_runtime_sales where id='sale-typed'`).Scan(&tenant, &state, &version); err != nil || tenant != "tenant-a" || state != "DRAFT" || version != 1 {
 		t.Fatal(tenant, state, version, err)
 	}
+	var deviceID, fiscalNumber, memoryNumber string
+	if err = p.db.QueryRow(`select fiscal_device_id,fiscal_device_number,fiscal_memory_number from fiscal_runtime_sales where id='sale-typed'`).Scan(&deviceID, &fiscalNumber, &memoryNumber); err != nil || deviceID != "device-typed" || fiscalNumber != "FD-TYPED" || memoryNumber != "FM-TYPED" {
+		t.Fatal("typed fiscal device snapshot missing", deviceID, fiscalNumber, memoryNumber, err)
+	}
 	raw, err := p.LoadTenantEntity("sales", "tenant-a", "sale-typed")
 	if err != nil || !json.Valid(raw) {
 		t.Fatal("tenant typed read failed", string(raw), err)
+	}
+	if !bytes.Contains(raw, []byte(`"fiscal_memory_number"`)) || !bytes.Contains(raw, []byte(`"FM-TYPED"`)) {
+		t.Fatal("typed sale reconstruction lost fiscal memory snapshot", string(raw))
 	}
 	if _, err = p.LoadTenantEntity("sales", "tenant-b", "sale-typed"); err == nil {
 		t.Fatal("RLS typed read exposed foreign sale")
@@ -383,7 +390,7 @@ func TestPostgresTypedTechnicalAggregatesAreTenantBound(t *testing.T) {
 	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from fiscal_runtime_outbox;delete from fiscal_runtime_ble_sessions;delete from fiscal_runtime_connectivity_probes;delete from fiscal_runtime_edge_pending;delete from fiscal_runtime_audit;delete from fiscal_runtime_replays;delete from fiscal_runtime_unp_sequences`); err != nil {
 		t.Fatal(err)
 	}
-	state := `{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{"tenant-tech\nregister-1":7},"replays":{"tenant-tech POST /public/v1/sales replay-key-00001":{"hash":"def","status":201,"body":"e30="}},"outbox":{"outbox-1":{"id":"outbox-1","event":{"event_id":"event-1","event_type":"sale.updated","api_version":"2026-08-07","tenant_id":"tenant-tech","resource_id":"sale-1","resource_version":1,"occurred_at":"2026-08-08T10:00:00Z","data":{}},"attempts":0,"next_attempt":"2026-08-08T10:01:00Z"}},"ble_sessions":{"ble-1":{"session_id":"ble-1","tenant_id":"tenant-tech","register_id":"register-1","operator_id":"A001","app_instance_id":"app-1","actor_subject":"subject-1","device_id":"edge-1","scopes":["fiscal.execute"],"fencing_token":1,"expires_at":"2026-08-08T18:00:00Z","revoked":false,"nonce":"nonce"}},"sync_acks":{},"connectivity_probes":{"probe-1":{"probe_id":"probe-1","tenant_id":"tenant-tech","register_id":"register-1","state":"SUCCEEDED","observed_at":"2026-08-08T10:00:00Z","hops":{},"recommended_transport":"REST"}},"resources":{},"artifacts":{},"audit":[{"event_id":"audit-1","tenant_id":"tenant-tech","actor_id":"A001","action":"UPSERT","object_type":"sale","object_id":"sale-1","occurred_at":"2026-08-08T10:00:00Z","before":{},"after":{},"event_hash":"abc"}],"edge_pending":{"operation-1":{"operation_id":"operation-1","tenant_id":"tenant-tech","register_id":"register-1","device_id":"edge-1","command_type":"FISCAL_SALE","payload":{},"operation_sequence":1,"unp_sequence":1,"accepted_at":"2026-08-08T10:00:00Z"}}}`
+	state := `{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{"tenant-tech\nregister-1":7},"replays":{"tenant-tech POST /public/v1/sales replay-key-00001":{"hash":"def","status":201,"body":"e30="}},"outbox":{"outbox-1":{"id":"outbox-1","event":{"event_id":"event-1","event_type":"sale.updated","api_version":"2026-08-07","tenant_id":"tenant-tech","resource_id":"sale-1","resource_version":1,"occurred_at":"2026-08-08T10:00:00Z","data":{}},"attempts":0,"next_attempt":"2026-08-08T10:01:00Z"}},"ble_sessions":{"ble-1":{"session_id":"ble-1","tenant_id":"tenant-tech","location_id":"location-1","register_id":"register-1","operator_id":"A001","app_instance_id":"app-1","actor_subject":"subject-1","device_id":"edge-1","fiscal_device_id":"fiscal-device-1","scopes":["fiscal.execute"],"fencing_token":1,"expires_at":"2026-08-08T18:00:00Z","revoked":false,"nonce":"nonce"}},"sync_acks":{},"connectivity_probes":{"probe-1":{"probe_id":"probe-1","tenant_id":"tenant-tech","register_id":"register-1","state":"SUCCEEDED","observed_at":"2026-08-08T10:00:00Z","hops":{},"recommended_transport":"REST"}},"resources":{},"artifacts":{},"audit":[{"event_id":"audit-1","tenant_id":"tenant-tech","actor_id":"A001","action":"UPSERT","object_type":"sale","object_id":"sale-1","occurred_at":"2026-08-08T10:00:00Z","before":{},"after":{},"event_hash":"abc"}],"edge_pending":{"operation-1":{"operation_id":"operation-1","tenant_id":"tenant-tech","register_id":"register-1","device_id":"edge-1","command_type":"FISCAL_SALE","payload":{},"operation_sequence":1,"unp_sequence":1,"accepted_at":"2026-08-08T10:00:00Z"}}}`
 	if err = p.Save([]byte(state)); err != nil {
 		t.Fatal(err)
 	}
@@ -392,6 +399,10 @@ func TestPostgresTypedTechnicalAggregatesAreTenantBound(t *testing.T) {
 		if err = p.db.QueryRow(`select count(*) from ` + table + ` where tenant_id='tenant-tech'`).Scan(&count); err != nil || count != 1 {
 			t.Fatalf("%s projection: count=%d err=%v", table, count, err)
 		}
+	}
+	var locationID, edgeID, fiscalDeviceID string
+	if err = p.db.QueryRow(`select location_id,device_id,fiscal_device_id from fiscal_runtime_ble_sessions where id='ble-1'`).Scan(&locationID, &edgeID, &fiscalDeviceID); err != nil || locationID != "location-1" || edgeID != "edge-1" || fiscalDeviceID != "fiscal-device-1" || edgeID == fiscalDeviceID {
+		t.Fatal("BLE authority identity projection collapsed edge/fiscal device", locationID, edgeID, fiscalDeviceID, err)
 	}
 	for collection, id := range map[string]string{
 		"ble_sessions":        "ble-1",

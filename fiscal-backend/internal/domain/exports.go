@@ -21,16 +21,26 @@ type ExportRequest struct {
 	To         time.Time `json:"to"`
 	RegisterID string    `json:"register_id,omitempty"`
 	OperatorID string    `json:"operator_id,omitempty"`
+	LocationID string    `json:"location_id,omitempty"`
+	DeviceID   string    `json:"device_id,omitempty"`
 	Format     string    `json:"format"`
 }
 type exportRow struct {
-	SaleID     string `json:"sale_id"`
-	ExternalID string `json:"external_id"`
-	UNP        string `json:"unp"`
-	RegisterID string `json:"register_id"`
-	OperatorID string `json:"operator_id"`
-	State      string `json:"state"`
-	CreatedAt  string `json:"created_at"`
+	SaleID            string               `json:"sale_id"`
+	ExternalID        string               `json:"external_id"`
+	UNP               string               `json:"unp"`
+	RegisterID        string               `json:"register_id"`
+	LocationID        string               `json:"location_id,omitempty"`
+	OperatorID        string               `json:"operator_id"`
+	State             string               `json:"state"`
+	FiscalOperationID string               `json:"fiscal_operation_id,omitempty"`
+	ReceiptArtifactID string               `json:"receipt_artifact_id,omitempty"`
+	FiscalDevice      FiscalDeviceSnapshot `json:"fiscal_device"`
+	OfficialCurrency  string               `json:"official_currency"`
+	Total             Money                `json:"total"`
+	Lines             []SaleLine           `json:"lines"`
+	Payments          []PaymentRecord      `json:"payments"`
+	CreatedAt         string               `json:"created_at"`
 }
 
 // 2026-01-01T00:00:00 Europe/Sofia is 2025-12-31T22:00:00Z. Pinning
@@ -44,15 +54,19 @@ type exportPeriod struct {
 }
 
 func (s *Service) CreateExport(in ExportRequest, tenant string) (Operation, error) {
-	if tenant == "" || !contains([]string{"SUPTO_18_1", "SUPTO_18_2", "SUPTO_18_3", "SUPTO_18_4", "SUPTO_18_5", "SUPTO_18_9", "KLEN", "FISCAL_MEMORY"}, in.Type) || !contains([]string{"JSON", "CSV", "XLSX"}, in.Format) || in.From.IsZero() || in.To.IsZero() || in.To.Before(in.From) {
+	if tenant == "" || !contains([]string{"SUPTO_18_1", "SUPTO_18_2", "SUPTO_18_3", "SUPTO_18_4", "SUPTO_18_5", "SUPTO_18_9", "KLEN", "FISCAL_MEMORY"}, in.Type) || !contains([]string{"JSON", "CSV", "XLSX"}, in.Format) || in.From.IsZero() || in.To.IsZero() || !in.To.After(in.From) {
 		return Operation{}, errors.New("invalid export request")
 	}
 	rows := make([]exportRow, 0)
 	for _, sale := range s.repo.Sales(tenant) {
-		if sale.CreatedAt.Before(in.From) || sale.CreatedAt.After(in.To) || (in.RegisterID != "" && sale.RegisterID != in.RegisterID) || (in.OperatorID != "" && sale.OperatorID != in.OperatorID) {
+		if !exportSaleMatches(sale, in, in.From, in.To) {
 			continue
 		}
-		rows = append(rows, exportRow{sale.ID, sale.ExternalID, sale.UNP, sale.RegisterID, sale.OperatorID, sale.State, sale.CreatedAt.Format(time.RFC3339Nano)})
+		row, rowErr := detailedExportRow(sale, "EUR")
+		if rowErr != nil {
+			return Operation{}, rowErr
+		}
+		rows = append(rows, row)
 	}
 	sort.Slice(rows, func(i, j int) bool { return rows[i].CreatedAt < rows[j].CreatedAt })
 	var artifact []byte
@@ -60,7 +74,7 @@ func (s *Service) CreateExport(in ExportRequest, tenant string) (Operation, erro
 	var err error
 	switch in.Format {
 	case "JSON":
-		artifact, err = json.Marshal(map[string]any{"schema_version": "2026-08-07", "policy_version": "BG-2026-EUR", "official_currency": "EUR", "type": in.Type, "from": in.From, "to": in.To, "rows": rows})
+		artifact, err = json.Marshal(map[string]any{"schema_version": "2026-08-07", "policy_version": "BG-2026-EUR", "official_currency": "EUR", "interval_semantics": "[from,to)", "type": in.Type, "from": in.From, "to": in.To, "rows": rows})
 	case "CSV":
 		media = "text/csv"
 		artifact, err = exportCSV(rows)
@@ -76,16 +90,11 @@ func (s *Service) CreateExport(in ExportRequest, tenant string) (Operation, erro
 	now := time.Now().UTC()
 	sum := sha256.Sum256(artifact)
 	digest := hex.EncodeToString(sum[:])
-	if err = s.repo.PutArtifact(artifactID, tenant, artifact); err != nil {
-		return Operation{}, err
-	}
 	manifest := map[string]any{"artifact_id": artifactID, "media_type": media, "sha256": digest, "size": len(artifact), "created_at": now}
-	data := map[string]any{"export_id": exportID, "state": "COMPLETED", "type": in.Type, "requested_at": now, "completed_at": now, "artifact": manifest, "official_currency": "EUR"}
-	if err = s.repo.PutResource(ResourceRecord{Kind: "export", TenantID: tenant, ID: exportID, Version: 1, Data: data, CreatedAt: now, UpdatedAt: now}); err != nil {
-		return Operation{}, err
-	}
+	data := map[string]any{"export_id": exportID, "state": "COMPLETED", "type": in.Type, "requested_at": now, "completed_at": now, "artifact": manifest, "official_currency": "EUR", "interval_semantics": "[from,to)"}
+	resource := ResourceRecord{Kind: "export", TenantID: tenant, ID: exportID, Version: 1, Data: data, CreatedAt: now, UpdatedAt: now}
 	op := Operation{ID: newID("op"), TenantID: tenant, Type: "COMPLIANCE_EXPORT", State: "FISCALIZED", Version: 2, FiscalReference: exportID, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
-	return op, s.repo.PutOperation(op)
+	return op, s.repo.CommitResourceArtifactsOperation(resource, op, map[string][]byte{artifactID: artifact})
 }
 
 // CreatePeriodizedExport is the additive BG-020 export path. Its interval is
@@ -100,16 +109,18 @@ func (s *Service) CreatePeriodizedExport(in ExportRequest, tenant string) (Opera
 	exportID, _ := newUUID()
 	now := time.Now().UTC()
 	periodManifests := make([]map[string]any, 0, len(periods))
+	artifacts := make(map[string][]byte, len(periods))
 	for _, period := range periods {
-		rows := s.exportRows(in, tenant, period.From, period.To)
+		rows, err := s.exportRows(in, tenant, period.From, period.To, period.Currency)
+		if err != nil {
+			return Operation{}, err
+		}
 		artifact, media, err := renderExportArtifact(in, rows, period.Currency, period.From, period.To)
 		if err != nil {
 			return Operation{}, err
 		}
 		artifactID, _ := newUUID()
-		if err = s.repo.PutArtifact(artifactID, tenant, artifact); err != nil {
-			return Operation{}, err
-		}
+		artifacts[artifactID] = artifact
 		sum := sha256.Sum256(artifact)
 		periodManifests = append(periodManifests, map[string]any{
 			"official_currency": period.Currency,
@@ -125,11 +136,9 @@ func (s *Service) CreatePeriodizedExport(in ExportRequest, tenant string) (Opera
 		"export_id": exportID, "state": "COMPLETED", "type": in.Type, "format": in.Format,
 		"requested_at": now, "completed_at": now, "periods": periodManifests,
 	}
-	if err := s.repo.PutResource(ResourceRecord{Kind: "export_periods", TenantID: tenant, ID: exportID, Version: 1, Data: data, CreatedAt: now, UpdatedAt: now}); err != nil {
-		return Operation{}, err
-	}
+	resource := ResourceRecord{Kind: "export_periods", TenantID: tenant, ID: exportID, Version: 1, Data: data, CreatedAt: now, UpdatedAt: now}
 	op := Operation{ID: newID("op"), TenantID: tenant, Type: "COMPLIANCE_EXPORT", State: "FISCALIZED", Version: 2, FiscalReference: exportID, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
-	return op, s.repo.PutOperation(op)
+	return op, s.repo.CommitResourceArtifactsOperation(resource, op, artifacts)
 }
 
 func splitOfficialCurrencyPeriods(from, to time.Time) []exportPeriod {
@@ -146,13 +155,17 @@ func splitOfficialCurrencyPeriods(from, to time.Time) []exportPeriod {
 	}
 }
 
-func (s *Service) exportRows(in ExportRequest, tenant string, from, to time.Time) []exportRow {
+func (s *Service) exportRows(in ExportRequest, tenant string, from, to time.Time, currency string) ([]exportRow, error) {
 	rows := make([]exportRow, 0)
 	for _, sale := range s.repo.Sales(tenant) {
-		if sale.CreatedAt.Before(from) || !sale.CreatedAt.Before(to) || (in.RegisterID != "" && sale.RegisterID != in.RegisterID) || (in.OperatorID != "" && sale.OperatorID != in.OperatorID) {
+		if !exportSaleMatches(sale, in, from, to) {
 			continue
 		}
-		rows = append(rows, exportRow{sale.ID, sale.ExternalID, sale.UNP, sale.RegisterID, sale.OperatorID, sale.State, sale.CreatedAt.Format(time.RFC3339Nano)})
+		row, err := detailedExportRow(sale, currency)
+		if err != nil {
+			return nil, err
+		}
+		rows = append(rows, row)
 	}
 	sort.Slice(rows, func(i, j int) bool {
 		if rows[i].CreatedAt == rows[j].CreatedAt {
@@ -160,7 +173,45 @@ func (s *Service) exportRows(in ExportRequest, tenant string, from, to time.Time
 		}
 		return rows[i].CreatedAt < rows[j].CreatedAt
 	})
-	return rows
+	return rows, nil
+}
+
+func exportSaleMatches(sale Sale, in ExportRequest, from, to time.Time) bool {
+	return !sale.CreatedAt.Before(from) && sale.CreatedAt.Before(to) &&
+		(in.LocationID == "" || sale.LocationID == in.LocationID) &&
+		(in.RegisterID == "" || sale.RegisterID == in.RegisterID) &&
+		(in.OperatorID == "" || sale.OperatorID == in.OperatorID) &&
+		(in.DeviceID == "" || sale.FiscalDevice.DeviceID == in.DeviceID)
+}
+
+func detailedExportRow(sale Sale, currency string) (exportRow, error) {
+	if currency != "EUR" && currency != "BGN" {
+		return exportRow{}, errors.New("invalid official currency")
+	}
+	for _, line := range sale.Lines {
+		if line.UnitPrice.Currency != currency || (line.Discount != nil && line.Discount.Currency != currency) {
+			return exportRow{}, errors.New("sale line currency does not match export period")
+		}
+	}
+	for _, payment := range sale.Payments {
+		if payment.Amount.Currency != currency {
+			return exportRow{}, errors.New("payment currency does not match export period")
+		}
+	}
+	total, err := saleTotal(sale)
+	if err != nil {
+		return exportRow{}, errors.New("invalid sale amount evidence")
+	}
+	lines := append([]SaleLine(nil), sale.Lines...)
+	payments := append([]PaymentRecord(nil), sale.Payments...)
+	return exportRow{
+		SaleID: sale.ID, ExternalID: sale.ExternalID, UNP: sale.UNP,
+		LocationID: sale.LocationID, RegisterID: sale.RegisterID, OperatorID: sale.OperatorID, State: sale.State,
+		FiscalOperationID: sale.FiscalOperationID, ReceiptArtifactID: sale.ReceiptArtifactID,
+		FiscalDevice:     sale.FiscalDevice,
+		OfficialCurrency: currency, Total: Money{Amount: formatFixed(total), Currency: currency},
+		Lines: lines, Payments: payments, CreatedAt: sale.CreatedAt.Format(time.RFC3339Nano),
+	}, nil
 }
 
 func renderExportArtifact(in ExportRequest, rows []exportRow, currency string, from, to time.Time) ([]byte, string, error) {
@@ -185,12 +236,12 @@ func renderExportArtifact(in ExportRequest, rows []exportRow, currency string, f
 func exportPeriodCSV(rows []exportRow, currency string, from, to time.Time) ([]byte, error) {
 	var b bytes.Buffer
 	w := csv.NewWriter(&b)
-	_ = w.Write([]string{"official_currency", "period_from_inclusive", "period_to_exclusive", "sale_id", "external_id", "unp", "register_id", "operator_id", "state", "created_at"})
+	_ = w.Write(append([]string{"period_official_currency", "period_from_inclusive", "period_to_exclusive"}, exportCSVHeader()...))
 	if len(rows) == 0 {
-		_ = w.Write([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano), "", "", "", "", "", "", ""})
+		_ = w.Write(append([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, make([]string, len(exportCSVHeader()))...))
 	}
 	for _, r := range rows {
-		_ = w.Write([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano), r.SaleID, r.ExternalID, r.UNP, r.RegisterID, r.OperatorID, r.State, r.CreatedAt})
+		_ = w.Write(append([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, exportCSVRecord(r)...))
 	}
 	w.Flush()
 	return b.Bytes(), w.Error()
@@ -199,26 +250,38 @@ func exportPeriodCSV(rows []exportRow, currency string, from, to time.Time) ([]b
 func exportPeriodXLSX(rows []exportRow, currency string, from, to time.Time) ([]byte, error) {
 	// The period metadata is represented as a deterministic first record so an
 	// empty period remains independently auditable in spreadsheet tooling.
-	metadata := exportRow{SaleID: "official_currency=" + currency, ExternalID: "from=" + from.UTC().Format(time.RFC3339Nano), UNP: "to=" + to.UTC().Format(time.RFC3339Nano)}
+	metadata := exportRow{SaleID: "official_currency=" + currency, ExternalID: "from=" + from.UTC().Format(time.RFC3339Nano), UNP: "to=" + to.UTC().Format(time.RFC3339Nano), OfficialCurrency: currency, Total: Money{Amount: "0.00", Currency: currency}, Lines: []SaleLine{}, Payments: []PaymentRecord{}}
 	return exportXLSX(append([]exportRow{metadata}, rows...))
 }
 func exportCSV(rows []exportRow) ([]byte, error) {
 	var b bytes.Buffer
 	w := csv.NewWriter(&b)
-	_ = w.Write([]string{"sale_id", "external_id", "unp", "register_id", "operator_id", "state", "created_at"})
+	_ = w.Write(exportCSVHeader())
 	for _, r := range rows {
-		_ = w.Write([]string{r.SaleID, r.ExternalID, r.UNP, r.RegisterID, r.OperatorID, r.State, r.CreatedAt})
+		_ = w.Write(exportCSVRecord(r))
 	}
 	w.Flush()
 	return b.Bytes(), w.Error()
 }
+
+func exportCSVHeader() []string {
+	return []string{"sale_id", "external_id", "unp", "location_id", "register_id", "operator_id", "state", "fiscal_operation_id", "receipt_artifact_id", "fiscal_device_json", "official_currency", "total_amount", "lines_json", "payments_json", "created_at"}
+}
+
+func exportCSVRecord(r exportRow) []string {
+	lines, _ := json.Marshal(r.Lines)
+	payments, _ := json.Marshal(r.Payments)
+	device, _ := json.Marshal(r.FiscalDevice)
+	return []string{r.SaleID, r.ExternalID, r.UNP, r.LocationID, r.RegisterID, r.OperatorID, r.State, r.FiscalOperationID, r.ReceiptArtifactID, string(device), r.OfficialCurrency, r.Total.Amount, string(lines), string(payments), r.CreatedAt}
+}
+
 func exportXLSX(rows []exportRow) ([]byte, error) {
 	var out bytes.Buffer
 	z := zip.NewWriter(&out)
 	files := map[string]string{"[Content_Types].xml": `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>`, "_rels/.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`, "xl/workbook.xml": `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Sales" sheetId="1" r:id="rId1"/></sheets></workbook>`, "xl/_rels/workbook.xml.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`}
-	values := [][]string{{"sale_id", "external_id", "unp", "register_id", "operator_id", "state", "created_at"}}
+	values := [][]string{exportCSVHeader()}
 	for _, r := range rows {
-		values = append(values, []string{r.SaleID, r.ExternalID, r.UNP, r.RegisterID, r.OperatorID, r.State, r.CreatedAt})
+		values = append(values, exportCSVRecord(r))
 	}
 	var sheet strings.Builder
 	sheet.WriteString(`<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>`)
@@ -261,6 +324,20 @@ func (s *Service) ExportArtifact(exportID, tenant string) ([]byte, string, error
 	media, _ := m["media_type"].(string)
 	b, err := s.repo.Artifact(id, tenant)
 	return b, media, err
+}
+
+func (s *Service) ExportArtifactByID(exportID, artifactID, tenant string) ([]byte, string, error) {
+	v, err := s.repo.Resource("export", exportID)
+	if err != nil || v.TenantID != tenant {
+		return nil, "", ErrNotFound
+	}
+	manifest, ok := v.Data["artifact"].(map[string]any)
+	if !ok || manifest["artifact_id"] != artifactID {
+		return nil, "", ErrNotFound
+	}
+	media, _ := manifest["media_type"].(string)
+	artifact, err := s.repo.Artifact(artifactID, tenant)
+	return artifact, media, err
 }
 
 func (s *Service) ExportPeriods(id, tenant string) (map[string]any, error) {

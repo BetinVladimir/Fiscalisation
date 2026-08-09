@@ -5,7 +5,9 @@ import (
 	"bytes"
 	"crypto/sha256"
 	"encoding/json"
+	"errors"
 	"fmt"
+	"io"
 	"strings"
 	"testing"
 	"time"
@@ -14,8 +16,18 @@ import (
 func TestComplianceExportsJSONCSVAndXLSX(t *testing.T) {
 	s := NewService(NewMemoryRepository(), NewSimulator(true))
 	registerID, _ := prepareBLERegister(t, s, "tenant-1")
-	sale, _ := s.CreateSale(CreateSale{TenantID: "tenant-1", ExternalID: "e1", RegisterID: registerID, OperatorID: "A001"})
-	_, _ = s.AddLine(sale.ID, SaleLine{LineID: "l1", Name: "Item", Quantity: "1.000", UnitPrice: Money{Amount: "1.00", Currency: "EUR"}, TaxGroup: "B"})
+	sale, err := s.CreateSale(CreateSale{TenantID: "tenant-1", ExternalID: "e1", RegisterID: registerID, OperatorID: "A001"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	discount := Money{Amount: "0.20", Currency: "EUR"}
+	sale, err = s.AddLine(sale.ID, SaleLine{LineID: "l1", Name: "Item", Quantity: "1.000", UnitPrice: Money{Amount: "1.00", Currency: "EUR"}, Discount: &discount, TaxGroup: "B"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.PayForTenant(sale.ID, PaymentRequest{PaymentID: "payment-1", Type: "CASH", Amount: Money{Amount: "0.80", Currency: "EUR"}}, "tenant-1"); err != nil {
+		t.Fatal(err)
+	}
 	for _, format := range []string{"JSON", "CSV", "XLSX"} {
 		op, err := s.CreateExport(ExportRequest{Type: "SUPTO_18_1", From: time.Now().Add(-time.Hour), To: time.Now().Add(time.Hour), Format: format}, "tenant-1")
 		if err != nil || op.State != "FISCALIZED" {
@@ -33,8 +45,21 @@ func TestComplianceExportsJSONCSVAndXLSX(t *testing.T) {
 			t.Fatal(format, media, err)
 		}
 		if format == "XLSX" {
-			if _, err = zip.NewReader(bytes.NewReader(b), int64(len(b))); err != nil {
+			archive, zipErr := zip.NewReader(bytes.NewReader(b), int64(len(b)))
+			if zipErr != nil {
 				t.Fatal("invalid xlsx zip", err)
+			}
+			for _, file := range archive.File {
+				if file.Name == "xl/worksheets/sheet1.xml" {
+					reader, _ := file.Open()
+					b, _ = io.ReadAll(reader)
+					_ = reader.Close()
+				}
+			}
+		}
+		for _, evidence := range []string{"0.20", "0.80", "tax_group", "CASH", "lines"} {
+			if !bytes.Contains(b, []byte(evidence)) {
+				t.Fatalf("%s export lost detailed sale evidence %q: %s", format, evidence, b)
 			}
 		}
 		if _, _, err = s.ExportArtifact(op.FiscalReference, "tenant-2"); err == nil {
@@ -47,6 +72,90 @@ func TestExportRejectsInvalidRangeAndFormat(t *testing.T) {
 	s := NewService(NewMemoryRepository(), NewSimulator(true))
 	if _, err := s.CreateExport(ExportRequest{Type: "SUPTO_18_1", From: time.Now(), To: time.Now().Add(-time.Hour), Format: "PDF"}, "tenant-1"); err == nil {
 		t.Fatal("invalid export accepted")
+	}
+	boundary := time.Now().UTC()
+	if _, err := s.CreateExport(ExportRequest{Type: "SUPTO_18_1", From: boundary, To: boundary, Format: "JSON"}, "tenant-1"); err == nil {
+		t.Fatal("zero-width export interval accepted")
+	}
+}
+
+func TestComplianceExportUsesImmutableLocationAndDeviceFilters(t *testing.T) {
+	s := NewService(NewMemoryRepository(), NewSimulator(true))
+	registerID, deviceID := prepareBLERegister(t, s, "tenant-filter")
+	sale, err := s.CreateSale(CreateSale{TenantID: "tenant-filter", ExternalID: "filter-sale", RegisterID: registerID, OperatorID: "A001"})
+	if err != nil || sale.LocationID == "" {
+		t.Fatalf("sale-time location was not captured: %+v %v", sale, err)
+	}
+	sale, err = s.AddLineForTenant(sale.ID, SaleLine{LineID: "line-filter", Name: "Item", Quantity: "1.000", UnitPrice: Money{Amount: "1.00", Currency: "EUR"}, TaxGroup: "B"}, sale.TenantID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.PayForTenant(sale.ID, PaymentRequest{PaymentID: "pay-filter", Type: "CASH", Amount: Money{Amount: "1.00", Currency: "EUR"}}, sale.TenantID); err != nil {
+		t.Fatal(err)
+	}
+	from, to := time.Now().Add(-time.Hour), time.Now().Add(time.Hour)
+	for name, request := range map[string]ExportRequest{
+		"matching":       {Type: "SUPTO_18_1", From: from, To: to, LocationID: sale.LocationID, DeviceID: deviceID, Format: "JSON"},
+		"wrong-location": {Type: "SUPTO_18_1", From: from, To: to, LocationID: "00000000-0000-4000-8000-000000000001", Format: "JSON"},
+		"wrong-device":   {Type: "SUPTO_18_1", From: from, To: to, DeviceID: "00000000-0000-4000-8000-000000000002", Format: "JSON"},
+	} {
+		op, exportErr := s.CreateExport(request, sale.TenantID)
+		if exportErr != nil {
+			t.Fatal(name, exportErr)
+		}
+		artifact, _, exportErr := s.ExportArtifact(op.FiscalReference, sale.TenantID)
+		var document struct {
+			Rows []exportRow `json:"rows"`
+		}
+		if exportErr != nil || json.Unmarshal(artifact, &document) != nil {
+			t.Fatal(name, exportErr, string(artifact))
+		}
+		want := 0
+		if name == "matching" {
+			want = 1
+		}
+		if len(document.Rows) != want {
+			t.Fatalf("%s filter returned %d rows, want %d: %s", name, len(document.Rows), want, artifact)
+		}
+	}
+}
+
+func TestExportPublicationIsAtomicOnFirstPersistenceFailure(t *testing.T) {
+	repo, err := NewPersistentRepository(&failingStore{err: errors.New("disk unavailable")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := NewService(repo, NewSimulator(true))
+	now := time.Now().UTC()
+	if _, err = s.CreatePeriodizedExport(ExportRequest{Type: "SUPTO_18_1", From: now.Add(-time.Hour), To: now.Add(time.Hour), Format: "JSON"}, "tenant-1"); err == nil {
+		t.Fatal("injected export publication failure was ignored")
+	}
+	if len(repo.Resources("export_periods", "tenant-1")) != 0 || len(repo.Operations()) != 0 || len(repo.artifacts) != 0 || len(repo.audit) != 0 {
+		t.Fatalf("failed atomic export leaked partial state: resources=%+v operations=%+v artifacts=%d audit=%d", repo.Resources("export_periods", "tenant-1"), repo.Operations(), len(repo.artifacts), len(repo.audit))
+	}
+}
+
+func TestCanonicalExportIntervalIsHalfOpen(t *testing.T) {
+	repo := NewMemoryRepository()
+	s := NewService(repo, NewSimulator(true))
+	from := time.Date(2026, 2, 1, 0, 0, 0, 0, time.UTC)
+	to := from.Add(time.Hour)
+	for _, sale := range []Sale{
+		{ID: "sale-at-from", TenantID: "tenant-1", ExternalID: "included-from", State: "COMPLETED", CreatedAt: from, UpdatedAt: from},
+		{ID: "sale-before-to", TenantID: "tenant-1", ExternalID: "included-before-to", State: "COMPLETED", CreatedAt: to.Add(-time.Nanosecond), UpdatedAt: to},
+		{ID: "sale-at-to", TenantID: "tenant-1", ExternalID: "excluded-at-to", State: "COMPLETED", CreatedAt: to, UpdatedAt: to},
+	} {
+		if err := repo.PutSale(sale); err != nil {
+			t.Fatal(err)
+		}
+	}
+	op, err := s.CreateExport(ExportRequest{Type: "SUPTO_18_1", From: from, To: to, Format: "JSON"}, "tenant-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	artifact, _, err := s.ExportArtifact(op.FiscalReference, "tenant-1")
+	if err != nil || !bytes.Contains(artifact, []byte("included-from")) || !bytes.Contains(artifact, []byte("included-before-to")) || bytes.Contains(artifact, []byte("excluded-at-to")) || !bytes.Contains(artifact, []byte(`"interval_semantics":"[from,to)"`)) {
+		t.Fatalf("canonical interval artifact invalid: %v %s", err, artifact)
 	}
 }
 
@@ -103,6 +212,22 @@ func TestPeriodizedExportSplitsBGNAndEURWithoutBoundaryOverlap(t *testing.T) {
 	}
 	if _, _, err = s.ExportPeriodArtifact(op.FiscalReference, periods[0].Artifact.ID, "tenant-2"); err == nil {
 		t.Fatal("cross-tenant artifact leaked")
+	}
+}
+
+func TestPeriodizedExportRejectsCurrencyRelabeling(t *testing.T) {
+	repo := NewMemoryRepository()
+	s := NewService(repo, NewSimulator(true))
+	sale := Sale{
+		ID: "legacy-wrong-currency", TenantID: "tenant-1", ExternalID: "legacy",
+		State: "COMPLETED", CreatedAt: bgEuroAdoption.Add(-time.Hour), UpdatedAt: bgEuroAdoption.Add(-time.Hour),
+		Lines: []SaleLine{{LineID: "line-1", Name: "Legacy", Quantity: "1.000", UnitPrice: Money{Amount: "1.00", Currency: "EUR"}, TaxGroup: "B"}},
+	}
+	if err := repo.PutSale(sale); err != nil {
+		t.Fatal(err)
+	}
+	if _, err := s.CreatePeriodizedExport(ExportRequest{Type: "SUPTO_18_3", From: bgEuroAdoption.Add(-2 * time.Hour), To: bgEuroAdoption, Format: "JSON"}, "tenant-1"); err == nil {
+		t.Fatal("historical EUR amounts were silently relabeled BGN")
 	}
 }
 

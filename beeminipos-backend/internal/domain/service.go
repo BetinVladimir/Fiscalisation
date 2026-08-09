@@ -9,7 +9,9 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
+	"math"
 	"net/http"
+	"sort"
 	"strconv"
 	"strings"
 	"sync"
@@ -119,28 +121,35 @@ type Line struct {
 	Name      string `json:"name"`
 	Quantity  string `json:"quantity"`
 	UnitPrice Money  `json:"unit_price"`
+	Discount  *Money `json:"discount,omitempty"`
 	TaxGroup  string `json:"tax_group"`
 }
 type Order struct {
-	ID                      string    `json:"id"`
-	TenantID                string    `json:"tenant_id"`
-	ExternalID              string    `json:"external_id"`
-	ShiftID                 string    `json:"shift_id"`
-	RegisterID              string    `json:"register_id"`
-	OperatorCode            string    `json:"operator_code"`
-	State                   string    `json:"state"`
-	Lines                   []Line    `json:"lines"`
-	Total                   Money     `json:"total"`
-	FiscalSaleID            string    `json:"fiscal_sale_id,omitempty"`
-	FiscalOperationID       string    `json:"fiscal_operation_id,omitempty"`
-	ReceiptReference        string    `json:"receipt_reference,omitempty"`
-	ReversalOperationID     string    `json:"reversal_operation_id,omitempty"`
-	ReversalFiscalReference string    `json:"reversal_fiscal_reference,omitempty"`
-	ReversalReasonCode      string    `json:"reversal_reason_code,omitempty"`
-	FiscalVersion           int64     `json:"fiscal_version,omitempty"`
-	Version                 int64     `json:"version"`
-	CreatedAt               time.Time `json:"created_at"`
-	UpdatedAt               time.Time `json:"updated_at"`
+	ID                      string         `json:"id"`
+	TenantID                string         `json:"tenant_id"`
+	ExternalID              string         `json:"external_id"`
+	ShiftID                 string         `json:"shift_id"`
+	RegisterID              string         `json:"register_id"`
+	OperatorCode            string         `json:"operator_code"`
+	State                   string         `json:"state"`
+	Lines                   []Line         `json:"lines"`
+	Total                   Money          `json:"total"`
+	Payments                []OrderPayment `json:"payments,omitempty"`
+	FiscalSaleID            string         `json:"fiscal_sale_id,omitempty"`
+	FiscalOperationID       string         `json:"fiscal_operation_id,omitempty"`
+	ReceiptReference        string         `json:"receipt_reference,omitempty"`
+	ReversalOperationID     string         `json:"reversal_operation_id,omitempty"`
+	ReversalFiscalReference string         `json:"reversal_fiscal_reference,omitempty"`
+	ReversalReasonCode      string         `json:"reversal_reason_code,omitempty"`
+	FiscalVersion           int64          `json:"fiscal_version,omitempty"`
+	Version                 int64          `json:"version"`
+	CreatedAt               time.Time      `json:"created_at"`
+	UpdatedAt               time.Time      `json:"updated_at"`
+}
+
+type OrderPayment struct {
+	Type   string `json:"type"`
+	Amount Money  `json:"amount"`
 }
 
 func (o Order) MarshalJSON() ([]byte, error) {
@@ -290,7 +299,28 @@ func NewPersistentService(f, v string, store Store) (*Service, error) {
 		}
 		s.sequence = x.Sequence
 	}
+	if e = s.recoverOrphanAPIReplays(); e != nil {
+		return nil, e
+	}
 	return s, nil
+}
+
+func (s *Service) recoverOrphanAPIReplays() error {
+	changed := false
+	for key, replay := range s.apiReplays {
+		if !replay.Pending || replay.Status != 102 || len(replay.Body) != 0 {
+			continue
+		}
+		replay.Status = 503
+		replay.ContentType = "application/problem+json"
+		replay.Body = []byte(`{"type":"urn:beeminipos:error:idempotency_outcome_unknown","title":"IDEMPOTENCY_OUTCOME_UNKNOWN","status":503,"code":"IDEMPOTENCY_OUTCOME_UNKNOWN","retryable":false,"detail":"request outcome is unknown after restart"}`)
+		s.apiReplays[key] = replay
+		changed = true
+	}
+	if !changed {
+		return nil
+	}
+	return s.persistLocked()
 }
 func (s *Service) nextID(_ string) string {
 	s.sequence++
@@ -391,11 +421,56 @@ func (s *Service) restoreLocked() {
 }
 
 type APIReplay struct {
-	Hash        string `json:"hash"`
-	Status      int    `json:"status"`
-	Body        []byte `json:"body"`
-	ContentType string `json:"content_type"`
+	Hash        string              `json:"hash"`
+	Status      int                 `json:"status"`
+	Body        []byte              `json:"body"`
+	ContentType string              `json:"content_type"`
+	Headers     map[string][]string `json:"headers,omitempty"`
+	Pending     bool                `json:"pending,omitempty"`
 }
+
+var ErrAPIReplayMismatch = errors.New("idempotency mismatch")
+
+// ClaimAPIReplay durably reserves a public request before any business side
+// effect. A failed cross-replica generation write reloads the winning claim and
+// returns it instead of allowing the losing request to execute.
+func (s *Service) ClaimAPIReplay(key, hash string) (APIReplay, bool, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if versioned, ok := s.store.(VersionedStore); ok {
+		_, current, err := versioned.LoadVersioned()
+		if err != nil {
+			return APIReplay{}, false, err
+		}
+		if current != s.generation {
+			s.restoreLocked()
+			if s.generation != current {
+				return APIReplay{}, false, errors.New("idempotency snapshot refresh failed")
+			}
+		}
+	}
+	if old, ok := s.apiReplays[key]; ok {
+		if old.Hash != hash {
+			return old, false, ErrAPIReplayMismatch
+		}
+		return old, false, nil
+	}
+	pending := APIReplay{Hash: hash, Status: 102, Pending: true}
+	s.apiReplays[key] = pending
+	if err := s.persistLocked(); err != nil {
+		// persistLocked restores the authoritative winning snapshot on a
+		// version conflict. Surface that claim to the loser when available.
+		if old, ok := s.apiReplays[key]; ok {
+			if old.Hash != hash {
+				return old, false, ErrAPIReplayMismatch
+			}
+			return old, false, nil
+		}
+		return APIReplay{}, false, err
+	}
+	return pending, true, nil
+}
+
 type WebhookInboxRecord struct {
 	EventID     string     `json:"event_id"`
 	TenantID    string     `json:"tenant_id"`
@@ -430,11 +505,26 @@ func (s *Service) PutAPIReplay(key string, v APIReplay) error {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	if old, ok := s.apiReplays[key]; ok && old.Hash != v.Hash {
-		return errors.New("idempotency mismatch")
+		return ErrAPIReplayMismatch
 	}
+	v.Pending = false
 	old, existed := s.apiReplays[key]
 	s.apiReplays[key] = v
 	if err := s.persistLocked(); err != nil {
+		// Completion is side-effect free and may be retried once after a
+		// generation conflict merged an unrelated replica mutation.
+		if _, versioned := s.store.(VersionedStore); versioned {
+			if current, ok := s.apiReplays[key]; ok && current.Hash == v.Hash {
+				if !current.Pending {
+					return nil
+				}
+				s.apiReplays[key] = v
+				if retryErr := s.persistLocked(); retryErr == nil {
+					return nil
+				}
+			}
+			return err // persistLocked already restored the latest durable snapshot
+		}
 		if existed {
 			s.apiReplays[key] = old
 		} else {
@@ -443,6 +533,18 @@ func (s *Service) PutAPIReplay(key string, v APIReplay) error {
 		return err
 	}
 	return nil
+}
+
+func (s *Service) PutAPIAmbiguousReplay(key string, v APIReplay) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	old, ok := s.apiReplays[key]
+	if !ok || old.Hash != v.Hash || !old.Pending {
+		return errors.New("idempotency claim unavailable")
+	}
+	v.Pending = true
+	s.apiReplays[key] = v
+	return s.persistLocked()
 }
 
 func (s *Service) ConfigurationFor(tenant string) (Configuration, error) {
@@ -467,7 +569,7 @@ func (s *Service) ConfigurationFor(tenant string) (Configuration, error) {
 }
 
 func (s *Service) SaveConfiguration(tenant string, expected int64, v Configuration) (Configuration, error) {
-	if strings.TrimSpace(v.LocationName) == "" || strings.TrimSpace(v.WorkstationName) == "" || strings.TrimSpace(v.FiscalRegisterID) == "" || len(v.LocationName) > 120 || len(v.LocationAddress) > 240 || len(v.WorkstationName) > 120 || len(v.FiscalRegisterID) > 120 {
+	if strings.TrimSpace(v.LocationName) == "" || strings.TrimSpace(v.WorkstationName) == "" || !validUUID(strings.TrimSpace(v.FiscalRegisterID)) || len(v.LocationName) > 120 || len(v.LocationAddress) > 240 || len(v.WorkstationName) > 120 {
 		return Configuration{}, errors.New("invalid configuration")
 	}
 	s.mu.Lock()
@@ -518,12 +620,14 @@ func (s *Service) ProductsFor(tenant string) []Product {
 				}
 				out = append(out, v)
 			}
+			sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 			return out
 		}
 		return []Product{}
 	}
 	all := s.Products()
 	if tenant == "" {
+		sort.Slice(all, func(i, j int) bool { return all[i].ID < all[j].ID })
 		return all
 	}
 	v := make([]Product, 0)
@@ -532,6 +636,7 @@ func (s *Service) ProductsFor(tenant string) []Product {
 			v = append(v, x)
 		}
 	}
+	sort.Slice(v, func(i, j int) bool { return v[i].ID < v[j].ID })
 	return v
 }
 func (s *Service) CreateProduct(v Product) (Product, error) {
@@ -563,7 +668,7 @@ func (s *Service) CreateProduct(v Product) (Product, error) {
 	if v.Status == "" {
 		v.Status = "ACTIVE"
 	}
-	v.Active = true
+	v.Active = v.Status == "ACTIVE"
 	v.Version = 1
 	v.CreatedAt = time.Now().UTC()
 	v.UpdatedAt = v.CreatedAt
@@ -671,12 +776,14 @@ func (s *Service) EmployeesFor(tenant string) []Employee {
 				}
 				out = append(out, v)
 			}
+			sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 			return out
 		}
 		return []Employee{}
 	}
 	all := s.Employees()
 	if tenant == "" {
+		sort.Slice(all, func(i, j int) bool { return all[i].ID < all[j].ID })
 		return all
 	}
 	v := make([]Employee, 0)
@@ -685,6 +792,7 @@ func (s *Service) EmployeesFor(tenant string) []Employee {
 			v = append(v, x)
 		}
 	}
+	sort.Slice(v, func(i, j int) bool { return v[i].ID < v[j].ID })
 	return v
 }
 func (s *Service) CreateEmployee(v Employee) (Employee, error) {
@@ -705,7 +813,7 @@ func (s *Service) CreateEmployee(v Employee) (Employee, error) {
 	if v.Status == "" {
 		v.Status = "ACTIVE"
 	}
-	v.Active = true
+	v.Active = v.Status == "ACTIVE"
 	v.Version = 1
 	v.CreatedAt = time.Now().UTC()
 	v.UpdatedAt = v.CreatedAt
@@ -782,19 +890,26 @@ func (s *Service) UpdateEmployeeForTenant(id string, expected int64, v Employee,
 	return s.UpdateEmployee(id, expected, v)
 }
 func identityBindingKey(tenant, issuer, subject string) string {
-	sum := sha256.Sum256([]byte(tenant + "\x00" + issuer + "\x00" + subject))
+	sum := sha256.Sum256([]byte(tenant + "\x00" + canonicalIdentityIssuer(issuer) + "\x00" + subject))
 	return tenant + "\n" + fmt.Sprintf("%x", sum[:])
 }
+
+func canonicalIdentityIssuer(issuer string) string {
+	return strings.TrimSuffix(strings.TrimSpace(issuer), "/")
+}
+
 func (s *Service) BindEmployeeIdentity(tenant, employeeID, subject, issuer string) (IdentityBinding, error) {
-	if tenant == "" || employeeID == "" || strings.TrimSpace(subject) == "" || strings.TrimSpace(issuer) == "" {
+	issuer = canonicalIdentityIssuer(issuer)
+	if tenant == "" || employeeID == "" || strings.TrimSpace(subject) == "" || issuer == "" {
 		return IdentityBinding{}, errors.New("invalid identity binding")
-	}
-	if _, err := s.EmployeeForTenant(employeeID, tenant); err != nil {
-		return IdentityBinding{}, errors.New("employee not found")
 	}
 	key := identityBindingKey(tenant, issuer, subject)
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	employee, exists := s.employees[employeeID]
+	if !exists || employee.TenantID != tenant || !employee.Active || employee.Status != "ACTIVE" {
+		return IdentityBinding{}, errors.New("active employee not found")
+	}
 	if current, ok := s.identityBindings[key]; ok {
 		if current.EmployeeID != employeeID || current.IdentityIssuer != issuer {
 			return IdentityBinding{}, errors.New("identity already bound")
@@ -835,12 +950,13 @@ func (s *Service) RegisterOperatorSession(tenant, employeeID, appInstanceID, tok
 	if tenant == "" || employeeID == "" || appInstanceID == "" || tokenHash == "" || !expiresAt.After(time.Now().UTC()) {
 		return OperatorSessionRecord{}, errors.New("invalid operator session")
 	}
-	if _, err := s.EmployeeForTenant(employeeID, tenant); err != nil {
-		return OperatorSessionRecord{}, errors.New("employee not found")
-	}
 	key := tenant + "\n" + tokenHash
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	employee, exists := s.employees[employeeID]
+	if !exists || employee.TenantID != tenant || !employee.Active || employee.Status != "ACTIVE" {
+		return OperatorSessionRecord{}, errors.New("active employee not found")
+	}
 	if current, ok := s.operatorSessions[key]; ok {
 		if current.EmployeeID != employeeID || current.AppInstanceID != appInstanceID || current.State != "ACTIVE" {
 			return OperatorSessionRecord{}, errors.New("operator session revoked or mismatched")
@@ -916,6 +1032,9 @@ func (s *Service) ShiftsFor(tenant, employee, register, state string) []Shift {
 	return out
 }
 func (s *Service) OpenShiftForTenant(register, employee, tenant string) (Shift, error) {
+	if !validUUID(strings.TrimSpace(register)) {
+		return Shift{}, errors.New("invalid fiscal register")
+	}
 	if tenant != "" {
 		if _, err := s.EmployeeForTenant(employee, tenant); err != nil {
 			return Shift{}, errors.New("employee not found")
@@ -970,7 +1089,11 @@ func (s *Service) CloseShiftForTenant(id, tenant string) (Shift, error) {
 		return Shift{}, errors.New("shift not open")
 	}
 	s.mu.Lock()
-	current = s.shifts[id]
+	current, ok := s.shifts[id]
+	if !ok || current.TenantID != tenant || current.State != "OPEN" {
+		s.mu.Unlock()
+		return Shift{}, errors.New("shift not open")
+	}
 	for _, order := range s.orders {
 		if order.ShiftID == id && (order.State == "DRAFT" || order.State == "OPEN" || order.State == "FISCAL_PENDING" || order.State == "UNKNOWN") {
 			s.mu.Unlock()
@@ -1132,12 +1255,14 @@ func (s *Service) OrdersFor(tenant string) []Order {
 				}
 				out = append(out, v)
 			}
+			sort.Slice(out, func(i, j int) bool { return out[i].ID < out[j].ID })
 			return out
 		}
 		return []Order{}
 	}
 	all := s.Orders()
 	if tenant == "" {
+		sort.Slice(all, func(i, j int) bool { return all[i].ID < all[j].ID })
 		return all
 	}
 	v := make([]Order, 0)
@@ -1146,6 +1271,7 @@ func (s *Service) OrdersFor(tenant string) []Order {
 			v = append(v, x)
 		}
 	}
+	sort.Slice(v, func(i, j int) bool { return v[i].ID < v[j].ID })
 	return v
 }
 func (s *Service) OrdersForEmployee(tenant, employee string) []Order {
@@ -1160,17 +1286,50 @@ func (s *Service) OrdersForEmployee(tenant, employee string) []Order {
 	return out
 }
 func (s *Service) SalesReport() map[string]any {
-	return s.SalesReportFor("")
+	now := time.Now().UTC()
+	return s.SalesReportForPeriod("", time.Unix(0, 0).UTC(), now)
 }
 func (s *Service) SalesReportFor(tenant string) map[string]any {
+	now := time.Now().UTC()
+	return s.SalesReportForPeriod(tenant, time.Unix(0, 0).UTC(), now)
+}
+func (s *Service) SalesReportForPeriod(tenant string, from, to time.Time) map[string]any {
 	orders := s.OrdersFor(tenant)
-	completed := 0
+	var gross int64
+	byPayment := map[string]int64{}
 	for _, x := range orders {
-		if x.State == "COMPLETED" {
-			completed++
+		if x.CreatedAt.Before(from) || !x.CreatedAt.Before(to) || (x.State != "COMPLETED" && x.State != "REVERSED") {
+			continue
+		}
+		sign := int64(1)
+		if x.State == "REVERSED" {
+			sign = -1
+		}
+		if cents, err := moneyCents(x.Total); err == nil {
+			gross += sign * cents
+		}
+		if len(x.Payments) == 0 {
+			if cents, err := moneyCents(x.Total); err == nil {
+				byPayment["UNKNOWN"] += sign * cents
+			}
+			continue
+		}
+		for _, payment := range x.Payments {
+			if cents, err := moneyCents(payment.Amount); err == nil {
+				byPayment[payment.Type] += sign * cents
+			}
 		}
 	}
-	return map[string]any{"currency": "EUR", "completed_orders": completed, "total_orders": len(orders), "generated_at": time.Now().UTC()}
+	types := make([]string, 0, len(byPayment))
+	for typ := range byPayment {
+		types = append(types, typ)
+	}
+	sort.Strings(types)
+	payments := make([]map[string]any, 0, len(types))
+	for _, typ := range types {
+		payments = append(payments, map[string]any{"type": typ, "amount": Money{Amount: formatCents(byPayment[typ]), Currency: "EUR"}})
+	}
+	return map[string]any{"from": from.UTC(), "to": to.UTC(), "currency": "EUR", "gross": Money{Amount: formatCents(gross), Currency: "EUR"}, "payments": payments, "generated_at": time.Now().UTC()}
 }
 func (s *Service) AddLine(order string, v Line) (Order, error) {
 	return s.AddLineExpected(order, 0, v)
@@ -1188,7 +1347,7 @@ func (s *Service) AddLineExpected(order string, expected int64, v Line) (Order, 
 	if expected > 0 && o.Version != expected {
 		return o, errors.New("version conflict")
 	}
-	if !validUUID(v.LineID) || v.Name == "" || !validMoney(v.UnitPrice) || !validTax(v.TaxGroup) || !validQuantity(v.Quantity) {
+	if !validUUID(v.LineID) || v.Name == "" || !validMoney(v.UnitPrice) || !validDiscount(v.Discount) || !validTax(v.TaxGroup) || !validQuantity(v.Quantity) {
 		return o, errors.New("invalid line")
 	}
 	if v.ProductID != "" {
@@ -1197,8 +1356,13 @@ func (s *Service) AddLineExpected(order string, expected int64, v Line) (Order, 
 			return o, errors.New("product not found")
 		}
 	}
-	o.Lines = append(o.Lines, v)
-	o.Total = orderTotal(o.Lines)
+	nextLines := append(append([]Line(nil), o.Lines...), v)
+	total, err := orderTotal(nextLines)
+	if err != nil {
+		return o, errors.New("order total overflow")
+	}
+	o.Lines = nextLines
+	o.Total = total
 	o.State = "OPEN"
 	o.Version++
 	o.UpdatedAt = time.Now().UTC()
@@ -1212,15 +1376,30 @@ func (s *Service) AddLineExpectedForTenant(order string, expected int64, v Line,
 	}
 	return s.AddLineExpected(order, expected, v)
 }
-func orderTotal(lines []Line) Money {
+func orderTotal(lines []Line) (Money, error) {
 	var cents int64
 	for _, l := range lines {
 		p, _ := strconv.ParseInt(strings.ReplaceAll(l.UnitPrice.Amount, ".", ""), 10, 64)
 		q, _ := strconv.ParseInt(strings.ReplaceAll(l.Quantity, ".", ""), 10, 64)
-		cents += (p*q + 500) / 1000
+		if p < 0 || q <= 0 || (p > 0 && q > (math.MaxInt64-500)/p) {
+			return Money{}, errors.New("invalid line total")
+		}
+		line := (p*q + 500) / 1000
+		if l.Discount != nil {
+			d, _ := strconv.ParseInt(strings.ReplaceAll(l.Discount.Amount, ".", ""), 10, 64)
+			if d < 0 || d > line {
+				return Money{}, errors.New("invalid line discount")
+			}
+			line -= d
+		}
+		if line > math.MaxInt64-cents {
+			return Money{}, errors.New("order total overflow")
+		}
+		cents += line
 	}
-	return Money{Amount: fmt.Sprintf("%d.%02d", cents/100, cents%100), Currency: "EUR"}
+	return Money{Amount: fmt.Sprintf("%d.%02d", cents/100, cents%100), Currency: "EUR"}, nil
 }
+func validDiscount(v *Money) bool { return v == nil || validMoney(*v) }
 func validMoney(v Money) bool {
 	if v.Currency != "EUR" {
 		return false
@@ -1505,6 +1684,7 @@ loadOrder:
 		return o, e
 	}
 	previous := s.orders[o.ID]
+	o.Payments = normalizedOrderPayments(payments)
 	oldIntent, oldIntentExists := s.checkoutHashes[replayKey]
 	if !resuming {
 		o.State = "FISCAL_PENDING"
@@ -1628,30 +1808,24 @@ func (s *Service) ReverseOrderForTenant(orderID, key, reason, tenant string) (Re
 		s.mu.Unlock()
 		return ReversalResult{}, errors.New("order is not reversible")
 	}
+	previousOrder := order
+	order.State = "UNKNOWN"
+	order.ReversalReasonCode = reason
+	order.Version++
+	order.UpdatedAt = time.Now().UTC()
+	s.orders[orderID] = order
+	if err := s.persistLocked(); err != nil {
+		s.orders[orderID] = previousOrder
+		s.mu.Unlock()
+		return ReversalResult{}, err
+	}
 	s.mu.Unlock()
 
 	var operation map[string]any
 	payload := map[string]any{"reason_code": reason}
 	if err := s.call("POST", "/sales/"+order.FiscalSaleID+"/reversals", key+"-fiscal-reversal", payload, &operation); err != nil {
-		// The request may have reached the fiscal system. Freeze the order and
-		// reconcile through the signed webhook/read path; never issue a blind
-		// second storno against the original receipt.
-		s.mu.Lock()
-		current := s.orders[orderID]
-		if current.TenantID == tenant && current.State == "COMPLETED" {
-			previous := current
-			current.State = "UNKNOWN"
-			current.ReversalReasonCode = reason
-			current.Version++
-			current.UpdatedAt = time.Now().UTC()
-			s.orders[orderID] = current
-			if persistErr := s.persistLocked(); persistErr != nil {
-				s.orders[orderID] = previous
-				s.mu.Unlock()
-				return ReversalResult{}, fmt.Errorf("%v; persist reversal UNKNOWN: %w", err, persistErr)
-			}
-		}
-		s.mu.Unlock()
+		// The durable UNKNOWN transition happened before network I/O, so a
+		// timeout, crash or concurrent request cannot issue a second storno.
 		return ReversalResult{}, err
 	}
 	operationID, _ := operation["operation_id"].(string)
@@ -1671,7 +1845,11 @@ func (s *Service) ReverseOrderForTenant(orderID, key, reason, tenant string) (Re
 	result := ReversalResult{OperationID: operationID, State: publicState, FiscalReference: fiscalReference, Simulated: simulated, CreatedAt: now, UpdatedAt: now}
 	s.mu.Lock()
 	current := s.orders[orderID]
-	if current.TenantID != tenant || current.State != "COMPLETED" {
+	if current.TenantID == tenant && current.State == "REVERSED" && current.ReversalOperationID == operationID {
+		s.mu.Unlock()
+		return result, nil
+	}
+	if current.TenantID != tenant || current.State != "UNKNOWN" || current.ReversalReasonCode != reason {
 		s.mu.Unlock()
 		return ReversalResult{}, errors.New("order state changed during reversal")
 	}
@@ -1683,6 +1861,8 @@ func (s *Service) ReverseOrderForTenant(orderID, key, reason, tenant string) (Re
 		current.State = "REVERSED"
 	} else if state == "UNKNOWN" || state == "RECONCILING" {
 		current.State = "UNKNOWN"
+	} else {
+		current.State = "COMPLETED"
 	}
 	current.Version++
 	current.UpdatedAt = now
@@ -1744,6 +1924,31 @@ func moneyCents(value Money) (int64, error) {
 	}
 	return strconv.ParseInt(strings.ReplaceAll(value.Amount, ".", ""), 10, 64)
 }
+func normalizedOrderPayments(payments []map[string]any) []OrderPayment {
+	out := make([]OrderPayment, 0, len(payments))
+	for _, raw := range payments {
+		payment := OrderPayment{}
+		payment.Type, _ = raw["type"].(string)
+		switch amount := raw["amount"].(type) {
+		case map[string]any:
+			payment.Amount.Amount, _ = amount["amount"].(string)
+			payment.Amount.Currency, _ = amount["currency"].(string)
+		case map[string]string:
+			payment.Amount.Amount = amount["amount"]
+			payment.Amount.Currency = amount["currency"]
+		}
+		out = append(out, payment)
+	}
+	return out
+}
+func formatCents(cents int64) string {
+	sign := ""
+	if cents < 0 {
+		sign = "-"
+		cents = -cents
+	}
+	return fmt.Sprintf("%s%d.%02d", sign, cents/100, cents%100)
+}
 func (s *Service) fail(o Order, e error) (Order, error) {
 	o.State = "UNKNOWN"
 	o.Version++
@@ -1769,7 +1974,10 @@ func (s *Service) callWithIfMatch(method, path, key, expected string, in, out an
 	return s.callAttempt(context.Background(), method, path, key, expected, b, out, true)
 }
 func (s *Service) callAttempt(ctx context.Context, method, path, key, expected string, b []byte, out any, allowAuthRetry bool) error {
-	r, _ := http.NewRequestWithContext(ctx, method, s.fiscal+path, bytes.NewReader(b))
+	r, err := http.NewRequestWithContext(ctx, method, s.fiscal+path, bytes.NewReader(b))
+	if err != nil {
+		return fmt.Errorf("build Fiscal public API request: %w", err)
+	}
 	r.Header.Set("Content-Type", "application/json")
 	r.Header.Set("X-Api-Version", s.version)
 	r.Header.Set("Idempotency-Key", key)

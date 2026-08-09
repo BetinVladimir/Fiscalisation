@@ -43,6 +43,7 @@ create table minipos_runtime_api_replays(
   replay_key text primary key, organization_id text not null,
   method text not null, path text not null, request_hash text not null,
   status integer not null check(status between 100 and 599),
+  pending boolean not null default false,
   payload jsonb not null check(jsonb_typeof(payload)='object')
 );
 create index minipos_runtime_api_replays_tenant on minipos_runtime_api_replays(organization_id,path);

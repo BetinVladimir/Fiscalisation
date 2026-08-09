@@ -52,7 +52,7 @@ func TestOIDCVerifierValidatesAndRefreshesRotatedKid(t *testing.T) {
 	server := httptest.NewServer(keys)
 	defer server.Close()
 	verifier := NewOIDCVerifier("https://issuer.example/", "beeminipos", server.URL)
-	if claims, err := verifier.Parse(oidcToken(t, first, "first", "https://issuer.example", []string{"other", "beeminipos"}), time.Now()); err != nil || claims.TenantID != "tenant-1" {
+	if claims, err := verifier.Parse(oidcToken(t, first, "first", "https://issuer.example", []string{"other", "beeminipos"}), time.Now()); err != nil || claims.TenantID != "tenant-1" || claims.Issuer != "https://issuer.example" {
 		t.Fatalf("valid token rejected: %#v %v", claims, err)
 	}
 	keys.set("second", second)

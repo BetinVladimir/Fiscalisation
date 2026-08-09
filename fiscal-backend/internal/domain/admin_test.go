@@ -1,6 +1,91 @@
 package domain
 
-import "testing"
+import (
+	"sync"
+	"testing"
+)
+
+func TestConcurrentResourceBusinessKeyHasSingleWinner(t *testing.T) {
+	for _, tc := range []struct {
+		kind string
+		data func(int) map[string]any
+	}{
+		{"location", func(i int) map[string]any {
+			return map[string]any{"code": []string{"SOF", "sof"}[i], "name": "Sofia", "address": "1 Main", "status": "ACTIVE"}
+		}},
+		{"device", func(i int) map[string]any {
+			return map[string]any{"kind": "EDGE", "vendor": "Beeloy", "model": "ESP32", "serial": []string{"EDGE-1", "edge-1"}[i], "status": "DRAFT", "environment": "DEV", "simulated": false}
+		}},
+		{"organization", func(i int) map[string]any {
+			return map[string]any{"legal_name": []string{"First", "Second"}[i], "eik": []string{"100", "200"}[i], "country": "BG", "status": "ACTIVE"}
+		}},
+	} {
+		t.Run(tc.kind, func(t *testing.T) {
+			s := NewService(NewMemoryRepository(), NewSimulator(true))
+			start := make(chan struct{})
+			results := make(chan error, 2)
+			var wg sync.WaitGroup
+			for i := 0; i < 2; i++ {
+				wg.Add(1)
+				go func(index int) {
+					defer wg.Done()
+					<-start
+					_, err := s.CreateResource(tc.kind, "tenant-a", tc.data(index))
+					results <- err
+				}(i)
+			}
+			close(start)
+			wg.Wait()
+			close(results)
+			succeeded := 0
+			for err := range results {
+				if err == nil {
+					succeeded++
+				}
+			}
+			if succeeded != 1 || len(s.ListResources(tc.kind, "tenant-a")) != 1 {
+				t.Fatalf("business-key race admitted duplicates: successes=%d resources=%d", succeeded, len(s.ListResources(tc.kind, "tenant-a")))
+			}
+			if _, err := s.CreateResource(tc.kind, "tenant-b", tc.data(0)); err != nil {
+				t.Fatalf("tenant-scoped identity leaked across tenants: %v", err)
+			}
+		})
+	}
+}
+
+func TestConcurrentResourceUpdateUsesAtomicVersionCAS(t *testing.T) {
+	s := NewService(NewMemoryRepository(), NewSimulator(true))
+	location, err := s.CreateResource("location", "tenant-a", map[string]any{"code": "SOF", "name": "Original", "address": "1 Main", "status": "ACTIVE"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	id := location["id"].(string)
+	start := make(chan struct{})
+	results := make(chan error, 2)
+	var wg sync.WaitGroup
+	for _, name := range []string{"First", "Second"} {
+		wg.Add(1)
+		go func(nextName string) {
+			defer wg.Done()
+			<-start
+			_, updateErr := s.UpdateResource("location", id, "tenant-a", 1, map[string]any{"code": "SOF", "name": nextName, "address": "1 Main", "status": "ACTIVE"})
+			results <- updateErr
+		}(name)
+	}
+	close(start)
+	wg.Wait()
+	close(results)
+	succeeded := 0
+	for updateErr := range results {
+		if updateErr == nil {
+			succeeded++
+		}
+	}
+	stored, err := s.GetResource("location", id, "tenant-a")
+	if err != nil || succeeded != 1 || stored["version"] != int64(2) {
+		t.Fatalf("resource CAS failed: successes=%d stored=%v err=%v", succeeded, stored, err)
+	}
+}
 
 func TestAdminResourcesTenantVersionAndBinding(t *testing.T) {
 	store := &testStore{}
@@ -128,6 +213,8 @@ func TestProductionActivationRequiresEvidence(t *testing.T) {
 	}
 	base["approved_type_evidence_id"] = "BIM-2026-001"
 	base["service_contract_evidence_id"] = "SERVICE-2026-001"
+	base["fiscal_device_number"] = "DT000001"
+	base["fiscal_memory_number"] = "FM000001"
 	if _, err = s.UpdateResource("device", draft["id"].(string), "tenant-1", pending["version"].(int64), base); err != nil {
 		t.Fatal(err)
 	}

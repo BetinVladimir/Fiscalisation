@@ -102,7 +102,12 @@ func (s *Service) GetResource(kind, id, tenant string) (map[string]any, error) {
 
 func (s *Service) ListResources(kind, tenant string) []map[string]any {
 	v := s.repo.Resources(kind, tenant)
-	sort.Slice(v, func(i, j int) bool { return v[i].CreatedAt.Before(v[j].CreatedAt) })
+	sort.Slice(v, func(i, j int) bool {
+		if v[i].CreatedAt.Equal(v[j].CreatedAt) {
+			return v[i].ID < v[j].ID
+		}
+		return v[i].CreatedAt.Before(v[j].CreatedAt)
+	})
 	out := make([]map[string]any, 0, len(v))
 	for _, x := range v {
 		out = append(out, publicResource(x))
@@ -193,6 +198,9 @@ func validateResource(kind string, v map[string]any) error {
 			}
 			if stringField(v, "status") == "ACTIVE" && (stringField(v, "approved_type_evidence_id") == "" || stringField(v, "service_contract_evidence_id") == "") {
 				return errors.New("active PROD device evidence required")
+			}
+			if stringField(v, "status") == "ACTIVE" && oneOf(stringField(v, "kind"), "FISCAL_DEVICE", "SMART_DEVICE") && (stringField(v, "fiscal_device_number") == "" || stringField(v, "fiscal_memory_number") == "") {
+				return errors.New("active PROD fiscal identity required")
 			}
 		}
 	default:

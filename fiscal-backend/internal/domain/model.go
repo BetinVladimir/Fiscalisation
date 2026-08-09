@@ -15,6 +15,7 @@ type SaleLine struct {
 	Name        string `json:"name"`
 	Quantity    string `json:"quantity"`
 	UnitPrice   Money  `json:"unit_price"`
+	Discount    *Money `json:"discount,omitempty"`
 	TaxGroup    string `json:"tax_group"`
 }
 type PaymentRecord struct {
@@ -24,34 +25,46 @@ type PaymentRecord struct {
 	FiscalReference string    `json:"fiscal_reference,omitempty"`
 	CreatedAt       time.Time `json:"created_at"`
 }
+type FiscalDeviceSnapshot struct {
+	DeviceID           string `json:"device_id"`
+	Serial             string `json:"serial,omitempty"`
+	FiscalDeviceNumber string `json:"fiscal_device_number,omitempty"`
+	FiscalMemoryNumber string `json:"fiscal_memory_number,omitempty"`
+	Vendor             string `json:"vendor,omitempty"`
+	Model              string `json:"model,omitempty"`
+	Firmware           string `json:"firmware,omitempty"`
+}
 type Sale struct {
-	ID, TenantID, ExternalID, RegisterID, OperatorID, UNP, State string
-	FiscalOperationID, ReceiptArtifactID                         string
-	Version                                                      int64
-	Lines                                                        []SaleLine
-	Payments                                                     []PaymentRecord
-	CreatedAt, UpdatedAt                                         time.Time
+	ID, TenantID, ExternalID, LocationID, RegisterID, OperatorID, UNP, State string
+	FiscalOperationID, ReceiptArtifactID                                     string
+	Version                                                                  int64
+	Lines                                                                    []SaleLine
+	Payments                                                                 []PaymentRecord
+	FiscalDevice                                                             FiscalDeviceSnapshot
+	CreatedAt, UpdatedAt                                                     time.Time
 }
 type saleJSON struct {
-	ID                string          `json:"sale_id"`
-	TenantID          string          `json:"tenant_id"`
-	ExternalID        string          `json:"external_id"`
-	RegisterID        string          `json:"register_id"`
-	OperatorID        string          `json:"operator_id"`
-	UNP               string          `json:"unp,omitempty"`
-	State             string          `json:"state"`
-	Version           int64           `json:"version"`
-	Lines             []SaleLine      `json:"lines"`
-	Payments          []PaymentRecord `json:"payments"`
-	FiscalOperationID string          `json:"fiscal_operation_id,omitempty"`
-	ReceiptArtifactID string          `json:"receipt_artifact_id,omitempty"`
-	AllowedActions    []string        `json:"allowed_actions"`
-	CreatedAt         time.Time       `json:"created_at"`
-	UpdatedAt         time.Time       `json:"updated_at"`
+	ID                string               `json:"sale_id"`
+	TenantID          string               `json:"tenant_id"`
+	ExternalID        string               `json:"external_id"`
+	LocationID        string               `json:"location_id,omitempty"`
+	RegisterID        string               `json:"register_id"`
+	OperatorID        string               `json:"operator_id"`
+	UNP               string               `json:"unp,omitempty"`
+	State             string               `json:"state"`
+	Version           int64                `json:"version"`
+	Lines             []SaleLine           `json:"lines"`
+	Payments          []PaymentRecord      `json:"payments"`
+	FiscalOperationID string               `json:"fiscal_operation_id,omitempty"`
+	ReceiptArtifactID string               `json:"receipt_artifact_id,omitempty"`
+	FiscalDevice      FiscalDeviceSnapshot `json:"fiscal_device"`
+	AllowedActions    []string             `json:"allowed_actions"`
+	CreatedAt         time.Time            `json:"created_at"`
+	UpdatedAt         time.Time            `json:"updated_at"`
 }
 
 func (s Sale) MarshalJSON() ([]byte, error) {
-	return marshal(saleJSON{ID: s.ID, TenantID: s.TenantID, ExternalID: s.ExternalID, RegisterID: s.RegisterID, OperatorID: s.OperatorID, UNP: s.UNP, State: s.State, Version: s.Version, Lines: s.Lines, Payments: s.Payments, FiscalOperationID: s.FiscalOperationID, ReceiptArtifactID: s.ReceiptArtifactID, AllowedActions: saleActions(s.State), CreatedAt: s.CreatedAt, UpdatedAt: s.UpdatedAt})
+	return marshal(saleJSON{ID: s.ID, TenantID: s.TenantID, ExternalID: s.ExternalID, LocationID: s.LocationID, RegisterID: s.RegisterID, OperatorID: s.OperatorID, UNP: s.UNP, State: s.State, Version: s.Version, Lines: s.Lines, Payments: s.Payments, FiscalOperationID: s.FiscalOperationID, ReceiptArtifactID: s.ReceiptArtifactID, FiscalDevice: s.FiscalDevice, AllowedActions: saleActions(s.State), CreatedAt: s.CreatedAt, UpdatedAt: s.UpdatedAt})
 }
 func saleActions(state string) []string {
 	switch state {
@@ -72,7 +85,7 @@ func (s *Sale) UnmarshalJSON(b []byte) error {
 	if e := json.Unmarshal(b, &v); e != nil {
 		return e
 	}
-	*s = Sale{ID: v.ID, TenantID: v.TenantID, ExternalID: v.ExternalID, RegisterID: v.RegisterID, OperatorID: v.OperatorID, UNP: v.UNP, State: v.State, Version: v.Version, Lines: v.Lines, Payments: v.Payments, FiscalOperationID: v.FiscalOperationID, ReceiptArtifactID: v.ReceiptArtifactID, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt}
+	*s = Sale{ID: v.ID, TenantID: v.TenantID, ExternalID: v.ExternalID, LocationID: v.LocationID, RegisterID: v.RegisterID, OperatorID: v.OperatorID, UNP: v.UNP, State: v.State, Version: v.Version, Lines: v.Lines, Payments: v.Payments, FiscalOperationID: v.FiscalOperationID, ReceiptArtifactID: v.ReceiptArtifactID, FiscalDevice: v.FiscalDevice, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt}
 	return nil
 }
 
@@ -86,6 +99,7 @@ type Operation struct {
 	ID                      string    `json:"operation_id"`
 	TenantID                string    `json:"tenant_id"`
 	SaleID                  string    `json:"sale_id,omitempty"`
+	RegisterID              string    `json:"register_id,omitempty"`
 	Type                    string    `json:"type"`
 	State                   string    `json:"state"`
 	Version                 int64     `json:"version"`
@@ -133,12 +147,14 @@ type WebhookEvent struct {
 type BLESessionRecord struct {
 	SessionID       string    `json:"session_id"`
 	TenantID        string    `json:"tenant_id,omitempty"`
+	LocationID      string    `json:"location_id"`
 	RegisterID      string    `json:"register_id"`
 	OperatorID      string    `json:"operator_id"`
 	AppInstanceID   string    `json:"app_instance_id"`
 	ActorSubject    string    `json:"actor_subject"`
 	ClientPublicKey string    `json:"client_public_key"`
 	DeviceID        string    `json:"device_id"`
+	FiscalDeviceID  string    `json:"fiscal_device_id"`
 	Scopes          []string  `json:"scopes"`
 	FencingToken    int64     `json:"fencing_token"`
 	ExpiresAt       time.Time `json:"expires_at"`

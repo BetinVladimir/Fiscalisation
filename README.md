@@ -6,6 +6,8 @@
 
 Stage 1 governance закреплён в [`contracts/implementation-governance.json`](contracts/implementation-governance.json): два независимых продукта, владельцы всех обязательных модулей, единая нумерация requirements/tests/defects/releases и полный P0 decision register. `make governance-test` проверяет владельцев, evidence paths и обязательный production block для каждого внешнего P0.
 
+Stage 15 product boundary исполняемо проверяется `make boundary-test`: два Compose-проекта сохраняют собственные БД/private networks/Caddy, MiniPOS не импортирует Fiscal private code и не вызывает internal API, а `FISCAL_PUBLIC_BASE_URL` обязан быть точным HTTP(S) base `/public/v1` без credentials, query или fragment. Gate входит в `make regression`.
+
 ## Проверка baseline
 
 ```bash

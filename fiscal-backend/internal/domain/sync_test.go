@@ -168,8 +168,8 @@ func TestOfflineFiscalSaleMaterializesAcrossSeparateSyncBatches(t *testing.T) {
 		"operation_sequence": float64(10), "unp_sequence": float64(11),
 		"command": map[string]any{"command_id": "offline-op-1", "tenant_id": "tenant-1", "register_id": "register-1", "device_id": "device-1", "type": "FISCAL_SALE", "payload": map[string]any{
 			"currency": "EUR", "external_id": "order-1", "operator_id": "A001", "metadata": map[string]any{"source": "MiniPOS"},
-			"items":    []any{map[string]any{"line_id": "line-1", "name": "Coffee", "quantity": "1.000", "unit_price": map[string]any{"amount": "2.50", "currency": "EUR"}, "tax_group": "B"}},
-			"payments": []any{map[string]any{"payment_id": "payment-1", "type": "CASH", "amount": map[string]any{"amount": "2.50", "currency": "EUR"}}},
+			"items":    []any{map[string]any{"line_id": "line-1", "name": "Coffee", "quantity": "1.000", "unit_price": map[string]any{"amount": "2.50", "currency": "EUR"}, "discount": map[string]any{"amount": "0.20", "currency": "EUR"}, "tax_group": "B"}},
+			"payments": []any{map[string]any{"payment_id": "payment-1", "type": "CASH", "amount": map[string]any{"amount": "2.30", "currency": "EUR"}}},
 		}},
 	}}
 	ack1, err := s.SyncBatch(signCustomBatch("edge-1", 1, nil, []DeviceEventEnvelope{accepted}, key))
@@ -195,6 +195,9 @@ func TestOfflineFiscalSaleMaterializesAcrossSeparateSyncBatches(t *testing.T) {
 	sale, err := s.GetSale("edge-sale-offline-op-1")
 	if err != nil || sale.State != "COMPLETED" || sale.UNP != "register-1-A001-0000011" || sale.ReceiptArtifactID == "" {
 		t.Fatal(sale, err)
+	}
+	if len(sale.Lines) != 1 || sale.Lines[0].Discount == nil || sale.Lines[0].Discount.Amount != "0.20" {
+		t.Fatalf("offline discount lost: %#v", sale.Lines)
 	}
 	if _, err = s.Receipt(sale.ID); err != nil {
 		t.Fatal("offline receipt unavailable", err)

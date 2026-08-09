@@ -2,18 +2,23 @@
 -- preserve the public API identifiers during migration from the compatibility store.
 create table fiscal_runtime_sales(
   id text primary key, tenant_id text not null, external_id text not null,
-  register_id text not null, operator_id text not null, unp text,
+  location_id text, register_id text not null, operator_id text not null, unp text,
   state text not null, version bigint not null check(version>0),
   lines jsonb not null check(jsonb_typeof(lines)='array'),
   payments jsonb not null check(jsonb_typeof(payments)='array'),
   fiscal_operation_id text, receipt_artifact_id text,
+  fiscal_device_id text, fiscal_device_serial text,
+  fiscal_device_number text, fiscal_memory_number text,
+  fiscal_device_vendor text, fiscal_device_model text, fiscal_device_firmware text,
   created_at timestamptz not null, updated_at timestamptz not null,
   unique(tenant_id,external_id), unique(tenant_id,unp)
 );
 create index fiscal_runtime_sales_tenant_state on fiscal_runtime_sales(tenant_id,state,updated_at);
+create index fiscal_runtime_sales_tenant_device on fiscal_runtime_sales(tenant_id,fiscal_device_id,created_at);
+create index fiscal_runtime_sales_tenant_location on fiscal_runtime_sales(tenant_id,location_id,created_at);
 
 create table fiscal_runtime_operations(
-  id text primary key, tenant_id text not null, sale_id text,
+  id text primary key, tenant_id text not null, sale_id text, register_id text,
   type text not null, state text not null, version bigint not null check(version>0),
   fiscal_reference text, simulated boolean not null, error_code text,
   created_at timestamptz not null, updated_at timestamptz not null
@@ -26,7 +31,7 @@ create table fiscal_runtime_shifts(
   version bigint not null check(version>0), opened_at timestamptz not null,
   closed_at timestamptz
 );
-create unique index fiscal_runtime_one_open_shift on fiscal_runtime_shifts(tenant_id,register_id) where state='OPEN';
+create unique index fiscal_runtime_one_open_shift on fiscal_runtime_shifts(tenant_id,register_id) where state in('OPEN','CLOSING','RECONCILIATION_REQUIRED');
 create index fiscal_runtime_shifts_tenant_state on fiscal_runtime_shifts(tenant_id,state,opened_at);
 
 create table fiscal_runtime_resources(
@@ -46,13 +51,14 @@ create table fiscal_runtime_outbox(
 create index fiscal_runtime_outbox_pending on fiscal_runtime_outbox(tenant_id,next_attempt) where delivered_at is null;
 
 create table fiscal_runtime_ble_sessions(
-  id text primary key, tenant_id text not null, register_id text not null,
+  id text primary key, tenant_id text not null, location_id text not null, register_id text not null,
   operator_id text not null, app_instance_id text not null, actor_subject text,
-  client_public_key text, device_id text not null,
+  client_public_key text, device_id text not null, fiscal_device_id text not null,
   fencing_token bigint not null check(fencing_token>0), expires_at timestamptz not null,
   revoked boolean not null, payload jsonb not null check(jsonb_typeof(payload)='object')
 );
 create index fiscal_runtime_ble_sessions_tenant_expiry on fiscal_runtime_ble_sessions(tenant_id,expires_at);
+create index fiscal_runtime_ble_sessions_tenant_binding on fiscal_runtime_ble_sessions(tenant_id,location_id,register_id,fiscal_device_id,expires_at);
 
 create table fiscal_runtime_connectivity_probes(
   id text primary key, tenant_id text not null, register_id text not null,
@@ -82,6 +88,7 @@ create table fiscal_runtime_replays(
   replay_key text primary key, tenant_id text not null,
   method text not null, path text not null, request_hash text not null,
   status integer not null check(status between 100 and 599),
+  pending boolean not null default false,
   payload jsonb not null check(jsonb_typeof(payload)='object')
 );
 create index fiscal_runtime_replays_tenant_path on fiscal_runtime_replays(tenant_id,path);

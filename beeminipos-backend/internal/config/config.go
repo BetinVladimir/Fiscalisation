@@ -27,7 +27,7 @@ func splitCSV(value string) []string {
 	return values
 }
 func (c Config) Validate() error {
-	if strings.Contains(c.FiscalBaseURL, "postgres") || os.Getenv("FISCAL_DATABASE_URL") != "" {
+	if !publicFiscalBaseURL(c.FiscalBaseURL) || os.Getenv("FISCAL_DATABASE_URL") != "" {
 		return errors.New("MiniPOS may use Fiscal only through public API")
 	}
 	if c.AppEnv == "prod" && strings.Contains(c.WebhookVerificationKey, "dev-") {
@@ -67,6 +67,13 @@ func (c Config) Validate() error {
 		return errors.New("HTTPS Fiscal OAuth client credentials required in PROD")
 	}
 	return nil
+}
+func publicFiscalBaseURL(raw string) bool {
+	parsed, err := url.Parse(raw)
+	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" || parsed.User != nil {
+		return false
+	}
+	return parsed.Path == "/public/v1" && parsed.RawPath == "" && parsed.RawQuery == "" && parsed.Fragment == ""
 }
 func httpsURL(raw string) bool {
 	parsed, err := url.Parse(raw)

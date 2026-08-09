@@ -2,6 +2,8 @@
 node_modules/
 .regression-web/
 .regression-native/
+.regression-native-android/
+.regression-native-ios/
 .ui-e2e-web/
 .ui-e2e-prod-web/
 .npm/

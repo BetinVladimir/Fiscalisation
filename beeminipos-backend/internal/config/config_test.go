@@ -80,3 +80,28 @@ func TestProdGuards(t *testing.T) {
 		t.Fatal("shared writer/reader identity accepted")
 	}
 }
+
+func TestFiscalBoundaryRequiresExactPublicAPIBaseInEveryEnvironment(t *testing.T) {
+	t.Setenv("FISCAL_DATABASE_URL", "")
+	for _, raw := range []string{
+		"postgres://fiscal/db",
+		"file:///tmp/fiscal.db",
+		"http://fiscal.example/internal/v1",
+		"http://fiscal.example/public/v1/",
+		"http://user:secret@fiscal.example/public/v1",
+		"http://fiscal.example/public/v1?tenant=other",
+		"http://fiscal.example/public/v1#fragment",
+		"not-a-url",
+	} {
+		c := Config{AppEnv: "dev", FiscalBaseURL: raw}
+		if err := c.Validate(); err == nil {
+			t.Fatalf("non-public Fiscal boundary accepted: %q", raw)
+		}
+	}
+	for _, raw := range []string{"http://localhost:8080/public/v1", "https://fiscal.example/public/v1"} {
+		c := Config{AppEnv: "dev", FiscalBaseURL: raw}
+		if err := c.Validate(); err != nil {
+			t.Fatalf("valid public Fiscal base rejected: %q: %v", raw, err)
+		}
+	}
+}

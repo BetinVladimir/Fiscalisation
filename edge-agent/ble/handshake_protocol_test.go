@@ -7,13 +7,20 @@ import (
 	"time"
 )
 
+func TestHandshakeContextCrossLanguageGolden(t *testing.T) {
+	v := Ticket{TenantID: "tenant", LocationID: "location", RegisterID: "register", DeviceID: "edge", FiscalDeviceID: "fiscal-device", SessionID: "session"}
+	if got := handshakeContext(v); got != "tenant|location|register|edge|fiscal-device|session|2026-08-07" {
+		t.Fatal(got)
+	}
+}
+
 func TestEncryptedHandshakeReachesReadyAndRejectsReplay(t *testing.T) {
 	key := []byte("01234567890123456789012345678901")
 	client, clientPublic, err := NewEphemeralKey()
 	if err != nil {
 		t.Fatal(err)
 	}
-	ticket := Ticket{SessionID: "session-1", TenantID: "tenant-1", RegisterID: "register-1", DeviceID: "device-1", AppInstanceID: "app-1", ClientPublicKey: base64.RawURLEncoding.EncodeToString(clientPublic), Scopes: []string{"fiscal.execute"}, FencingToken: 7, ExpiresAt: time.Now().Add(time.Hour)}
+	ticket := Ticket{SessionID: "session-1", TenantID: "tenant-1", LocationID: "location-1", RegisterID: "register-1", DeviceID: "edge-1", FiscalDeviceID: "device-1", AppInstanceID: "app-1", ClientPublicKey: base64.RawURLEncoding.EncodeToString(clientPublic), Scopes: []string{"fiscal.execute"}, FencingToken: 7, ExpiresAt: time.Now().Add(time.Hour)}
 	rawTicket, err := IssueTicket(ticket, key)
 	if err != nil {
 		t.Fatal(err)
@@ -51,7 +58,7 @@ func TestHandshakeRejectsWrongBindingScopeAndCorruptedProof(t *testing.T) {
 	key := []byte("01234567890123456789012345678901")
 	for _, scopes := range [][]string{{"fiscal.read"}, {"fiscal.execute"}} {
 		_, pub, _ := NewEphemeralKey()
-		ticket := Ticket{SessionID: "session-x", TenantID: "tenant", RegisterID: "register", DeviceID: "device", AppInstanceID: "app", ClientPublicKey: base64.RawURLEncoding.EncodeToString(pub), Scopes: scopes, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
+		ticket := Ticket{SessionID: "session-x", TenantID: "tenant", LocationID: "location", RegisterID: "register", DeviceID: "edge", FiscalDeviceID: "device", AppInstanceID: "app", ClientPublicKey: base64.RawURLEncoding.EncodeToString(pub), Scopes: scopes, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
 		raw, _ := IssueTicket(ticket, key)
 		server := NewHandshakeServer(key, 128, 4)
 		challenge, err := server.HandleHello(ControlMessage{Type: "HELLO", ProtocolVersion: BLEProtocolVersion, SessionID: ticket.SessionID, Payload: map[string]any{"ticket": raw, "client_nonce": base64.RawURLEncoding.EncodeToString([]byte("0123456789abcdef")), "ephemeral_public_key": base64.RawURLEncoding.EncodeToString(pub)}})
@@ -73,7 +80,7 @@ func TestHandshakeRejectsWrongBindingScopeAndCorruptedProof(t *testing.T) {
 func TestHandshakeRejectsRevokedTicketBeforeChallenge(t *testing.T) {
 	key := []byte("01234567890123456789012345678901")
 	_, public, _ := NewEphemeralKey()
-	ticket := Ticket{SessionID: "revoked", TenantID: "tenant", RegisterID: "register", DeviceID: "device", AppInstanceID: "app", ClientPublicKey: base64.RawURLEncoding.EncodeToString(public), Scopes: []string{"fiscal.execute"}, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
+	ticket := Ticket{SessionID: "revoked", TenantID: "tenant", LocationID: "location", RegisterID: "register", DeviceID: "edge", FiscalDeviceID: "device", AppInstanceID: "app", ClientPublicKey: base64.RawURLEncoding.EncodeToString(public), Scopes: []string{"fiscal.execute"}, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
 	raw, _ := IssueTicket(ticket, key)
 	server := NewHandshakeServer(key, 128, 4)
 	server.SetRevocationChecker(func(id string, _ time.Time) bool { return id == "revoked" })
@@ -83,11 +90,28 @@ func TestHandshakeRejectsRevokedTicketBeforeChallenge(t *testing.T) {
 	}
 }
 
+func TestHandshakeRejectsLegacyTicketWithoutLocationAndFinalDevice(t *testing.T) {
+	key := []byte("01234567890123456789012345678901")
+	_, public, err := NewEphemeralKey()
+	if err != nil {
+		t.Fatal(err)
+	}
+	ticket := Ticket{SessionID: "legacy", TenantID: "tenant", RegisterID: "register", DeviceID: "edge", ClientPublicKey: base64.RawURLEncoding.EncodeToString(public), Scopes: []string{"fiscal.execute"}, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
+	raw, err := IssueTicket(ticket, key)
+	if err != nil {
+		t.Fatal(err)
+	}
+	server := NewHandshakeServer(key, 128, 4)
+	if _, err = server.HandleHello(ControlMessage{Type: "HELLO", ProtocolVersion: BLEProtocolVersion, SessionID: ticket.SessionID, Payload: map[string]any{"ticket": raw, "client_nonce": base64.RawURLEncoding.EncodeToString([]byte("0123456789abcdef")), "ephemeral_public_key": base64.RawURLEncoding.EncodeToString(public)}}); err == nil {
+		t.Fatal("legacy ticket without immutable location/final-device identity opened a channel")
+	}
+}
+
 func TestHandshakeRejectsBearerTicketUsedWithDifferentClientKey(t *testing.T) {
 	key := []byte("01234567890123456789012345678901")
 	_, boundPublic, _ := NewEphemeralKey()
 	_, attackerPublic, _ := NewEphemeralKey()
-	ticket := Ticket{SessionID: "bound", TenantID: "tenant", RegisterID: "register", DeviceID: "device", AppInstanceID: "app", ClientPublicKey: base64.RawURLEncoding.EncodeToString(boundPublic), Scopes: []string{"fiscal.execute"}, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
+	ticket := Ticket{SessionID: "bound", TenantID: "tenant", LocationID: "location", RegisterID: "register", DeviceID: "edge", FiscalDeviceID: "device", AppInstanceID: "app", ClientPublicKey: base64.RawURLEncoding.EncodeToString(boundPublic), Scopes: []string{"fiscal.execute"}, FencingToken: 1, ExpiresAt: time.Now().Add(time.Hour)}
 	raw, _ := IssueTicket(ticket, key)
 	server := NewHandshakeServer(key, 128, 4)
 	_, err := server.HandleHello(ControlMessage{Type: "HELLO", ProtocolVersion: BLEProtocolVersion, SessionID: ticket.SessionID, Payload: map[string]any{"ticket": raw, "client_nonce": base64.RawURLEncoding.EncodeToString([]byte("0123456789abcdef")), "ephemeral_public_key": base64.RawURLEncoding.EncodeToString(attackerPublic)}})

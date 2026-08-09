@@ -24,6 +24,7 @@ app_instance_id=00000000-0000-4000-8000-000000000001
 auth_token=$(AUTH_KEY="$auth_key" AUTH_ISSUER="$auth_issuer" ruby -rjson -ropenssl -rbase64 -e 'enc=->(v){Base64.urlsafe_encode64(v,padding:false)};h=enc.call({alg:"HS256",typ:"JWT"}.to_json);p=enc.call({sub:"e2e-admin",iss:ENV.fetch("AUTH_ISSUER"),tenant_id:"e2e-tenant",roles:["ADMIN"],scope:"fiscal.base",exp:Time.now.to_i+7200}.to_json);s="#{h}.#{p}";puts "#{s}.#{enc.call(OpenSSL::HMAC.digest("SHA256",ENV.fetch("AUTH_KEY"),s))}"')
 fiscal_backup=/tmp/beeloy-fiscal-backup-$$.dump
 minipos_backup=/tmp/beeloy-minipos-backup-$$.dump
+canonical_xlsx=/tmp/beeloy-canonical-export-$$.xlsx
 
 fiscal_compose() {
   APP_ENV=dev FISCAL_HTTP_PORT="$fiscal_publish_port" FISCAL_HTTPS_PORT=0 FISCAL_DB_PASSWORD="$fiscal_secret" FISCAL_RLS_DB_PASSWORD="$fiscal_rls_secret" FISCAL_DB_PORT="$fiscal_db_port" FISCAL_UPSTREAM="${fiscal_upstream:-fiscal-backend:8080}" WEBHOOK_SIGNING_KEY="$webhook_key" BLE_SIGNING_KEY="$ble_key" AUTH_HMAC_KEY="$auth_key" SIMULATOR_CARD_TERMINAL_AVAILABLE=true docker compose -p "$fiscal_project" -f "$root/compose.fiscalisation.yaml" -f "$root/compose.fiscalisation.dev.yaml" -f "$root/compose.fiscalisation.e2e.yaml" "$@"
@@ -36,7 +37,7 @@ cleanup() {
   fiscal_compose down -v --remove-orphans >/dev/null 2>&1 || true
   minipos_compose down -v --remove-orphans >/dev/null 2>&1 || true
   docker network rm "$shared_ingress" >/dev/null 2>&1 || true
-  rm -f "$fiscal_backup" "$minipos_backup"
+  rm -f "$fiscal_backup" "$minipos_backup" "$canonical_xlsx"
 }
 failed() {
   status=$?
@@ -238,8 +239,21 @@ split_checkout=$(request POST "$pos/orders/$split_order_id/checkout-batch" check
 assert_json_eq "$split_checkout" .state FISCALIZED
 test -n "$(printf '%s' "$split_checkout" | jq -er .operation_id)"
 test -n "$(printf '%s' "$split_checkout" | jq -er .fiscal_reference)"
+step="verify canonical half-open MiniPOS sales report and payment evidence"
+sales_report=$(request GET "$pos/reports/sales?from=2026-01-01T00%3A00%3A00Z&to=2027-01-01T00%3A00%3A00Z" minipos-sales-report-0001 '')
+assert_json_eq "$sales_report" .gross.amount 2.50
+test "$(printf '%s' "$sales_report" | jq -r '.payments[] | select(.type=="CASH") | .amount.amount')" = -1.50
+test "$(printf '%s' "$sales_report" | jq -r '.payments[] | select(.type=="CARD") | .amount.amount')" = 4.00
 card_closed_shift=$(request POST "$pos/shifts/$card_shift_id/close" shift-close-card-z-0001 '{}')
 assert_json_eq "$card_closed_shift" .state CLOSED
+step="create and download canonical XLSX compliance export"
+canonical_operation=$(request POST "$fiscal/exports" fiscal-canonical-export-001 '{"type":"SUPTO_18_1","from":"2026-01-01T00:00:00Z","to":"2027-01-01T00:00:00Z","format":"XLSX"}')
+canonical_export_id=$(printf '%s' "$canonical_operation" | jq -er .fiscal_reference)
+canonical_manifest=$(request GET "$fiscal/exports/$canonical_export_id" fiscal-canonical-read-0001 '')
+canonical_artifact_id=$(printf '%s' "$canonical_manifest" | jq -er '.artifact.artifact_id')
+test "$(printf '%s' "$canonical_manifest" | jq -r '.artifact.media_type')" = application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+client_curl --silent --show-error --fail -H "X-Api-Version: $api_version" "$fiscal/exports/$canonical_export_id/artifacts/$canonical_artifact_id" >"$canonical_xlsx"
+test "$(od -An -N2 -tx1 "$canonical_xlsx" | tr -d ' \n')" = 504b
 step="create BG-020 periodized BGN/EUR compliance export"
 periodized_operation=$(request POST "$fiscal/exports/periodized" fiscal-periodized-export-0001 '{"type":"SUPTO_18_1","from":"2025-12-31T20:00:00Z","to":"2026-01-01T02:00:00Z","format":"JSON"}')
 periodized_export_id=$(printf '%s' "$periodized_operation" | jq -er .fiscal_reference)
@@ -288,6 +302,8 @@ test "$(printf '%s' "$restored" | jq -er .receipt_reference)" = "$cash_fiscal_re
 test -n "$(printf '%s' "$restored" | jq -er .reversal_fiscal_reference)"
 restored_configuration=$(request GET "$pos/configuration" configuration-read-after-restart '')
 test "$(printf '%s' "$restored_configuration" | jq -r .location_name)" = "E2E Shop"
+restored_sales_report=$(request GET "$pos/reports/sales?from=2026-01-01T00%3A00%3A00Z&to=2027-01-01T00%3A00%3A00Z" minipos-sales-report-restart-01 '')
+assert_json_eq "$restored_sales_report" .gross.amount 2.50
 restored_periodized=$(request GET "$fiscal/exports/$periodized_export_id/periods" fiscal-periodized-after-restart-0001 '')
 test "$(printf '%s' "$restored_periodized" | jq -r '.periods | map(.official_currency) | join(",")')" = BGN,EUR
 
@@ -311,6 +327,8 @@ minipos_rows=$(minipos_compose exec -T postgres psql -U minipos -d minipos_resto
 test "$minipos_rows" -gt 0
 minipos_reversals=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc "select count(*) from minipos_runtime_orders where state='REVERSED' and fiscal_reference is not null and reversal_operation_id is not null and reversal_fiscal_reference is not null and reversal_reason_code='CUSTOMER_RETURN'")
 test "$minipos_reversals" -gt 0
+minipos_payment_evidence=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc "select count(*) from minipos_runtime_orders where jsonb_array_length(payments)>0")
+test "$minipos_payment_evidence" -ge 3
 minipos_z_links=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc "select count(*) from minipos_runtime_shifts where state='CLOSED' and z_operation_id is not null and z_fiscal_reference is not null")
 test "$minipos_z_links" -gt 0
 minipos_mode=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc 'select storage_mode from minipos_state_meta where singleton=true')
@@ -324,6 +342,6 @@ independent=$(request GET "$pos/configuration" configuration-read-fiscal-down ''
 test "$(printf '%s' "$independent" | jq -r .workstation_name)" = "POS 01"
 fiscal_compose start postgres >/dev/null
 
-printf '%s\n' "two-compose E2E passed: cash, card, split and append-only reversal, active terminal binding, Z-linked shift close, UNKNOWN/no-retry outage, operator-owned shift restart recovery, backup/restore, autonomous DB"
+printf '%s\n' "two-compose E2E passed: cash, card, split and append-only reversal, restart-safe half-open sales report/payment evidence, active terminal binding, Z-linked shift close, canonical XLSX + periodized BGN/EUR exports, UNKNOWN/no-retry outage, operator-owned shift restart recovery, backup/restore, autonomous DB"
 trap - EXIT INT TERM
 cleanup

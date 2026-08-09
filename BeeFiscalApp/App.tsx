@@ -10,6 +10,8 @@ import {
   View,
 } from "react-native";
 import { fetchWithTimeout } from "./src/http";
+import { collectCursorPages } from "./src/pagination";
+import { isRegisterId, registerCollectionPath, registerResourcePath } from "./src/registerFilter";
 import { useAdminOidc } from "./src/adminOidc";
 
 const base = (
@@ -17,12 +19,12 @@ const base = (
 ).replace(/\/$/, "");
 const version = "2026-08-07";
 const appEnv = (process.env.EXPO_PUBLIC_APP_ENV || "dev").toLowerCase();
+const configuredRegisterId = process.env.EXPO_PUBLIC_REGISTER_ID || "";
 const prodMode = appEnv === "prod";
 const devAuthToken = prodMode ? "" : process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN || "";
 let runtimeAuthToken = devAuthToken;
 let runtimeUnauthorized: (() => void) | undefined;
 type Item = Record<string, unknown>;
-type Page = { items?: Item[] };
 type AdminLists = {
   locations: Item[];
   registers: Item[];
@@ -51,6 +53,7 @@ async function call(path: string, init: RequestInit = {}) {
   if (!r.ok) throw new Error(text || `HTTP ${r.status}`);
   return text ? JSON.parse(text) : {};
 }
+const collect = (path: string) => collectCursorPages<Item>(path, (next) => call(next));
 const label = (v: unknown) =>
   typeof v === "string" ? v : typeof v === "number" ? String(v) : "—";
 
@@ -61,10 +64,14 @@ export default function App() {
   const canAdminister = hasRole("ADMIN");
   const canRunReports = hasRole("SUPERVISOR", "ADMIN");
   const canReconcile = hasRole("SUPERVISOR", "ADMIN");
+  const canReadAudit = hasRole("ADMIN", "AUDITOR");
+  const canDiagnose = hasRole("ADMIN", "SERVICE");
+  const canIssueBleSession = hasRole("CASHIER", "SUPERVISOR", "ADMIN");
   const tabs = [
     "Устройства",
     "Операции",
     ...(hasRole("SUPERVISOR", "ADMIN", "AUDITOR") ? ["Отчети"] : []),
+    ...(canReadAudit ? ["Одит"] : []),
     ...(canAdminister ? ["Администриране"] : []),
     "Настройки",
   ];
@@ -74,7 +81,7 @@ export default function App() {
     [core, setCore] = useState("CHECKING"),
     [items, setItems] = useState<Item[]>([]),
     [selected, setSelected] = useState<Item | null>(null),
-    [register, setRegister] = useState("FD000001"),
+    [register, setRegister] = useState<string>(configuredRegisterId),
     [policy, setPolicy] = useState<Item | null>(null),
     [adminLists, setAdminLists] = useState<AdminLists>({
       locations: [],
@@ -94,7 +101,16 @@ export default function App() {
     [deviceVendor, setDeviceVendor] = useState("Datecs"),
     [deviceModel, setDeviceModel] = useState("DP-150 MX"),
     [deviceSerial, setDeviceSerial] = useState(""),
+    [deviceKind, setDeviceKind] = useState("FISCAL_DEVICE"),
+    [bindingRole, setBindingRole] = useState("FISCAL_DEVICE"),
     [deviceId, setDeviceId] = useState(""),
+    [diagnostics, setDiagnostics] = useState<Item | null>(null),
+    [provisioning, setProvisioning] = useState<Item | null>(null),
+    [bleSession, setBleSession] = useState<Item | null>(null),
+    [blePublicKey, setBlePublicKey] = useState(""),
+    [bleAppInstance] = useState(() => `beefiscal-admin-${Date.now()}`),
+    [transportMetrics, setTransportMetrics] = useState<Item | null>(null),
+    [fiscalMetrics, setFiscalMetrics] = useState<Item | null>(null),
     [adminBusy, setAdminBusy] = useState(false),
     [loading, setLoading] = useState(false);
   const refresh = useCallback(
@@ -103,22 +119,22 @@ export default function App() {
       try {
         if (next === "Администриране" && !canAdminister) throw new Error("ROLE_ADMIN_REQUIRED");
         if (next === "Отчети" && !hasRole("SUPERVISOR", "ADMIN", "AUDITOR")) throw new Error("ROLE_REPORT_READ_REQUIRED");
+        if (next === "Одит" && !canReadAudit) throw new Error("ROLE_AUDIT_READ_REQUIRED");
         if (next === "Устройства") {
-          const v: Page = await call("/devices?limit=100");
-          setItems(v.items || []);
-          setSelected((x) => x || v.items?.[0] || null);
+          const v = await collect("/devices");
+          setItems(v);
+          setSelected((x) => x || v[0] || null);
         }
         if (next === "Операции") {
-          const v: Page = await call(
-            `/operations?limit=100${register ? `&register_id=${encodeURIComponent(register)}` : ""}`,
-          );
-          setItems(v.items || []);
+          const v = await collect(registerCollectionPath("/operations", register));
+          setItems(v);
         }
         if (next === "Отчети") {
-          const v: Page = await call(
-            `/reports?limit=100${register ? `&register_id=${encodeURIComponent(register)}` : ""}`,
-          );
-          setItems(v.items || []);
+          const v = await collect(registerCollectionPath("/reports", register));
+          setItems(v);
+        }
+        if (next === "Одит") {
+          setItems(await collect("/audit-events"));
         }
         if (next === "Настройки") {
           const [p, t] = await Promise.all([
@@ -129,24 +145,22 @@ export default function App() {
           setItems([]);
         }
         if (next === "Администриране") {
-          const [locations, registers, operators, devices]: Page[] =
+          const [locations, registers, operators, devices] =
             await Promise.all([
-              call("/locations?limit=100"),
-              call("/registers?limit=100"),
-              call("/operators?limit=100"),
-              call("/devices?limit=100"),
+              collect("/locations"),
+              collect("/registers"),
+              collect("/operators"),
+              collect("/devices"),
             ]);
           const lists = {
-            locations: locations.items || [],
-            registers: registers.items || [],
-            operators: operators.items || [],
-            devices: devices.items || [],
+            locations,
+            registers,
+            operators,
+            devices,
           };
           setAdminLists(lists);
           setLocationId((x) => x || label(lists.locations[0]?.id));
-          setRegister((x) =>
-            x === "FD000001" ? label(lists.registers[0]?.id) : x,
-          );
+          setRegister((x) => x || label(lists.registers[0]?.id));
           setDeviceId((x) => x || label(lists.devices[0]?.id));
           setOperatorId((x) => x || label(lists.operators[0]?.id));
           setItems([]);
@@ -160,7 +174,7 @@ export default function App() {
         setLoading(false);
       }
     },
-    [register, tab, canAdminister, roles.join(",")],
+    [register, tab, canAdminister, canReadAudit, roles.join(",")],
   );
   useEffect(() => {
     runtimeAuthToken = oidc.accessToken || devAuthToken;
@@ -182,6 +196,10 @@ export default function App() {
     void refresh(next);
   };
   const probe = async () => {
+    if (!isRegisterId(register)) {
+      setMessage("Изберете валиден Fiscal register UUID преди сквозния probe");
+      return;
+    }
     if (!selected) {
       setMessage("Няма регистрирано устройство за probe");
       return;
@@ -190,10 +208,12 @@ export default function App() {
     try {
       const id = label(selected.id);
       const route = await call(
-        `/registers/${encodeURIComponent(register)}/connectivity-probes`,
+        registerResourcePath(register, "/connectivity-probes"),
         { method: "POST", body: "{}" },
       );
       const device = await call(`/devices/${encodeURIComponent(id)}/readiness`);
+      setTransportMetrics({ state: route.state, hops: route.hops, recommended_transport: route.recommended_transport });
+      setFiscalMetrics({ ready: device.ready, components: device.components, observed_at: device.observed_at });
       setMessage(
         `Cloud ${route.hops?.cloud?.state || route.state} → Edge ${route.hops?.edge?.state || "?"} → Driver ${device.driver} → ФУ ${device.fiscal_device}`,
       );
@@ -203,15 +223,78 @@ export default function App() {
       );
     }
   };
+  const loadDiagnostics = async () => {
+    if (!selected || !canDiagnose) {
+      setMessage("Диагностиката изисква роля ADMIN или SERVICE");
+      return;
+    }
+    setLoading(true);
+    try {
+      const id = encodeURIComponent(label(selected.id));
+      const [capabilities, details] = await Promise.all([
+        call(`/devices/${id}/capabilities`),
+        call(`/devices/${id}/diagnostics`),
+      ]);
+      setDiagnostics({ capabilities, details });
+      setMessage("Диагностиката е заредена с приложени server redactions");
+    } catch (e) {
+      setMessage(`Диагностиката е отказана: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const startProvisioning = async () => {
+    if (!selected || !canAdminister) {
+      setMessage("Provisioning изисква роля ADMIN");
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await call(`/devices/${encodeURIComponent(label(selected.id))}/provisioning-sessions`, { method: "POST", body: "" });
+      setProvisioning(result);
+      setMessage(`Provisioning сесия ${label(result.session_id)} • ${label(result.state)}`);
+    } catch (e) {
+      setMessage(`Provisioning е отказан: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
+  const issueBleSession = async () => {
+    if (!canIssueBleSession) {
+      setMessage("BLE сесията изисква оперативна роля");
+      return;
+    }
+    if (!isRegisterId(register) || !operatorId || !blePublicKey.trim()) {
+      setMessage("BLE сесията изисква валиден register UUID, operator и предварително подготвен client public key");
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await call(registerResourcePath(register, "/ble-sessions"), {
+        method: "POST",
+        body: JSON.stringify({ operator_id: operatorId, app_instance_id: bleAppInstance, public_key: blePublicKey.trim() }),
+      });
+      setBleSession(result);
+      setMessage(`BLE сесия ${label(result.ble_session_id)} • валидна до ${label(result.expires_at)}`);
+    } catch (e) {
+      setMessage(`BLE сесията е отказана: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setLoading(false);
+    }
+  };
   const report = async (type: string) => {
     if (!canRunReports) {
       setMessage("Командата за отчет изисква роля SUPERVISOR или ADMIN");
       return;
     }
+    if (!isRegisterId(register)) {
+      setMessage("Командата за отчет изисква валиден Fiscal register UUID");
+      return;
+    }
     setMessage(`${type} отчет…`);
     try {
       const v = await call(
-        `/registers/${encodeURIComponent(register)}/reports`,
+        registerResourcePath(register, "/reports"),
         { method: "POST", body: JSON.stringify({ type }) },
       );
       setMessage(`${type}: ${v.state} • ${v.fiscal_reference || v.id}`);
@@ -356,7 +439,8 @@ export default function App() {
             </Pressable>
           </View>
           {tab === "Устройства" ? (
-            items.map((d) => (
+            <>
+            {items.map((d) => (
               <Pressable
                 key={label(d.id)}
                 accessibilityRole="button"
@@ -381,7 +465,26 @@ export default function App() {
                   <Text style={s.stateText}>{label(d.status || d.state)}</Text>
                 </View>
               </Pressable>
-            ))
+            ))}
+            <View testID="device-control-plane" style={s.panel}>
+              <Text style={s.panelTitle}>Provisioning, BLE и ограничена диагностика</Text>
+              <Text style={s.meta}>Transport/cloud и достижимостта на крайното ФУ са отделни групи метрики.</Text>
+              <View style={s.actions}>
+                {canDiagnose ? <Action testID="device-diagnostics" label="Диагностика" disabled={loading || !selected} onPress={() => void loadDiagnostics()} /> : null}
+                {canAdminister ? <Action testID="device-provision" label="Нова provisioning сесия" disabled={loading || !selected} onPress={() => void startProvisioning()} /> : null}
+              </View>
+              {canIssueBleSession ? <>
+                <Field label="Operator ID за BLE" value={operatorId} onChangeText={setOperatorId} testID="ble-operator-id" />
+                <Field label="Подготвен X25519 client public key" value={blePublicKey} onChangeText={setBlePublicKey} testID="ble-client-public-key" />
+                <Action testID="ble-session-issue" label="Издай BLE сесия" disabled={loading || !isRegisterId(register) || !operatorId || !blePublicKey.trim()} onPress={() => void issueBleSession()} />
+              </> : null}
+              {transportMetrics ? <Text testID="transport-metrics" style={s.json}>Transport: {JSON.stringify(transportMetrics, null, 2)}</Text> : null}
+              {fiscalMetrics ? <Text testID="fiscal-device-metrics" style={s.json}>Крайно ФУ: {JSON.stringify(fiscalMetrics, null, 2)}</Text> : null}
+              {diagnostics ? <Text testID="diagnostics-result" style={s.json}>{JSON.stringify(diagnostics, null, 2)}</Text> : null}
+              {provisioning ? <Text testID="provisioning-result" style={s.json}>{JSON.stringify(provisioning, null, 2)}</Text> : null}
+              {bleSession ? <Text testID="ble-session-result" style={s.json}>{JSON.stringify(bleSession, null, 2)}</Text> : null}
+            </View>
+            </>
           ) : tab === "Операции" ? (
             items.map((o) => (
               <View
@@ -436,6 +539,8 @@ export default function App() {
                       key={x}
                       accessibilityRole="button"
                       accessibilityLabel={`Създай ${x} отчет`}
+                      accessibilityState={{ disabled: loading || !isRegisterId(register) }}
+                      disabled={loading || !isRegisterId(register)}
                       style={s.action}
                       onPress={() => report(x)}
                     >
@@ -458,6 +563,30 @@ export default function App() {
                 </View>
               ))}
             </>
+          ) : tab === "Одит" && canReadAudit ? (
+            <View testID="audit-events" accessibilityLabel="Неизменим одитен журнал">
+              {items.map((event) => (
+                <View
+                  key={label(event.event_id)}
+                  testID={`audit-event-${label(event.event_id)}`}
+                  accessibilityLabel={`Одит ${label(event.action)}, обект ${label(event.object_type)} ${label(event.object_id)}, участник ${label(event.actor_id)}, време ${label(event.occurred_at)}`}
+                  style={s.card}
+                >
+                  <View>
+                    <Text style={s.device}>
+                      {label(event.action)} • {label(event.object_type)}
+                    </Text>
+                    <Text style={s.meta}>
+                      {label(event.object_id)} • участник {label(event.actor_id)}
+                    </Text>
+                    <Text style={s.meta}>
+                      {label(event.occurred_at)} • УНП {label(event.unp)}
+                    </Text>
+                    <Text style={s.meta}>Hash: {label(event.event_hash)}</Text>
+                  </View>
+                </View>
+              ))}
+            </View>
           ) : tab === "Администриране" && canAdminister ? (
             <View testID="admin-editors" style={s.adminGrid}>
               <AdminCard
@@ -558,7 +687,7 @@ export default function App() {
                       );
                       const v = await call(
                         current
-                          ? `/registers/${encodeURIComponent(register)}`
+                          ? registerResourcePath(register)
                           : "/registers",
                         {
                           method: current ? "PATCH" : "POST",
@@ -661,8 +790,15 @@ export default function App() {
                     setDeviceVendor(label(x.vendor));
                     setDeviceModel(label(x.model));
                     setDeviceSerial(label(x.serial));
+                    setDeviceKind(label(x.kind));
+                    setBindingRole(label(x.kind) === "PAYMENT_TERMINAL" ? "OPTIONAL_PAYMENT_TERMINAL" : "FISCAL_DEVICE");
                   }}
                 />
+                <View style={s.actions}>
+                  <Action label="Фискално устройство" disabled={adminBusy} testID="admin-device-kind-fiscal" onPress={() => { setDeviceKind("FISCAL_DEVICE"); setBindingRole("FISCAL_DEVICE"); }} />
+                  <Action label="Опционален POS терминал" disabled={adminBusy} testID="admin-device-kind-terminal" onPress={() => { setDeviceKind("PAYMENT_TERMINAL"); setBindingRole("OPTIONAL_PAYMENT_TERMINAL"); }} />
+                </View>
+                <Text style={s.meta}>Capability: {deviceKind} • binding: {bindingRole}</Text>
                 <Field
                   label="Производител"
                   value={deviceVendor}
@@ -698,7 +834,7 @@ export default function App() {
                             ? { "If-Match": String(current.version) }
                             : {},
                           body: JSON.stringify({
-                            kind: current?.kind || "FISCAL_DEVICE",
+                            kind: deviceKind,
                             vendor: deviceVendor,
                             model: deviceModel,
                             serial: deviceSerial,
@@ -763,6 +899,10 @@ export default function App() {
                   onChangeText={setRegister}
                   testID="admin-binding-register"
                 />
+                <View style={s.actions}>
+                  <Action label="Роля ФУ" disabled={adminBusy} testID="admin-binding-role-fiscal" onPress={() => setBindingRole("FISCAL_DEVICE")} />
+                  <Action label="Роля POS" disabled={adminBusy} testID="admin-binding-role-terminal" onPress={() => setBindingRole("OPTIONAL_PAYMENT_TERMINAL")} />
+                </View>
                 <Field
                   label="Device ID"
                   value={deviceId}
@@ -771,17 +911,17 @@ export default function App() {
                 />
                 <Action
                   label="Привържи ФУ"
-                  disabled={adminBusy}
+                  disabled={adminBusy || !isRegisterId(register)}
                   testID="admin-binding-save"
                   onPress={() =>
                     mutateAdmin("Привързване на ФУ", () =>
                       call(
-                        `/registers/${encodeURIComponent(register)}/bindings`,
+                        registerResourcePath(register, "/bindings"),
                         {
                           method: "POST",
                           body: JSON.stringify({
                             device_id: deviceId,
-                            role: "FISCAL_DEVICE",
+                            role: bindingRole,
                           }),
                         },
                       ),

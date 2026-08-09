@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"bytes"
 	"encoding/json"
 	"errors"
 	"sync"
@@ -70,6 +71,44 @@ func (s *typedReadStore) LoadTenantEntities(string, string) ([][]byte, error) {
 type testStore struct {
 	mu sync.Mutex
 	b  []byte
+}
+
+func TestFailedFirstMutationRestoresTrulyEmptySnapshot(t *testing.T) {
+	repo, err := NewPersistentRepository(&failingStore{err: errors.New("disk unavailable")})
+	if err != nil {
+		t.Fatal(err)
+	}
+	now := time.Now().UTC()
+	if err = repo.PutOperation(Operation{ID: "must-rollback", Type: "Z", State: "EXECUTING", Version: 1, CreatedAt: now, UpdatedAt: now}); err == nil {
+		t.Fatal("injected first save failure was ignored")
+	}
+	if len(repo.Operations()) != 0 || len(repo.audit) != 0 {
+		t.Fatalf("failed first mutation leaked into memory: operations=%+v audit=%+v", repo.Operations(), repo.audit)
+	}
+}
+
+func TestPersistentRepositoryRecoversOrphanReplayAsUnknownWithoutReclaim(t *testing.T) {
+	store := &testStore{}
+	repo, err := NewPersistentRepository(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	key, hash := "tenant-a POST /public/v1/sales orphan-key-0001", Hash([]byte(`{"external_id":"order-1"}`))
+	if _, owner, claimErr := repo.ClaimReplay(key, hash); claimErr != nil || !owner {
+		t.Fatalf("initial claim failed: owner=%v err=%v", owner, claimErr)
+	}
+	restarted, err := NewPersistentRepository(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	replay, ok := restarted.Replay(key)
+	if !ok || !replay.Pending || replay.Status != 503 || replay.ContentType != "application/problem+json" || !bytes.Contains(replay.Body, []byte("IDEMPOTENCY_OUTCOME_UNKNOWN")) {
+		t.Fatalf("orphan replay was not made explicitly unknown: %+v", replay)
+	}
+	got, owner, claimErr := restarted.ClaimReplay(key, hash)
+	if claimErr != nil || owner || got.Status != 503 || !got.Pending {
+		t.Fatalf("orphan claim was unsafely reclaimed: owner=%v replay=%+v err=%v", owner, got, claimErr)
+	}
 }
 
 func (s *testStore) Load() ([]byte, error) {

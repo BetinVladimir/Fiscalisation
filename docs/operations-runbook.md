@@ -4,6 +4,8 @@
 
 Fiscal and MiniPOS are independent products. Their only HTTP(S) entry points are their respective Caddy services. MiniPOS may call Fiscal only through `FISCAL_PUBLIC_BASE_URL`; database sharing and internal-service calls are prohibited.
 
+`FISCAL_PUBLIC_BASE_URL` must be the exact public API base (`http://host/public/v1` in DEV or `https://host/public/v1` in PROD), without a trailing slash, credentials, query or fragment. File/database schemes and `/internal/v1` are rejected at MiniPOS startup. Run `make boundary-test` after every Compose, DSN or downstream-client change.
+
 ## DEV startup
 
 ```sh
@@ -49,6 +51,10 @@ Pilot target RTO is under 120 seconds for the tested dataset. An untested or par
 
 Monitor cloud transport and final-device reachability as separate metrics, outbox age/retries, UNKNOWN operations, Edge cursor/gaps/storage, open shifts, failed Z reports, certificate/key expiry, backup freshness and release evidence state.
 
+Compliance export periods are half-open `[from,to)`. Retrieve the manifest with `GET /exports/{export_id}`, then download only its recorded artifact ID through `GET /exports/{export_id}/artifacts/{artifact_id}`. The same route serves canonical and periodized JSON/CSV/XLSX with authoritative MIME and extension. Never concatenate adjacent exports as inclusive-end periods; a request with `from == to` is rejected.
+
 For `BLOCKED_RECONCILIATION` shift close, do not submit another close/Z command. The operator-owned shift exposes only `READ` and `RECONCILE`; use `POST /minipos/shifts/{shift_id}/reconcile`. MiniPOS performs GET-only lookup of the persisted Fiscal operation. Only when no operation ID was received may it replay the original report request with the exact deterministic idempotency key. Sales and opening a replacement shift remain blocked until a final `FISCALIZED` operation with a fiscal reference closes the shift.
 
 Cashier access is deliberately narrower than tenant membership. `CASHIER` may read catalog/configuration and only orders/shifts belonging to the employee resolved from the active OIDC app session. Employee directory and tenant-wide sales reports require `SUPERVISOR`, `ADMIN` or read-only `AUDITOR`; object editors require `SUPERVISOR`/`ADMIN`. A cashier UI must not request `/employees` or render management controls.
+
+BeeFiscal roles are also action-specific. `ADMIN` alone sees tenant/location/register/operator/device editors. `SUPERVISOR` and `ADMIN` may create reports and reconcile an operation; `AUDITOR` may read reports/exports/audit evidence but cannot issue a fiscal report or reconciliation command. `SERVICE` may read diagnostics and provisioning state but cannot obtain operator BLE authority. Workforce, audit, webhook and provisioning collections are never cashier-readable. BeeFiscalApp decodes roles only to hide unavailable controls; an opaque or malformed access token receives no privileged UI, and the backend remains the authorization authority.

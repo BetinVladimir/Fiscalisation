@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fiscalisation/fiscal-backend/internal/config"
 	"fiscalisation/fiscal-backend/internal/domain"
 	"github.com/fxamacker/cbor/v2"
@@ -276,6 +277,73 @@ func TestOpaqueCursorPagination(t *testing.T) {
 	}
 }
 
+func TestOperationListPaginationHasStablePublicAPIOrder(t *testing.T) {
+	repo := domain.NewMemoryRepository()
+	created := time.Date(2026, 8, 9, 12, 0, 0, 0, time.UTC)
+	for _, id := range []string{"op-c", "op-a", "op-b"} {
+		if err := repo.PutOperation(domain.Operation{ID: id, Type: "SALE", State: "FISCALIZED", Version: 1, FiscalReference: "ref-" + id, AllowedActions: []string{}, CreatedAt: created, UpdatedAt: created}); err != nil {
+			t.Fatal(err)
+		}
+	}
+	h := NewHandler(domain.NewService(repo, domain.NewSimulator(true)), config.Config{APIVersion: "2026-08-07", AllowStubAdapters: true})
+	request := func(path string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodGet, path, nil)
+		r.Header.Set("X-Api-Version", "2026-08-07")
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	first := request("/public/v1/operations?limit=2")
+	var page1 struct {
+		Items []domain.Operation `json:"items"`
+		Page  struct {
+			NextCursor string `json:"next_cursor"`
+			HasMore    bool   `json:"has_more"`
+		} `json:"page"`
+	}
+	if first.Code != http.StatusOK || json.Unmarshal(first.Body.Bytes(), &page1) != nil || len(page1.Items) != 2 || !page1.Page.HasMore || page1.Page.NextCursor == "" {
+		t.Fatalf("unexpected first operation page: %d %s", first.Code, first.Body.String())
+	}
+	second := request("/public/v1/operations?limit=2&cursor=" + page1.Page.NextCursor)
+	var page2 struct {
+		Items []domain.Operation `json:"items"`
+		Page  struct {
+			HasMore bool `json:"has_more"`
+		} `json:"page"`
+	}
+	if second.Code != http.StatusOK || json.Unmarshal(second.Body.Bytes(), &page2) != nil || len(page2.Items) != 1 || page2.Page.HasMore {
+		t.Fatalf("unexpected second operation page: %d %s", second.Code, second.Body.String())
+	}
+	ids := []string{page1.Items[0].ID, page1.Items[1].ID, page2.Items[0].ID}
+	if strings.Join(ids, ",") != "op-a,op-b,op-c" {
+		t.Fatalf("unstable operation order: %v", ids)
+	}
+}
+
+func TestShiftListAppliesDocumentedRegisterFilter(t *testing.T) {
+	repo := domain.NewMemoryRepository()
+	registerA := "00000000-0000-4000-8000-0000000000a1"
+	registerB := "00000000-0000-4000-8000-0000000000b1"
+	first, err := repo.OpenShift(registerA, "00000000-0000-4000-8000-0000000000a2", "")
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = repo.OpenShift(registerB, "00000000-0000-4000-8000-0000000000b2", ""); err != nil {
+		t.Fatal(err)
+	}
+	h := NewHandler(domain.NewService(repo, domain.NewSimulator(true)), config.Config{APIVersion: "2026-08-07", AllowStubAdapters: true})
+	r := httptest.NewRequest(http.MethodGet, "/public/v1/shifts?register_id="+registerA+"&limit=1", nil)
+	r.Header.Set("X-Api-Version", "2026-08-07")
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, r)
+	var result struct {
+		Items []domain.Shift `json:"items"`
+	}
+	if w.Code != http.StatusOK || json.Unmarshal(w.Body.Bytes(), &result) != nil || len(result.Items) != 1 || result.Items[0].ID != first.ID {
+		t.Fatalf("register filter ignored: %d %s", w.Code, w.Body.String())
+	}
+}
+
 func TestEdgeSyncAcceptsCanonicalCBOR(t *testing.T) {
 	h := testHandler()
 	body, err := cbor.Marshal(apiSyncBatch())
@@ -305,7 +373,7 @@ func jwtSubject(tenant, subject string, selected ...string) string {
 		role = selected[0]
 	}
 	head := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256"}`))
-	payload, _ := json.Marshal(map[string]any{"sub": subject, "tenant_id": tenant, "roles": []string{role}, "scope": "fiscal.base", "exp": time.Now().Add(time.Hour).Unix()})
+	payload, _ := json.Marshal(map[string]any{"sub": subject, "iss": "https://identity.example.test", "tenant_id": tenant, "roles": []string{role}, "scope": "fiscal.base", "exp": time.Now().Add(time.Hour).Unix()})
 	body := base64.RawURLEncoding.EncodeToString(payload)
 	m := hmac.New(sha256.New, []byte("01234567890123456789012345678901"))
 	m.Write([]byte(head + "." + body))
@@ -534,6 +602,38 @@ type apiStore struct {
 	mu sync.Mutex
 	b  []byte
 }
+type versionedFiscalAPIStore struct {
+	mu         sync.Mutex
+	b          []byte
+	generation int64
+}
+
+func (s *versionedFiscalAPIStore) Load() ([]byte, error) {
+	b, _, err := s.LoadVersioned()
+	return b, err
+}
+func (s *versionedFiscalAPIStore) Save(b []byte) error {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	s.b = append([]byte(nil), b...)
+	s.generation++
+	return nil
+}
+func (s *versionedFiscalAPIStore) LoadVersioned() ([]byte, int64, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	return append([]byte(nil), s.b...), s.generation, nil
+}
+func (s *versionedFiscalAPIStore) SaveVersioned(b []byte, expected int64) (int64, error) {
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	if expected != s.generation {
+		return s.generation, errors.New("generation conflict")
+	}
+	s.b = append([]byte(nil), b...)
+	s.generation++
+	return s.generation, nil
+}
 
 func (s *apiStore) Load() ([]byte, error) {
 	s.mu.Lock()
@@ -569,6 +669,151 @@ func TestIdempotencySurvivesRepositoryRestart(t *testing.T) {
 		t.Fatalf("%d %s", w.Code, w.Body.String())
 	}
 }
+
+func TestFiscalIdempotencyClaimsAcrossReplicasBeforeExecution(t *testing.T) {
+	store := &versionedFiscalAPIStore{}
+	r1, err := domain.NewPersistentRepository(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	r2, err := domain.NewPersistentRepository(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s1 := domain.NewService(r1, domain.NewSimulator(true))
+	s2 := domain.NewService(r2, domain.NewSimulator(true))
+	entered, release := make(chan struct{}), make(chan struct{})
+	var calls int
+	var callsMu sync.Mutex
+	next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		callsMu.Lock()
+		calls++
+		callsMu.Unlock()
+		close(entered)
+		<-release
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusCreated)
+		_, _ = w.Write([]byte(`{"sale_id":"one"}`))
+	})
+	h1, h2 := fiscalIdempotency(s1, next), fiscalIdempotency(s2, next)
+	request := func(h http.Handler) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodPost, "/public/v1/sales", strings.NewReader(`{"external_id":"one"}`))
+		r.Header.Set("Idempotency-Key", "fiscal-concurrent-claim")
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	firstDone := make(chan *httptest.ResponseRecorder, 1)
+	go func() { firstDone <- request(h1) }()
+	<-entered
+	second := request(h2)
+	if second.Code != http.StatusConflict || second.Header().Get("Retry-After") != "1" {
+		t.Fatalf("loser=%d %s", second.Code, second.Body.String())
+	}
+	close(release)
+	first := <-firstDone
+	replayed := request(h2)
+	if first.Code != http.StatusCreated || replayed.Code != http.StatusCreated || replayed.Header().Get("Idempotency-Replayed") != "true" || replayed.Body.String() != first.Body.String() {
+		t.Fatalf("first=%d replay=%d %s", first.Code, replayed.Code, replayed.Body.String())
+	}
+	callsMu.Lock()
+	defer callsMu.Unlock()
+	if calls != 1 {
+		t.Fatalf("business handler executed %d times", calls)
+	}
+}
+
+func TestFiscalIdempotencyKeepsPendingAfterAmbiguousFailure(t *testing.T) {
+	s := domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true))
+	var calls int
+	h := fiscalIdempotency(s, http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { calls++; problem(w, 500, "AMBIGUOUS") }))
+	request := func() *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodPost, "/public/v1/sales", strings.NewReader(`{}`))
+		r.Header.Set("Idempotency-Key", "fiscal-ambiguous-claim")
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	first, second := request(), request()
+	if first.Code != 500 || second.Code != 500 || second.Header().Get("Idempotency-Replayed") != "true" || second.Body.String() != first.Body.String() || calls != 1 {
+		t.Fatalf("first=%d second=%d calls=%d", first.Code, second.Code, calls)
+	}
+}
+
+func TestFiscalIdempotencyReplaysRepresentationHeaders(t *testing.T) {
+	s := domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true))
+	calls := 0
+	h := fiscalIdempotency(s, http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) {
+		calls++
+		w.Header().Set("Content-Type", "application/json")
+		w.Header().Set("ETag", `"sale-v1"`)
+		w.Header().Set("Location", "/public/v1/sales/s1")
+		w.Header().Set("Set-Cookie", "must-not-be-persisted=1")
+		w.WriteHeader(http.StatusCreated)
+		_, _ = w.Write([]byte(`{"id":"s1"}`))
+	}))
+	request := func() *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodPost, "/public/v1/sales", strings.NewReader(`{}`))
+		r.Header.Set("Idempotency-Key", "fiscal-representation-key")
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	first, replayed := request(), request()
+	if first.Code != 201 || replayed.Code != 201 || calls != 1 || replayed.Header().Get("ETag") != `"sale-v1"` || replayed.Header().Get("Location") != "/public/v1/sales/s1" || replayed.Header().Get("Content-Type") != "application/json" {
+		t.Fatalf("representation headers not replayed exactly: first=%d replay=%d headers=%v calls=%d", first.Code, replayed.Code, replayed.Header(), calls)
+	}
+	if replayed.Header().Get("Set-Cookie") != "" {
+		t.Fatal("security-sensitive header was persisted in replay")
+	}
+}
+
+func TestFiscalIdempotencyFingerprintIncludesConditionsAndQuery(t *testing.T) {
+	for _, tc := range []struct{ name, firstPath, secondPath, firstMatch, secondMatch string }{
+		{name: "if-match", firstPath: "/public/v1/locations/id", secondPath: "/public/v1/locations/id", firstMatch: "1", secondMatch: "2"},
+		{name: "query", firstPath: "/public/v1/locations/id?mode=a", secondPath: "/public/v1/locations/id?mode=b"},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			s := domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true))
+			calls := 0
+			h := fiscalIdempotency(s, http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { calls++; w.WriteHeader(204) }))
+			request := func(path, match string) *httptest.ResponseRecorder {
+				r := httptest.NewRequest(http.MethodPatch, path, strings.NewReader(`{}`))
+				r.Header.Set("Idempotency-Key", "fiscal-fingerprint-key")
+				r.Header.Set("If-Match", match)
+				w := httptest.NewRecorder()
+				h.ServeHTTP(w, r)
+				return w
+			}
+			first := request(tc.firstPath, tc.firstMatch)
+			second := request(tc.secondPath, tc.secondMatch)
+			if first.Code != 204 || second.Code != 409 || calls != 1 {
+				t.Fatalf("changed request conditions reused replay: first=%d second=%d calls=%d", first.Code, second.Code, calls)
+			}
+		})
+	}
+}
+
+func TestFiscalIdempotencyIsBoundToAuthenticatedPrincipal(t *testing.T) {
+	s := domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true))
+	h := NewHandler(s, config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901"})
+	body := `{"code":"SOF","name":"Sofia","address":"1 Main","status":"ACTIVE"}`
+	request := func(subject string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodPost, "/public/v1/locations", strings.NewReader(body))
+		r.Header.Set("Authorization", "Bearer "+jwtSubject("tenant-a", subject, "ADMIN"))
+		r.Header.Set("Content-Type", "application/json")
+		r.Header.Set("X-Api-Version", "2026-08-07")
+		r.Header.Set("Idempotency-Key", "principal-bound-fiscal-key")
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	first, replayed, foreign := request("admin-one"), request("admin-one"), request("admin-two")
+	if first.Code != http.StatusCreated || replayed.Code != http.StatusCreated || replayed.Header().Get("Idempotency-Replayed") != "true" || foreign.Code != http.StatusConflict {
+		t.Fatalf("principal binding failed: first=%d replay=%d foreign=%d foreign_body=%s", first.Code, replayed.Code, foreign.Code, foreign.Body.String())
+	}
+}
+
 func req(t *testing.T, h http.Handler, m, p, k string, v any) *httptest.ResponseRecorder {
 	return reqWithHeaders(t, h, m, p, k, v, nil)
 }

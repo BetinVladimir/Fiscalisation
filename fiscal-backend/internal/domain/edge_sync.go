@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"math"
 	"sort"
 	"time"
 )
@@ -195,7 +196,7 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 		state = "UNKNOWN"
 	}
 	ref := stringAny(event.Payload, "fiscal_reference", "FiscalReference")
-	op := Operation{ID: p.OperationID, TenantID: p.TenantID, Type: p.CommandType, State: state, Version: event.JournalSeq, FiscalReference: ref, Simulated: false, AllowedActions: []string{}, CreatedAt: p.AcceptedAt, UpdatedAt: finishedAt}
+	op := Operation{ID: p.OperationID, TenantID: p.TenantID, RegisterID: p.RegisterID, Type: p.CommandType, State: state, Version: event.JournalSeq, FiscalReference: ref, Simulated: false, AllowedActions: []string{}, CreatedAt: p.AcceptedAt, UpdatedAt: finishedAt}
 	if state == "UNKNOWN" {
 		op.ErrorCode = stringAny(event.Payload, "error_code", "ErrorCode")
 		op.AllowedActions = []string{"RECONCILE"}
@@ -208,12 +209,16 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 	if json.Unmarshal(b, &payload) != nil || payload.Currency != "EUR" || payload.ExternalID == "" || len(payload.OperatorID) != 4 || len(payload.Items) == 0 || len(payload.Payments) == 0 {
 		return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("invalid offline sale payload")
 	}
-	sale := Sale{ID: "edge-sale-" + p.OperationID, TenantID: p.TenantID, ExternalID: payload.ExternalID, RegisterID: p.RegisterID, OperatorID: payload.OperatorID, UNP: p.RegisterID + "-" + payload.OperatorID + "-" + pad7(p.UNPSequence), State: "UNKNOWN", Version: event.JournalSeq, Lines: payload.Items, Payments: []PaymentRecord{}, FiscalOperationID: p.OperationID, CreatedAt: p.AcceptedAt, UpdatedAt: finishedAt}
+	sale := Sale{ID: "edge-sale-" + p.OperationID, TenantID: p.TenantID, ExternalID: payload.ExternalID, LocationID: stringAny(p.Payload, "location_id", "LocationID"), RegisterID: p.RegisterID, OperatorID: payload.OperatorID, UNP: p.RegisterID + "-" + payload.OperatorID + "-" + pad7(p.UNPSequence), State: "UNKNOWN", Version: event.JournalSeq, Lines: payload.Items, Payments: []PaymentRecord{}, FiscalOperationID: p.OperationID, FiscalDevice: FiscalDeviceSnapshot{DeviceID: p.DeviceID}, CreatedAt: p.AcceptedAt, UpdatedAt: finishedAt}
 	op.SaleID = sale.ID
 	for _, line := range sale.Lines {
-		if line.LineID == "" || line.Name == "" || !validMoney(line.UnitPrice) || !validQuantity(line.Quantity) || !s.policy.AllowsTaxGroup(line.TaxGroup, finishedAt) {
+		if line.LineID == "" || line.Name == "" || !validMoney(line.UnitPrice) || !validDiscount(line.Discount) || !validQuantity(line.Quantity) || !s.policy.AllowsTaxGroup(line.TaxGroup, finishedAt) {
 			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("invalid offline sale line")
 		}
+	}
+	total, totalErr := saleTotal(sale)
+	if totalErr != nil {
+		return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("invalid offline sale total")
 	}
 	paid := int64(0)
 	seenPayments := map[string]bool{}
@@ -223,10 +228,13 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("invalid offline payment")
 		}
 		seenPayments[payment.PaymentID] = true
+		if amount > math.MaxInt64-paid {
+			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("offline payment total overflow")
+		}
 		paid += amount
 		sale.Payments = append(sale.Payments, PaymentRecord{PaymentID: payment.PaymentID, Type: payment.Type, Amount: payment.Amount, FiscalReference: ref, CreatedAt: finishedAt})
 	}
-	if paid != saleTotal(sale) {
+	if paid != total {
 		return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("offline payment total mismatch")
 	}
 	artifactID := ""
@@ -238,7 +246,7 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 			return Sale{}, Operation{}, "", nil, OutboxItem{}, err
 		}
 		sale.ReceiptArtifactID = artifactID
-		artifact, _ = json.Marshal(map[string]any{"sale_id": sale.ID, "operation_id": op.ID, "unp": sale.UNP, "fiscal_reference": ref, "issued_at": finishedAt, "total": Money{Amount: formatFixed(saleTotal(sale)), Currency: "EUR"}, "lines": sale.Lines, "payments": sale.Payments})
+		artifact, _ = json.Marshal(map[string]any{"sale_id": sale.ID, "operation_id": op.ID, "unp": sale.UNP, "fiscal_reference": ref, "issued_at": finishedAt, "total": Money{Amount: formatFixed(total), Currency: "EUR"}, "fiscal_device": sale.FiscalDevice, "lines": sale.Lines, "payments": sale.Payments})
 	} else if state == "FAILED" {
 		sale.State = "CANCELLED"
 	}

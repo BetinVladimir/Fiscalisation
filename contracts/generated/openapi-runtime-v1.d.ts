@@ -292,6 +292,10 @@ export interface components {
             register_id?: string | null;
             /** Format: uuid */
             operator_id?: string | null;
+            /** Format: uuid */
+            location_id?: string | null;
+            /** Format: uuid */
+            device_id?: string | null;
             /** @enum {string} */
             format: "CSV" | "XLSX" | "JSON";
         };
@@ -387,6 +391,7 @@ export interface components {
             expires_at: string;
         };
         MiniPosOpenShiftRequest: {
+            /** Format: uuid */
             register_id: string;
             /** Format: uuid */
             employee_id: string;
@@ -395,6 +400,7 @@ export interface components {
             location_name: string;
             location_address: string;
             workstation_name: string;
+            /** Format: uuid */
             fiscal_register_id: string;
         };
         MiniPosConfiguration: {
@@ -404,6 +410,7 @@ export interface components {
             location_name: string;
             location_address: string;
             workstation_name: string;
+            /** Format: uuid */
             fiscal_register_id: string;
             version: number;
             /** Format: date-time */
@@ -415,6 +422,7 @@ export interface components {
             /** Format: uuid */
             id: string;
             tenant_id?: string;
+            /** Format: uuid */
             register_id: string;
             /** Format: uuid */
             employee_id: string;

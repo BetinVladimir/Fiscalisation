@@ -3,6 +3,7 @@ package domain
 import (
 	"encoding/json"
 	"testing"
+	"time"
 )
 
 func TestReportArtifactPersistenceAndTenantIsolation(t *testing.T) {
@@ -35,6 +36,17 @@ func TestReportArtifactPersistenceAndTenantIsolation(t *testing.T) {
 	if _, err = s.ReportArtifact(reportID, artifactID, "tenant-2"); err == nil {
 		t.Fatal("cross tenant artifact leaked")
 	}
+	pending := s.PendingOutbox(time.Now().UTC().Add(time.Second))
+	if len(pending) != 2 {
+		t.Fatalf("report operation and completion webhooks were not committed atomically: %+v", pending)
+	}
+	types := map[string]bool{}
+	for _, item := range pending {
+		types[item.Event.EventType] = true
+	}
+	if !types["fiscal.operation.updated"] || !types["register.report.completed"] {
+		t.Fatalf("report webhook types incomplete: %+v", types)
+	}
 	repo, err = NewPersistentRepository(store)
 	if err != nil {
 		t.Fatal(err)
@@ -42,6 +54,49 @@ func TestReportArtifactPersistenceAndTenantIsolation(t *testing.T) {
 	s = NewService(repo, NewSimulator(true))
 	if _, err = s.ReportArtifact(reportID, artifactID, "tenant-1"); err != nil {
 		t.Fatal("artifact did not survive restart", err)
+	}
+}
+
+func TestReportIsNotPublishedForUnknownDeviceResult(t *testing.T) {
+	repo := NewMemoryRepository()
+	driver := NewSimulator(true)
+	driver.SetOutcomeUnknown(true)
+	s := NewService(repo, driver)
+	op, err := s.CreateReport("register-1", "Z", "")
+	if err != nil || op.State != "UNKNOWN" {
+		t.Fatal(op, err)
+	}
+	if len(repo.Resources("report", "")) != 0 || len(repo.artifacts) != 0 {
+		t.Fatal("ambiguous device result published a completed report")
+	}
+}
+
+func TestReportFinalPublicationIsAtomicAndRestartRecoversUnknown(t *testing.T) {
+	store := &failNextStore{}
+	repo, err := NewPersistentRepository(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := NewService(repo, NewSimulator(true))
+	registerID, _ := prepareBLERegister(t, s, "tenant-1")
+	s.driver = commitFailureDriver{store: store}
+	if _, err = s.CreateReport(registerID, "Z", "tenant-1"); err == nil {
+		t.Fatal("injected report publication failure was ignored")
+	}
+	if len(repo.Resources("report", "tenant-1")) != 0 || len(repo.artifacts) != 0 || len(repo.outbox) != 0 {
+		t.Fatal("failed report publication leaked resource or artifact")
+	}
+	operations := repo.Operations()
+	if len(operations) != 1 || operations[0].State != "EXECUTING" {
+		t.Fatalf("durable report reservation was not retained: %+v", operations)
+	}
+	restarted, err := NewPersistentRepository(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	recovered, _ := restarted.Operation(operations[0].ID)
+	if recovered.State != "UNKNOWN" || len(recovered.AllowedActions) != 1 || recovered.AllowedActions[0] != "RECONCILE" {
+		t.Fatalf("interrupted report did not recover fail-closed: %+v", recovered)
 	}
 }
 

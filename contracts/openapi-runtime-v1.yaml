@@ -109,7 +109,7 @@ paths:
           schema: {type: string, format: uuid}
         - name: register_id
           in: query
-          schema: {type: string}
+          schema: {type: string, format: uuid}
         - name: state
           in: query
           schema: {type: string, enum: [OPEN, CLOSING, BLOCKED_RECONCILIATION, CLOSED]}
@@ -360,6 +360,8 @@ components:
         to: {type: string, format: date-time, description: Exclusive interval end; must be later than from}
         register_id: {type: [string, 'null'], format: uuid}
         operator_id: {type: [string, 'null'], format: uuid}
+        location_id: {type: [string, 'null'], format: uuid}
+        device_id: {type: [string, 'null'], format: uuid}
         format: {type: string, enum: [CSV, XLSX, JSON]}
     FiscalOperationSummary:
       type: object
@@ -453,7 +455,7 @@ components:
       additionalProperties: false
       required: [register_id, employee_id]
       properties:
-        register_id: {type: string}
+        register_id: {type: string, format: uuid}
         employee_id: {type: string, format: uuid}
     MiniPosConfigurationInput:
       type: object
@@ -463,7 +465,7 @@ components:
         location_name: {type: string, minLength: 1, maxLength: 120}
         location_address: {type: string, maxLength: 240}
         workstation_name: {type: string, minLength: 1, maxLength: 120}
-        fiscal_register_id: {type: string, minLength: 1, maxLength: 120}
+        fiscal_register_id: {type: string, format: uuid}
     MiniPosConfiguration:
       type: object
       additionalProperties: false
@@ -474,7 +476,7 @@ components:
         location_name: {type: string, minLength: 1, maxLength: 120}
         location_address: {type: string, maxLength: 240}
         workstation_name: {type: string, minLength: 1, maxLength: 120}
-        fiscal_register_id: {type: string, minLength: 1, maxLength: 120}
+        fiscal_register_id: {type: string, format: uuid}
         version: {type: integer, minimum: 1}
         created_at: {type: string, format: date-time}
         updated_at: {type: string, format: date-time}
@@ -485,7 +487,7 @@ components:
       properties:
         id: {type: string, format: uuid}
         tenant_id: {type: string}
-        register_id: {type: string}
+        register_id: {type: string, format: uuid}
         employee_id: {type: string, format: uuid}
         state: {type: string, enum: [OPEN, CLOSING, BLOCKED_RECONCILIATION, CLOSED]}
         opened_at: {type: string, format: date-time}

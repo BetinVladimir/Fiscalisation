@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"bytes"
 	"errors"
 	"sync"
 	"testing"
@@ -102,6 +103,30 @@ func TestAPIReplayMutationRollsBackMemoryWhenPersistenceFails(t *testing.T) {
 	}
 	if _, exists := s.APIReplay("tenant\nPOST\n/path\nkey"); exists {
 		t.Fatal("failed replay mutation leaked into memory")
+	}
+}
+
+func TestPersistentServiceRecoversOrphanAPIReplayAsUnknownWithoutReclaim(t *testing.T) {
+	store := &memoryStore{}
+	s, err := NewPersistentService("http://invalid", "2026-08-07", store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	key, hash := "tenant-a\nPOST\n/public/v1/minipos/products\norphan-key-0001", "request-hash"
+	if _, owner, claimErr := s.ClaimAPIReplay(key, hash); claimErr != nil || !owner {
+		t.Fatalf("initial claim failed: owner=%v err=%v", owner, claimErr)
+	}
+	restarted, err := NewPersistentService("http://invalid", "2026-08-07", store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	replay, ok := restarted.APIReplay(key)
+	if !ok || !replay.Pending || replay.Status != 503 || replay.ContentType != "application/problem+json" || !bytes.Contains(replay.Body, []byte("IDEMPOTENCY_OUTCOME_UNKNOWN")) {
+		t.Fatalf("orphan replay was not made explicitly unknown: %+v", replay)
+	}
+	got, owner, claimErr := restarted.ClaimAPIReplay(key, hash)
+	if claimErr != nil || owner || got.Status != 503 || !got.Pending {
+		t.Fatalf("orphan claim was unsafely reclaimed: owner=%v replay=%+v err=%v", owner, got, claimErr)
 	}
 }
 func TestPersistentServiceRestoresAutonomousStateAndSequence(t *testing.T) {

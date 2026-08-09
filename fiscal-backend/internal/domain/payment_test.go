@@ -1,10 +1,48 @@
 package domain
 
 import (
+	"errors"
 	"fmt"
+	"sync"
+	"sync/atomic"
 	"testing"
 	"time"
 )
+
+type blockingPaymentDriver struct {
+	entered chan struct{}
+	release chan struct{}
+	calls   atomic.Int32
+}
+
+type failNextStore struct {
+	testStore
+	failNext atomic.Bool
+}
+
+func (s *failNextStore) Save(body []byte) error {
+	if s.failNext.CompareAndSwap(true, false) {
+		return errors.New("injected final commit failure")
+	}
+	return s.testStore.Save(body)
+}
+
+type commitFailureDriver struct{ store *failNextStore }
+
+func (d commitFailureDriver) Probe() error { return nil }
+func (d commitFailureDriver) Execute(Operation, Sale, PaymentRequest) (string, string) {
+	d.store.failNext.Store(true)
+	return "FISCAL-COMMITTED", ""
+}
+
+func (d *blockingPaymentDriver) Probe() error { return nil }
+func (d *blockingPaymentDriver) Execute(Operation, Sale, PaymentRequest) (string, string) {
+	if d.calls.Add(1) == 1 {
+		close(d.entered)
+		<-d.release
+	}
+	return "FISCAL-ONE", ""
+}
 
 func TestSplitPaymentAndExactTotal(t *testing.T) {
 	s := NewService(NewMemoryRepository(), NewSimulator(true))
@@ -41,6 +79,30 @@ func TestOverpaymentAndInvalidQuantityRejected(t *testing.T) {
 	}
 }
 
+func TestExactSaleDecimalArithmeticRejectsNegativeAndOverflow(t *testing.T) {
+	discount := Money{Amount: "0.20", Currency: "EUR"}
+	sale := Sale{Lines: []SaleLine{
+		{Quantity: "1", UnitPrice: Money{Amount: "1.00", Currency: "EUR"}, Discount: &discount},
+		{Quantity: "1.2", UnitPrice: Money{Amount: "1.00", Currency: "EUR"}},
+		{Quantity: "1.23", UnitPrice: Money{Amount: "1.00", Currency: "EUR"}},
+		{Quantity: "1.234", UnitPrice: Money{Amount: "1.00", Currency: "EUR"}},
+		{Quantity: "0.500", UnitPrice: Money{Amount: "0.01", Currency: "EUR"}},
+	}}
+	if total, err := saleTotal(sale); err != nil || total != 447 {
+		t.Fatalf("exact half-up total mismatch: total=%d err=%v", total, err)
+	}
+	if _, err := lineTotalCents(Money{Amount: "-1.00", Currency: "EUR"}, "1.000"); err == nil {
+		t.Fatal("negative fiscal line price accepted")
+	}
+	if _, err := lineTotalCents(Money{Amount: "92233720368547758.07", Currency: "EUR"}, "2.000"); err == nil {
+		t.Fatal("overflowing fiscal line total accepted")
+	}
+	over := Money{Amount: "1.01", Currency: "EUR"}
+	if _, err := discountedLineTotalCents(SaleLine{Quantity: "1.000", UnitPrice: Money{Amount: "1.00", Currency: "EUR"}, Discount: &over}); err == nil {
+		t.Fatal("over-discounted fiscal line accepted")
+	}
+}
+
 func TestUnknownOutcomeRequiresReconciliationAndNoBlindRetry(t *testing.T) {
 	driver := NewSimulator(true)
 	driver.SetOutcomeUnknown(true)
@@ -57,6 +119,129 @@ func TestUnknownOutcomeRequiresReconciliationAndNoBlindRetry(t *testing.T) {
 	got, _ := s.GetSale(sale.ID)
 	if got.State != "UNKNOWN" {
 		t.Fatal(got)
+	}
+}
+
+func TestConcurrentPaymentsReserveSaleBeforeDriverSideEffect(t *testing.T) {
+	driver := &blockingPaymentDriver{entered: make(chan struct{}), release: make(chan struct{})}
+	s := NewService(NewMemoryRepository(), driver)
+	sale, _ := s.CreateSale(CreateSale{ExternalID: "concurrent-payment", RegisterID: "r1", OperatorID: "A001"})
+	sale, _ = s.AddLine(sale.ID, SaleLine{LineID: "l1", Name: "Item", Quantity: "1.000", UnitPrice: Money{Amount: "2.50", Currency: "EUR"}, TaxGroup: "B"})
+	var wg sync.WaitGroup
+	wg.Add(2)
+	errs := make(chan error, 2)
+	go func() {
+		defer wg.Done()
+		_, err := s.Pay(sale.ID, PaymentRequest{PaymentID: "p1", Type: "CASH", Amount: Money{Amount: "2.50", Currency: "EUR"}})
+		errs <- err
+	}()
+	<-driver.entered
+	reserved, err := s.GetSale(sale.ID)
+	if err != nil || reserved.State != "PAYMENT_PENDING" {
+		t.Fatalf("payment was not durably reserved before driver execution: %+v %v", reserved, err)
+	}
+	go func() {
+		defer wg.Done()
+		_, err := s.Pay(sale.ID, PaymentRequest{PaymentID: "p2", Type: "CASH", Amount: Money{Amount: "2.50", Currency: "EUR"}})
+		errs <- err
+	}()
+	close(driver.release)
+	wg.Wait()
+	close(errs)
+	successes := 0
+	for err := range errs {
+		if err == nil {
+			successes++
+		}
+	}
+	if driver.calls.Load() != 1 || successes != 1 {
+		t.Fatalf("concurrent payment executed driver %d times with %d successes", driver.calls.Load(), successes)
+	}
+}
+
+func TestFinalPaymentCommitIsAtomicAndRestartRecoversUnknown(t *testing.T) {
+	store := &failNextStore{}
+	repo, err := NewPersistentRepository(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	s := NewService(repo, commitFailureDriver{store: store})
+	sale, _ := s.CreateSale(CreateSale{ExternalID: "final-commit-failure", RegisterID: "r1", OperatorID: "A001"})
+	sale, _ = s.AddLine(sale.ID, SaleLine{LineID: "l1", Name: "Item", Quantity: "1.000", UnitPrice: Money{Amount: "2.50", Currency: "EUR"}, TaxGroup: "B"})
+	if _, err = s.Pay(sale.ID, PaymentRequest{PaymentID: "p1", Type: "CASH", Amount: Money{Amount: "2.50", Currency: "EUR"}}); err == nil {
+		t.Fatal("injected final persistence failure was ignored")
+	}
+	pending, _ := repo.Sale(sale.ID)
+	if pending.State != "PAYMENT_PENDING" || len(pending.Payments) != 0 || pending.ReceiptArtifactID != "" {
+		t.Fatalf("failed atomic commit leaked final sale fields: %+v", pending)
+	}
+	if len(repo.outbox) != 0 {
+		t.Fatal("failed terminal payment commit leaked a webhook event")
+	}
+	operations := repo.Operations()
+	if len(operations) != 1 || operations[0].State != "EXECUTING" {
+		t.Fatalf("durable reservation was not retained: %+v", operations)
+	}
+	restarted, err := NewPersistentRepository(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	recoveredSale, _ := restarted.Sale(sale.ID)
+	recoveredOperation, _ := restarted.Operation(operations[0].ID)
+	if recoveredSale.State != "UNKNOWN" || recoveredOperation.State != "UNKNOWN" || recoveredOperation.ErrorCode != "INTERRUPTED_AFTER_DEVICE_DISPATCH" || len(recoveredOperation.AllowedActions) != 1 || recoveredOperation.AllowedActions[0] != "RECONCILE" {
+		t.Fatalf("restart did not conservatively recover interrupted payment: sale=%+v operation=%+v", recoveredSale, recoveredOperation)
+	}
+	if _, err = restarted.Artifact("missing", ""); err == nil {
+		t.Fatal("failed transaction left a receipt artifact")
+	}
+}
+
+func TestTerminalPaymentAndWebhookOutboxCommitAtomically(t *testing.T) {
+	repo := NewMemoryRepository()
+	s := NewService(repo, NewSimulator(true))
+	sale, _ := s.CreateSale(CreateSale{ExternalID: "payment-outbox", RegisterID: "r1", OperatorID: "A001"})
+	sale, _ = s.AddLine(sale.ID, SaleLine{LineID: "l1", Name: "Item", Quantity: "1.000", UnitPrice: Money{Amount: "2.50", Currency: "EUR"}, TaxGroup: "B"})
+	op, err := s.Pay(sale.ID, PaymentRequest{PaymentID: "p1", Type: "CASH", Amount: Money{Amount: "2.50", Currency: "EUR"}})
+	if err != nil || op.State != "FISCALIZED" {
+		t.Fatal(op, err)
+	}
+	pending := s.PendingOutbox(time.Now().UTC().Add(time.Second))
+	if len(pending) != 1 || pending[0].ID != "event-"+op.ID || pending[0].Event.ResourceID != sale.ID || pending[0].Event.ResourceVersion != op.Version {
+		t.Fatalf("terminal payment and webhook evidence diverged: %+v", pending)
+	}
+	data, ok := pending[0].Event.Data.(map[string]any)
+	if !ok || data["state"] != "FISCALIZED" {
+		t.Fatalf("terminal webhook payload diverged: %+v", pending[0].Event.Data)
+	}
+	if err = s.QueueFiscalEvent(sale.ID, op); err != nil || len(s.PendingOutbox(time.Now().UTC().Add(time.Second))) != 1 {
+		t.Fatal("legacy explicit queue path was not idempotent")
+	}
+}
+
+func TestRestartRecoversEveryInterruptedFiscalCommandWithoutReplay(t *testing.T) {
+	store := &testStore{}
+	repo, err := NewPersistentRepository(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	now := time.Now().UTC()
+	for _, op := range []Operation{
+		{ID: "op-reversal", Type: "REVERSAL", State: "EXECUTING", Version: 1, CreatedAt: now, UpdatedAt: now},
+		{ID: "op-report", Type: "Z_REPORT", State: "EXECUTING", Version: 1, CreatedAt: now, UpdatedAt: now},
+	} {
+		if err = repo.PutOperation(op); err != nil {
+			t.Fatal(err)
+		}
+	}
+	restarted, err := NewPersistentRepository(store)
+	if err != nil {
+		t.Fatal(err)
+	}
+	for _, id := range []string{"op-reversal", "op-report"} {
+		op, getErr := restarted.Operation(id)
+		if getErr != nil || op.State != "UNKNOWN" || op.ErrorCode != "INTERRUPTED_AFTER_DEVICE_DISPATCH" || len(op.AllowedActions) != 1 || op.AllowedActions[0] != "RECONCILE" {
+			t.Fatalf("interrupted %s was not recovered conservatively: %+v %v", id, op, getErr)
+		}
 	}
 }
 

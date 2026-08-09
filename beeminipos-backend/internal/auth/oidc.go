@@ -69,6 +69,7 @@ func (v *OIDCVerifier) Parse(raw string, now time.Time) (Claims, error) {
 		return claims, errors.New("invalid oidc claims")
 	}
 	claims = wire.Claims
+	claims.Issuer = v.issuer
 	if err = validateClaims(claims, now); err != nil {
 		return Claims{}, err
 	}

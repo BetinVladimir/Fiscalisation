@@ -51,7 +51,7 @@ func (s *HandshakeServer) HandleHello(v ControlMessage) (ControlMessage, error) 
 		return ControlMessage{}, errors.New("ticket missing")
 	}
 	ticket, err := ParseTicket(rawTicket, s.key, s.now().UTC())
-	if err != nil || ticket.SessionID != v.SessionID || !containsString(ticket.Scopes, "fiscal.execute") || (s.revoked != nil && s.revoked(ticket.SessionID, s.now().UTC())) {
+	if err != nil || ticket.SessionID != v.SessionID || ticket.TenantID == "" || ticket.LocationID == "" || ticket.RegisterID == "" || ticket.DeviceID == "" || ticket.FiscalDeviceID == "" || !containsString(ticket.Scopes, "fiscal.execute") || (s.revoked != nil && s.revoked(ticket.SessionID, s.now().UTC())) {
 		return ControlMessage{}, errors.New("ticket rejected")
 	}
 	clientNonce, err := decodeHandshakeBytes(v.Payload, "client_nonce", 16)
@@ -163,7 +163,7 @@ func handshakeProof(secret []byte, sessionID string, clientNonce, edgeNonce []by
 	return sum[:]
 }
 func handshakeContext(v Ticket) string {
-	return v.TenantID + "|" + v.RegisterID + "|" + v.DeviceID + "|" + v.SessionID + "|" + BLEProtocolVersion
+	return v.TenantID + "|" + v.LocationID + "|" + v.RegisterID + "|" + v.DeviceID + "|" + v.FiscalDeviceID + "|" + v.SessionID + "|" + BLEProtocolVersion
 }
 func decodeHandshakeBytes(v map[string]any, key string, minimum int) ([]byte, error) {
 	raw, ok := v[key].(string)

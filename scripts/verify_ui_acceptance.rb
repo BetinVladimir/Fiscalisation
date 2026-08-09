@@ -20,11 +20,14 @@ cases.each do |item|
   source = File.join(root, item.fetch("source"))
   abort "#{item.fetch('id')}: source missing #{source}" unless File.file?(source)
   body = File.read(source)
+  normalized_body = body.gsub(/\s+/, "")
   item.fetch("anchors").each do |anchor|
-    abort "#{item.fetch('id')}: missing anchor #{anchor.inspect}" unless body.include?(anchor)
+    normalized_anchor = anchor.gsub(/\s+/, "")
+    abort "#{item.fetch('id')}: missing anchor #{anchor.inspect}" unless normalized_body.include?(normalized_anchor)
   end
   Array(item["forbidden"]).each do |anchor|
-    abort "#{item.fetch('id')}: forbidden anchor #{anchor.inspect}" if body.include?(anchor)
+    normalized_anchor = anchor.gsub(/\s+/, "")
+    abort "#{item.fetch('id')}: forbidden anchor #{anchor.inspect}" if normalized_body.include?(normalized_anchor)
   end
   abort "#{item.fetch('id')}: invariant is too weak" if item.fetch("invariant").length < 24
 end

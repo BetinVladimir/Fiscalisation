@@ -52,8 +52,8 @@ async function miniPosJourney(browser, appUrl) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const products = [{ id: "coffee", sku: "COF", barcode: "380000000001", name: "Кафе", price: { amount: "2.50", currency: "EUR" }, tax_group: "B", active: true }];
   const employees = [{ id: "employee-1", first_name: "Иван", last_name: "Петров", operator_code: "0001" }];
-  let checkoutMode = "success", checkoutCalls = 0, orderNumber = 0, orderStatusReads = 0, splitRequest, openShift = null, zCloseMode = "success", zCloseCalls = 0, zReconcileCalls = 0;
-  let configuration = { id: "configuration", location_name: "Магазин 1", location_address: "София", workstation_name: "Каса 01", fiscal_register_id: "register-1", version: 1 };
+  let checkoutMode = "success", checkoutCalls = 0, orderNumber = 0, orderStatusReads = 0, splitRequest, reportPeriodValid = false, registerResolutionCalls = 0, shiftRecoveryCalls = 0, openShift = null, zCloseMode = "success", zCloseCalls = 0, zReconcileCalls = 0;
+  let configuration = { id: "configuration", location_name: "Магазин 1", location_address: "София", workstation_name: "Каса 01", fiscal_register_id: "00000000-0000-4000-8000-000000000001", version: 1 };
 
   await page.route("http://minipos-api.test/**", async (route) => {
     const path = pathOf(route), method = route.request().method();
@@ -63,11 +63,11 @@ async function miniPosJourney(browser, appUrl) {
     if (path.endsWith("/employees") && method === "POST") { employees.push({ id: "employee-2", first_name: "Мария", last_name: "Иванова", operator_code: "0002" }); return json(route, employees.at(-1), 201); }
     if (path.endsWith("/configuration") && method === "GET") return json(route, configuration);
     if (path.endsWith("/configuration") && method === "PATCH") { configuration = { ...configuration, ...route.request().postDataJSON(), version: configuration.version + 1 }; return json(route, configuration); }
-    if (path.endsWith("/reports/sales")) return json(route, { from: "2026-08-01", to: "2026-08-09", currency: "EUR", gross: { amount: "12.50", currency: "EUR" }, payments: [{ type: "CASH", amount: { amount: "12.50", currency: "EUR" } }], generated_at: "2026-08-09T12:00:00Z" });
-    if (path.endsWith("/shifts") && method === "GET") return json(route, { items: openShift ? [openShift] : [], page: { next_cursor: null, has_more: false } });
-    if (path.endsWith("/shifts") && method === "POST") { openShift = { id: "shift-1", register_id: "register-1", employee_id: "employee-1", state: "OPEN", allowed_actions: ["SALE", "CLOSE"] }; return json(route, openShift, 201); }
-    if (path.endsWith("/shifts/shift-1/close") && method === "POST") { zCloseCalls += 1; if (zCloseMode === "ambiguous") { openShift = { ...openShift, state: "BLOCKED_RECONCILIATION", allowed_actions: ["READ", "RECONCILE"], z_operation_id: "z-operation-1", close_error: "UNKNOWN" }; return json(route, { code: "MINIPOS_ERROR", status: 409 }, 409); } openShift = null; return json(route, { id: "shift-1", register_id: "register-1", employee_id: "employee-1", state: "CLOSED", allowed_actions: [], z_operation_id: "z-operation-1", z_fiscal_reference: "Z-000001" }); }
-    if (path.endsWith("/shifts/shift-1/reconcile") && method === "POST") { zReconcileCalls += 1; openShift = null; return json(route, { id: "shift-1", register_id: "register-1", employee_id: "employee-1", state: "CLOSED", allowed_actions: [], z_operation_id: "z-operation-1", z_fiscal_reference: "Z-000001" }); }
+    if (path.endsWith("/reports/sales")) { const url=new URL(route.request().url()),from=Date.parse(url.searchParams.get("from")||""),to=Date.parse(url.searchParams.get("to")||""); reportPeriodValid=Number.isFinite(from)&&Number.isFinite(to)&&from<to; return json(route, { from: new Date(from).toISOString(), to: new Date(to).toISOString(), currency: "EUR", gross: { amount: "12.50", currency: "EUR" }, payments: [{ type: "CASH", amount: { amount: "12.50", currency: "EUR" } }], generated_at: "2026-08-09T12:00:00Z" }); }
+    if (path.endsWith("/shifts") && method === "GET") { shiftRecoveryCalls += 1; return json(route, { items: openShift ? [openShift] : [], page: { next_cursor: null, has_more: false } }); }
+    if (path.endsWith("/shifts") && method === "POST") { openShift = { id: "shift-1", register_id: "00000000-0000-4000-8000-000000000001", employee_id: "employee-1", state: "OPEN", allowed_actions: ["SALE", "CLOSE"] }; return json(route, openShift, 201); }
+    if (path.endsWith("/shifts/shift-1/close") && method === "POST") { zCloseCalls += 1; if (zCloseMode === "ambiguous") { openShift = { ...openShift, state: "BLOCKED_RECONCILIATION", allowed_actions: ["READ", "RECONCILE"], z_operation_id: "z-operation-1", close_error: "UNKNOWN" }; return json(route, { code: "MINIPOS_ERROR", status: 409 }, 409); } openShift = null; return json(route, { id: "shift-1", register_id: "00000000-0000-4000-8000-000000000001", employee_id: "employee-1", state: "CLOSED", allowed_actions: [], z_operation_id: "z-operation-1", z_fiscal_reference: "Z-000001" }); }
+    if (path.endsWith("/shifts/shift-1/reconcile") && method === "POST") { zReconcileCalls += 1; openShift = null; return json(route, { id: "shift-1", register_id: "00000000-0000-4000-8000-000000000001", employee_id: "employee-1", state: "CLOSED", allowed_actions: [], z_operation_id: "z-operation-1", z_fiscal_reference: "Z-000001" }); }
     if (path.endsWith("/orders") && method === "POST") { orderNumber += 1; return json(route, { id: `order-${orderNumber}`, external_id: `sale-${orderNumber}`, state: "DRAFT", version: 1 }, 201); }
     if (/\/orders\/order-\d+\/lines$/.test(path)) return json(route, { id: `order-${orderNumber}`, external_id: `sale-${orderNumber}`, state: "DRAFT", version: 2 });
     if (/\/orders\/order-\d+\/checkout$/.test(path)) { checkoutCalls += 1; return json(route, { operation_id: `fiscal-${orderNumber}`, type: "FISCAL_SALE", state: checkoutMode === "success" ? "FISCALIZED" : checkoutMode === "failed" ? "FAILED" : "UNKNOWN", fiscal_reference: checkoutMode === "success" ? `FD-${orderNumber}` : null, simulated: true, allowed_actions: [], created_at: "2026-08-09T12:00:00Z", updated_at: "2026-08-09T12:00:00Z" }, 202); }
@@ -75,7 +75,15 @@ async function miniPosJourney(browser, appUrl) {
     if (/\/orders\/order-\d+$/.test(path) && method === "GET") { orderStatusReads += 1; return orderStatusReads === 1 ? json(route, { id: `order-${orderNumber}`, state: "UNKNOWN", version: 3, allowed_actions: ["READ"] }) : json(route, { id: `order-${orderNumber}`, state: "COMPLETED", version: 4, allowed_actions: ["RECEIPT"], fiscal_operation_id: `fiscal-${orderNumber}` }); }
     return json(route, { code: "UNMOCKED", path, method }, 500);
   });
-  await page.route("http://fiscal-api.test/**", (route) => pathOf(route).endsWith("/readiness") ? json(route, { ready: true }) : json(route, { version: "test" }));
+  await page.route("http://fiscal-api.test/**", (route) => {
+    const path = pathOf(route);
+    if (path.endsWith("/readiness")) return json(route, { ready: true });
+    if (path.endsWith("/registers/00000000-0000-4000-8000-000000000001")) {
+      registerResolutionCalls += 1;
+      return json(route, { id: "00000000-0000-4000-8000-000000000001", status: "ACTIVE", fiscal_device_id: "00000000-0000-4000-8000-000000000002" });
+    }
+    return json(route, { version: "test" });
+  });
 
   await page.goto(appUrl);
   await page.getByTestId("status-transport").getByText(/Готово/).waitFor();
@@ -98,6 +106,7 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByText("Служител (2)").waitFor();
   await page.getByTestId("sales-report-load").click();
   await page.getByTestId("sales-report-result").getByText("€ 12.50", { exact: true }).waitFor();
+  assert.equal(reportPeriodValid, true, "MiniPOS commercial report must send the required ordered RFC3339 period");
 
   await page.getByTestId("admin-toggle").click();
   await page.getByTestId("shift-toggle").click();
@@ -112,6 +121,7 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("quantity-dec-coffee").click();
   await page.getByTestId("sale-pay").click();
   await page.getByTestId("status-transport").getByText(/Успешен фискален бон/).waitFor();
+  assert.equal(registerResolutionCalls, 1, "MiniPOS must resolve the active Fiscal device through the public register API");
 
   await page.getByTestId("product-coffee").click();
   await page.getByTestId("split-cash-amount").fill("1,00");
@@ -147,6 +157,11 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("status-transport").getByText(/Z-000001/).waitFor();
   assert.equal(zCloseCalls, 1, "Z reconciliation must not submit a second close command");
   assert.equal(zReconcileCalls, 1, "blocked Z must reconcile exactly once");
+  const recoveryCallsBeforeMissingConfiguration = shiftRecoveryCalls;
+  configuration = null;
+  await page.reload();
+  await page.getByTestId("status-transport").getByText(/Настройте валидна фискална каса/).waitFor();
+  assert.equal(shiftRecoveryCalls, recoveryCallsBeforeMissingConfiguration, "missing register configuration must not recover a shift across every register");
   await page.close();
 }
 
@@ -167,7 +182,8 @@ async function fiscalJourney(browser, appUrl) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
   const device = { id: "device-1", name: "DP-150", vendor: "Datecs", model: "DP-150 MX", serial: "DT1", status: "ACTIVE", transport: "EDGE" };
   let location = { id: "location-1", code: "SOF", name: "Sofia", address: "Center", version: 1 };
-  let reportCreated = false, reconcileCalls = 0;
+  let reportCreated = false, reconcileCalls = 0, diagnosticsCalls = 0, provisioningCalls = 0, bleSessionCalls = 0;
+  const registerFilters = [];
   let operations = [
     { id: "operation-1", type: "SALE", state: "UNKNOWN", unp: "UNP-1", allowed_actions: ["RECONCILE"], created_at: "2026-08-09T12:00:00Z" },
     { id: "operation-2", type: "SALE", state: "UNKNOWN", unp: "UNP-2", allowed_actions: [], created_at: "2026-08-09T12:01:00Z" },
@@ -175,16 +191,21 @@ async function fiscalJourney(browser, appUrl) {
   await page.route("http://fiscal-admin.test/**", async (route) => {
     const path = pathOf(route), method = route.request().method();
     if (path.endsWith("/devices")) return json(route, { items: [device] });
-    if (path.endsWith("/operations")) return json(route, { items: operations });
+    if (path.endsWith("/operations")) { registerFilters.push(new URL(route.request().url()).searchParams.get("register_id")); return json(route, { items: operations }); }
     if (path.endsWith("/operations/operation-1/reconcile") && method === "POST") { reconcileCalls += 1; operations = operations.map((operation)=>operation.id === "operation-1" ? { ...operation, state: "RECONCILING", allowed_actions: [] } : operation); return json(route, operations[0], 202); }
     if (/\/registers\/[^/]+\/reports$/.test(path) && method === "POST") { reportCreated = true; return json(route, { id: "report-2", state: "COMPLETED", fiscal_reference: "X-2" }, 201); }
-    if (path.endsWith("/reports")) return json(route, { items: [{ id: reportCreated ? "report-2" : "report-1", type: "X", state: "COMPLETED", fiscal_reference: reportCreated ? "X-2" : "X-1", created_at: "2026-08-09T12:00:00Z" }] });
+    if (path.endsWith("/reports")) { registerFilters.push(new URL(route.request().url()).searchParams.get("register_id")); return json(route, { items: [{ id: reportCreated ? "report-2" : "report-1", type: "X", state: "COMPLETED", fiscal_reference: reportCreated ? "X-2" : "X-1", created_at: "2026-08-09T12:00:00Z" }] }); }
+    if (path.endsWith("/audit-events")) return json(route, { items: [{ event_id: "audit-1", actor_id: "admin-1", action: "DEVICE_ACTIVATED", object_type: "device", object_id: "device-1", occurred_at: "2026-08-09T12:00:00Z", event_hash: "a".repeat(64) }], page: { next_cursor: null, has_more: false } });
     if (/\/registers\/[^/]+\/connectivity-probes$/.test(path)) return json(route, { state: "READY", hops: { cloud: { state: "READY" }, edge: { state: "READY" } } }, 201);
-    if (/\/devices\/[^/]+\/readiness$/.test(path)) return json(route, { ready: true, driver: "READY", fiscal_device: "READY" });
+    if (/\/devices\/[^/]+\/readiness$/.test(path)) return json(route, { ready: true, driver: "READY", fiscal_device: "READY", components: { driver: "READY", fiscal_device: "READY" }, observed_at: "2026-08-09T12:00:00Z" });
+    if (/\/devices\/[^/]+\/capabilities$/.test(path)) return json(route, { device_id: "device-1", capabilities: { SALE: "SUPPORTED" }, evidence_state: "DOCUMENTED" });
+    if (/\/devices\/[^/]+\/diagnostics$/.test(path)) { diagnosticsCalls += 1; return json(route, { device_id: "device-1", observed_at: "2026-08-09T12:00:00Z", metrics: { uart_errors: 0 }, redactions_applied: true }); }
+    if (/\/devices\/[^/]+\/provisioning-sessions$/.test(path) && method === "POST") { provisioningCalls += 1; return json(route, { session_id: "provisioning-1", device_id: "device-1", expires_at: "2026-08-09T12:05:00Z", state: "CREATED" }, 201); }
+    if (/\/registers\/[^/]+\/ble-sessions$/.test(path) && method === "POST") { bleSessionCalls += 1; const body = route.request().postDataJSON(); assert.equal(body.operator_id, "operator-1"); assert.equal(body.public_key, "prepared-x25519-public-key"); return json(route, { ble_session_id: "ble-1", tenant_id: "tenant-ui", location_id: "00000000-0000-4000-8000-000000000010", register_id: "00000000-0000-4000-8000-000000000001", edge_id: "edge-1", device_id: "00000000-0000-4000-8000-000000000002", service_uuid: "7b6f0000-7c6d-4c7a-9e4f-424545464953", command_characteristic_uuid: "7b6f0002-7c6d-4c7a-9e4f-424545464953", event_characteristic_uuid: "7b6f0003-7c6d-4c7a-9e4f-424545464953", advertising_identity: "edge-1", protocol_version: "2026-08-07", signed_session_ticket: "signed", expires_at: "2026-08-09T12:05:00Z" }, 201); }
     if (path.endsWith("/country-policy")) return json(route, { country: "BG", currency: "EUR" });
     if (path.endsWith("/tax-groups")) return json(route, { items: [{ code: "B", rate: "20.00" }] });
     if (path.endsWith("/locations")) return json(route, { items: [location] });
-    if (path.endsWith("/registers")) return json(route, { items: [{ id: "register-1", code: "R01", location_id: "location-1", version: 1 }] });
+    if (path.endsWith("/registers")) return json(route, { items: [{ id: "00000000-0000-4000-8000-000000000001", code: "R01", location_id: "location-1", version: 1 }] });
     if (path.endsWith("/operators")) return json(route, { items: [{ id: "operator-1", code: "0001", first_name: "Ivan", last_name: "Petrov", roles: ["CASHIER"], version: 1 }] });
     if (path.endsWith("/locations/location-1") && method === "PATCH") { location = { ...location, ...route.request().postDataJSON(), version: location.version + 1 }; return json(route, location); }
     return json(route, { code: "UNMOCKED", path, method }, 500);
@@ -194,6 +215,17 @@ async function fiscalJourney(browser, appUrl) {
   await page.getByTestId("status-fiscal-device").getByText("CORE READY").waitFor();
   await page.getByTestId("readiness-probe").click();
   await page.getByTestId("status-transport").getByText(/Cloud READY.*Edge READY.*Driver READY.*ФУ READY/).waitFor();
+  await page.getByTestId("transport-metrics").waitFor();
+  await page.getByTestId("fiscal-device-metrics").waitFor();
+  await page.getByTestId("device-diagnostics").click();
+  await page.getByTestId("diagnostics-result").getByText(/redactions_applied/).waitFor();
+  await page.getByTestId("device-provision").click();
+  await page.getByTestId("provisioning-result").getByText(/provisioning-1/).waitFor();
+  await page.getByTestId("ble-operator-id").fill("operator-1");
+  await page.getByTestId("ble-client-public-key").fill("prepared-x25519-public-key");
+  await page.getByTestId("ble-session-issue").click();
+  await page.getByTestId("ble-session-result").getByText(/ble-1/).waitFor();
+  assert.deepEqual({ diagnosticsCalls, provisioningCalls, bleSessionCalls }, { diagnosticsCalls: 1, provisioningCalls: 1, bleSessionCalls: 1 });
   await page.getByTestId("tab-Операции").click();
   await page.getByTestId("operation-unknown").waitFor();
   assert.equal(await page.getByTestId("operation-reconcile-operation-1").count(), 1, "RECONCILE action must be rendered when allowed by backend");
@@ -204,8 +236,16 @@ async function fiscalJourney(browser, appUrl) {
   await page.getByTestId("tab-Отчети").click();
   await page.getByRole("button", { name: "Създай X отчет" }).click();
   await page.getByText(/X-2/).waitFor();
+  assert.equal(registerFilters.every(value => /^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i.test(value || "")), true, "BeeFiscal collection filters must use an OpenAPI UUID");
+  await page.getByTestId("tab-Одит").click();
+  await page.getByTestId("audit-events").waitFor();
+  await page.getByTestId("audit-event-audit-1").getByText(/DEVICE_ACTIVATED.*device/).waitFor();
+  await page.getByText(/Hash: a{64}/).waitFor();
   await page.getByTestId("tab-Администриране").click();
   await page.getByTestId("admin-editors").waitFor();
+  await page.getByTestId("admin-device-kind-terminal").click();
+  await page.getByText(/Capability: PAYMENT_TERMINAL.*OPTIONAL_PAYMENT_TERMINAL/).waitFor();
+  await page.getByTestId("admin-device-kind-fiscal").click();
   await page.getByTestId("admin-location-code").fill("VAR");
   await page.getByTestId("admin-location-save").click();
   await page.getByTestId("admin-location-code").waitFor();
@@ -231,7 +271,7 @@ try {
   await miniPosProductionLoginFailClosed(browser, miniProd.url);
   await fiscalJourney(browser, fiscal.url);
   await fiscalProductionLoginFailClosed(browser, fiscalProd.url);
-  console.log("UI interaction E2E OK: MiniPOS sale/UNKNOWN/admin + both PROD OIDC fail-closed + BeeFiscal readiness/reports/admin");
+console.log("UI interaction E2E OK: MiniPOS sale/UNKNOWN/admin + both PROD OIDC fail-closed + BeeFiscal readiness/provisioning/BLE/diagnostics/audit/reports/admin");
 } finally {
   await browser.close();
   mini.server.close();

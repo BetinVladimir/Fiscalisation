@@ -957,6 +957,7 @@ export interface components {
             unit_price: components["schemas"]["Money"];
             /** @enum {string} */
             tax_group: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
+            discount?: components["schemas"]["Money"];
         };
         Sale: {
             sale_id: string;
@@ -1041,6 +1042,11 @@ export interface components {
             client_key_envelope?: string;
             /** Format: date-time */
             expires_at: string;
+            tenant_id: string;
+            /** Format: uuid */
+            location_id: string;
+            /** Format: uuid */
+            register_id: string;
         };
         WebhookEndpoint: {
             /** Format: uri */
@@ -1336,6 +1342,16 @@ export interface components {
             /** Format: uuid */
             artifact_id: string;
             raw_frame_sha256?: string;
+            fiscal_memory_number?: string;
+            fiscal_device?: {
+                device_id: string;
+                serial?: string;
+                fiscal_device_number?: string;
+                fiscal_memory_number?: string;
+                vendor?: string;
+                model?: string;
+                firmware?: string;
+            };
         };
         OperationPage: {
             items: components["schemas"]["Operation"][];
@@ -1404,6 +1420,10 @@ export interface components {
             operator_id?: string | null;
             /** @enum {string} */
             format: "CSV" | "XLSX" | "JSON";
+            /** Format: uuid */
+            location_id?: string | null;
+            /** Format: uuid */
+            device_id?: string | null;
         };
         ComplianceExport: {
             /** Format: uuid */
@@ -1993,12 +2013,28 @@ export interface operations {
             };
         };
         responses: {
-            /** @description Registered */
+            /** @description Registered endpoint with a one-time secret */
             201: {
                 headers: {
                     [name: string]: unknown;
                 };
-                content?: never;
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        id: string;
+                        version: number;
+                        /** Format: uri */
+                        url: string;
+                        events: string[];
+                        /** @constant */
+                        status: "ACTIVE";
+                        /** Format: date-time */
+                        created_at: string;
+                        /** Format: date-time */
+                        updated_at: string;
+                        secret: string;
+                    };
+                };
             };
         };
     };
@@ -2141,7 +2177,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["OrganizationBody"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Organization"]["allOf"]["1"];
+            };
+        };
         responses: {
             /** @description Organization */
             200: {
@@ -2190,7 +2230,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["LocationBody"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Location"]["allOf"]["1"];
+            };
+        };
         responses: {
             /** @description Location */
             201: {
@@ -2241,7 +2285,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["LocationBody"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Location"]["allOf"]["1"];
+            };
+        };
         responses: {
             /** @description Location */
             200: {
@@ -2290,7 +2338,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["RegisterBody"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Register"]["allOf"]["1"];
+            };
+        };
         responses: {
             /** @description Register */
             201: {
@@ -2341,7 +2393,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["RegisterBody"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Register"]["allOf"]["1"];
+            };
+        };
         responses: {
             /** @description Register */
             200: {
@@ -2420,7 +2476,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["OperatorBody"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Operator"]["allOf"]["1"];
+            };
+        };
         responses: {
             /** @description Operator */
             201: {
@@ -2470,7 +2530,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["OperatorBody"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Operator"]["allOf"]["1"];
+            };
+        };
         responses: {
             /** @description Operator */
             200: {
@@ -2619,7 +2683,11 @@ export interface operations {
             path?: never;
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["DeviceBody"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Device"]["allOf"]["1"];
+            };
+        };
         responses: {
             /** @description Device */
             201: {
@@ -2670,7 +2738,11 @@ export interface operations {
             };
             cookie?: never;
         };
-        requestBody: components["requestBodies"]["DeviceBody"];
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["Device"]["allOf"]["1"];
+            };
+        };
         responses: {
             /** @description Device */
             200: {
@@ -3113,7 +3185,21 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MiniPosProduct"];
+                "application/json": {
+                    sku: string;
+                    barcode?: string | null;
+                    name: string;
+                    /** @default pcs */
+                    unit?: string;
+                    price: components["schemas"]["Money"];
+                    /** @enum {string} */
+                    tax_group: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
+                    /**
+                     * @default ACTIVE
+                     * @enum {string}
+                     */
+                    status?: "ACTIVE" | "INACTIVE";
+                };
             };
         };
         responses: {
@@ -3167,7 +3253,21 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MiniPosProduct"];
+                "application/json": {
+                    sku: string;
+                    barcode?: string | null;
+                    name: string;
+                    /** @default pcs */
+                    unit?: string;
+                    price: components["schemas"]["Money"];
+                    /** @enum {string} */
+                    tax_group: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
+                    /**
+                     * @default ACTIVE
+                     * @enum {string}
+                     */
+                    status?: "ACTIVE" | "INACTIVE";
+                };
             };
         };
         responses: {
@@ -3220,7 +3320,19 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MiniPosEmployee"];
+                "application/json": {
+                    first_name: string;
+                    last_name: string;
+                    operator_code: string;
+                    roles?: string[];
+                    /**
+                     * @default ACTIVE
+                     * @enum {string}
+                     */
+                    status?: "ACTIVE" | "INACTIVE";
+                    /** Format: uuid */
+                    fiscal_operator_id?: string | null;
+                };
             };
         };
         responses: {
@@ -3274,7 +3386,19 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MiniPosEmployee"];
+                "application/json": {
+                    first_name: string;
+                    last_name: string;
+                    operator_code: string;
+                    roles?: string[];
+                    /**
+                     * @default ACTIVE
+                     * @enum {string}
+                     */
+                    status?: "ACTIVE" | "INACTIVE";
+                    /** Format: uuid */
+                    fiscal_operator_id?: string | null;
+                };
             };
         };
         responses: {
@@ -3327,7 +3451,10 @@ export interface operations {
         };
         requestBody: {
             content: {
-                "application/json": components["schemas"]["MiniPosOrder"];
+                "application/json": {
+                    /** Format: uuid */
+                    shift_id: string;
+                };
             };
         };
         responses: {

@@ -11,6 +11,12 @@ load_yaml = ->(path) { YAML.safe_load(File.read(path), permitted_classes: [Date,
 canonical = load_yaml.call(canonical_path)
 runtime = load_yaml.call(runtime_path)
 overlay = load_yaml.call(File.join(root, "contracts/openapi-corrections-v1.yaml"))
+overlay.fetch("actions").each do |action|
+  match = action.fetch("target").match(/\A\$\.components\.schemas\.([A-Za-z0-9_]+)\.properties\z/)
+  canonical.dig("components", "schemas", match[1], "properties").merge!(action.fetch("update")) if match
+  required = action.fetch("target").match(/\A\$\.components\.schemas\.([A-Za-z0-9_]+)\.required\z/)
+  canonical.dig("components", "schemas", required[1])["required"] = action.fetch("update") if required
+end
 
 def resolve_pointer(document, pointer)
   pointer.delete_prefix("#/").split("/").reduce(document) do |node, key|
@@ -43,7 +49,7 @@ def dereference_schema(document, node, stack = [])
   end
 end
 
-corrected_webhook_schema = overlay.fetch("actions").first.dig("update", "content", "application/json", "schema")
+corrected_webhook_schema = overlay.fetch("actions").find { |action| action["target"] == "$.paths['/webhook-endpoints'].post.responses['201']" }.dig("update", "content", "application/json", "schema")
 request_corrections = {}
 overlay.fetch("actions").each do |action|
   match = action.fetch("target").match(/\A\$\.paths\['([^']+)'\]\.(get|post|put|patch|delete)\.requestBody\.content\['application\/json'\]\.schema\z/)

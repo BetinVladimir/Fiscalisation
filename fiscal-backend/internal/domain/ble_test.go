@@ -113,10 +113,13 @@ func TestBLESessionRequiresActiveTenantRegisterAndFiscalDevice(t *testing.T) {
 func TestBLESessionRefreshRejectsDeactivatedOperator(t *testing.T) {
 	s := NewService(NewMemoryRepository(), NewSimulator(true))
 	s.SetBLESigningKey("01234567890123456789012345678901")
-	registerID, _ := prepareBLERegister(t, s, "tenant1")
+	registerID, deviceID := prepareBLERegister(t, s, "tenant1")
 	v, err := s.BLESession(registerID, "A001", "app1", "tenant1", "subject-1", testBLEClientPublicKey)
 	if err != nil {
 		t.Fatal(err)
+	}
+	if v["device_id"] != deviceID || v["edge_id"] == deviceID || v["location_id"] == "" {
+		t.Fatalf("BLE session did not distinguish edge/fiscal device or bind location: %#v", v)
 	}
 	operators := s.repo.Resources("operator", "tenant1")
 	if len(operators) != 1 {
@@ -156,6 +159,27 @@ func TestBLESessionLifecycleIsSubjectBoundAndRefreshRotatesAuthority(t *testing.
 	}
 	if refreshed["signed_session_ticket"] == created["signed_session_ticket"] {
 		t.Fatal("refresh reused signed session ticket")
+	}
+}
+
+func TestBLESessionRefreshRejectsRegisterDeviceRebind(t *testing.T) {
+	s := NewService(NewMemoryRepository(), NewSimulator(true))
+	s.SetBLESigningKey("01234567890123456789012345678901")
+	registerID, originalDeviceID := prepareBLERegister(t, s, "tenant-rebind")
+	issued, err := s.BLESession(registerID, "A001", "app1", "tenant-rebind", "subject-1", testBLEClientPublicKey)
+	if err != nil || issued["device_id"] != originalDeviceID || issued["edge_id"] == originalDeviceID || issued["location_id"] == "" {
+		t.Fatalf("invalid BLE identity package: %#v %v", issued, err)
+	}
+	second, err := s.CreateResource("device", "tenant-rebind", map[string]any{"kind": "FISCAL_DEVICE", "vendor": "Datecs", "model": "DP-150 MX", "serial": "BLE-FD-2", "status": "DRAFT", "environment": "DEV", "simulated": true})
+	if err != nil {
+		t.Fatal(err)
+	}
+	second = activateTestDevice(t, s, "tenant-rebind", second)
+	if _, err = s.BindRegister(registerID, "tenant-rebind", second["id"].(string), "FISCAL_DEVICE", ""); err != nil {
+		t.Fatal(err)
+	}
+	if _, err = s.RefreshBLE(issued["ble_session_id"].(string), "tenant-rebind", "subject-1"); err == nil {
+		t.Fatal("BLE authority refreshed after its immutable final-device binding changed")
 	}
 }
 

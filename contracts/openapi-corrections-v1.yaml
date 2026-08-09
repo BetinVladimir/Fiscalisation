@@ -4,6 +4,26 @@ info:
   version: 1.1.0
 extends: ../../BeeloyBackend/docs/Fiscal/api/openapi-public-v1.yaml
 actions:
+  - target: $.components.schemas.SaleLine.properties
+    description: Carry the N-18 line-level absolute EUR discount through the public Fiscal command instead of losing the MiniPOS field before the device command.
+    update:
+      discount: {$ref: '#/components/schemas/Money'}
+  - target: $.components.schemas.FiscalReceipt.properties
+    description: Preserve the immutable fiscal-device and fiscal-memory identity captured at payment reservation in receipt evidence.
+    update:
+      fiscal_memory_number: {type: string}
+      fiscal_device:
+        type: object
+        additionalProperties: false
+        required: [device_id]
+        properties:
+          device_id: {type: string}
+          serial: {type: string}
+          fiscal_device_number: {type: string}
+          fiscal_memory_number: {type: string}
+          vendor: {type: string}
+          model: {type: string}
+          firmware: {type: string}
   - target: $.paths['/webhook-endpoints'].post.responses['201']
     description: Describe the already implemented one-time webhook secret response omitted by the locked canonical document.
     update:
@@ -91,3 +111,17 @@ actions:
       required: [shift_id]
       properties:
         shift_id: {type: string, format: uuid}
+  - target: $.components.schemas.ComplianceExportRequest.properties
+    description: Add immutable historical filters required by the N-18 export views; values match sale-time location and end-device snapshots.
+    update:
+      location_id: {type: [string, 'null'], format: uuid}
+      device_id: {type: [string, 'null'], format: uuid}
+  - target: $.components.schemas.BleSession.properties
+    description: Distinguish tenant, Edge advertising identity, actual bound fiscal device and sale-time location binding used by offline commands.
+    update:
+      tenant_id: {type: string, minLength: 1}
+      location_id: {type: string, format: uuid}
+      register_id: {type: string, format: uuid}
+  - target: $.components.schemas.BleSession.required
+    description: The immutable location/register identity is mandatory in every issued or refreshed BLE authority package.
+    update: [ble_session_id, tenant_id, edge_id, device_id, location_id, register_id, service_uuid, signed_session_ticket, expires_at]
