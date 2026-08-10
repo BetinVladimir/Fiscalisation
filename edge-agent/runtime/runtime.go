@@ -17,6 +17,7 @@ type Command struct {
 	DeviceID     string          `json:"device_id"`
 	Type         string          `json:"type"`
 	FencingToken int64           `json:"fencing_token"`
+	OperatorCode string          `json:"operator_code,omitempty"`
 	Payload      json.RawMessage `json:"payload"`
 }
 type Result struct {
@@ -55,7 +56,10 @@ type Runtime struct {
 	device            Device
 	now               func() time.Time
 	storageQuotaBytes int64
+	enrichCommand     func(Command, int64) (Command, error)
 }
+
+func (r *Runtime) SetCommandEnricher(v func(Command, int64) (Command, error)) { r.enrichCommand = v }
 
 func (r *Runtime) SetStorageQuota(bytes int64) { r.storageQuotaBytes = bytes }
 func (r *Runtime) StorageStatus() (journal.StorageStatus, error) {
@@ -91,6 +95,33 @@ func New(j *journal.Journal, a *authority.Manager, d Device) *Runtime {
 // fiscal sequence or appending a command to the journal.
 func (r *Runtime) ProbeFinalDevice() error { return r.device.Probe() }
 
+// RegulatoryIdentifierForSurrogate rebuilds the immutable local binding from
+// the durable journal, so restart and later line/payment/storno intents reuse
+// the original identifier instead of allocating or trusting one from POS.
+func (r *Runtime) RegulatoryIdentifierForSurrogate(surrogateID string) (string, bool) {
+	for _, event := range r.journal.Events() {
+		if event.Type != "COMMAND_DURABLE" {
+			continue
+		}
+		var accepted struct {
+			Command struct {
+				Payload json.RawMessage `json:"payload"`
+			} `json:"command"`
+		}
+		if json.Unmarshal(event.Payload, &accepted) != nil {
+			continue
+		}
+		var payload struct {
+			ClientSaleSurrogateID string `json:"client_sale_surrogate_id"`
+			UNP                   string `json:"unp"`
+		}
+		if json.Unmarshal(accepted.Command.Payload, &payload) == nil && payload.ClientSaleSurrogateID == surrogateID && payload.UNP != "" {
+			return payload.UNP, true
+		}
+	}
+	return "", false
+}
+
 func (r *Runtime) Execute(c Command) (Result, error) {
 	if c.CommandID == "" || c.TenantID == "" || c.RegisterID == "" || c.DeviceID == "" || c.Type == "" {
 		return Result{}, errors.New("invalid command")
@@ -114,6 +145,12 @@ func (r *Runtime) Execute(c Command) (Result, error) {
 	op, unp, err := r.authority.Allocate(r.now().UTC(), c.FencingToken)
 	if err != nil {
 		return Result{}, err
+	}
+	if r.enrichCommand != nil {
+		c, err = r.enrichCommand(c, unp)
+		if err != nil {
+			return Result{}, err
+		}
 	}
 	accepted := map[string]any{"command": c, "operation_sequence": op, "unp_sequence": unp}
 	if _, err = r.journal.Append(c.CommandID, "COMMAND_DURABLE", accepted); err != nil {

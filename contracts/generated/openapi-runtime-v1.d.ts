@@ -4,6 +4,205 @@
  */
 
 export interface paths {
+    "/operations/{operation_id}:reconcile": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Lookup-only reconciliation; never blindly repeats the device side effect. */
+        post: operations["reconcileOperationExactAlias"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/workstations/{workstation_id}/sessions": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Binds authenticated subject, app instance, active operator and workstation before any sale intent. */
+        post: operations["createWorkstationSession"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sales": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Authoritative sale recovery by the authenticated tenant and optional operator/workstation/state filters. */
+        get: operations["listOpenSalesForRecovery"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sales/{sale_id}/lines/{line_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["changeSaleLine"];
+        trace?: never;
+    };
+    "/sales/{sale_id}/lines/{line_id}:cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["cancelSaleLine"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sales/{sale_id}:cancel": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["cancelOpenSale"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sales/{sale_id}:reverse": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["reverseSaleExactAlias"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sales/{sale_id}/payment-intents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createPaymentIntent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/workstations/{workstation_id}/readiness": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getWorkstationReadiness"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/workstations/{workstation_id}/readiness:refresh": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["refreshWorkstationReadiness"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/workstations/{workstation_id}/clock-sync": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["syncWorkstationClock"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/sales:open-with-line": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /**
+         * Атомарно открыть продажу первой строкой и выдать УНП
+         * @description Единственный BG_SUPTO_FULL entry point новой продажи. POS передаёт только surrogate UUID и намерение строки; FMIN, профиль и УНП определяются сервером. Создание sale, первой строки, audit и immutable regulatory binding является одной транзакцией.
+         */
+        post: operations["openSaleWithFirstLine"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/exports/periodized": {
         parameters: {
             query?: never;
@@ -271,10 +470,148 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/local/v1/intents": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Loopback-only POS intent surface with the same server-owned sale semantics as the cloud gateway. It never accepts a vendor fiscal command or a caller-generated regulatory identifier. */
+        post: operations["executeLocalComplianceIntent"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        CreateWorkstationSessionRequest: {
+            operator_code: string;
+            /** Format: uuid */
+            app_instance_id: string;
+        };
+        WorkstationSession: {
+            session_id: string;
+            tenant_id?: string;
+            /** Format: uuid */
+            workstation_id: string;
+            operator_id: string;
+            operator_code: string;
+            /** Format: uuid */
+            app_instance_id: string;
+            /** Format: date-time */
+            expires_at: string;
+            /** Format: date-time */
+            created_at: string;
+        };
+        SUPTOReversalRequest: {
+            /** @enum {string} */
+            reason_code: "OPERATOR_ERROR" | "CUSTOMER_RETURN" | "CUSTOMER_COMPLAINT" | "TAX_BASE_REDUCTION";
+            original_fiscal_reference: string;
+        };
+        ReadinessLease: {
+            lease_id: string;
+            tenant_id?: string;
+            /** Format: uuid */
+            workstation_id: string;
+            /** Format: uuid */
+            fiscal_device_id: string;
+            fiscal_device_number: string;
+            /** @constant */
+            profile_version: "2026-08-10.1";
+            /** @constant */
+            ready: true;
+            /** Format: date-time */
+            checked_at: string;
+            /** Format: date-time */
+            valid_for_open_sale_until: string;
+            signature: string;
+        };
+        DeviceClockSync: {
+            event_id: string;
+            tenant_id?: string;
+            /** Format: uuid */
+            workstation_id: string;
+            /** Format: uuid */
+            device_id: string;
+            /** Format: date */
+            business_date: string;
+            /** Format: date-time */
+            trusted_time: string;
+            /** Format: date-time */
+            device_time: string;
+            drift_seconds: number;
+            set_performed: boolean;
+            /** @constant */
+            verified: true;
+            /** Format: date-time */
+            occurred_at: string;
+        };
+        RegulatoryIdentifier: {
+            /** @constant */
+            type: "SALE";
+            /** @constant */
+            scheme: "BG_UNP_V1";
+            value: string;
+            /** @constant */
+            country_code: "BG";
+            /** @constant */
+            profile_version: "2026-08-10.1";
+        };
+        OpenSaleWithFirstLineRequest: {
+            /** Format: uuid */
+            client_sale_surrogate_id: string;
+            /** Format: uuid */
+            workstation_id: string;
+            /** Format: uuid */
+            operator_session_id: string;
+            line: components["schemas"]["SUPTOSaleLine"];
+        };
+        SUPTOSaleLine: {
+            /** Format: uuid */
+            line_id: string;
+            product_code?: string;
+            name: string;
+            quantity: string;
+            unit_price: components["schemas"]["Money"];
+            discount?: components["schemas"]["Money"];
+            tax_group: string;
+        };
+        SUPTOSale: {
+            sale_id: string;
+            /** Format: uuid */
+            external_id: string;
+            /** Format: uuid */
+            register_id: string;
+            operator_id: string;
+            /**
+             * @deprecated
+             * @description Compatibility projection; use regulatory_identifiers.
+             */
+            unp: string;
+            regulatory_identifiers: components["schemas"]["RegulatoryIdentifier"][];
+            /** @constant */
+            state: "OPEN";
+            version: number;
+            lines: components["schemas"]["SUPTOSaleLine"][];
+            payments: unknown[];
+            fiscal_device: {
+                [key: string]: unknown;
+            };
+            allowed_actions: string[];
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        } & {
+            [key: string]: unknown;
+        };
         PeriodizedComplianceExportRequest: {
             /** @enum {string} */
             type: "SUPTO_18_1" | "SUPTO_18_2" | "SUPTO_18_3" | "SUPTO_18_4" | "SUPTO_18_5" | "SUPTO_18_9" | "KLEN" | "FISCAL_MEMORY";
@@ -523,6 +860,50 @@ export interface components {
             fencing_token: number;
             payload: Record<string, never>;
         };
+        ComplianceIntentLine: {
+            /** Format: uuid */
+            line_id: string;
+            product_code?: string;
+            name: string;
+            quantity: string;
+            unit_price: string;
+            discount?: string;
+            tax_group: string;
+        };
+        ComplianceIntent: {
+            /** Format: uuid */
+            intent_id: string;
+            /** @enum {string} */
+            action: "OPEN_WITH_LINE" | "ADD_LINE" | "CHANGE_LINE" | "CANCEL_LINE" | "CANCEL_SALE" | "PAYMENT" | "REVERSE";
+            /** Format: uuid */
+            client_sale_surrogate_id: string;
+            server_sale_id?: string;
+            operator_code: string;
+            /** Format: uuid */
+            app_instance_id: string;
+            expected_version: number;
+            line?: components["schemas"]["ComplianceIntentLine"];
+            payment?: {
+                [key: string]: unknown;
+            };
+            reason_code?: string;
+        };
+        ComplianceIntentResult: {
+            operation_id: string;
+            /** @enum {string} */
+            state: "FISCALIZED" | "FAILED" | "FISCAL_RESULT_UNKNOWN" | "BLOCKED";
+            server_sale_id?: string;
+            version: number;
+            regulatory_identifiers?: {
+                type: string;
+                scheme: string;
+                value: string;
+                country_code: string;
+                profile_version: string;
+            }[];
+            fiscal_reference?: string;
+            error_code?: string;
+        };
         EdgeRuntimeResult: {
             command_id: string;
             /** @enum {string} */
@@ -563,6 +944,10 @@ export interface components {
         };
     };
     parameters: {
+        SaleId: string;
+        LineId: string;
+        IfMatch: number;
+        WorkstationId: string;
         ApiVersion: "2026-08-07";
         IdempotencyKey: string;
         ShiftId: string;
@@ -578,6 +963,364 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    reconcileOperationExactAlias: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                operation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Reconciliation transition */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FiscalOperationSummary"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    createWorkstationSession: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                workstation_id: components["parameters"]["WorkstationId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateWorkstationSessionRequest"];
+            };
+        };
+        responses: {
+            /** @description Bound operator/workstation session */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["WorkstationSession"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    listOpenSalesForRecovery: {
+        parameters: {
+            query?: {
+                operator_id?: string;
+                register_id?: string;
+                state?: "OPEN" | "PAYMENT_PENDING" | "UNKNOWN" | "COMPLETED" | "CANCELLED";
+            };
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Server-owned recovery projection */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["SUPTOSale"][];
+                    };
+                };
+            };
+        };
+    };
+    changeSaleLine: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                sale_id: components["parameters"]["SaleId"];
+                line_id: components["parameters"]["LineId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SUPTOSaleLine"];
+            };
+        };
+        responses: {
+            /** @description Changed by an append-only compensating event */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SUPTOSale"];
+                };
+            };
+            409: components["responses"]["Problem"];
+            428: components["responses"]["Problem"];
+        };
+    };
+    cancelSaleLine: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                sale_id: components["parameters"]["SaleId"];
+                line_id: components["parameters"]["LineId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Cancelled by an append-only compensating event */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SUPTOSale"];
+                };
+            };
+            409: components["responses"]["Problem"];
+            428: components["responses"]["Problem"];
+        };
+    };
+    cancelOpenSale: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                sale_id: components["parameters"]["SaleId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Open sale cancelled while retaining UNP evidence */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FiscalOperationSummary"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    reverseSaleExactAlias: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                sale_id: components["parameters"]["SaleId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SUPTOReversalRequest"];
+            };
+        };
+        responses: {
+            /** @description Storno operation */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FiscalOperationSummary"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    createPaymentIntent: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                sale_id: components["parameters"]["SaleId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MiniPosTender"];
+            };
+        };
+        responses: {
+            /** @description Durable payment operation */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["FiscalOperationSummary"];
+                };
+            };
+            409: components["responses"]["Problem"];
+            428: components["responses"]["Problem"];
+        };
+    };
+    getWorkstationReadiness: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path: {
+                workstation_id: components["parameters"]["WorkstationId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Current signed readiness lease */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessLease"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    refreshWorkstationReadiness: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                workstation_id: components["parameters"]["WorkstationId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Fresh signed readiness lease */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ReadinessLease"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    syncWorkstationClock: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                workstation_id: components["parameters"]["WorkstationId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Append-only verified clock event */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceClockSync"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    openSaleWithFirstLine: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["OpenSaleWithFirstLineRequest"];
+            };
+        };
+        responses: {
+            /** @description Sale and first line durably opened */
+            201: {
+                headers: {
+                    ETag: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SUPTOSale"];
+                };
+            };
+            400: components["responses"]["Problem"];
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
+        };
+    };
     createPeriodizedComplianceExport: {
         parameters: {
             query?: never;
@@ -1108,6 +1851,32 @@ export interface operations {
                 };
             };
             503: components["responses"]["Problem"];
+        };
+    };
+    executeLocalComplianceIntent: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ComplianceIntent"];
+            };
+        };
+        responses: {
+            /** @description Durable local result or idempotently replayed result */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ComplianceIntentResult"];
+                };
+            };
+            409: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
 }

@@ -193,7 +193,7 @@ func prepareBLERegister(t *testing.T, s *Service, tenant string) (string, string
 	if err != nil {
 		t.Fatal(err)
 	}
-	device, err := s.CreateResource("device", tenant, map[string]any{"kind": "FISCAL_DEVICE", "vendor": "Datecs", "model": "DP-150 MX", "serial": "BLE-FD-1", "status": "DRAFT", "environment": "DEV", "simulated": true})
+	device, err := s.CreateResource("device", tenant, map[string]any{"kind": "FISCAL_DEVICE", "vendor": "Datecs", "model": "DP-150 MX", "serial": "BLE-FD-1", "fiscal_device_number": "BL000001", "status": "DRAFT", "environment": "DEV", "simulated": true})
 	if err != nil {
 		t.Fatal(err)
 	}

@@ -8,6 +8,7 @@ import (
 	"errors"
 	"fmt"
 	_ "github.com/jackc/pgx/v5/stdlib"
+	"regexp"
 	"sort"
 	"strings"
 	"time"
@@ -16,6 +17,40 @@ import (
 type Postgres struct{ db, reader *sql.DB }
 
 var ErrConcurrentState = errors.New("fiscal repository generation conflict")
+var allocationIdentityPattern = regexp.MustCompile(`^[A-Za-z0-9]{8}$`)
+var allocationOperatorPattern = regexp.MustCompile(`^[A-Za-z0-9]{4}$`)
+
+// AllocateUNP is the PostgreSQL authority path for online identifiers. The
+// transaction-scoped advisory lock serializes one FMIN stream across all Core
+// replicas; the unique constraints remain the final fail-closed protection.
+func (p *Postgres) AllocateUNP(ctx context.Context, tenantID, allocationID, fiscalDeviceNumber, operatorCode string) (string, int64, error) {
+	if tenantID == "" || allocationID == "" || !allocationIdentityPattern.MatchString(fiscalDeviceNumber) || !allocationOperatorPattern.MatchString(operatorCode) {
+		return "", 0, errors.New("invalid UNP allocation identity")
+	}
+	tx, err := p.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelReadCommitted})
+	if err != nil {
+		return "", 0, err
+	}
+	defer tx.Rollback()
+	if _, err = tx.ExecContext(ctx, `select pg_advisory_xact_lock(hashtextextended($1,0))`, tenantID+":"+fiscalDeviceNumber); err != nil {
+		return "", 0, err
+	}
+	var sequence int64
+	if err = tx.QueryRowContext(ctx, `select coalesce(max(unp_sequence),0)+1 from unp_allocations where tenant_id=$1 and fiscal_device_number=$2`, tenantID, fiscalDeviceNumber).Scan(&sequence); err != nil {
+		return "", 0, err
+	}
+	if sequence > 9999999 {
+		return "", 0, errors.New("UNP sequence exhausted")
+	}
+	unp := fmt.Sprintf("%s-%s-%07d", fiscalDeviceNumber, operatorCode, sequence)
+	if _, err = tx.ExecContext(ctx, `insert into unp_allocations(tenant_id,allocation_id,fiscal_device_number,operator_code,unp_sequence,unp,status) values($1,$2,$3,$4,$5,$6,'ALLOCATED')`, tenantID, allocationID, fiscalDeviceNumber, operatorCode, sequence, unp); err != nil {
+		return "", 0, err
+	}
+	if err = tx.Commit(); err != nil {
+		return "", 0, err
+	}
+	return unp, sequence, nil
+}
 
 func Open(url string) (*Postgres, error) {
 	if url == "" {

@@ -2,12 +2,66 @@ package gateway
 
 import (
 	"crypto/sha256"
+	"path/filepath"
 	"testing"
 	"time"
 
+	"fiscalisation/edge-agent/authority"
 	"fiscalisation/edge-agent/ble"
+	"fiscalisation/edge-agent/device"
+	"fiscalisation/edge-agent/journal"
 	edgeruntime "fiscalisation/edge-agent/runtime"
 )
+
+func TestEncryptedComplianceIntentReturnsOpaqueRegulatoryIdentifier(t *testing.T) {
+	client, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "client")
+	edge, _ := ble.NewEndpoint([]byte("session-key-material"), "session", "edge")
+	binding := activeBinding("tenant", "register", "device", 7)
+	binding.OperatorCode = "A001"
+	binding.AppInstanceID = "app-1"
+	j, err := journal.Open(filepath.Join(t.TempDir(), "edge.db"))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer j.Close()
+	d := device.NewSimulator(true)
+	runtime := edgeruntime.New(j, authority.New(authority.Lease{RegisterID: "register", EdgeID: "edge", FencingToken: 7, OperationFrom: 1, OperationTo: 10, UNPFrom: 41, UNPTo: 50, ExpiresAt: time.Now().Add(time.Hour)}), d)
+	gateway, err := NewComplianceGateway(runtime, binding, CountryPolicyBundle{CountryCode: "BG", ProfileVersion: "2026.1", IdentifierScheme: "BG_UNP_V1", FiscalDeviceNumber: "AB123456", Signature: "trusted-signature", ExpiresAt: time.Now().Add(time.Hour)})
+	if err != nil {
+		t.Fatal(err)
+	}
+	p, err := NewProcessor(edge, binding, runtime.Execute, 185)
+	if err != nil {
+		t.Fatal(err)
+	}
+	p.SetComplianceGateway(gateway)
+	intent := ComplianceIntent{IntentID: "intent-1", Action: "OPEN_WITH_LINE", ClientSaleSurrogateID: "client-sale-1", OperatorCode: "A001", AppInstanceID: "app-1", Line: &IntentLine{LineID: "line-1", Name: "Coffee", Quantity: "1.000", UnitPrice: "2.50", TaxGroup: "B"}}
+	encoded, _ := ble.CanonicalMarshal(intent)
+	raw, _ := client.SealFrame([16]byte{4}, 0, 1, 0, encoded)
+	accepted, err := p.AcceptCommandFrame(raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	assembler := ble.NewReassembler(10)
+	var complete []byte
+	for _, responseFrame := range accepted.ResponseFrames {
+		frame, plain, openErr := client.OpenFrame(responseFrame)
+		if openErr != nil {
+			t.Fatal(openErr)
+		}
+		_, complete, err = assembler.Add(frame, plain)
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	var result IntentResult
+	if err = ble.StrictUnmarshal(complete, &result); err != nil {
+		t.Fatal(err)
+	}
+	if len(result.RegulatoryIdentifiers) != 1 || result.RegulatoryIdentifiers[0]["value"] != "AB123456-A001-0000041" || d.Executions("intent-1") != 1 {
+		t.Fatalf("unexpected compliance result: %#v", result)
+	}
+}
 
 func activeBinding(tenant, register, device string, fence int64) SessionBinding {
 	return SessionBinding{TenantID: tenant, RegisterID: register, DeviceID: device, SessionID: "session", FencingToken: fence, ExpiresAt: time.Now().UTC().Add(time.Hour), IsRevoked: func(string, time.Time) bool { return false }}

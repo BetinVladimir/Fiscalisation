@@ -14,11 +14,11 @@ test("Go and TypeScript share the complete BLE handshake context vector",()=>ass
 test("encrypted client handshake gates fiscal execution until READY",async()=>{
  const h=new BleClientHandshake(),sessionId="session-web-1",clientPublicKey=h.prepareSessionPublicKey(),rawTicket=ticket(sessionId,clientPublicKey);
  const hello=decodeStrict<ControlMessage>(await h.start({...session(sessionId,clientPublicKey),signed_session_ticket:rawTicket}));
- assert.equal(hello.type,"HELLO");assert.equal(h.canExecuteFiscalCommand,false);assert.equal(typeof hello.payload.client_nonce,"string");assert.equal(typeof hello.payload.ephemeral_public_key,"string");
+ assert.equal(hello.type,"HELLO");assert.equal(h.canSendComplianceIntent,false);assert.equal(typeof hello.payload.client_nonce,"string");assert.equal(typeof hello.payload.ephemeral_public_key,"string");
  const edge=await crypto.subtle.generateKey({name:"X25519"} as any,false,["deriveBits"]) as CryptoKeyPair;const edgePublic=new Uint8Array(await crypto.subtle.exportKey("raw",edge.publicKey));
  const challenge=encodeCanonical({type:"CHALLENGE",protocol_version:BLE_PROTOCOL_VERSION,session_id:sessionId,counter:0,payload:{edge_nonce:b64(crypto.getRandomValues(new Uint8Array(16))),ephemeral_public_key:b64(edgePublic),max_chunk:128,window:4}} satisfies ControlMessage);
- const auth=decodeStrict<ControlMessage>(await h.challenge(challenge));assert.equal(auth.type,"AUTH_PROOF");assert.equal(typeof auth.payload.ciphertext,"string");assert.equal(h.canExecuteFiscalCommand,false);
- h.ready(encodeCanonical({type:"READY",protocol_version:BLE_PROTOCOL_VERSION,session_id:sessionId,counter:1,payload:{next_expected_counter:1}} satisfies ControlMessage));assert.equal(h.canExecuteFiscalCommand,true);
+ const auth=decodeStrict<ControlMessage>(await h.challenge(challenge));assert.equal(auth.type,"AUTH_PROOF");assert.equal(typeof auth.payload.ciphertext,"string");assert.equal(h.canSendComplianceIntent,false);
+ h.ready(encodeCanonical({type:"READY",protocol_version:BLE_PROTOCOL_VERSION,session_id:sessionId,counter:1,payload:{next_expected_counter:1}} satisfies ControlMessage));assert.equal(h.canSendComplianceIntent,true);
 });
 
 test("handshake rejects expired session and READY replay",async()=>{
@@ -38,5 +38,5 @@ test("outer BLE identity cannot differ from the signed ticket",async()=>{
 });
 
 test("BLE bootstrap reset permits safe session re-issuance",()=>{
- const bootstrap=new WebBleBootstrap(),first=bootstrap.prepareSessionPublicKey();bootstrap.resetSession();const second=bootstrap.prepareSessionPublicKey();assert.notEqual(first,second);assert.equal(bootstrap.canExecuteFiscalCommand,false)
+ const bootstrap=new WebBleBootstrap(),first=bootstrap.prepareSessionPublicKey();bootstrap.resetSession();const second=bootstrap.prepareSessionPublicKey();assert.notEqual(first,second);assert.equal(bootstrap.canSendComplianceIntent,false)
 });

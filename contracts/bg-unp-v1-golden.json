@@ -1,0 +1,21 @@
+{
+  "schema_version": 1,
+  "scheme": "BG_UNP_V1",
+  "profile_version": "2026-08-10.1",
+  "separator": "-",
+  "valid": [
+    {"fiscal_device_number":"AB123456","operator_code":"A001","sequence":1,"value":"AB123456-A001-0000001"},
+    {"fiscal_device_number":"12345678","operator_code":"ZZZZ","sequence":9999999,"value":"12345678-ZZZZ-9999999"},
+    {"fiscal_device_number":"ab12CD34","operator_code":"0A9z","sequence":42,"value":"ab12CD34-0A9z-0000042"}
+  ],
+  "invalid": [
+    "register-1-A001-0000001",
+    "550e8400-e29b-41d4-a716-446655440000-A001-0000001",
+    "AB12345-A001-0000001",
+    "AB123456-A01-0000001",
+    "AB123456-A001-0000000",
+    "AB123456-A001-10000000",
+    "AB123456–A001–0000001",
+    "AB123456-A001-0000001 "
+  ]
+}

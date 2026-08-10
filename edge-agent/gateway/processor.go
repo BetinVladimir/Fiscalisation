@@ -12,6 +12,7 @@ import (
 type ExecuteFunc func(edgeruntime.Command) (edgeruntime.Result, error)
 type SessionBinding struct {
 	TenantID, RegisterID, DeviceID, SessionID string
+	OperatorCode, AppInstanceID               string
 	FencingToken                              int64
 	ExpiresAt                                 time.Time
 	IsRevoked                                 func(string, time.Time) bool
@@ -25,9 +26,11 @@ type Processor struct {
 	attMTU      int
 	probe       func() error
 	binding     SessionBinding
+	compliance  *ComplianceGateway
 }
 
-func (p *Processor) SetFinalDeviceProbe(probe func() error) { p.probe = probe }
+func (p *Processor) SetFinalDeviceProbe(probe func() error)    { p.probe = probe }
+func (p *Processor) SetComplianceGateway(g *ComplianceGateway) { p.compliance = g }
 
 type AcceptResult struct {
 	Flow           ble.FlowStatus
@@ -59,6 +62,21 @@ func (p *Processor) AcceptCommandFrame(raw []byte) (AcceptResult, error) {
 	if err != nil || complete == nil {
 		return AcceptResult{Flow: flow}, err
 	}
+	var header map[string]any
+	if ble.StrictUnmarshal(complete, &header) == nil && header["action"] != nil {
+		if p.compliance == nil {
+			return AcceptResult{Flow: flow}, errors.New("compliance intent gateway unavailable")
+		}
+		var intent ComplianceIntent
+		if err = ble.StrictUnmarshal(complete, &intent); err != nil {
+			return AcceptResult{Flow: flow}, errors.New("invalid compliance intent CBOR")
+		}
+		result, executeErr := p.compliance.Execute(intent)
+		if executeErr != nil {
+			return AcceptResult{Flow: flow}, executeErr
+		}
+		return p.sealResult(flow, frame.MessageID, result)
+	}
 	var envelope ble.DeviceCommandEnvelope
 	if err = ble.StrictUnmarshal(complete, &envelope); err != nil {
 		return AcceptResult{Flow: flow}, errors.New("invalid command CBOR")
@@ -89,6 +107,10 @@ func (p *Processor) AcceptCommandFrame(raw []byte) (AcceptResult, error) {
 			response["error_code"] = "EDGE_EXECUTION_REJECTED"
 		}
 	}
+	return p.sealResult(flow, frame.MessageID, response)
+}
+
+func (p *Processor) sealResult(flow ble.FlowStatus, messageID [16]byte, response any) (AcceptResult, error) {
 	encoded, err := ble.CanonicalMarshal(response)
 	if err != nil {
 		return AcceptResult{Flow: flow}, err
@@ -99,7 +121,7 @@ func (p *Processor) AcceptCommandFrame(raw []byte) (AcceptResult, error) {
 	}
 	frames := make([][]byte, 0, len(chunks))
 	for i, chunk := range chunks {
-		sealed, sealErr := p.session.SealFrame(frame.MessageID, uint16(i), uint16(len(chunks)), 1, chunk)
+		sealed, sealErr := p.session.SealFrame(messageID, uint16(i), uint16(len(chunks)), 1, chunk)
 		if sealErr != nil {
 			return AcceptResult{Flow: flow}, sealErr
 		}

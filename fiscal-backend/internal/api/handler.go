@@ -115,6 +115,7 @@ func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/healthz", h.live)
 	m.HandleFunc("/public/v1/version", h.version)
 	m.HandleFunc("/public/v1/sales", h.sales)
+	m.HandleFunc("/public/v1/sales:open-with-line", h.openSaleWithLine)
 	m.HandleFunc("/public/v1/sales/", h.sale)
 	m.HandleFunc("/public/v1/operations/", h.operation)
 	m.HandleFunc("/public/v1/operations", h.operations)
@@ -127,6 +128,7 @@ func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/public/v1/shifts", h.shifts)
 	m.HandleFunc("/public/v1/shifts/", h.shift)
 	m.HandleFunc("/public/v1/registers/", h.register)
+	m.HandleFunc("/public/v1/workstations/", h.workstation)
 	m.HandleFunc("/public/v1/connectivity-probes/", h.connectivityProbe)
 	m.HandleFunc("/public/v1/operators", h.resourceCollection("operator"))
 	m.HandleFunc("/public/v1/operators/", h.resourceItem("operator", "/public/v1/operators/"))
@@ -144,6 +146,63 @@ func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/public/v1/edge-sync/batches", h.sync)
 	oidc := auth.NewOIDCVerifier(c.OIDCIssuer, c.OIDCAudience, c.OIDCJWKSURL)
 	return cors(c.CORSAllowedOrigins, auth.MiddlewareWithOIDC(c.AuthHMACKey, oidc, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, enforceSuccessResponses(fiscalIdempotency(s, m)))))))
+}
+
+func (h *Handler) workstation(w http.ResponseWriter, r *http.Request) {
+	p := strings.Trim(strings.TrimPrefix(r.URL.Path, "/public/v1/workstations/"), "/")
+	parts := strings.Split(p, "/")
+	if len(parts) != 2 || parts[0] == "" {
+		problem(w, 404, "NOT_FOUND")
+		return
+	}
+	id, action := parts[0], parts[1]
+	switch {
+	case action == "sessions" && r.Method == http.MethodPost:
+		body, ok := readBody(w, r)
+		if !ok {
+			return
+		}
+		if h.replay(w, r, body) {
+			return
+		}
+		var in struct {
+			OperatorCode  string `json:"operator_code"`
+			AppInstanceID string `json:"app_instance_id"`
+		}
+		if json.Unmarshal(body, &in) != nil {
+			problem(w, 400, "INVALID_JSON")
+			return
+		}
+		v, err := h.svc.OpenWorkstationSession(id, in.OperatorCode, in.AppInstanceID, actorSubject(r), tenantID(r))
+		if err != nil {
+			problem(w, 409, "WORKSTATION_SESSION_REJECTED")
+			return
+		}
+		h.saveReplay(w, r, body, 201, v)
+	case action == "readiness" && r.Method == http.MethodGet:
+		v, err := h.svc.CurrentReadiness(id, tenantID(r))
+		if err != nil {
+			problem(w, 409, "WORKSTATION_NOT_READY")
+			return
+		}
+		write(w, 200, v)
+	case action == "readiness:refresh" && r.Method == http.MethodPost:
+		v, err := h.svc.RefreshReadiness(id, tenantID(r))
+		if err != nil {
+			problem(w, 409, "WORKSTATION_NOT_READY")
+			return
+		}
+		write(w, 200, v)
+	case action == "clock-sync" && r.Method == http.MethodPost:
+		v, err := h.svc.SyncWorkstationClock(id, tenantID(r))
+		if err != nil {
+			problem(w, 409, "CLOCK_SYNC_FAILED")
+			return
+		}
+		write(w, 200, v)
+	default:
+		problem(w, 404, "NOT_FOUND")
+	}
 }
 
 type fiscalIdempotencyOwnerKey struct{}
@@ -548,7 +607,11 @@ func (h *Handler) version(w http.ResponseWriter, _ *http.Request) {
 	write(w, 200, map[string]string{"api": h.cfg.APIVersion, "build": "mvp-dev", "policy": "BG-2026-EUR", "schema": "1"})
 }
 func (h *Handler) sales(w http.ResponseWriter, r *http.Request) {
-	if r.Method != "POST" {
+	if r.Method == http.MethodGet {
+		write(w, 200, map[string]any{"items": h.svc.SalesForTenant(tenantID(r), r.URL.Query().Get("operator_id"), r.URL.Query().Get("register_id"), r.URL.Query().Get("state"))})
+		return
+	}
+	if r.Method != http.MethodPost {
 		problem(w, 405, "METHOD_NOT_ALLOWED")
 		return
 	}
@@ -572,11 +635,116 @@ func (h *Handler) sales(w http.ResponseWriter, r *http.Request) {
 	}
 	h.saveReplay(w, r, body, 201, v)
 }
+
+func (h *Handler) openSaleWithLine(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		problem(w, 405, "METHOD_NOT_ALLOWED")
+		return
+	}
+	body, ok := readBody(w, r)
+	if !ok {
+		return
+	}
+	if h.replay(w, r, body) {
+		return
+	}
+	var in domain.OpenSaleWithFirstLineRequest
+	if json.Unmarshal(body, &in) != nil {
+		problem(w, 400, "INVALID_JSON")
+		return
+	}
+	in.TenantID = tenantID(r)
+	v, err := h.svc.OpenSaleWithFirstLine(in)
+	if err != nil {
+		problem(w, 409, "SALE_OPEN_REJECTED")
+		return
+	}
+	w.Header().Set("ETag", strconv.FormatInt(v.Version, 10))
+	h.saveReplay(w, r, body, 201, v)
+}
 func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 	p := strings.Trim(strings.TrimPrefix(r.URL.Path, "/public/v1/sales/"), "/")
 	parts := strings.Split(p, "/")
 	id := parts[0]
+	colonAction := ""
+	if strings.HasSuffix(id, ":cancel") {
+		id, colonAction = strings.TrimSuffix(id, ":cancel"), "cancel"
+	}
+	if strings.HasSuffix(id, ":reverse") {
+		id, colonAction = strings.TrimSuffix(id, ":reverse"), "reversals"
+	}
 	if !h.authorizeSale(w, r, id) {
+		return
+	}
+	if len(parts) == 3 && parts[1] == "lines" && (r.Method == http.MethodPatch || (r.Method == http.MethodPost && strings.HasSuffix(parts[2], ":cancel"))) {
+		lineID := strings.TrimSuffix(parts[2], ":cancel")
+		expected, ok := ifMatch(r)
+		if !ok {
+			problem(w, 428, "IF_MATCH_REQUIRED")
+			return
+		}
+		body, ok := readBody(w, r)
+		if !ok {
+			return
+		}
+		if h.replay(w, r, body) {
+			return
+		}
+		var v domain.Sale
+		var e error
+		if r.Method == http.MethodPatch {
+			var in domain.SaleLine
+			if json.Unmarshal(body, &in) != nil {
+				problem(w, 400, "INVALID_JSON")
+				return
+			}
+			v, e = h.svc.ChangeLineExpectedForTenant(id, lineID, expected, in, tenantID(r))
+		} else {
+			v, e = h.svc.CancelLineExpectedForTenant(id, lineID, expected, tenantID(r))
+		}
+		if e != nil {
+			problem(w, 409, "SALE_LINE_REJECTED")
+			return
+		}
+		w.Header().Set("ETag", strconv.FormatInt(v.Version, 10))
+		h.saveReplay(w, r, body, 200, v)
+		return
+	}
+	if colonAction != "" {
+		if r.Method != http.MethodPost {
+			problem(w, 405, "METHOD_NOT_ALLOWED")
+			return
+		}
+		body, ok := readBody(w, r)
+		if !ok {
+			return
+		}
+		if h.replay(w, r, body) {
+			return
+		}
+		if colonAction == "cancel" {
+			v, e := h.svc.CancelSaleForTenant(id, tenantID(r))
+			if e != nil {
+				problem(w, 409, "SALE_CANCEL_REJECTED")
+				return
+			}
+			h.saveReplay(w, r, body, 202, v)
+			return
+		}
+		var in struct {
+			ReasonCode              string `json:"reason_code"`
+			OriginalFiscalReference string `json:"original_fiscal_reference"`
+		}
+		if json.Unmarshal(body, &in) != nil {
+			problem(w, 400, "INVALID_JSON")
+			return
+		}
+		v, e := h.svc.ReverseForTenantWithReference(id, in.ReasonCode, in.OriginalFiscalReference, tenantID(r))
+		if e != nil {
+			problem(w, 409, "REVERSAL_REJECTED")
+			return
+		}
+		h.saveReplay(w, r, body, 202, v)
 		return
 	}
 	if len(parts) == 1 && r.Method == "GET" {
@@ -626,7 +794,19 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		h.saveReplay(w, r, body, 200, v)
-	case "payments":
+	case "payments", "payment-intents":
+		if parts[1] == "payment-intents" {
+			expected, ok := ifMatch(r)
+			if !ok {
+				problem(w, 428, "IF_MATCH_REQUIRED")
+				return
+			}
+			sale, e := h.svc.GetSaleForTenant(id, tenantID(r))
+			if e != nil || sale.Version != expected {
+				problem(w, 409, "SALE_VERSION_CONFLICT")
+				return
+			}
+		}
 		var in domain.PaymentRequest
 		if json.Unmarshal(body, &in) != nil {
 			problem(w, 400, "INVALID_JSON")
@@ -1137,6 +1317,10 @@ func (h *Handler) sync(w http.ResponseWriter, r *http.Request) {
 func (h *Handler) operation(w http.ResponseWriter, r *http.Request) {
 	p := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, "/public/v1/operations/"), "/"), "/")
 	id := p[0]
+	colonReconcile := strings.HasSuffix(id, ":reconcile")
+	if colonReconcile {
+		id = strings.TrimSuffix(id, ":reconcile")
+	}
 	v, e := h.svc.GetOperationForTenant(id, tenantID(r))
 	if e != nil {
 		problem(w, 404, "OPERATION_NOT_FOUND")
@@ -1146,7 +1330,7 @@ func (h *Handler) operation(w http.ResponseWriter, r *http.Request) {
 		write(w, 200, v)
 		return
 	}
-	if len(p) == 2 && p[1] == "reconcile" && r.Method == "POST" {
+	if ((len(p) == 2 && p[1] == "reconcile") || colonReconcile) && r.Method == "POST" {
 		body, ok := readBody(w, r)
 		if !ok {
 			return

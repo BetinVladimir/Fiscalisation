@@ -1,4 +1,4 @@
-.PHONY: deps generate-openapi test test-race vet governance-test boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test web-build native-bundle android-build ios-build native-regression smart-device-test iot-test compose-check compose-e2e regression full-regression
+.PHONY: deps generate-openapi test test-race vet governance-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test web-build native-bundle android-build ios-build native-regression smart-device-test iot-test compose-check compose-e2e regression full-regression
 deps:
 	cd BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
 	cd BeeFiscalApp && npm ci --cache /tmp/beefiscalapp-npm-cache --no-audit --no-fund
@@ -18,6 +18,38 @@ vet:
 	cd edge-agent && GOCACHE=/tmp/edge-go-vet-cache go vet ./...
 governance-test:
 	ruby scripts/verify_governance.rb
+supto-trace-test:
+	ruby scripts/verify_supto_trace.rb
+supto-document-policy-test:
+	ruby scripts/verify_document_policy.rb
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test(CustomerSaleCanNeverBecomeServiceBon|NonFiscalTemplateRejectsFiscalWording|DocumentPurposeMappingIsClosed)'
+supto-unp-test:
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test.*(UNP|RegulatoryIdentifier)'
+country-profile-test:
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test.*(Policy|Profile)'
+regulatory-identifier-binding-test: supto-unp-test postgres-integration
+supto-sale-lifecycle-test:
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test.*(Sale|Line|Payment|Reversal)'
+supto-readiness-test:
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test.*Readiness'
+supto-time-test:
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test.*(Clock|Time)'
+supto-audit-test:
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test.*Audit'
+supto-export-test:
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test.*Export'
+supto-offline-equivalence-test:
+	ruby scripts/verify_offline_equivalence.rb
+	cd edge-agent && GOCACHE=/tmp/edge-go-cache go test ./gateway ./runtime ./localapi
+supto-security-test: security-test
+supto-hil-verify:
+	ruby scripts/verify_hil_evidence.rb "$(EVIDENCE_DIR)"
+supto-release-verify:
+	ruby scripts/verify_release_evidence.rb "$(EVIDENCE_DIR)"
+supto-legal-verify:
+	ruby scripts/verify_legal_evidence.rb "$(EVIDENCE_DIR)"
+supto-full-acceptance: regression postgres-integration compose-e2e
+	ruby scripts/verify_supto_full_acceptance.rb
 boundary-test:
 	ruby scripts/verify_product_boundary.rb
 postgres-integration:
@@ -106,5 +138,5 @@ compose-check:
 	MINIPOS_DB_PASSWORD=test MINIPOS_RLS_DB_PASSWORD=test-rls FISCAL_PUBLIC_BASE_URL=https://fiscal.example.test/public/v1 FISCAL_OAUTH_TOKEN_URL=https://id.example.test/token FISCAL_OAUTH_CLIENT_ID=minipos FISCAL_OAUTH_CLIENT_SECRET=production-client-secret OIDC_ISSUER=https://id.example.test OIDC_AUDIENCE=beeminipos OIDC_JWKS_URL=https://id.example.test/jwks WEBHOOK_VERIFICATION_KEY=production-webhook-key-at-least-32-bytes MINIPOS_SITE=https://pos.example.test MINIPOS_CORS_ALLOWED_ORIGINS=https://pos.example.test docker compose -f compose.minipos.yaml -f compose.minipos.prod.yaml config >/dev/null
 compose-e2e:
 	./scripts/e2e-two-compose.sh
-regression: test-race vet governance-test boundary-test typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test evidence-test web-build native-bundle smart-device-test iot-test compose-check
+regression: test-race vet governance-test supto-trace-test supto-document-policy-test boundary-test typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test evidence-test web-build native-bundle smart-device-test iot-test compose-check
 full-regression: regression postgres-integration compose-e2e

@@ -52,7 +52,8 @@ async function miniPosJourney(browser, appUrl) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   const products = [{ id: "coffee", sku: "COF", barcode: "380000000001", name: "Кафе", price: { amount: "2.50", currency: "EUR" }, tax_group: "B", active: true }];
   const employees = [{ id: "employee-1", first_name: "Иван", last_name: "Петров", operator_code: "0001" }];
-  let checkoutMode = "success", checkoutCalls = 0, orderNumber = 0, orderStatusReads = 0, splitRequest, reportPeriodValid = false, registerResolutionCalls = 0, shiftRecoveryCalls = 0, openShift = null, zCloseMode = "success", zCloseCalls = 0, zReconcileCalls = 0;
+  let checkoutMode = "success", checkoutCalls = 0, splitRequests = [], reportPeriodValid = false, shiftRecoveryCalls = 0, openShift = null, zCloseMode = "success", zCloseCalls = 0, zReconcileCalls = 0;
+  let fiscalSale = null, fiscalSaleNumber = 0, fiscalOperationNumber = 0, paidCents = 0;
   let configuration = { id: "configuration", location_name: "Магазин 1", location_address: "София", workstation_name: "Каса 01", fiscal_register_id: "00000000-0000-4000-8000-000000000001", version: 1 };
 
   await page.route("http://minipos-api.test/**", async (route) => {
@@ -76,13 +77,30 @@ async function miniPosJourney(browser, appUrl) {
     return json(route, { code: "UNMOCKED", path, method }, 500);
   });
   await page.route("http://fiscal-api.test/**", (route) => {
-    const path = pathOf(route);
-    if (path.endsWith("/readiness")) return json(route, { ready: true });
-    if (path.endsWith("/registers/00000000-0000-4000-8000-000000000001")) {
-      registerResolutionCalls += 1;
-      return json(route, { id: "00000000-0000-4000-8000-000000000001", status: "ACTIVE", fiscal_device_id: "00000000-0000-4000-8000-000000000002" });
+    const path = pathOf(route), method = route.request().method();
+    if (path.endsWith("/clock-sync") && method === "POST") return json(route, { state: "VERIFIED" });
+    if (path.endsWith("/readiness:refresh") && method === "POST") return json(route, { ready: true });
+    if (path.endsWith("/sessions") && method === "POST") return json(route, { session_id: "00000000-0000-4000-8000-000000000020", workstation_id: "00000000-0000-4000-8000-000000000001", operator_code: "0001", expires_at: "2099-08-09T12:00:00Z" }, 201);
+    if (path.endsWith("/sales") && method === "GET") return json(route, { items: fiscalSale?.state === "OPEN" ? [fiscalSale] : [], page: { has_more: false, next_cursor: null } });
+    if (path.endsWith("/sales:open-with-line") && method === "POST") {
+      fiscalSaleNumber += 1; paidCents = 0; const input = route.request().postDataJSON();
+      fiscalSale = { sale_id: `sale-${fiscalSaleNumber}`, external_id: input.client_sale_surrogate_id, register_id: input.workstation_id, operator_id: "0001", unp: `AB123456-0001-${String(fiscalSaleNumber).padStart(7,"0")}`, regulatory_identifiers: [{ type: "SALE", scheme: "BG_UNP_V1", value: `AB123456-0001-${String(fiscalSaleNumber).padStart(7,"0")}`, country_code: "BG", profile_version: "2026.1" }], state: "OPEN", version: 1, lines: [{ ...input.line, unit_price: input.line.unit_price, discount: null }], payments: [], allowed_actions: ["ADD_LINE","CHANGE_LINE","CANCEL_LINE","PAY","CANCEL"], totals: { gross: input.line.unit_price } };
+      return json(route, fiscalSale, 201);
     }
-    return json(route, { version: "test" });
+    if (/\/sales\/sale-\d+\/lines\/[^/:]+$/.test(path) && method === "PATCH") {
+      const input=route.request().postDataJSON(), price=Number(input.unit_price.amount), quantity=Number(input.quantity), discount=Number(input.discount?.amount||0);
+      fiscalSale={...fiscalSale,version:fiscalSale.version+1,lines:[input],totals:{gross:{amount:(price*quantity-discount).toFixed(2),currency:"EUR"}}}; return json(route,fiscalSale);
+    }
+    if (/\/sales\/sale-\d+\/payment-intents$/.test(path) && method === "POST") {
+      checkoutCalls += 1; const payment=route.request().postDataJSON(); splitRequests.push(payment); fiscalOperationNumber += 1;
+      const state=checkoutMode === "failed" ? "FAILED" : checkoutMode === "unknown" ? "UNKNOWN" : "FISCALIZED";
+      if(state==="FISCALIZED"){paidCents+=Math.round(Number(payment.amount.amount)*100);const totalCents=Math.round(Number(fiscalSale.totals.gross.amount)*100);fiscalSale={...fiscalSale,version:fiscalSale.version+1,payments:[...fiscalSale.payments,payment],state:paidCents>=totalCents?"COMPLETED":"OPEN"}}
+      return json(route,{operation_id:`fiscal-${fiscalOperationNumber}`,type:"FISCAL_SALE",state,fiscal_reference:state==="FISCALIZED"?`FD-${fiscalOperationNumber}`:null,allowed_actions:state==="UNKNOWN"?["RECONCILE"]:[]},202);
+    }
+    if (/\/sales\/sale-\d+$/.test(path) && method === "GET") return json(route,fiscalSale);
+    if (/\/operations\/fiscal-\d+$/.test(path) && method === "GET") return json(route,{operation_id:`fiscal-${fiscalOperationNumber}`,state:checkoutMode==="unknown"?"UNKNOWN":"FISCALIZED"});
+    if (/\/operations\/fiscal-\d+:reconcile$/.test(path) && method === "POST") {checkoutMode="success";fiscalSale={...fiscalSale,state:"COMPLETED",version:fiscalSale.version+1};return json(route,{operation_id:`fiscal-${fiscalOperationNumber}`,state:"FISCALIZED"},202)}
+    return json(route, { code: "UNMOCKED", path, method }, 500);
   });
 
   await page.goto(appUrl);
@@ -121,22 +139,20 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("quantity-dec-coffee").click();
   await page.getByTestId("sale-pay").click();
   await page.getByTestId("status-transport").getByText(/Успешен фискален бон/).waitFor();
-  assert.equal(registerResolutionCalls, 1, "MiniPOS must resolve the active Fiscal device through the public register API");
 
   await page.getByTestId("product-coffee").click();
   await page.getByTestId("split-cash-amount").fill("1,00");
   await page.getByTestId("payment-split").click();
   await page.getByTestId("status-transport").getByText(/Успешен фискален бон/).waitFor();
-  assert.deepEqual(splitRequest.payments.map(({ type, amount, terminal_policy }) => ({ type, amount: amount.amount, terminal_policy })), [
+  assert.deepEqual(splitRequests.slice(-2).map(({ type, amount, terminal_policy }) => ({ type, amount: amount.amount, terminal_policy })), [
     { type: "CASH", amount: "1.00", terminal_policy: "NONE" },
     { type: "CARD", amount: "1.50", terminal_policy: "AUTO_IF_AVAILABLE" },
   ], "touch split tender must preserve exact ordered EUR amounts and terminal policy");
-  assert.equal(splitRequest.metadata.source, "BeeMiniPOS");
 
   checkoutMode = "failed";
   await page.getByTestId("product-coffee").click();
   await page.getByTestId("payment-card").click();
-  await page.getByTestId("status-transport").getByText(/окончателно отказано/).waitFor();
+  await page.getByTestId("status-transport").getByText(/PAYMENT_REJECTED/).waitFor();
   assert.equal(await page.getByTestId("operation-unknown").count(), 0, "known fiscal rejection must not be mislabeled as ambiguous");
 
   checkoutMode = "unknown";
@@ -148,7 +164,7 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("reconcile-start").click();
   await page.getByTestId("status-transport").getByText(/резултат е потвърден/).waitFor();
   assert.equal(checkoutCalls, callsBeforeReconcile, "reconciliation must not repeat checkout/payment");
-  assert.equal(checkoutCalls, 4, "exactly one checkout call per cash, split, rejected card and ambiguous card sale");
+  assert.equal(checkoutCalls, 5, "exactly one payment intent per cash/card leg, including both split legs");
   zCloseMode = "ambiguous";
   await page.getByTestId("shift-toggle").click();
   await page.getByTestId("status-transport").getByText(/Z-отчетът изисква сверяване/).waitFor();

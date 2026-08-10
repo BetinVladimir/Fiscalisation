@@ -17,7 +17,7 @@ export class BleClientHandshake{
  private pair?:{privateKey:Uint8Array;publicKey:Uint8Array};private clientNonce?:Uint8Array;private session?:HandshakeSession;private sessionKey?:Uint8Array;private frames?:BleFrameSession;
  get currentState(){return this.state}
  get sessionId(){return this.session?.ble_session_id}
- get canExecuteFiscalCommand(){return this.state==="READY"&&!!this.sessionKey}
+ get canSendComplianceIntent(){return this.state==="READY"&&!!this.sessionKey}
  prepareSessionPublicKey(){if(this.state!=="NEW")throw new Error("BLE_HANDSHAKE_STATE");if(!this.pair)this.pair=x25519Pair();return base64urlEncode(this.pair.publicKey)}
  async start(session:HandshakeSession):Promise<Uint8Array>{
   if(this.state!=="NEW")throw new Error("BLE_HANDSHAKE_STATE");
@@ -37,6 +37,6 @@ export class BleClientHandshake{
   return encodeCanonical({type:"AUTH_PROOF",protocol_version:BLE_PROTOCOL_VERSION,session_id:this.session.ble_session_id,counter:1,payload:{ciphertext:base64urlEncode(ciphertext)}} satisfies ControlMessage)
  }
  ready(raw:Uint8Array){if(this.state!=="AUTH_SENT"||!this.session)throw new Error("BLE_HANDSHAKE_STATE");const v=decodeStrict<ControlMessage>(raw);if(v.type!=="READY"||v.session_id!==this.session.ble_session_id||v.protocol_version!==BLE_PROTOCOL_VERSION||v.counter!==1){throw this.fail("BLE_READY_INVALID")}this.state="READY";return v}
- frameSession(){if(!this.canExecuteFiscalCommand||!this.frames)throw new Error("BLE_NOT_READY");return this.frames}
+ frameSession(){if(!this.canSendComplianceIntent||!this.frames)throw new Error("BLE_NOT_READY");return this.frames}
  private fail(code:string){this.state="FAILED";return new Error(code)}
 }

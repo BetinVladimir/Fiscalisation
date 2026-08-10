@@ -63,7 +63,7 @@ request_rows = []
   document.fetch("paths").each do |path, item|
     item.each do |method, operation|
       next unless operation.is_a?(Hash) && operation["operationId"]
-      owner = if path.start_with?("/internal/")
+      owner = if path.start_with?("/internal/") || path.start_with?("/local/")
         :edge
       elsif path.start_with?("/minipos/") || path == "/fiscal-webhooks"
         :minipos

@@ -82,7 +82,9 @@ type Repository interface {
 	Sale(string) (Sale, error)
 	Sales(string) []Sale
 	PutSale(Sale) error
+	OpenSaleWithFirstLine(Sale, SaleLine, string) (Sale, error)
 	AddSaleLineExpected(string, string, int64, SaleLine) (Sale, error)
+	ReplaceSaleLinesExpected(string, string, int64, []SaleLine, string) (Sale, error)
 	Operation(string) (Operation, error)
 	Operations() []Operation
 	PutOperation(Operation) error
@@ -969,6 +971,41 @@ func (r *MemoryRepository) PutSale(v Sale) error {
 	r.appendAuditLocked(v.TenantID, v.OperatorID, "UPSERT", "sale", v.ID, v.UNP, before, asMap(v))
 	return r.persistLocked()
 }
+
+// OpenSaleWithFirstLine is the compliance boundary: allocation, sale, first
+// line, identifier binding projection and audit become visible together.
+func (r *MemoryRepository) OpenSaleWithFirstLine(v Sale, line SaleLine, fmin string) (Sale, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	for _, existing := range r.sales {
+		if existing.TenantID == v.TenantID && existing.ExternalID == v.ExternalID {
+			return Sale{}, ErrSaleExternalIDConflict
+		}
+	}
+	key := v.TenantID + "\n" + fmin
+	for {
+		r.unp[key]++
+		u, err := NewBGUNP(fmin, v.OperatorID, r.unp[key])
+		if err != nil {
+			return Sale{}, err
+		}
+		if !r.saleUNPExistsLocked(v.TenantID, u.String(), "") {
+			v.UNP = u.String()
+			v.RegulatoryIdentifiers = []RegulatoryIdentifier{u.RegulatoryIdentifier()}
+			break
+		}
+	}
+	v.State = "OPEN"
+	v.Version = 1
+	v.Lines = []SaleLine{line}
+	r.sales[v.ID] = v
+	r.appendAuditLocked(v.TenantID, v.OperatorID, "SALE_OPENED", "sale", v.ID, v.UNP, nil, asMap(v))
+	if err := r.persistLocked(); err != nil {
+		delete(r.sales, v.ID)
+		return Sale{}, err
+	}
+	return v, nil
+}
 func (r *MemoryRepository) AddSaleLineExpected(id, tenant string, expected int64, line SaleLine) (Sale, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
@@ -1003,6 +1040,34 @@ func (r *MemoryRepository) AddSaleLineExpected(id, tenant string, expected int64
 	v.UpdatedAt = time.Now().UTC()
 	r.sales[v.ID] = v
 	r.appendAuditLocked(v.TenantID, v.OperatorID, "UPSERT", "sale", v.ID, v.UNP, before, asMap(v))
+	if err := r.persistLocked(); err != nil {
+		return Sale{}, err
+	}
+	return v, nil
+}
+
+func (r *MemoryRepository) ReplaceSaleLinesExpected(id, tenant string, expected int64, lines []SaleLine, action string) (Sale, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	v, ok := r.sales[id]
+	if !ok || v.TenantID != tenant {
+		return Sale{}, ErrNotFound
+	}
+	if v.Version != expected {
+		return v, errors.New("sale version conflict")
+	}
+	if v.State != "OPEN" || v.UNP == "" || len(v.Payments) != 0 {
+		return v, errors.New("sale not editable")
+	}
+	if action != "SALE_LINE_CHANGED" && action != "SALE_LINE_CANCELLED" {
+		return v, errors.New("invalid sale line action")
+	}
+	before := asMap(v)
+	v.Lines = append([]SaleLine(nil), lines...)
+	v.Version++
+	v.UpdatedAt = time.Now().UTC()
+	r.sales[v.ID] = v
+	r.appendAuditLocked(v.TenantID, v.OperatorID, action, "sale", v.ID, v.UNP, before, asMap(v))
 	if err := r.persistLocked(); err != nil {
 		return Sale{}, err
 	}

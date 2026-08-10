@@ -7,6 +7,7 @@ import (
 	"strings"
 	"time"
 
+	"fiscalisation/edge-agent/gateway"
 	edgeruntime "fiscalisation/edge-agent/runtime"
 )
 
@@ -19,12 +20,20 @@ type Binding struct {
 // processes. Production commands use the authenticated BLE GATT processor.
 type Handler struct {
 	runtime *edgeruntime.Runtime
+	gateway *gateway.ComplianceGateway
 	binding Binding
 	token   string
 }
 
 func New(runtime *edgeruntime.Runtime, binding Binding, token string) *Handler {
 	return &Handler{runtime: runtime, binding: binding, token: token}
+}
+
+// NewWithCompliance exposes the loopback compliance-intent surface used by a
+// co-located POS. The bearer is session/app authority, never a public static
+// deployment secret. Raw device commands remain DEV/HIL-only.
+func NewWithCompliance(runtime *edgeruntime.Runtime, compliance *gateway.ComplianceGateway, binding Binding, token string) *Handler {
+	return &Handler{runtime: runtime, gateway: compliance, binding: binding, token: token}
 }
 
 func (h *Handler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
@@ -62,6 +71,24 @@ func (h *Handler) serveHTTP(w http.ResponseWriter, r *http.Request) {
 		result, err := h.runtime.Execute(command)
 		if err != nil {
 			edgeProblem(w, http.StatusConflict, "EDGE_EXECUTION_REJECTED", "edge execution rejected")
+			return
+		}
+		_ = json.NewEncoder(w).Encode(result)
+	case r.Method == http.MethodPost && r.URL.Path == "/local/v1/intents":
+		if h.gateway == nil {
+			edgeProblem(w, http.StatusServiceUnavailable, "COMPLIANCE_GATEWAY_UNAVAILABLE", "local compliance gateway unavailable")
+			return
+		}
+		var intent gateway.ComplianceIntent
+		decoder := json.NewDecoder(http.MaxBytesReader(w, r.Body, 1<<20))
+		decoder.DisallowUnknownFields()
+		if decoder.Decode(&intent) != nil {
+			edgeProblem(w, http.StatusUnprocessableEntity, "COMPLIANCE_INTENT_INVALID", "invalid compliance intent")
+			return
+		}
+		result, err := h.gateway.Execute(intent)
+		if err != nil {
+			edgeProblem(w, http.StatusConflict, "COMPLIANCE_INTENT_REJECTED", "compliance intent rejected")
 			return
 		}
 		_ = json.NewEncoder(w).Encode(result)

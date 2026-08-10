@@ -62,7 +62,7 @@ minipos_router = File.read(File.join(ROOT, "beeminipos-backend/internal/api/hand
 edge_router = File.read(File.join(ROOT, "edge-agent/localapi/handler.go"))
 missing = []
 all.each do |method, path, operation_id|
-  if path.start_with?("/internal/")
+  if path.start_with?("/internal/") || path.start_with?("/local/")
     source = edge_router
     expected = path.gsub(/\{[^}]+\}/, "")
   elsif path.start_with?("/minipos/") || path == "/fiscal-webhooks"

@@ -37,6 +37,7 @@ type FiscalDeviceSnapshot struct {
 type Sale struct {
 	ID, TenantID, ExternalID, LocationID, RegisterID, OperatorID, UNP, State string
 	FiscalOperationID, ReceiptArtifactID                                     string
+	RegulatoryIdentifiers                                                    []RegulatoryIdentifier
 	Version                                                                  int64
 	Lines                                                                    []SaleLine
 	Payments                                                                 []PaymentRecord
@@ -44,34 +45,40 @@ type Sale struct {
 	CreatedAt, UpdatedAt                                                     time.Time
 }
 type saleJSON struct {
-	ID                string               `json:"sale_id"`
-	TenantID          string               `json:"tenant_id"`
-	ExternalID        string               `json:"external_id"`
-	LocationID        string               `json:"location_id,omitempty"`
-	RegisterID        string               `json:"register_id"`
-	OperatorID        string               `json:"operator_id"`
-	UNP               string               `json:"unp,omitempty"`
-	State             string               `json:"state"`
-	Version           int64                `json:"version"`
-	Lines             []SaleLine           `json:"lines"`
-	Payments          []PaymentRecord      `json:"payments"`
-	FiscalOperationID string               `json:"fiscal_operation_id,omitempty"`
-	ReceiptArtifactID string               `json:"receipt_artifact_id,omitempty"`
-	FiscalDevice      FiscalDeviceSnapshot `json:"fiscal_device"`
-	AllowedActions    []string             `json:"allowed_actions"`
-	CreatedAt         time.Time            `json:"created_at"`
-	UpdatedAt         time.Time            `json:"updated_at"`
+	ID                    string                 `json:"sale_id"`
+	TenantID              string                 `json:"tenant_id"`
+	ExternalID            string                 `json:"external_id"`
+	LocationID            string                 `json:"location_id,omitempty"`
+	RegisterID            string                 `json:"register_id"`
+	OperatorID            string                 `json:"operator_id"`
+	UNP                   string                 `json:"unp,omitempty"`
+	State                 string                 `json:"state"`
+	Version               int64                  `json:"version"`
+	Lines                 []SaleLine             `json:"lines"`
+	Payments              []PaymentRecord        `json:"payments"`
+	FiscalOperationID     string                 `json:"fiscal_operation_id,omitempty"`
+	ReceiptArtifactID     string                 `json:"receipt_artifact_id,omitempty"`
+	FiscalDevice          FiscalDeviceSnapshot   `json:"fiscal_device"`
+	RegulatoryIdentifiers []RegulatoryIdentifier `json:"regulatory_identifiers"`
+	AllowedActions        []string               `json:"allowed_actions"`
+	Totals                map[string]Money       `json:"totals"`
+	CreatedAt             time.Time              `json:"created_at"`
+	UpdatedAt             time.Time              `json:"updated_at"`
 }
 
 func (s Sale) MarshalJSON() ([]byte, error) {
-	return marshal(saleJSON{ID: s.ID, TenantID: s.TenantID, ExternalID: s.ExternalID, LocationID: s.LocationID, RegisterID: s.RegisterID, OperatorID: s.OperatorID, UNP: s.UNP, State: s.State, Version: s.Version, Lines: s.Lines, Payments: s.Payments, FiscalOperationID: s.FiscalOperationID, ReceiptArtifactID: s.ReceiptArtifactID, FiscalDevice: s.FiscalDevice, AllowedActions: saleActions(s.State), CreatedAt: s.CreatedAt, UpdatedAt: s.UpdatedAt})
+	total := Money{Amount: "0.00", Currency: "EUR"}
+	if cents, err := saleTotal(s); err == nil {
+		total.Amount = formatFixed(cents)
+	}
+	return marshal(saleJSON{ID: s.ID, TenantID: s.TenantID, ExternalID: s.ExternalID, LocationID: s.LocationID, RegisterID: s.RegisterID, OperatorID: s.OperatorID, UNP: s.UNP, State: s.State, Version: s.Version, Lines: s.Lines, Payments: s.Payments, FiscalOperationID: s.FiscalOperationID, ReceiptArtifactID: s.ReceiptArtifactID, FiscalDevice: s.FiscalDevice, RegulatoryIdentifiers: s.RegulatoryIdentifiers, AllowedActions: saleActions(s.State), Totals: map[string]Money{"gross": total}, CreatedAt: s.CreatedAt, UpdatedAt: s.UpdatedAt})
 }
 func saleActions(state string) []string {
 	switch state {
 	case "DRAFT":
 		return []string{"ADD_LINE", "CANCEL"}
 	case "OPEN":
-		return []string{"ADD_LINE", "PAY", "CANCEL"}
+		return []string{"ADD_LINE", "CHANGE_LINE", "CANCEL_LINE", "PAY", "CANCEL"}
 	case "UNKNOWN":
 		return []string{"RECONCILE", "READ"}
 	case "COMPLETED":
@@ -85,7 +92,7 @@ func (s *Sale) UnmarshalJSON(b []byte) error {
 	if e := json.Unmarshal(b, &v); e != nil {
 		return e
 	}
-	*s = Sale{ID: v.ID, TenantID: v.TenantID, ExternalID: v.ExternalID, LocationID: v.LocationID, RegisterID: v.RegisterID, OperatorID: v.OperatorID, UNP: v.UNP, State: v.State, Version: v.Version, Lines: v.Lines, Payments: v.Payments, FiscalOperationID: v.FiscalOperationID, ReceiptArtifactID: v.ReceiptArtifactID, FiscalDevice: v.FiscalDevice, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt}
+	*s = Sale{ID: v.ID, TenantID: v.TenantID, ExternalID: v.ExternalID, LocationID: v.LocationID, RegisterID: v.RegisterID, OperatorID: v.OperatorID, UNP: v.UNP, State: v.State, Version: v.Version, Lines: v.Lines, Payments: v.Payments, FiscalOperationID: v.FiscalOperationID, ReceiptArtifactID: v.ReceiptArtifactID, FiscalDevice: v.FiscalDevice, RegulatoryIdentifiers: v.RegulatoryIdentifiers, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt}
 	return nil
 }
 
@@ -195,4 +202,40 @@ type ConnectivityProbe struct {
 	ObservedAt           time.Time                 `json:"observed_at"`
 	Hops                 map[string]map[string]any `json:"hops"`
 	RecommendedTransport string                    `json:"recommended_transport"`
+}
+type ReadinessLease struct {
+	LeaseID            string    `json:"lease_id"`
+	TenantID           string    `json:"tenant_id,omitempty"`
+	WorkstationID      string    `json:"workstation_id"`
+	FiscalDeviceID     string    `json:"fiscal_device_id"`
+	FiscalDeviceNumber string    `json:"fiscal_device_number"`
+	ProfileVersion     string    `json:"profile_version"`
+	Ready              bool      `json:"ready"`
+	CheckedAt          time.Time `json:"checked_at"`
+	ValidUntil         time.Time `json:"valid_for_open_sale_until"`
+	Signature          string    `json:"signature"`
+}
+type DeviceClockSync struct {
+	EventID       string    `json:"event_id"`
+	TenantID      string    `json:"tenant_id,omitempty"`
+	WorkstationID string    `json:"workstation_id"`
+	DeviceID      string    `json:"device_id"`
+	BusinessDate  string    `json:"business_date"`
+	TrustedTime   time.Time `json:"trusted_time"`
+	DeviceTime    time.Time `json:"device_time"`
+	DriftSeconds  int64     `json:"drift_seconds"`
+	SetPerformed  bool      `json:"set_performed"`
+	Verified      bool      `json:"verified"`
+	OccurredAt    time.Time `json:"occurred_at"`
+}
+type WorkstationSession struct {
+	SessionID     string    `json:"session_id"`
+	TenantID      string    `json:"tenant_id,omitempty"`
+	WorkstationID string    `json:"workstation_id"`
+	OperatorID    string    `json:"operator_id"`
+	OperatorCode  string    `json:"operator_code"`
+	AppInstanceID string    `json:"app_instance_id"`
+	ActorSubject  string    `json:"-"`
+	ExpiresAt     time.Time `json:"expires_at"`
+	CreatedAt     time.Time `json:"created_at"`
 }

@@ -1,0 +1,13 @@
+{
+  "schema_version": 1,
+  "authority": "FISCAL_CORE_SERVER_ONLY",
+  "customer_editable_template_code": false,
+  "templates": [
+    {"id":"fiscal-receipt","class":"FISCAL_RECEIPT","owner":"fiscal-device-adapter","customer_facing":true,"rendering":"FISCAL_DEVICE_PROTOCOL","status":"CONTROLLED"},
+    {"id":"fiscal-reversal","class":"FISCAL_REVERSAL","owner":"fiscal-device-adapter","customer_facing":true,"rendering":"FISCAL_DEVICE_PROTOCOL","status":"CONTROLLED"},
+    {"id":"service-cash-in","class":"SERVICE_CASH_IN","owner":"fiscal-core","customer_facing":false,"rendering":"FISCAL_DEVICE_PROTOCOL","status":"CONTROLLED"},
+    {"id":"service-cash-out","class":"SERVICE_CASH_OUT","owner":"fiscal-core","customer_facing":false,"rendering":"FISCAL_DEVICE_PROTOCOL","status":"CONTROLLED"},
+    {"id":"kitchen-ticket","class":"OPERATIONAL_NON_FISCAL","owner":"minipos-backend","customer_facing":false,"rendering":"SERVER_TEMPLATE","status":"CONTROLLED","required_marking":"Кухненска поръчка — не е платежен документ"},
+    {"id":"commercial-sales-report","class":"OPERATIONAL_NON_FISCAL","owner":"minipos-backend","customer_facing":false,"rendering":"SERVER_TEMPLATE","status":"CONTROLLED","required_marking":"Оперативен отчет — не е платежен документ"}
+  ]
+}

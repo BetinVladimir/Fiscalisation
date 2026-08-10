@@ -10,8 +10,6 @@ import {
   TextInput,
   View,
 } from "react-native";
-import { fiscalCheckout, probeFinalDevice } from "./src/fiscalCheckout.ts";
-import type { ActiveBleBinding } from "./src/fiscalCheckout.ts";
 import { WebBleBootstrap, webBluetoothSupported } from "./src/webBle.ts";
 import type { BleSessionPackage } from "./src/webBle.ts";
 import { validateBleDeploymentAuthority } from "./src/bleDeployment.ts";
@@ -53,6 +51,11 @@ type Employee = {
   roles?: string[];
 };
 type CartLine = { product: Product; quantity: number; discountAmount?: string };
+type RegulatoryIdentifier={type:string;scheme:string;value:string;country_code:string;profile_version:string};
+type FiscalSaleLine={line_id:string;product_code?:string;name:string;quantity:string;unit_price:Money;discount?:Money;tax_group:string};
+type FiscalSale={sale_id:string;external_id:string;register_id:string;operator_id:string;unp:string;regulatory_identifiers:RegulatoryIdentifier[];state:string;version:number;lines:FiscalSaleLine[];payments:unknown[];allowed_actions:string[];totals:{gross:Money};fiscal_operation_id?:string};
+type WorkstationSession={session_id:string;workstation_id:string;operator_code:string;expires_at:string};
+type ActiveBleBinding={tenant_id:string;location_id:string;register_id:string;edge_id:string;device_id:string;binding_version:number;expires_at:string};
 type Shift = {
   id: string;
   register_id: string;
@@ -175,7 +178,8 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]),
     [employees, setEmployees] = useState<Employee[]>([]),
     [shift, setShift] = useState<Shift | null>(null),
-    [cart, setCart] = useState<CartLine[]>([]);
+    [saleProjection, setSaleProjection] = useState<FiscalSale | null>(null),
+    [workstationSession,setWorkstationSession]=useState<WorkstationSession|null>(null);
   const [status, setStatus] = useState("Зареждане…"),
     [search, setSearch] = useState(""),
     [splitCash, setSplitCash] = useState(""),
@@ -207,6 +211,8 @@ export default function App() {
       (ActiveBleBinding & BleSessionPackage & { device_id: string }) | null
     >(null),
     [bleReady, setBleReady] = useState(false);
+
+  const cart = useMemo<CartLine[]>(()=>saleProjection?.lines.map((line)=>({product:products.find((p)=>p.id===line.product_code)||{id:line.product_code||line.line_id,sku:line.product_code||line.line_id,name:line.name,price:line.unit_price,tax_group:line.tax_group,active:true},quantity:Number(line.quantity),discountAmount:line.discount?.amount}))||[],[saleProjection,products]);
   const total = useMemo(
     () =>
       cart.reduce(
@@ -235,39 +241,23 @@ export default function App() {
     setBleBinding(null);
     setBleReady(false);
   };
+  const mutateProjectedLine=async(productId:string,quantity:number,discountAmount?:string)=>{
+    if(!saleProjection)return;const line=saleProjection.lines.find((v)=>v.product_code===productId);if(!line)return;
+    if(quantity<=0){setSaleProjection(await fiscalCall<FiscalSale>(`/sales/${saleProjection.sale_id}/lines/${line.line_id}:cancel`,{method:"POST",headers:{"If-Match":String(saleProjection.version)},body:"{}"}));return}
+    setSaleProjection(await fiscalCall<FiscalSale>(`/sales/${saleProjection.sale_id}/lines/${line.line_id}`,{method:"PATCH",headers:{"If-Match":String(saleProjection.version)},body:JSON.stringify({...line,quantity:quantity.toFixed(3),...(discountAmount&&Number(discountAmount)>0?{discount:{amount:Number(discountAmount).toFixed(2),currency:"EUR"}}:{discount:undefined})})}));
+  };
   const setLineDiscount = (productId: string, amount: number) => {
     if (!canManage) {
       setStatus("Отстъпката изисква права на мениджър");
       return;
     }
-    setCart((lines) =>
-      lines.map((line) => {
-        if (line.product.id !== productId) return line;
-        const gross = Number(line.product.price.amount) * line.quantity;
-        if (!Number.isFinite(amount) || amount < 0 || amount > gross) {
-          setStatus("Отстъпката трябва да е между € 0.00 и сумата на реда");
-          return line;
-        }
-        return { ...line, discountAmount: amount.toFixed(2) };
-      }),
-    );
+    const line=cart.find((v)=>v.product.id===productId);const gross=line?Number(line.product.price.amount)*line.quantity:0;if(!line||!Number.isFinite(amount)||amount<0||amount>gross){setStatus("Отстъпката трябва да е между € 0.00 и сумата на реда");return};void mutateProjectedLine(productId,line.quantity,amount.toFixed(2)).catch((e)=>setStatus(message(e)));
   };
   const setLineDiscountText = (productId: string, value: string) => {
     if (!canManage) return;
     const normalized = value.replace(",", ".");
     if (!/^\d*(\.\d{0,2})?$/.test(normalized)) return;
-    setCart((lines) =>
-      lines.map((line) => {
-        if (line.product.id !== productId) return line;
-        const amount = normalized === "" ? 0 : Number(normalized);
-        const gross = Number(line.product.price.amount) * line.quantity;
-        if (amount > gross) {
-          setStatus("Отстъпката не може да надвишава сумата на реда");
-          return line;
-        }
-        return { ...line, discountAmount: normalized };
-      }),
-    );
+    const line=cart.find((v)=>v.product.id===productId);const amount=normalized===""?0:Number(normalized);const gross=line?Number(line.product.price.amount)*line.quantity:0;if(!line||amount>gross){setStatus("Отстъпката не може да надвишава сумата на реда");return};void mutateProjectedLine(productId,line.quantity,normalized).catch((e)=>setStatus(message(e)));
   };
   const revokeActiveBle = async () => {
     const id = bleBinding?.ble_session_id;
@@ -323,8 +313,9 @@ export default function App() {
         );
         const recovered = shifts.items.find((x) => x.state !== "CLOSED") || null;
         setShift(recovered);
+        if(recovered?.state==="OPEN"){const sales=await fiscalCall<{items:FiscalSale[]}>(`/sales?operator_id=${encodeURIComponent(employee.operator_code)}&register_id=${encodeURIComponent(recoveryRegister)}&state=OPEN`).catch(()=>({items:[]}));setSaleProjection(sales.items[0]||null)}
         if (recovered?.state !== "OPEN") {
-          setCart([]);
+          setSaleProjection(null);
           setSplitCash("");
         }
         setStatus(
@@ -339,7 +330,7 @@ export default function App() {
         setStatus("Създайте служител преди отваряне на смяна");
       } else {
         setShift(null);
-        setCart([]);
+        setSaleProjection(null);
         setSplitCash("");
         setStatus("Настройте валидна фискална каса преди възстановяване на смяна");
       }
@@ -360,7 +351,7 @@ export default function App() {
       runtimeFiscalToken = "";
       setOperatorEmployee(null);
       setShift(null);
-      setCart([]);
+      setSaleProjection(null);
       setSplitCash("");
       setAdmin(false);
       setStatus("Влезте с персоналния си профил");
@@ -392,7 +383,7 @@ export default function App() {
     );
     return () => clearTimeout(timer);
   }, [bleBinding?.ble_session_id, bleBinding?.expires_at]);
-  const add = (p: Product) => {
+  const add = async (p: Product) => {
     if (
       !shift ||
       shift.state !== "OPEN" ||
@@ -401,14 +392,11 @@ export default function App() {
       setStatus("Продажбата е блокирана: няма активна отворена смяна");
       return;
     }
-    setCart((v) => {
-      const x = v.find((i) => i.product.id === p.id);
-      return x
-        ? v.map((i) =>
-            i.product.id === p.id ? { ...i, quantity: i.quantity + 1 } : i,
-          )
-        : [...v, { product: p, quantity: 1 }];
-    });
+    if(busy||!selectedEmployee)return;setBusy(true);try{const existing=cart.find((v)=>v.product.id===p.id);if(existing){await mutateProjectedLine(p.id,existing.quantity+1,existing.discountAmount);return}
+      let session=workstationSession;if(!session||new Date(session.expires_at).getTime()<=Date.now()){await fiscalCall(`/workstations/${activeRegisterId}/clock-sync`,{method:"POST",body:"{}"});await fiscalCall(`/workstations/${activeRegisterId}/readiness:refresh`,{method:"POST",body:"{}"});session=await fiscalCall<WorkstationSession>(`/workstations/${activeRegisterId}/sessions`,{method:"POST",body:JSON.stringify({operator_code:selectedEmployee.operator_code,app_instance_id:appInstanceId})});setWorkstationSession(session)}
+      const line: FiscalSaleLine={line_id:uuid(),product_code:p.id,name:p.name,quantity:"1.000",unit_price:p.price,tax_group:p.tax_group};
+      const next=saleProjection?await fiscalCall<FiscalSale>(`/sales/${saleProjection.sale_id}/lines`,{method:"POST",headers:{"If-Match":String(saleProjection.version)},body:JSON.stringify(line)}):await fiscalCall<FiscalSale>("/sales:open-with-line",{method:"POST",body:JSON.stringify({client_sale_surrogate_id:uuid(),workstation_id:activeRegisterId,operator_session_id:session.session_id,line})});setSaleProjection(next);setStatus(`Продажбата е отворена • УНП ${next.regulatory_identifiers[0]?.value||next.unp}`)
+    }catch(e){setStatus(`Артикулът не е приет: ${message(e)}`)}finally{setBusy(false)}
   };
   const submitProductLookup = () => {
     const value = search.trim();
@@ -420,7 +408,7 @@ export default function App() {
       setStatus(`Няма продукт за код ${value}`);
       return;
     }
-    add(exact);
+    void add(exact);
     setSearch("");
   };
   const toggleShift = async () => {
@@ -442,7 +430,7 @@ export default function App() {
         )
           throw new Error("липсва финален Z-report reference");
         setShift(null);
-        setCart([]);
+        setSaleProjection(null);
         setStatus(`Смяната е затворена • Z ${closed.z_fiscal_reference}`);
       } else {
         if (!selectedEmployee) throw new Error("Създайте и изберете служител");
@@ -565,38 +553,7 @@ export default function App() {
           ? "Разделено плащане: в брой, карта и фискализация…"
           : "Фискализация…",
     );
-    let activeOrder: (Order & { external_id?: string }) | null = null,
-      requiresStatus = false,
-      knownFailure = false;
     try {
-      let order = await call<Order & { external_id?: string }>("/orders", {
-        method: "POST",
-        body: JSON.stringify({ shift_id: shift.id }),
-      });
-      activeOrder = order;
-      for (const x of cart) {
-        order = await call<typeof order>(`/orders/${order.id}/lines`, {
-          method: "POST",
-          headers: { "If-Match": String(order.version) },
-          body: JSON.stringify({
-            line_id: uuid(),
-            product_id: x.product.id,
-            name: x.product.name,
-            quantity: x.quantity.toFixed(3),
-            unit_price: x.product.price,
-            ...(Number(x.discountAmount || "0") > 0
-              ? {
-                  discount: {
-                    amount: Number(x.discountAmount).toFixed(2),
-                    currency: "EUR" as const,
-                  },
-                }
-              : {}),
-            tax_group: x.product.tax_group,
-          }),
-        });
-        activeOrder = order;
-      }
       const payments =
         type === "SPLIT"
           ? [
@@ -627,118 +584,15 @@ export default function App() {
                 terminal_policy: type === "CARD" ? "AUTO_IF_AVAILABLE" : "NONE",
               },
             ];
-      let cloudReady = false,
-        deviceReady = false;
-      try {
-        const fiscalRegister = requireFiscalResourceId(
-          activeRegisterId,
-          "Фискалната каса",
-        );
-        await fiscalCall("/version");
-        cloudReady = true;
-        const deviceId = bleBinding?.device_id
-          ? requireFiscalResourceId(
-              bleBinding.device_id,
-              "Фискалното устройство",
-            )
-          : resolveFiscalDeviceId(
-              await fiscalCall<FiscalRegisterResource>(
-                `/registers/${fiscalRegister}`,
-              ),
-              fiscalRegister,
-              prodMode ? "" : fiscalDeviceId,
-            );
-        const ready = await fiscalCall<{ ready: boolean }>(
-          `/devices/${deviceId}/readiness`,
-        );
-        deviceReady = ready.ready;
-      } catch {
-        cloudReady = false;
-        if (bleReady && bleBinding)
-          deviceReady = await probeFinalDevice(
-            uuid(),
-            bleBinding,
-            ble.current,
-          ).catch(() => false);
-      }
-      setPendingOrder(order);
-      const operationId = uuid(),
-        outcome = await fiscalCheckout(
-          {
-            cloudRoute: cloudReady ? "READY" : "UNAVAILABLE",
-            bleAdapter: bleReady ? "READY" : "UNAVAILABLE",
-            edgeRuntime: bleReady ? "READY" : "UNAVAILABLE",
-            fiscalDevice: deviceReady ? "READY" : "UNAVAILABLE",
-            bleSessionExpiresAt: bleBinding?.expires_at,
-            observedAt: new Date().toISOString(),
-          },
-          operationId,
-          {
-            external_id: order.external_id || order.id,
-            operator_id: selectedEmployee.operator_code,
-            currency: "EUR",
-            items: cart.map((x) => ({
-              line_id: uuid(),
-              product_id: x.product.id,
-              name: x.product.name,
-              quantity: x.quantity.toFixed(3),
-              unit_price: x.product.price,
-              ...(Number(x.discountAmount || "0") > 0
-                ? {
-                    discount: {
-                      amount: Number(x.discountAmount).toFixed(2),
-                      currency: "EUR" as const,
-                    },
-                  }
-                : {}),
-              tax_group: x.product.tax_group,
-            })),
-            payments,
-            metadata: { source: "BeeMiniPOS", order_id: order.id },
-          },
-          bleBinding || undefined,
-          () =>
-            payments.length > 1
-              ? call<FiscalOperation>(`/orders/${order.id}/checkout-batch`, {
-                  method: "POST",
-                  body: JSON.stringify({
-                    payments,
-                    metadata: { source: "BeeMiniPOS", order_id: order.id },
-                  }),
-                })
-              : call<FiscalOperation>(`/orders/${order.id}/checkout`, {
-                  method: "POST",
-                  body: JSON.stringify(payments[0]),
-                }),
-          ble.current,
-        );
-      if (outcome.state === "BLOCKED" || outcome.state === "FAILED") {
-        knownFailure = true;
-        setPendingOrder(null);
-      }
-      requiresStatus =
-        outcome.state === "UNKNOWN" || outcome.state === "ACCEPTED";
-      if (outcome.state !== "COMPLETED")
-        throw new Error(`${outcome.state}: ${outcome.reason || "RECONCILE"}`);
+      if(!saleProjection)throw new Error("Липсва приета продажба");let sale=saleProjection;let last: FiscalOperation|undefined;
+      for(const payment of payments){last=await fiscalCall<FiscalOperation>(`/sales/${sale.sale_id}/payment-intents`,{method:"POST",headers:{"If-Match":String(sale.version)},body:JSON.stringify(payment)});if(last.state==="UNKNOWN"){setPendingOrder({id:sale.sale_id,state:"UNKNOWN",version:sale.version,allowed_actions:["READ"],fiscal_operation_id:last.operation_id});throw new Error("UNKNOWN: RECONCILE")};if(last.state==="FAILED")throw new Error("PAYMENT_REJECTED");sale=await fiscalCall<FiscalSale>(`/sales/${sale.sale_id}`);setSaleProjection(sale)}
+      if(sale.state!=="COMPLETED")throw new Error("Плащането не е завършено");
       setPendingOrder(null);
-      setCart([]);
+      setSaleProjection(null);
       setSplitCash("");
-      setStatus(
-        `Успешен фискален бон • ${outcome.route} • ${outcome.fiscalReference || operationId} • EUR ${total.toFixed(2)}`,
-      );
+      setStatus(`Успешен фискален бон • ${last?.fiscal_reference||last?.operation_id} • EUR ${total.toFixed(2)}`);
     } catch (e) {
-      if (requiresStatus && activeOrder) {
-        try {
-          setPendingOrder(await call<Order>(`/orders/${activeOrder.id}`));
-        } catch {
-          setPendingOrder(activeOrder);
-        }
-      }
-      setStatus(
-        knownFailure
-          ? `Плащането/фискализацията е окончателно отказано; започнете нова продажба: ${message(e)}`
-          : `Няма потвърден фискален успех; не повтаряйте плащането: ${message(e)}`,
-      );
+      setStatus(`Няма потвърден фискален успех; не повтаряйте плащането: ${message(e)}`);
     } finally {
       setBusy(false);
     }
@@ -751,21 +605,20 @@ export default function App() {
     }
     setBusy(true);
     try {
-      const order = await call<Order>(`/orders/${pendingOrder.id}`);
-      setPendingOrder(order);
-      if (order.state === "COMPLETED") {
+      if(!pendingOrder.fiscal_operation_id)throw new Error("Липсва operation ID");const operation=await fiscalCall<FiscalOperation>(`/operations/${pendingOrder.fiscal_operation_id}`);if(operation.state==="UNKNOWN")await fiscalCall(`/operations/${operation.operation_id}:reconcile`,{method:"POST",body:"{}"});const sale=await fiscalCall<FiscalSale>(`/sales/${pendingOrder.id}`);setSaleProjection(sale);
+      if (sale.state === "COMPLETED") {
         setPendingOrder(null);
-        setCart([]);
+        setSaleProjection(null);
         setStatus(
-          `Фискалният резултат е потвърден • ${order.fiscal_operation_id || order.id}`,
+          `Фискалният резултат е потвърден • ${operation.operation_id}`,
         );
-      } else if (order.state === "FAILED" || order.state === "CANCELLED") {
+      } else if (sale.state === "FAILED" || sale.state === "CANCELLED") {
         setPendingOrder(null);
         setStatus(
-          `Продажбата е ${order.state}; нов опит е разрешен само като нова продажба`,
+          `Продажбата е ${sale.state}; нов опит е разрешен само като нова продажба`,
         );
       } else
-        setStatus(`Резултатът още се проверява • ${order.state} • ${order.id}`);
+        setStatus(`Резултатът още се проверява • ${sale.state} • ${operation.operation_id}`);
     } catch (e) {
       setStatus(
         `Проверката е недостъпна; плащането не е повторено: ${message(e)}`,
@@ -871,27 +724,10 @@ export default function App() {
       runtimeFiscalToken = "";
       setOperatorEmployee(null);
       setShift(null);
-      setCart([]);
+      setSaleProjection(null);
     }
   };
-  const changeQuantity = (productId: string, delta: number) =>
-    setCart((lines) =>
-      lines
-        .map((line) =>
-          line.product.id === productId
-            ? {
-                ...line,
-                quantity: line.quantity + delta,
-                discountAmount: Math.min(
-                  Number(line.discountAmount || "0"),
-                  Number(line.product.price.amount) *
-                    Math.max(0, line.quantity + delta),
-                ).toFixed(2),
-              }
-            : line,
-        )
-        .filter((line) => line.quantity > 0),
-    );
+  const changeQuantity = (productId: string, delta: number) =>{const line=cart.find((v)=>v.product.id===productId);if(!line)return;const quantity=line.quantity+delta,discount=Math.min(Number(line.discountAmount||"0"),Number(line.product.price.amount)*Math.max(0,quantity)).toFixed(2);void mutateProjectedLine(productId,quantity,discount).catch((e)=>setStatus(message(e)))};
   if (prodMode && !oidc.accessToken)
     return (
       <SafeAreaView style={s.root}>
@@ -1116,6 +952,7 @@ export default function App() {
           </View>
           <View style={s.cart}>
             <Text style={s.cartTitle}>Текуща продажба</Text>
+            {saleProjection ? <View testID="sale-regulatory-identity" accessibilityLiveRegion="polite"><Text>УНП: {saleProjection.regulatory_identifiers[0]?.value||saleProjection.unp}</Text><Text>ФУ/каса: {saleProjection.register_id}</Text><Text>Състояние: {saleProjection.state}</Text></View>:null}
             <ScrollView style={s.lines}>
               {cart.length === 0 ? (
                 <Text style={s.empty}>Докоснете продукт</Text>

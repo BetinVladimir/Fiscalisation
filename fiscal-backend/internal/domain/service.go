@@ -58,6 +58,18 @@ func (s *Simulator) Probe() error {
 	}
 	return nil
 }
+func (s *Simulator) DeviceTime() (time.Time, error) {
+	if !s.enabled {
+		return time.Time{}, errors.New("fiscal device unavailable")
+	}
+	return time.Now().UTC(), nil
+}
+func (s *Simulator) SetDeviceTime(at time.Time) error {
+	if !s.enabled || at.IsZero() {
+		return errors.New("fiscal device unavailable")
+	}
+	return nil
+}
 
 type Service struct {
 	repo          Repository
@@ -261,6 +273,88 @@ func (s *Service) GetConnectivityProbe(id, tenant string) (ConnectivityProbe, er
 	return v, nil
 }
 func (s *Service) SetBLESigningKey(v string) { s.bleSigningKey = []byte(v) }
+
+type clockCapableDriver interface {
+	DeviceTime() (time.Time, error)
+	SetDeviceTime(time.Time) error
+}
+
+func (s *Service) RefreshReadiness(workstation, tenant string) (ReadinessLease, error) {
+	if len(s.bleSigningKey) < 16 {
+		return ReadinessLease{}, errors.New("readiness signing unavailable")
+	}
+	now := time.Now().UTC()
+	device, err := s.activeFiscalDeviceSnapshot(workstation, tenant, now)
+	if err != nil || !bgFMINPattern.MatchString(device.FiscalDeviceNumber) || s.driver == nil || s.driver.Probe() != nil {
+		return ReadinessLease{}, errors.New("fiscal device not ready")
+	}
+	lease := ReadinessLease{LeaseID: newID("ready"), TenantID: tenant, WorkstationID: workstation, FiscalDeviceID: device.DeviceID, FiscalDeviceNumber: device.FiscalDeviceNumber, ProfileVersion: BGProfileVersion, Ready: true, CheckedAt: now, ValidUntil: now.Add(BGReadinessLeaseMax)}
+	lease.Signature = s.signReadiness(lease)
+	err = s.repo.PutResource(ResourceRecord{Kind: "readiness_lease", TenantID: tenant, ID: lease.LeaseID, Version: 1, Data: asMap(lease), CreatedAt: now, UpdatedAt: now})
+	return lease, err
+}
+func (s *Service) CurrentReadiness(workstation, tenant string) (ReadinessLease, error) {
+	var newest ReadinessLease
+	for _, resource := range s.repo.Resources("readiness_lease", tenant) {
+		var lease ReadinessLease
+		b, _ := json.Marshal(resource.Data)
+		if json.Unmarshal(b, &lease) == nil && lease.WorkstationID == workstation && lease.CheckedAt.After(newest.CheckedAt) {
+			newest = lease
+		}
+	}
+	device, err := s.activeFiscalDeviceSnapshot(workstation, tenant, time.Now().UTC())
+	if err != nil || !newest.Ready || !time.Now().UTC().Before(newest.ValidUntil) || newest.FiscalDeviceID != device.DeviceID || newest.FiscalDeviceNumber != device.FiscalDeviceNumber || newest.ProfileVersion != BGProfileVersion || !hmac.Equal([]byte(newest.Signature), []byte(s.signReadiness(newest))) {
+		return ReadinessLease{}, errors.New("readiness lease unavailable")
+	}
+	return newest, nil
+}
+func (s *Service) signReadiness(v ReadinessLease) string {
+	mac := hmac.New(sha256.New, s.bleSigningKey)
+	fmt.Fprintf(mac, "%s\n%s\n%s\n%s\n%s\n%s\n%d", v.TenantID, v.WorkstationID, v.FiscalDeviceID, v.FiscalDeviceNumber, v.ProfileVersion, v.CheckedAt.UTC().Format(time.RFC3339Nano), v.ValidUntil.UnixNano())
+	return base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
+}
+func (s *Service) SyncWorkstationClock(workstation, tenant string) (DeviceClockSync, error) {
+	driver, ok := s.driver.(clockCapableDriver)
+	if !ok {
+		return DeviceClockSync{}, errors.New("device clock capability unavailable")
+	}
+	now := time.Now().UTC()
+	device, err := s.activeFiscalDeviceSnapshot(workstation, tenant, now)
+	if err != nil {
+		return DeviceClockSync{}, err
+	}
+	deviceTime, err := driver.DeviceTime()
+	if err != nil {
+		return DeviceClockSync{}, err
+	}
+	drift := int64(deviceTime.Sub(now).Seconds())
+	set := drift > 30 || drift < -30
+	if set {
+		if err = driver.SetDeviceTime(now); err != nil {
+			return DeviceClockSync{}, err
+		}
+		deviceTime, err = driver.DeviceTime()
+		if err != nil {
+			return DeviceClockSync{}, err
+		}
+		drift = int64(deviceTime.Sub(now).Seconds())
+	}
+	event := DeviceClockSync{EventID: newID("clock"), TenantID: tenant, WorkstationID: workstation, DeviceID: device.DeviceID, BusinessDate: now.Format("2006-01-02"), TrustedTime: now, DeviceTime: deviceTime, DriftSeconds: drift, SetPerformed: set, Verified: drift <= 30 && drift >= -30, OccurredAt: now}
+	if !event.Verified {
+		return DeviceClockSync{}, errors.New("device clock drift not corrected")
+	}
+	err = s.repo.PutResource(ResourceRecord{Kind: "device_clock_sync_event", TenantID: tenant, ID: event.EventID, Version: 1, Data: asMap(event), CreatedAt: now, UpdatedAt: now})
+	return event, err
+}
+func (s *Service) HasDailyClockSync(workstation, tenant string, at time.Time) bool {
+	date := at.UTC().Format("2006-01-02")
+	for _, r := range s.repo.Resources("device_clock_sync_event", tenant) {
+		if stringField(r.Data, "workstation_id") == workstation && stringField(r.Data, "business_date") == date && r.Data["verified"] == true {
+			return true
+		}
+	}
+	return false
+}
 func (s *Service) BLESession(register, operator, app, tenant, actorSubject, clientPublicKey string) (map[string]any, error) {
 	decodedPublicKey, publicKeyErr := base64.RawURLEncoding.DecodeString(clientPublicKey)
 	if register == "" || operator == "" || app == "" || actorSubject == "" || publicKeyErr != nil || len(decodedPublicKey) != 32 || len(s.bleSigningKey) < 16 {
@@ -442,6 +536,96 @@ type CreateSale struct {
 	OperatorID string `json:"operator_id"`
 }
 
+type OpenSaleWithFirstLineRequest struct {
+	TenantID              string   `json:"-"`
+	ClientSaleSurrogateID string   `json:"client_sale_surrogate_id"`
+	WorkstationID         string   `json:"workstation_id"`
+	OperatorSessionID     string   `json:"operator_session_id"`
+	OperatorCode          string   `json:"-"`
+	Line                  SaleLine `json:"line"`
+}
+
+func (s *Service) OpenWorkstationSession(workstation, operatorCode, appInstance, actor, tenant string) (WorkstationSession, error) {
+	if workstation == "" || appInstance == "" || actor == "" || !bgOperatorPattern.MatchString(operatorCode) {
+		return WorkstationSession{}, errors.New("invalid workstation session")
+	}
+	if _, err := s.activeFiscalDeviceSnapshot(workstation, tenant, time.Now().UTC()); err != nil {
+		return WorkstationSession{}, err
+	}
+	operatorID := ""
+	for _, op := range s.repo.Resources("operator", tenant) {
+		if stringField(op.Data, "code") == operatorCode {
+			operatorID = op.ID
+			break
+		}
+	}
+	if operatorID == "" || !s.activeOperatorForTenant(operatorCode, tenant, time.Now().UTC()) {
+		return WorkstationSession{}, errors.New("operator unavailable")
+	}
+	now := time.Now().UTC()
+	v := WorkstationSession{SessionID: newID("ws"), TenantID: tenant, WorkstationID: workstation, OperatorID: operatorID, OperatorCode: operatorCode, AppInstanceID: appInstance, ActorSubject: actor, ExpiresAt: now.Add(8 * time.Hour), CreatedAt: now}
+	data := asMap(v)
+	data["actor_subject"] = actor
+	err := s.repo.PutResource(ResourceRecord{Kind: "workstation_session", TenantID: tenant, ID: v.SessionID, Version: 1, Data: data, CreatedAt: now, UpdatedAt: now})
+	return v, err
+}
+func (s *Service) WorkstationSession(id, workstation, tenant string) (WorkstationSession, error) {
+	r, err := s.repo.Resource("workstation_session", id)
+	if err != nil || r.TenantID != tenant {
+		return WorkstationSession{}, ErrNotFound
+	}
+	var v WorkstationSession
+	b, _ := json.Marshal(r.Data)
+	if json.Unmarshal(b, &v) != nil || v.WorkstationID != workstation || !time.Now().UTC().Before(v.ExpiresAt) || !s.activeOperatorForTenant(v.OperatorCode, tenant, time.Now().UTC()) {
+		return WorkstationSession{}, errors.New("workstation session inactive")
+	}
+	return v, nil
+}
+
+func (s *Service) OpenSaleWithFirstLine(in OpenSaleWithFirstLineRequest) (Sale, error) {
+	if in.TenantID == "" || in.ClientSaleSurrogateID == "" || in.WorkstationID == "" || in.OperatorSessionID == "" {
+		return Sale{}, errors.New("invalid open-with-line request")
+	}
+	session, err := s.WorkstationSession(in.OperatorSessionID, in.WorkstationID, in.TenantID)
+	if err != nil {
+		return Sale{}, err
+	}
+	in.OperatorCode = session.OperatorCode
+	if in.Line.LineID == "" || in.Line.Name == "" || !validMoney(in.Line.UnitPrice) || !validDiscount(in.Line.Discount) || !validQuantity(in.Line.Quantity) || !validTax(in.Line.TaxGroup) || !s.policy.AllowsTaxGroup(in.Line.TaxGroup, time.Now().UTC()) {
+		return Sale{}, errors.New("invalid first line")
+	}
+	now := time.Now().UTC()
+	if !s.HasDailyClockSync(in.WorkstationID, in.TenantID, now) {
+		return Sale{}, errors.New("daily clock synchronization required")
+	}
+	if _, err := s.CurrentReadiness(in.WorkstationID, in.TenantID); err != nil {
+		return Sale{}, err
+	}
+	device, err := s.activeFiscalDeviceSnapshot(in.WorkstationID, in.TenantID, now)
+	if err != nil || !bgFMINPattern.MatchString(device.FiscalDeviceNumber) {
+		return Sale{}, errors.New("verified fiscal device number unavailable")
+	}
+	if !s.activeOperatorForTenant(in.OperatorCode, in.TenantID, time.Now().UTC()) {
+		return Sale{}, errors.New("operator unavailable")
+	}
+	hasShift := false
+	for _, shift := range s.repo.Shifts(in.TenantID) {
+		if shift.RegisterID == in.WorkstationID && shift.OperatorID == in.OperatorCode && shift.State == "OPEN" {
+			hasShift = true
+			break
+		}
+	}
+	if !hasShift {
+		return Sale{}, errors.New("open shift required")
+	}
+	register, err := s.repo.Resource("register", in.WorkstationID)
+	if err != nil || stringField(register.Data, "location_id") == "" {
+		return Sale{}, errors.New("workstation location unavailable")
+	}
+	sale := Sale{ID: newID("sale"), TenantID: in.TenantID, ExternalID: in.ClientSaleSurrogateID, LocationID: stringField(register.Data, "location_id"), RegisterID: in.WorkstationID, OperatorID: in.OperatorCode, State: "OPEN", Version: 1, Lines: []SaleLine{}, Payments: []PaymentRecord{}, FiscalDevice: device, CreatedAt: now, UpdatedAt: now}
+	return s.repo.OpenSaleWithFirstLine(sale, in.Line, device.FiscalDeviceNumber)
+}
+
 func (s *Service) CreateSale(in CreateSale) (Sale, error) {
 	if in.ExternalID == "" || in.RegisterID == "" || len(in.OperatorID) != 4 {
 		return Sale{}, errors.New("invalid sale")
@@ -481,6 +665,76 @@ func (s *Service) AddLineForTenant(id string, line SaleLine, tenant string) (Sal
 func (s *Service) AddLineExpectedForTenant(id string, expected int64, line SaleLine, tenant string) (Sale, error) {
 	return s.addLineForTenant(id, expected, line, tenant)
 }
+
+func (s *Service) ChangeLineExpectedForTenant(id, lineID string, expected int64, replacement SaleLine, tenant string) (Sale, error) {
+	if lineID == "" || replacement.LineID != lineID || replacement.Name == "" || !validMoney(replacement.UnitPrice) || !validDiscount(replacement.Discount) || !validQuantity(replacement.Quantity) || !validTax(replacement.TaxGroup) || !s.policy.AllowsTaxGroup(replacement.TaxGroup, time.Now().UTC()) {
+		return Sale{}, errors.New("invalid line")
+	}
+	v, err := s.saleForTenantMutation(id, tenant)
+	if err != nil || v.Version != expected {
+		return Sale{}, errors.New("version conflict")
+	}
+	lines := append([]SaleLine(nil), v.Lines...)
+	found := false
+	for i := range lines {
+		if lines[i].LineID == lineID {
+			lines[i] = replacement
+			found = true
+			break
+		}
+	}
+	if !found {
+		return Sale{}, ErrNotFound
+	}
+	probe := v
+	probe.Lines = lines
+	if _, err = saleTotal(probe); err != nil {
+		return Sale{}, errors.New("line total overflow")
+	}
+	return s.repo.ReplaceSaleLinesExpected(id, tenant, expected, lines, "SALE_LINE_CHANGED")
+}
+
+func (s *Service) CancelLineExpectedForTenant(id, lineID string, expected int64, tenant string) (Sale, error) {
+	if lineID == "" {
+		return Sale{}, errors.New("line required")
+	}
+	v, err := s.saleForTenantMutation(id, tenant)
+	if err != nil || v.Version != expected {
+		return Sale{}, errors.New("version conflict")
+	}
+	lines := make([]SaleLine, 0, len(v.Lines))
+	found := false
+	for _, line := range v.Lines {
+		if line.LineID == lineID {
+			found = true
+			continue
+		}
+		lines = append(lines, line)
+	}
+	if !found {
+		return Sale{}, ErrNotFound
+	}
+	return s.repo.ReplaceSaleLinesExpected(id, tenant, expected, lines, "SALE_LINE_CANCELLED")
+}
+
+func (s *Service) SalesForTenant(tenant, operator, register, state string) []Sale {
+	items := s.repo.Sales(tenant)
+	out := make([]Sale, 0, len(items))
+	for _, v := range items {
+		if operator != "" && v.OperatorID != operator {
+			continue
+		}
+		if register != "" && v.RegisterID != register {
+			continue
+		}
+		if state != "" && v.State != state {
+			continue
+		}
+		out = append(out, v)
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].UpdatedAt.After(out[j].UpdatedAt) })
+	return out
+}
 func (s *Service) addLineForTenant(id string, expected int64, line SaleLine, tenant string) (Sale, error) {
 	if line.LineID == "" || line.Name == "" || !validMoney(line.UnitPrice) || !validDiscount(line.Discount) || !validQuantity(line.Quantity) || !validTax(line.TaxGroup) || !s.policy.AllowsTaxGroup(line.TaxGroup, time.Now().UTC()) {
 		return Sale{}, errors.New("invalid line")
@@ -508,6 +762,17 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 	}
 	if sale.State != "OPEN" || len(sale.Lines) == 0 || p.PaymentID == "" || !validMoney(p.Amount) || !contains([]string{"CASH", "CARD"}, p.Type) {
 		return Operation{}, errors.New("payment not allowed")
+	}
+	// New SUPTO aggregates are identifiable by their immutable regulatory
+	// projection. Payment always performs a fresh physical check; a lease used
+	// to open the sale is intentionally insufficient at this irreversible edge.
+	if len(sale.RegulatoryIdentifiers) > 0 {
+		if !s.HasDailyClockSync(sale.RegisterID, sale.TenantID, time.Now().UTC()) {
+			return Operation{}, errors.New("daily clock synchronization required")
+		}
+		if _, e = s.RefreshReadiness(sale.RegisterID, sale.TenantID); e != nil {
+			return Operation{}, errors.New("fresh payment readiness failed")
+		}
 	}
 	if sale.TenantID != "" && !s.registerHasActiveFiscalDevice(sale.RegisterID, sale.TenantID) {
 		return Operation{}, errors.New("fiscal device unavailable")
