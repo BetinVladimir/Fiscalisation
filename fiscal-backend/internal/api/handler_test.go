@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fiscalisation/fiscal-backend/internal/config"
 	"fiscalisation/fiscal-backend/internal/domain"
+	"fmt"
 	"github.com/fxamacker/cbor/v2"
 	"net/http"
 	"net/http/httptest"
@@ -595,6 +596,47 @@ func TestAdministrativeSurfaceTenantIsolationAndBinding(t *testing.T) {
 	w = call("GET", "/public/v1/devices/"+device["id"].(string)+"/capabilities", "tenant-a", "", nil, "")
 	if w.Code != 200 {
 		t.Fatal(w.Code, w.Body.String())
+	}
+}
+
+func TestBlueCashActivationTokenEndpointBindsAuthenticatedTenantAndLocation(t *testing.T) {
+	svc := domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true))
+	svc.SetBLESigningKey("01234567890123456789012345678901")
+	h := NewHandler(svc, config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901"})
+	location, err := svc.CreateResource("location", "tenant-a", map[string]any{"code": "SOF", "name": "Sofia", "address": "1 Main", "status": "ACTIVE"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	device, err := svc.CreateResource("device", "tenant-a", map[string]any{"kind": "SMART_DEVICE", "vendor": "Datecs", "model": "BlueCash-50", "serial": "BC50-1", "status": "DRAFT", "environment": "DEV", "simulated": false})
+	if err != nil {
+		t.Fatal(err)
+	}
+	call := func(tenant, body, key string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodPost, "/public/v1/devices/"+device["id"].(string)+"/activation-tokens", strings.NewReader(body))
+		r.Header.Set("Content-Type", "application/json")
+		r.Header.Set("Authorization", "Bearer "+jwt(tenant, "ADMIN"))
+		r.Header.Set("X-Api-Version", "2026-08-07")
+		r.Header.Set("Idempotency-Key", key)
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	body := fmt.Sprintf(`{"location_id":%q,"app_instance_id":"00000000-0000-4000-8000-000000000123"}`, location["id"])
+	w := call("tenant-a", body, "bluecash-activate-0001")
+	if w.Code != http.StatusCreated || !bytes.Contains(w.Body.Bytes(), []byte(`"organization_id":"tenant-a"`)) || !bytes.Contains(w.Body.Bytes(), []byte(`"location_id":"`+location["id"].(string)+`"`)) {
+		t.Fatalf("activation response: %d %s", w.Code, w.Body.String())
+	}
+	replayed := call("tenant-a", body, "bluecash-activate-0001")
+	if replayed.Code != http.StatusCreated || replayed.Header().Get("Idempotency-Replayed") != "true" {
+		t.Fatalf("activation replay: %d %s", replayed.Code, replayed.Body.String())
+	}
+	foreign := call("tenant-b", body, "bluecash-activate-0002")
+	if foreign.Code != http.StatusNotFound {
+		t.Fatalf("cross-tenant activation: %d %s", foreign.Code, foreign.Body.String())
+	}
+	unknown := call("tenant-a", `{"location_id":"x","app_instance_id":"y","organization_id":"attacker"}`, "bluecash-activate-0003")
+	if unknown.Code != http.StatusBadRequest {
+		t.Fatalf("client-controlled organization accepted: %d %s", unknown.Code, unknown.Body.String())
 	}
 }
 

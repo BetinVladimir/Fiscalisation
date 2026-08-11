@@ -4,6 +4,23 @@
  */
 
 export interface paths {
+    "/devices/{device_id}/activation-tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Issues a five-minute JWT for physical-presence BLE activation of a managed smart device. Organization is derived from the authenticated tenant; organization_id and location_id are explicit signed claims. */
+        post: operations["createSmartDeviceActivationToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/operations/{operation_id}:reconcile": {
         parameters: {
             query?: never;
@@ -491,6 +508,27 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        SmartDeviceActivationTokenRequest: {
+            /** Format: uuid */
+            location_id: string;
+            /** Format: uuid */
+            app_instance_id: string;
+        };
+        SmartDeviceActivationToken: {
+            /** @description HS256 JWT validated by Fiscal backend when the device establishes its managed connection */
+            activation_token: string;
+            /** @constant */
+            token_type: "Bearer";
+            /** Format: date-time */
+            expires_at: string;
+            organization_id: string;
+            /** Format: uuid */
+            location_id: string;
+            /** Format: uuid */
+            device_id: string;
+            /** Format: uuid */
+            app_instance_id: string;
+        };
         CreateWorkstationSessionRequest: {
             operator_code: string;
             /** Format: uuid */
@@ -963,6 +1001,38 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    createSmartDeviceActivationToken: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SmartDeviceActivationTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Short-lived device activation authority */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["SmartDeviceActivationToken"];
+                };
+            };
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
+        };
+    };
     reconcileOperationExactAlias: {
         parameters: {
             query?: never;

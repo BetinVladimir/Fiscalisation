@@ -9,8 +9,18 @@
       "**/*"
     ],
     "android": {
-      "package": "com.beefiscal.app"
+      "package": "com.beefiscal.app",
+      "permissions": [
+        "android.permission.BLUETOOTH_SCAN",
+        "android.permission.BLUETOOTH_CONNECT",
+        "android.permission.ACCESS_FINE_LOCATION"
+      ]
     },
-    "ios": { "bundleIdentifier": "com.beefiscal.app" }
+    "ios": {
+      "bundleIdentifier": "com.beefiscal.app",
+      "infoPlist": {
+        "NSBluetoothAlwaysUsageDescription": "BeeFiscal uses Bluetooth to provision and activate authorized fiscal devices."
+      }
+    }
   }
 }

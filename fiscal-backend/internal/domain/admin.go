@@ -1,7 +1,11 @@
 package domain
 
 import (
+	"crypto/hmac"
 	"crypto/rand"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
 	"sort"
@@ -361,6 +365,45 @@ func (s *Service) ProvisioningSession(deviceID, tenant string) (map[string]any, 
 		return nil, err
 	}
 	return data, nil
+}
+
+// DeviceActivationToken is a short-lived, audience-restricted JWT transported
+// by an authenticated administrator over a physical-presence BLE session. The
+// tenant is the organization authority and location_id is explicit; neither
+// value may be supplied by the smart device itself.
+func (s *Service) DeviceActivationToken(deviceID, locationID, appInstanceID, tenant string) (map[string]any, error) {
+	if len(s.bleSigningKey) < 16 || locationID == "" || appInstanceID == "" {
+		return nil, errors.New("activation signing unavailable or request invalid")
+	}
+	device, err := s.repo.Resource("device", deviceID)
+	if err != nil || device.TenantID != tenant {
+		return nil, ErrNotFound
+	}
+	location, err := s.repo.Resource("location", locationID)
+	if err != nil || location.TenantID != tenant {
+		return nil, ErrNotFound
+	}
+	if !oneOf(stringField(device.Data, "kind"), "SMART_DEVICE", "FISCAL_DEVICE") || !oneOf(stringField(device.Data, "status"), "DRAFT", "PENDING_SERVICE_ACTIVATION") {
+		return nil, errors.New("device is not activation eligible")
+	}
+	now := time.Now().UTC()
+	expires := now.Add(5 * time.Minute)
+	jti, err := newUUID()
+	if err != nil {
+		return nil, err
+	}
+	header, _ := json.Marshal(map[string]any{"alg": "HS256", "typ": "JWT"})
+	claims, _ := json.Marshal(map[string]any{
+		"iss": "beefiscal", "aud": "beefiscal-bluecash-activation", "sub": deviceID,
+		"jti": jti, "iat": now.Unix(), "nbf": now.Add(-5 * time.Second).Unix(), "exp": expires.Unix(),
+		"organization_id": tenant, "location_id": locationID, "device_id": deviceID,
+		"app_instance_id": appInstanceID, "scope": "smart-device.activate",
+	})
+	unsigned := base64.RawURLEncoding.EncodeToString(header) + "." + base64.RawURLEncoding.EncodeToString(claims)
+	mac := hmac.New(sha256.New, s.bleSigningKey)
+	_, _ = mac.Write([]byte(unsigned))
+	token := unsigned + "." + base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
+	return map[string]any{"activation_token": token, "token_type": "Bearer", "expires_at": expires, "organization_id": tenant, "location_id": locationID, "device_id": deviceID, "app_instance_id": appInstanceID}, nil
 }
 func (s *Service) DeviceDiagnostics(deviceID, tenant string) (map[string]any, error) {
 	if _, err := s.GetResource("device", deviceID, tenant); err != nil {

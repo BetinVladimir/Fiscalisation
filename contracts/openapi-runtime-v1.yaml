@@ -15,6 +15,26 @@ servers:
   - url: http://127.0.0.1:8082
     description: Edge loopback DEV/HIL listener
 paths:
+  /devices/{device_id}/activation-tokens:
+    post:
+      operationId: createSmartDeviceActivationToken
+      description: Issues a five-minute JWT for physical-presence BLE activation of a managed smart device. Organization is derived from the authenticated tenant; organization_id and location_id are explicit signed claims.
+      tags: [Smart Device Activation]
+      security: [{oidcBearer: []}]
+      parameters:
+        - {name: device_id, in: path, required: true, schema: {type: string, format: uuid}}
+        - {$ref: '#/components/parameters/ApiVersion'}
+        - {$ref: '#/components/parameters/IdempotencyKey'}
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/SmartDeviceActivationTokenRequest'}}}
+      responses:
+        '201':
+          description: Short-lived device activation authority
+          content: {application/json: {schema: {$ref: '#/components/schemas/SmartDeviceActivationToken'}}}
+        '404': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
   /operations/{operation_id}:reconcile:
     post:
       operationId: reconcileOperationExactAlias
@@ -511,6 +531,25 @@ components:
       description: RFC 9457 problem
       content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}
   schemas:
+    SmartDeviceActivationTokenRequest:
+      type: object
+      additionalProperties: false
+      required: [location_id, app_instance_id]
+      properties:
+        location_id: {type: string, format: uuid}
+        app_instance_id: {type: string, format: uuid}
+    SmartDeviceActivationToken:
+      type: object
+      additionalProperties: false
+      required: [activation_token, token_type, expires_at, organization_id, location_id, device_id, app_instance_id]
+      properties:
+        activation_token: {type: string, minLength: 80, description: HS256 JWT validated by Fiscal backend when the device establishes its managed connection}
+        token_type: {type: string, const: Bearer}
+        expires_at: {type: string, format: date-time}
+        organization_id: {type: string, minLength: 1}
+        location_id: {type: string, format: uuid}
+        device_id: {type: string, format: uuid}
+        app_instance_id: {type: string, format: uuid}
     CreateWorkstationSessionRequest:
       type: object
       additionalProperties: false

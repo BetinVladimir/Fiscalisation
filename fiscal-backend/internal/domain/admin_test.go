@@ -1,9 +1,41 @@
 package domain
 
 import (
+	"encoding/base64"
+	"encoding/json"
+	"strings"
 	"sync"
 	"testing"
 )
+
+func TestBlueCashActivationJWTContainsServerOwnedOrganizationAndLocation(t *testing.T) {
+	s := NewService(NewMemoryRepository(), NewSimulator(true))
+	s.SetBLESigningKey("01234567890123456789012345678901")
+	location, err := s.CreateResource("location", "organization-1", map[string]any{"code": "SOF", "name": "Sofia", "address": "1 Main", "status": "ACTIVE"})
+	if err != nil {
+		t.Fatal(err)
+	}
+	device, err := s.CreateResource("device", "organization-1", map[string]any{"kind": "SMART_DEVICE", "vendor": "Datecs", "model": "BlueCash-50", "serial": "BC50-1", "status": "DRAFT", "environment": "DEV", "simulated": false})
+	if err != nil {
+		t.Fatal(err)
+	}
+	result, err := s.DeviceActivationToken(device["id"].(string), location["id"].(string), "00000000-0000-4000-8000-000000000003", "organization-1")
+	if err != nil {
+		t.Fatal(err)
+	}
+	parts := strings.Split(result["activation_token"].(string), ".")
+	if len(parts) != 3 {
+		t.Fatal("activation token is not JWT")
+	}
+	payload, _ := base64.RawURLEncoding.DecodeString(parts[1])
+	var claims map[string]any
+	if json.Unmarshal(payload, &claims) != nil || claims["organization_id"] != "organization-1" || claims["location_id"] != location["id"] || claims["device_id"] != device["id"] || claims["aud"] != "beefiscal-bluecash-activation" {
+		t.Fatalf("activation claims are not bound: %s", payload)
+	}
+	if _, err = s.DeviceActivationToken(device["id"].(string), location["id"].(string), "00000000-0000-4000-8000-000000000003", "other-organization"); err == nil {
+		t.Fatal("cross-organization activation token issued")
+	}
+}
 
 func TestConcurrentResourceBusinessKeyHasSingleWinner(t *testing.T) {
 	for _, tc := range []struct {

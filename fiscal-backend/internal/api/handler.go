@@ -1408,6 +1408,36 @@ func (h *Handler) device(w http.ResponseWriter, r *http.Request) {
 		h.saveReplay(w, r, body, 201, v)
 		return
 	}
+	if len(parts) == 2 && parts[1] == "activation-tokens" && r.Method == "POST" {
+		body, ok := readBody(w, r)
+		if !ok {
+			return
+		}
+		if h.replay(w, r, body) {
+			return
+		}
+		var input struct {
+			LocationID    string `json:"location_id"`
+			AppInstanceID string `json:"app_instance_id"`
+		}
+		decoder := json.NewDecoder(bytes.NewReader(body))
+		decoder.DisallowUnknownFields()
+		if decoder.Decode(&input) != nil || input.LocationID == "" || input.AppInstanceID == "" {
+			problem(w, 422, "ACTIVATION_TOKEN_REQUEST_INVALID")
+			return
+		}
+		v, e := h.svc.DeviceActivationToken(parts[0], input.LocationID, input.AppInstanceID, tenantID(r))
+		if e != nil {
+			if errors.Is(e, domain.ErrNotFound) {
+				problem(w, 404, "DEVICE_OR_LOCATION_NOT_FOUND")
+			} else {
+				problem(w, 409, "DEVICE_NOT_ACTIVATION_ELIGIBLE")
+			}
+			return
+		}
+		h.saveReplay(w, r, body, 201, v)
+		return
+	}
 	problem(w, 404, "NOT_FOUND")
 }
 func readBody(w http.ResponseWriter, r *http.Request) ([]byte, bool) {

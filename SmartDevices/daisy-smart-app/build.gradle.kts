@@ -7,7 +7,7 @@ android {
     namespace = "com.beeloy.fiscal.daisy"
     compileSdk = 35
     defaultConfig {
-        applicationId = "com.beeloy.fiscal.daisy.stub"
+        applicationId = "com.beeloy.fiscal.daisy.smart"
         minSdk = 24
         targetSdk = 35
         versionCode = 1
@@ -17,11 +17,7 @@ android {
     buildFeatures { buildConfig = true }
     buildTypes {
         debug { applicationIdSuffix = ".debug" }
-        release {
-            // The application still compiles for contract verification, but
-            // runtime construction hard-fails for environment=prod.
-            isMinifyEnabled = false
-        }
+        release { isMinifyEnabled = false }
     }
     testOptions { unitTests.isReturnDefaultValues = true }
     compileOptions {

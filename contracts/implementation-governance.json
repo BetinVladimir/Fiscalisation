@@ -33,7 +33,7 @@
   },
   "p0_decisions": [
     {"id":"P0-01","owner_role":"DEVICE_INTEGRATION","disposition":"CLOSED_FOR_BASE_MVP_BY_EXCLUSION","production_blocked":true,"closure_evidence":["MVP_GATES.md","SmartDevices/README.md"]},
-    {"id":"P0-02","owner_role":"PRODUCT_SECURITY","disposition":"CLOSED_SOFTWARE_GUARD","production_blocked":true,"closure_evidence":["SmartDevices/daisy-smart-stub/src/test/kotlin/com/beeloy/fiscal/daisy/DaisySmartStubTest.kt","fiscal-backend/internal/config/config_test.go"]},
+    {"id":"P0-02","owner_role":"PRODUCT_SECURITY","disposition":"CLOSED_SOFTWARE_GUARD","production_blocked":true,"closure_evidence":["SmartDevices/daisy-smart-app/src/test/kotlin/com/beeloy/fiscal/daisy/DaisySmartStubTest.kt","fiscal-backend/internal/config/config_test.go"]},
     {"id":"P0-03","owner_role":"DEVICE_INTEGRATION","disposition":"CLOSED_FOR_BASE_MVP_BY_EXCLUSION","production_blocked":true,"closure_evidence":["MVP_GATES.md","contracts/driver-semantic-coverage.json"]},
     {"id":"P0-04","owner_role":"DEVICE_INTEGRATION","disposition":"CLOSED_FOR_BASE_MVP_BY_EXCLUSION","production_blocked":true,"closure_evidence":["MVP_GATES.md","contracts/driver-semantic-coverage.json"]},
     {"id":"P0-05","owner_role":"PAYMENT_INTEGRATION","disposition":"CLOSED_FOR_BASE_MVP_BY_EXCLUSION","production_blocked":true,"closure_evidence":["MVP_GATES.md"]},

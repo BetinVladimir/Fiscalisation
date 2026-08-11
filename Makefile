@@ -122,10 +122,12 @@ ios-build:
 	cd BeeMiniPOS/ios && xcodebuild -workspace BeeMiniPOS.xcworkspace -scheme BeeMiniPOS -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 native-regression: native-bundle android-build ios-build
 smart-device-test:
-	cd BeeMiniPOS/android && ./gradlew -p ../../SmartDevices :daisy-smart-stub:testDebugUnitTest :daisy-smart-stub:assembleDebug :daisy-smart-stub:assembleRelease --no-daemon
-	test -f SmartDevices/daisy-smart-stub/build/outputs/apk/debug/daisy-smart-stub-debug.apk
-	test -f SmartDevices/daisy-smart-stub/build/outputs/apk/release/daisy-smart-stub-release-unsigned.apk
-	rg -q 'BuildConfig.STUB_ADAPTER && BuildConfig.DEBUG' SmartDevices/daisy-smart-stub/src/main/kotlin/com/beeloy/fiscal/daisy/DaisySmartStub.kt
+	cd BeeMiniPOS/android && ./gradlew -p ../../SmartDevices :daisy-smart-app:testDebugUnitTest :bluecash-app:testDebugUnitTest :daisy-smart-app:assembleDebug :daisy-smart-app:assembleRelease :bluecash-app:assembleDebug :bluecash-app:assembleRelease --no-daemon
+	test -f SmartDevices/daisy-smart-app/build/outputs/apk/debug/daisy-smart-app-debug.apk
+	test -f SmartDevices/daisy-smart-app/build/outputs/apk/release/daisy-smart-app-release-unsigned.apk
+	test -f SmartDevices/bluecash-app/build/outputs/apk/debug/bluecash-app-debug.apk
+	test -f SmartDevices/bluecash-app/build/outputs/apk/release/bluecash-app-release-unsigned.apk
+	rg -q 'BuildConfig.STUB_ADAPTER && BuildConfig.DEBUG' SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy/DaisySmartStub.kt
 iot-test:
 	c++ -std=c++17 -Wall -Wextra -Werror -IIoT/protocol-abstraction/include IoT/protocol-abstraction/src/FrameCodec.cpp IoT/protocol-abstraction/src/AllCommands.cpp IoT/protocol-abstraction/src/CommandRegistry.cpp IoT/protocol-abstraction/src/CommandPayload.cpp IoT/protocol-abstraction/tests/FrameCodecTest.cpp -o /tmp/beefiscal-frame-codec-test
 	/tmp/beefiscal-frame-codec-test

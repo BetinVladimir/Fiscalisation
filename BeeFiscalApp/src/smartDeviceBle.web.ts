@@ -1,0 +1,6 @@
+import {activationTokenFrames,BLUECASH_ACTIVATION_SERVICE,BLUECASH_STATUS_CHARACTERISTIC,BLUECASH_TOKEN_CHARACTERISTIC} from "./smartDeviceBle.ts";
+import type {SmartDeviceBleConnection} from "./smartDeviceBle.ts";
+
+export async function connectBlueCashForActivation():Promise<SmartDeviceBleConnection>{const bluetooth=(navigator as any).bluetooth;if(!bluetooth)throw new Error("WEB_BLUETOOTH_REQUIRES_CHROME");const device=await bluetooth.requestDevice({filters:[{services:[BLUECASH_ACTIVATION_SERVICE]}]});const server=await device.gatt.connect();const service=await server.getPrimaryService(BLUECASH_ACTIVATION_SERVICE);const token=await service.getCharacteristic(BLUECASH_TOKEN_CHARACTERISTIC);const status=await service.getCharacteristic(BLUECASH_STATUS_CHARACTERISTIC);return{async writeActivationToken(jwt){const transferId=`${Date.now()}-${Math.random().toString(36).slice(2,10)}`;for(const frame of activationTokenFrames(jwt,transferId))await token.writeValueWithResponse(new TextEncoder().encode(frame));const raw=await status.readValue();const result=new TextDecoder().decode(raw.buffer);if(result!=="ACTIVATED")throw new Error(`BLUECASH_ACTIVATION_${result}`);return result},async disconnect(){device.gatt?.disconnect()}}}
+export {BLUECASH_ACTIVATION_SERVICE,BLUECASH_STATUS_CHARACTERISTIC,BLUECASH_TOKEN_CHARACTERISTIC};
+export type {SmartDeviceBleConnection};
