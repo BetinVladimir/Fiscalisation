@@ -27,15 +27,15 @@ end
   abort "#{name} service missing or network boundary drift" unless block&.include?(expected)
 end
 
-mini_sources = Dir.glob(File.join(root, "beeminipos-backend", "{cmd,internal}", "**", "*.go")).reject { |path| path.end_with?("_test.go") }
+mini_sources = Dir.glob(File.join(root, "minipos/beeminipos-backend", "{cmd,internal}", "**", "*.go")).reject { |path| path.end_with?("_test.go") }
 mini_body = mini_sources.map { |path| File.read(path) }.join("\n")
 abort "MiniPOS imports Fiscal private backend code" if mini_body.include?("fiscal-backend/")
 abort "MiniPOS calls an Edge/Fiscal internal HTTP API" if mini_body.include?("/internal/v1")
 
-config_body = File.read(File.join(root, "beeminipos-backend/internal/config/config.go"))
+config_body = File.read(File.join(root, "minipos/beeminipos-backend/internal/config/config.go"))
 abort "Exact /public/v1 Fiscal base validation is missing" unless config_body.include?('parsed.Path == "/public/v1"') && config_body.include?("parsed.RawQuery == \"\"")
 
-service_body = File.read(File.join(root, "beeminipos-backend/internal/domain/service.go"))
+service_body = File.read(File.join(root, "minipos/beeminipos-backend/internal/domain/service.go"))
 allowed_prefixes = %w[/sales /operations /registers]
 literal_paths = service_body.scan(/s\.call(?:WithIfMatch)?\("(?:GET|POST|PATCH|DELETE)",\s*"([^"+]+)["+]/).flatten
 bad = literal_paths.reject { |path| allowed_prefixes.any? { |prefix| path.start_with?(prefix) } }

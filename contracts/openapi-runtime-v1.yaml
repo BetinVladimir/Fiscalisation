@@ -445,7 +445,16 @@ paths:
         - name: BeeFiscal-Signature
           in: header
           required: true
-          schema: {type: string, pattern: '^[0-9a-f]{64}$'}
+          description: HMAC-SHA256 signature over `<unix-seconds>.<raw HTTP body bytes>`; `kid` identifies the webhook endpoint secret and `v1` is lowercase hexadecimal HMAC.
+          schema:
+            type: string
+            pattern: '^t=[0-9]+,kid=[A-Za-z0-9-]+,v1=[0-9a-f]{64}$'
+            example: 't=1786444200,kid=550e8400-e29b-41d4-a716-446655440000,v1=0123456789abcdef0123456789abcdef0123456789abcdef0123456789abcdef'
+        - name: BeeFiscal-Event-Id
+          in: header
+          required: true
+          description: Must exactly equal `event_id` in the signed raw JSON body.
+          schema: {type: string, minLength: 1, maxLength: 255}
       requestBody:
         required: true
         content: {application/json: {schema: {$ref: '#/components/schemas/FiscalWebhookEvent'}}}

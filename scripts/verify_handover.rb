@@ -33,7 +33,7 @@ assert(surface['runtime_operations'] == runtime_count, "runtime contract count d
 
 generated = %w[
   fiscal-backend/internal/api/response_contracts_gen.go
-  beeminipos-backend/internal/api/response_contracts_gen.go
+  minipos/beeminipos-backend/internal/api/response_contracts_gen.go
   edge-agent/localapi/response_contracts_gen.go
 ].map { |relative| File.read(File.join(root, relative)) }
 success_count = generated.sum { |body| body.split('var generatedRequestContracts =', 2).first.scan(/^\s*\{Method:/).length }

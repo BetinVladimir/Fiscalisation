@@ -106,7 +106,7 @@ docker run --rm --network "$network" -v "$root:/src:ro" -w /src/fiscal-backend \
   -e "PG_INTEGRATION_URL=postgres://postgres:test@$fiscal_ip:5432/app?sslmode=disable" \
   -e "PG_RLS_INTEGRATION_URL=postgres://beefiscal_tenant:test-reader@$fiscal_ip:5432/app?sslmode=disable" \
   "$go_image" go test ./internal/persistence
-docker run --rm --network "$network" -v "$root:/src:ro" -w /src/beeminipos-backend \
+docker run --rm --network "$network" -v "$root:/src:ro" -w /src/minipos/beeminipos-backend \
   -e "PG_INTEGRATION_URL=postgres://postgres:test@$minipos_ip:5432/app?sslmode=disable" \
   -e "PG_RLS_INTEGRATION_URL=postgres://beeminipos_tenant:test-reader@$minipos_ip:5432/app?sslmode=disable" \
   "$go_image" go test ./internal/persistence

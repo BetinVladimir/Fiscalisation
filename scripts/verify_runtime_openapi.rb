@@ -23,7 +23,7 @@ sources = {
   "fiscal-backend/internal/api/handler.go" => [
     "/public/v1/sales:open-with-line", "/public/v1/workstations/", "/public/v1/exports/periodized", "/public/v1/exports/", "activation-tokens"
   ],
-  "beeminipos-backend/internal/api/handler.go" => [
+  "minipos/beeminipos-backend/internal/api/handler.go" => [
     "/public/v1/minipos/configuration", "/public/v1/minipos/employees/", "/public/v1/minipos/operator-session",
     "/public/v1/minipos/shifts", "/public/v1/minipos/shifts/", "/public/v1/minipos/orders/",
     "identity-binding", "checkout-batch", "reversals", "/public/v1/fiscal-webhooks"

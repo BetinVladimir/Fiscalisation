@@ -9,7 +9,7 @@ cleanup() {
 }
 trap cleanup EXIT INT TERM
 
-if ! (cd "$root/BeeMiniPOS" && EXPO_PUBLIC_APP_ENV=dev npx expo export --clear --platform all --output-dir "$output") >"$log" 2>&1; then
+if ! (cd "$root/minipos/BeeMiniPOS" && EXPO_PUBLIC_APP_ENV=dev npx expo export --clear --platform all --output-dir "$output") >"$log" 2>&1; then
   cat "$log"
   exit 1
 fi

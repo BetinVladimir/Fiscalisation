@@ -27,7 +27,7 @@ end
 abort "electronic receipt requirement/scope mismatch" unless rows[23]["status"] == "NOT_APPLICABLE"
 adrs = %w[ADR-SUPTO-001-thin-pos.md ADR-SUPTO-002-local-compliance-gateway.md ADR-SUPTO-003-fmin-unp.md ADR-SUPTO-004-offline-ranges.md]
 adrs.each { |name| abort "missing SUPTO decision #{name}" unless File.exist?(File.join(root, "docs/decisions", name)) }
-pos_sources = Dir.glob(File.join(root, "BeeMiniPOS", "{App.tsx,src/**/*.ts}")).reject { |path| path.end_with?(".test.ts") }.map { |path| File.read(path) }.join("\n")
+pos_sources = Dir.glob(File.join(root, "minipos/BeeMiniPOS", "{App.tsx,src/**/*.ts}")).reject { |path| path.end_with?(".test.ts") }.map { |path| File.read(path) }.join("\n")
 forbidden_pos_authority = %w[setCart fiscalCheckout OfflineSaleInput buildOfflineSaleEnvelope chooseTransport sendFiscalCommand /orders/checkout]
 forbidden_pos_authority.each { |token| abort "thin POS regained fiscal authority: #{token}" if pos_sources.include?(token) }
 abort "first-tap atomic API disappeared from POS" unless pos_sources.include?("/sales:open-with-line")

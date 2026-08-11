@@ -2,7 +2,7 @@
 set -eu
 root=$(CDPATH= cd -- "$(dirname -- "$0")/.." && pwd)
 docs=$(CDPATH= cd -- "$root/../BeeloyBackend/docs/Fiscal" && pwd)
-generator="$root/BeeMiniPOS/node_modules/.bin/openapi-typescript"
+generator="$root/minipos/BeeMiniPOS/node_modules/.bin/openapi-typescript"
 test -x "$generator" || { echo "openapi-typescript is not installed; run make deps" >&2; exit 1; }
 work=$(mktemp -d "${TMPDIR:-/tmp}/beeloy-openapi.XXXXXX")
 trap 'rm -rf "$work"' EXIT HUP INT TERM

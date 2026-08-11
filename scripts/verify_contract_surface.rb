@@ -58,7 +58,7 @@ duplicates = all.group_by(&:last).select { |_id, rows| rows.length > 1 }
 abort "duplicate operationId(s): #{duplicates.keys.join(', ')}" unless duplicates.empty?
 
 fiscal_router = File.read(File.join(ROOT, "fiscal-backend/internal/api/handler.go"))
-minipos_router = File.read(File.join(ROOT, "beeminipos-backend/internal/api/handler.go"))
+minipos_router = File.read(File.join(ROOT, "minipos/beeminipos-backend/internal/api/handler.go"))
 edge_router = File.read(File.join(ROOT, "edge-agent/localapi/handler.go"))
 missing = []
 all.each do |method, path, operation_id|

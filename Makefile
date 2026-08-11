@@ -1,20 +1,20 @@
 .PHONY: deps generate-openapi test test-race vet governance-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test web-build native-bundle android-build ios-build native-regression smart-device-test iot-test compose-check compose-e2e regression full-regression
 deps:
-	cd BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
+	cd minipos/BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
 	cd BeeFiscalApp && npm ci --cache /tmp/beefiscalapp-npm-cache --no-audit --no-fund
 generate-openapi:
 	./scripts/generate-openapi.sh
 test:
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./...
-	cd beeminipos-backend && GOCACHE=/tmp/beeminipos-go-cache go test ./...
+	cd minipos/beeminipos-backend && GOCACHE=/tmp/beeminipos-go-cache go test ./...
 	cd edge-agent && GOCACHE=/tmp/edge-go-cache go test ./...
 test-race:
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test -race ./...
-	cd beeminipos-backend && GOCACHE=/tmp/beeminipos-go-cache go test -race ./...
+	cd minipos/beeminipos-backend && GOCACHE=/tmp/beeminipos-go-cache go test -race ./...
 	cd edge-agent && GOCACHE=/tmp/edge-go-cache go test -race ./...
 vet:
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-vet-cache go vet ./...
-	cd beeminipos-backend && GOCACHE=/tmp/beeminipos-go-vet-cache go vet ./...
+	cd minipos/beeminipos-backend && GOCACHE=/tmp/beeminipos-go-vet-cache go vet ./...
 	cd edge-agent && GOCACHE=/tmp/edge-go-vet-cache go vet ./...
 governance-test:
 	ruby scripts/verify_governance.rb
@@ -55,16 +55,16 @@ boundary-test:
 postgres-integration:
 	./scripts/postgres-integration.sh
 typecheck:
-	cd BeeMiniPOS && npx tsc --noEmit
-	cd BeeMiniPOS && npm test
+	cd minipos/BeeMiniPOS && npx tsc --noEmit
+	cd minipos/BeeMiniPOS && npm test
 	cd BeeFiscalApp && npx tsc --noEmit
 	cd BeeFiscalApp && npm test
 contract-test:
 	./scripts/verify-contract-lock.sh
 	./scripts/verify-generated-openapi.sh
 	./scripts/verify-generated-response-contracts.sh
-	cd BeeMiniPOS && npx tsc --noEmit
-	cd BeeMiniPOS && npx tsc --noEmit --skipLibCheck --module esnext --moduleResolution bundler ../contracts/generated/contract-smoke.ts
+	cd minipos/BeeMiniPOS && npx tsc --noEmit
+	cd minipos/BeeMiniPOS && npx tsc --noEmit --skipLibCheck --module esnext --moduleResolution bundler ../../contracts/generated/contract-smoke.ts
 	ruby scripts/verify_runtime_openapi.rb
 	ruby scripts/verify_openapi_overlay.rb
 	ruby scripts/verify_contract_surface.rb
@@ -92,37 +92,37 @@ handover-test:
 	ruby scripts/test_handover_drift.rb
 
 ui-interaction-test:
-	cd BeeMiniPOS && EXPO_PUBLIC_APP_ENV=dev EXPO_PUBLIC_MINIPOS_API_URL=http://minipos-api.test/public/v1/minipos EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-api.test/public/v1 npx expo export --clear --platform web --output-dir .ui-e2e-web
-	cd BeeMiniPOS && EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_MINIPOS_AUTH_TOKEN=forbidden-static-token EXPO_PUBLIC_FISCAL_AUTH_TOKEN=forbidden-fiscal-static-token EXPO_PUBLIC_MINIPOS_API_URL=http://minipos-api.test/public/v1/minipos npx expo export --clear --platform web --output-dir .ui-e2e-prod-web
+	cd minipos/BeeMiniPOS && EXPO_PUBLIC_APP_ENV=dev EXPO_PUBLIC_MINIPOS_API_URL=http://minipos-api.test/public/v1/minipos EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-api.test/public/v1 npx expo export --clear --platform web --output-dir .ui-e2e-web
+	cd minipos/BeeMiniPOS && EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_MINIPOS_AUTH_TOKEN=forbidden-static-token EXPO_PUBLIC_FISCAL_AUTH_TOKEN=forbidden-fiscal-static-token EXPO_PUBLIC_MINIPOS_API_URL=http://minipos-api.test/public/v1/minipos npx expo export --clear --platform web --output-dir .ui-e2e-prod-web
 	cd BeeFiscalApp && EXPO_PUBLIC_APP_ENV=dev EXPO_PUBLIC_REGISTER_ID=00000000-0000-4000-8000-000000000001 EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 npx expo export --platform web --output-dir .ui-e2e-web
 	cd BeeFiscalApp && EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_FISCAL_AUTH_TOKEN=forbidden-fiscal-admin-static-token EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 npx expo export --clear --platform web --output-dir .ui-e2e-prod-web
-	cd BeeMiniPOS && npm run test:web-interaction
+	cd minipos/BeeMiniPOS && npm run test:web-interaction
 
 evidence-test:
 	ruby scripts/generate_release_evidence.rb /tmp/beeloy-release-evidence-test
 	ruby scripts/verify_release_evidence.rb /tmp/beeloy-release-evidence-test
 	./scripts/test-release-evidence-signing.sh
 web-build:
-	cd BeeMiniPOS && EXPO_PUBLIC_APP_ENV=dev npx expo export --clear --platform web --output-dir .regression-web && test -f .regression-web/index.html
+	cd minipos/BeeMiniPOS && EXPO_PUBLIC_APP_ENV=dev npx expo export --clear --platform web --output-dir .regression-web && test -f .regression-web/index.html
 	cd BeeFiscalApp && npx expo export --platform web --output-dir .regression-web && test -f .regression-web/index.html
 native-bundle:
 	./scripts/test-minipos-metro-resolution.sh .regression-native
-	test -f BeeMiniPOS/.regression-native/index.html
-	test -d BeeMiniPOS/.regression-native/_expo/static/js/android
-	test -d BeeMiniPOS/.regression-native/_expo/static/js/ios
+	test -f minipos/BeeMiniPOS/.regression-native/index.html
+	test -d minipos/BeeMiniPOS/.regression-native/_expo/static/js/android
+	test -d minipos/BeeMiniPOS/.regression-native/_expo/static/js/ios
 	cd BeeFiscalApp && npx expo export --clear --platform android --output-dir .regression-native-android
 	test -d BeeFiscalApp/.regression-native-android/_expo/static/js/android
 	cd BeeFiscalApp && npx expo export --clear --platform ios --output-dir .regression-native-ios
 	test -d BeeFiscalApp/.regression-native-ios/_expo/static/js/ios
 android-build:
-	cd BeeMiniPOS/android && ./gradlew assembleDebug --no-daemon
-	test -f BeeMiniPOS/android/app/build/outputs/apk/debug/app-debug.apk
+	cd minipos/BeeMiniPOS/android && ./gradlew assembleDebug --no-daemon
+	test -f minipos/BeeMiniPOS/android/app/build/outputs/apk/debug/app-debug.apk
 ios-build:
-	cd BeeMiniPOS/ios && pod install
-	cd BeeMiniPOS/ios && xcodebuild -workspace BeeMiniPOS.xcworkspace -scheme BeeMiniPOS -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
+	cd minipos/BeeMiniPOS/ios && pod install
+	cd minipos/BeeMiniPOS/ios && xcodebuild -workspace BeeMiniPOS.xcworkspace -scheme BeeMiniPOS -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 native-regression: native-bundle android-build ios-build
 smart-device-test:
-	cd BeeMiniPOS/android && ./gradlew -p ../../SmartDevices :daisy-smart-app:testDebugUnitTest :bluecash-app:testDebugUnitTest :daisy-smart-app:assembleDebug :daisy-smart-app:assembleRelease :bluecash-app:assembleDebug :bluecash-app:assembleRelease --no-daemon
+	cd minipos/BeeMiniPOS/android && ./gradlew -p ../../../SmartDevices :daisy-smart-app:testDebugUnitTest :bluecash-app:testDebugUnitTest :daisy-smart-app:assembleDebug :daisy-smart-app:assembleRelease :bluecash-app:assembleDebug :bluecash-app:assembleRelease --no-daemon
 	test -f SmartDevices/daisy-smart-app/build/outputs/apk/debug/daisy-smart-app-debug.apk
 	test -f SmartDevices/daisy-smart-app/build/outputs/apk/release/daisy-smart-app-release-unsigned.apk
 	test -f SmartDevices/bluecash-app/build/outputs/apk/debug/bluecash-app-debug.apk

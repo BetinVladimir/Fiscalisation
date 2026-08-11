@@ -263,6 +263,16 @@ func (h *handler) webhook(w http.ResponseWriter, r *http.Request) {
 		problem(w, 400, "invalid json")
 		return
 	}
+	if r.Header.Get("BeeFiscal-Event-Id") != v.EventID {
+		problem(w, http.StatusBadRequest, "WEBHOOK_EVENT_ID_MISMATCH")
+		return
+	}
+	if strings.EqualFold(h.c.AppEnv, "prod") {
+		if _, err := h.s.ConfigurationFor(v.TenantID); err != nil {
+			problem(w, http.StatusForbidden, "WEBHOOK_TENANT_NOT_CONFIGURED")
+			return
+		}
+	}
 	state := v.Data.State
 	if v.Data.OperationType == "REVERSAL" && state == "FISCALIZED" {
 		state = "REVERSED"

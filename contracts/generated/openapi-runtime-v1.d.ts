@@ -1825,7 +1825,10 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description HMAC-SHA256 signature over `<unix-seconds>.<raw HTTP body bytes>`; `kid` identifies the webhook endpoint secret and `v1` is lowercase hexadecimal HMAC. */
                 "BeeFiscal-Signature": string;
+                /** @description Must exactly equal `event_id` in the signed raw JSON body. */
+                "BeeFiscal-Event-Id": string;
             };
             path?: never;
             cookie?: never;

@@ -6,7 +6,7 @@ import { extname, join, normalize } from "node:path";
 import { chromium } from "@playwright/test";
 
 const root = new URL("../", import.meta.url).pathname;
-const fiscalRoot = new URL("../../BeeFiscalApp/", import.meta.url).pathname;
+const fiscalRoot = new URL("../../../BeeFiscalApp/", import.meta.url).pathname;
 const mime = { ".html": "text/html", ".js": "text/javascript", ".css": "text/css", ".json": "application/json", ".png": "image/png", ".svg": "image/svg+xml" };
 
 async function assertNoPublicStaticTokens(directory) {

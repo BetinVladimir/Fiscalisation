@@ -1,6 +1,6 @@
 import createClient from "openapi-fetch";
-import type { paths as FiscalPaths } from "../../contracts/generated/openapi-public-v1";
-import type { paths as RuntimePaths } from "../../contracts/generated/openapi-runtime-v1";
+import type { paths as FiscalPaths } from "../../../contracts/generated/openapi-public-v1";
+import type { paths as RuntimePaths } from "../../../contracts/generated/openapi-runtime-v1";
 
 export type OpenApiClientOptions = {
   baseUrl: string;

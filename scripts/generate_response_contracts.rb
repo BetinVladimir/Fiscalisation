@@ -109,7 +109,7 @@ end
 output_root = ENV.fetch("RESPONSE_CONTRACT_OUTPUT_ROOT", root)
 targets = {
   fiscal: File.join(output_root, "fiscal-backend/internal/api/response_contracts_gen.go"),
-  minipos: File.join(output_root, "beeminipos-backend/internal/api/response_contracts_gen.go"),
+  minipos: File.join(output_root, "minipos/beeminipos-backend/internal/api/response_contracts_gen.go"),
   edge: File.join(output_root, "edge-agent/localapi/response_contracts_gen.go")
 }
 targets.each do |owner, output|

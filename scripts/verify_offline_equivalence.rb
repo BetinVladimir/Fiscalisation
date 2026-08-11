@@ -14,7 +14,7 @@ body = File.read(File.join(root, "edge-agent/gateway/compliance_test.go")) + Fil
 %w[AB123456-A001-0000041 idempotent\ replay durable\ sale\ UNP TestEncryptedComplianceIntentReturnsOpaqueRegulatoryIdentifier].each do |anchor|
   abort "offline equivalence evidence missing #{anchor.tr('\\', '')}" unless body.include?(anchor.tr('\\', ''))
 end
-pos = File.read(File.join(root, "BeeMiniPOS/App.tsx"))
+pos = File.read(File.join(root, "minipos/BeeMiniPOS/App.tsx"))
 abort "POS does not use atomic cloud open" unless pos.include?("/sales:open-with-line")
 abort "legacy POS checkout authority remains" if pos.include?("/orders/${order.id}/checkout")
 puts "offline equivalence OK: cloud atomic sale + protected REST/BLE intent, opaque identifier, durable replay and same-UNP binding"

@@ -1,6 +1,6 @@
 import type { operations as PublicOperations, paths as PublicPaths } from "./openapi-public-v1";
 import type { operations as RuntimeOperations, paths as RuntimePaths } from "./openapi-runtime-v1";
-import { createFiscalOpenApiClient, createRuntimeOpenApiClient } from "../../BeeMiniPOS/src/openapiClients";
+import { createFiscalOpenApiClient, createRuntimeOpenApiClient } from "../../minipos/BeeMiniPOS/src/openapiClients";
 
 type Assert<T extends true> = T;
 type Has<Key extends PropertyKey, Value> = Key extends keyof Value ? true : false;

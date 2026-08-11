@@ -43,6 +43,8 @@ docker compose -p beefiscal-dev -f compose.fiscalisation.yaml -f compose.fiscali
 docker compose -p beeminipos-dev -f compose.minipos.yaml -f compose.minipos.dev.yaml up --build
 ```
 
+MiniPOS (backend + UI) находится в каталоге [`minipos/`](minipos/README.md). Детальные инструкции по сборке, переменным окружения и развёртыванию MiniPOS — в [`minipos/README.md`](minipos/README.md).
+
 Fiscal и MiniPOS имеют отдельные PostgreSQL, сети, Caddy и lifecycle. MiniPOS обращается к Fiscal только через `FISCAL_PUBLIC_BASE_URL` и публичный API. `.env.example` является запускаемым DEV-профилем и проверяется `make compose-check`; его значения нельзя переносить в PROD. Для PROD обязательны `OIDC_ISSUER`, `OIDC_AUDIENCE`, `OIDC_JWKS_URL`, `FISCAL_OAUTH_TOKEN_URL`, client credentials, 32+ byte `BLE_SIGNING_KEY`/webhook keys, DB passwords, HTTPS public/Caddy URLs и явные HTTPS CORS origins; HMAC JWT, статический `FISCAL_AUTH_TOKEN`, wildcard CORS, HTTP upstream, simulator и STUB запрещены конфигурационными guards.
 
 Текущие доказательства перечислены в [`IMPLEMENTATION_STATUS.md`](IMPLEMENTATION_STATUS.md), строгий gap-аудит — в [`MVP_COMPLETION_AUDIT.md`](MVP_COMPLETION_AUDIT.md), unresolved contract P0 и запрещённые обходы — в [`MVP_BLOCKERS.md`](MVP_BLOCKERS.md), exact версии — в [`TOOLCHAIN.md`](TOOLCHAIN.md), hardware/vendor/legal ограничения — в [`MVP_GATES.md`](MVP_GATES.md).

@@ -519,6 +519,7 @@ func TestCanonicalWebhookSignatureAndTimestamp(t *testing.T) {
 	request := func(signature string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(http.MethodPost, "/api/v1/fiscal-webhooks", bytes.NewReader(body))
 		r.Header.Set("BeeFiscal-Signature", signature)
+		r.Header.Set("BeeFiscal-Event-Id", "evt-1")
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)
 		return w
@@ -536,6 +537,33 @@ func TestCanonicalWebhookSignatureAndTimestamp(t *testing.T) {
 	}
 }
 
+func TestWebhookBindsEventHeaderAndProductionTenant(t *testing.T) {
+	body := []byte(`{"event_id":"evt-bound","event_type":"fiscal.operation.updated","api_version":"2026-08-07","tenant_id":"tenant-a","resource_id":"sale-1","resource_version":1,"data":{"state":"FISCALIZED","operation_id":"op-1"}}`)
+	ts := strconv.FormatInt(time.Now().UTC().Unix(), 10)
+	m := hmac.New(sha256.New, []byte("secret"))
+	m.Write([]byte(ts + "."))
+	m.Write(body)
+	signature := "t=" + ts + ",kid=endpoint-1,v1=" + hex.EncodeToString(m.Sum(nil))
+	request := func(h http.Handler, eventID string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodPost, "/public/v1/fiscal-webhooks", bytes.NewReader(body))
+		r.Header.Set("Content-Type", "application/json")
+		r.Header.Set("X-Api-Version", "2026-08-07")
+		r.Header.Set("BeeFiscal-Signature", signature)
+		r.Header.Set("BeeFiscal-Event-Id", eventID)
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	dev := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AppEnv: "dev", APIVersion: "2026-08-07", WebhookVerificationKey: "secret"})
+	if w := request(dev, "other-event"); w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), "WEBHOOK_EVENT_ID_MISMATCH") {
+		t.Fatalf("event header mismatch accepted: %d %s", w.Code, w.Body.String())
+	}
+	prod := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AppEnv: "prod", APIVersion: "2026-08-07", WebhookVerificationKey: "secret"})
+	if w := request(prod, "evt-bound"); w.Code != http.StatusForbidden || !strings.Contains(w.Body.String(), "WEBHOOK_TENANT_NOT_CONFIGURED") {
+		t.Fatalf("unconfigured production tenant accepted: %d %s", w.Code, w.Body.String())
+	}
+}
+
 func TestWebhookOpenAPIRejectsUndocumentedEvidenceFields(t *testing.T) {
 	body := []byte(`{"event_id":"evt-extra","event_type":"fiscal.operation.updated","api_version":"2026-08-07","tenant_id":"tenant-a","resource_id":"sale-1","resource_version":1,"occurred_at":"2026-08-09T12:00:00Z","data":{"state":"FISCALIZED","operation_id":"op-1","fiscal_reference":"FD-1","undocumented":"must-fail"}}`)
 	ts := strconv.FormatInt(time.Now().UTC().Unix(), 10)
@@ -547,6 +575,7 @@ func TestWebhookOpenAPIRejectsUndocumentedEvidenceFields(t *testing.T) {
 	r.Header.Set("X-Api-Version", "2026-08-07")
 	r.Header.Set("Content-Type", "application/json")
 	r.Header.Set("BeeFiscal-Signature", "t="+ts+",kid=active,v1="+hex.EncodeToString(m.Sum(nil)))
+	r.Header.Set("BeeFiscal-Event-Id", "evt-extra")
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 	if w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), "REQUEST_CONTRACT_VIOLATION") {

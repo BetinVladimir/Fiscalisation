@@ -119,7 +119,6 @@ const devFiscalToken = prodMode
   ? ""
   : process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN || "";
 let runtimeFiscalToken = devFiscalToken;
-const tenantId = process.env.EXPO_PUBLIC_TENANT_ID || "";
 const registerId = process.env.EXPO_PUBLIC_REGISTER_ID || "";
 const fiscalDeviceId =
   process.env.EXPO_PUBLIC_FISCAL_DEVICE_ID || "";
@@ -154,22 +153,50 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
 const collect = <T,>(path: string) =>
   collectCursorPages<T>(path, (p) => call(p));
 async function fiscalCall<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const r = await fetchWithTimeout(fiscalBase + path, {
+  const method = (init.method || "GET").toUpperCase();
+  const idempotencyKey =
+    new Headers(init.headers).get("Idempotency-Key") || key();
+  const request: RequestInit = {
     ...init,
     headers: {
       "Content-Type": "application/json",
       "X-Api-Version": apiVersion,
-      "Idempotency-Key": key(),
+      "Idempotency-Key": idempotencyKey,
       ...(runtimeFiscalToken
         ? { Authorization: `Bearer ${runtimeFiscalToken}` }
         : {}),
       ...(init.headers || {}),
     },
-  });
+  };
+  let r: Response;
+  try {
+    r = await fetchWithTimeout(fiscalBase + path, request);
+  } catch (first) {
+    if (method === "GET") throw first;
+    r = await fetchWithTimeout(fiscalBase + path, request);
+  }
   const text = await r.text();
   if (r.status === 401 && prodMode) runtimeUnauthorized?.();
   if (!r.ok) throw new Error(text || `Fiscal HTTP ${r.status}`);
   return text ? JSON.parse(text) : ({} as T);
+}
+async function fiscalCloudReachable(path: string): Promise<boolean> {
+  let response: Response;
+  try {
+    response = await fetchWithTimeout(fiscalBase + path, {
+      method: "GET",
+      headers: {
+        "X-Api-Version": apiVersion,
+        ...(runtimeFiscalToken ? { Authorization: `Bearer ${runtimeFiscalToken}` } : {}),
+      },
+    });
+  } catch {
+    return false;
+  }
+  if ([502, 503, 504].includes(response.status)) return false;
+  if (response.status === 401 && prodMode) runtimeUnauthorized?.();
+  if (!response.ok) throw new Error(`Fiscal route probe HTTP ${response.status}`);
+  return true;
 }
 
 export default function App() {
@@ -464,8 +491,6 @@ export default function App() {
         throw new Error("Web Bluetooth изисква Chrome/secure context");
       if (Platform.OS !== "web" && !(await requestNativeBlePermissions()))
         throw new Error("Bluetooth permission е отказано");
-      if (!tenantId)
-        throw new Error("EXPO_PUBLIC_TENANT_ID е задължителен за BLE");
       if (!selectedEmployee) throw new Error("Създайте служител");
       const fiscalRegister = requireFiscalResourceId(
         activeRegisterId,
@@ -496,7 +521,6 @@ export default function App() {
       });
       issuedSessionId = session.ble_session_id;
       validateBleDeploymentAuthority(session, {
-        tenant_id: tenantId,
         register_id: fiscalRegister,
         device_id: expectedDevice,
       });
@@ -585,7 +609,12 @@ export default function App() {
               },
             ];
       if(!saleProjection)throw new Error("Липсва приета продажба");let sale=saleProjection;let last: FiscalOperation|undefined;
-      for(const payment of payments){last=await fiscalCall<FiscalOperation>(`/sales/${sale.sale_id}/payment-intents`,{method:"POST",headers:{"If-Match":String(sale.version)},body:JSON.stringify(payment)});if(last.state==="UNKNOWN"){setPendingOrder({id:sale.sale_id,state:"UNKNOWN",version:sale.version,allowed_actions:["READ"],fiscal_operation_id:last.operation_id});throw new Error("UNKNOWN: RECONCILE")};if(last.state==="FAILED")throw new Error("PAYMENT_REJECTED");sale=await fiscalCall<FiscalSale>(`/sales/${sale.sale_id}`);setSaleProjection(sale)}
+      const useBle=Boolean(bleReady&&bleBinding)&&!(await fiscalCloudReachable(`/sales/${sale.sale_id}`));
+      if(useBle){
+        for(const [paymentIndex,payment] of payments.entries()){const intentId=payment.payment_id;const local=await ble.current.sendComplianceIntentAndWait({intent_id:intentId,action:"PAYMENT",client_sale_surrogate_id:sale.external_id,server_sale_id:sale.sale_id,operator_code:selectedEmployee.operator_code,app_instance_id:appInstanceId,expected_version:sale.version,payment},intentId);last={operation_id:local.operation_id,type:"FISCAL_SALE",state:local.state==="FISCALIZED"?"FISCALIZED":local.state==="FISCAL_RESULT_UNKNOWN"?"UNKNOWN":"FAILED",fiscal_reference:local.fiscal_reference};if(local.state==="FISCAL_RESULT_UNKNOWN"){setPendingOrder({id:sale.sale_id,state:"UNKNOWN",version:sale.version,allowed_actions:["READ"],fiscal_operation_id:local.operation_id});throw new Error("UNKNOWN: RECONCILE")};if(local.state!=="FISCALIZED")throw new Error(local.error_code||"PAYMENT_REJECTED");if(paymentIndex===payments.length-1){sale={...sale,state:"COMPLETED"};setSaleProjection(sale)}}
+      }else{
+        for(const payment of payments){last=await fiscalCall<FiscalOperation>(`/sales/${sale.sale_id}/payment-intents`,{method:"POST",headers:{"If-Match":String(sale.version)},body:JSON.stringify(payment)});if(last.state==="UNKNOWN"){setPendingOrder({id:sale.sale_id,state:"UNKNOWN",version:sale.version,allowed_actions:["READ"],fiscal_operation_id:last.operation_id});throw new Error("UNKNOWN: RECONCILE")};if(last.state==="FAILED")throw new Error("PAYMENT_REJECTED");sale=await fiscalCall<FiscalSale>(`/sales/${sale.sale_id}`);setSaleProjection(sale)}
+      }
       if(sale.state!=="COMPLETED")throw new Error("Плащането не е завършено");
       setPendingOrder(null);
       setSaleProjection(null);

@@ -15,7 +15,7 @@ FileUtils.mkdir_p(output)
 end
 
 components = {}
-Dir[ROOT.join("{fiscal-backend,beeminipos-backend,edge-agent}/go.sum")].sort.each do |path|
+Dir[ROOT.join("{fiscal-backend,minipos/beeminipos-backend,edge-agent}/go.sum")].sort.each do |path|
   File.foreach(path) do |line|
     name, version = line.split
     next unless name && version && !version.end_with?("/go.mod")
@@ -23,7 +23,7 @@ Dir[ROOT.join("{fiscal-backend,beeminipos-backend,edge-agent}/go.sum")].sort.eac
     components[["golang", name, version]] = {"type" => "library", "name" => name, "version" => version, "purl" => "pkg:golang/#{name}@#{version}"}
   end
 end
-Dir[ROOT.join("{BeeMiniPOS,BeeFiscalApp}/package-lock.json")].sort.each do |path|
+Dir[ROOT.join("{minipos/BeeMiniPOS,BeeFiscalApp}/package-lock.json")].sort.each do |path|
   lock = JSON.parse(File.read(path))
   (lock["packages"] || {}).each do |key, value|
     next unless key.start_with?("node_modules/") && value["version"]
