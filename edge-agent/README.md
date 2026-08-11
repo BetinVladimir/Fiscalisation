@@ -38,6 +38,24 @@ go run ./cmd/edge-agent
 
 DEV/HIL executable smoke использует `GET /internal/v1/final-device`, `GET /internal/v1/storage` и `POST /internal/v1/commands` с `Authorization: Bearer ...`. Команда обязана точно совпасть с tenant/register/device/fencing binding. Она проходит тот же `Runtime`, что и GATT processor: durable commit предшествует device call, а replay после restart возвращает сохранённый результат без повторного исполнения. Storage telemetry показывает 70/85/95/100% states; начиная с 95% новая команда блокируется до любого fiscal side effect. Это внутренние adapter endpoints, не публичный POS API и не доступные в PROD.
 
+## Кто вызывает edge-agent
+
+В проекте у edge-agent два штатных входящих канала и один исходящий.
+
+Входящие вызовы:
+
+- MiniPOS вызывает edge-agent через локальный BLE-контур, а не через публичный HTTP. MiniPOS сначала получает у Fiscal backend BLE session/ticket, затем устанавливает BLE handshake и отправляет в edge-agent зашифрованные `ComplianceIntent` сообщения. POS в этой схеме intent/render-only: он не получает authority range, не формирует UNP и не вызывает edge-agent internal HTTP API напрямую.
+- Fiscal backend вызывает edge-agent webhook-ом `POST /control/v1/fiscal-webhooks`. Этот канал используется для control-plane событий, прежде всего для `ble.session.revoked`. Запрос подписывается заголовком `BeeFiscal-Signature`, а edge-agent подтверждает его только после durable-записи revocation в SQLite.
+
+Исходящий вызов:
+
+- Сам edge-agent вызывает Fiscal backend через `POST /public/v1/edge-sync/batches`, отправляя подписанные sync batch-пакеты и принимая подписанный ACK. Это не входящий клиент edge-agent, а его собственный upstream sync-канал.
+
+Что важно по границе продукта:
+
+- `POST /local/v1/intents` и `POST /internal/v1/commands` существуют как loopback DEV/HIL transport и executable test surface. Они не являются публичным POS API и не должны использоваться MiniPOS в production boundary.
+- Аппаратный GATT server должен только передавать байты в `gateway.Processor` и возвращать зашифрованные frames обратно клиенту. Сам transport-neutral процессор уже находится внутри edge-agent.
+
 ## Реализованные слои
 
 - `authority` — lease, fencing и восстановление sequence после рестарта;
