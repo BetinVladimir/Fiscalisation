@@ -5,11 +5,13 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/binary"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
 	"math"
+	"regexp"
 	"sort"
 	"strconv"
 	"strings"
@@ -28,6 +30,13 @@ func Hash(b []byte) string { v := sha256.Sum256(b); return hex.EncodeToString(v[
 type Driver interface {
 	Execute(Operation, Sale, PaymentRequest) (string, string)
 	Probe() error
+}
+type queuedDriver interface {
+	Queue(Operation, Sale, PaymentRequest) error
+}
+type durableQueuedDriver interface {
+	Prepare(Operation, Sale, PaymentRequest) (ResourceRecord, error)
+	Publish(ResourceRecord) error
 }
 type Simulator struct {
 	enabled               bool
@@ -50,7 +59,9 @@ func (s *Simulator) Execute(op Operation, sale Sale, p PaymentRequest) (string, 
 	if s.outcomeUnknown {
 		return "", "FISCAL_RESULT_UNKNOWN"
 	}
-	return "SIM-" + op.ID, ""
+	digest := sha256.Sum256([]byte(op.ID))
+	document := int64(binary.BigEndian.Uint32(digest[:4])%9_999_999) + 1
+	return strconv.FormatInt(document, 10), ""
 }
 func (s *Simulator) Probe() error {
 	if !s.enabled {
@@ -72,10 +83,43 @@ func (s *Simulator) SetDeviceTime(at time.Time) error {
 }
 
 type Service struct {
-	repo          Repository
-	driver        Driver
-	bleSigningKey []byte
-	policy        PolicyCatalog
+	repo                          Repository
+	driver                        Driver
+	bleSigningKey                 []byte
+	policy                        PolicyCatalog
+	requireHardwareSyncSignatures bool
+	deviceCredentialIssuer        DeviceCredentialIssuer
+}
+
+func (s *Service) SetRequireHardwareSyncSignatures(required bool) {
+	s.requireHardwareSyncSignatures = required
+}
+
+// ExpireDeviceCommand fail-closes an immutable command that could not be
+// delivered while its signed authority was valid. It never creates a fresh
+// envelope and never repeats a possible device side effect.
+func (s *Service) ExpireDeviceCommand(operationID string) error {
+	op, err := s.repo.Operation(operationID)
+	if err != nil || op.State != "EXECUTING" {
+		return err
+	}
+	now := time.Now().UTC()
+	op.State = "UNKNOWN"
+	op.ErrorCode = "DEVICE_COMMAND_EXPIRED_BEFORE_ACCEPTANCE"
+	op.AllowedActions = []string{"RECONCILE"}
+	op.Version++
+	op.UpdatedAt = now
+	if op.SaleID != "" {
+		sale, saleErr := s.repo.Sale(op.SaleID)
+		if saleErr != nil {
+			return saleErr
+		}
+		sale.State = "UNKNOWN"
+		sale.Version++
+		sale.UpdatedAt = now
+		return s.repo.CommitSaleOperationEvent(sale, op, fiscalOperationEvent(sale, op))
+	}
+	return s.repo.CommitOperationEvent(op, fiscalCommandEvent(op.RegisterID, op))
 }
 
 func (s *Service) CountryPolicy(at time.Time) (CountryPolicy, error) { return s.policy.Policy(at) }
@@ -166,7 +210,25 @@ func (s *Service) reverseForTenant(saleID, reason, originalReference, tenant str
 	if s.driver == nil || s.driver.Probe() != nil {
 		return Operation{}, errors.New("fiscal device unavailable")
 	}
-	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, RegisterID: sale.RegisterID, Type: "REVERSAL", State: "EXECUTING", Version: 1, OriginalFiscalReference: original.FiscalReference, ReasonCode: reason, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	documentNumber, parseErr := strconv.ParseInt(original.FiscalReference, 10, 64)
+	if parseErr != nil || documentNumber < 1 || documentNumber > 9999999 || !regexp.MustCompile(`^[0-9]{8}$`).MatchString(sale.FiscalDevice.FiscalMemoryNumber) {
+		return Operation{}, errors.New("original fiscal document metadata unavailable")
+	}
+	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, RegisterID: sale.RegisterID, Type: "REVERSAL", State: "EXECUTING", Version: 1, OriginalFiscalReference: original.FiscalReference, ReasonCode: reason, OriginalDocumentNumber: documentNumber, OriginalDocumentAt: original.UpdatedAt, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	if queued, ok := s.driver.(durableQueuedDriver); ok {
+		command, prepareErr := queued.Prepare(op, sale, PaymentRequest{})
+		if prepareErr != nil {
+			return Operation{}, prepareErr
+		}
+		sale, e = s.repo.ReserveSaleReversalCommand(saleID, tenant, sale.Version, op, command)
+		if e != nil {
+			return Operation{}, e
+		}
+		if e = queued.Publish(command); e != nil {
+			return op, nil
+		}
+		return op, nil
+	}
 	sale, e = s.repo.ReserveSaleReversal(saleID, tenant, sale.Version, op)
 	if e != nil {
 		return Operation{}, e
@@ -423,7 +485,7 @@ func (s *Service) activeFiscalDeviceSnapshot(registerID, tenant string, now time
 	if err != nil || device.TenantID != tenant || stringField(device.Data, "status") != "ACTIVE" || !oneOf(stringField(device.Data, "kind"), "FISCAL_DEVICE", "SMART_DEVICE") {
 		return FiscalDeviceSnapshot{}, errors.New("fiscal device unavailable")
 	}
-	return FiscalDeviceSnapshot{DeviceID: device.ID, Serial: stringField(device.Data, "serial"), FiscalDeviceNumber: stringField(device.Data, "fiscal_device_number"), FiscalMemoryNumber: stringField(device.Data, "fiscal_memory_number"), Vendor: stringField(device.Data, "vendor"), Model: stringField(device.Data, "model"), Firmware: stringField(device.Data, "firmware")}, nil
+	return FiscalDeviceSnapshot{DeviceID: device.ID, BindingVersion: register.Version, Serial: stringField(device.Data, "serial"), FiscalDeviceNumber: stringField(device.Data, "fiscal_device_number"), FiscalMemoryNumber: stringField(device.Data, "fiscal_memory_number"), Vendor: stringField(device.Data, "vendor"), Model: stringField(device.Data, "model"), Firmware: stringField(device.Data, "firmware")}, nil
 }
 
 func (s *Service) registerHasActivePaymentTerminal(registerID, tenant string) bool {
@@ -503,7 +565,13 @@ func (s *Service) bleResponse(v BLESessionRecord) (map[string]any, error) {
 	if e != nil {
 		return nil, e
 	}
-	m := hmac.New(sha256.New, s.bleSigningKey)
+	ticketKey := s.bleSigningKey
+	if device, deviceErr := s.repo.Resource("device", v.FiscalDeviceID); deviceErr == nil {
+		if credentialID, _ := device.Data["credential_id"].(string); credentialID != "" {
+			ticketKey = DeriveDeviceTransportKey(s.bleSigningKey, "ble-ticket", v.FiscalDeviceID, credentialID)
+		}
+	}
+	m := hmac.New(sha256.New, ticketKey)
 	m.Write(b)
 	wrapped, e := json.Marshal(struct {
 		Payload   string `json:"payload"`
@@ -645,7 +713,11 @@ func (s *Service) CreateSale(in CreateSale) (Sale, error) {
 		locationID = stringField(register.Data, "location_id")
 	}
 	now := time.Now().UTC()
-	v := Sale{ID: newID("sale"), TenantID: in.TenantID, ExternalID: in.ExternalID, LocationID: locationID, RegisterID: in.RegisterID, OperatorID: in.OperatorID, State: "DRAFT", Version: 1, Lines: []SaleLine{}, Payments: []PaymentRecord{}, CreatedAt: now, UpdatedAt: now}
+	device := FiscalDeviceSnapshot{}
+	if in.TenantID == "" {
+		device = FiscalDeviceSnapshot{DeviceID: in.RegisterID, FiscalDeviceNumber: "00000001", FiscalMemoryNumber: "00000001", Vendor: "SIMULATOR", Model: "DEV"}
+	}
+	v := Sale{ID: newID("sale"), TenantID: in.TenantID, ExternalID: in.ExternalID, LocationID: locationID, RegisterID: in.RegisterID, OperatorID: in.OperatorID, State: "DRAFT", Version: 1, Lines: []SaleLine{}, Payments: []PaymentRecord{}, FiscalDevice: device, CreatedAt: now, UpdatedAt: now}
 	return v, s.repo.PutSale(v)
 }
 func (s *Service) AddLine(id string, line SaleLine) (Sale, error) {
@@ -816,9 +888,38 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 	}
 	now := time.Now().UTC()
 	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "FISCAL_SALE", State: "EXECUTING", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	if queued, ok := s.driver.(durableQueuedDriver); ok {
+		command, prepareErr := queued.Prepare(op, sale, p)
+		if prepareErr != nil {
+			return Operation{}, prepareErr
+		}
+		sale, e = s.repo.ReserveSalePaymentCommand(id, tenant, sale.Version, op, sale.FiscalDevice, command)
+		if e != nil {
+			return Operation{}, e
+		}
+		if e = queued.Publish(command); e != nil {
+			// The command remains durable and will be republished by the bridge
+			// after reconnect/restart. Publication failure is not a fiscal result.
+			return op, nil
+		}
+		return op, nil
+	}
 	sale, e = s.repo.ReserveSalePayment(id, tenant, sale.Version, op, sale.FiscalDevice)
 	if e != nil {
 		return Operation{}, e
+	}
+	if queued, ok := s.driver.(queuedDriver); ok {
+		if e = queued.Queue(op, sale, p); e != nil {
+			op.State = "UNKNOWN"
+			op.ErrorCode = "MQTT_COMMAND_PUBLICATION_UNKNOWN"
+			op.AllowedActions = []string{"RECONCILE"}
+			op.Version++
+			op.UpdatedAt = time.Now().UTC()
+			sale.State = "UNKNOWN"
+			_ = s.repo.CommitSaleOperation(sale, op)
+			return op, nil
+		}
+		return op, nil
 	}
 	ref, code := s.driver.Execute(op, sale, p)
 	op.Version++

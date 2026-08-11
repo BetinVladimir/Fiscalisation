@@ -70,6 +70,8 @@ func TestRBACLeastPrivilege(t *testing.T) {
 		{"auditor cannot diagnose", auditor, "GET", "/public/v1/devices/id/diagnostics", false},
 		{"service edge sync", service, "POST", "/public/v1/edge-sync/batches", true},
 		{"admin cannot impersonate edge", admin, "POST", "/public/v1/edge-sync/batches", false},
+		{"admin confirms device activation", admin, "POST", "/public/v1/device-activation-requests/id:confirm", true},
+		{"cashier cannot confirm device activation", cashier, "POST", "/public/v1/device-activation-requests/id:confirm", false},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {

@@ -13,7 +13,6 @@ import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
 import { isRegisterId, registerCollectionPath, registerResourcePath } from "./src/registerFilter";
 import { useAdminOidc } from "./src/adminOidc";
-import { connectBlueCashForActivation } from "./src/smartDeviceBle";
 
 const base = (
   process.env.EXPO_PUBLIC_FISCAL_API_URL || "http://localhost:8080/public/v1"
@@ -57,7 +56,6 @@ async function call(path: string, init: RequestInit = {}) {
 const collect = (path: string) => collectCursorPages<Item>(path, (next) => call(next));
 const label = (v: unknown) =>
   typeof v === "string" ? v : typeof v === "number" ? String(v) : "—";
-const uuid = () => "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => { const r = Math.floor(Math.random() * 16); return (c === "x" ? r : (r & 3) | 8).toString(16); });
 
 export default function App() {
   const oidc = useAdminOidc();
@@ -110,6 +108,8 @@ export default function App() {
     [provisioning, setProvisioning] = useState<Item | null>(null),
     [bleSession, setBleSession] = useState<Item | null>(null),
     [blueCashActivation, setBlueCashActivation] = useState<Item | null>(null),
+    [activationCode, setActivationCode] = useState(""),
+    [activationRequest, setActivationRequest] = useState<Item | null>(null),
     [activationLocationId, setActivationLocationId] = useState(""),
     [blePublicKey, setBlePublicKey] = useState(""),
     [bleAppInstance] = useState(() => `beefiscal-admin-${Date.now()}`),
@@ -287,26 +287,32 @@ export default function App() {
     }
   };
   const activateBlueCash = async () => {
-    if (!selected || !canAdminister) { setMessage("BlueCash activation изисква ADMIN"); return; }
-    const selectedDeviceId = label(selected.id);
-    if (!isRegisterId(selectedDeviceId) || !isRegisterId(activationLocationId)) { setMessage("Изберете BlueCash device и валиден location UUID"); return; }
-    if (!String(selected.model || selected.name || "").toLowerCase().includes("bluecash")) { setMessage("Избраното устройство не е Datecs BlueCash"); return; }
+    if (!activationRequest || !canAdminister) { setMessage("Първо намерете чакащата заявка с QR/краткия код"); return; }
+    if (!isRegisterId(activationLocationId) || !isRegisterId(register)) { setMessage("Изберете валидни търговска точка и касово място"); return; }
     setLoading(true);
-    let connection: Awaited<ReturnType<typeof connectBlueCashForActivation>> | undefined;
     try {
-      connection = await connectBlueCashForActivation();
-      const appInstanceId = uuid();
-      const issued = await call(`/devices/${encodeURIComponent(selectedDeviceId)}/activation-tokens`, { method: "POST", body: JSON.stringify({ location_id: activationLocationId, app_instance_id: appInstanceId }) });
-      if (issued.location_id !== activationLocationId || issued.device_id !== selectedDeviceId || issued.app_instance_id !== appInstanceId || typeof issued.organization_id !== "string" || typeof issued.activation_token !== "string") throw new Error("ACTIVATION_TOKEN_BINDING_INVALID");
-      const deviceStatus = await connection.writeActivationToken(issued.activation_token);
-      setBlueCashActivation({ device_id: selectedDeviceId, organization_id: issued.organization_id, location_id: issued.location_id, expires_at: issued.expires_at, device_status: deviceStatus });
-      setMessage(`BlueCash е активиран за организация ${issued.organization_id} и точка ${issued.location_id}`);
+      const confirmed = await call(`/device-activation-requests/${encodeURIComponent(label(activationRequest.activation_request_id))}:confirm`, { method: "POST", body: JSON.stringify({ user_code: activationCode.trim().toUpperCase(), location_id: activationLocationId, register_id: register, roles: activationRequest.requested_roles }) });
+      setBlueCashActivation(confirmed); setActivationRequest(null);
+      setMessage(`Заявката е потвърдена. Организацията е взета от вашия tenant token; устройството ще завърши key-bound activation.`);
     } catch (e) {
       setMessage(`BlueCash activation е отказан: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
-      await connection?.disconnect().catch(() => {});
       setLoading(false);
     }
+  };
+  const lookupActivation = async () => {
+    if (!canAdminister || !activationCode.trim()) return;
+    setLoading(true);
+    try { const pending = await call(`/device-activation-requests:lookup?user_code=${encodeURIComponent(activationCode.trim().toUpperCase())}`); setActivationRequest(pending); setMessage("Проверете vendor, model, serial, FMIN и key thumbprint преди потвърждение"); }
+    catch (e) { setActivationRequest(null); setMessage(`Заявката не е намерена: ${e instanceof Error ? e.message : String(e)}`); }
+    finally { setLoading(false); }
+  };
+  const disconnectDevice = async () => {
+    if (!selected || !canAdminister) return;
+    setLoading(true);
+    try { await call(`/devices/${encodeURIComponent(label(selected.id))}:disconnect`, { method: "POST", body: "{}" }); setMessage("Устройството, credential-ът, BLE сесиите и register bindings са оттеглени"); await refresh("Устройства"); }
+    catch (e) { setMessage(`Отключването е отказано: ${e instanceof Error ? e.message : String(e)}`); }
+    finally { setLoading(false); }
   };
   const report = async (type: string) => {
     if (!canRunReports) {
@@ -505,8 +511,14 @@ export default function App() {
                 <Action testID="ble-session-issue" label="Издай BLE сесия" disabled={loading || !isRegisterId(register) || !operatorId || !blePublicKey.trim()} onPress={() => void issueBleSession()} />
               </> : null}
               {canAdminister ? <>
-                <Field label="Location ID за BlueCash activation" value={activationLocationId} onChangeText={setActivationLocationId} testID="bluecash-location-id" />
-                <Action testID="bluecash-activate" label="Свържи и активирай BlueCash по BLE" disabled={loading || !selected || !isRegisterId(activationLocationId)} onPress={() => void activateBlueCash()} />
+                <Text style={s.panelTitle}>Активация на SmartDevice</Text>
+                <Field label="QR / еднократен кратък код" value={activationCode} onChangeText={setActivationCode} testID="smart-device-activation-code" />
+                <Action testID="smart-device-activation-lookup" label="Намери чакащото устройство" disabled={loading || !activationCode.trim()} onPress={() => void lookupActivation()} />
+                {activationRequest ? <Text testID="smart-device-activation-preview" style={s.json}>{JSON.stringify(activationRequest, null, 2)}</Text> : null}
+                <Field label="Търговска точка (location UUID)" value={activationLocationId} onChangeText={setActivationLocationId} testID="bluecash-location-id" />
+                <Field label="Касово място (register UUID)" value={register} onChangeText={setRegister} testID="smart-device-register-id" />
+                <Action testID="bluecash-activate" label="Потвърди и привържи устройството" disabled={loading || !activationRequest || !isRegisterId(activationLocationId) || !isRegisterId(register)} onPress={() => void activateBlueCash()} />
+                <Action testID="smart-device-disconnect" label="Изключи избраното устройство от компанията" disabled={loading || !selected} onPress={() => void disconnectDevice()} />
               </> : null}
               {transportMetrics ? <Text testID="transport-metrics" style={s.json}>Transport: {JSON.stringify(transportMetrics, null, 2)}</Text> : null}
               {fiscalMetrics ? <Text testID="fiscal-device-metrics" style={s.json}>Крайно ФУ: {JSON.stringify(fiscalMetrics, null, 2)}</Text> : null}

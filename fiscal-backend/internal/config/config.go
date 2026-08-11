@@ -10,12 +10,13 @@ import (
 type Config struct {
 	HTTPAddr, AppEnv, PublicBaseURL, APIVersion, WebhookSigningKey, WebhookTargetURL, DatabaseURL, RLSDatabaseURL, CORSAllowedOrigins, AuthHMACKey, OIDCIssuer, OIDCAudience, OIDCJWKSURL, BLESigningKey string
 	EMQXBroker, EMQXClientID, EMQXUsername, EMQXToken                                                                                                                                                    string
+	DeviceCACertFile, DeviceCAKeyFile, DeviceMQTTTLSURI, DeviceMQTTWSSURI                                                                                                                                string
 	EMQXSubTopics                                                                                                                                                                                        []string
 	AllowStubAdapters, SimulatorCardTerminalAvailable                                                                                                                                                    bool
 }
 
 func Load() Config {
-	return Config{HTTPAddr: getenv("HTTP_ADDR", ":8080"), AppEnv: getenv("APP_ENV", "dev"), PublicBaseURL: getenv("PUBLIC_BASE_URL", "http://localhost:8080/public/v1"), APIVersion: getenv("API_VERSION", "2026-08-07"), WebhookSigningKey: getenv("WEBHOOK_SIGNING_KEY", "dev-only-webhook-key"), WebhookTargetURL: os.Getenv("WEBHOOK_TARGET_URL"), DatabaseURL: os.Getenv("DATABASE_URL"), RLSDatabaseURL: os.Getenv("RLS_DATABASE_URL"), CORSAllowedOrigins: getenv("CORS_ALLOWED_ORIGINS", "http://localhost:19006"), AuthHMACKey: os.Getenv("AUTH_HMAC_KEY"), OIDCIssuer: os.Getenv("OIDC_ISSUER"), OIDCAudience: os.Getenv("OIDC_AUDIENCE"), OIDCJWKSURL: os.Getenv("OIDC_JWKS_URL"), BLESigningKey: getenv("BLE_SIGNING_KEY", "dev-only-ble-signing-key-32-bytes"), EMQXBroker: os.Getenv("EMQX_BROKER"), EMQXClientID: getenv("EMQX_CLIENT_ID", "beefiscal-backend"), EMQXUsername: os.Getenv("EMQX_USERNAME"), EMQXToken: os.Getenv("EMQX_TOKEN"), EMQXSubTopics: splitCSV(os.Getenv("EMQX_SUB_TOPICS")), AllowStubAdapters: strings.EqualFold(getenv("ALLOW_STUB_ADAPTERS", "true"), "true"), SimulatorCardTerminalAvailable: strings.EqualFold(getenv("SIMULATOR_CARD_TERMINAL_AVAILABLE", "false"), "true")}
+	return Config{HTTPAddr: getenv("HTTP_ADDR", ":8080"), AppEnv: getenv("APP_ENV", "dev"), PublicBaseURL: getenv("PUBLIC_BASE_URL", "http://localhost:8080/public/v1"), APIVersion: getenv("API_VERSION", "2026-08-07"), WebhookSigningKey: getenv("WEBHOOK_SIGNING_KEY", "dev-only-webhook-key"), WebhookTargetURL: os.Getenv("WEBHOOK_TARGET_URL"), DatabaseURL: os.Getenv("DATABASE_URL"), RLSDatabaseURL: os.Getenv("RLS_DATABASE_URL"), CORSAllowedOrigins: getenv("CORS_ALLOWED_ORIGINS", "http://localhost:19006"), AuthHMACKey: os.Getenv("AUTH_HMAC_KEY"), OIDCIssuer: os.Getenv("OIDC_ISSUER"), OIDCAudience: os.Getenv("OIDC_AUDIENCE"), OIDCJWKSURL: os.Getenv("OIDC_JWKS_URL"), BLESigningKey: getenv("BLE_SIGNING_KEY", "dev-only-ble-signing-key-32-bytes"), EMQXBroker: os.Getenv("EMQX_BROKER"), EMQXClientID: getenv("EMQX_CLIENT_ID", "beefiscal-backend"), EMQXUsername: os.Getenv("EMQX_USERNAME"), EMQXToken: os.Getenv("EMQX_TOKEN"), EMQXSubTopics: splitCSV(os.Getenv("EMQX_SUB_TOPICS")), DeviceCACertFile: os.Getenv("DEVICE_CA_CERT_FILE"), DeviceCAKeyFile: os.Getenv("DEVICE_CA_KEY_FILE"), DeviceMQTTTLSURI: os.Getenv("DEVICE_MQTT_TLS_URI"), DeviceMQTTWSSURI: os.Getenv("DEVICE_MQTT_WSS_URI"), AllowStubAdapters: strings.EqualFold(getenv("ALLOW_STUB_ADAPTERS", "true"), "true"), SimulatorCardTerminalAvailable: strings.EqualFold(getenv("SIMULATOR_CARD_TERMINAL_AVAILABLE", "false"), "true")}
 }
 func (c Config) Validate() error {
 	if c.AppEnv == "prod" && c.AllowStubAdapters {
@@ -56,6 +57,9 @@ func (c Config) Validate() error {
 	}
 	if c.AppEnv == "prod" && (len(c.BLESigningKey) < 32 || strings.Contains(c.BLESigningKey, "dev-")) {
 		return errors.New("strong BLE_SIGNING_KEY required in PROD")
+	}
+	if c.AppEnv == "prod" && (c.DeviceCACertFile == "" || c.DeviceCAKeyFile == "" || !strings.HasPrefix(c.DeviceMQTTTLSURI, "ssl://")) {
+		return errors.New("DEVICE_CA_CERT_FILE, DEVICE_CA_KEY_FILE and ssl:// DEVICE_MQTT_TLS_URI required in PROD")
 	}
 	return nil
 }

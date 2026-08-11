@@ -1,54 +1,41 @@
-# Интеграция нового POS с Datecs BlueCash activation
+# Интеграция и активация Datecs BlueCash-50
 
-Версия: `2026-08-11`. Контракт: [`../contracts/openapi-runtime-v1.yaml`](../contracts/openapi-runtime-v1.yaml), operation `createSmartDeviceActivationToken`.
+Версия: `2026-08-11`. Нормативный API-контракт: [`../contracts/openapi-runtime-v1.yaml`](../contracts/openapi-runtime-v1.yaml). Общий протокол внешнего POS: [`EXTERNAL_POS_INTEGRATION_PROTOCOL.md`](EXTERNAL_POS_INTEGRATION_PROTOCOL.md).
 
-## Предусловия
+## Граница ответственности
 
-POS является публичным API-клиентом и не получает прямой доступ к БД или внутренним драйверам. Нужны ADMIN identity, зарегистрированные в одной организации `location` и BlueCash `device` со статусом `DRAFT` либо `PENDING_SERVICE_ACTIVATION`, а также физическое присутствие у устройства. В PROD вызов идёт только через Fiscal Caddy HTTPS ingress.
+BlueCash app работает на самом регистраторе и инкапсулирует Datecs fiscal API и BORICA pinpad API. BeeFiscalApp работает на телефоне сотрудника или в браузере. Access token сотрудника никогда не передаётся регистратору. Организация берётся исключительно из проверенного tenant claim BeeFiscalApp; на устройстве и в форме подтверждения organization ID отсутствует.
 
-## REST
+Legacy `POST /devices/{id}/activation-tokens` и доставка bearer JWT по BLE не являются production activation path. Новый путь основан на неэкспортируемом P-256 ключе, HTTPS bootstrap, mTLS и CA-подписанном MQTT commit.
 
-```http
-POST /public/v1/devices/11111111-1111-4111-8111-111111111111/activation-tokens HTTP/1.1
-Authorization: Bearer <admin-oidc-access-token>
-X-Api-Version: 2026-08-07
-Idempotency-Key: 8f6f27dc-8aae-4a76-b7dc-88b5a4160937
-Content-Type: application/json
+## Последовательность
 
-{
-  "location_id": "22222222-2222-4222-8222-222222222222",
-  "app_instance_id": "33333333-3333-4333-8333-333333333333"
-}
-```
+1. Подписанная DEV/PROD сборка BlueCash получает HTTPS URL fiscal-backend через `BuildConfig.FISCAL_BACKEND_URL`. Пользователь не может заменить endpoint в UI.
+2. Приложение создаёт стабильный `device_instance_id`, запрашивает `POST /device-bootstrap/v1/challenges`, затем генерирует hardware-backed P-256 Android Keystore key с attestation challenge. Software-only key блокируется.
+3. Приложение подписывает канонический activation proof и вызывает `POST /device-bootstrap/v1/activation-requests`. `request_secret` хранится AES-GCM ключом Android Keystore; QR содержит только verification URI, request ID и одноразовый human code.
+4. ADMIN в BeeFiscalApp сканирует QR/вводит code. UI вызывает `GET /device-activation-requests:lookup`, показывает vendor/model/serial/FMIN/key thumbprint, затем сотрудник выбирает location, register и роли. Компания не выбирается.
+5. `POST /device-activation-requests/{id}:confirm` связывает заявку с tenant из access token.
+6. Регистратор доказывает владение ключом на `POST /device-bootstrap/v1/activation-requests/{id}/credential`. Ответ содержит key-bound 90-day client certificate, CA chain, MQTT URI, binding, три независимых per-device HMAC verifier key и fenced диапазон УНП. Ответ имеет `Cache-Control: no-store` и сохраняется только зашифрованно.
+7. Регистратор подключается к MQTT по mTLS, подписывает commit тем же hardware key и публикует его в `beefiscal/v1/devices/{device_id}/activation`. Backend атомарно создаёт ACTIVE device, fiscal/payment bindings и audit event.
+8. Устройство проверяет ACTIVE ack подписью Device CA и все binding fields. Только после этого запускаются command MQTT, async journal sync и transaction GATT.
 
-`organization_id` намеренно отсутствует в request: backend берёт его из проверенного tenant. Ответ `201` содержит короткоживущий `activation_token`, явные `organization_id`, `location_id`, `device_id`, `app_instance_id`, `expires_at`. POS обязан проверить совпадение response с запросом до BLE write и не логировать токен.
+## Рабочие ключи и темы
 
-Ошибки: `404` — device/location отсутствует либо принадлежит другому tenant; `409` — устройство не допускает activation или signing unavailable; `422` — неизвестное/неполное поле. Повтор с тем же idempotency key и тем же body возвращает первоначальный результат.
+Credential содержит отдельные `command_hmac_key`, `sync_ack_hmac_key`, `ble_ticket_hmac_key`, детерминированно выведенные backend master key с привязкой к device и credential. Компрометация одного устройства не позволяет подписывать трафик другого. Private P-256 key не экспортируется.
 
-## BLE
+- activation: `beefiscal/v1/devices/{device_id}/activation` → `.../activation/ack`;
+- команды: `tenants/{tenant_id}/devices/{device_id}/commands`;
+- journal upload: `tenants/{tenant_id}/devices/{device_id}/sync/batches/{batch_id}`;
+- sync ack: `tenants/{tenant_id}/devices/{device_id}/sync/acks/{batch_id}`.
 
-После локального login BlueCash рекламирует service `7b6f1000-7c6d-4c7a-9e4f-424545464953`. POS разбивает ASCII JWT на фрагменты до 120 символов и последовательно пишет с response в characteristic `...1001...`:
+Все сообщения QoS 1 и бизнес-идемпотентны по `operation_id`. SQLite хранит подписанную hash-chain минимум три месяца; удаляются только подтверждённые backend записи. Direct BLE принимает только backend-issued session ticket и `ComplianceIntent`, а не raw Datecs команды. Диапазон УНП резервируется backend атомарно и не раскрывается внешнему POS.
 
-```text
-BFA1|<transfer-id>|<1-based-index>|<total>|<fragment>
-```
+## Отключение
 
-`transfer-id` — 8–64 ASCII `[A-Za-z0-9-]`, `total` — 1–32. После последнего frame POS читает `...1002...`; единственный успех — `ACTIVATED`. `RECEIVING_TOKEN`, `LOGIN_REQUIRED`, binding/expiry error и disconnect считаются отказом. Native клиент использует `react-native-ble-plx`; Web-клиент — Chrome Web Bluetooth в secure context.
+ADMIN вызывает `POST /devices/{device_id}:disconnect` с `Idempotency-Key` и `{}`. Backend атомарно переводит activation/device в `REVOKED`, увеличивает binding version, очищает fiscal/payment binding кассового места, отзывает BLE sessions и пишет audit. Broker ACL/PKI revocation должны запретить повторное mTLS подключение; их deployment-настройка является обязательной частью production PKI runbook.
 
-## Security и recovery
+## Проверки
 
-- JWT lifetime — 5 минут, audience и scope узкие; в claims явно присутствуют organization/location/device/app instance.
-- BlueCash не получает HMAC key. Он проверяет структуру, expiry и привязку, но подпись проверяет backend при последующем managed connection. До такой проверки token нельзя считать серверной авторизацией.
-- При обрыве POS создаёт новый BLE connection и новый activation token; старый token не переиспользуется после expiry.
-- Токен нельзя помещать в AsyncStorage, логи, crash reports, telemetry или UI result.
-- BLE activation не заменяет fiscal/card HIL и не разрешает продажу при недоступности конечного ФУ.
-
-## Критерии приёмки нового POS
-
-- Клиент сгенерирован/проверен по OpenAPI и передаёт обязательные headers.
-- Cross-tenant location/device и client-supplied organization отклоняются.
-- BLE недоступен до локального login; logout прекращает advertising и очищает token.
-- JWT длиннее одного ATT write успешно передаётся фрагментами; конфликтующий frame отклоняется.
-- UI показывает только IDs, expiry и device status, никогда JWT.
-- Проверены Android physical BLE и Chrome secure-context Web Bluetooth; iOS требует Bluetooth usage description.
-- Production включение запрещено, пока не закрыты vendor/acquirer SDK, firmware и HIL gates.
+- Go: domain lifecycle, proof-of-possession, tenant isolation, CA certificate/key binding, MQTT topic binding, asymmetric ACTIVE ack, per-device keys, revoke.
+- Android JVM: Datecs fiscal/payment codecs, sale/reversal, CBOR/BLE framing/handshake, sync wire, journal logic; `assembleDebug` подтверждает интеграцию Android Keystore, QR, mTLS и GATT.
+- Обязательный HIL до production: реальный BlueCash-50, vendor fiscal service/JAR, BORICA provisioning, EMQX mTLS ACL, certificate revoke и power/network fault injection.

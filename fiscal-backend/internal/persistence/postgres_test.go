@@ -22,6 +22,7 @@ func TestStateRowsRoundTripEveryRepositoryCollection(t *testing.T) {
 		"replays": map[string]any{}, "outbox": map[string]any{"event": map[string]any{"id": "event"}},
 		"ble_sessions": map[string]any{}, "sync_acks": map[string]any{}, "connectivity_probes": map[string]any{},
 		"resources": map[string]any{}, "artifacts": map[string]any{}, "edge_pending": map[string]any{},
+		"activation_challenges": map[string]any{}, "activation_requests": map[string]any{},
 		"audit": []any{map[string]any{"event_id": "a1"}, map[string]any{"event_id": "a2"}},
 	}
 	raw, _ := json.Marshal(original)
@@ -72,7 +73,7 @@ func TestPostgresRowStoreRestart(t *testing.T) {
 	if _, err = p.db.Exec(`delete from fiscal_state_rows; delete from fiscal_state_meta; delete from runtime_snapshots where aggregate='fiscal'`); err != nil {
 		t.Fatal(err)
 	}
-	raw := []byte(`{"sales":{},"operations":{},"devices":{"device-1":{"id":"device-1"}},"shifts":{},"unp":{},"replays":{},"outbox":{"event-1":{"id":"event-1","event":{"event_id":"event-1","event_type":"sale.updated","tenant_id":"tenant-1","resource_id":"sale-1"},"attempts":0,"next_attempt":"2026-08-08T10:00:00Z"}},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	raw := []byte(`{"sales":{},"operations":{},"devices":{"device-1":{"id":"device-1"}},"shifts":{},"unp":{},"replays":{},"outbox":{"event-1":{"id":"event-1","event":{"event_id":"event-1","event_type":"sale.updated","tenant_id":"tenant-1","resource_id":"sale-1"},"attempts":0,"next_attempt":"2026-08-08T10:00:00Z"}},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(raw); err != nil {
 		t.Fatal(err)
 	}
@@ -124,11 +125,11 @@ func TestPostgresVersionedSaveRejectsStaleInstance(t *testing.T) {
 	if err != nil || generation2 != 0 {
 		t.Fatal(generation2, err)
 	}
-	first := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	first := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if generation1, err = p1.SaveVersioned(first, generation1); err != nil || generation1 != 1 {
 		t.Fatal(generation1, err)
 	}
-	stale := []byte(`{"sales":{},"operations":{},"devices":{"stale":{"id":"stale"}},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	stale := []byte(`{"sales":{},"operations":{},"devices":{"stale":{"id":"stale"}},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if _, err = p2.SaveVersioned(stale, generation2); !errors.Is(err, ErrConcurrentState) {
 		t.Fatal("stale Fiscal instance overwrote current state", err)
 	}
@@ -152,7 +153,7 @@ func TestPostgresDeltaSaveTouchesOnlyExplicitFiscalRows(t *testing.T) {
 	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from runtime_snapshots where aggregate='fiscal'`); err != nil {
 		t.Fatal(err)
 	}
-	baseline := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	baseline := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	generation, err := p.SaveVersioned(baseline, 0)
 	if err != nil {
 		t.Fatal(err)
@@ -160,7 +161,7 @@ func TestPostgresDeltaSaveTouchesOnlyExplicitFiscalRows(t *testing.T) {
 	if _, err = p.db.Exec(`insert into fiscal_state_rows(collection,entity_key,payload) values('devices','unmanaged','{"id":"unmanaged"}'::jsonb)`); err != nil {
 		t.Fatal(err)
 	}
-	current := []byte(`{"sales":{},"operations":{},"devices":{"managed":{"id":"managed"}},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	current := []byte(`{"sales":{},"operations":{},"devices":{"managed":{"id":"managed"}},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if _, err = p.SaveDeltaVersioned(baseline, current, generation); err != nil {
 		t.Fatal(err)
 	}
@@ -180,7 +181,7 @@ func TestPostgresMigratesLegacySnapshotAtomically(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	raw := []byte(`{"sales":{"legacy-sale":{"sale_id":"legacy-sale","tenant_id":"tenant-migration","external_id":"legacy-external","register_id":"register-1","operator_id":"A001","state":"DRAFT","version":1,"lines":[],"payments":[],"created_at":"2026-08-08T10:00:00Z","updated_at":"2026-08-08T10:00:00Z"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	raw := []byte(`{"sales":{"legacy-sale":{"sale_id":"legacy-sale","tenant_id":"tenant-migration","external_id":"legacy-external","register_id":"register-1","operator_id":"A001","state":"DRAFT","version":1,"lines":[],"payments":[],"created_at":"2026-08-08T10:00:00Z","updated_at":"2026-08-08T10:00:00Z"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if _, err = p.db.Exec(`delete from fiscal_state_rows; delete from fiscal_state_meta; delete from fiscal_runtime_sales`); err != nil {
 		t.Fatal(err)
 	}
@@ -217,14 +218,14 @@ func TestPostgresEmptyStateDoesNotResurrectLegacySnapshot(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	legacy := `{"sales":{"must-not-return":{"id":"must-not-return"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`
+	legacy := `{"sales":{"must-not-return":{"id":"must-not-return"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`
 	if _, err = p.db.Exec(`delete from fiscal_state_rows; delete from fiscal_state_meta`); err != nil {
 		t.Fatal(err)
 	}
 	if _, err = p.db.Exec(`insert into runtime_snapshots(aggregate,payload,version,updated_at) values('fiscal',$1::jsonb,1,now()) on conflict(aggregate) do update set payload=excluded.payload`, legacy); err != nil {
 		t.Fatal(err)
 	}
-	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(empty); err != nil {
 		t.Fatal(err)
 	}
@@ -252,7 +253,7 @@ func TestPostgresDifferentialSavePreservesUntouchedRows(t *testing.T) {
 	if _, err = p.db.Exec(`delete from fiscal_state_rows; delete from fiscal_state_meta`); err != nil {
 		t.Fatal(err)
 	}
-	first := []byte(`{"sales":{},"operations":{},"devices":{"same":{"id":"same"},"changed":{"id":"changed","version":1},"removed":{"id":"removed"}},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	first := []byte(`{"sales":{},"operations":{},"devices":{"same":{"id":"same"},"changed":{"id":"changed","version":1},"removed":{"id":"removed"}},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(first); err != nil {
 		t.Fatal(err)
 	}
@@ -264,7 +265,7 @@ func TestPostgresDifferentialSavePreservesUntouchedRows(t *testing.T) {
 		t.Fatal(err)
 	}
 	time.Sleep(10 * time.Millisecond)
-	second := []byte(`{"sales":{},"operations":{},"devices":{"same":{"id":"same"},"changed":{"id":"changed","version":2},"added":{"id":"added"}},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	second := []byte(`{"sales":{},"operations":{},"devices":{"same":{"id":"same"},"changed":{"id":"changed","version":2},"added":{"id":"added"}},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(second); err != nil {
 		t.Fatal(err)
 	}
@@ -300,7 +301,7 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from fiscal_runtime_operations;delete from fiscal_runtime_sales;delete from fiscal_runtime_shifts`); err != nil {
 		t.Fatal(err)
 	}
-	base := `{"sales":{"sale-typed":{"sale_id":"sale-typed","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":%d,"lines":[],"payments":[],"fiscal_device":{"device_id":"device-typed","serial":"SN-TYPED","fiscal_device_number":"FD-TYPED","fiscal_memory_number":"FM-TYPED","vendor":"Datecs","model":"DP-150 MX","firmware":"2026-EUR"},"created_at":"2026-08-07T10:00:00Z","updated_at":"%s"}},"operations":{},"devices":{},"shifts":{"shift-typed":{"id":"shift-typed","tenant_id":"tenant-a","register_id":"register-a","operator_id":"A001","state":"OPEN","version":1,"opened_at":"2026-08-07T09:00:00Z"}},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{"device:device-typed":{"kind":"device","tenant_id":"tenant-a","id":"device-typed","version":1,"data":{"vendor":"Datecs","serial":"SN-TYPED"},"created_at":"2026-08-07T08:00:00Z","updated_at":"2026-08-07T08:00:00Z"}},"artifacts":{},"audit":[],"edge_pending":{}}`
+	base := `{"sales":{"sale-typed":{"sale_id":"sale-typed","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":%d,"lines":[],"payments":[],"fiscal_device":{"device_id":"device-typed","serial":"SN-TYPED","fiscal_device_number":"FD-TYPED","fiscal_memory_number":"FM-TYPED","vendor":"Datecs","model":"DP-150 MX","firmware":"2026-EUR"},"created_at":"2026-08-07T10:00:00Z","updated_at":"%s"}},"operations":{},"devices":{},"shifts":{"shift-typed":{"id":"shift-typed","tenant_id":"tenant-a","register_id":"register-a","operator_id":"A001","state":"OPEN","version":1,"opened_at":"2026-08-07T09:00:00Z"}},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{"device:device-typed":{"kind":"device","tenant_id":"tenant-a","id":"device-typed","version":1,"data":{"vendor":"Datecs","serial":"SN-TYPED"},"created_at":"2026-08-07T08:00:00Z","updated_at":"2026-08-07T08:00:00Z"}},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`
 	if err = p.Save([]byte(fmt.Sprintf(base, 1, "2026-08-07T10:00:00Z"))); err != nil {
 		t.Fatal(err)
 	}
@@ -358,7 +359,7 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 	if err = p.db.QueryRow(`select version from fiscal_runtime_sales where id='sale-typed'`).Scan(&version); err != nil || version != 2 {
 		t.Fatal(version, err)
 	}
-	conflict := []byte(`{"sales":{"sale-typed":{"sale_id":"sale-typed","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":3,"lines":[],"payments":[],"created_at":"2026-08-07T10:00:00Z","updated_at":"2026-08-07T10:02:00Z"},"sale-conflict":{"sale_id":"sale-conflict","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":1,"lines":[],"payments":[],"created_at":"2026-08-07T10:00:00Z","updated_at":"2026-08-07T10:02:00Z"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	conflict := []byte(`{"sales":{"sale-typed":{"sale_id":"sale-typed","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":3,"lines":[],"payments":[],"created_at":"2026-08-07T10:00:00Z","updated_at":"2026-08-07T10:02:00Z"},"sale-conflict":{"sale_id":"sale-conflict","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":1,"lines":[],"payments":[],"created_at":"2026-08-07T10:00:00Z","updated_at":"2026-08-07T10:02:00Z"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(conflict); err == nil {
 		t.Fatal("typed uniqueness violation accepted")
 	}
@@ -366,7 +367,7 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 	if err = p.db.QueryRow(`select count(*) from fiscal_state_rows where collection='sales'`).Scan(&stateCount); err != nil || stateCount != 1 {
 		t.Fatal("compatibility rows were not rolled back", stateCount, err)
 	}
-	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(empty); err != nil {
 		t.Fatal(err)
 	}
@@ -454,7 +455,7 @@ func TestPostgresTypedTechnicalAggregatesAreTenantBound(t *testing.T) {
 	if err = p.db.QueryRow(`select tenant_id from fiscal_runtime_edge_pending where operation_id='operation-1'`).Scan(&tenant); err != nil || tenant != "tenant-tech" {
 		t.Fatal("failed technical mutation was not atomic", tenant, err)
 	}
-	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(empty); err != nil {
 		t.Fatal(err)
 	}
@@ -473,7 +474,7 @@ func TestPostgresTypedArtifactsAreTenantBound(t *testing.T) {
 	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from fiscal_runtime_artifacts`); err != nil {
 		t.Fatal(err)
 	}
-	state := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{"tenant-artifact\nreceipt-1":"aGVsbG8="},"audit":[],"edge_pending":{}}`)
+	state := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{"tenant-artifact\nreceipt-1":"aGVsbG8="},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(state); err != nil {
 		t.Fatal(err)
 	}
@@ -512,14 +513,14 @@ func TestPostgresTypedArtifactsAreTenantBound(t *testing.T) {
 		t.Fatal("RLS exposed foreign artifact", hidden, err)
 	}
 	_ = tx.Rollback()
-	malformed := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{"tenant-artifact\nreceipt-1":"%%%"},"audit":[],"edge_pending":{}}`)
+	malformed := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{"tenant-artifact\nreceipt-1":"%%%"},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(malformed); err == nil {
 		t.Fatal("malformed artifact was accepted")
 	}
 	if err = p.db.QueryRow(`select body from fiscal_runtime_artifacts where tenant_id='tenant-artifact' and id='receipt-1'`).Scan(&body); err != nil || string(body) != "hello" {
 		t.Fatal("failed artifact mutation was not atomic", string(body), err)
 	}
-	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(empty); err != nil {
 		t.Fatal(err)
 	}
@@ -541,7 +542,7 @@ func TestPostgresTypedSyncAcksAreTenantBound(t *testing.T) {
 	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from fiscal_runtime_sync_acks`); err != nil {
 		t.Fatal(err)
 	}
-	state := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{"tenant-sync\nedge-1":{"ack_id":"ack-1","edge_id":"edge-1","committed_through_seq":3,"committed_event_hash":"2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824","committed_at":"2026-08-08T10:00:00Z","operation_results":[],"rejected":[],"signature":"sig"}},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	state := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{"tenant-sync\nedge-1":{"ack_id":"ack-1","edge_id":"edge-1","committed_through_seq":3,"committed_event_hash":"2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824","committed_at":"2026-08-08T10:00:00Z","operation_results":[],"rejected":[],"signature":"sig"}},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(state); err != nil {
 		t.Fatal(err)
 	}
@@ -572,7 +573,7 @@ func TestPostgresTypedSyncAcksAreTenantBound(t *testing.T) {
 		t.Fatal("RLS exposed foreign sync acknowledgement", hidden, err)
 	}
 	_ = tx.Rollback()
-	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(empty); err != nil {
 		t.Fatal(err)
 	}
@@ -591,12 +592,12 @@ func TestFiscalTypedOnlyRestartAndRollback(t *testing.T) {
 	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from fiscal_runtime_sales;delete from fiscal_runtime_operations;delete from fiscal_runtime_shifts;delete from fiscal_runtime_resources;delete from fiscal_runtime_outbox;delete from fiscal_runtime_ble_sessions;delete from fiscal_runtime_connectivity_probes;delete from fiscal_runtime_edge_pending;delete from fiscal_runtime_audit;delete from fiscal_runtime_replays;delete from fiscal_runtime_unp_sequences;delete from fiscal_runtime_artifacts;delete from fiscal_runtime_sync_acks`); err != nil {
 		t.Fatal(err)
 	}
-	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	generation, err := p.SaveVersioned(empty, 0)
 	if err != nil {
 		t.Fatal(err)
 	}
-	v1 := []byte(`{"sales":{"typed-only":{"sale_id":"typed-only","tenant_id":"tenant-typed","external_id":"typed-external","register_id":"register-1","operator_id":"A001","state":"DRAFT","version":1,"lines":[],"payments":[],"created_at":"2026-08-08T10:00:00Z","updated_at":"2026-08-08T10:00:00Z"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{}}`)
+	v1 := []byte(`{"sales":{"typed-only":{"sale_id":"typed-only","tenant_id":"tenant-typed","external_id":"typed-external","register_id":"register-1","operator_id":"A001","state":"DRAFT","version":1,"lines":[],"payments":[],"created_at":"2026-08-08T10:00:00Z","updated_at":"2026-08-08T10:00:00Z"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	generation, err = p.SaveDeltaVersioned(empty, v1, generation)
 	if err != nil {
 		t.Fatal(err)

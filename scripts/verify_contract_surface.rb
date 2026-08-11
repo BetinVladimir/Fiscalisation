@@ -42,7 +42,7 @@ def operations(document)
 end
 
 def registration_path(path)
-  full = "/public/v1#{path}"
+  full = path.start_with?("/device-bootstrap/") ? path : "/public/v1#{path}"
   return full unless full.include?("{")
   full[0...full.index("{")]
 end

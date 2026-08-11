@@ -466,6 +466,8 @@ BLE передаёт canonical CBOR представление OpenAPI-схем�
 
 Actions: `OPEN_WITH_LINE`, `ADD_LINE`, `CHANGE_LINE`, `CANCEL_LINE`, `CANCEL_SALE`, `PAYMENT`, `REVERSE`.
 
+Для `REVERSE` обязательны `reason_code` и `original_document` с `document_number`, `document_datetime` (`dd-MM-yy HH:mm:ss`) и восьмизначным `fiscal_memory_number`. Gateway сверяет исходный УНП и сохранённую оплату локального aggregate, выполняет возврат по карте для `CARD`, затем открывает storno документ Datecs командой `43`, печатает исходные позиции, итог и закрывает документ. `invoice_number` и `invoice_reason` передаются совместно только для storno invoice. Повторный `intent_id` не повторяет ни возврат по карте, ни команду ФУ.
+
 Ответ `ComplianceIntentResult`:
 
 - `operation_id`;

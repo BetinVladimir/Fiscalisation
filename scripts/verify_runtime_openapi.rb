@@ -35,5 +35,5 @@ sources.each do |relative, routes|
   routes.each { |route| abort "runtime route disappeared: #{route}" unless source.include?(route) }
 end
 
-abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 33
+abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 39
 puts "runtime OpenAPI coverage OK: #{operations.length} operations"

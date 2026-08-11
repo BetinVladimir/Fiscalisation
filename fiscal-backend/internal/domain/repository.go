@@ -79,6 +79,15 @@ type AuditEvent struct {
 	EventHash  string         `json:"event_hash"`
 }
 type Repository interface {
+	PutActivationChallenge(DeviceActivationChallenge) error
+	ConsumeChallengeAndCreateActivation(string, string, DeviceActivationRequest) error
+	ActivationRequest(string) (DeviceActivationRequest, error)
+	ActivationRequestByCode(string) (DeviceActivationRequest, error)
+	ConfirmActivationRequest(string, string, string, string, string, []string, string, time.Time) (DeviceActivationRequest, error)
+	MarkActivationCredentialIssued(string, string, time.Time) (DeviceActivationRequest, error)
+	ActivateDeviceRequest(string, string, time.Time) (DeviceActivationRequest, error)
+	RevokeActivatedDevice(string, string, string, time.Time) (DeviceActivationRequest, error)
+	ReserveUNPRange(string, string, int64) (int64, int64, error)
 	Sale(string) (Sale, error)
 	Sales(string) []Sale
 	PutSale(Sale) error
@@ -90,7 +99,9 @@ type Repository interface {
 	PutOperation(Operation) error
 	CommitOperationEvent(Operation, OutboxItem) error
 	ReserveSalePayment(string, string, int64, Operation, FiscalDeviceSnapshot) (Sale, error)
+	ReserveSalePaymentCommand(string, string, int64, Operation, FiscalDeviceSnapshot, ResourceRecord) (Sale, error)
 	ReserveSaleReversal(string, string, int64, Operation) (Sale, error)
+	ReserveSaleReversalCommand(string, string, int64, Operation, ResourceRecord) (Sale, error)
 	CommitSaleOperation(Sale, Operation) error
 	CommitSaleOperationEvent(Sale, Operation, OutboxItem) error
 	CommitSaleOperationArtifact(Sale, Operation, string, string, []byte) error
@@ -126,45 +137,66 @@ type Repository interface {
 	Artifact(string, string) ([]byte, error)
 	AuditEvents(string) []AuditEvent
 }
+
+func (r *MemoryRepository) ReserveUNPRange(tenant, fmin string, count int64) (int64, int64, error) {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	if tenant == "" || fmin == "" || count < 1 || count > 10000 {
+		return 0, 0, errors.New("invalid UNP range reservation")
+	}
+	key := tenant + "\n" + fmin
+	start := r.unp[key] + 1
+	end := r.unp[key] + count
+	if end > 9_999_999 {
+		return 0, 0, errors.New("UNP range exhausted")
+	}
+	r.unp[key] = end
+	return start, end, r.persistLocked()
+}
+
 type MemoryRepository struct {
-	mu                 sync.RWMutex
-	sales              map[string]Sale
-	operations         map[string]Operation
-	devices            map[string]Device
-	shifts             map[string]Shift
-	unp                map[string]int64
-	replays            map[string]ReplayRecord
-	outbox             map[string]OutboxItem
-	bleSessions        map[string]BLESessionRecord
-	syncAcks           map[string]SyncAck
-	connectivityProbes map[string]ConnectivityProbe
-	resources          map[string]ResourceRecord
-	artifacts          map[string][]byte
-	audit              []AuditEvent
-	edgePending        map[string]EdgePendingCommand
-	store              Store
-	generation         int64
-	confirmedSnapshot  []byte
+	mu                   sync.RWMutex
+	sales                map[string]Sale
+	operations           map[string]Operation
+	devices              map[string]Device
+	shifts               map[string]Shift
+	unp                  map[string]int64
+	replays              map[string]ReplayRecord
+	outbox               map[string]OutboxItem
+	bleSessions          map[string]BLESessionRecord
+	syncAcks             map[string]SyncAck
+	connectivityProbes   map[string]ConnectivityProbe
+	resources            map[string]ResourceRecord
+	artifacts            map[string][]byte
+	audit                []AuditEvent
+	edgePending          map[string]EdgePendingCommand
+	activationChallenges map[string]DeviceActivationChallenge
+	activationRequests   map[string]DeviceActivationRequest
+	store                Store
+	generation           int64
+	confirmedSnapshot    []byte
 }
 type repositorySnapshot struct {
-	Sales              map[string]Sale               `json:"sales"`
-	Operations         map[string]Operation          `json:"operations"`
-	Devices            map[string]Device             `json:"devices"`
-	Shifts             map[string]Shift              `json:"shifts"`
-	UNP                map[string]int64              `json:"unp"`
-	Replays            map[string]ReplayRecord       `json:"replays"`
-	Outbox             map[string]OutboxItem         `json:"outbox"`
-	BLESessions        map[string]BLESessionRecord   `json:"ble_sessions"`
-	SyncAcks           map[string]SyncAck            `json:"sync_acks"`
-	ConnectivityProbes map[string]ConnectivityProbe  `json:"connectivity_probes"`
-	Resources          map[string]ResourceRecord     `json:"resources"`
-	Artifacts          map[string][]byte             `json:"artifacts"`
-	Audit              []AuditEvent                  `json:"audit"`
-	EdgePending        map[string]EdgePendingCommand `json:"edge_pending"`
+	Sales                map[string]Sale                      `json:"sales"`
+	Operations           map[string]Operation                 `json:"operations"`
+	Devices              map[string]Device                    `json:"devices"`
+	Shifts               map[string]Shift                     `json:"shifts"`
+	UNP                  map[string]int64                     `json:"unp"`
+	Replays              map[string]ReplayRecord              `json:"replays"`
+	Outbox               map[string]OutboxItem                `json:"outbox"`
+	BLESessions          map[string]BLESessionRecord          `json:"ble_sessions"`
+	SyncAcks             map[string]SyncAck                   `json:"sync_acks"`
+	ConnectivityProbes   map[string]ConnectivityProbe         `json:"connectivity_probes"`
+	Resources            map[string]ResourceRecord            `json:"resources"`
+	Artifacts            map[string][]byte                    `json:"artifacts"`
+	Audit                []AuditEvent                         `json:"audit"`
+	EdgePending          map[string]EdgePendingCommand        `json:"edge_pending"`
+	ActivationChallenges map[string]DeviceActivationChallenge `json:"activation_challenges"`
+	ActivationRequests   map[string]DeviceActivationRequest   `json:"activation_requests"`
 }
 
 func NewMemoryRepository() *MemoryRepository {
-	return &MemoryRepository{sales: map[string]Sale{}, operations: map[string]Operation{}, devices: map[string]Device{}, shifts: map[string]Shift{}, unp: map[string]int64{}, replays: map[string]ReplayRecord{}, outbox: map[string]OutboxItem{}, bleSessions: map[string]BLESessionRecord{}, syncAcks: map[string]SyncAck{}, connectivityProbes: map[string]ConnectivityProbe{}, resources: map[string]ResourceRecord{}, artifacts: map[string][]byte{}, audit: []AuditEvent{}, edgePending: map[string]EdgePendingCommand{}}
+	return &MemoryRepository{sales: map[string]Sale{}, operations: map[string]Operation{}, devices: map[string]Device{}, shifts: map[string]Shift{}, unp: map[string]int64{}, replays: map[string]ReplayRecord{}, outbox: map[string]OutboxItem{}, bleSessions: map[string]BLESessionRecord{}, syncAcks: map[string]SyncAck{}, connectivityProbes: map[string]ConnectivityProbe{}, resources: map[string]ResourceRecord{}, artifacts: map[string][]byte{}, audit: []AuditEvent{}, edgePending: map[string]EdgePendingCommand{}, activationChallenges: map[string]DeviceActivationChallenge{}, activationRequests: map[string]DeviceActivationRequest{}}
 }
 func NewPersistentRepository(store Store) (*MemoryRepository, error) {
 	r := NewMemoryRepository()
@@ -226,6 +258,14 @@ func NewPersistentRepository(store Store) (*MemoryRepository, error) {
 		if r.edgePending == nil {
 			r.edgePending = map[string]EdgePendingCommand{}
 		}
+		r.activationChallenges = x.ActivationChallenges
+		if r.activationChallenges == nil {
+			r.activationChallenges = map[string]DeviceActivationChallenge{}
+		}
+		r.activationRequests = x.ActivationRequests
+		if r.activationRequests == nil {
+			r.activationRequests = map[string]DeviceActivationRequest{}
+		}
 	}
 	if e = r.recoverInterruptedOperations(); e != nil {
 		return nil, e
@@ -265,12 +305,22 @@ func (r *MemoryRepository) recoverInterruptedOperations() error {
 		if op.State != "EXECUTING" {
 			continue
 		}
+		// A durable device command is safe to republish with the same operation
+		// identity. It has not become ambiguous merely because this process
+		// restarted before receiving the signed device result.
+		if command, ok := r.resources[resourceKey("device_command_outbox", id)]; ok && command.TenantID == op.TenantID {
+			expires, _ := command.Data["expires_at"].(string)
+			if deadline, err := time.Parse(time.RFC3339Nano, expires); err == nil && now.Before(deadline) {
+				continue
+			}
+		}
 		op.State = "UNKNOWN"
 		op.ErrorCode = "INTERRUPTED_AFTER_DEVICE_DISPATCH"
 		op.AllowedActions = []string{"RECONCILE"}
 		op.Version++
 		op.UpdatedAt = now
 		r.operations[id] = op
+		var recoveryEvent OutboxItem
 		if op.Type == "FISCAL_SALE" || op.Type == "REVERSAL" {
 			if sale, ok := r.sales[op.SaleID]; ok && ((op.Type == "FISCAL_SALE" && sale.State == "PAYMENT_PENDING") || (op.Type == "REVERSAL" && sale.State == "FISCALIZATION_PENDING")) {
 				before := asMap(sale)
@@ -279,7 +329,14 @@ func (r *MemoryRepository) recoverInterruptedOperations() error {
 				sale.UpdatedAt = now
 				r.sales[sale.ID] = sale
 				r.appendAuditLocked(sale.TenantID, "system", "INTERRUPTED_FISCAL_OPERATION_RECOVERY", "sale", sale.ID, sale.UNP, before, asMap(sale))
+				recoveryEvent = fiscalOperationEvent(sale, op)
 			}
+		}
+		if recoveryEvent.ID == "" {
+			recoveryEvent = fiscalCommandEvent(op.RegisterID, op)
+		}
+		if recoveryEvent.ID != "" {
+			r.outbox[recoveryEvent.ID] = recoveryEvent
 		}
 		changed = true
 	}
@@ -292,7 +349,7 @@ func (r *MemoryRepository) persistLocked() error {
 	if r.store == nil {
 		return nil
 	}
-	b, e := json.Marshal(repositorySnapshot{Sales: r.sales, Operations: r.operations, Devices: r.devices, Shifts: r.shifts, UNP: r.unp, Replays: r.replays, Outbox: r.outbox, BLESessions: r.bleSessions, SyncAcks: r.syncAcks, ConnectivityProbes: r.connectivityProbes, Resources: r.resources, Artifacts: r.artifacts, Audit: r.audit, EdgePending: r.edgePending})
+	b, e := json.Marshal(repositorySnapshot{Sales: r.sales, Operations: r.operations, Devices: r.devices, Shifts: r.shifts, UNP: r.unp, Replays: r.replays, Outbox: r.outbox, BLESessions: r.bleSessions, SyncAcks: r.syncAcks, ConnectivityProbes: r.connectivityProbes, Resources: r.resources, Artifacts: r.artifacts, Audit: r.audit, EdgePending: r.edgePending, ActivationChallenges: r.activationChallenges, ActivationRequests: r.activationRequests})
 	if e != nil {
 		return e
 	}
@@ -345,6 +402,7 @@ func (r *MemoryRepository) restoreLocked() {
 	r.sales, r.operations, r.devices, r.shifts, r.unp = x.Sales, x.Operations, x.Devices, x.Shifts, x.UNP
 	r.replays, r.outbox, r.bleSessions, r.syncAcks = x.Replays, x.Outbox, x.BLESessions, x.SyncAcks
 	r.connectivityProbes, r.resources, r.artifacts, r.audit, r.edgePending = x.ConnectivityProbes, x.Resources, x.Artifacts, x.Audit, x.EdgePending
+	r.activationChallenges, r.activationRequests = x.ActivationChallenges, x.ActivationRequests
 	if r.sales == nil {
 		r.sales = map[string]Sale{}
 	}
@@ -387,6 +445,12 @@ func (r *MemoryRepository) restoreLocked() {
 	if r.edgePending == nil {
 		r.edgePending = map[string]EdgePendingCommand{}
 	}
+	if r.activationChallenges == nil {
+		r.activationChallenges = map[string]DeviceActivationChallenge{}
+	}
+	if r.activationRequests == nil {
+		r.activationRequests = map[string]DeviceActivationRequest{}
+	}
 }
 
 func (r *MemoryRepository) resetLocked() {
@@ -404,6 +468,8 @@ func (r *MemoryRepository) resetLocked() {
 	r.artifacts = map[string][]byte{}
 	r.audit = []AuditEvent{}
 	r.edgePending = map[string]EdgePendingCommand{}
+	r.activationChallenges = map[string]DeviceActivationChallenge{}
+	r.activationRequests = map[string]DeviceActivationRequest{}
 }
 func (r *MemoryRepository) Replay(k string) (ReplayRecord, bool) {
 	if reader, ok := r.store.(TenantEntityReader); ok {
@@ -1148,6 +1214,14 @@ func (r *MemoryRepository) CommitOperationEvent(operation Operation, event Outbo
 	return r.persistLocked()
 }
 func (r *MemoryRepository) ReserveSalePayment(id, tenant string, expected int64, op Operation, device FiscalDeviceSnapshot) (Sale, error) {
+	return r.reserveSalePayment(id, tenant, expected, op, device, nil)
+}
+
+func (r *MemoryRepository) ReserveSalePaymentCommand(id, tenant string, expected int64, op Operation, device FiscalDeviceSnapshot, command ResourceRecord) (Sale, error) {
+	return r.reserveSalePayment(id, tenant, expected, op, device, &command)
+}
+
+func (r *MemoryRepository) reserveSalePayment(id, tenant string, expected int64, op Operation, device FiscalDeviceSnapshot, command *ResourceRecord) (Sale, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	sale, ok := r.sales[id]
@@ -1156,6 +1230,9 @@ func (r *MemoryRepository) ReserveSalePayment(id, tenant string, expected int64,
 	}
 	if sale.Version != expected || sale.State != "OPEN" {
 		return sale, errors.New("sale payment state conflict")
+	}
+	if command != nil && (command.Kind != "device_command_outbox" || command.ID != op.ID || command.TenantID != sale.TenantID || command.Version != 1 || command.Data == nil) {
+		return Sale{}, errors.New("invalid device command outbox")
 	}
 	before := asMap(sale)
 	if sale.TenantID != "" && device.DeviceID == "" {
@@ -1167,6 +1244,9 @@ func (r *MemoryRepository) ReserveSalePayment(id, tenant string, expected int64,
 	sale.UpdatedAt = op.CreatedAt
 	r.sales[id] = sale
 	r.operations[op.ID] = op
+	if command != nil {
+		r.resources[resourceKey(command.Kind, command.ID)] = *command
+	}
 	r.appendAuditLocked(sale.TenantID, sale.OperatorID, "PAYMENT_RESERVED", "sale", sale.ID, sale.UNP, before, asMap(sale))
 	if err := r.persistLocked(); err != nil {
 		return Sale{}, err
@@ -1175,6 +1255,12 @@ func (r *MemoryRepository) ReserveSalePayment(id, tenant string, expected int64,
 }
 
 func (r *MemoryRepository) ReserveSaleReversal(id, tenant string, expected int64, op Operation) (Sale, error) {
+	return r.reserveSaleReversal(id, tenant, expected, op, nil)
+}
+func (r *MemoryRepository) ReserveSaleReversalCommand(id, tenant string, expected int64, op Operation, command ResourceRecord) (Sale, error) {
+	return r.reserveSaleReversal(id, tenant, expected, op, &command)
+}
+func (r *MemoryRepository) reserveSaleReversal(id, tenant string, expected int64, op Operation, command *ResourceRecord) (Sale, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	sale, ok := r.sales[id]
@@ -1184,12 +1270,18 @@ func (r *MemoryRepository) ReserveSaleReversal(id, tenant string, expected int64
 	if sale.Version != expected || sale.State != "COMPLETED" {
 		return sale, errors.New("sale reversal state conflict")
 	}
+	if command != nil && (command.Kind != "device_command_outbox" || command.ID != op.ID || command.TenantID != sale.TenantID || command.Version != 1 || command.Data == nil) {
+		return Sale{}, errors.New("invalid device command outbox")
+	}
 	before := asMap(sale)
 	sale.State = "FISCALIZATION_PENDING"
 	sale.Version++
 	sale.UpdatedAt = op.CreatedAt
 	r.sales[id] = sale
 	r.operations[op.ID] = op
+	if command != nil {
+		r.resources[resourceKey(command.Kind, command.ID)] = *command
+	}
 	r.appendAuditLocked(sale.TenantID, sale.OperatorID, "REVERSAL_RESERVED", "sale", sale.ID, sale.UNP, before, asMap(sale))
 	if err := r.persistLocked(); err != nil {
 		return Sale{}, err

@@ -962,3 +962,74 @@ func TestCardTerminalUnavailableDoesNotFallbackToCash(t *testing.T) {
 		t.Fatal(op)
 	}
 }
+
+func TestDeviceBootstrapChallengeIsPublicStrictAndNoStore(t *testing.T) {
+	h := NewHandler(domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true)), config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901"})
+	call := func(body string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodPost, "/device-bootstrap/v1/challenges", strings.NewReader(body))
+		r.Header.Set("Content-Type", "application/json")
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	w := call(`{"device_instance_id":"11111111-1111-4111-8111-111111111111"}`)
+	if w.Code != 201 || w.Header().Get("Cache-Control") != "no-store" || !bytes.Contains(w.Body.Bytes(), []byte(`"challenge"`)) {
+		t.Fatal(w.Code, w.Header(), w.Body.String())
+	}
+	w = call(`{"device_instance_id":"11111111-1111-4111-8111-111111111111","tenant_id":"attacker"}`)
+	if w.Code != 422 {
+		t.Fatal("unknown bootstrap field accepted", w.Code, w.Body.String())
+	}
+}
+
+func TestDeviceActivationConfirmationRequiresAdmin(t *testing.T) {
+	cfg := config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901"}
+	h := NewHandler(domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true)), cfg)
+	call := func(role string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodPost, "/public/v1/device-activation-requests/11111111-1111-4111-8111-111111111111:confirm", strings.NewReader(`{"user_code":"ABCD-EFGH-IJKL","location_id":"l1","register_id":"r1","roles":["FISCAL_DEVICE"]}`))
+		r.Header.Set("Authorization", "Bearer "+jwt("tenant-1", role))
+		r.Header.Set("X-Api-Version", "2026-08-07")
+		r.Header.Set("Idempotency-Key", "activation-confirm-0001")
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	if w := call("CASHIER"); w.Code != 403 {
+		t.Fatal("cashier confirmation not forbidden", w.Code, w.Body.String())
+	}
+	if w := call("ADMIN"); w.Code != 409 {
+		t.Fatal("admin did not reach tenant confirmation handler", w.Code, w.Body.String())
+	}
+}
+
+func TestDeviceActivationLookupAndDisconnectRequireAdmin(t *testing.T) {
+	cfg := config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901"}
+	h := NewHandler(domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true)), cfg)
+	call := func(method, path, role, idempotency string) *httptest.ResponseRecorder {
+		body := ""
+		if method == http.MethodPost {
+			body = "{}"
+		}
+		r := httptest.NewRequest(method, path, strings.NewReader(body))
+		r.Header.Set("Authorization", "Bearer "+jwt("tenant-1", role))
+		r.Header.Set("X-Api-Version", "2026-08-07")
+		if idempotency != "" {
+			r.Header.Set("Idempotency-Key", idempotency)
+		}
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	for _, path := range []string{"/public/v1/device-activation-requests:lookup?user_code=ABCD-EFGH-IJKL", "/public/v1/devices/11111111-1111-4111-8111-111111111111:disconnect"} {
+		method, key := http.MethodGet, ""
+		if strings.Contains(path, ":disconnect") {
+			method, key = http.MethodPost, "device-disconnect-0001"
+		}
+		if w := call(method, path, "CASHIER", key); w.Code != 403 {
+			t.Fatalf("cashier reached %s: %d %s", path, w.Code, w.Body.String())
+		}
+		if w := call(method, path, "ADMIN", key); w.Code != 404 && w.Code != 409 {
+			t.Fatalf("admin did not reach %s handler: %d %s", path, w.Code, w.Body.String())
+		}
+	}
+}

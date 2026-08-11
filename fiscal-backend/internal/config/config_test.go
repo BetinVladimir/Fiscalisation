@@ -15,7 +15,7 @@ func TestSplitCSV(t *testing.T) {
 }
 
 func TestProdGuards(t *testing.T) {
-	base := Config{AppEnv: "prod", PublicBaseURL: "https://fiscal.example/public/v1", CORSAllowedOrigins: "https://admin.example,https://pos.example", DatabaseURL: "postgres://writer@db/fiscal", RLSDatabaseURL: "postgres://reader@db/fiscal", WebhookSigningKey: strings.Repeat("w", 32), OIDCIssuer: "https://id.example", OIDCAudience: "beefiscal", OIDCJWKSURL: "https://id.example/jwks", BLESigningKey: strings.Repeat("b", 32)}
+	base := Config{AppEnv: "prod", PublicBaseURL: "https://fiscal.example/public/v1", CORSAllowedOrigins: "https://admin.example,https://pos.example", DatabaseURL: "postgres://writer@db/fiscal", RLSDatabaseURL: "postgres://reader@db/fiscal", WebhookSigningKey: strings.Repeat("w", 32), OIDCIssuer: "https://id.example", OIDCAudience: "beefiscal", OIDCJWKSURL: "https://id.example/jwks", BLESigningKey: strings.Repeat("b", 32), DeviceCACertFile: "/run/secrets/device-ca.crt", DeviceCAKeyFile: "/run/secrets/device-ca.key", DeviceMQTTTLSURI: "ssl://mqtt.example:8883"}
 	if e := base.Validate(); e != nil {
 		t.Fatal(e)
 	}

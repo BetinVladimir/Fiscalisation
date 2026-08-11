@@ -1,6 +1,8 @@
 # Требования к активации SmartDevice и транспортному каналу
 
-Статус: целевое требование на переработку. Дата: 2026-08-11. Область: приложения `SmartDevices`, `BeeFiscalApp`, `fiscal-backend` и MQTT ingress. Документ описывает только регистрацию, привязку и установление канала устройства; фискальные и платёжные команды находятся за границей этого алгоритма.
+Статус: реализованный software baseline; production PKI/broker/HIL acceptance остаются внешними gates. Дата: 2026-08-11. Область: приложения `SmartDevices`, `BeeFiscalApp`, `fiscal-backend` и MQTT ingress.
+
+As-built руководство и точные endpoints: [`BLUECASH_POS_INTEGRATION.md`](BLUECASH_POS_INTEGRATION.md). OpenAPI является нормативным контрактом: [`../contracts/openapi-runtime-v1.yaml`](../contracts/openapi-runtime-v1.yaml).
 
 ## 1. Результат анализа текущей реализации
 
@@ -18,15 +20,15 @@
 
 Текущее состояние кода не соответствует этому алгоритму:
 
-- `SmartDevices` не имеет MQTT, WebSocket или HTTPS client для связи с `fiscal-backend`;
+- `SmartDevices` имеет HTTPS proof-of-possession bootstrap, MQTT mTLS activation/command/sync clients и direct BLE transaction GATT;
 - BlueCash принимает по BLE переносимый HS256 activation JWT и локально вводимые organization/location/device ID;
 - `fiscal-backend/internal/mqttclient` — только заготовка: один backend client со статическими credentials подписывается на список тем и логирует topic/размер payload;
 - MQTT message не проходит authentication/authorization на уровне device identity, schema validation, idempotency или domain handler;
-- отдельной таблицы tenantless activation requests нет: текущая `provisioning_session` является tenant-owned generic resource;
+- tenantless challenge/request хранятся отдельно миграцией `012_smart_device_activation.sql`; plaintext secret/code не сохраняется;
 - MQTT broker/listeners/ACL/mTLS не входят в текущий Fiscal Compose; присутствующие EMQX env-переменные сами по себе transport не создают;
 - отдельного WebSocket endpoint и протокола нет.
 
-Следовательно, требуется новая реализация bootstrap lifecycle и production MQTT transport. Существующий `activation-tokens` BLE-flow следует оставить только как DEV compatibility до миграции, затем удалить из production path.
+Legacy `activation-tokens` BLE-flow сохранён только для совместимости старых DEV-клиентов и формально исключён из production activation path. BeeFiscalApp его больше не вызывает.
 
 ## 2. Выбор MQTT вместо собственного WebSocket
 

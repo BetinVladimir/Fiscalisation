@@ -144,8 +144,134 @@ func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/public/v1/webhook-endpoints/", h.webhookEndpoint)
 	m.HandleFunc("/public/v1/ble-sessions/", h.bleSession)
 	m.HandleFunc("/public/v1/edge-sync/batches", h.sync)
+	m.HandleFunc("/public/v1/device-activation-requests/", h.deviceActivationConfirmation)
+	m.HandleFunc("/public/v1/device-activation-requests:lookup", h.deviceActivationLookup)
+	m.HandleFunc("/device-bootstrap/v1/challenges", h.deviceBootstrapChallenge)
+	m.HandleFunc("/device-bootstrap/v1/activation-requests", h.deviceBootstrapCreate)
+	m.HandleFunc("/device-bootstrap/v1/activation-requests/", h.deviceBootstrapCredential)
 	oidc := auth.NewOIDCVerifier(c.OIDCIssuer, c.OIDCAudience, c.OIDCJWKSURL)
 	return cors(c.CORSAllowedOrigins, auth.MiddlewareWithOIDC(c.AuthHMACKey, oidc, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, enforceSuccessResponses(fiscalIdempotency(s, m)))))))
+}
+
+func (h *Handler) deviceActivationLookup(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		problem(w, 405, "METHOD_NOT_ALLOWED")
+		return
+	}
+	v, e := h.svc.LookupDeviceActivation(r.URL.Query().Get("user_code"))
+	if e != nil {
+		problem(w, 404, "ACTIVATION_REQUEST_NOT_FOUND")
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	write(w, 200, v)
+}
+
+func decodeStrict(w http.ResponseWriter, r *http.Request, v any) bool {
+	body, err := io.ReadAll(http.MaxBytesReader(w, r.Body, 1<<20))
+	if err != nil {
+		problem(w, 400, "INVALID_BODY")
+		return false
+	}
+	d := json.NewDecoder(bytes.NewReader(body))
+	d.DisallowUnknownFields()
+	if d.Decode(v) != nil || d.Decode(&struct{}{}) != io.EOF {
+		problem(w, 422, "REQUEST_INVALID")
+		return false
+	}
+	return true
+}
+func (h *Handler) deviceBootstrapChallenge(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		problem(w, 405, "METHOD_NOT_ALLOWED")
+		return
+	}
+	var in struct {
+		DeviceInstanceID string `json:"device_instance_id"`
+	}
+	if !decodeStrict(w, r, &in) {
+		return
+	}
+	v, e := h.svc.NewDeviceActivationChallenge(in.DeviceInstanceID)
+	if e != nil {
+		problem(w, 422, "ACTIVATION_CHALLENGE_REJECTED")
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	write(w, 201, v)
+}
+func (h *Handler) deviceBootstrapCreate(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		problem(w, 405, "METHOD_NOT_ALLOWED")
+		return
+	}
+	var in domain.CreateDeviceActivationInput
+	if !decodeStrict(w, r, &in) {
+		return
+	}
+	v, e := h.svc.CreateDeviceActivation(in)
+	if e != nil {
+		problem(w, 409, "ACTIVATION_REQUEST_REJECTED")
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	write(w, 201, v)
+}
+func (h *Handler) deviceBootstrapCredential(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || !strings.HasSuffix(r.URL.Path, "/credential") {
+		problem(w, 404, "NOT_FOUND")
+		return
+	}
+	id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/device-bootstrap/v1/activation-requests/"), "/credential")
+	var in struct {
+		RequestSecret string `json:"request_secret"`
+		Nonce         string `json:"nonce"`
+		Signature     string `json:"signature"`
+	}
+	if id == "" || !decodeStrict(w, r, &in) {
+		return
+	}
+	v, e := h.svc.IssueDeviceActivationCredential(id, in.RequestSecret, in.Nonce, in.Signature)
+	if e != nil {
+		code := "ACTIVATION_CREDENTIAL_DENIED"
+		status := 403
+		if strings.Contains(e.Error(), "issuer unavailable") {
+			code = "ACTIVATION_CREDENTIAL_PENDING"
+			status = 503
+		}
+		problem(w, status, code)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	write(w, 201, v)
+}
+func (h *Handler) deviceActivationConfirmation(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || !strings.HasSuffix(r.URL.Path, ":confirm") {
+		problem(w, 404, "NOT_FOUND")
+		return
+	}
+	id := strings.TrimSuffix(strings.TrimPrefix(r.URL.Path, "/public/v1/device-activation-requests/"), ":confirm")
+	body, ok := readBody(w, r)
+	if !ok {
+		return
+	}
+	if h.replay(w, r, body) {
+		return
+	}
+	var in domain.ConfirmDeviceActivationInput
+	d := json.NewDecoder(bytes.NewReader(body))
+	d.DisallowUnknownFields()
+	if id == "" || d.Decode(&in) != nil {
+		problem(w, 422, "ACTIVATION_CONFIRMATION_INVALID")
+		return
+	}
+	in.ActorSubject = actorSubject(r)
+	v, e := h.svc.ConfirmDeviceActivation(id, in, tenantID(r))
+	if e != nil {
+		problem(w, 409, "ACTIVATION_CONFIRMATION_REJECTED")
+		return
+	}
+	h.saveReplay(w, r, body, 200, domain.DeviceActivationPublicView(v))
 }
 
 func (h *Handler) workstation(w http.ResponseWriter, r *http.Request) {
@@ -1350,6 +1476,31 @@ func (h *Handler) operation(w http.ResponseWriter, r *http.Request) {
 }
 func (h *Handler) device(w http.ResponseWriter, r *http.Request) {
 	p := strings.Trim(strings.TrimPrefix(r.URL.Path, "/public/v1/devices/"), "/")
+	if strings.HasSuffix(p, ":disconnect") {
+		if r.Method != http.MethodPost {
+			problem(w, 405, "METHOD_NOT_ALLOWED")
+			return
+		}
+		id := strings.TrimSuffix(p, ":disconnect")
+		body, ok := readBody(w, r)
+		if !ok {
+			return
+		}
+		if h.replay(w, r, body) {
+			return
+		}
+		if id == "" || string(bytes.TrimSpace(body)) != "{}" {
+			problem(w, 422, "DEVICE_DISCONNECT_INVALID")
+			return
+		}
+		v, e := h.svc.DisconnectSmartDevice(id, tenantID(r), actorSubject(r))
+		if e != nil {
+			problem(w, 409, "DEVICE_DISCONNECT_REJECTED")
+			return
+		}
+		h.saveReplay(w, r, body, 200, v)
+		return
+	}
 	parts := strings.Split(p, "/")
 	if len(parts) == 1 {
 		if r.Method == "GET" {

@@ -5,6 +5,7 @@ import (
 	"errors"
 	"log"
 	"net/http"
+	"os"
 	"os/signal"
 	"syscall"
 	"time"
@@ -40,12 +41,34 @@ func main() {
 		}
 		repo = persistent
 	}
-	svc := domain.NewService(repo, domain.NewSimulatorWithCardTerminal(cfg.AllowStubAdapters, cfg.SimulatorCardTerminalAvailable))
+	var driver domain.Driver = domain.NewSimulatorWithCardTerminal(cfg.AllowStubAdapters, cfg.SimulatorCardTerminalAvailable)
+	var mqttBridge *mqttclient.Bridge
+	if cfg.EMQXBroker != "" {
+		mqttBridge = mqttclient.NewBridge(cfg.BLESigningKey, repo)
+		driver = mqttBridge
+	}
+	svc := domain.NewService(repo, driver)
+	svc.SetRequireHardwareSyncSignatures(cfg.AppEnv == "prod" || cfg.EMQXBroker != "")
 	svc.SetBLESigningKey(cfg.BLESigningKey)
+	if cfg.DeviceCACertFile != "" || cfg.DeviceCAKeyFile != "" {
+		cert, certErr := os.ReadFile(cfg.DeviceCACertFile)
+		if certErr != nil {
+			log.Fatal(certErr)
+		}
+		key, keyErr := os.ReadFile(cfg.DeviceCAKeyFile)
+		if keyErr != nil {
+			log.Fatal(keyErr)
+		}
+		issuer, issuerErr := domain.NewX509DeviceCredentialIssuer(cert, key, cfg.DeviceMQTTTLSURI, cfg.DeviceMQTTWSSURI, cfg.BLESigningKey)
+		if issuerErr != nil {
+			log.Fatal(issuerErr)
+		}
+		svc.SetDeviceCredentialIssuer(issuer)
+	}
 	srv := &http.Server{Addr: cfg.HTTPAddr, Handler: api.NewHandler(svc, cfg), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
-	mqttCleanup, err := mqttclient.Start(ctx, cfg, log.Default())
+	mqttCleanup, err := mqttclient.Start(ctx, cfg, log.Default(), svc, mqttBridge)
 	if err != nil {
 		log.Fatal(err)
 	}

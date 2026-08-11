@@ -155,12 +155,12 @@ location=$(request POST "$fiscal/locations" fiscal-location-0001 '{"code":"E2E-S
 location_id=$(printf '%s' "$location" | jq -er .id)
 register=$(request POST "$fiscal/registers" fiscal-register-0001 "{\"location_id\":\"$location_id\",\"code\":\"E2E-R01\",\"status\":\"ACTIVE\"}")
 register_id=$(printf '%s' "$register" | jq -er .id)
-device=$(request POST "$fiscal/devices" fiscal-device-00001 '{"kind":"FISCAL_DEVICE","vendor":"Datecs","model":"DP-150 MX","serial":"E2E-DP150-001","status":"DRAFT","environment":"DEV","simulated":true}')
+device=$(request POST "$fiscal/devices" fiscal-device-00001 '{"kind":"FISCAL_DEVICE","vendor":"Datecs","model":"DP-150 MX","serial":"E2E-DP150-001","fiscal_device_number":"DT000001","fiscal_memory_number":"00000001","status":"DRAFT","environment":"DEV","simulated":true}')
 device_id=$(printf '%s' "$device" | jq -er .id)
 device_version=$(printf '%s' "$device" | jq -er .version)
-device=$(request PATCH "$fiscal/devices/$device_id" fiscal-device-pending-0001 '{"kind":"FISCAL_DEVICE","vendor":"Datecs","model":"DP-150 MX","serial":"E2E-DP150-001","status":"PENDING_SERVICE_ACTIVATION","environment":"DEV","simulated":true}' "$device_version")
+device=$(request PATCH "$fiscal/devices/$device_id" fiscal-device-pending-0001 '{"kind":"FISCAL_DEVICE","vendor":"Datecs","model":"DP-150 MX","serial":"E2E-DP150-001","fiscal_device_number":"DT000001","fiscal_memory_number":"00000001","status":"PENDING_SERVICE_ACTIVATION","environment":"DEV","simulated":true}' "$device_version")
 device_version=$(printf '%s' "$device" | jq -er .version)
-device=$(request PATCH "$fiscal/devices/$device_id" fiscal-device-active-00001 '{"kind":"FISCAL_DEVICE","vendor":"Datecs","model":"DP-150 MX","serial":"E2E-DP150-001","status":"ACTIVE","environment":"DEV","simulated":true}' "$device_version")
+device=$(request PATCH "$fiscal/devices/$device_id" fiscal-device-active-00001 '{"kind":"FISCAL_DEVICE","vendor":"Datecs","model":"DP-150 MX","serial":"E2E-DP150-001","fiscal_device_number":"DT000001","fiscal_memory_number":"00000001","status":"ACTIVE","environment":"DEV","simulated":true}' "$device_version")
 binding=$(request POST "$fiscal/registers/$register_id/bindings" fiscal-binding-0001 "{\"device_id\":\"$device_id\",\"role\":\"FISCAL_DEVICE\"}")
 assert_json_eq "$binding" .role FISCAL_DEVICE
 step="provision and bind simulated optional payment terminal"

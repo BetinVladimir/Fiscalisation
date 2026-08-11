@@ -323,6 +323,8 @@ select collection,entity_key,payload from (
   union all select 'unp',tenant_id||E'\n'||register_id,to_jsonb(last_sequence),'0' from fiscal_runtime_unp_sequences
   union all select 'artifacts',tenant_id||E'\n'||id,to_jsonb(encode(body,'base64')),'0' from fiscal_runtime_artifacts
   union all select 'sync_acks',tenant_id||E'\n'||edge_id,payload,'0' from fiscal_runtime_sync_acks
+  union all select 'activation_challenges',activation_challenge_id::text,payload,'0' from fiscal_device_activation_challenges
+  union all select 'activation_requests',activation_request_id::text,payload,'0' from fiscal_device_activation_requests
 ) typed where payload is not null order by collection,ordering,entity_key`)
 	if err != nil {
 		return nil, err
@@ -360,6 +362,8 @@ func fiscalTypedCoverageComplete(tx *sql.Tx) (bool, error) {
   (s.collection='unp' and exists(select 1 from fiscal_runtime_unp_sequences t where t.tenant_id||E'\n'||t.register_id=s.entity_key and to_jsonb(t.last_sequence)=s.payload)) or
   (s.collection='artifacts' and exists(select 1 from fiscal_runtime_artifacts t where t.tenant_id||E'\n'||t.id=s.entity_key and to_jsonb(encode(t.body,'base64'))=s.payload)) or
   (s.collection='sync_acks' and exists(select 1 from fiscal_runtime_sync_acks t where t.tenant_id||E'\n'||t.edge_id=s.entity_key and t.payload=s.payload))
+  or (s.collection='activation_challenges' and exists(select 1 from fiscal_device_activation_challenges t where t.activation_challenge_id::text=s.entity_key and t.payload=s.payload))
+  or (s.collection='activation_requests' and exists(select 1 from fiscal_device_activation_requests t where t.activation_request_id::text=s.entity_key and t.payload=s.payload))
 )`).Scan(&missing)
 	return missing == 0, err
 }
@@ -602,6 +606,14 @@ func (p *Postgres) LoadTenantEntities(collection, tenant string) ([][]byte, erro
 func stateRowID(collection, key string) string { return collection + "\x00" + key }
 
 func deleteTypedProjection(tx *sql.Tx, row stateRow) error {
+	if row.Collection == "activation_challenges" {
+		_, err := tx.Exec(`delete from fiscal_device_activation_challenges where activation_challenge_id=$1`, row.Key)
+		return err
+	}
+	if row.Collection == "activation_requests" {
+		_, err := tx.Exec(`delete from fiscal_device_activation_requests where activation_request_id=$1`, row.Key)
+		return err
+	}
 	if row.Collection == "sync_acks" {
 		parts := strings.SplitN(row.Key, "\n", 2)
 		if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
@@ -690,6 +702,14 @@ func deleteTypedProjection(tx *sql.Tx, row stateRow) error {
 	})
 }
 func upsertTypedProjection(tx *sql.Tx, row stateRow) error {
+	if row.Collection == "activation_challenges" {
+		_, err := tx.Exec(`insert into fiscal_device_activation_challenges(activation_challenge_id,device_instance_id,nonce_hash,expires_at,consumed_at,created_at,payload) values($1,($2::jsonb->>'device_instance_id')::uuid,$2::jsonb->>'nonce_hash',($2::jsonb->>'expires_at')::timestamptz,nullif($2::jsonb->>'consumed_at','')::timestamptz,($2::jsonb->>'created_at')::timestamptz,$2::jsonb) on conflict(activation_challenge_id) do update set consumed_at=excluded.consumed_at,payload=excluded.payload where fiscal_device_activation_challenges is distinct from excluded`, row.Key, string(row.Payload))
+		return err
+	}
+	if row.Collection == "activation_requests" {
+		_, err := tx.Exec(`insert into fiscal_device_activation_requests(activation_request_id,device_instance_id,request_secret_hash,user_code_hash,device_key_thumbprint,state,claimed_tenant_id,claimed_location_id,claimed_register_id,binding_version,expires_at,created_at,updated_at,payload) values($1,($2::jsonb->>'device_instance_id')::uuid,$2::jsonb->>'request_secret_hash',$2::jsonb->>'user_code_hash',$2::jsonb->>'device_key_thumbprint',$2::jsonb->>'state',nullif($2::jsonb->>'claimed_tenant_id',''),nullif($2::jsonb->>'claimed_location_id',''),nullif($2::jsonb->>'claimed_register_id',''),nullif($2::jsonb->>'binding_version','')::bigint,($2::jsonb->>'expires_at')::timestamptz,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(activation_request_id) do update set state=excluded.state,claimed_tenant_id=excluded.claimed_tenant_id,claimed_location_id=excluded.claimed_location_id,claimed_register_id=excluded.claimed_register_id,binding_version=excluded.binding_version,updated_at=excluded.updated_at,payload=excluded.payload where fiscal_device_activation_requests is distinct from excluded`, row.Key, string(row.Payload))
+		return err
+	}
 	if row.Collection == "unp" || row.Collection == "artifacts" || row.Collection == "sync_acks" {
 		parts := strings.SplitN(row.Key, "\n", 2)
 		if len(parts) != 2 || parts[0] == "" || parts[1] == "" {
@@ -835,6 +855,7 @@ var mapCollections = map[string]bool{
 	"unp": true, "replays": true, "outbox": true, "ble_sessions": true,
 	"sync_acks": true, "connectivity_probes": true, "resources": true,
 	"artifacts": true, "edge_pending": true,
+	"activation_challenges": true, "activation_requests": true,
 }
 
 func flattenSnapshot(raw []byte) ([]stateRow, error) {

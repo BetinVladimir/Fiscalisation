@@ -27,6 +27,7 @@ type PaymentRecord struct {
 }
 type FiscalDeviceSnapshot struct {
 	DeviceID           string `json:"device_id"`
+	BindingVersion     int64  `json:"binding_version,omitempty"`
 	Serial             string `json:"serial,omitempty"`
 	FiscalDeviceNumber string `json:"fiscal_device_number,omitempty"`
 	FiscalMemoryNumber string `json:"fiscal_memory_number,omitempty"`
@@ -113,6 +114,8 @@ type Operation struct {
 	FiscalReference         string    `json:"fiscal_reference,omitempty"`
 	OriginalFiscalReference string    `json:"original_fiscal_reference,omitempty"`
 	ReasonCode              string    `json:"reason_code,omitempty"`
+	OriginalDocumentNumber  int64     `json:"original_document_number,omitempty"`
+	OriginalDocumentAt      time.Time `json:"original_document_at,omitempty"`
 	Simulated               bool      `json:"simulated"`
 	ErrorCode               string    `json:"error_code,omitempty"`
 	AllowedActions          []string  `json:"allowed_actions"`

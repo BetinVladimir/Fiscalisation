@@ -206,3 +206,30 @@ func TestOfflineFiscalSaleMaterializesAcrossSeparateSyncBatches(t *testing.T) {
 		t.Fatalf("offline webhook missing: %#v", pending)
 	}
 }
+
+func TestReversedEventMaterializesSaleAndWebhook(t *testing.T) {
+	key := []byte("01234567890123456789012345678901")
+	repo := NewMemoryRepository()
+	now := time.Date(2026, 8, 7, 9, 0, 0, 0, time.UTC)
+	sale := Sale{ID: "sale-reverse", TenantID: "tenant-1", ExternalID: "order-reverse", RegisterID: "register-1", OperatorID: "A001", UNP: "DY000600-A001-0000011", State: "FISCALIZATION_PENDING", Version: 4, FiscalOperationID: "original-op", CreatedAt: now, UpdatedAt: now}
+	if err := repo.PutSale(sale); err != nil {
+		t.Fatal(err)
+	}
+	s := NewService(repo, NewSimulator(true))
+	s.SetBLESigningKey(string(key))
+	accepted := DeviceEventEnvelope{EventID: "accepted-reverse", OperationID: "reversal-op", DeviceID: "device-1", EventType: "ACCEPTED", OccurredAt: "2026-08-07T10:00:01Z", Payload: map[string]any{"operation_sequence": float64(12), "unp_sequence": float64(11), "command": map[string]any{"operation_id": "reversal-op", "tenant_id": "tenant-1", "register_id": "register-1", "device_id": "device-1", "command_type": "REVERSAL", "payload": map[string]any{"server_sale_id": "sale-reverse", "reason_code": "CUSTOMER_RETURN"}}}}
+	reversed := DeviceEventEnvelope{EventID: "result-reverse", OperationID: "reversal-op", DeviceID: "device-1", EventType: "REVERSED", OccurredAt: "2026-08-07T10:00:02Z", Payload: map[string]any{"state": "REVERSED", "fiscal_reference": "270"}}
+	ack, err := s.SyncBatchForTenant("tenant-1", signCustomBatch("edge-1", 1, nil, []DeviceEventEnvelope{accepted, reversed}, key))
+	if err != nil || ack.CommittedThroughSeq != 2 {
+		t.Fatal(ack, err)
+	}
+	stored, _ := repo.Sale(sale.ID)
+	op, _ := repo.Operation("reversal-op")
+	if stored.State != "CANCELLED" || op.State != "FISCALIZED" || op.Type != "REVERSAL" || op.FiscalReference != "270" {
+		t.Fatalf("reversal not materialized: sale=%+v op=%+v", stored, op)
+	}
+	hooks := repo.PendingOutbox(time.Now().UTC())
+	if len(hooks) != 1 || hooks[0].Event.EventType != "fiscal.operation.succeeded" {
+		t.Fatalf("reversal webhook missing: %#v", hooks)
+	}
+}

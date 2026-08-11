@@ -1,14 +1,17 @@
 package domain
 
 import (
+	"crypto/ecdsa"
 	"crypto/hmac"
 	"crypto/sha256"
+	"crypto/x509"
 	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"math"
 	"sort"
+	"strings"
 	"time"
 )
 
@@ -72,16 +75,16 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 	if providedPrevious != expectedPrevious || EdgeBatchHash(v) != v.BatchSHA256 {
 		return SyncAck{}, errors.New("batch hash chain mismatch")
 	}
-	sig, err := base64.RawURLEncoding.DecodeString(v.Signature)
-	if err != nil {
-		return SyncAck{}, errors.New("invalid batch signature")
-	}
-	m := hmac.New(sha256.New, s.bleSigningKey)
-	m.Write([]byte(v.BatchSHA256))
-	if !hmac.Equal(sig, m.Sum(nil)) {
+	hardwareKey, hardwareKID, hardwareErr := s.deviceTransactionSigningKey(tenant, v.EdgeID)
+	if tenant != "" && s.requireHardwareSyncSignatures {
+		if hardwareErr != nil || !verifyDeviceSignature(hardwareKey, hardwareKID, v.BatchSHA256, v.Signature) {
+			return SyncAck{}, errors.New("invalid batch signature")
+		}
+	} else if !s.verifyLegacySyncHMAC(v.BatchSHA256, v.Signature) {
 		return SyncAck{}, errors.New("invalid batch signature")
 	}
 	previousHash := expectedPrevious
+	var err error
 	resultsByOperation := map[string]SyncOperationResult{}
 	pendingByOperation := map[string]EdgePendingCommand{}
 	pendingUpserts := []EdgePendingCommand{}
@@ -90,11 +93,14 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 	operations := []Operation{}
 	artifacts := map[string][]byte{}
 	outbox := []OutboxItem{}
-	allowed := map[string]bool{"ACCEPTED": true, "EXECUTING": true, "FISCALIZED": true, "FAILED": true, "UNKNOWN": true, "SNAPSHOT": true, "SYNC_BATCH": true}
+	allowed := map[string]bool{"ACCEPTED": true, "EXECUTING": true, "FISCALIZED": true, "REVERSED": true, "FAILED": true, "UNKNOWN": true, "SNAPSHOT": true, "SYNC_BATCH": true}
 	for i, event := range v.Events {
 		occurredAt, occurredErr := time.Parse(time.RFC3339Nano, event.OccurredAt)
-		if event.JournalSeq != v.FirstSeq+int64(i) || event.EventID == "" || event.OperationID == "" || event.DeviceID == "" || event.Payload == nil || !allowed[event.EventType] || occurredErr != nil || occurredAt.After(time.Now().UTC().Add(2*time.Minute)) || DeviceEventHash(event) != event.EventHash {
+		if event.JournalSeq != v.FirstSeq+int64(i) || event.EventID == "" || event.OperationID == "" || event.DeviceID == "" || (s.requireHardwareSyncSignatures && event.DeviceID != v.EdgeID) || event.Payload == nil || !allowed[event.EventType] || occurredErr != nil || occurredAt.After(time.Now().UTC().Add(2*time.Minute)) || DeviceEventHash(event) != event.EventHash {
 			return SyncAck{}, errors.New("invalid sync event")
+		}
+		if tenant != "" && s.requireHardwareSyncSignatures && (event.Signature == nil || !verifyDeviceSignature(hardwareKey, hardwareKID, event.EventHash, *event.Signature)) {
+			return SyncAck{}, errors.New("invalid event signature")
 		}
 		gotPrevious := ""
 		if event.PrevHash != nil {
@@ -118,7 +124,7 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 				pendingUpserts = append(pendingUpserts, pending)
 			}
 		}
-		if event.EventType == "FISCALIZED" || event.EventType == "UNKNOWN" || event.EventType == "FAILED" {
+		if event.EventType == "FISCALIZED" || event.EventType == "REVERSED" || event.EventType == "UNKNOWN" || event.EventType == "FAILED" {
 			pending, ok := pendingByOperation[event.OperationID]
 			if !ok {
 				pending, err = s.repo.EdgePendingCommand(event.OperationID, tenant)
@@ -151,10 +157,63 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 	now := time.Now().UTC()
 	ack := SyncAck{AckID: newID("ack"), EdgeID: v.EdgeID, CommittedThroughSeq: v.LastSeq, CommittedEventHash: previousHash, CommittedAt: now, OperationResults: results, Rejected: []map[string]any{}}
 	b, _ := json.Marshal(ack)
-	m = hmac.New(sha256.New, s.bleSigningKey)
+	ackKey := s.bleSigningKey
+	if device, deviceErr := s.repo.Resource("device", v.EdgeID); deviceErr == nil {
+		if credentialID, _ := device.Data["credential_id"].(string); credentialID != "" {
+			ackKey = DeriveDeviceTransportKey(s.bleSigningKey, "sync-ack", v.EdgeID, credentialID)
+		}
+	}
+	m := hmac.New(sha256.New, ackKey)
 	m.Write(b)
 	ack.Signature = base64.RawURLEncoding.EncodeToString(m.Sum(nil))
 	return ack, s.repo.CommitEdgeSync(tenant, ack, sales, operations, artifacts, outbox, pendingUpserts, completedPending)
+}
+
+func (s *Service) verifyLegacySyncHMAC(hash, signature string) bool {
+	if len(s.bleSigningKey) < 16 {
+		return false
+	}
+	sig, err := base64.RawURLEncoding.DecodeString(signature)
+	if err != nil {
+		return false
+	}
+	m := hmac.New(sha256.New, s.bleSigningKey)
+	m.Write([]byte(hash))
+	return hmac.Equal(sig, m.Sum(nil))
+}
+func (s *Service) deviceTransactionSigningKey(tenant, deviceID string) (*ecdsa.PublicKey, string, error) {
+	device, err := s.repo.Resource("device", deviceID)
+	if err != nil || device.Kind != "device" || device.TenantID != tenant {
+		return nil, "", errors.New("device signing key unavailable")
+	}
+	encoded, _ := device.Data["transaction_signing_public_key"].(string)
+	kid, _ := device.Data["transaction_signing_kid"].(string)
+	der, err := base64.RawURLEncoding.DecodeString(encoded)
+	if err != nil || kid == "" {
+		return nil, "", errors.New("device signing key unavailable")
+	}
+	parsed, err := x509.ParsePKIXPublicKey(der)
+	key, ok := parsed.(*ecdsa.PublicKey)
+	if err != nil || !ok || key.Curve.Params().Name != "P-256" {
+		return nil, "", errors.New("device signing key invalid")
+	}
+	return key, kid, nil
+}
+func verifyDeviceSignature(key *ecdsa.PublicKey, kid, hash, signature string) bool {
+	parts := strings.SplitN(signature, ":", 2)
+	if key == nil || len(parts) != 2 || parts[0] != kid {
+		return false
+	}
+	digest, err := hex.DecodeString(hash)
+	if err != nil || len(digest) != 32 {
+		return false
+	}
+	sig, err := base64.RawURLEncoding.DecodeString(parts[1])
+	if err != nil {
+		return false
+	}
+	double := sha256.Sum256(digest)
+	return ecdsa.VerifyASN1(key, double[:], sig)
 }
 
 type offlineSalePayload struct {
@@ -179,7 +238,7 @@ func pendingCommandFromEvent(event DeviceEventEnvelope) (EdgePendingCommand, boo
 	if err != nil {
 		return EdgePendingCommand{}, false
 	}
-	v := EdgePendingCommand{OperationID: stringAny(command, "command_id", "CommandID"), TenantID: stringAny(command, "tenant_id", "TenantID"), RegisterID: stringAny(command, "register_id", "RegisterID"), DeviceID: stringAny(command, "device_id", "DeviceID"), CommandType: stringAny(command, "type", "Type"), Payload: payload, OperationSequence: intAny(event.Payload, "operation_sequence", "OperationSequence"), UNPSequence: intAny(event.Payload, "unp_sequence", "UNPSequence"), AcceptedAt: acceptedAt}
+	v := EdgePendingCommand{OperationID: stringAny(command, "operation_id", "OperationID", "command_id", "CommandID"), TenantID: stringAny(command, "tenant_id", "TenantID"), RegisterID: stringAny(command, "register_id", "RegisterID"), DeviceID: stringAny(command, "device_id", "DeviceID"), CommandType: stringAny(command, "command_type", "CommandType", "type", "Type"), Payload: payload, OperationSequence: intAny(event.Payload, "operation_sequence", "OperationSequence"), UNPSequence: intAny(event.Payload, "unp_sequence", "UNPSequence"), AcceptedAt: acceptedAt}
 	if v.OperationID != event.OperationID || v.TenantID == "" || v.RegisterID == "" || v.DeviceID != event.DeviceID || v.CommandType == "" || v.OperationSequence < 1 || v.UNPSequence < 1 {
 		return EdgePendingCommand{}, false
 	}
@@ -197,6 +256,36 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 	}
 	ref := stringAny(event.Payload, "fiscal_reference", "FiscalReference")
 	op := Operation{ID: p.OperationID, TenantID: p.TenantID, RegisterID: p.RegisterID, Type: p.CommandType, State: state, Version: event.JournalSeq, FiscalReference: ref, Simulated: false, AllowedActions: []string{}, CreatedAt: p.AcceptedAt, UpdatedAt: finishedAt}
+	if p.CommandType == "REVERSAL" {
+		saleID := stringAny(p.Payload, "server_sale_id", "SaleID")
+		sale, saleErr := s.repo.Sale(saleID)
+		if saleErr != nil || sale.TenantID != p.TenantID {
+			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("reversal sale not found")
+		}
+		op.SaleID = sale.ID
+		op.ReasonCode = stringAny(p.Payload, "reason_code")
+		if event.EventType == "REVERSED" {
+			op.State = "FISCALIZED"
+			sale.State = "CANCELLED"
+		} else if event.EventType == "FAILED" {
+			sale.State = "COMPLETED"
+		} else {
+			sale.State = "UNKNOWN"
+			op.State = "UNKNOWN"
+			op.ErrorCode = stringAny(event.Payload, "error_code", "ErrorCode")
+			op.AllowedActions = []string{"RECONCILE"}
+		}
+		sale.Version++
+		sale.UpdatedAt = finishedAt
+		eventType := "fiscal.operation.failed"
+		if event.EventType == "REVERSED" {
+			eventType = "fiscal.operation.succeeded"
+		} else if event.EventType == "UNKNOWN" {
+			eventType = "fiscal.operation.reconciliation_required"
+		}
+		hookEvent := WebhookEvent{EventID: "event-edge-" + op.ID + "-" + event.EventType, EventType: eventType, APIVersion: "2026-08-07", TenantID: p.TenantID, ResourceID: sale.ID, ResourceVersion: op.Version, OccurredAt: finishedAt, Data: map[string]any{"state": op.State, "operation_id": op.ID, "sale_id": sale.ID, "external_id": sale.ExternalID, "fiscal_reference": ref, "error_code": op.ErrorCode}}
+		return sale, op, "", nil, OutboxItem{ID: hookEvent.EventID, Event: hookEvent, NextAttempt: finishedAt}, nil
+	}
 	if state == "UNKNOWN" {
 		op.ErrorCode = stringAny(event.Payload, "error_code", "ErrorCode")
 		op.AllowedActions = []string{"RECONCILE"}

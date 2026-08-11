@@ -20,3 +20,6 @@ This document records decisions that cannot be implemented safely from the locke
 **Implemented acceptance evidence:** generated clients for all runtime operations; ADMIN-only/shared-account rejection; cross-employee/cross-tenant/app-instance rejection; expiry and durable logout/restart tests; typed PostgreSQL/RLS evidence; Android/iOS/Web builds; real browser PROD fail-closed test. Still required externally: a real passwordless IdP login and IdP-initiated revoke/expiry run on target devices.
 
 **Forbidden workaround:** a local PIN, hard-coded OTP, employee picker presented as login, shared bearer token, or DEV response that exposes an OTP in PROD.
+## P0-BLUECASH-043 — Vendor conflict for physical storno
+
+The supplied BlueCash fiscal demo executes `open_StornoReceiptAsync`, but `PM_XXXXXX-BUL_CommunicationProtocol_v2.11.4 (7).pdf` states below command 43 that it is not used on BC-50. Obtain Datecs confirmation of the supported in-device Android SDK/wire path and run physical CASH/CARD storno HIL (success, decline, timeout, crash after card reversal, crash after fiscal close) before PROD. The implemented software contour remains fail-closed and must not waive this gate.

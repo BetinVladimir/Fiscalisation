@@ -11,6 +11,15 @@ services:
       OIDC_JWKS_URL: "${OIDC_JWKS_URL:?required}"
       BLE_SIGNING_KEY: "${BLE_SIGNING_KEY:?required}"
       WEBHOOK_SIGNING_KEY: "${WEBHOOK_SIGNING_KEY:?required}"
+      EMQX_BROKER: "${EMQX_BROKER:?required}"
+      EMQX_CLIENT_ID: "${EMQX_CLIENT_ID:-beefiscal-backend}"
+      EMQX_USERNAME: "${EMQX_USERNAME:?required}"
+      EMQX_TOKEN: "${EMQX_TOKEN:?required}"
+      EMQX_SUB_TOPICS: "tenants/+/devices/+/sync/batches/+,beefiscal/v1/devices/+/activation"
+      DEVICE_CA_CERT_FILE: "/run/beefiscal/device-pki/device-ca.crt"
+      DEVICE_CA_KEY_FILE: "/run/beefiscal/device-pki/device-ca.key"
+      DEVICE_MQTT_TLS_URI: "${DEVICE_MQTT_TLS_URI:?required}"
+      DEVICE_MQTT_WSS_URI: "${DEVICE_MQTT_WSS_URI:?required}"
     read_only: true
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]

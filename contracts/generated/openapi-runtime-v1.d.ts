@@ -4,6 +4,104 @@
  */
 
 export interface paths {
+    "/device-bootstrap/v1/challenges": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createDeviceActivationChallenge"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/device-bootstrap/v1/activation-requests": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["createDeviceActivationRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/device-bootstrap/v1/activation-requests/{activation_request_id}/credential": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["issueDeviceActivationCredential"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/device-activation-requests/{activation_request_id}:confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["confirmDeviceActivationRequest"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/device-activation-requests:lookup": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Resolves a pending tenantless request by its one-time human verification code. Requires tenant ADMIN authority but never exposes tenant claims or bootstrap secrets. */
+        get: operations["lookupPendingDeviceActivationRequest"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/devices/{device_id}:disconnect": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Atomically revokes the device credential and active BLE sessions and removes fiscal/payment bindings from the tenant register. */
+        post: operations["disconnectSmartDevice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/devices/{device_id}/activation-tokens": {
         parameters: {
             query?: never;
@@ -508,6 +606,161 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        DeviceActivationChallengeRequest: {
+            /** Format: uuid */
+            device_instance_id: string;
+        };
+        DeviceActivationChallenge: {
+            /** Format: uuid */
+            challenge_id: string;
+            challenge: string;
+            /** Format: date-time */
+            expires_at: string;
+        };
+        CreateDeviceActivationRequest: {
+            /** Format: uuid */
+            challenge_id: string;
+            challenge: string;
+            /** Format: uuid */
+            device_instance_id: string;
+            device_public_key_jwk: {
+                /** @constant */
+                kty: "EC";
+                /** @constant */
+                crv: "P-256";
+                x: string;
+                y: string;
+            };
+            /** @enum {string} */
+            vendor: "DATECS" | "DAISY";
+            model: string;
+            serial: string;
+            fmin: string;
+            firmware: string;
+            capability_digest: string;
+            requested_roles: ("FISCAL_DEVICE" | "PAYMENT_TERMINAL")[];
+            signature: string;
+        };
+        CreatedDeviceActivationRequest: {
+            /** Format: uuid */
+            activation_request_id: string;
+            request_secret: string;
+            user_code: string;
+            /** Format: uri */
+            verification_uri: string;
+            /** Format: date-time */
+            expires_at: string;
+            interval: number;
+            /** Format: uuid */
+            device_instance_id: string;
+            vendor: string;
+            model: string;
+            serial_suffix: string;
+            fmin_suffix: string;
+            device_key_thumbprint: string;
+        };
+        ConfirmDeviceActivationRequest: {
+            user_code: string;
+            location_id: string;
+            register_id: string;
+            roles: ("FISCAL_DEVICE" | "PAYMENT_TERMINAL")[];
+        };
+        PendingDeviceActivationRequest: {
+            /** Format: uuid */
+            activation_request_id: string;
+            /** Format: uuid */
+            device_instance_id: string;
+            device_key_thumbprint: string;
+            vendor: string;
+            model: string;
+            serial: string;
+            fmin: string;
+            capability_digest: string;
+            /** @constant */
+            state: "PENDING";
+            requested_roles: ("FISCAL_DEVICE" | "PAYMENT_TERMINAL")[];
+            /** Format: date-time */
+            expires_at: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        DeviceActivationRequest: {
+            /** Format: uuid */
+            activation_request_id: string;
+            /** Format: uuid */
+            device_instance_id: string;
+            device_key_thumbprint: string;
+            vendor: string;
+            model: string;
+            serial: string;
+            fmin: string;
+            capability_digest: string;
+            /** @enum {string} */
+            state: "CONFIRMED" | "CREDENTIAL_ISSUED" | "ACTIVE" | "REVOKED";
+            requested_roles: string[];
+            claimed_tenant_id: string;
+            claimed_location_id: string;
+            claimed_register_id: string;
+            claimed_roles: string[];
+            binding_version: number;
+            /** Format: date-time */
+            expires_at: string;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
+        DeviceActivationCredentialRequest: {
+            request_secret: string;
+            nonce: string;
+            signature: string;
+        };
+        DeviceActivationCredential: {
+            credential_id: string;
+            client_certificate_pem: string;
+            ca_chain_pem: string;
+            mqtt_tls_uri: string;
+            mqtt_wss_uri?: string;
+            binding_signature: string;
+            /** Format: uuid */
+            device_instance_id: string;
+            organization_id: string;
+            location_id: string;
+            register_id: string;
+            roles: ("FISCAL_DEVICE" | "PAYMENT_TERMINAL")[];
+            binding_version: number;
+            /** @description Per-device command verification key returned once inside the key-bound HTTPS credential response */
+            command_hmac_key: string;
+            /** @description Independent per-device sync acknowledgement verification key */
+            sync_ack_hmac_key: string;
+            /** @description Independent per-device verifier for backend-issued direct BLE session tickets */
+            ble_ticket_hmac_key: string;
+            /** @description Server-reserved fiscal identifier prefix; never exposed to the external POS */
+            unp_prefix: string;
+            unp_range_start: number;
+            unp_range_end: number;
+        };
+        DeviceActivationCommit: {
+            /** Format: uuid */
+            activation_request_id: string;
+            credential_id: string;
+            nonce: string;
+            signature: string;
+        };
+        DeviceActivationCommitAck: {
+            activation_request_id: string;
+            device_instance_id: string;
+            /** @constant */
+            state: "ACTIVE";
+            binding_version: number;
+            organization_id: string;
+            location_id: string;
+            register_id: string;
+            roles: string[];
+            signature: string;
+        };
         SmartDeviceActivationTokenRequest: {
             /** Format: uuid */
             location_id: string;
@@ -925,6 +1178,14 @@ export interface components {
                 [key: string]: unknown;
             };
             reason_code?: string;
+            original_document?: components["schemas"]["DatecsOriginalFiscalDocument"];
+        };
+        DatecsOriginalFiscalDocument: {
+            document_number: number;
+            document_datetime: string;
+            fiscal_memory_number: string;
+            invoice_number?: string;
+            invoice_reason?: string;
         };
         ComplianceIntentResult: {
             operation_id: string;
@@ -964,6 +1225,65 @@ export interface components {
             /** @enum {string} */
             state: "NORMAL" | "WARNING" | "HIGH" | "CRITICAL" | "FULL";
         };
+        DeviceCommandEnvelope: {
+            operation_id: string;
+            tenant_id: string;
+            register_id: string;
+            device_id: string;
+            /** @description Immutable register binding version frozen with the sale. */
+            fencing_token: number;
+            /** @enum {string} */
+            command_type: "FISCAL_SALE" | "REVERSAL";
+            /** Format: date-time */
+            issued_at: string;
+            /** Format: date-time */
+            expires_at: string;
+            payload: Record<string, never>;
+            payload_sha256: string;
+            /** @description base64url HMAC-SHA256 over recursively key-sorted JSON envelope without signature. */
+            signature: string;
+        };
+        DeviceEventEnvelope: {
+            event_id: string;
+            operation_id: string;
+            device_id: string;
+            journal_seq: number;
+            /** @enum {string} */
+            event_type: "ACCEPTED" | "EXECUTING" | "FISCALIZED" | "REVERSED" | "FAILED" | "UNKNOWN" | "SNAPSHOT" | "SYNC_BATCH";
+            /** Format: date-time */
+            occurred_at: string;
+            payload: Record<string, never>;
+            prev_hash: string | null;
+            event_hash: string;
+            signature: string;
+        };
+        EdgeSyncBatch: {
+            edge_id: string;
+            /** @constant */
+            schema_version: "2026-08-07";
+            first_seq: number;
+            last_seq: number;
+            previous_acknowledged_hash: string | null;
+            events: components["schemas"]["DeviceEventEnvelope"][];
+            batch_sha256: string;
+            signature: string;
+        };
+        EdgeSyncAcknowledgement: {
+            ack_id: string;
+            edge_id: string;
+            committed_through_seq: number;
+            committed_event_hash: string;
+            /** Format: date-time */
+            committed_at: string;
+            operation_results: {
+                operation_id: string;
+                state: string;
+                version: number;
+            }[];
+            rejected: components["schemas"]["Problem"][];
+            /** @description base64url HMAC-SHA256 over the exact Go JSON acknowledgement with an empty signature field. */
+            signature: string;
+        };
         Problem: {
             status: number;
             code?: string;
@@ -1001,6 +1321,170 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    createDeviceActivationChallenge: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceActivationChallengeRequest"];
+            };
+        };
+        responses: {
+            /** @description One-time attestation challenge */
+            201: {
+                headers: {
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceActivationChallenge"];
+                };
+            };
+            422: components["responses"]["Problem"];
+        };
+    };
+    createDeviceActivationRequest: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CreateDeviceActivationRequest"];
+            };
+        };
+        responses: {
+            /** @description Tenantless pending activation; request_secret is returned exactly once */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CreatedDeviceActivationRequest"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    issueDeviceActivationCredential: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                activation_request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["DeviceActivationCredentialRequest"];
+            };
+        };
+        responses: {
+            /** @description Key-bound MQTT credential and binding */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceActivationCredential"];
+                };
+            };
+            403: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
+        };
+    };
+    confirmDeviceActivationRequest: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                activation_request_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ConfirmDeviceActivationRequest"];
+            };
+        };
+        responses: {
+            /** @description Server-owned tenant binding confirmed */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceActivationRequest"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    lookupPendingDeviceActivationRequest: {
+        parameters: {
+            query: {
+                user_code: string;
+            };
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Redacted pending device identity for operator verification */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PendingDeviceActivationRequest"];
+                };
+            };
+            404: components["responses"]["Problem"];
+        };
+    };
+    disconnectSmartDevice: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Revoked binding */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceActivationRequest"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
     createSmartDeviceActivationToken: {
         parameters: {
             query?: never;
