@@ -126,8 +126,8 @@ enum DatecsCmd : uint16_t {
 // ─── Error Codes (subset most relevant for Arduino use) ───────────────────────
 
 enum DatecsError : int32_t {
-    ERR_OK                    =  0,
-    ERR_TIMEOUT               = -1,   // local: no response within 500 ms
+    DATECS_ERR_OK             =  0,
+    DATECS_ERR_TIMEOUT        = -1,   // local: no response within 500 ms
     ERR_NAK                   = -2,   // local: received NAK (checksum/form error)
     ERR_INVALID_RESPONSE      = -3,   // local: malformed response packet
     ERR_BCC_MISMATCH          = -4,   // local: BCC verification failed
@@ -204,13 +204,13 @@ struct DatecsResponse {
     char         data[DATECS_MAX_DATA_RX + 1]; // null-terminated
     uint16_t     dataLen;
     DatecsStatus status;
-    DatecsError  localError;   // ERR_OK if comms OK; negative if local failure
+    DatecsError  localError;   // DATECS_ERR_OK if comms OK; negative if local failure
     int32_t      deviceError;  // parsed from data field (0 = no error)
 
-    bool ok() const { return localError == ERR_OK && deviceError == 0 && !status.hasError(); }
+    bool ok() const { return localError == DATECS_ERR_OK && deviceError == 0 && !status.hasError(); }
     void clear() {
         seq = 0; cmd = 0; dataLen = 0; data[0] = '\0';
-        status.clear(); localError = ERR_OK; deviceError = 0;
+        status.clear(); localError = DATECS_ERR_OK; deviceError = 0;
     }
 };
 

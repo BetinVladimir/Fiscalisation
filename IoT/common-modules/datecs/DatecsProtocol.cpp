@@ -133,7 +133,7 @@ bool DatecsProtocol::receivePacket(DatecsResponse& resp) {
     while (true) {
         unsigned long elapsed = (unsigned long)(millis() - windowStarted);
         if (elapsed >= _timeout || !_waitByte(firstByte, (uint16_t)(_timeout - elapsed))) {
-            resp.localError = ERR_TIMEOUT;
+            resp.localError = DATECS_ERR_TIMEOUT;
             return false;
         }
         if (firstByte == DATECS_NAK) {
@@ -157,7 +157,7 @@ bool DatecsProtocol::receivePacket(DatecsResponse& resp) {
     unsigned long elapsed = (unsigned long)(millis() - windowStarted);
     uint16_t remaining = elapsed >= _timeout ? 0 : (uint16_t)(_timeout - elapsed);
     if (!_readUntilEOT(remaining)) {
-        resp.localError = _rxOverflow ? ERR_BUFFER_OVERFLOW : ERR_TIMEOUT;
+        resp.localError = _rxOverflow ? ERR_BUFFER_OVERFLOW : DATECS_ERR_TIMEOUT;
         return false;
     }
 
@@ -251,7 +251,7 @@ bool DatecsProtocol::receivePacket(DatecsResponse& resp) {
     // Parse device ErrorCode from data (first integer token)
     resp.deviceError = parseErrorCode(resp.data);
 
-    resp.localError = ERR_OK;
+    resp.localError = DATECS_ERR_OK;
     return true;
 }
 
@@ -286,7 +286,7 @@ bool DatecsProtocol::execute(uint16_t cmd, const char* data,
             return true;
         }
         // On NAK or timeout: retransmit with same SEQ (do NOT advance)
-        if (resp.localError == ERR_NAK || resp.localError == ERR_TIMEOUT) {
+        if (resp.localError == ERR_NAK || resp.localError == DATECS_ERR_TIMEOUT) {
             continue;
         }
         // Other local errors: abort
@@ -311,8 +311,8 @@ int32_t DatecsProtocol::parseErrorCode(const char* data) {
 
 const char* DatecsProtocol::errorString(DatecsError err) {
     switch (err) {
-        case ERR_OK:               return "OK";
-        case ERR_TIMEOUT:          return "Timeout";
+        case DATECS_ERR_OK:        return "OK";
+        case DATECS_ERR_TIMEOUT:   return "Timeout";
         case ERR_NAK:              return "NAK received";
         case ERR_INVALID_RESPONSE: return "Invalid response";
         case ERR_BCC_MISMATCH:     return "BCC mismatch";

@@ -33,7 +33,7 @@ bool DatecsPrinter::_exec(uint16_t cmd, const char* data) {
 }
 
 bool DatecsPrinter::_checkResp() {
-    if (_lastResp.localError != ERR_OK) return false;
+    if (_lastResp.localError != DATECS_ERR_OK) return false;
     if (_lastResp.deviceError < 0) return false;
     // Status error bits that block operation
     if (_lastResp.status.syntaxError())   return false;
@@ -243,7 +243,7 @@ bool DatecsPrinter::readStatus(DatecsStatus& status) {
     // CMD 74: Reading the Status
     if (!_exec(CMD_READ_STATUS)) return false;
     status = _lastResp.status;
-    return _lastResp.localError == ERR_OK;
+    return _lastResp.localError == DATECS_ERR_OK;
 }
 
 bool DatecsPrinter::checkPcMode() {
@@ -289,5 +289,5 @@ bool DatecsPrinter::deviceInfo(char* buf, uint8_t bufLen) {
     if (!buf || bufLen == 0 || !_exec(CMD_DEVICE_INFO, "1\t") || !_checkResp()) return false;
     strncpy(buf, _lastResp.data, bufLen - 1);
     buf[bufLen - 1] = '\0';
-    return _lastResp.localError == ERR_OK;
+    return _lastResp.localError == DATECS_ERR_OK;
 }

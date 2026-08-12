@@ -1,0 +1,12 @@
+{
+  "name": "BeeFiscalProtocolAbstraction",
+  "version": "0.1.0",
+  "description": "Vendor-neutral fiscal device and payment terminal facade",
+  "frameworks": "arduino",
+  "platforms": ["espressif32"],
+  "build": {
+    "includeDir": "include",
+    "srcDir": "src",
+    "srcFilter": "+<*>"
+  }
+}
