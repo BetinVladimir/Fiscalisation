@@ -4,6 +4,134 @@
  */
 
 export interface paths {
+    "/platform/v1/manufacturing/devices:register": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["registerManufacturedDevice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/v1/devices": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listPlatformDevices"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/v1/devices/{device_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getPlatformDevice"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/v1/devices/{device_id}:assign-tenant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["assignPlatformDeviceTenant"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/v1/devices/{device_id}:unassign-tenant": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["unassignPlatformDeviceTenant"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/v1/devices/{device_id}:suspend": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["suspendPlatformDevice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/v1/devices/{device_id}:resume": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["resumePlatformDevice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/platform/v1/devices/{device_id}:retire": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["retirePlatformDevice"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/device-bootstrap/v1/challenges": {
         parameters: {
             query?: never;
@@ -606,6 +734,49 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        /** @description Unpadded base64url of the fixed 64-byte IEEE P1363 ECDSA P-256 signature (r || s) produced by the ESP32-S3 device identity key. */
+        Esp32P256Signature: string;
+        /** @enum {string} */
+        PlatformDeviceState: "MANUFACTURED" | "ASSIGNED" | "DEPLOYED" | "SUSPENDED" | "RETIRED";
+        ManufacturingDeviceRegistration: {
+            serial: string;
+            device_public_key_jwk: {
+                [key: string]: unknown;
+            };
+            hardware_revision: string;
+            firmware_version: string;
+            bootloader_version?: string;
+            manufacturing_batch: string;
+            manufacturing_station_id: string;
+            firmware_sha256: string;
+            registration_evidence_sha256: string;
+            proof: components["schemas"]["Esp32P256Signature"];
+        };
+        PlatformDevice: {
+            /** Format: uuid */
+            id: string;
+            version: number;
+            serial: string;
+            device_public_key_jwk?: Record<string, never>;
+            device_key_thumbprint: string;
+            hardware_revision: string;
+            firmware_version: string;
+            manufacturing_batch: string;
+            state: components["schemas"]["PlatformDeviceState"];
+            tenant_id?: string;
+            binding_version: number;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        } & {
+            [key: string]: unknown;
+        };
+        PlatformDeviceTransition: {
+            tenant_id?: string;
+            reason?: string;
+            version: number;
+        };
         DeviceActivationChallengeRequest: {
             /** Format: uuid */
             device_instance_id: string;
@@ -639,7 +810,7 @@ export interface components {
             firmware: string;
             capability_digest: string;
             requested_roles: ("FISCAL_DEVICE" | "PAYMENT_TERMINAL")[];
-            signature: string;
+            signature: components["schemas"]["Esp32P256Signature"];
         };
         CreatedDeviceActivationRequest: {
             /** Format: uuid */
@@ -715,7 +886,7 @@ export interface components {
         DeviceActivationCredentialRequest: {
             request_secret: string;
             nonce: string;
-            signature: string;
+            signature: components["schemas"]["Esp32P256Signature"];
         };
         DeviceActivationCredential: {
             credential_id: string;
@@ -747,7 +918,7 @@ export interface components {
             activation_request_id: string;
             credential_id: string;
             nonce: string;
-            signature: string;
+            signature: components["schemas"]["Esp32P256Signature"];
         };
         DeviceActivationCommitAck: {
             activation_request_id: string;
@@ -1321,6 +1492,227 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    registerManufacturedDevice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ManufacturingDeviceRegistration"];
+            };
+        };
+        responses: {
+            /** @description Idempotently registered manufactured device */
+            201: {
+                headers: {
+                    "Cache-Control"?: string;
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDevice"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+        };
+    };
+    listPlatformDevices: {
+        parameters: {
+            query?: {
+                state?: components["schemas"]["PlatformDeviceState"];
+                tenant_id?: string;
+                serial?: string;
+            };
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Platform-wide device inventory */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["PlatformDevice"][];
+                    };
+                };
+            };
+        };
+    };
+    getPlatformDevice: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Device registry record */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDevice"];
+                };
+            };
+            404: components["responses"]["Problem"];
+        };
+    };
+    assignPlatformDeviceTenant: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlatformDeviceTransition"];
+            };
+        };
+        responses: {
+            /** @description Assigned device */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDevice"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    unassignPlatformDeviceTenant: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlatformDeviceTransition"];
+            };
+        };
+        responses: {
+            /** @description Unassigned device */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDevice"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    suspendPlatformDevice: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlatformDeviceTransition"];
+            };
+        };
+        responses: {
+            /** @description Suspended device */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDevice"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    resumePlatformDevice: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlatformDeviceTransition"];
+            };
+        };
+        responses: {
+            /** @description Resumed device */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDevice"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    retirePlatformDevice: {
+        parameters: {
+            query?: never;
+            header: {
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["PlatformDeviceTransition"];
+            };
+        };
+        responses: {
+            /** @description Retired device */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["PlatformDevice"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
     createDeviceActivationChallenge: {
         parameters: {
             query?: never;

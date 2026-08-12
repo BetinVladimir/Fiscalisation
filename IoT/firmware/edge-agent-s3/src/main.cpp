@@ -1,6 +1,7 @@
 #include <Arduino.h>
 #include "DeviceProtocolProvider.h"
 #include "EdgeStorage.h"
+#include "Esp32DeviceIdentity.h"
 
 #ifndef EDGE_FISCAL_UART_RX
 #define EDGE_FISCAL_UART_RX 18
@@ -18,6 +19,7 @@ using namespace beefiscal::edge;
 namespace {
 HardwareSerial fiscalSerial(1);
 EdgeStorage storage;
+Esp32DeviceIdentity deviceIdentity;
 std::unique_ptr<IFiscalDevice> fiscalDevice;
 
 void logFailure(const char* component, const StorageResult& result) {
@@ -31,6 +33,15 @@ void setup() {
     Serial.begin(115200);
     delay(250);
     Serial.println("BeeFiscal edge-agent-s3 starting");
+
+    if (!deviceIdentity.begin()) {
+        Serial.println("Device identity initialization failed; networking and commands remain disabled");
+        return;
+    }
+    const String thumbprint = deviceIdentity.publicKeyThumbprint();
+    Serial.printf("Device identity ready (%s), thumbprint suffix=%s\n",
+                  deviceIdentity.generatedOnThisBoot() ? "generated" : "loaded",
+                  thumbprint.substring(thumbprint.length() > 8 ? thumbprint.length() - 8 : 0).c_str());
 
     StorageResult opened = storage.begin();
     if (!opened) {
@@ -60,4 +71,3 @@ void loop() {
     // durable transaction journal. No demo fiscal command is sent on boot.
     delay(1000);
 }
-

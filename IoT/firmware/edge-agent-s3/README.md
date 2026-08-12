@@ -72,9 +72,11 @@ and signatures are persisted separately; signing and verification belong to the
 secure identity/orchestration layer.
 
 The database is not encrypted by SQLite. Do not place tokens or private keys in
-it. Device private keys must remain hardware-backed (for example ATECC608A or
-ESP32 secure hardware facilities), and sensitive payload encryption must be
-implemented above this class when required.
+it. Each device generates its own P-256 identity keypair on ESP32-S3 during
+first initialization. The private key is stored only in encrypted NVS and is
+never exposed by the firmware API; production Flash Encryption and NVS
+Encryption protect its at-rest representation. No ATECC608A or external crypto
+provider is part of this architecture.
 
 ## Remaining hardware decisions
 
@@ -82,5 +84,4 @@ implemented above this class when required.
 - SD interface voltage/pull-ups and whether it supports SD_MMC or only SPI;
 - fiscal UART electrical layer (native TTL versus MAX3232 RS-232);
 - BLE transport instance and BluePad pairing policy;
-- secure boot, flash encryption and hardware-backed signing provisioning.
-
+- secure boot, flash/NVS encryption and ESP32-generated identity provisioning.

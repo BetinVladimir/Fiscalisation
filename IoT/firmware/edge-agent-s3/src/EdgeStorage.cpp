@@ -47,6 +47,55 @@ CREATE INDEX IF NOT EXISTS idx_transaction_journal_retention
   ON transaction_journal(synced_at_unix, created_at_unix);
 INSERT OR IGNORE INTO schema_version(version, applied_at_unix)
 VALUES (1, CAST(strftime('%s','now') AS INTEGER));
+CREATE TABLE IF NOT EXISTS commands (
+  command_id TEXT PRIMARY KEY,
+  sender_id TEXT NOT NULL,
+  sequence INTEGER NOT NULL,
+  payload_digest TEXT NOT NULL,
+  capability_id TEXT NOT NULL,
+  transport TEXT NOT NULL,
+  state TEXT NOT NULL DEFAULT 'RECEIVED',
+  result_code TEXT,
+  device_signature TEXT,
+  received_at_unix INTEGER NOT NULL,
+  completed_at_unix INTEGER,
+  UNIQUE(sender_id, sequence)
+);
+CREATE TABLE IF NOT EXISTS outbox (
+  event_id TEXT PRIMARY KEY,
+  payload TEXT NOT NULL,
+  signature TEXT NOT NULL,
+  attempt_count INTEGER NOT NULL DEFAULT 0,
+  next_attempt_at_unix INTEGER,
+  created_at_unix INTEGER NOT NULL,
+  acknowledged_at_unix INTEGER
+);
+CREATE INDEX IF NOT EXISTS idx_outbox_pending ON outbox(acknowledged_at_unix, created_at_unix);
+CREATE TABLE IF NOT EXISTS replay_window (
+  sender_id TEXT PRIMARY KEY,
+  highest_sequence INTEGER NOT NULL CHECK(highest_sequence >= 0)
+);
+CREATE TABLE IF NOT EXISTS capability_cache (
+  capability_id TEXT PRIMARY KEY,
+  signed_payload TEXT NOT NULL,
+  digest TEXT NOT NULL,
+  expires_at_unix INTEGER NOT NULL,
+  binding_version INTEGER NOT NULL,
+  revoked INTEGER NOT NULL DEFAULT 0
+);
+CREATE TABLE IF NOT EXISTS revocation_cache (
+  revision INTEGER PRIMARY KEY,
+  signed_snapshot TEXT NOT NULL,
+  applied_at_unix INTEGER NOT NULL
+);
+CREATE TABLE IF NOT EXISTS trusted_time_anchor (
+  singleton INTEGER PRIMARY KEY CHECK(singleton=1),
+  server_time_unix INTEGER NOT NULL,
+  monotonic_millis INTEGER NOT NULL,
+  signature_digest TEXT NOT NULL
+);
+INSERT OR IGNORE INTO schema_version(version, applied_at_unix)
+VALUES (2, CAST(strftime('%s','now') AS INTEGER));
 )sql";
 }
 
@@ -196,6 +245,59 @@ StorageResult EdgeStorage::pruneSynced(int64_t now, uint32_t days) {
 }
 
 StorageResult EdgeStorage::checkpoint() { return execute("PRAGMA optimize;"); }
+
+StorageResult EdgeStorage::reserveCommand(const char* id, const char* sender,
+                                          uint64_t sequence, const char* digest,
+                                          const char* capability, const char* transport,
+                                          int64_t at) {
+    if (!db_ || !id || !*id || !sender || !*sender || !digest || !*digest ||
+        !capability || !*capability || !transport || !*transport || at <= 0)
+        return StorageResult::fail(StorageError::InvalidArgument, SQLITE_MISUSE, "invalid command reservation");
+    sqlite3_stmt* raw = nullptr;
+    StorageResult r = prepare("INSERT INTO commands(command_id,sender_id,sequence,payload_digest,capability_id,transport,received_at_unix) VALUES(?,?,?,?,?,?,?);", &raw);
+    if (!r) return r;
+    Statement statement(raw);
+    sqlite3_bind_text(raw, 1, id, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(raw, 2, sender, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(raw, 3, static_cast<sqlite3_int64>(sequence));
+    sqlite3_bind_text(raw, 4, digest, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(raw, 5, capability, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(raw, 6, transport, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(raw, 7, at);
+    int rc = sqlite3_step(raw);
+    return rc == SQLITE_DONE ? StorageResult::ok() : sqliteFailure(StorageError::SqlError, rc, "reserve command");
+}
+
+StorageResult EdgeStorage::completeCommand(const char* id, const char* result,
+                                           const char* signature, int64_t at) {
+    if (!db_ || !id || !result || !signature || at <= 0)
+        return StorageResult::fail(StorageError::InvalidArgument, SQLITE_MISUSE, "invalid command completion");
+    sqlite3_stmt* raw = nullptr;
+    StorageResult r = prepare("UPDATE commands SET state='COMPLETED',result_code=?,device_signature=?,completed_at_unix=? WHERE command_id=? AND state='RECEIVED';", &raw);
+    if (!r) return r;
+    Statement statement(raw);
+    sqlite3_bind_text(raw, 1, result, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_text(raw, 2, signature, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(raw, 3, at);
+    sqlite3_bind_text(raw, 4, id, -1, SQLITE_TRANSIENT);
+    int rc = sqlite3_step(raw);
+    return rc == SQLITE_DONE && sqlite3_changes(db_) == 1 ? StorageResult::ok()
+        : StorageResult::fail(StorageError::SqlError, rc, "command not reservable");
+}
+
+StorageResult EdgeStorage::rememberReplaySequence(const char* sender, uint64_t sequence) {
+    if (!db_ || !sender || !*sender)
+        return StorageResult::fail(StorageError::InvalidArgument, SQLITE_MISUSE, "invalid replay sequence");
+    sqlite3_stmt* raw = nullptr;
+    StorageResult r = prepare("INSERT INTO replay_window(sender_id,highest_sequence) VALUES(?,?) ON CONFLICT(sender_id) DO UPDATE SET highest_sequence=excluded.highest_sequence WHERE excluded.highest_sequence > replay_window.highest_sequence;", &raw);
+    if (!r) return r;
+    Statement statement(raw);
+    sqlite3_bind_text(raw, 1, sender, -1, SQLITE_TRANSIENT);
+    sqlite3_bind_int64(raw, 2, static_cast<sqlite3_int64>(sequence));
+    int rc = sqlite3_step(raw);
+    return rc == SQLITE_DONE && sqlite3_changes(db_) == 1 ? StorageResult::ok()
+        : StorageResult::fail(StorageError::SqlError, SQLITE_CONSTRAINT, "replayed sequence");
+}
 
 StorageResult EdgeStorage::execute(const char* sql) {
     if (!db_) return StorageResult::fail(StorageError::InvalidArgument, SQLITE_MISUSE, "database not open");

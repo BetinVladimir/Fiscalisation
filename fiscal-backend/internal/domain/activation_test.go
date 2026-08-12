@@ -31,7 +31,7 @@ func TestProofBoundTenantlessActivationLifecycle(t *testing.T) {
 	jwk := map[string]any{"kty": "EC", "crv": "P-256", "x": enc(private.X), "y": enc(private.Y)}
 	input := CreateDeviceActivationInput{ChallengeID: challenge["challenge_id"].(string), Challenge: challenge["challenge"].(string), DeviceInstanceID: deviceID, PublicKeyJWK: jwk, Vendor: "DATECS", Model: "BLUECASH_50", Serial: "BC501234", FMIN: "12345678", Firmware: "1.0", CapabilityDigest: "a" + strings.Repeat("0", 63), RequestedRoles: []string{"PAYMENT_TERMINAL", "FISCAL_DEVICE"}}
 	canonicalJWK, _, _, _ := activationPublicKey(jwk)
-	sig, _ := ecdsa.SignASN1(rand.Reader, private, sha256Bytes(activationProof(input, canonicalJWK)))
+	sig, _ := signP1363(private, sha256Bytes(activationProof(input, canonicalJWK)))
 	input.Signature = base64.RawURLEncoding.EncodeToString(sig)
 	created, err := svc.CreateDeviceActivation(input)
 	if err != nil {
@@ -76,7 +76,7 @@ func TestProofBoundTenantlessActivationLifecycle(t *testing.T) {
 		t.Fatal("bootstrap public key exposed to tenant UI")
 	}
 	proof := "credential\n" + id + "\nnonce-1\n" + digestString(secret)
-	proofSig, _ := ecdsa.SignASN1(rand.Reader, private, sha256Bytes(proof))
+	proofSig, _ := signP1363(private, sha256Bytes(proof))
 	encoded := base64.RawURLEncoding.EncodeToString(proofSig)
 	if _, err = svc.IssueDeviceActivationCredential(id, secret, "nonce-1", encoded); err == nil {
 		t.Fatal("credential issued without CA issuer")
@@ -91,7 +91,7 @@ func TestProofBoundTenantlessActivationLifecycle(t *testing.T) {
 		t.Fatal(issued.State)
 	}
 	commitProof := "activate\n" + id + "\ncredential-1\n1\ncommit-nonce"
-	commitSig, _ := ecdsa.SignASN1(rand.Reader, private, sha256Bytes(commitProof))
+	commitSig, _ := signP1363(private, sha256Bytes(commitProof))
 	active, err := svc.ActivateDeviceCredential(id, "credential-1", "commit-nonce", base64.RawURLEncoding.EncodeToString(commitSig))
 	if err != nil || active.State != "ACTIVE" {
 		t.Fatal(active, err)
@@ -129,7 +129,7 @@ func TestActivationChallengeAndIdentityAreOneTime(t *testing.T) {
 	jwk := map[string]any{"kty": "EC", "crv": "P-256", "x": enc(private.X), "y": enc(private.Y)}
 	input := CreateDeviceActivationInput{ChallengeID: challenge["challenge_id"].(string), Challenge: challenge["challenge"].(string), DeviceInstanceID: id, PublicKeyJWK: jwk, Vendor: "DATECS", Model: "BLUECASH_50", Serial: "S1", FMIN: "12345678", CapabilityDigest: "digest", RequestedRoles: []string{"FISCAL_DEVICE"}}
 	canonical, _, _, _ := activationPublicKey(jwk)
-	sig, _ := ecdsa.SignASN1(rand.Reader, private, sha256Bytes(activationProof(input, canonical)))
+	sig, _ := signP1363(private, sha256Bytes(activationProof(input, canonical)))
 	input.Signature = base64.RawURLEncoding.EncodeToString(sig)
 	if _, err := svc.CreateDeviceActivation(input); err != nil {
 		t.Fatal(err)

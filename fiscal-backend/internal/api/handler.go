@@ -149,8 +149,105 @@ func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/device-bootstrap/v1/challenges", h.deviceBootstrapChallenge)
 	m.HandleFunc("/device-bootstrap/v1/activation-requests", h.deviceBootstrapCreate)
 	m.HandleFunc("/device-bootstrap/v1/activation-requests/", h.deviceBootstrapCredential)
+	m.HandleFunc("/platform/v1/manufacturing/devices:register", h.manufacturingDeviceRegister)
+	m.HandleFunc("/platform/v1/devices", h.platformDevices)
+	m.HandleFunc("/platform/v1/devices/", h.platformDevice)
 	oidc := auth.NewOIDCVerifier(c.OIDCIssuer, c.OIDCAudience, c.OIDCJWKSURL)
 	return cors(c.CORSAllowedOrigins, auth.MiddlewareWithOIDC(c.AuthHMACKey, oidc, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, enforceSuccessResponses(fiscalIdempotency(s, m)))))))
+}
+
+func (h *Handler) manufacturingDeviceRegister(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		problem(w, 405, "METHOD_NOT_ALLOWED")
+		return
+	}
+	var in domain.ManufacturingDeviceInput
+	if !decodeStrict(w, r, &in) {
+		return
+	}
+	v, err := h.svc.RegisterManufacturedDevice(in)
+	if err != nil {
+		problem(w, 409, "MANUFACTURING_REGISTRATION_REJECTED")
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	write(w, 201, v)
+}
+
+func (h *Handler) platformDevices(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		problem(w, 405, "METHOD_NOT_ALLOWED")
+		return
+	}
+	write(w, 200, map[string]any{"items": h.svc.PlatformDevices(r.URL.Query().Get("state"), r.URL.Query().Get("tenant_id"), r.URL.Query().Get("serial"))})
+}
+
+func (h *Handler) platformDevice(w http.ResponseWriter, r *http.Request) {
+	p := strings.Trim(strings.TrimPrefix(r.URL.Path, "/platform/v1/devices/"), "/")
+	if r.Method == http.MethodGet && !strings.Contains(p, ":") {
+		v, e := h.svc.PlatformDevice(p)
+		if e != nil {
+			problem(w, 404, "DEVICE_NOT_FOUND")
+			return
+		}
+		write(w, 200, v)
+		return
+	}
+	if r.Method != http.MethodPost {
+		problem(w, 405, "METHOD_NOT_ALLOWED")
+		return
+	}
+	action, id := "", p
+	for _, candidate := range []string{"assign-tenant", "unassign-tenant", "suspend", "resume", "retire"} {
+		suffix := ":" + candidate
+		if strings.HasSuffix(p, suffix) {
+			action = candidate
+			id = strings.TrimSuffix(p, suffix)
+			break
+		}
+	}
+	if action == "" {
+		problem(w, 404, "NOT_FOUND")
+		return
+	}
+	var in struct {
+		TenantID string `json:"tenant_id,omitempty"`
+		Reason   string `json:"reason,omitempty"`
+		Version  int64  `json:"version"`
+	}
+	if !decodeStrict(w, r, &in) {
+		return
+	}
+	claims, _ := auth.ClaimsFrom(r.Context())
+	current, err := h.svc.PlatformDevice(id)
+	if err != nil {
+		problem(w, 404, "DEVICE_NOT_FOUND")
+		return
+	}
+	target, tenant := "", in.TenantID
+	switch action {
+	case "assign-tenant":
+		target = "ASSIGNED"
+	case "unassign-tenant":
+		target = "MANUFACTURED"
+	case "suspend":
+		target = "SUSPENDED"
+	case "retire":
+		target = "RETIRED"
+	case "resume":
+		if t, _ := current["tenant_id"].(string); t != "" {
+			target = "ASSIGNED"
+			tenant = t
+		} else {
+			target = "MANUFACTURED"
+		}
+	}
+	v, err := h.svc.TransitionPlatformDevice(id, target, tenant, in.Reason, claims.Subject, in.Version)
+	if err != nil {
+		problem(w, 409, "DEVICE_TRANSITION_REJECTED")
+		return
+	}
+	write(w, 200, v)
 }
 
 func (h *Handler) deviceActivationLookup(w http.ResponseWriter, r *http.Request) {

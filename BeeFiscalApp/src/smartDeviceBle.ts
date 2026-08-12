@@ -1,6 +1,9 @@
-export const BLUECASH_ACTIVATION_SERVICE = "7b6f1000-7c6d-4c7a-9e4f-424545464953";
-export const BLUECASH_TOKEN_CHARACTERISTIC = "7b6f1001-7c6d-4c7a-9e4f-424545464953";
-export const BLUECASH_STATUS_CHARACTERISTIC = "7b6f1002-7c6d-4c7a-9e4f-424545464953";
-export function activationTokenFrames(jwt:string,transferId:string,fragmentSize=120):string[]{if(!jwt||!/[A-Za-z0-9-]{8,64}/.test(transferId)||fragmentSize<32||fragmentSize>256)throw new Error("ACTIVATION_FRAME_INPUT_INVALID");const parts=Array.from({length:Math.ceil(jwt.length/fragmentSize)},(_,index)=>jwt.slice(index*fragmentSize,(index+1)*fragmentSize));if(parts.length>32)throw new Error("ACTIVATION_TOKEN_TOO_LARGE");return parts.map((part,index)=>`BFA1|${transferId}|${index+1}|${parts.length}|${part}`)}
-export interface SmartDeviceBleConnection { writeActivationToken(jwt:string):Promise<string>; disconnect():Promise<void> }
-export async function connectBlueCashForActivation():Promise<SmartDeviceBleConnection>{throw new Error("SMART_DEVICE_BLE_UNAVAILABLE")}
+export const EDGE_V2_SERVICE="7b6f2000-7c6d-4c7a-9e4f-424545464953";
+export const EDGE_V2_DEVICE_INFO="7b6f2001-7c6d-4c7a-9e4f-424545464953";
+export const EDGE_V2_SESSION_CONTROL="7b6f2002-7c6d-4c7a-9e4f-424545464953";
+export const EDGE_V2_SESSION_RX="7b6f2003-7c6d-4c7a-9e4f-424545464953";
+export const EDGE_V2_SESSION_TX="7b6f2004-7c6d-4c7a-9e4f-424545464953";
+export type DeviceInfo={protocol_version:2;device_id:string;serial:string;firmware_version:string;nonce:string};
+export type DeploymentCapability={version:2;device_id:string;capability_id:string;permissions:string[];expires_at:number;signature:string};
+export interface SecureSmartDeviceConnection{deviceInfo:DeviceInfo;authenticate(capability:DeploymentCapability):Promise<void>;setWifi(ssid:string,password:string):Promise<void>;bindStore(locationId:string,registerId:string,roles:string[]):Promise<void>;disconnect():Promise<void>}
+export async function connectEdgeDeviceV2():Promise<SecureSmartDeviceConnection>{throw new Error("SMART_DEVICE_BLE_V2_UNAVAILABLE")}

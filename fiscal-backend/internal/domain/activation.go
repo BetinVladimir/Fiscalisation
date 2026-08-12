@@ -172,7 +172,7 @@ func (s *Service) CreateDeviceActivation(input CreateDeviceActivationInput) (map
 	}
 	canonical := activationProof(input, jwk)
 	signature, e := base64.RawURLEncoding.DecodeString(input.Signature)
-	if e != nil || !ecdsa.VerifyASN1(key, sha256Bytes(canonical), signature) {
+	if e != nil || !verifyP1363(key, sha256Bytes(canonical), signature) {
 		return nil, errors.New("invalid activation proof")
 	}
 	id, e := newUUID()
@@ -247,7 +247,7 @@ func (s *Service) IssueDeviceActivationCredential(id, requestSecret, nonce, sign
 	}
 	sig, e := base64.RawURLEncoding.DecodeString(signature)
 	proof := "credential\n" + id + "\n" + nonce + "\n" + digestString(requestSecret)
-	if e != nil || !ecdsa.VerifyASN1(key, sha256Bytes(proof), sig) {
+	if e != nil || !verifyP1363(key, sha256Bytes(proof), sig) {
 		return DeviceCredential{}, errors.New("invalid credential proof")
 	}
 	if s.deviceCredentialIssuer == nil {
@@ -283,7 +283,7 @@ func (s *Service) ActivateDeviceCredential(id, credentialID, nonce, signature st
 	}
 	proof := fmt.Sprintf("activate\n%s\n%s\n%d\n%s", id, credentialID, v.BindingVersion, nonce)
 	sig, e := base64.RawURLEncoding.DecodeString(signature)
-	if e != nil || !ecdsa.VerifyASN1(key, sha256Bytes(proof), sig) {
+	if e != nil || !verifyP1363(key, sha256Bytes(proof), sig) {
 		return DeviceActivationRequest{}, errors.New("invalid activation commit proof")
 	}
 	return s.repo.ActivateDeviceRequest(id, credentialID, time.Now().UTC())

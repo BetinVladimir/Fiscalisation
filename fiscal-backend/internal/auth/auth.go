@@ -31,7 +31,8 @@ func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) ht
 		return next
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !strings.HasPrefix(r.URL.Path, "/public/v1") || r.URL.Path == "/public/v1/version" {
+		protected := strings.HasPrefix(r.URL.Path, "/public/v1") || strings.HasPrefix(r.URL.Path, "/platform/v1")
+		if !protected || r.URL.Path == "/public/v1/version" {
 			next.ServeHTTP(w, r)
 			return
 		}
@@ -51,7 +52,13 @@ func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) ht
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-		if !hasScope(c, "fiscal.base") || !Allowed(c, r.Method, r.URL.Path) {
+		requiredScope := "fiscal.base"
+		if strings.HasPrefix(r.URL.Path, "/platform/v1/manufacturing/") {
+			requiredScope = "beefiscal.manufacturing"
+		} else if strings.HasPrefix(r.URL.Path, "/platform/v1/") {
+			requiredScope = "beefiscal.platform"
+		}
+		if !hasScope(c, requiredScope) || !Allowed(c, r.Method, r.URL.Path) {
 			http.Error(w, "forbidden", http.StatusForbidden)
 			return
 		}
@@ -91,6 +98,12 @@ func hasAny(c Claims, allowed ...string) bool {
 // Allowed is the centralized least-privilege policy for the public Fiscal API.
 // Object-level tenant checks remain in the handlers/repository.
 func Allowed(c Claims, method, path string) bool {
+	if strings.HasPrefix(path, "/platform/v1/manufacturing/") {
+		return hasAny(c, "MANUFACTURING_STATION")
+	}
+	if strings.HasPrefix(path, "/platform/v1/") {
+		return hasAny(c, "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN") && (method == http.MethodGet || hasAny(c, "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN"))
+	}
 	if strings.HasPrefix(path, "/public/v1/device-activation-requests") {
 		return hasAny(c, "ADMIN")
 	}
@@ -168,11 +181,12 @@ func Parse(raw string, secret []byte, now time.Time) (Claims, error) {
 }
 
 func validateClaims(c Claims, now time.Time) error {
-	if c.Subject == "" || c.TenantID == "" || len(c.Roles) == 0 || c.ExpiresAt <= now.Unix() {
+	platform := hasAny(c, "MANUFACTURING_STATION", "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN")
+	if c.Subject == "" || (!platform && c.TenantID == "") || len(c.Roles) == 0 || c.ExpiresAt <= now.Unix() {
 		return errors.New("expired or incomplete")
 	}
 	for _, role := range c.Roles {
-		if !hasAny(Claims{Roles: []string{role}}, "CASHIER", "SUPERVISOR", "ADMIN", "AUDITOR", "SERVICE") {
+		if !hasAny(Claims{Roles: []string{role}}, "CASHIER", "SUPERVISOR", "ADMIN", "AUDITOR", "SERVICE", "MANUFACTURING_STATION", "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN") {
 			return errors.New("unknown role")
 		}
 	}

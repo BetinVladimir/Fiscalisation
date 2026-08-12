@@ -213,7 +213,7 @@ func verifyDeviceSignature(key *ecdsa.PublicKey, kid, hash, signature string) bo
 		return false
 	}
 	double := sha256.Sum256(digest)
-	return ecdsa.VerifyASN1(key, double[:], sig)
+	return verifyP1363(key, double[:], sig)
 }
 
 type offlineSalePayload struct {

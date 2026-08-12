@@ -67,6 +67,13 @@ public:
     StorageResult recordAttempt(const char* transactionId, const char* lastError);
     StorageResult pruneSynced(int64_t nowUnix, uint32_t retentionDays = 93);
     StorageResult checkpoint();
+    StorageResult reserveCommand(const char* commandId, const char* senderId,
+                                 uint64_t sequence, const char* payloadDigest,
+                                 const char* capabilityId, const char* transport,
+                                 int64_t receivedAtUnix);
+    StorageResult completeCommand(const char* commandId, const char* resultCode,
+                                  const char* deviceSignature, int64_t completedAtUnix);
+    StorageResult rememberReplaySequence(const char* senderId, uint64_t sequence);
 
 private:
     StorageResult mountSd(const char* mountPoint, bool oneBitMode);
@@ -82,4 +89,3 @@ private:
 };
 
 } // namespace beefiscal::edge
-

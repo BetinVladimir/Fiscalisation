@@ -1,0 +1,12 @@
+[project]
+name = "beefiscal-device-manufacturing"
+version = "0.1.0"
+requires-python = ">=3.11"
+dependencies = ["cryptography==44.0.3", "httpx==0.28.1", "pyserial==3.5"]
+
+[project.scripts]
+beefiscal-factory = "beefiscal_factory.cli:main"
+
+[tool.pytest.ini_options]
+pythonpath = ["src"]
+

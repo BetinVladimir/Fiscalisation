@@ -25,6 +25,76 @@ servers:
   - url: http://127.0.0.1:8082
     description: Edge loopback DEV/HIL listener
 paths:
+  /platform/v1/manufacturing/devices:register:
+    post:
+      operationId: registerManufacturedDevice
+      tags: [Device Manufacturing]
+      security: [{oidcBearer: [beefiscal.manufacturing]}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ManufacturingDeviceRegistration'}}}}
+      responses:
+        '201': {description: Idempotently registered manufactured device, headers: {Cache-Control: {schema: {type: string}}}, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDevice'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+  /platform/v1/devices:
+    get:
+      operationId: listPlatformDevices
+      tags: [Platform Devices]
+      security: [{oidcBearer: [beefiscal.platform]}]
+      parameters:
+        - {name: state, in: query, schema: {$ref: '#/components/schemas/PlatformDeviceState'}}
+        - {name: tenant_id, in: query, schema: {type: string}}
+        - {name: serial, in: query, schema: {type: string, maxLength: 64}}
+      responses:
+        '200': {description: Platform-wide device inventory, content: {application/json: {schema: {type: object, required: [items], properties: {items: {type: array, items: {$ref: '#/components/schemas/PlatformDevice'}}}}}}}
+  /platform/v1/devices/{device_id}:
+    get:
+      operationId: getPlatformDevice
+      tags: [Platform Devices]
+      security: [{oidcBearer: [beefiscal.platform]}]
+      parameters: [{name: device_id, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        '200': {description: Device registry record, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDevice'}}}}
+        '404': {$ref: '#/components/responses/Problem'}
+  /platform/v1/devices/{device_id}:assign-tenant:
+    post:
+      operationId: assignPlatformDeviceTenant
+      tags: [Platform Devices]
+      security: [{oidcBearer: [beefiscal.platform]}]
+      parameters: [{name: device_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDeviceTransition'}}}}
+      responses: {'200': {description: Assigned device, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDevice'}}}}, '409': {$ref: '#/components/responses/Problem'}}
+  /platform/v1/devices/{device_id}:unassign-tenant:
+    post:
+      operationId: unassignPlatformDeviceTenant
+      tags: [Platform Devices]
+      security: [{oidcBearer: [beefiscal.platform]}]
+      parameters: [{name: device_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDeviceTransition'}}}}
+      responses: {'200': {description: Unassigned device, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDevice'}}}}, '409': {$ref: '#/components/responses/Problem'}}
+  /platform/v1/devices/{device_id}:suspend:
+    post:
+      operationId: suspendPlatformDevice
+      tags: [Platform Devices]
+      security: [{oidcBearer: [beefiscal.platform]}]
+      parameters: [{name: device_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDeviceTransition'}}}}
+      responses: {'200': {description: Suspended device, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDevice'}}}}, '409': {$ref: '#/components/responses/Problem'}}
+  /platform/v1/devices/{device_id}:resume:
+    post:
+      operationId: resumePlatformDevice
+      tags: [Platform Devices]
+      security: [{oidcBearer: [beefiscal.platform]}]
+      parameters: [{name: device_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDeviceTransition'}}}}
+      responses: {'200': {description: Resumed device, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDevice'}}}}, '409': {$ref: '#/components/responses/Problem'}}
+  /platform/v1/devices/{device_id}:retire:
+    post:
+      operationId: retirePlatformDevice
+      tags: [Platform Devices]
+      security: [{oidcBearer: [beefiscal.platform]}]
+      parameters: [{name: device_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDeviceTransition'}}}}
+      responses: {'200': {description: Retired device, content: {application/json: {schema: {$ref: '#/components/schemas/PlatformDevice'}}}}, '409': {$ref: '#/components/responses/Problem'}}
   /device-bootstrap/v1/challenges:
     post:
       operationId: createDeviceActivationChallenge
@@ -618,6 +688,56 @@ components:
       description: RFC 9457 problem
       content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}
   schemas:
+    Esp32P256Signature:
+      type: string
+      minLength: 86
+      maxLength: 86
+      pattern: '^[A-Za-z0-9_-]{86}$'
+      description: Unpadded base64url of the fixed 64-byte IEEE P1363 ECDSA P-256 signature (r || s) produced by the ESP32-S3 device identity key.
+    PlatformDeviceState:
+      type: string
+      enum: [MANUFACTURED, ASSIGNED, DEPLOYED, SUSPENDED, RETIRED]
+    ManufacturingDeviceRegistration:
+      type: object
+      additionalProperties: false
+      required: [serial, device_public_key_jwk, hardware_revision, firmware_version, manufacturing_batch, manufacturing_station_id, firmware_sha256, registration_evidence_sha256, proof]
+      properties:
+        serial: {type: string, minLength: 1, maxLength: 64}
+        device_public_key_jwk: {type: object, required: [kty, crv, x, y], additionalProperties: true}
+        hardware_revision: {type: string, minLength: 1, maxLength: 64}
+        firmware_version: {type: string, minLength: 1, maxLength: 64}
+        bootloader_version: {type: string, maxLength: 64}
+        manufacturing_batch: {type: string, minLength: 1, maxLength: 64}
+        manufacturing_station_id: {type: string, minLength: 1, maxLength: 128}
+        firmware_sha256: {type: string, pattern: '^[0-9a-fA-F]{64}$'}
+        registration_evidence_sha256: {type: string, pattern: '^[0-9a-fA-F]{64}$'}
+        proof: {$ref: '#/components/schemas/Esp32P256Signature'}
+    PlatformDevice:
+      type: object
+      additionalProperties: true
+      required: [id, version, serial, device_key_thumbprint, hardware_revision, firmware_version, manufacturing_batch, state, binding_version, created_at, updated_at]
+      properties:
+        id: {type: string, format: uuid}
+        version: {type: integer, minimum: 1}
+        serial: {type: string}
+        device_public_key_jwk: {type: object}
+        device_key_thumbprint: {type: string}
+        hardware_revision: {type: string}
+        firmware_version: {type: string}
+        manufacturing_batch: {type: string}
+        state: {$ref: '#/components/schemas/PlatformDeviceState'}
+        tenant_id: {type: string}
+        binding_version: {type: integer, minimum: 0}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
+    PlatformDeviceTransition:
+      type: object
+      additionalProperties: false
+      required: [version]
+      properties:
+        tenant_id: {type: string, minLength: 1}
+        reason: {type: string, maxLength: 512}
+        version: {type: integer, minimum: 1}
     DeviceActivationChallengeRequest:
       type: object
       additionalProperties: false
@@ -647,7 +767,7 @@ components:
         firmware: {type: string, minLength: 1, maxLength: 80}
         capability_digest: {type: string, minLength: 1, maxLength: 128}
         requested_roles: {type: array, minItems: 1, uniqueItems: true, items: {type: string, enum: [FISCAL_DEVICE, PAYMENT_TERMINAL]}}
-        signature: {type: string, minLength: 80}
+        signature: {$ref: '#/components/schemas/Esp32P256Signature'}
     CreatedDeviceActivationRequest:
       type: object
       additionalProperties: false
@@ -719,7 +839,7 @@ components:
       type: object
       additionalProperties: false
       required: [request_secret, nonce, signature]
-      properties: {request_secret: {type: string, minLength: 43}, nonce: {type: string, minLength: 8}, signature: {type: string, minLength: 80}}
+      properties: {request_secret: {type: string, minLength: 43}, nonce: {type: string, minLength: 8}, signature: {$ref: '#/components/schemas/Esp32P256Signature'}}
     DeviceActivationCredential:
       type: object
       additionalProperties: false
@@ -751,7 +871,7 @@ components:
         activation_request_id: {type: string, format: uuid}
         credential_id: {type: string}
         nonce: {type: string, minLength: 8}
-        signature: {type: string, minLength: 80}
+        signature: {$ref: '#/components/schemas/Esp32P256Signature'}
     DeviceActivationCommitAck:
       type: object
       additionalProperties: false
