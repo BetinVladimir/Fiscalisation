@@ -73,10 +73,25 @@ secure identity/orchestration layer.
 
 The database is not encrypted by SQLite. Do not place tokens or private keys in
 it. Each device generates its own P-256 identity keypair on ESP32-S3 during
-first initialization. The private key is stored only in encrypted NVS and is
-never exposed by the firmware API; production Flash Encryption and NVS
-Encryption protect its at-rest representation. No ATECC608A or external crypto
-provider is part of this architecture.
+first initialization. The private key is stored in NVS and is never exposed by
+the firmware API. MVP permits development NVS without Flash Encryption; this is
+acceptable only on controlled non-production hardware with non-production
+credentials. Production requires Flash Encryption and NVS Encryption to protect
+the at-rest representation. No ATECC608A or external crypto provider is part of
+this architecture.
+
+## MVP and production security boundary
+
+Secure Boot V2, Flash Encryption, NVS Encryption, anti-rollback eFuse, disabled
+JTAG/download mode and the production recovery ceremony are **not MVP acceptance
+requirements**. They remain mandatory before a production device or production
+credential is issued.
+
+The MVP must still fail closed and may not replace transport/application
+security with a trusted-lab assumption. Device identity, backend trust,
+authenticated and encrypted BLE/MQTT commands, durable pre-I/O journaling,
+anti-replay, final-device reachability checks and asynchronous acknowledged sync
+remain MVP requirements.
 
 ## Remaining hardware decisions
 
@@ -84,4 +99,5 @@ provider is part of this architecture.
 - SD interface voltage/pull-ups and whether it supports SD_MMC or only SPI;
 - fiscal UART electrical layer (native TTL versus MAX3232 RS-232);
 - BLE transport instance and BluePad pairing policy;
-- secure boot, flash/NVS encryption and ESP32-generated identity provisioning.
+- production-only secure boot, flash/NVS encryption, anti-rollback and recovery
+  provisioning; these do not block the controlled MVP.

@@ -1,15 +1,20 @@
-# Техническое задание: устранение разрывов SUPTO и включение профиля BG-014
+# Acceptance specification: профиль SUPTO BG-014
+
+Статус документа: сохранённый baseline требований и критериев приёмки. Это не
+отчёт о текущем состоянии реализации. Актуальные статусы, gaps и evidence
+определяются `contracts/supto-annex29-trace.json`, `IMPLEMENTATION_STATUS.md` и
+`MVP_GATES.md`.
 
 ## 0. Паспорт документа
 
 | Поле | Значение |
 |---|---|
-| Документ | Исполнимый план модернизации Fiscalisation / BeeMiniPOS до полного профиля SUPTO |
+| Документ | Baseline требований и критериев приёмки Fiscalisation / BeeMiniPOS для полного профиля SUPTO |
 | Нормативный baseline | `/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/SUPTO/index.md` |
 | Исходный аудит | `/Users/freelancer/Documents/Beeloy ERP/SUPTO_ARCHITECTURE_COMPLIANCE_AUDIT.md` |
 | Целевой профиль | `BG_SUPTO_FULL` / `BG-014 = PASS` |
-| Текущий профиль | `BG_MVP_FUNCTIONAL_NONPROD`; `BG-014 = EXCLUDED_MVP`; PILOT/PROD `NO_GO` |
-| Формат | Markdown-ТЗ, декомпозированное для последовательной кодогенерации |
+| Текущий профиль | Не задаётся этим документом; вычисляется machine traceability и evidence gates |
+| Формат | Markdown acceptance specification, связанная с machine traceability |
 | Дата | 2026-08-10 |
 | Язык требований | Русский; кассовый и административный UI — болгарский |
 

@@ -1,6 +1,11 @@
 # Требования к активации SmartDevice и транспортному каналу
 
-Статус: реализованный software baseline; production PKI/broker/HIL acceptance остаются внешними gates. Дата: 2026-08-11. Область: приложения `SmartDevices`, `BeeFiscalApp`, `fiscal-backend` и MQTT ingress.
+> **DEPRECATED — не источник истины.** Промежуточный аудит содержит состояние
+> кода на 2026-08-11 и заменён [`BLUECASH_POS_INTEGRATION.md`](BLUECASH_POS_INTEGRATION.md),
+> [`BLUECASH_END_TO_END_TRACEABILITY.md`](BLUECASH_END_TO_END_TRACEABILITY.md),
+> runtime OpenAPI и machine gates. Сохранён временно как кандидат на удаление.
+
+Статус: исторический target/current анализ от 2026-08-11.
 
 As-built руководство и точные endpoints: [`BLUECASH_POS_INTEGRATION.md`](BLUECASH_POS_INTEGRATION.md). OpenAPI является нормативным контрактом: [`../contracts/openapi-runtime-v1.yaml`](../contracts/openapi-runtime-v1.yaml).
 

@@ -1,6 +1,12 @@
 # BeeMiniPOS — эталонная подключаемая POS-система для MVP
 
-**Статус:** продуктовая и техническая спецификация  
+> **DEPRECATED — не источник истины.** Исходная MVP-спецификация заменена
+> [`../minipos/README.md`](../minipos/README.md),
+> [`EXTERNAL_POS_INTEGRATION_PROTOCOL.md`](EXTERNAL_POS_INTEGRATION_PROTOCOL.md),
+> [`POS_INTEGRATION_BG_SUPTO.md`](POS_INTEGRATION_BG_SUPTO.md) и OpenAPI.
+> Сохранена временно как кандидат на удаление.
+
+**Статус:** историческая продуктовая и техническая спецификация
 **Версия:** 0.1  
 **Дата:** 2026-08-07  
 **Frontend:** `/Fiscalisation/BeeMiniPOS` — Expo / React Native  

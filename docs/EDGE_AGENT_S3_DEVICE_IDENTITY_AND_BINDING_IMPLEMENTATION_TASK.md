@@ -1,6 +1,13 @@
 # Задача: identity, выпуск, назначение и безопасное подключение Edge Agent S3
 
-Статус: **техническое задание, реализация не начата**  
+> **DEPRECATED — не источник истины.** Исходное implementation-task ТЗ частично
+> реализовано и частично осталось production checklist. Актуальная firmware
+> документация: [`../IoT/firmware/edge-agent-s3/README.md`](../IoT/firmware/edge-agent-s3/README.md),
+> contracts: [`../contracts/openapi-runtime-v1.yaml`](../contracts/openapi-runtime-v1.yaml),
+> незакрытые gates: [`../MVP_GATES.md`](../MVP_GATES.md). Документ является
+> кандидатом на удаление после переноса уникальных checklist-пунктов.
+
+Статус: **историческое техническое задание; не использовать как текущий статус реализации**
 Дата: 2026-08-12  
 Область: ESP32-S3 edge agent, manufacturing tooling, Fiscal Backend, BeeFiscalApp и AdminApp.
 
@@ -556,6 +563,13 @@ procedure:
 - backend root public key rotation support;
 - reproducible build manifest/SBOM и firmware hash registration.
 
+Перечисленные в этом разделе Secure Boot V2, Flash Encryption, NVS Encryption,
+anti-rollback eFuse, закрытие JTAG/download mode и production recovery ceremony
+не блокируют controlled non-production MVP. MVP использует только
+непроизводственные credentials и контролируемое оборудование. Перед выдачей
+production credential и эксплуатацией у клиента весь раздел обязателен и должен
+иметь evidence с физического устройства.
+
 Эти eFuse операции необратимы и не выполняются обычным `pio run -t upload`.
 Manufacturing tool обязан иметь отдельные DEV/PROD profiles, dry-run, double
 confirmation и hardware-revision allowlist.
@@ -658,6 +672,7 @@ operation IDs и redacted logs.
 - OpenAPI покрывает 100% нового REST surface, generated contracts актуальны;
 - unit, contract, integration, UI, HIL, power-loss и security tests зелёные;
 - production build имеет Secure Boot/Flash/NVS encryption evidence и signed OTA;
+  этот критерий не входит в controlled MVP acceptance, но обязателен для PROD;
 - legacy BFA1/JWT/HMAC activation отключён в PROD;
 - документация deployment, recovery, root rotation, station revoke и incident
   response обновлена.
