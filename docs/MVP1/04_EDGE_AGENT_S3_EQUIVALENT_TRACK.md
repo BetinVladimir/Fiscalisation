@@ -1,21 +1,19 @@
-# Эквивалентный MVP1 track на edge-agent-s3
+# Обязательные MVP1 profiles на edge-agent-s3
 
-## 1. Целевая замена
+## 1. Обязательный scope
 
-В этой схеме:
-
-```text
-SmartDevices/bluecash-app
-```
-
-заменяется на:
+`edge-agent-s3` не является заменой или optional track. Наряду с BlueCash app он
+обязан реализовать два physical profiles:
 
 ```text
-IoT/firmware/edge-agent-s3
+EDGE_AGENT_S3
+├── DP-150 MX fiscal endpoint: COM/RS-232 over UART level converter
+│   └── BluePad-50 Plus optional payment endpoint: BLE
+└── Daisy Compact S 01 fiscal endpoint: USB host/native protocol
 ```
 
-MiniPOS и fiscal-backend не меняют business commands/results. Меняется только
-adapter route и способ связи ESP32 с конечным ФУ/payment terminal.
+MiniPOS и fiscal-backend не меняют business commands/results. Один edge может
+обслуживать fiscal и payment endpoints разных типов одного кассового места.
 
 ## 2. Что уже есть
 

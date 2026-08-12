@@ -1,7 +1,9 @@
 # Аудит готовности реализации и план закрытия MVP1
 
-Статус: обязательная спецификация закрытия разрывов.  
-Дата среза кода: 2026-08-13.  
+Статус: обязательная спецификация закрытия разрывов; повторно подтверждена по
+HEAD `963d4e3` без повышения незакрытых P0.
+
+Дата повторного среза кода: 2026-08-13.
 Область проверки: `docs/MVP1`, `docs/SUPTO/index.md`, contracts, MiniPOS,
 `fiscal-backend`, BlueCash Android, BeeFiscalApp, БД, MQTT и compose.
 
@@ -26,6 +28,11 @@ MVP1 считается рабочим только когда:
 готовность СУПТО или допуск в production. Текущий machine trace показывает
 `PASS=3`, `PARTIAL=19`, `NOT_APPLICABLE=2`; verifier правильно сохраняет
 production block.
+
+Термин `base functional software MVP PASS` в корневом
+`MVP_COMPLETION_AUDIT.md` относится только к simulator/STUB profile и не является
+синонимом рабочего physical MVP, определённого здесь. Для physical MVP действует
+только критерий этого каталога и решение документа 07.
 
 ## 2. Что уже реализовано и пригодно как основа
 
@@ -265,9 +272,76 @@ Generated contracts должны проверяться drift tests. Нельз�
 валидируются; migration проходит на empty и upgraded DB; trace verifier не
 разрешает `PASS` без существующего теста/evidence.
 
+### MVP1-P0-013 — Platform device API зарегистрирован в runtime
+
+**Факт повторного аудита.** `make contract-test` на commit `963d4e3` падает:
+OpenAPI содержит восемь операций platform device registry, для которых verifier
+не находит router registration:
+
+```text
+POST /platform/v1/manufacturing/devices:register
+GET  /platform/v1/devices
+GET  /platform/v1/devices/{device_id}
+POST /platform/v1/devices/{device_id}:assign-tenant
+POST /platform/v1/devices/{device_id}:unassign-tenant
+POST /platform/v1/devices/{device_id}:suspend
+POST /platform/v1/devices/{device_id}:resume
+POST /platform/v1/devices/{device_id}:retire
+```
+
+**Требование.** Либо реализовать и зарегистрировать операции в отдельном
+Admin/Platform API с точным documented base path и AdminApp client, либо удалить
+их из текущего runtime contract и явно перенести в последующую версию. Для MVP с
+централизованным управлением и tenant assignment рекомендуется реализация, а не
+удаление. Public tenant Fiscal API не должен случайно публиковать platform-admin
+surface. Нужны отдельные issuer/audience/scopes, rate limits и audit events.
+
+**Acceptance:** `verify_contract_surface` PASS; generated client вызывает все
+восемь endpoints; manufacturing identity proof проверяется; lifecycle и
+assign/unassign имеют CAS/idempotency/audit; tenant actor не получает platform
+access; AdminApp integration test PASS.
+
+### MVP1-P0-014 — automatic REST/WebHook ↔ BLE failover
+
+**Требование нового scope.** Каждый кассовый profile обязан автоматически
+переключать POS с primary REST route на direct BLE при подтверждённой потере
+cloud и возвращать новые intents на REST после устойчивого восстановления,
+синхронизации и reconciliation. Открытая sale/receipt session продолжается между
+transports с теми же IDs и общей device-side idempotency.
+
+Добавить `HEAD /connectivity/ping`: Caddy→in-memory backend liveness без DB,
+MQTT, registry, audit и business middleware. Статический ответ одного Caddy не
+достаточен. Ping не заменяет physical readiness.
+
+Полный алгоритм, thresholds, authority, uncertain-send lookup и 23 acceptance
+сценариев заданы в документе 09.
+
+**Acceptance:** cross-transport duplicate создаёт ровно один physical effect;
+receipt начинается REST и заканчивается BLE, а также наоборот после sync; один
+потерянный ping не вызывает switch; восстановление не запускает параллельный
+step; 1000-client ping test не создаёт DB/MQTT/business calls.
+
+### MVP1-P0-015 — MiniPOS-generated UUID каждой операции
+
+**Требование.** Каждая изменяющая операция внутри чека получает собственный
+UUIDv4 `client_operation_id` в MiniPOS до первого send. UUID durable сохраняется
+с intent и проходит без замены через REST/Idempotency-Key, backend/outbox, MQTT,
+BLE, device journal, sync, lookup и WebHook.
+
+Backend и device атомарно сохраняют UUID вместе с operation type, sale/session
+binding и canonical payload digest. Повтор того же UUID/digest возвращает прежнее
+состояние; другое содержимое под тем же UUID блокируется как
+`IDEMPOTENCY_PAYLOAD_CONFLICT`. Новый сознательный кассовый intent всегда имеет
+новый UUID.
+
+**Acceptance:** concurrent REST duplicates, REST→BLE, BLE→MQTT late delivery,
+restart MiniPOS/backend/adapter, payload conflict и retention tests доказывают
+один logical и physical effect.
+
 ## 4. Минимальный порядок реализации
 
-1. P0-012 schemas/DDL/trace skeleton.
+1. P0-012/P0-013/P0-014/P0-015 schemas, operation identity, router/ping boundary,
+   DDL и trace skeleton.
 2. P0-001 crypto wire compatibility.
 3. P0-006 real runtime vendor composition.
 4. P0-008 route resolver и P0-010 broker/ACL.

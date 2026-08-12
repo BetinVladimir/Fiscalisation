@@ -35,8 +35,11 @@ binding_version
 active_from / active_to / status
 ```
 
-Register хранит ссылки на active fiscal route и optional payment route. Нельзя
-выбирать route по client-supplied vendor или по последнему online устройству.
+Register хранит один active adapter route. Route содержит exactly one fiscal
+endpoint и optional payment endpoint. У BlueCash оба endpoints embedded в одном
+Android adapter; у edge-agent-s3 обязательна поддержка разных типов/каналов в
+одном binding, например DP-150 MX/COM + BluePad-50 Plus/BLE. Нельзя выбирать
+route по client-supplied vendor или по последнему online устройству.
 
 ## 3. Route resolver
 
@@ -78,10 +81,10 @@ transport, но разные route/device IDs, topics и capability sets. Vendor
 
 ```text
 REST request
-→ tenant/operator/idempotency validation
+→ tenant/operator/client_operation_id UUID/digest validation
 → resolve route
 → final FU/payment readiness
-→ create operation_id
+→ atomic insert-or-get operation by tenant + client_operation_id
 → canonical DeviceCommandEnvelopeV2
 → atomic commit(operation EXECUTING + route snapshot + command outbox)
 → publish QoS1
@@ -97,14 +100,23 @@ Outbox republish использует те же bytes и operation ID до expir
 
 ## 6. Direct BLE interaction
 
-Backend не переключает уже отправленную cloud command на BLE самостоятельно.
-Он выдаёт MiniPOS session ticket только для того же resolved route и binding
-version. MiniPOS отправляет тот же operation/intent identity. Device dedupe
-является общей для MQTT/BLE.
+Backend не меняет physical route уже отправленной cloud command. MiniPOS может
+автоматически сменить transport на BLE по документу 09, но только для того же
+resolved route и binding version. При uncertain cloud send BLE сначала делает
+`OPERATION_LOOKUP`; MiniPOS передаёт тот же operation/intent identity. Device
+dedupe и receipt journal являются общими для MQTT/BLE.
 
-Если REST недоступен до создания operation ID, offline Edge authority выдаёт
-идентификатор из fenced range и позже materializes его через sync. Нельзя
-одновременно запускать cloud и local authority для одной sale intent.
+Стабильный `client_operation_id` создаётся и durable сохраняется MiniPOS до
+transport send. Если REST недоступен
+до server operation reservation, offline Edge authority резервирует operation и
+при необходимости regulatory identifier из fenced range, затем materializes его
+через sync. Нельзя параллельно исполнять cloud и local authority для одной sale
+intent; receipt может продолжаться между transports только последовательными
+steps с общей fencing state.
+
+Backend не выдаёт новый operation ID при переходе на BLE. Если внутренняя модель
+имеет отдельный server operation PK, таблица содержит immutable unique
+`(tenant_id, client_operation_id)`, а outbox сохраняет exact client UUID в bytes.
 
 ## 7. Маршрут card payment
 

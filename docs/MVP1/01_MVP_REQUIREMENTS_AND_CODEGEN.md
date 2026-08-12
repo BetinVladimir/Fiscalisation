@@ -7,7 +7,7 @@
 | MiniPOS UI/backend | `/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos` | POS intent, собственная БД, REST/WebHook, BLE client |
 | Fiscal backend | `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend` | authoritative sale, УНП, route selection, durable commands, sync/materialization |
 | BlueCash adapter | `/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app` | MQTT/BLE transport, durable journal, Datecs fiscal/pinpad I/O |
-| ESP32 alternative | `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3` | эквивалент BlueCash adapter для внешнего ФУ/терминала |
+| ESP32 mandatory adapter | `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3` | DP-150 MX/COM + BluePad-50 Plus/BLE composite route и Daisy Compact S 01/USB route |
 
 MiniPOS не обращается к MQTT, vendor SDK или внутренней БД Fiscal. Direct BLE
 разрешён только по REST-issued session ticket и передаёт `ComplianceIntent`, а
@@ -16,8 +16,9 @@ MiniPOS не обращается к MQTT, vendor SDK или внутренне�
 ## 2. Обязательные MVP-инварианты
 
 1. Tenant берётся только из проверенной identity; client body не выбирает его.
-2. Register имеет ровно один активный `FISCAL_DEVICE` route и не более одного
-   активного `PAYMENT_TERMINAL` route.
+2. Register имеет ровно один active fiscal endpoint и не более одного active
+   payment endpoint. Для edge-agent-s3 они могут находиться внутри одного
+   composite adapter binding и использовать разные vendor/transport.
 3. Snapshot маршрута фиксируется при резервировании необратимой операции:
    `device_id`, adapter kind, vendor/model, binding version, route generation.
 4. Потеря cloud допускает BLE fallback. Потеря конечного ФУ блокирует продажу.
@@ -25,8 +26,9 @@ MiniPOS не обращается к MQTT, vendor SDK или внутренне�
    печатается только после `APPROVED`.
 6. Card decline/timeout не должен закрыть fiscal receipt как успешно оплаченный.
 7. Команда и её canonical digest записываются durable до vendor I/O.
-8. Один `operation_id` при повторе REST, MQTT или BLE даёт максимум один
-   физический side effect.
+8. MiniPOS генерирует отдельный UUIDv4 `client_operation_id` для каждой
+   изменяющей операции до первого send. Повтор через REST, MQTT или BLE сохраняет
+   UUID и даёт максимум один физический side effect.
 9. Ambiguous result переходит в `UNKNOWN`; автоматический повтор запрещён.
 10. Результат подписывается устройством, хранится локально и выгружается через
     MQTT до business ACK backend.
@@ -38,6 +40,40 @@ MiniPOS не обращается к MQTT, vendor SDK или внутренне�
 14. RRN, authorization code, STAN и terminal outcome сохраняются durable до
     изменения authoritative sale state.
 15. REST и BLE должны материализовать одинаковые sale/operation/WebHook projections.
+16. REST/WebHook primary и direct BLE fallback обязательны для каждого MVP
+    profile; переключение выполняется автоматически по cloud connectivity state.
+17. Одна sale/receipt session может продолжаться через другой transport без
+    изменения identifiers, route snapshot и без повторного physical side effect.
+18. Восстановление ping возвращает новые intents на REST только после hysteresis,
+    device journal sync и reconciliation authoritative projection.
+19. Backend не заменяет и не регенерирует `client_operation_id`; внутренний
+    `operation_id` может быть равен ему. Если нужен отдельный server ID, оба
+    значения хранятся неизменно, а lookup/dedupe работает по client ID.
+20. HTTP `Idempotency-Key` должен быть равен `client_operation_id` либо
+    однозначно и проверяемо ссылаться на него; два независимых idempotency keys
+    одной операции запрещены.
+
+### 2.1 Client operation identity
+
+Каждая mutation содержит UUID `client_operation_id`, operation type,
+sale/session binding и `canonical_payload_sha256`. UUID создаётся безопасным
+генератором MiniPOS и durable сохраняется в его локальной БД вместе с intent до
+сетевого вызова.
+
+Backend выполняет atomic insert-or-get по `(tenant_id, client_operation_id)`.
+Adapter выполняет atomic reserve-or-get по
+`(binding_generation, client_operation_id)`. В обеих точках сравниваются type,
+sale/session binding и canonical digest.
+
+- retry, app restart, MQTT QoS1 redelivery и BLE fallback используют тот же UUID;
+- каждая payment leg имеет свой `payment_id`, а весь `SALE_FINALIZE` — отдельный
+  `client_operation_id`;
+- physical steps finalize имеют отдельные durable `step_id`, но не становятся
+  новыми POS operations;
+- WebHook и operation lookup обязательно содержат client UUID;
+- новый сознательный кассовый intent, даже с тем же payload, получает новый UUID;
+- UUID не заменяет authorization и не кодирует tenant/register/operator;
+- idempotency record хранится не меньше срока transaction journal.
 
 ## 3. Минимальный business command catalog
 
@@ -70,7 +106,7 @@ CASH_OUT
 {
   "receipt_session_id": "uuid",
   "client_sale_surrogate_id": "uuid",
-  "operation_id": "uuid",
+  "client_operation_id": "uuid",
   "ordered_payments": [
     {"payment_id":"uuid","type":"CASH","amount":{"amount":"5.00","currency":"EUR"}},
     {"payment_id":"uuid","type":"CARD","amount":{"amount":"7.50","currency":"EUR"}}
@@ -78,7 +114,7 @@ CASH_OUT
 }
 ```
 
-Один и тот же surrogate/session/operation ID используется при REST retry, MQTT
+Один и тот же surrogate/session/client operation ID используется при REST retry, MQTT
 redelivery, BLE fallback, reboot recovery и sync. Изменение payload под тем же ID
 возвращает `IDEMPOTENCY_PAYLOAD_CONFLICT`.
 
@@ -153,7 +189,7 @@ reconciliation. Нельзя возвращать `FAILED` так, будто si
 ```json
 {
   "version": 2,
-  "operation_id": "uuid",
+  "client_operation_id": "uuid",
   "tenant_id": "uuid",
   "location_id": "uuid",
   "register_id": "uuid",
@@ -170,9 +206,13 @@ reconciliation. Нельзя возвращать `FAILED` так, будто si
 }
 ```
 
+Wire field `operation_id` может временно дублировать `client_operation_id`, но
+источник значения всегда MiniPOS; backend не создаёт новое значение при смене
+transport.
+
 MQTT serializes envelope as canonical JSON. BLE переносит ту же semantic model
 в deterministic CBOR внутри AEAD. Golden-vector test обязан доказать одинаковый
-`payload_sha256` и `operation_id`.
+`payload_sha256` и `client_operation_id`.
 
 ## 5. Порядок кодогенерации
 
@@ -183,6 +223,8 @@ MQTT serializes envelope as canonical JSON. BLE переносит ту же sem
 3. Добавить BLE mapping `ComplianceIntent.action ↔ DeviceCommandEnvelopeV2`.
 4. Сгенерировать Go/TypeScript contracts.
 5. Добавить golden JSON/CBOR vectors.
+6. Сделать `client_operation_id` required UUID во всех mutation, lookup,
+   WebHook, MQTT и BLE schemas.
 
 Готово, когда `make contract-test` проходит и каждый command имеет request,
 result, error catalog, idempotency и timeout semantics.
@@ -219,6 +261,8 @@ result, error catalog, idempotency и timeout semantics.
 3. GATT доказывает possession X25519 key, затем AES-GCM frames.
 4. BLE result сначала durable на устройстве, затем возвращается POS.
 5. После cloud recovery те же events синхронизируются без второй операции.
+6. Реализовать state machine и lightweight ping из документа 09.
+7. Проверить cross-transport continuation одной sale и shared device dedupe.
 
 ### Этап 6 — regression/HIL
 
