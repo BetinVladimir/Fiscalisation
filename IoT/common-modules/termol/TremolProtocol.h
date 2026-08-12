@@ -371,7 +371,7 @@ public:
     static uint8_t  decodeCS(const uint8_t in[2]);
 
     /** Build a DATA string by joining fields with ';'. Returns chars written. */
-    static uint8_t buildData(char* out, uint8_t outSize, ...);
+    static uint8_t buildData(char* out, unsigned int outSize, ...);
     // va_list terminated by nullptr sentinel
 
     static const char* localErrorStr(int8_t err);
@@ -379,7 +379,7 @@ public:
     const uint8_t* lastTxBuf() const { return _txBuf; }
     uint8_t        lastTxLen() const { return _txLen; }
     const uint8_t* lastRxBuf() const { return _rxBuf; }
-    uint8_t        lastRxLen() const { return _rxLen; }
+    uint16_t       lastRxLen() const { return _rxLen; }
 
 private:
     Stream&  _serial;
@@ -389,7 +389,7 @@ private:
     uint8_t  _txBuf[TR_TX_BUF];
     uint8_t  _txLen;
     uint8_t  _rxBuf[TR_RX_BUF];
-    uint8_t  _rxLen;
+    uint16_t _rxLen;
 
     bool    _waitByte(uint8_t& b, uint16_t ms);
     bool    _readUntilETX(uint16_t ms);

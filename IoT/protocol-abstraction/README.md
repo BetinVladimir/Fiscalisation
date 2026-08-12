@@ -1,116 +1,99 @@
-# Universal Protocol Abstraction Layer
+# BeeFiscal protocol abstraction
 
-Слой унификации протоколов фискальных устройств.
+Единый C++/Arduino-фасад над драйверами из `IoT/common-modules`. Он скрывает
+vendor API, но не смешивает фискальное устройство и платёжный терминал: для них
+создаются разные объекты с разными контрактами.
 
-Расположение в монорепозитории: `IoT/protocol-abstraction`.
+## Публичные контракты
 
-## Цель
-Преобразование canonical BeeFiscal команд в vendor-specific Daisy 93PC и
-Datecs Bulgaria v2.11.4 протоколы для двух разрешённых IoT tracks MVP.
+- `IFiscalDevice` — чек, позиция, оплата, закрытие/отмена, X/Z, служебное
+  внесение/выведение.
+- `IPaymentTerminal` — ping, purchase, void, transaction end, end-of-day и
+  обработка асинхронных событий.
+- `ProtocolFactory::createFiscal(ConnectionSpec)` создаёт только фискальный
+  адаптер.
+- `ProtocolFactory::createPayment(ConnectionSpec)` создаёт только платёжный
+  адаптер.
 
-## Функции
-- Compile-time выбор подтверждённого device profile; неподтверждённый profile не автоактивируется.
-- Маппинг команд и форматов данных.
-- Нормализация ответов и ошибок.
-- Версионирование адаптеров.
+Публичный header: `include/ProtocolFacade.h`. Vendor headers подключаются только
+в отдельных translation units. Это существенно: существующие библиотеки имеют
+глобальные имена (`DatecsError`, `CMD_*`), которые нельзя безопасно включить в
+один пользовательский translation unit.
 
-## Модель сборки
+## Матрица выбора
 
-- Это C++/Arduino модуль, который собирается вместе с firmware из `IoT/firmware`.
-- Целевой протокол выбирается на этапе компиляции через конфигурацию препроцессора.
-- Для разных устройств формируются разные firmware-артефакты с разными флагами сборки.
+| Фабрика | Vendor | Допустимые каналы |
+|---|---|---|
+| Fiscal | `Daisy` | RS-232, UART TTL, USB Serial, Embedded |
+| Fiscal | `Datecs` | RS-232, UART TTL, USB Serial, Embedded |
+| Fiscal | `Tremol` | RS-232, UART TTL, USB Serial, Embedded |
+| Payment | `DatecsPay` | BLE GATT, Embedded |
 
-Пример идеи конфигурации (PlatformIO `build_flags`):
+`Stream` передаётся уже настроенным. Поэтому слой транспорта отвечает за UART,
+USB CDC либо BLE GATT (`DatecsPayBleStream`), а фасад — за выбор совместимого
+протокола и делегирование команд. Неподдерживаемая пара vendor/channel
+отклоняется до обращения к оборудованию.
 
-```ini
-build_flags =
-	-DPROTOCOL_EPSON
+## Пример
+
+```cpp
+#include "ProtocolFacade.h"
+using namespace beefiscal;
+
+ConnectionSpec fiscalSpec{
+    DeviceVendor::Datecs,
+    TransportChannel::Rs232,
+    &fiscalSerial,
+    500,
+    3,
+    1 // явно запрограммированный в ФУ код оплаты картой
+};
+auto fiscal = ProtocolFactory::createFiscal(fiscalSpec);
+if (!fiscal) {
+    // fiscal.error
+}
+
+ConnectionSpec pinpadSpec{
+    DeviceVendor::DatecsPay,
+    TransportChannel::BleGatt,
+    &datecsPayBleStream
+};
+auto pinpad = ProtocolFactory::createPayment(pinpadSpec);
 ```
 
-```ini
-build_flags =
-	-DPROTOCOL_DATECS
+Фискальный и платёжный экземпляры имеют независимые lifecycle и transport
+sessions. Для комбинированного сценария оркестратор сначала выполняет
+`pinpad->purchase(amountMinor)`, после подтверждённого результата регистрирует
+на ФУ `addPayment({PaymentMethod::Card, amount})`, затем закрывает чек.
+
+## Инварианты
+
+- Денежная сумма фискального API передаётся decimal-строкой; терминалу — в minor
+  units (`uint32_t`). Конвертацию выполняет вызывающий слой без `float`.
+- Tax group канонически задаётся как `1..8`, адаптер переводит её в формат
+  вендора.
+- Коды безналичных оплат программируются на конкретном ФУ. Для `Card`/`Other`
+  требуется `ConnectionSpec.paymentCode`; фасад никогда не угадывает код.
+  Для Datecs это `0..6`, для Daisy/Tremol — native ASCII code.
+- Невалидные данные и неподдерживаемые операции отклоняются до записи в
+  transport.
+- `TremolPrinter` не предоставляет invoice-open helper, поэтому invoice через
+  этот адаптер возвращает `UnsupportedOperation`, а не печатает обычный чек.
+- `timeoutMs/retries` относятся к фискальным serial-драйверам. DatecsPay сейчас
+  использует таймауты своей библиотеки.
+
+## Сборка и тесты
+
+```bash
+IoT/protocol-abstraction/run-tests.sh
+make iot-test
 ```
 
-## Планируемая структура
-- `adapters/daisy/`
-- `adapters/datecs/`
-- `contracts/` — канонические команды/события.
+Host-тест компилирует фасад совместно с Daisy, Datecs, Tremol и DatecsPay,
+проверяет матрицу factory routing, раздельность интерфейсов и fail-closed
+валидацию. При интеграции с firmware необходимо добавить `include`, все файлы
+`src` и соответствующие vendor modules в PlatformIO/Arduino build.
 
-Текущий registry классифицирует все 88 Daisy и 73 Datecs command IDs. Любой
-неизвестный код отклоняется, а conditional payment commands 194/55 остаются
-`Excluded` до закрытия vendor/acquirer P0. Frame codec реализует wire envelope,
-length/BCC/status extraction. Execution-critical commands now include validated
-Daisy/Datecs payload builders and golden parsers for open receipt, item,
-payment, close/cancel mapping, X/Z report, EUR cash movement and receipt status.
-Daisy coverage additionally implements the documented 2026 tax-rate period
-query (50), subtotal/adjustment command and eight tax totals (51), exact device
-clock result (62), net/total selectors with last/current eight-group sale and
-refund totals (64/65), fiscalization/BGN-to-all report counters (66), and the
-logical/physical free fiscal-record invariant (68). All fields fail closed on
-bad cardinality, date shape, decimal shape, counter order or inconsistent FM
-capacity.
-Daisy device/readiness coverage also implements diagnostic identity and checksum
-(90), current VAT rates (97), fiscalized EIK state (99), current receipt and
-invoice state (103), last document (113), first receipt not sent to NRA with
-explicit EJT error/all-sent states (117), e-shop and BIM/NRA firmware certificate
-information (118), correlated status-byte error lookup (174), and all/single
-BGN-to-EUR transition-date queries (201). Command 201 validates zone 0..4,
-daily-Z requirement, four DDMMYY/unset dates, exact five-decimal exchange rate
-and the last FM date.
-Daisy sale/report semantics additionally cover sale-and-display (52),
-programmed PLU/barcode sale and correction (58), detailed/brief FM reports by
-number and date with optional payment totals (73/79/94/95), operator report
-(105), every documented daily/PLU/department report mode (108/111/165), cancel
-receipt (130) and system-parameter printing (166). P/F acknowledgements,
-closure/tax/refund totals and command-specific empty payloads are validated.
-Daisy coverage now also includes every command classified as `Supported`:
-current-day payment distribution/counters (110), operator sales/adjustment and
-refund-reason totals (112), FM sum/net/tax/rate queries by record and date with
-explicit `P/F/E` states (114/146), issued-document QR and full document/SHA1
-evidence (116/119), all 26 reported device constants (128), department
-sale/correction grammar (138), and the acknowledged text-report line stream
-(153). Document flags, UNP/invoice/refund links, grouped SHA1, Bulgarian eight
-tax groups, line sequence/font/framing and all single/range selectors fail
-closed on malformed data.
-Datecs coverage additionally validates storno opening with original-document,
-invoice and УНП binding (43), PC connectivity/print control (45), programmed
-PLU sales (58), typed NRA connection/delivery state (71), fiscal-memory
-date/Z-range reports (94/95), operator reports (105), all PLU report modes
-(111), VAT-rate reads (50), subtotal/discount
-(51), clock reads (62), last-fiscal-entry selection/results (64), daily taxation
-(65), remaining FM Z-report capacity (68), last fiscal-record time (86), item
-groups/departments and fiscal-memory self-test (87/88/89), device diagnostics
-(90), tax-number reads (99), negative error-code lookup (100),
-current-receipt state (103), all daily/operator totals variants (110/112),
-BC-50-only currency conversion (115), bounded binary fiscal-memory reads (116)
-all device-information options (123), typed receipt-period search (124) and EJ
-document/text/base64/CSV transport modes (125) and structured fiscal-memory
-capacity/Z/identity/tax/VAT/NRA/KLEN records (126), plus separated modem
-identity/signal diagnostics (135), including
-all eight tax groups and the documented ranges, identity, invoice, reversal and
-date/time constraints. The executable gate currently proves 45 Daisy core plus
-all 16 Daisy `Optional` commands. Optional semantics include display clear/text/
-row/clock/configuration (33/35/46/47/63/133), paper feed/cut and drawer
-(44/45/106), invoice customer data (57), printed diagnostics/tax rates
-(71/176), all documented barcode and customer-QR modes (84/85), the full
-customer program/delete/read/iteration directory (152), and model-conditional
-Compact battery telemetry (173). Empty responses, P/F results, barcode-specific
-alphabets/lengths, QR template identifiers, display command hex bodies and
-battery ranges are enforced while disposition remains `Optional`.
-The same gate proves 40 Datecs core semantic commands and covers every Datecs command classified as
-`Supported`. All 12 `Optional` Datecs commands have typed semantic coverage,
-including display, printer, sound, barcode and drawer builders, invoice fields
-(57) and every client-directory option (140), plus golden/negative vectors
-while retaining `Optional` disposition.
-They and all `Privileged`/`Excluded` branches remain separately gated and
-cannot be silently activated.
-
-Datecs 135 is deliberately canonicalized as `GetDiagnosticInfo`; modem signal
-and identity are not evidence that the device transmitted data to NRA. That
-regulatory state remains a distinct command/metric and is parsed from the
-documented 13-field command 71 response.
-Payment codes are accepted only from an explicitly configured device profile;
-the abstraction does not guess terminal mappings. Remaining command-specific
-semantics and all HIL evidence continue to be tracked separately and are not
-production-approved.
+В ходе интеграции также исправлены два дефекта Tremol transport: variadic helper
+больше не использует тип, подверженный default promotion в `va_start`, а длина
+256-байтного RX-буфера хранится в `uint16_t`, поэтому overflow guard достижим.

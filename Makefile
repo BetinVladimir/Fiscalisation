@@ -129,11 +129,10 @@ smart-device-test:
 	test -f SmartDevices/bluecash-app/build/outputs/apk/release/bluecash-app-release-unsigned.apk
 	rg -q 'BuildConfig.STUB_ADAPTER && BuildConfig.DEBUG' SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy/DaisySmartStub.kt
 iot-test:
-	c++ -std=c++17 -Wall -Wextra -Werror -IIoT/protocol-abstraction/include IoT/protocol-abstraction/src/FrameCodec.cpp IoT/protocol-abstraction/src/AllCommands.cpp IoT/protocol-abstraction/src/CommandRegistry.cpp IoT/protocol-abstraction/src/CommandPayload.cpp IoT/protocol-abstraction/tests/FrameCodecTest.cpp -o /tmp/beefiscal-frame-codec-test
-	/tmp/beefiscal-frame-codec-test
 	IoT/common-modules/daisy/run-tests.sh
 	IoT/common-modules/datecs/run-tests.sh
 	IoT/common-modules/datecspay/run-tests.sh
+	IoT/protocol-abstraction/run-tests.sh
 compose-check:
 	docker compose --env-file .env.example -f compose.fiscalisation.yaml -f compose.fiscalisation.dev.yaml config >/dev/null
 	docker compose --env-file .env.example -f compose.minipos.yaml -f compose.minipos.dev.yaml config >/dev/null

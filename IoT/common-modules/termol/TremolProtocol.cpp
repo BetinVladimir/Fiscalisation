@@ -38,7 +38,7 @@ uint8_t TremolProtocol::decodeCS(const uint8_t in[2]) {
 // Joins varargs (const char*) with ';', null-terminated list.
 // Returns total chars written (excluding null terminator).
 
-uint8_t TremolProtocol::buildData(char* out, uint8_t outSize, ...) {
+uint8_t TremolProtocol::buildData(char* out, unsigned int outSize, ...) {
     va_list ap;
     va_start(ap, outSize);
     uint8_t pos = 0;
@@ -155,7 +155,7 @@ bool TremolProtocol::_parseMsgResponse(TremolResponse& resp) {
     uint8_t dataLen = (uint8_t)dL;
 
     // Expected total: STX(1)+LEN(1)+NBL(1)+CMD(1)+DATA(dL)+CS(2)+ETX(1) = 7+dL
-    if (_rxLen < (uint8_t)(7 + dataLen)) {
+    if (_rxLen < uint16_t(7 + dataLen)) {
         resp.localError = TR_ERR_BAD_FRAME;
         return false;
     }
