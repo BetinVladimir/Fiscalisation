@@ -7,12 +7,19 @@ import { accessTokenRoles } from "./oidcRoles";
 WebBrowser.maybeCompleteAuthSession();
 const OIDC_SCOPES = ["openid", "profile", "offline_access", "fiscal.base"];
 export function useAdminOidc() {
-  const issuer = (process.env.EXPO_PUBLIC_FISCAL_OIDC_ISSUER || "").replace(/\/$/, "");
+  const issuer = (process.env.EXPO_PUBLIC_FISCAL_OIDC_ISSUER || "").replace(
+    /\/$/,
+    "",
+  );
   const clientId = process.env.EXPO_PUBLIC_FISCAL_OIDC_CLIENT_ID || "";
   const configured = issuer.startsWith("https://") && clientId.length > 0;
   const discovery = AuthSession.useAutoDiscovery(configured ? issuer : "");
   const redirectUri = useMemo(
-    () => AuthSession.makeRedirectUri({ scheme: "beefiscalapp", path: "oauth/callback" }),
+    () =>
+      AuthSession.makeRedirectUri({
+        scheme: "beefiscalapp",
+        path: "oauth/callback",
+      }),
     [],
   );
   const [request, response, promptAsync] = AuthSession.useAuthRequest(
@@ -25,7 +32,8 @@ export function useAdminOidc() {
     },
     configured ? discovery : null,
   );
-  const [tokenResponse, setTokenResponse] = useState<AuthSession.TokenResponse | null>(null);
+  const [tokenResponse, setTokenResponse] =
+    useState<AuthSession.TokenResponse | null>(null);
   const [error, setError] = useState("");
 
   useEffect(() => {
@@ -41,7 +49,12 @@ export function useAdminOidc() {
       return;
     }
     void AuthSession.exchangeCodeAsync(
-      { clientId, code: response.params.code, redirectUri, extraParams: { code_verifier: request.codeVerifier } },
+      {
+        clientId,
+        code: response.params.code,
+        redirectUri,
+        extraParams: { code_verifier: request.codeVerifier },
+      },
       discovery,
     )
       .then((token) => {
@@ -49,7 +62,13 @@ export function useAdminOidc() {
         setTokenResponse(token);
         setError("");
       })
-      .catch((reason) => setError(reason instanceof Error ? reason.message : "OIDC_TOKEN_EXCHANGE_FAILED"));
+      .catch((reason) =>
+        setError(
+          reason instanceof Error
+            ? reason.message
+            : "OIDC_TOKEN_EXCHANGE_FAILED",
+        ),
+      );
   }, [response, request, discovery, clientId, redirectUri]);
 
   useEffect(() => {
@@ -57,24 +76,37 @@ export function useAdminOidc() {
     const next = nextOidcTokenAction(tokenResponse);
     if (!next) return;
     const timer = setTimeout(() => {
-      if (next.action === "EXPIRE" || !tokenResponse.refreshToken || !discovery) {
+      if (
+        next.action === "EXPIRE" ||
+        !tokenResponse.refreshToken ||
+        !discovery
+      ) {
         setTokenResponse(null);
         setError("OIDC_SESSION_EXPIRED");
         return;
       }
       void AuthSession.refreshAsync(
-        { clientId, refreshToken: tokenResponse.refreshToken, scopes: OIDC_SCOPES },
+        {
+          clientId,
+          refreshToken: tokenResponse.refreshToken,
+          scopes: OIDC_SCOPES,
+        },
         discovery,
       )
         .then((token) => {
           if (!token.accessToken) throw new Error("OIDC_ACCESS_TOKEN_MISSING");
-          if (!token.refreshToken) token.refreshToken = tokenResponse.refreshToken;
+          if (!token.refreshToken)
+            token.refreshToken = tokenResponse.refreshToken;
           setTokenResponse(token);
           setError("");
         })
         .catch((reason) => {
           setTokenResponse(null);
-          setError(reason instanceof Error ? reason.message : "OIDC_TOKEN_REFRESH_FAILED");
+          setError(
+            reason instanceof Error
+              ? reason.message
+              : "OIDC_TOKEN_REFRESH_FAILED",
+          );
         });
     }, next.delayMs);
     return () => clearTimeout(timer);

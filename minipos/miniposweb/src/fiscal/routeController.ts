@@ -7,6 +7,9 @@ export interface FiscalRoute {
   lookup(id: string, signal: AbortSignal): Promise<FiscalOperation>;
 }
 export class RouteController {
+  // Route changes are allowed only before a transport attempt. Once a command
+  // may have reached a device, recovery is lookup-only to prevent a duplicate
+  // receipt or a second card debit after an ambiguous timeout.
   private preferred: RouteKind = "CLOUD";
   private cloudSuccesses = 0;
   constructor(

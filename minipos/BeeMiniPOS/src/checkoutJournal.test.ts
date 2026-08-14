@@ -1,6 +1,57 @@
-import test from "node:test";import assert from "node:assert/strict";import{CheckoutJournal,type CheckoutStore}from"./checkoutJournal.ts";
-class Memory implements CheckoutStore{m=new Map<string,string>();async getItem(k:string){return this.m.get(k)??null}async setItem(k:string,v:string){this.m.set(k,v)}async removeItem(k:string){this.m.delete(k)}async getAllKeys(){return [...this.m.keys()]}}
-const entry={sale_id:"sale-1",sale_version:3,created_at:"2026-08-13T00:00:00Z",plan:{client_operation_id:"00000000-0000-4000-8000-000000000001",receipt_session_id:"00000000-0000-4000-8000-000000000002",payments:[{payment_id:"p"}],expected_total:{amount:"1.00",currency:"EUR" as const}}};
-test("checkout survives restart with the exact operation receipt and payments",async()=>{const store=new Memory(),a=new CheckoutJournal(store);await a.save(entry);const b=new CheckoutJournal(store),loaded=await b.load(entry.sale_id);assert.deepEqual(loaded,entry);await b.remove(entry.sale_id);assert.equal(await a.load(entry.sale_id),null)});
-test("corrupt checkout fails closed",async()=>{const store=new Memory();await store.setItem("beeminipos:checkout:v1:sale-1","{}");await assert.rejects(new CheckoutJournal(store).load("sale-1"),/CORRUPT/)});
-test("pending checkout is recovered after process restart with operation correlation",async()=>{const store=new Memory(),before=new CheckoutJournal(store);await before.save(entry);const after=new CheckoutJournal(store);const pending=await after.pending();assert.equal(pending.length,1);assert.equal(pending[0].sale_id,"sale-1");assert.equal(pending[0].plan.client_operation_id,"00000000-0000-4000-8000-000000000001")});
+import test from "node:test";
+import assert from "node:assert/strict";
+import { CheckoutJournal, type CheckoutStore } from "./checkoutJournal.ts";
+class Memory implements CheckoutStore {
+  m = new Map<string, string>();
+  async getItem(k: string) {
+    return this.m.get(k) ?? null;
+  }
+  async setItem(k: string, v: string) {
+    this.m.set(k, v);
+  }
+  async removeItem(k: string) {
+    this.m.delete(k);
+  }
+  async getAllKeys() {
+    return [...this.m.keys()];
+  }
+}
+const entry = {
+  sale_id: "sale-1",
+  sale_version: 3,
+  created_at: "2026-08-13T00:00:00Z",
+  plan: {
+    client_operation_id: "00000000-0000-4000-8000-000000000001",
+    receipt_session_id: "00000000-0000-4000-8000-000000000002",
+    payments: [{ payment_id: "p" }],
+    expected_total: { amount: "1.00", currency: "EUR" as const },
+  },
+};
+test("checkout survives restart with the exact operation receipt and payments", async () => {
+  const store = new Memory(),
+    a = new CheckoutJournal(store);
+  await a.save(entry);
+  const b = new CheckoutJournal(store),
+    loaded = await b.load(entry.sale_id);
+  assert.deepEqual(loaded, entry);
+  await b.remove(entry.sale_id);
+  assert.equal(await a.load(entry.sale_id), null);
+});
+test("corrupt checkout fails closed", async () => {
+  const store = new Memory();
+  await store.setItem("beeminipos:checkout:v1:sale-1", "{}");
+  await assert.rejects(new CheckoutJournal(store).load("sale-1"), /CORRUPT/);
+});
+test("pending checkout is recovered after process restart with operation correlation", async () => {
+  const store = new Memory(),
+    before = new CheckoutJournal(store);
+  await before.save(entry);
+  const after = new CheckoutJournal(store);
+  const pending = await after.pending();
+  assert.equal(pending.length, 1);
+  assert.equal(pending[0].sale_id, "sale-1");
+  assert.equal(
+    pending[0].plan.client_operation_id,
+    "00000000-0000-4000-8000-000000000001",
+  );
+});

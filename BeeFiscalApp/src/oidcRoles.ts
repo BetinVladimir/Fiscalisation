@@ -1,4 +1,10 @@
-const KNOWN_ROLES = new Set(["CASHIER", "SUPERVISOR", "ADMIN", "AUDITOR", "SERVICE"]);
+const KNOWN_ROLES = new Set([
+  "CASHIER",
+  "SUPERVISOR",
+  "ADMIN",
+  "AUDITOR",
+  "SERVICE",
+]);
 
 export function accessTokenRoles(accessToken: string): string[] {
   const encoded = accessToken.split(".")[1];
@@ -8,7 +14,9 @@ export function accessTokenRoles(accessToken: string): string[] {
       .replace(/-/g, "+")
       .replace(/_/g, "/")
       .padEnd(Math.ceil(encoded.length / 4) * 4, "=");
-    const claims = JSON.parse(globalThis.atob(normalized)) as { roles?: unknown };
+    const claims = JSON.parse(globalThis.atob(normalized)) as {
+      roles?: unknown;
+    };
     if (!Array.isArray(claims.roles)) return [];
     return [
       ...new Set(

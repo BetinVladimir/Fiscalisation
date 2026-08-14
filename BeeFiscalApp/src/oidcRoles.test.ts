@@ -9,7 +9,9 @@ function token(claims: unknown): string {
 
 test("role discovery normalizes only recognized access-token roles", () => {
   assert.deepEqual(
-    accessTokenRoles(token({ roles: ["admin", "AUDITOR", "admin", "ROOT", 7] })),
+    accessTokenRoles(
+      token({ roles: ["admin", "AUDITOR", "admin", "ROOT", 7] }),
+    ),
     ["ADMIN", "AUDITOR"],
   );
 });

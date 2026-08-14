@@ -9,10 +9,14 @@ import {
   TextInput,
   View,
 } from "react-native";
-import {MVP1_DEVICE_PROFILES} from "./src/deviceProfiles";
+import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
-import { isRegisterId, registerCollectionPath, registerResourcePath } from "./src/registerFilter";
+import {
+  isRegisterId,
+  registerCollectionPath,
+  registerResourcePath,
+} from "./src/registerFilter";
 import { useAdminOidc } from "./src/adminOidc";
 
 const base = (
@@ -22,7 +26,9 @@ const version = "2026-08-07";
 const appEnv = (process.env.EXPO_PUBLIC_APP_ENV || "dev").toLowerCase();
 const configuredRegisterId = process.env.EXPO_PUBLIC_REGISTER_ID || "";
 const prodMode = appEnv === "prod";
-const devAuthToken = prodMode ? "" : process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN || "";
+const devAuthToken = prodMode
+  ? ""
+  : process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN || "";
 let runtimeAuthToken = devAuthToken;
 let runtimeUnauthorized: (() => void) | undefined;
 type Item = Record<string, unknown>;
@@ -34,6 +40,8 @@ type AdminLists = {
 };
 
 async function call(path: string, init: RequestInit = {}) {
+  // Every mutation is independently idempotent. A PROD 401 clears local
+  // authority immediately instead of leaving privileged controls usable.
   const mutation = !!init.method && init.method !== "GET";
   const r = await fetchWithTimeout(base + path, {
     ...init,
@@ -45,7 +53,9 @@ async function call(path: string, init: RequestInit = {}) {
             "Idempotency-Key": `${Date.now()}-${Math.random().toString(16).slice(2)}-admin`,
           }
         : {}),
-      ...(runtimeAuthToken ? { Authorization: `Bearer ${runtimeAuthToken}` } : {}),
+      ...(runtimeAuthToken
+        ? { Authorization: `Bearer ${runtimeAuthToken}` }
+        : {}),
       ...(init.headers || {}),
     },
   });
@@ -54,14 +64,18 @@ async function call(path: string, init: RequestInit = {}) {
   if (!r.ok) throw new Error(text || `HTTP ${r.status}`);
   return text ? JSON.parse(text) : {};
 }
-const collect = (path: string) => collectCursorPages<Item>(path, (next) => call(next));
+const collect = (path: string) =>
+  collectCursorPages<Item>(path, (next) => call(next));
 const label = (v: unknown) =>
   typeof v === "string" ? v : typeof v === "number" ? String(v) : "—";
 
 export default function App() {
+  // Token roles are reduced to explicit UI capabilities. The backend remains
+  // authoritative; these guards prevent presenting accidental admin paths.
   const oidc = useAdminOidc();
   const roles = prodMode ? oidc.roles : ["ADMIN", "SUPERVISOR", "AUDITOR"];
-  const hasRole = (...allowed: string[]) => roles.some((role) => allowed.includes(role));
+  const hasRole = (...allowed: string[]) =>
+    roles.some((role) => allowed.includes(role));
   const canAdminister = hasRole("ADMIN");
   const canRunReports = hasRole("SUPERVISOR", "ADMIN");
   const canReconcile = hasRole("SUPERVISOR", "ADMIN");
@@ -107,10 +121,14 @@ export default function App() {
     [deviceProtocolId, setDeviceProtocolId] = useState("datecs-fp"),
     [deviceProtocolVersion, setDeviceProtocolVersion] = useState("2.11.4"),
     [deviceTransport, setDeviceTransport] = useState("RS232"),
-    [deviceTransportParameters, setDeviceTransportParameters] = useState('{"baud":115200,"data_bits":8,"parity":"N","stop_bits":1}'),
+    [deviceTransportParameters, setDeviceTransportParameters] = useState(
+      '{"baud":115200,"data_bits":8,"parity":"N","stop_bits":1}',
+    ),
     [bindingRole, setBindingRole] = useState("FISCAL_DEVICE"),
     [deviceId, setDeviceId] = useState(""),
-    [compositeProfile, setCompositeProfile] = useState(MVP1_DEVICE_PROFILES[0].id),
+    [compositeProfile, setCompositeProfile] = useState(
+      MVP1_DEVICE_PROFILES[0].id,
+    ),
     [adapterDeviceId, setAdapterDeviceId] = useState(""),
     [fiscalEndpointId, setFiscalEndpointId] = useState(""),
     [paymentEndpointId, setPaymentEndpointId] = useState(""),
@@ -139,27 +157,77 @@ export default function App() {
     [adminBusy, setAdminBusy] = useState(false),
     [loading, setLoading] = useState(false);
   useEffect(() => {
+    // Poll telemetry only while a selected device is visible. This avoids
+    // background API load and late updates after navigation.
     if (tab !== "Устройства" || !selected) return;
     let active = true;
-    const poll = async () => { if (typeof document !== "undefined" && document.visibilityState === "hidden") return; try { const [health,activity]=await Promise.all([call(`/devices/${encodeURIComponent(label(selected.id))}/health`),call(`/devices/${encodeURIComponent(label(selected.id))}/activity`)]);if(active){setDeviceHealth(health);setDeviceActivity(Array.isArray(activity.items)?activity.items as Item[]:[])} } catch { if(active)setDeviceHealth({effective_state:"STALE"}) } };
-    void poll();const timer=setInterval(()=>void poll(),5000);return()=>{active=false;clearInterval(timer)};
+    const poll = async () => {
+      if (
+        typeof document !== "undefined" &&
+        document.visibilityState === "hidden"
+      )
+        return;
+      try {
+        const [health, activity] = await Promise.all([
+          call(`/devices/${encodeURIComponent(label(selected.id))}/health`),
+          call(`/devices/${encodeURIComponent(label(selected.id))}/activity`),
+        ]);
+        if (active) {
+          setDeviceHealth(health);
+          setDeviceActivity(
+            Array.isArray(activity.items) ? (activity.items as Item[]) : [],
+          );
+        }
+      } catch {
+        if (active) setDeviceHealth({ effective_state: "STALE" });
+      }
+    };
+    void poll();
+    const timer = setInterval(() => void poll(), 5000);
+    return () => {
+      active = false;
+      clearInterval(timer);
+    };
   }, [tab, selected?.id]);
-  const transportParameter=(name:string,fallback="")=>{try{const parsed=JSON.parse(deviceTransportParameters||"{}");return String(parsed[name]??fallback)}catch{return fallback}};
-  const setTransportParameter=(name:string,value:string,numeric=false)=>{let parsed:Record<string,unknown>={};try{parsed=JSON.parse(deviceTransportParameters||"{}")}catch{};parsed[name]=numeric?Number(value):value;setDeviceTransportParameters(JSON.stringify(parsed))};
+  const transportParameter = (name: string, fallback = "") => {
+    try {
+      const parsed = JSON.parse(deviceTransportParameters || "{}");
+      return String(parsed[name] ?? fallback);
+    } catch {
+      return fallback;
+    }
+  };
+  const setTransportParameter = (
+    name: string,
+    value: string,
+    numeric = false,
+  ) => {
+    let parsed: Record<string, unknown> = {};
+    try {
+      parsed = JSON.parse(deviceTransportParameters || "{}");
+    } catch {}
+    parsed[name] = numeric ? Number(value) : value;
+    setDeviceTransportParameters(JSON.stringify(parsed));
+  };
   const refresh = useCallback(
     async (next = tab) => {
       setLoading(true);
       try {
-        if (next === "Администриране" && !canAdminister) throw new Error("ROLE_ADMIN_REQUIRED");
-        if (next === "Отчети" && !hasRole("SUPERVISOR", "ADMIN", "AUDITOR")) throw new Error("ROLE_REPORT_READ_REQUIRED");
-        if (next === "Одит" && !canReadAudit) throw new Error("ROLE_AUDIT_READ_REQUIRED");
+        if (next === "Администриране" && !canAdminister)
+          throw new Error("ROLE_ADMIN_REQUIRED");
+        if (next === "Отчети" && !hasRole("SUPERVISOR", "ADMIN", "AUDITOR"))
+          throw new Error("ROLE_REPORT_READ_REQUIRED");
+        if (next === "Одит" && !canReadAudit)
+          throw new Error("ROLE_AUDIT_READ_REQUIRED");
         if (next === "Устройства") {
           const v = await collect("/devices");
           setItems(v);
           setSelected((x) => x || v[0] || null);
         }
         if (next === "Операции") {
-          const v = await collect(registerCollectionPath("/operations", register));
+          const v = await collect(
+            registerCollectionPath("/operations", register),
+          );
           setItems(v);
         }
         if (next === "Отчети") {
@@ -175,7 +243,9 @@ export default function App() {
           if (auditUnp) params.set("unp", auditUnp);
           if (auditFrom) params.set("from", auditFrom);
           if (auditTo) params.set("to", auditTo);
-          setItems(await collect(`/audit-events${params.size ? `?${params}` : ""}`));
+          setItems(
+            await collect(`/audit-events${params.size ? `?${params}` : ""}`),
+          );
         }
         if (next === "Настройки") {
           const [p, t] = await Promise.all([
@@ -186,13 +256,12 @@ export default function App() {
           setItems([]);
         }
         if (next === "Администриране") {
-          const [locations, registers, operators, devices] =
-            await Promise.all([
-              collect("/locations"),
-              collect("/registers"),
-              collect("/operators"),
-              collect("/devices"),
-            ]);
+          const [locations, registers, operators, devices] = await Promise.all([
+            collect("/locations"),
+            collect("/registers"),
+            collect("/operators"),
+            collect("/devices"),
+          ]);
           const lists = {
             locations,
             registers,
@@ -207,9 +276,19 @@ export default function App() {
           setItems([]);
           const selectedRegister = register || label(lists.registers[0]?.id);
           if (isRegisterId(selectedRegister)) {
-            const history = await call(registerResourcePath(selectedRegister,"/composite-bindings"));
-            const bindings = Array.isArray(history.items) ? history.items as Item[] : [];
-            setCompositeBinding(bindings.find((x)=>x.status==="PENDING"||x.status==="ACTIVE")||bindings[0]||null);
+            const history = await call(
+              registerResourcePath(selectedRegister, "/composite-bindings"),
+            );
+            const bindings = Array.isArray(history.items)
+              ? (history.items as Item[])
+              : [];
+            setCompositeBinding(
+              bindings.find(
+                (x) => x.status === "PENDING" || x.status === "ACTIVE",
+              ) ||
+                bindings[0] ||
+                null,
+            );
           }
         }
         setMessage(`${next}: данните са обновени от BeeFiscal API`);
@@ -221,7 +300,20 @@ export default function App() {
         setLoading(false);
       }
     },
-    [register, tab, canAdminister, canReadAudit, roles.join(","), auditActor, auditAction, auditObjectType, auditObjectId, auditUnp, auditFrom, auditTo],
+    [
+      register,
+      tab,
+      canAdminister,
+      canReadAudit,
+      roles.join(","),
+      auditActor,
+      auditAction,
+      auditObjectType,
+      auditObjectId,
+      auditUnp,
+      auditFrom,
+      auditTo,
+    ],
   );
   useEffect(() => {
     runtimeAuthToken = oidc.accessToken || devAuthToken;
@@ -259,8 +351,16 @@ export default function App() {
         { method: "POST", body: "{}" },
       );
       const device = await call(`/devices/${encodeURIComponent(id)}/readiness`);
-      setTransportMetrics({ state: route.state, hops: route.hops, recommended_transport: route.recommended_transport });
-      setFiscalMetrics({ ready: device.ready, components: device.components, observed_at: device.observed_at });
+      setTransportMetrics({
+        state: route.state,
+        hops: route.hops,
+        recommended_transport: route.recommended_transport,
+      });
+      setFiscalMetrics({
+        ready: device.ready,
+        components: device.components,
+        observed_at: device.observed_at,
+      });
       setMessage(
         `Cloud ${route.hops?.cloud?.state || route.state} → Edge ${route.hops?.edge?.state || "?"} → Driver ${device.driver} → ФУ ${device.fiscal_device}`,
       );
@@ -285,14 +385,34 @@ export default function App() {
       setDiagnostics({ capabilities, details });
       setMessage("Диагностиката е заредена с приложени server redactions");
     } catch (e) {
-      setMessage(`Диагностиката е отказана: ${e instanceof Error ? e.message : String(e)}`);
+      setMessage(
+        `Диагностиката е отказана: ${e instanceof Error ? e.message : String(e)}`,
+      );
     } finally {
       setLoading(false);
     }
   };
   const printerTest = async () => {
-    if (!selected || !canDiagnose) { setMessage("Тестът на принтера изисква ADMIN или SERVICE"); return; }
-    setLoading(true);try{const result=await call(`/devices/${encodeURIComponent(label(selected.id))}/tests/printer`,{method:"POST",body:"{}"});setMessage(`Тест на принтера: ${label(result.state)} • ${label(result.id)}`)}catch(e){setMessage(`Тестът на принтера е отказан: ${e instanceof Error?e.message:String(e)}`)}finally{setLoading(false)}
+    if (!selected || !canDiagnose) {
+      setMessage("Тестът на принтера изисква ADMIN или SERVICE");
+      return;
+    }
+    setLoading(true);
+    try {
+      const result = await call(
+        `/devices/${encodeURIComponent(label(selected.id))}/tests/printer`,
+        { method: "POST", body: "{}" },
+      );
+      setMessage(
+        `Тест на принтера: ${label(result.state)} • ${label(result.id)}`,
+      );
+    } catch (e) {
+      setMessage(
+        `Тестът на принтера е отказан: ${e instanceof Error ? e.message : String(e)}`,
+      );
+    } finally {
+      setLoading(false);
+    }
   };
   const startProvisioning = async () => {
     if (!selected || !canAdminister) {
@@ -301,11 +421,18 @@ export default function App() {
     }
     setLoading(true);
     try {
-      const result = await call(`/devices/${encodeURIComponent(label(selected.id))}/provisioning-sessions`, { method: "POST", body: "" });
+      const result = await call(
+        `/devices/${encodeURIComponent(label(selected.id))}/provisioning-sessions`,
+        { method: "POST", body: "" },
+      );
       setProvisioning(result);
-      setMessage(`Provisioning сесия ${label(result.session_id)} • ${label(result.state)}`);
+      setMessage(
+        `Provisioning сесия ${label(result.session_id)} • ${label(result.state)}`,
+      );
     } catch (e) {
-      setMessage(`Provisioning е отказан: ${e instanceof Error ? e.message : String(e)}`);
+      setMessage(
+        `Provisioning е отказан: ${e instanceof Error ? e.message : String(e)}`,
+      );
     } finally {
       setLoading(false);
     }
@@ -316,33 +443,68 @@ export default function App() {
       return;
     }
     if (!isRegisterId(register) || !operatorId || !blePublicKey.trim()) {
-      setMessage("BLE сесията изисква валиден register UUID, operator и предварително подготвен client public key");
+      setMessage(
+        "BLE сесията изисква валиден register UUID, operator и предварително подготвен client public key",
+      );
       return;
     }
     setLoading(true);
     try {
-      const result = await call(registerResourcePath(register, "/ble-sessions"), {
-        method: "POST",
-        body: JSON.stringify({ operator_id: operatorId, app_instance_id: bleAppInstance, public_key: blePublicKey.trim() }),
-      });
+      const result = await call(
+        registerResourcePath(register, "/ble-sessions"),
+        {
+          method: "POST",
+          body: JSON.stringify({
+            operator_id: operatorId,
+            app_instance_id: bleAppInstance,
+            public_key: blePublicKey.trim(),
+          }),
+        },
+      );
       setBleSession(result);
-      setMessage(`BLE сесия ${label(result.ble_session_id)} • валидна до ${label(result.expires_at)}`);
+      setMessage(
+        `BLE сесия ${label(result.ble_session_id)} • валидна до ${label(result.expires_at)}`,
+      );
     } catch (e) {
-      setMessage(`BLE сесията е отказана: ${e instanceof Error ? e.message : String(e)}`);
+      setMessage(
+        `BLE сесията е отказана: ${e instanceof Error ? e.message : String(e)}`,
+      );
     } finally {
       setLoading(false);
     }
   };
   const activateBlueCash = async () => {
-    if (!activationRequest || !canAdminister) { setMessage("Първо намерете чакащата заявка с QR/краткия код"); return; }
-    if (!isRegisterId(activationLocationId) || !isRegisterId(register)) { setMessage("Изберете валидни търговска точка и касово място"); return; }
+    if (!activationRequest || !canAdminister) {
+      setMessage("Първо намерете чакащата заявка с QR/краткия код");
+      return;
+    }
+    if (!isRegisterId(activationLocationId) || !isRegisterId(register)) {
+      setMessage("Изберете валидни търговска точка и касово място");
+      return;
+    }
     setLoading(true);
     try {
-      const confirmed = await call(`/device-activation-requests/${encodeURIComponent(label(activationRequest.activation_request_id))}:confirm`, { method: "POST", body: JSON.stringify({ user_code: activationCode.trim().toUpperCase(), location_id: activationLocationId, register_id: register, roles: activationRequest.requested_roles }) });
-      setBlueCashActivation(confirmed); setActivationRequest(null);
-      setMessage(`Заявката е потвърдена. Организацията е взета от вашия tenant token; устройството ще завърши key-bound activation.`);
+      const confirmed = await call(
+        `/device-activation-requests/${encodeURIComponent(label(activationRequest.activation_request_id))}:confirm`,
+        {
+          method: "POST",
+          body: JSON.stringify({
+            user_code: activationCode.trim().toUpperCase(),
+            location_id: activationLocationId,
+            register_id: register,
+            roles: activationRequest.requested_roles,
+          }),
+        },
+      );
+      setBlueCashActivation(confirmed);
+      setActivationRequest(null);
+      setMessage(
+        `Заявката е потвърдена. Организацията е взета от вашия tenant token; устройството ще завърши key-bound activation.`,
+      );
     } catch (e) {
-      setMessage(`BlueCash activation е отказан: ${e instanceof Error ? e.message : String(e)}`);
+      setMessage(
+        `BlueCash activation е отказан: ${e instanceof Error ? e.message : String(e)}`,
+      );
     } finally {
       setLoading(false);
     }
@@ -350,16 +512,42 @@ export default function App() {
   const lookupActivation = async () => {
     if (!canAdminister || !activationCode.trim()) return;
     setLoading(true);
-    try { const pending = await call(`/device-activation-requests:lookup?user_code=${encodeURIComponent(activationCode.trim().toUpperCase())}`); setActivationRequest(pending); setMessage("Проверете vendor, model, serial, FMIN и key thumbprint преди потвърждение"); }
-    catch (e) { setActivationRequest(null); setMessage(`Заявката не е намерена: ${e instanceof Error ? e.message : String(e)}`); }
-    finally { setLoading(false); }
+    try {
+      const pending = await call(
+        `/device-activation-requests:lookup?user_code=${encodeURIComponent(activationCode.trim().toUpperCase())}`,
+      );
+      setActivationRequest(pending);
+      setMessage(
+        "Проверете vendor, model, serial, FMIN и key thumbprint преди потвърждение",
+      );
+    } catch (e) {
+      setActivationRequest(null);
+      setMessage(
+        `Заявката не е намерена: ${e instanceof Error ? e.message : String(e)}`,
+      );
+    } finally {
+      setLoading(false);
+    }
   };
   const disconnectDevice = async () => {
     if (!selected || !canAdminister) return;
     setLoading(true);
-    try { await call(`/devices/${encodeURIComponent(label(selected.id))}:disconnect`, { method: "POST", body: "{}" }); setMessage("Устройството, credential-ът, BLE сесиите и register bindings са оттеглени"); await refresh("Устройства"); }
-    catch (e) { setMessage(`Отключването е отказано: ${e instanceof Error ? e.message : String(e)}`); }
-    finally { setLoading(false); }
+    try {
+      await call(
+        `/devices/${encodeURIComponent(label(selected.id))}:disconnect`,
+        { method: "POST", body: "{}" },
+      );
+      setMessage(
+        "Устройството, credential-ът, BLE сесиите и register bindings са оттеглени",
+      );
+      await refresh("Устройства");
+    } catch (e) {
+      setMessage(
+        `Отключването е отказано: ${e instanceof Error ? e.message : String(e)}`,
+      );
+    } finally {
+      setLoading(false);
+    }
   };
   const report = async (type: string) => {
     if (!canRunReports) {
@@ -372,10 +560,10 @@ export default function App() {
     }
     setMessage(`${type} отчет…`);
     try {
-      const v = await call(
-        registerResourcePath(register, "/reports"),
-        { method: "POST", body: JSON.stringify({ type }) },
-      );
+      const v = await call(registerResourcePath(register, "/reports"), {
+        method: "POST",
+        body: JSON.stringify({ type }),
+      });
       setMessage(`${type}: ${v.state} • ${v.fiscal_reference || v.id}`);
       await refresh("Отчети");
     } catch (e) {
@@ -433,18 +621,84 @@ export default function App() {
       setAdminBusy(false);
     }
   };
-  const stageCompositeBinding=async()=>{setAdminBusy(true);try{const v=await call(registerResourcePath(register,"/composite-bindings"),{method:"POST",body:JSON.stringify({profile:compositeProfile,adapter_device_id:adapterDeviceId,fiscal_device_id:fiscalEndpointId,...(paymentEndpointId?{payment_device_id:paymentEndpointId}:{}),expected_register_version:Number(expectedRegisterVersion)})});setCompositeBinding(v);setMessage(`Composite generation ${label(v.generation)} е подготвена`)}catch(e){setMessage(`Composite binding: ${e instanceof Error?e.message:String(e)}`)}finally{setAdminBusy(false)}};
-  const disableCompositeBinding=async()=>{if(!compositeBinding)return;setAdminBusy(true);try{const v=await call(registerResourcePath(register,"/composite-bindings/disable"),{method:"POST",body:JSON.stringify({binding_id:compositeBinding.binding_id,expected_version:compositeBinding.version})});setCompositeBinding(v);setExpectedRegisterVersion(String(Number(expectedRegisterVersion)+1));setMessage("Composite binding е изключен; може да бъде подготвена нова връзка") }catch(e){setMessage(`Disable: ${e instanceof Error?e.message:String(e)}`)}finally{setAdminBusy(false)}};
+  const stageCompositeBinding = async () => {
+    setAdminBusy(true);
+    try {
+      const v = await call(
+        registerResourcePath(register, "/composite-bindings"),
+        {
+          method: "POST",
+          body: JSON.stringify({
+            profile: compositeProfile,
+            adapter_device_id: adapterDeviceId,
+            fiscal_device_id: fiscalEndpointId,
+            ...(paymentEndpointId
+              ? { payment_device_id: paymentEndpointId }
+              : {}),
+            expected_register_version: Number(expectedRegisterVersion),
+          }),
+        },
+      );
+      setCompositeBinding(v);
+      setMessage(`Composite generation ${label(v.generation)} е подготвена`);
+    } catch (e) {
+      setMessage(
+        `Composite binding: ${e instanceof Error ? e.message : String(e)}`,
+      );
+    } finally {
+      setAdminBusy(false);
+    }
+  };
+  const disableCompositeBinding = async () => {
+    if (!compositeBinding) return;
+    setAdminBusy(true);
+    try {
+      const v = await call(
+        registerResourcePath(register, "/composite-bindings/disable"),
+        {
+          method: "POST",
+          body: JSON.stringify({
+            binding_id: compositeBinding.binding_id,
+            expected_version: compositeBinding.version,
+          }),
+        },
+      );
+      setCompositeBinding(v);
+      setExpectedRegisterVersion(String(Number(expectedRegisterVersion) + 1));
+      setMessage(
+        "Composite binding е изключен; може да бъде подготвена нова връзка",
+      );
+    } catch (e) {
+      setMessage(`Disable: ${e instanceof Error ? e.message : String(e)}`);
+    } finally {
+      setAdminBusy(false);
+    }
+  };
   if (prodMode && !oidc.accessToken) {
     return (
       <SafeAreaView style={s.root}>
         <StatusBar style="dark" />
         <View testID="admin-login" style={s.login}>
           <Text style={s.loginTitle}>BeeFiscal • административен вход</Text>
-          <Text style={s.loginText}>OIDC Authorization Code + PKCE. Публични статични токени са забранени в production build.</Text>
-          {!oidc.configured ? <Text style={s.loginError}>OIDC не е конфигуриран: задайте issuer и client ID.</Text> : null}
+          <Text style={s.loginText}>
+            OIDC Authorization Code + PKCE. Публични статични токени са
+            забранени в production build.
+          </Text>
+          {!oidc.configured ? (
+            <Text style={s.loginError}>
+              OIDC не е конфигуриран: задайте issuer и client ID.
+            </Text>
+          ) : null}
           {oidc.error ? <Text style={s.loginError}>{oidc.error}</Text> : null}
-          <Pressable testID="admin-login-start" accessibilityRole="button" accessibilityLabel="Влез с административен профил" accessibilityState={{ disabled: !oidc.ready }} disabled={!oidc.ready} style={s.loginButton} onPress={() => void oidc.login()}>
+          <Pressable
+            testID="admin-login-start"
+            accessibilityRole="button"
+            accessibilityLabel="Влез с административен профил"
+            accessibilityState={{ disabled: !oidc.ready }}
+            disabled={!oidc.ready}
+            style={s.loginButton}
+            onPress={() => void oidc.login()}
+          >
             <Text style={s.loginButtonText}>Влез</Text>
           </Pressable>
         </View>
@@ -470,7 +724,20 @@ export default function App() {
         >
           <Text style={s.readyText}>{core}</Text>
         </View>
-        {prodMode ? <Pressable testID="admin-logout" accessibilityRole="button" accessibilityLabel="Излез от административния профил" style={s.logout} onPress={() => { runtimeAuthToken = ""; oidc.logout(); }}><Text style={s.readyText}>Излез</Text></Pressable> : null}
+        {prodMode ? (
+          <Pressable
+            testID="admin-logout"
+            accessibilityRole="button"
+            accessibilityLabel="Излез от административния профил"
+            style={s.logout}
+            onPress={() => {
+              runtimeAuthToken = "";
+              oidc.logout();
+            }}
+          >
+            <Text style={s.readyText}>Излез</Text>
+          </Pressable>
+        ) : null}
       </View>
       <View style={s.body}>
         <View style={s.nav}>
@@ -521,71 +788,200 @@ export default function App() {
           </View>
           {tab === "Устройства" ? (
             <>
-            {items.map((d) => (
-              <Pressable
-                key={label(d.id)}
-                accessibilityRole="button"
-                accessibilityState={{ selected: selected?.id === d.id }}
-                accessibilityLabel={`${label(d.vendor)} ${label(d.model)}, състояние ${label(d.status || d.state)}`}
-                style={[s.card, selected?.id === d.id && s.selected]}
-                onPress={() => {
-                  setSelected(d);
-                  setMessage(`${label(d.name || d.id)} е избрано`);
-                }}
-              >
-                <View>
-                  <Text style={s.device}>
-                    {label(d.name || d.model || d.id)}
-                  </Text>
-                  <Text style={s.meta}>
-                    {label(d.vendor)} • {label(d.model)} •{" "}
-                    {label(d.connection_type || d.transport)}
-                  </Text>
+              {items.map((d) => (
+                <Pressable
+                  key={label(d.id)}
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: selected?.id === d.id }}
+                  accessibilityLabel={`${label(d.vendor)} ${label(d.model)}, състояние ${label(d.status || d.state)}`}
+                  style={[s.card, selected?.id === d.id && s.selected]}
+                  onPress={() => {
+                    setSelected(d);
+                    setMessage(`${label(d.name || d.id)} е избрано`);
+                  }}
+                >
+                  <View>
+                    <Text style={s.device}>
+                      {label(d.name || d.model || d.id)}
+                    </Text>
+                    <Text style={s.meta}>
+                      {label(d.vendor)} • {label(d.model)} •{" "}
+                      {label(d.connection_type || d.transport)}
+                    </Text>
+                  </View>
+                  <View style={s.state}>
+                    <Text style={s.stateText}>
+                      {label(d.status || d.state)}
+                    </Text>
+                  </View>
+                </Pressable>
+              ))}
+              <View testID="device-control-plane" style={s.panel}>
+                <Text style={s.panelTitle}>
+                  Provisioning, BLE и ограничена диагностика
+                </Text>
+                <Text style={s.meta}>
+                  Transport/cloud и достижимостта на крайното ФУ са отделни
+                  групи метрики.
+                </Text>
+                <View style={s.actions}>
+                  {canDiagnose ? (
+                    <Action
+                      testID="device-diagnostics"
+                      label="Диагностика"
+                      disabled={loading || !selected}
+                      onPress={() => void loadDiagnostics()}
+                    />
+                  ) : null}
+                  {canDiagnose ? (
+                    <Action
+                      testID="device-printer-test"
+                      label="Тест на принтера"
+                      disabled={loading || !selected}
+                      onPress={() => void printerTest()}
+                    />
+                  ) : null}
+                  {canAdminister ? (
+                    <Action
+                      testID="device-provision"
+                      label="Нова provisioning сесия"
+                      disabled={loading || !selected}
+                      onPress={() => void startProvisioning()}
+                    />
+                  ) : null}
                 </View>
-                <View style={s.state}>
-                  <Text style={s.stateText}>{label(d.status || d.state)}</Text>
-                </View>
-              </Pressable>
-            ))}
-            <View testID="device-control-plane" style={s.panel}>
-              <Text style={s.panelTitle}>Provisioning, BLE и ограничена диагностика</Text>
-              <Text style={s.meta}>Transport/cloud и достижимостта на крайното ФУ са отделни групи метрики.</Text>
-              <View style={s.actions}>
-                {canDiagnose ? <Action testID="device-diagnostics" label="Диагностика" disabled={loading || !selected} onPress={() => void loadDiagnostics()} /> : null}
-                {canDiagnose ? <Action testID="device-printer-test" label="Тест на принтера" disabled={loading || !selected} onPress={() => void printerTest()} /> : null}
-                {canAdminister ? <Action testID="device-provision" label="Нова provisioning сесия" disabled={loading || !selected} onPress={() => void startProvisioning()} /> : null}
+                {canIssueBleSession ? (
+                  <>
+                    <Field
+                      label="Operator ID за BLE"
+                      value={operatorId}
+                      onChangeText={setOperatorId}
+                      testID="ble-operator-id"
+                    />
+                    <Field
+                      label="Подготвен X25519 client public key"
+                      value={blePublicKey}
+                      onChangeText={setBlePublicKey}
+                      testID="ble-client-public-key"
+                    />
+                    <Action
+                      testID="ble-session-issue"
+                      label="Издай BLE сесия"
+                      disabled={
+                        loading ||
+                        !isRegisterId(register) ||
+                        !operatorId ||
+                        !blePublicKey.trim()
+                      }
+                      onPress={() => void issueBleSession()}
+                    />
+                  </>
+                ) : null}
+                {canAdminister ? (
+                  <>
+                    <Text style={s.panelTitle}>Активация на SmartDevice</Text>
+                    <Field
+                      label="QR / еднократен кратък код"
+                      value={activationCode}
+                      onChangeText={setActivationCode}
+                      testID="smart-device-activation-code"
+                    />
+                    <Action
+                      testID="smart-device-activation-lookup"
+                      label="Намери чакащото устройство"
+                      disabled={loading || !activationCode.trim()}
+                      onPress={() => void lookupActivation()}
+                    />
+                    {activationRequest ? (
+                      <Text
+                        testID="smart-device-activation-preview"
+                        style={s.json}
+                      >
+                        {JSON.stringify(activationRequest, null, 2)}
+                      </Text>
+                    ) : null}
+                    <Field
+                      label="Търговска точка (location UUID)"
+                      value={activationLocationId}
+                      onChangeText={setActivationLocationId}
+                      testID="bluecash-location-id"
+                    />
+                    <Field
+                      label="Касово място (register UUID)"
+                      value={register}
+                      onChangeText={setRegister}
+                      testID="smart-device-register-id"
+                    />
+                    <Action
+                      testID="bluecash-activate"
+                      label="Потвърди и привържи устройството"
+                      disabled={
+                        loading ||
+                        !activationRequest ||
+                        !isRegisterId(activationLocationId) ||
+                        !isRegisterId(register)
+                      }
+                      onPress={() => void activateBlueCash()}
+                    />
+                    <Action
+                      testID="smart-device-disconnect"
+                      label="Изключи избраното устройство от компанията"
+                      disabled={loading || !selected}
+                      onPress={() => void disconnectDevice()}
+                    />
+                  </>
+                ) : null}
+                {transportMetrics ? (
+                  <Text testID="transport-metrics" style={s.json}>
+                    Transport: {JSON.stringify(transportMetrics, null, 2)}
+                  </Text>
+                ) : null}
+                {deviceHealth ? (
+                  <Text testID="device-realtime-health" style={s.json}>
+                    Realtime MQTT→REST: {JSON.stringify(deviceHealth, null, 2)}
+                  </Text>
+                ) : null}
+                {deviceActivity.length ? (
+                  <Text testID="device-activity-timeline" style={s.json}>
+                    Последни преходи:{" "}
+                    {JSON.stringify(deviceActivity.slice(0, 20), null, 2)}
+                  </Text>
+                ) : null}
+                {fiscalMetrics ? (
+                  <Text testID="fiscal-device-metrics" style={s.json}>
+                    Крайно ФУ: {JSON.stringify(fiscalMetrics, null, 2)}
+                  </Text>
+                ) : null}
+                {diagnostics ? (
+                  <Text testID="diagnostics-result" style={s.json}>
+                    {JSON.stringify(diagnostics, null, 2)}
+                  </Text>
+                ) : null}
+                {provisioning ? (
+                  <Text testID="provisioning-result" style={s.json}>
+                    {JSON.stringify(provisioning, null, 2)}
+                  </Text>
+                ) : null}
+                {bleSession ? (
+                  <Text testID="ble-session-result" style={s.json}>
+                    {JSON.stringify(bleSession, null, 2)}
+                  </Text>
+                ) : null}
+                {blueCashActivation ? (
+                  <Text testID="bluecash-activation-result" style={s.json}>
+                    {JSON.stringify(blueCashActivation, null, 2)}
+                  </Text>
+                ) : null}
               </View>
-              {canIssueBleSession ? <>
-                <Field label="Operator ID за BLE" value={operatorId} onChangeText={setOperatorId} testID="ble-operator-id" />
-                <Field label="Подготвен X25519 client public key" value={blePublicKey} onChangeText={setBlePublicKey} testID="ble-client-public-key" />
-                <Action testID="ble-session-issue" label="Издай BLE сесия" disabled={loading || !isRegisterId(register) || !operatorId || !blePublicKey.trim()} onPress={() => void issueBleSession()} />
-              </> : null}
-              {canAdminister ? <>
-                <Text style={s.panelTitle}>Активация на SmartDevice</Text>
-                <Field label="QR / еднократен кратък код" value={activationCode} onChangeText={setActivationCode} testID="smart-device-activation-code" />
-                <Action testID="smart-device-activation-lookup" label="Намери чакащото устройство" disabled={loading || !activationCode.trim()} onPress={() => void lookupActivation()} />
-                {activationRequest ? <Text testID="smart-device-activation-preview" style={s.json}>{JSON.stringify(activationRequest, null, 2)}</Text> : null}
-                <Field label="Търговска точка (location UUID)" value={activationLocationId} onChangeText={setActivationLocationId} testID="bluecash-location-id" />
-                <Field label="Касово място (register UUID)" value={register} onChangeText={setRegister} testID="smart-device-register-id" />
-                <Action testID="bluecash-activate" label="Потвърди и привържи устройството" disabled={loading || !activationRequest || !isRegisterId(activationLocationId) || !isRegisterId(register)} onPress={() => void activateBlueCash()} />
-                <Action testID="smart-device-disconnect" label="Изключи избраното устройство от компанията" disabled={loading || !selected} onPress={() => void disconnectDevice()} />
-              </> : null}
-              {transportMetrics ? <Text testID="transport-metrics" style={s.json}>Transport: {JSON.stringify(transportMetrics, null, 2)}</Text> : null}
-              {deviceHealth ? <Text testID="device-realtime-health" style={s.json}>Realtime MQTT→REST: {JSON.stringify(deviceHealth, null, 2)}</Text> : null}
-              {deviceActivity.length ? <Text testID="device-activity-timeline" style={s.json}>Последни преходи: {JSON.stringify(deviceActivity.slice(0,20), null, 2)}</Text> : null}
-              {fiscalMetrics ? <Text testID="fiscal-device-metrics" style={s.json}>Крайно ФУ: {JSON.stringify(fiscalMetrics, null, 2)}</Text> : null}
-              {diagnostics ? <Text testID="diagnostics-result" style={s.json}>{JSON.stringify(diagnostics, null, 2)}</Text> : null}
-              {provisioning ? <Text testID="provisioning-result" style={s.json}>{JSON.stringify(provisioning, null, 2)}</Text> : null}
-              {bleSession ? <Text testID="ble-session-result" style={s.json}>{JSON.stringify(bleSession, null, 2)}</Text> : null}
-              {blueCashActivation ? <Text testID="bluecash-activation-result" style={s.json}>{JSON.stringify(blueCashActivation, null, 2)}</Text> : null}
-            </View>
             </>
           ) : tab === "Операции" ? (
             items.map((o) => (
               <View
                 key={label(o.id)}
                 testID={
-                  String(o.state).includes("UNKNOWN") && Array.isArray(o.allowed_actions) && o.allowed_actions.includes("RECONCILE")
+                  String(o.state).includes("UNKNOWN") &&
+                  Array.isArray(o.allowed_actions) &&
+                  o.allowed_actions.includes("RECONCILE")
                     ? "operation-unknown"
                     : undefined
                 }
@@ -600,22 +996,28 @@ export default function App() {
                     {label(o.id)} • УНП {label(o.unp)} • {label(o.created_at)}
                   </Text>
                   <Text style={s.meta}>
-                    Разрешени действия: {Array.isArray(o.allowed_actions) && o.allowed_actions.length > 0 ? o.allowed_actions.join(", ") : "няма"}
+                    Разрешени действия:{" "}
+                    {Array.isArray(o.allowed_actions) &&
+                    o.allowed_actions.length > 0
+                      ? o.allowed_actions.join(", ")
+                      : "няма"}
                   </Text>
                 </View>
-                {canReconcile && Array.isArray(o.allowed_actions) && o.allowed_actions.includes("RECONCILE") && (
-                  <Pressable
-                    testID={`operation-reconcile-${label(o.id)}`}
-                    accessibilityRole="button"
-                    accessibilityLabel={`Reconcile операция ${label(o.id)}`}
-                    accessibilityState={{ disabled: loading }}
-                    disabled={loading}
-                    style={s.action}
-                    onPress={() => void reconcileOperation(o)}
-                  >
-                    <Text style={s.probeText}>Reconcile</Text>
-                  </Pressable>
-                )}
+                {canReconcile &&
+                  Array.isArray(o.allowed_actions) &&
+                  o.allowed_actions.includes("RECONCILE") && (
+                    <Pressable
+                      testID={`operation-reconcile-${label(o.id)}`}
+                      accessibilityRole="button"
+                      accessibilityLabel={`Reconcile операция ${label(o.id)}`}
+                      accessibilityState={{ disabled: loading }}
+                      disabled={loading}
+                      style={s.action}
+                      onPress={() => void reconcileOperation(o)}
+                    >
+                      <Text style={s.probeText}>Reconcile</Text>
+                    </Pressable>
+                  )}
               </View>
             ))
           ) : tab === "Отчети" ? (
@@ -628,21 +1030,30 @@ export default function App() {
                   UI показва само резултати и артефакти, получени от BeeFiscal
                   API.
                 </Text>
-                {canRunReports ? <View style={s.actions}>
-                  {["X", "Z", "KLEN", "FISCAL_MEMORY"].map((x) => (
-                    <Pressable
-                      key={x}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Създай ${x} отчет`}
-                      accessibilityState={{ disabled: loading || !isRegisterId(register) }}
-                      disabled={loading || !isRegisterId(register)}
-                      style={s.action}
-                      onPress={() => report(x)}
-                    >
-                      <Text style={s.probeText}>{x}</Text>
-                    </Pressable>
-                  ))}
-                </View> : <Text style={s.meta}>Преглед само за одитор; създаването на отчет изисква SUPERVISOR или ADMIN.</Text>}
+                {canRunReports ? (
+                  <View style={s.actions}>
+                    {["X", "Z", "KLEN", "FISCAL_MEMORY"].map((x) => (
+                      <Pressable
+                        key={x}
+                        accessibilityRole="button"
+                        accessibilityLabel={`Създай ${x} отчет`}
+                        accessibilityState={{
+                          disabled: loading || !isRegisterId(register),
+                        }}
+                        disabled={loading || !isRegisterId(register)}
+                        style={s.action}
+                        onPress={() => report(x)}
+                      >
+                        <Text style={s.probeText}>{x}</Text>
+                      </Pressable>
+                    ))}
+                  </View>
+                ) : (
+                  <Text style={s.meta}>
+                    Преглед само за одитор; създаването на отчет изисква
+                    SUPERVISOR или ADMIN.
+                  </Text>
+                )}
               </View>
               {items.map((r) => (
                 <View key={label(r.id)} style={s.card}>
@@ -659,17 +1070,52 @@ export default function App() {
               ))}
             </>
           ) : tab === "Одит" && canReadAudit ? (
-            <View testID="audit-events" accessibilityLabel="Неизменим одитен журнал">
+            <View
+              testID="audit-events"
+              accessibilityLabel="Неизменим одитен журнал"
+            >
               <View style={s.card} testID="audit-filters">
                 <Text style={s.device}>Филтри на одитния журнал</Text>
-                <Field label="Оператор/участник" value={auditActor} onChangeText={setAuditActor} />
-                <Field label="Действие" value={auditAction} onChangeText={setAuditAction} />
-                <Field label="Тип обект" value={auditObjectType} onChangeText={setAuditObjectType} />
-                <Field label="Идентификатор на обект" value={auditObjectId} onChangeText={setAuditObjectId} />
-                <Field label="УНП" value={auditUnp} onChangeText={setAuditUnp} />
-                <Field label="От (RFC 3339)" value={auditFrom} onChangeText={setAuditFrom} />
-                <Field label="До (RFC 3339)" value={auditTo} onChangeText={setAuditTo} />
-                <Pressable testID="apply-audit-filters" style={s.action} onPress={() => void refresh("Одит")}>
+                <Field
+                  label="Оператор/участник"
+                  value={auditActor}
+                  onChangeText={setAuditActor}
+                />
+                <Field
+                  label="Действие"
+                  value={auditAction}
+                  onChangeText={setAuditAction}
+                />
+                <Field
+                  label="Тип обект"
+                  value={auditObjectType}
+                  onChangeText={setAuditObjectType}
+                />
+                <Field
+                  label="Идентификатор на обект"
+                  value={auditObjectId}
+                  onChangeText={setAuditObjectId}
+                />
+                <Field
+                  label="УНП"
+                  value={auditUnp}
+                  onChangeText={setAuditUnp}
+                />
+                <Field
+                  label="От (RFC 3339)"
+                  value={auditFrom}
+                  onChangeText={setAuditFrom}
+                />
+                <Field
+                  label="До (RFC 3339)"
+                  value={auditTo}
+                  onChangeText={setAuditTo}
+                />
+                <Pressable
+                  testID="apply-audit-filters"
+                  style={s.action}
+                  onPress={() => void refresh("Одит")}
+                >
                   <Text style={s.probeText}>Приложи филтрите</Text>
                 </Pressable>
               </View>
@@ -685,7 +1131,8 @@ export default function App() {
                       {label(event.action)} • {label(event.object_type)}
                     </Text>
                     <Text style={s.meta}>
-                      {label(event.object_id)} • участник {label(event.actor_id)}
+                      {label(event.object_id)} • участник{" "}
+                      {label(event.actor_id)}
                     </Text>
                     <Text style={s.meta}>
                       {label(event.occurred_at)} • УНП {label(event.unp)}
@@ -794,9 +1241,7 @@ export default function App() {
                         (x) => x.id === register,
                       );
                       const v = await call(
-                        current
-                          ? registerResourcePath(register)
-                          : "/registers",
+                        current ? registerResourcePath(register) : "/registers",
                         {
                           method: current ? "PATCH" : "POST",
                           headers: current
@@ -899,19 +1344,45 @@ export default function App() {
                     setDeviceModel(label(x.model));
                     setDeviceSerial(label(x.serial));
                     setDeviceKind(label(x.kind));
-                    setDeviceDriverId(label(x.driver_id||"datecs"));
-                    setDeviceProtocolId(label(x.protocol_id||"datecs-fp"));
-                    setDeviceProtocolVersion(label(x.protocol_version||"2.11.4"));
-                    setDeviceTransport(label(x.transport||"RS232"));
-                    setDeviceTransportParameters(JSON.stringify(x.transport_parameters||{},null,2));
-                    setBindingRole(label(x.kind) === "PAYMENT_TERMINAL" ? "OPTIONAL_PAYMENT_TERMINAL" : "FISCAL_DEVICE");
+                    setDeviceDriverId(label(x.driver_id || "datecs"));
+                    setDeviceProtocolId(label(x.protocol_id || "datecs-fp"));
+                    setDeviceProtocolVersion(
+                      label(x.protocol_version || "2.11.4"),
+                    );
+                    setDeviceTransport(label(x.transport || "RS232"));
+                    setDeviceTransportParameters(
+                      JSON.stringify(x.transport_parameters || {}, null, 2),
+                    );
+                    setBindingRole(
+                      label(x.kind) === "PAYMENT_TERMINAL"
+                        ? "OPTIONAL_PAYMENT_TERMINAL"
+                        : "FISCAL_DEVICE",
+                    );
                   }}
                 />
                 <View style={s.actions}>
-                  <Action label="Фискално устройство" disabled={adminBusy} testID="admin-device-kind-fiscal" onPress={() => { setDeviceKind("FISCAL_DEVICE"); setBindingRole("FISCAL_DEVICE"); }} />
-                  <Action label="Опционален POS терминал" disabled={adminBusy} testID="admin-device-kind-terminal" onPress={() => { setDeviceKind("PAYMENT_TERMINAL"); setBindingRole("OPTIONAL_PAYMENT_TERMINAL"); }} />
+                  <Action
+                    label="Фискално устройство"
+                    disabled={adminBusy}
+                    testID="admin-device-kind-fiscal"
+                    onPress={() => {
+                      setDeviceKind("FISCAL_DEVICE");
+                      setBindingRole("FISCAL_DEVICE");
+                    }}
+                  />
+                  <Action
+                    label="Опционален POS терминал"
+                    disabled={adminBusy}
+                    testID="admin-device-kind-terminal"
+                    onPress={() => {
+                      setDeviceKind("PAYMENT_TERMINAL");
+                      setBindingRole("OPTIONAL_PAYMENT_TERMINAL");
+                    }}
+                  />
                 </View>
-                <Text style={s.meta}>Capability: {deviceKind} • binding: {bindingRole}</Text>
+                <Text style={s.meta}>
+                  Capability: {deviceKind} • binding: {bindingRole}
+                </Text>
                 <Field
                   label="Производител"
                   value={deviceVendor}
@@ -928,36 +1399,172 @@ export default function App() {
                   onChangeText={setDeviceSerial}
                   testID="admin-device-serial"
                 />
-                <Field label="Driver ID" value={deviceDriverId} onChangeText={setDeviceDriverId} testID="admin-device-driver" />
-                <Field label="Protocol ID" value={deviceProtocolId} onChangeText={setDeviceProtocolId} testID="admin-device-protocol" />
-                <Field label="Protocol version" value={deviceProtocolVersion} onChangeText={setDeviceProtocolVersion} testID="admin-device-protocol-version" />
+                <Field
+                  label="Driver ID"
+                  value={deviceDriverId}
+                  onChangeText={setDeviceDriverId}
+                  testID="admin-device-driver"
+                />
+                <Field
+                  label="Protocol ID"
+                  value={deviceProtocolId}
+                  onChangeText={setDeviceProtocolId}
+                  testID="admin-device-protocol"
+                />
+                <Field
+                  label="Protocol version"
+                  value={deviceProtocolVersion}
+                  onChangeText={setDeviceProtocolVersion}
+                  testID="admin-device-protocol-version"
+                />
                 <View style={s.actions}>
-                  <Action testID="transport-rs232" label="RS-232" disabled={adminBusy} onPress={()=>{setDeviceTransport("RS232");setDeviceTransportParameters('{"baud":115200,"data_bits":8,"parity":"N","stop_bits":1,"tx_pin":17,"rx_pin":18}')}} />
-                  <Action testID="transport-usb" label="USB CDC" disabled={adminBusy} onPress={()=>{setDeviceTransport("USB_SERIAL");setDeviceTransportParameters('{"vid":0,"pid":0,"interface":0}')}} />
-                  <Action testID="transport-ble" label="BLE GATT" disabled={adminBusy} onPress={()=>{setDeviceTransport("BLE_GATT");setDeviceTransportParameters('{"address_policy":"ADVERTISING_IDENTITY"}')}} />
+                  <Action
+                    testID="transport-rs232"
+                    label="RS-232"
+                    disabled={adminBusy}
+                    onPress={() => {
+                      setDeviceTransport("RS232");
+                      setDeviceTransportParameters(
+                        '{"baud":115200,"data_bits":8,"parity":"N","stop_bits":1,"tx_pin":17,"rx_pin":18}',
+                      );
+                    }}
+                  />
+                  <Action
+                    testID="transport-usb"
+                    label="USB CDC"
+                    disabled={adminBusy}
+                    onPress={() => {
+                      setDeviceTransport("USB_SERIAL");
+                      setDeviceTransportParameters(
+                        '{"vid":0,"pid":0,"interface":0}',
+                      );
+                    }}
+                  />
+                  <Action
+                    testID="transport-ble"
+                    label="BLE GATT"
+                    disabled={adminBusy}
+                    onPress={() => {
+                      setDeviceTransport("BLE_GATT");
+                      setDeviceTransportParameters(
+                        '{"address_policy":"ADVERTISING_IDENTITY"}',
+                      );
+                    }}
+                  />
                 </View>
                 <Text style={s.meta}>Избран transport: {deviceTransport}</Text>
-                {deviceTransport==="RS232"?<>
-                  <Field label="Baud" value={transportParameter("baud","115200")} onChangeText={(v)=>setTransportParameter("baud",v,true)} />
-                  <Field label="Data bits" value={transportParameter("data_bits","8")} onChangeText={(v)=>setTransportParameter("data_bits",v,true)} />
-                  <Field label="Parity (N/E/O)" value={transportParameter("parity","N")} onChangeText={(v)=>setTransportParameter("parity",v)} />
-                  <Field label="Stop bits" value={transportParameter("stop_bits","1")} onChangeText={(v)=>setTransportParameter("stop_bits",v,true)} />
-                  <Field label="TX pin" value={transportParameter("tx_pin","17")} onChangeText={(v)=>setTransportParameter("tx_pin",v,true)} />
-                  <Field label="RX pin" value={transportParameter("rx_pin","18")} onChangeText={(v)=>setTransportParameter("rx_pin",v,true)} />
-                </>:null}
-                {deviceTransport==="USB_SERIAL"?<>
-                  <Field label="USB VID" value={transportParameter("vid","0")} onChangeText={(v)=>setTransportParameter("vid",v,true)} />
-                  <Field label="USB PID" value={transportParameter("pid","0")} onChangeText={(v)=>setTransportParameter("pid",v,true)} />
-                  <Field label="CDC interface" value={transportParameter("interface","0")} onChangeText={(v)=>setTransportParameter("interface",v,true)} />
-                  <Field label="Очакван USB serial" value={transportParameter("serial","")} onChangeText={(v)=>setTransportParameter("serial",v)} />
-                </>:null}
-                {deviceTransport==="BLE_GATT"?<>
-                  <Field label="Advertising identity" value={transportParameter("advertising_identity","")} onChangeText={(v)=>setTransportParameter("advertising_identity",v)} />
-                  <Field label="Service UUID" value={transportParameter("service_uuid","")} onChangeText={(v)=>setTransportParameter("service_uuid",v)} />
-                  <Field label="TX characteristic UUID" value={transportParameter("tx_characteristic_uuid","")} onChangeText={(v)=>setTransportParameter("tx_characteristic_uuid",v)} />
-                  <Field label="RX characteristic UUID" value={transportParameter("rx_characteristic_uuid","")} onChangeText={(v)=>setTransportParameter("rx_characteristic_uuid",v)} />
-                </>:null}
-                <Field label="Advanced transport JSON (read-only contract preview)" value={deviceTransportParameters} onChangeText={setDeviceTransportParameters} testID="admin-device-transport-parameters" />
+                {deviceTransport === "RS232" ? (
+                  <>
+                    <Field
+                      label="Baud"
+                      value={transportParameter("baud", "115200")}
+                      onChangeText={(v) =>
+                        setTransportParameter("baud", v, true)
+                      }
+                    />
+                    <Field
+                      label="Data bits"
+                      value={transportParameter("data_bits", "8")}
+                      onChangeText={(v) =>
+                        setTransportParameter("data_bits", v, true)
+                      }
+                    />
+                    <Field
+                      label="Parity (N/E/O)"
+                      value={transportParameter("parity", "N")}
+                      onChangeText={(v) => setTransportParameter("parity", v)}
+                    />
+                    <Field
+                      label="Stop bits"
+                      value={transportParameter("stop_bits", "1")}
+                      onChangeText={(v) =>
+                        setTransportParameter("stop_bits", v, true)
+                      }
+                    />
+                    <Field
+                      label="TX pin"
+                      value={transportParameter("tx_pin", "17")}
+                      onChangeText={(v) =>
+                        setTransportParameter("tx_pin", v, true)
+                      }
+                    />
+                    <Field
+                      label="RX pin"
+                      value={transportParameter("rx_pin", "18")}
+                      onChangeText={(v) =>
+                        setTransportParameter("rx_pin", v, true)
+                      }
+                    />
+                  </>
+                ) : null}
+                {deviceTransport === "USB_SERIAL" ? (
+                  <>
+                    <Field
+                      label="USB VID"
+                      value={transportParameter("vid", "0")}
+                      onChangeText={(v) =>
+                        setTransportParameter("vid", v, true)
+                      }
+                    />
+                    <Field
+                      label="USB PID"
+                      value={transportParameter("pid", "0")}
+                      onChangeText={(v) =>
+                        setTransportParameter("pid", v, true)
+                      }
+                    />
+                    <Field
+                      label="CDC interface"
+                      value={transportParameter("interface", "0")}
+                      onChangeText={(v) =>
+                        setTransportParameter("interface", v, true)
+                      }
+                    />
+                    <Field
+                      label="Очакван USB serial"
+                      value={transportParameter("serial", "")}
+                      onChangeText={(v) => setTransportParameter("serial", v)}
+                    />
+                  </>
+                ) : null}
+                {deviceTransport === "BLE_GATT" ? (
+                  <>
+                    <Field
+                      label="Advertising identity"
+                      value={transportParameter("advertising_identity", "")}
+                      onChangeText={(v) =>
+                        setTransportParameter("advertising_identity", v)
+                      }
+                    />
+                    <Field
+                      label="Service UUID"
+                      value={transportParameter("service_uuid", "")}
+                      onChangeText={(v) =>
+                        setTransportParameter("service_uuid", v)
+                      }
+                    />
+                    <Field
+                      label="TX characteristic UUID"
+                      value={transportParameter("tx_characteristic_uuid", "")}
+                      onChangeText={(v) =>
+                        setTransportParameter("tx_characteristic_uuid", v)
+                      }
+                    />
+                    <Field
+                      label="RX characteristic UUID"
+                      value={transportParameter("rx_characteristic_uuid", "")}
+                      onChangeText={(v) =>
+                        setTransportParameter("rx_characteristic_uuid", v)
+                      }
+                    />
+                  </>
+                ) : null}
+                <Field
+                  label="Advanced transport JSON (read-only contract preview)"
+                  value={deviceTransportParameters}
+                  onChangeText={setDeviceTransportParameters}
+                  testID="admin-device-transport-parameters"
+                />
                 <Action
                   label="Запази DEV ФУ"
                   disabled={adminBusy}
@@ -985,7 +1592,9 @@ export default function App() {
                             protocol_id: deviceProtocolId,
                             protocol_version: deviceProtocolVersion,
                             transport: deviceTransport,
-                            transport_parameters: JSON.parse(deviceTransportParameters||"{}"),
+                            transport_parameters: JSON.parse(
+                              deviceTransportParameters || "{}",
+                            ),
                             status: current?.status || "DRAFT",
                             environment: current?.environment || "DEV",
                             simulated: current?.simulated ?? true,
@@ -1048,8 +1657,18 @@ export default function App() {
                   testID="admin-binding-register"
                 />
                 <View style={s.actions}>
-                  <Action label="Роля ФУ" disabled={adminBusy} testID="admin-binding-role-fiscal" onPress={() => setBindingRole("FISCAL_DEVICE")} />
-                  <Action label="Роля POS" disabled={adminBusy} testID="admin-binding-role-terminal" onPress={() => setBindingRole("OPTIONAL_PAYMENT_TERMINAL")} />
+                  <Action
+                    label="Роля ФУ"
+                    disabled={adminBusy}
+                    testID="admin-binding-role-fiscal"
+                    onPress={() => setBindingRole("FISCAL_DEVICE")}
+                  />
+                  <Action
+                    label="Роля POS"
+                    disabled={adminBusy}
+                    testID="admin-binding-role-terminal"
+                    onPress={() => setBindingRole("OPTIONAL_PAYMENT_TERMINAL")}
+                  />
                 </View>
                 <Field
                   label="Device ID"
@@ -1063,27 +1682,88 @@ export default function App() {
                   testID="admin-binding-save"
                   onPress={() =>
                     mutateAdmin("Привързване на ФУ", () =>
-                      call(
-                        registerResourcePath(register, "/bindings"),
-                        {
-                          method: "POST",
-                          body: JSON.stringify({
-                            device_id: deviceId,
-                            role: bindingRole,
-                          }),
-                        },
-                      ),
+                      call(registerResourcePath(register, "/bindings"), {
+                        method: "POST",
+                        body: JSON.stringify({
+                          device_id: deviceId,
+                          role: bindingRole,
+                        }),
+                      }),
                     )
                   }
                 />
-                <Text style={s.meta}>Composite profile — активира се само след apply ACK от адаптера</Text>
-                <View style={s.actions}>{MVP1_DEVICE_PROFILES.map((profile)=><Action key={profile.id} label={profile.id} disabled={adminBusy} testID={`composite-profile-${profile.id}`} onPress={()=>setCompositeProfile(profile.id)} />)}</View>
-                <Field label="Adapter device ID" value={adapterDeviceId} onChangeText={setAdapterDeviceId} testID="composite-adapter-device" />
-                <Field label="Fiscal endpoint ID" value={fiscalEndpointId} onChangeText={setFiscalEndpointId} testID="composite-fiscal-device" />
-                <Field label="Payment endpoint ID (optional)" value={paymentEndpointId} onChangeText={setPaymentEndpointId} testID="composite-payment-device" />
-                <Field label="Expected register version" value={expectedRegisterVersion} onChangeText={setExpectedRegisterVersion} testID="composite-register-version" />
-                <Action label="Подготви composite binding" disabled={adminBusy||!isRegisterId(register)} testID="composite-binding-save" onPress={stageCompositeBinding} />
-                {compositeBinding?<><Text testID="composite-binding-state" style={s.meta}>Статус: {label(compositeBinding.status)} • generation {label(compositeBinding.generation)} • applied generation {label(compositeBinding.applied_generation||"—")}</Text>{compositeBinding.status==="PENDING"?<Text testID="composite-binding-awaiting-adapter" style={s.meta}>Очаква се подписано apply потвърждение от адаптера</Text>:null}<View style={s.actions}><Action label="Изключи / rebind" disabled={adminBusy||compositeBinding.status==="REVOKED"} testID="composite-binding-disable" onPress={disableCompositeBinding}/></View></>:null}
+                <Text style={s.meta}>
+                  Composite profile — активира се само след apply ACK от
+                  адаптера
+                </Text>
+                <View style={s.actions}>
+                  {MVP1_DEVICE_PROFILES.map((profile) => (
+                    <Action
+                      key={profile.id}
+                      label={profile.id}
+                      disabled={adminBusy}
+                      testID={`composite-profile-${profile.id}`}
+                      onPress={() => setCompositeProfile(profile.id)}
+                    />
+                  ))}
+                </View>
+                <Field
+                  label="Adapter device ID"
+                  value={adapterDeviceId}
+                  onChangeText={setAdapterDeviceId}
+                  testID="composite-adapter-device"
+                />
+                <Field
+                  label="Fiscal endpoint ID"
+                  value={fiscalEndpointId}
+                  onChangeText={setFiscalEndpointId}
+                  testID="composite-fiscal-device"
+                />
+                <Field
+                  label="Payment endpoint ID (optional)"
+                  value={paymentEndpointId}
+                  onChangeText={setPaymentEndpointId}
+                  testID="composite-payment-device"
+                />
+                <Field
+                  label="Expected register version"
+                  value={expectedRegisterVersion}
+                  onChangeText={setExpectedRegisterVersion}
+                  testID="composite-register-version"
+                />
+                <Action
+                  label="Подготви composite binding"
+                  disabled={adminBusy || !isRegisterId(register)}
+                  testID="composite-binding-save"
+                  onPress={stageCompositeBinding}
+                />
+                {compositeBinding ? (
+                  <>
+                    <Text testID="composite-binding-state" style={s.meta}>
+                      Статус: {label(compositeBinding.status)} • generation{" "}
+                      {label(compositeBinding.generation)} • applied generation{" "}
+                      {label(compositeBinding.applied_generation || "—")}
+                    </Text>
+                    {compositeBinding.status === "PENDING" ? (
+                      <Text
+                        testID="composite-binding-awaiting-adapter"
+                        style={s.meta}
+                      >
+                        Очаква се подписано apply потвърждение от адаптера
+                      </Text>
+                    ) : null}
+                    <View style={s.actions}>
+                      <Action
+                        label="Изключи / rebind"
+                        disabled={
+                          adminBusy || compositeBinding.status === "REVOKED"
+                        }
+                        testID="composite-binding-disable"
+                        onPress={disableCompositeBinding}
+                      />
+                    </View>
+                  </>
+                ) : null}
               </AdminCard>
             </View>
           ) : (
@@ -1235,13 +1915,34 @@ function Choices({
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#eef3f4" },
-  login: { alignSelf: "center", width: "90%", maxWidth: 540, marginTop: 80, padding: 28, backgroundColor: "white", borderRadius: 16, gap: 18 },
+  login: {
+    alignSelf: "center",
+    width: "90%",
+    maxWidth: 540,
+    marginTop: 80,
+    padding: 28,
+    backgroundColor: "white",
+    borderRadius: 16,
+    gap: 18,
+  },
   loginTitle: { fontSize: 24, fontWeight: "900", color: "#102b38" },
   loginText: { fontSize: 16, color: "#526b76", lineHeight: 23 },
   loginError: { fontSize: 15, color: "#9a2f24", fontWeight: "700" },
-  loginButton: { minHeight: 56, backgroundColor: "#17613a", borderRadius: 10, alignItems: "center", justifyContent: "center" },
+  loginButton: {
+    minHeight: 56,
+    backgroundColor: "#17613a",
+    borderRadius: 10,
+    alignItems: "center",
+    justifyContent: "center",
+  },
   loginButtonText: { color: "white", fontSize: 17, fontWeight: "800" },
-  logout: { minHeight: 48, paddingHorizontal: 14, backgroundColor: "#285266", borderRadius: 9, justifyContent: "center" },
+  logout: {
+    minHeight: 48,
+    paddingHorizontal: 14,
+    backgroundColor: "#285266",
+    borderRadius: 9,
+    justifyContent: "center",
+  },
   header: {
     padding: 20,
     backgroundColor: "white",

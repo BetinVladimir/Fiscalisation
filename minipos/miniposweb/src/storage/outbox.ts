@@ -26,6 +26,8 @@ function database(): Promise<IDBDatabase> {
   });
 }
 export async function putOutbox(row: OutboxRow) {
+  // Persist before transport I/O. The same client operation UUID and payload
+  // can then survive reload/failover without creating a duplicate side effect.
   const db = await database();
   await new Promise<void>((resolve, reject) => {
     const tx = db.transaction(STORE, "readwrite");

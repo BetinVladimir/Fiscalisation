@@ -37,7 +37,8 @@ export async function buildIntent(input: {
     receipt = input.receiptSessionId ?? crypto.randomUUID();
   const sale = input.saleId ?? operation,
     surrogate = input.surrogateId ?? sale;
-  const items = input.items ?? [], payments = input.payments ?? [];
+  const items = input.items ?? [],
+    payments = input.payments ?? [];
   const salePayload = {
     currency: "EUR",
     server_sale_id: surrogate,
@@ -48,7 +49,9 @@ export async function buildIntent(input: {
     payments,
     metadata: {},
   };
-  const canonical_payload = ["PRINTER_TEST", "REPORT_X", "REPORT_Z"].includes(input.command)
+  const canonical_payload = ["PRINTER_TEST", "REPORT_X", "REPORT_Z"].includes(
+    input.command,
+  )
     ? { metadata: {} }
     : salePayload;
   const body = {

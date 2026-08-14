@@ -25,6 +25,9 @@ type CartLine = { product: Product; quantity: number; discount: number };
 const appInstance =
   localStorage.getItem("app-instance-id") ?? crypto.randomUUID();
 localStorage.setItem("app-instance-id", appInstance);
+// This stable ID binds the operator session to the browser installation.
+// Credentials stay session-scoped; reference data and pending fiscal intents
+// are persisted through the IndexedDB cache and outbox modules.
 const tenantFrom = (token: string) => {
   try {
     return JSON.parse(
@@ -77,7 +80,11 @@ export default function App() {
     const expires = Date.parse(
       sessionStorage.getItem("minipos-local-token-expires") ?? "",
     );
-    if (!localToken || !Number.isFinite(expires) || expires - Date.now() < 60_000)
+    if (
+      !localToken ||
+      !Number.isFinite(expires) ||
+      expires - Date.now() < 60_000
+    )
       void adapterToken().catch(() => undefined);
   }, [session?.employee.id, configuration?.fiscal_adapter_id, shift?.id]);
   useEffect(() => {
@@ -125,7 +132,10 @@ export default function App() {
           cacheGet<OperatorSession>("operator-session"),
           cacheGet<Shift>("active-shift"),
         ]);
-        if (cachedSession && new Date(cachedSession.value.expires_at) > new Date())
+        if (
+          cachedSession &&
+          new Date(cachedSession.value.expires_at) > new Date()
+        )
           setSession(cachedSession.value);
         if (cachedShift?.value.state === "OPEN") setShift(cachedShift.value);
         setMessage(
@@ -141,9 +151,9 @@ export default function App() {
     setBusy(true);
     try {
       const opened = await api.openShift(
-          configuration.fiscal_register_id,
-          session.employee.id,
-        );
+        configuration.fiscal_register_id,
+        session.employee.id,
+      );
       setShift(opened);
       await cachePut("active-shift", opened);
     } catch (error) {

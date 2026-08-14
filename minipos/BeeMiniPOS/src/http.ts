@@ -1,4 +1,7 @@
-export type FetchLike = (input: string, init?: RequestInit) => Promise<Response>;
+export type FetchLike = (
+  input: string,
+  init?: RequestInit,
+) => Promise<Response>;
 
 export async function fetchWithTimeout(
   input: string,
@@ -14,7 +17,10 @@ export async function fetchWithTimeout(
   const abortFromUpstream = () => controller.abort(upstream?.reason);
   if (upstream?.aborted) abortFromUpstream();
   else upstream?.addEventListener("abort", abortFromUpstream, { once: true });
-  const timer = setTimeout(() => controller.abort(new Error("HTTP_TIMEOUT")), timeoutMs);
+  const timer = setTimeout(
+    () => controller.abort(new Error("HTTP_TIMEOUT")),
+    timeoutMs,
+  );
   try {
     return await fetcher(input, { ...init, signal: controller.signal });
   } finally {

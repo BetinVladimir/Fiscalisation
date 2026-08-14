@@ -62,6 +62,8 @@ export type PosConfiguration = {
   ble_event_uuid?: string;
 };
 export class LocalFiscalClient {
+  // The local adapter is an alternate transport, not a second API model. Its
+  // operation UUID and body digest must match the cloud attempt exactly.
   constructor(
     readonly baseUrl: string,
     readonly token: () => string | undefined,

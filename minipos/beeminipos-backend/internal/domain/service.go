@@ -91,6 +91,9 @@ type Shift struct {
 	UpdatedAt        time.Time  `json:"updated_at"`
 }
 
+// withShiftActions derives commands from persisted state rather than trusting
+// client-supplied actions. A reconciliation-blocked shift intentionally cannot
+// sell or close until the ambiguous Z-report is resolved.
 func withShiftActions(shift Shift) Shift {
 	switch shift.State {
 	case "OPEN":
@@ -207,6 +210,9 @@ type ReversalResult struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 }
 
+// Service owns MiniPOS data and translates checkout intent into the public
+// Fiscal API. It never allocates regulatory identifiers or implements device
+// commands; those decisions stay inside the fiscalization boundary.
 type Service struct {
 	mu                sync.RWMutex
 	products          map[string]Product

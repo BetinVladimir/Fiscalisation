@@ -27,6 +27,9 @@ func newID(prefix string) string {
 func pad7(n int64) string  { return fmt.Sprintf("%07d", n) }
 func Hash(b []byte) string { v := sha256.Sum256(b); return hex.EncodeToString(v[:]) }
 
+// Driver is the transport-neutral device boundary. Domain code reserves state
+// before calling it and maps ambiguous failures to UNKNOWN, never to a retry of
+// a potentially completed physical side effect.
 type Driver interface {
 	Execute(Operation, Sale, PaymentRequest) (string, string)
 	Probe() error
@@ -82,6 +85,9 @@ func (s *Simulator) SetDeviceTime(at time.Time) error {
 	return nil
 }
 
+// Service is the authoritative fiscalization layer. It owns legal identifiers,
+// lifecycle transitions, route fencing, idempotency and immutable evidence;
+// POS clients submit intent and render its projections.
 type Service struct {
 	repo                            Repository
 	driver                          Driver

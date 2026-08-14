@@ -15,6 +15,8 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+// Postgres is MiniPOS-owned storage; it deliberately shares neither tables nor
+// credentials with Fiscal. reader is the FORCE-RLS tenant connection.
 type Postgres struct{ db, reader *sql.DB }
 
 var ErrConcurrentState = errors.New("MiniPOS repository generation conflict")

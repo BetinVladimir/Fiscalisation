@@ -15,9 +15,9 @@ import type { BleSessionPackage } from "./src/webBle.ts";
 import { validateBleDeploymentAuthority } from "./src/bleDeployment.ts";
 import { getRandomBytes } from "expo-crypto";
 import { configureRandomSource } from "./src/portableCrypto.ts";
-import {ConnectivityController,pingFiscal} from "./src/connectivity.ts";
-import {bleFinalizeIntent,newCheckoutPlan} from "./src/checkoutPlan.ts";
-import {CheckoutJournal} from "./src/checkoutJournal.ts";
+import { ConnectivityController, pingFiscal } from "./src/connectivity.ts";
+import { bleFinalizeIntent, newCheckoutPlan } from "./src/checkoutPlan.ts";
+import { CheckoutJournal } from "./src/checkoutJournal.ts";
 import {
   createNativeBleBootstrap,
   requestNativeBlePermissions,
@@ -35,6 +35,9 @@ import {
   resolveFiscalDeviceId,
 } from "./src/fiscalDeviceResolution";
 configureRandomSource(getRandomBytes);
+
+// BeeMiniPOS is intentionally thin: it owns cart presentation and surrogate
+// client UUIDs, while Fiscal owns UNP, validation, routing and receipt truth.
 
 type Money = { amount: string; currency: "EUR" };
 type Product = {
@@ -54,11 +57,52 @@ type Employee = {
   roles?: string[];
 };
 type CartLine = { product: Product; quantity: number; discountAmount?: string };
-type RegulatoryIdentifier={type:string;scheme:string;value:string;country_code:string;profile_version:string};
-type FiscalSaleLine={line_id:string;product_code?:string;name:string;quantity:string;unit_price:Money;discount?:Money;tax_group:string};
-type FiscalSale={sale_id:string;external_id:string;register_id:string;operator_id:string;unp:string;regulatory_identifiers:RegulatoryIdentifier[];state:string;version:number;lines:FiscalSaleLine[];payments:unknown[];allowed_actions:string[];totals:{gross:Money};fiscal_operation_id?:string};
-type WorkstationSession={session_id:string;workstation_id:string;operator_code:string;expires_at:string};
-type ActiveBleBinding={tenant_id:string;location_id:string;register_id:string;edge_id:string;device_id:string;binding_version:number;expires_at:string};
+type RegulatoryIdentifier = {
+  type: string;
+  scheme: string;
+  value: string;
+  country_code: string;
+  profile_version: string;
+};
+type FiscalSaleLine = {
+  line_id: string;
+  product_code?: string;
+  name: string;
+  quantity: string;
+  unit_price: Money;
+  discount?: Money;
+  tax_group: string;
+};
+type FiscalSale = {
+  sale_id: string;
+  external_id: string;
+  register_id: string;
+  operator_id: string;
+  unp: string;
+  regulatory_identifiers: RegulatoryIdentifier[];
+  state: string;
+  version: number;
+  lines: FiscalSaleLine[];
+  payments: unknown[];
+  allowed_actions: string[];
+  totals: { gross: Money };
+  fiscal_operation_id?: string;
+};
+type WorkstationSession = {
+  session_id: string;
+  workstation_id: string;
+  operator_code: string;
+  expires_at: string;
+};
+type ActiveBleBinding = {
+  tenant_id: string;
+  location_id: string;
+  register_id: string;
+  edge_id: string;
+  device_id: string;
+  binding_version: number;
+  expires_at: string;
+};
 type Shift = {
   id: string;
   register_id: string;
@@ -123,8 +167,7 @@ const devFiscalToken = prodMode
   : process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN || "";
 let runtimeFiscalToken = devFiscalToken;
 const registerId = process.env.EXPO_PUBLIC_REGISTER_ID || "";
-const fiscalDeviceId =
-  process.env.EXPO_PUBLIC_FISCAL_DEVICE_ID || "";
+const fiscalDeviceId = process.env.EXPO_PUBLIC_FISCAL_DEVICE_ID || "";
 const appInstanceId =
   process.env.EXPO_PUBLIC_APP_INSTANCE_ID ||
   "00000000-0000-4000-8000-000000000001";
@@ -182,25 +225,41 @@ async function fiscalCall<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   const text = await r.text();
   if (r.status === 401 && prodMode) runtimeUnauthorized?.();
-  if (!r.ok) throw new FiscalHttpError(r.status,text || `Fiscal HTTP ${r.status}`);
+  if (!r.ok)
+    throw new FiscalHttpError(r.status, text || `Fiscal HTTP ${r.status}`);
   return text ? JSON.parse(text) : ({} as T);
 }
-class FiscalHttpError extends Error{constructor(readonly status:number,message:string){super(message);this.name="FiscalHttpError"}}
-class CheckoutFinalError extends Error{constructor(message:string){super(message);this.name="CheckoutFinalError"}}
+class FiscalHttpError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "FiscalHttpError";
+  }
+}
+class CheckoutFinalError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "CheckoutFinalError";
+  }
+}
 async function fiscalCloudReachable(path: string): Promise<boolean> {
-  void path; return pingFiscal(fiscalBase);
+  void path;
+  return pingFiscal(fiscalBase);
 }
 
 export default function App() {
-  const connectivity=useRef(new ConnectivityController());
-  const checkoutJournal=useRef(new CheckoutJournal());
+  const connectivity = useRef(new ConnectivityController());
+  const checkoutJournal = useRef(new CheckoutJournal());
   const oidc = useOperatorOidc();
   runtimeUnauthorized = () => oidc.logout();
   const [products, setProducts] = useState<Product[]>([]),
     [employees, setEmployees] = useState<Employee[]>([]),
     [shift, setShift] = useState<Shift | null>(null),
     [saleProjection, setSaleProjection] = useState<FiscalSale | null>(null),
-    [workstationSession,setWorkstationSession]=useState<WorkstationSession|null>(null);
+    [workstationSession, setWorkstationSession] =
+      useState<WorkstationSession | null>(null);
   const [status, setStatus] = useState("Зареждане…"),
     [search, setSearch] = useState(""),
     [splitCash, setSplitCash] = useState(""),
@@ -233,7 +292,22 @@ export default function App() {
     >(null),
     [bleReady, setBleReady] = useState(false);
 
-  const cart = useMemo<CartLine[]>(()=>saleProjection?.lines.map((line)=>({product:products.find((p)=>p.id===line.product_code)||{id:line.product_code||line.line_id,sku:line.product_code||line.line_id,name:line.name,price:line.unit_price,tax_group:line.tax_group,active:true},quantity:Number(line.quantity),discountAmount:line.discount?.amount}))||[],[saleProjection,products]);
+  const cart = useMemo<CartLine[]>(
+    () =>
+      saleProjection?.lines.map((line) => ({
+        product: products.find((p) => p.id === line.product_code) || {
+          id: line.product_code || line.line_id,
+          sku: line.product_code || line.line_id,
+          name: line.name,
+          price: line.unit_price,
+          tax_group: line.tax_group,
+          active: true,
+        },
+        quantity: Number(line.quantity),
+        discountAmount: line.discount?.amount,
+      })) || [],
+    [saleProjection, products],
+  );
   const total = useMemo(
     () =>
       cart.reduce(
@@ -262,23 +336,78 @@ export default function App() {
     setBleBinding(null);
     setBleReady(false);
   };
-  const mutateProjectedLine=async(productId:string,quantity:number,discountAmount?:string)=>{
-    if(!saleProjection)return;const line=saleProjection.lines.find((v)=>v.product_code===productId);if(!line)return;
-    if(quantity<=0){setSaleProjection(await fiscalCall<FiscalSale>(`/sales/${saleProjection.sale_id}/lines/${line.line_id}:cancel`,{method:"POST",headers:{"If-Match":String(saleProjection.version)},body:"{}"}));return}
-    setSaleProjection(await fiscalCall<FiscalSale>(`/sales/${saleProjection.sale_id}/lines/${line.line_id}`,{method:"PATCH",headers:{"If-Match":String(saleProjection.version)},body:JSON.stringify({...line,quantity:quantity.toFixed(3),...(discountAmount&&Number(discountAmount)>0?{discount:{amount:Number(discountAmount).toFixed(2),currency:"EUR"}}:{discount:undefined})})}));
+  const mutateProjectedLine = async (
+    productId: string,
+    quantity: number,
+    discountAmount?: string,
+  ) => {
+    if (!saleProjection) return;
+    const line = saleProjection.lines.find((v) => v.product_code === productId);
+    if (!line) return;
+    if (quantity <= 0) {
+      setSaleProjection(
+        await fiscalCall<FiscalSale>(
+          `/sales/${saleProjection.sale_id}/lines/${line.line_id}:cancel`,
+          {
+            method: "POST",
+            headers: { "If-Match": String(saleProjection.version) },
+            body: "{}",
+          },
+        ),
+      );
+      return;
+    }
+    setSaleProjection(
+      await fiscalCall<FiscalSale>(
+        `/sales/${saleProjection.sale_id}/lines/${line.line_id}`,
+        {
+          method: "PATCH",
+          headers: { "If-Match": String(saleProjection.version) },
+          body: JSON.stringify({
+            ...line,
+            quantity: quantity.toFixed(3),
+            ...(discountAmount && Number(discountAmount) > 0
+              ? {
+                  discount: {
+                    amount: Number(discountAmount).toFixed(2),
+                    currency: "EUR",
+                  },
+                }
+              : { discount: undefined }),
+          }),
+        },
+      ),
+    );
   };
   const setLineDiscount = (productId: string, amount: number) => {
     if (!canManage) {
       setStatus("Отстъпката изисква права на мениджър");
       return;
     }
-    const line=cart.find((v)=>v.product.id===productId);const gross=line?Number(line.product.price.amount)*line.quantity:0;if(!line||!Number.isFinite(amount)||amount<0||amount>gross){setStatus("Отстъпката трябва да е между € 0.00 и сумата на реда");return};void mutateProjectedLine(productId,line.quantity,amount.toFixed(2)).catch((e)=>setStatus(message(e)));
+    const line = cart.find((v) => v.product.id === productId);
+    const gross = line ? Number(line.product.price.amount) * line.quantity : 0;
+    if (!line || !Number.isFinite(amount) || amount < 0 || amount > gross) {
+      setStatus("Отстъпката трябва да е между € 0.00 и сумата на реда");
+      return;
+    }
+    void mutateProjectedLine(productId, line.quantity, amount.toFixed(2)).catch(
+      (e) => setStatus(message(e)),
+    );
   };
   const setLineDiscountText = (productId: string, value: string) => {
     if (!canManage) return;
     const normalized = value.replace(",", ".");
     if (!/^\d*(\.\d{0,2})?$/.test(normalized)) return;
-    const line=cart.find((v)=>v.product.id===productId);const amount=normalized===""?0:Number(normalized);const gross=line?Number(line.product.price.amount)*line.quantity:0;if(!line||amount>gross){setStatus("Отстъпката не може да надвишава сумата на реда");return};void mutateProjectedLine(productId,line.quantity,normalized).catch((e)=>setStatus(message(e)));
+    const line = cart.find((v) => v.product.id === productId);
+    const amount = normalized === "" ? 0 : Number(normalized);
+    const gross = line ? Number(line.product.price.amount) * line.quantity : 0;
+    if (!line || amount > gross) {
+      setStatus("Отстъпката не може да надвишава сумата на реда");
+      return;
+    }
+    void mutateProjectedLine(productId, line.quantity, normalized).catch((e) =>
+      setStatus(message(e)),
+    );
   };
   const revokeActiveBle = async () => {
     const id = bleBinding?.ble_session_id;
@@ -332,19 +461,55 @@ export default function App() {
         // SUPTO startup orchestration: establish trusted daily time evidence,
         // probe the selected physical FU and bind the operator before any sale
         // intent can be accepted. A failed probe keeps the workstation blocked.
-        await fiscalCall(`/workstations/${recoveryRegister}/clock-sync`, {method:"POST", body:"{}"});
-        await fiscalCall(`/workstations/${recoveryRegister}/readiness:refresh`, {method:"POST", body:"{}"});
-        const startupSession = await fiscalCall<WorkstationSession>(`/workstations/${recoveryRegister}/sessions`, {
-          method:"POST",
-          body:JSON.stringify({operator_code:employee.operator_code,app_instance_id:appInstanceId}),
+        await fiscalCall(`/workstations/${recoveryRegister}/clock-sync`, {
+          method: "POST",
+          body: "{}",
         });
+        await fiscalCall(
+          `/workstations/${recoveryRegister}/readiness:refresh`,
+          { method: "POST", body: "{}" },
+        );
+        const startupSession = await fiscalCall<WorkstationSession>(
+          `/workstations/${recoveryRegister}/sessions`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              operator_code: employee.operator_code,
+              app_instance_id: appInstanceId,
+            }),
+          },
+        );
         setWorkstationSession(startupSession);
         const shifts = await call<{ items: Shift[] }>(
           `/shifts?employee_id=${encodeURIComponent(employee.id)}&register_id=${encodeURIComponent(recoveryRegister)}`,
         );
-        const recovered = shifts.items.find((x) => x.state !== "CLOSED") || null;
+        const recovered =
+          shifts.items.find((x) => x.state !== "CLOSED") || null;
         setShift(recovered);
-        if(recovered?.state==="OPEN"){const journals=await checkoutJournal.current.pending();if(journals.length){const durable=journals[0];const sale=await fiscalCall<FiscalSale>(`/sales/${durable.sale_id}`).catch(()=>null);if(sale){setSaleProjection(sale);setPendingOrder({id:durable.sale_id,state:"UNKNOWN",version:durable.sale_version,allowed_actions:["READ"],fiscal_operation_id:durable.plan.client_operation_id})}}else{const sales=await fiscalCall<{items:FiscalSale[]}>(`/sales?operator_id=${encodeURIComponent(employee.operator_code)}&register_id=${encodeURIComponent(recoveryRegister)}&state=OPEN`).catch(()=>({items:[]}));setSaleProjection(sales.items[0]||null)}}
+        if (recovered?.state === "OPEN") {
+          const journals = await checkoutJournal.current.pending();
+          if (journals.length) {
+            const durable = journals[0];
+            const sale = await fiscalCall<FiscalSale>(
+              `/sales/${durable.sale_id}`,
+            ).catch(() => null);
+            if (sale) {
+              setSaleProjection(sale);
+              setPendingOrder({
+                id: durable.sale_id,
+                state: "UNKNOWN",
+                version: durable.sale_version,
+                allowed_actions: ["READ"],
+                fiscal_operation_id: durable.plan.client_operation_id,
+              });
+            }
+          } else {
+            const sales = await fiscalCall<{ items: FiscalSale[] }>(
+              `/sales?operator_id=${encodeURIComponent(employee.operator_code)}&register_id=${encodeURIComponent(recoveryRegister)}&state=OPEN`,
+            ).catch(() => ({ items: [] }));
+            setSaleProjection(sales.items[0] || null);
+          }
+        }
         if (recovered?.state !== "OPEN") {
           setSaleProjection(null);
           setSplitCash("");
@@ -363,7 +528,9 @@ export default function App() {
         setShift(null);
         setSaleProjection(null);
         setSplitCash("");
-        setStatus("Настройте валидна фискална каса преди възстановяване на смяна");
+        setStatus(
+          "Настройте валидна фискална каса преди възстановяване на смяна",
+        );
       }
     } catch (e) {
       setOperatorEmployee(null);
@@ -423,11 +590,77 @@ export default function App() {
       setStatus("Продажбата е блокирана: няма активна отворена смяна");
       return;
     }
-    if(busy||!selectedEmployee)return;setBusy(true);try{const existing=cart.find((v)=>v.product.id===p.id);if(existing){await mutateProjectedLine(p.id,existing.quantity+1,existing.discountAmount);return}
-      let session=workstationSession;if(!saleProjection){await fiscalCall(`/workstations/${activeRegisterId}/clock-sync`,{method:"POST",body:"{}"});await fiscalCall(`/workstations/${activeRegisterId}/readiness:refresh`,{method:"POST",body:"{}"})}if(!session||new Date(session.expires_at).getTime()<=Date.now()){session=await fiscalCall<WorkstationSession>(`/workstations/${activeRegisterId}/sessions`,{method:"POST",body:JSON.stringify({operator_code:selectedEmployee.operator_code,app_instance_id:appInstanceId})});setWorkstationSession(session)}
-      const line: FiscalSaleLine={line_id:uuid(),product_code:p.id,name:p.name,quantity:"1.000",unit_price:p.price,tax_group:p.tax_group};
-      const next=saleProjection?await fiscalCall<FiscalSale>(`/sales/${saleProjection.sale_id}/lines`,{method:"POST",headers:{"If-Match":String(saleProjection.version)},body:JSON.stringify(line)}):await fiscalCall<FiscalSale>("/sales:open-with-line",{method:"POST",body:JSON.stringify({client_sale_surrogate_id:uuid(),workstation_id:activeRegisterId,operator_session_id:session.session_id,line})});setSaleProjection(next);setStatus(`Продажбата е отворена • УНП ${next.regulatory_identifiers[0]?.value||next.unp}`)
-    }catch(e){setStatus(`Артикулът не е приет: ${message(e)}`)}finally{setBusy(false)}
+    if (busy || !selectedEmployee) return;
+    setBusy(true);
+    try {
+      const existing = cart.find((v) => v.product.id === p.id);
+      if (existing) {
+        await mutateProjectedLine(
+          p.id,
+          existing.quantity + 1,
+          existing.discountAmount,
+        );
+        return;
+      }
+      let session = workstationSession;
+      if (!saleProjection) {
+        await fiscalCall(`/workstations/${activeRegisterId}/clock-sync`, {
+          method: "POST",
+          body: "{}",
+        });
+        await fiscalCall(
+          `/workstations/${activeRegisterId}/readiness:refresh`,
+          { method: "POST", body: "{}" },
+        );
+      }
+      if (!session || new Date(session.expires_at).getTime() <= Date.now()) {
+        session = await fiscalCall<WorkstationSession>(
+          `/workstations/${activeRegisterId}/sessions`,
+          {
+            method: "POST",
+            body: JSON.stringify({
+              operator_code: selectedEmployee.operator_code,
+              app_instance_id: appInstanceId,
+            }),
+          },
+        );
+        setWorkstationSession(session);
+      }
+      const line: FiscalSaleLine = {
+        line_id: uuid(),
+        product_code: p.id,
+        name: p.name,
+        quantity: "1.000",
+        unit_price: p.price,
+        tax_group: p.tax_group,
+      };
+      const next = saleProjection
+        ? await fiscalCall<FiscalSale>(
+            `/sales/${saleProjection.sale_id}/lines`,
+            {
+              method: "POST",
+              headers: { "If-Match": String(saleProjection.version) },
+              body: JSON.stringify(line),
+            },
+          )
+        : await fiscalCall<FiscalSale>("/sales:open-with-line", {
+            method: "POST",
+            body: JSON.stringify({
+              client_sale_surrogate_id: uuid(),
+              workstation_id: activeRegisterId,
+              operator_session_id: session.session_id,
+              line,
+            }),
+          });
+      setSaleProjection(next);
+      setStatus(
+        `Продажбата е отворена • УНП ${next.regulatory_identifiers[0]?.value || next.unp}`,
+      );
+    } catch (e) {
+      setStatus(`Артикулът не е приет: ${message(e)}`);
+    } finally {
+      setBusy(false);
+    }
   };
   const submitProductLookup = () => {
     const value = search.trim();
@@ -581,7 +814,7 @@ export default function App() {
           ? "Разделено плащане: в брой, карта и фискализация…"
           : "Фискализация…",
     );
-    let recoveryOperationId="";
+    let recoveryOperationId = "";
     try {
       const payments =
         type === "SPLIT"
@@ -613,33 +846,155 @@ export default function App() {
                 terminal_policy: type === "CARD" ? "AUTO_IF_AVAILABLE" : "NONE",
               },
             ];
-      if(!saleProjection)throw new Error("Липсва приета продажба");let sale=saleProjection;let last: FiscalOperation|undefined;
-      const stored=await checkoutJournal.current.load(sale.sale_id);const checkoutPlan=stored?.plan||newCheckoutPlan(uuid,payments,total);
-      recoveryOperationId=checkoutPlan.client_operation_id;
-      if(stored&&stored.sale_version!==sale.version)throw new Error("CHECKOUT_RECONCILIATION_REQUIRED");
-      await checkoutJournal.current.save({sale_id:sale.sale_id,sale_version:sale.version,plan:checkoutPlan,created_at:new Date().toISOString()});
-      const cloud=await fiscalCloudReachable(`/sales/${sale.sale_id}`);connectivity.current.observe(cloud,Boolean(bleReady&&bleBinding));if(!cloud){await new Promise(r=>setTimeout(r,1000));connectivity.current.observe(await fiscalCloudReachable(""),Boolean(bleReady&&bleBinding));await new Promise(r=>setTimeout(r,1000));connectivity.current.observe(await fiscalCloudReachable(""),Boolean(bleReady&&bleBinding))}const useBle=Boolean(bleReady&&bleBinding)&&connectivity.current.useBle();
-      if(useBle){
-        const intent=bleFinalizeIntent(checkoutPlan,bleBinding!,sale,{operator_code:selectedEmployee.operator_code,app_instance_id:appInstanceId,expected_version:sale.version});
-        const local=await ble.current.sendComplianceIntentAndWait(intent,checkoutPlan.client_operation_id);
-        last={operation_id:local.operation_id,type:"FISCAL_SALE",state:local.state==="FISCALIZED"?"FISCALIZED":local.state==="FISCAL_RESULT_UNKNOWN"?"UNKNOWN":"FAILED",fiscal_reference:local.fiscal_reference};
-        if(local.state==="FISCAL_RESULT_UNKNOWN"){setPendingOrder({id:sale.sale_id,state:"UNKNOWN",version:sale.version,allowed_actions:["READ"],fiscal_operation_id:local.operation_id});throw new Error("UNKNOWN: RECONCILE")}
-        if(local.state!=="FISCALIZED"){await checkoutJournal.current.remove(sale.sale_id);throw new CheckoutFinalError(local.error_code||"PAYMENT_REJECTED")}
-        sale={...sale,state:"COMPLETED"};setSaleProjection(sale)
-      }else{
-        try{last=await fiscalCall<FiscalOperation>(`/sales/${sale.sale_id}:finalize`,{method:"POST",headers:{"If-Match":String(sale.version),"Idempotency-Key":checkoutPlan.client_operation_id},body:JSON.stringify(checkoutPlan)})}
-        catch(e){if(!(bleReady&&bleBinding)||e instanceof FiscalHttpError)throw e;const intent=bleFinalizeIntent(checkoutPlan,bleBinding,sale,{operator_code:selectedEmployee.operator_code,app_instance_id:appInstanceId,expected_version:sale.version});const local=await ble.current.sendComplianceIntentAndWait(intent,checkoutPlan.client_operation_id);last={operation_id:local.operation_id,type:"FISCAL_SALE",state:local.state==="FISCALIZED"?"FISCALIZED":local.state==="FISCAL_RESULT_UNKNOWN"?"UNKNOWN":"FAILED",fiscal_reference:local.fiscal_reference}}
-        if(last.state==="UNKNOWN"){setPendingOrder({id:sale.sale_id,state:"UNKNOWN",version:sale.version,allowed_actions:["READ"],fiscal_operation_id:last.operation_id});throw new Error("UNKNOWN: RECONCILE")};if(last.state==="FAILED"){await checkoutJournal.current.remove(sale.sale_id);throw new CheckoutFinalError("PAYMENT_REJECTED")};sale=await fiscalCall<FiscalSale>(`/sales/${sale.sale_id}`);setSaleProjection(sale)
+      if (!saleProjection) throw new Error("Липсва приета продажба");
+      let sale = saleProjection;
+      let last: FiscalOperation | undefined;
+      const stored = await checkoutJournal.current.load(sale.sale_id);
+      const checkoutPlan =
+        stored?.plan || newCheckoutPlan(uuid, payments, total);
+      recoveryOperationId = checkoutPlan.client_operation_id;
+      if (stored && stored.sale_version !== sale.version)
+        throw new Error("CHECKOUT_RECONCILIATION_REQUIRED");
+      await checkoutJournal.current.save({
+        sale_id: sale.sale_id,
+        sale_version: sale.version,
+        plan: checkoutPlan,
+        created_at: new Date().toISOString(),
+      });
+      const cloud = await fiscalCloudReachable(`/sales/${sale.sale_id}`);
+      connectivity.current.observe(cloud, Boolean(bleReady && bleBinding));
+      if (!cloud) {
+        await new Promise((r) => setTimeout(r, 1000));
+        connectivity.current.observe(
+          await fiscalCloudReachable(""),
+          Boolean(bleReady && bleBinding),
+        );
+        await new Promise((r) => setTimeout(r, 1000));
+        connectivity.current.observe(
+          await fiscalCloudReachable(""),
+          Boolean(bleReady && bleBinding),
+        );
       }
-      if(sale.state!=="COMPLETED")throw new Error("Плащането не е завършено");
+      const useBle =
+        Boolean(bleReady && bleBinding) && connectivity.current.useBle();
+      if (useBle) {
+        const intent = bleFinalizeIntent(checkoutPlan, bleBinding!, sale, {
+          operator_code: selectedEmployee.operator_code,
+          app_instance_id: appInstanceId,
+          expected_version: sale.version,
+        });
+        const local = await ble.current.sendComplianceIntentAndWait(
+          intent,
+          checkoutPlan.client_operation_id,
+        );
+        last = {
+          operation_id: local.operation_id,
+          type: "FISCAL_SALE",
+          state:
+            local.state === "FISCALIZED"
+              ? "FISCALIZED"
+              : local.state === "FISCAL_RESULT_UNKNOWN"
+                ? "UNKNOWN"
+                : "FAILED",
+          fiscal_reference: local.fiscal_reference,
+        };
+        if (local.state === "FISCAL_RESULT_UNKNOWN") {
+          setPendingOrder({
+            id: sale.sale_id,
+            state: "UNKNOWN",
+            version: sale.version,
+            allowed_actions: ["READ"],
+            fiscal_operation_id: local.operation_id,
+          });
+          throw new Error("UNKNOWN: RECONCILE");
+        }
+        if (local.state !== "FISCALIZED") {
+          await checkoutJournal.current.remove(sale.sale_id);
+          throw new CheckoutFinalError(local.error_code || "PAYMENT_REJECTED");
+        }
+        sale = { ...sale, state: "COMPLETED" };
+        setSaleProjection(sale);
+      } else {
+        try {
+          last = await fiscalCall<FiscalOperation>(
+            `/sales/${sale.sale_id}:finalize`,
+            {
+              method: "POST",
+              headers: {
+                "If-Match": String(sale.version),
+                "Idempotency-Key": checkoutPlan.client_operation_id,
+              },
+              body: JSON.stringify(checkoutPlan),
+            },
+          );
+        } catch (e) {
+          if (!(bleReady && bleBinding) || e instanceof FiscalHttpError)
+            throw e;
+          const intent = bleFinalizeIntent(checkoutPlan, bleBinding, sale, {
+            operator_code: selectedEmployee.operator_code,
+            app_instance_id: appInstanceId,
+            expected_version: sale.version,
+          });
+          const local = await ble.current.sendComplianceIntentAndWait(
+            intent,
+            checkoutPlan.client_operation_id,
+          );
+          last = {
+            operation_id: local.operation_id,
+            type: "FISCAL_SALE",
+            state:
+              local.state === "FISCALIZED"
+                ? "FISCALIZED"
+                : local.state === "FISCAL_RESULT_UNKNOWN"
+                  ? "UNKNOWN"
+                  : "FAILED",
+            fiscal_reference: local.fiscal_reference,
+          };
+        }
+        if (last.state === "UNKNOWN") {
+          setPendingOrder({
+            id: sale.sale_id,
+            state: "UNKNOWN",
+            version: sale.version,
+            allowed_actions: ["READ"],
+            fiscal_operation_id: last.operation_id,
+          });
+          throw new Error("UNKNOWN: RECONCILE");
+        }
+        if (last.state === "FAILED") {
+          await checkoutJournal.current.remove(sale.sale_id);
+          throw new CheckoutFinalError("PAYMENT_REJECTED");
+        }
+        sale = await fiscalCall<FiscalSale>(`/sales/${sale.sale_id}`);
+        setSaleProjection(sale);
+      }
+      if (sale.state !== "COMPLETED")
+        throw new Error("Плащането не е завършено");
       setPendingOrder(null);
       await checkoutJournal.current.remove(sale.sale_id);
       setSaleProjection(null);
       setSplitCash("");
-      setStatus(`Успешен фискален бон • ${last?.fiscal_reference||last?.operation_id} • EUR ${total.toFixed(2)}`);
+      setStatus(
+        `Успешен фискален бон • ${last?.fiscal_reference || last?.operation_id} • EUR ${total.toFixed(2)}`,
+      );
     } catch (e) {
-      if(saleProjection&&message(e)!=="UNKNOWN: RECONCILE"&&!(e instanceof CheckoutFinalError)&&!(e instanceof FiscalHttpError))setPendingOrder({id:saleProjection.sale_id,state:"UNKNOWN",version:saleProjection.version,allowed_actions:["READ"],fiscal_operation_id:recoveryOperationId||saleProjection.fiscal_operation_id});
-      setStatus(`Няма потвърден фискален успех; не повтаряйте плащането: ${message(e)}`);
+      if (
+        saleProjection &&
+        message(e) !== "UNKNOWN: RECONCILE" &&
+        !(e instanceof CheckoutFinalError) &&
+        !(e instanceof FiscalHttpError)
+      )
+        setPendingOrder({
+          id: saleProjection.sale_id,
+          state: "UNKNOWN",
+          version: saleProjection.version,
+          allowed_actions: ["READ"],
+          fiscal_operation_id:
+            recoveryOperationId || saleProjection.fiscal_operation_id,
+        });
+      setStatus(
+        `Няма потвърден фискален успех; не повтаряйте плащането: ${message(e)}`,
+      );
     } finally {
       setBusy(false);
     }
@@ -652,7 +1007,18 @@ export default function App() {
     }
     setBusy(true);
     try {
-      if(!pendingOrder.fiscal_operation_id)throw new Error("Липсва operation ID");const operation=await fiscalCall<FiscalOperation>(`/operations/${pendingOrder.fiscal_operation_id}`);if(operation.state==="UNKNOWN")await fiscalCall(`/operations/${operation.operation_id}:reconcile`,{method:"POST",body:"{}"});const sale=await fiscalCall<FiscalSale>(`/sales/${pendingOrder.id}`);setSaleProjection(sale);
+      if (!pendingOrder.fiscal_operation_id)
+        throw new Error("Липсва operation ID");
+      const operation = await fiscalCall<FiscalOperation>(
+        `/operations/${pendingOrder.fiscal_operation_id}`,
+      );
+      if (operation.state === "UNKNOWN")
+        await fiscalCall(`/operations/${operation.operation_id}:reconcile`, {
+          method: "POST",
+          body: "{}",
+        });
+      const sale = await fiscalCall<FiscalSale>(`/sales/${pendingOrder.id}`);
+      setSaleProjection(sale);
       if (sale.state === "COMPLETED") {
         await checkoutJournal.current.remove(pendingOrder.id);
         setPendingOrder(null);
@@ -667,7 +1033,9 @@ export default function App() {
           `Продажбата е ${sale.state}; нов опит е разрешен само като нова продажба`,
         );
       } else
-        setStatus(`Резултатът още се проверява • ${sale.state} • ${operation.operation_id}`);
+        setStatus(
+          `Резултатът още се проверява • ${sale.state} • ${operation.operation_id}`,
+        );
     } catch (e) {
       setStatus(
         `Проверката е недостъпна; плащането не е повторено: ${message(e)}`,
@@ -776,7 +1144,18 @@ export default function App() {
       setSaleProjection(null);
     }
   };
-  const changeQuantity = (productId: string, delta: number) =>{const line=cart.find((v)=>v.product.id===productId);if(!line)return;const quantity=line.quantity+delta,discount=Math.min(Number(line.discountAmount||"0"),Number(line.product.price.amount)*Math.max(0,quantity)).toFixed(2);void mutateProjectedLine(productId,quantity,discount).catch((e)=>setStatus(message(e)))};
+  const changeQuantity = (productId: string, delta: number) => {
+    const line = cart.find((v) => v.product.id === productId);
+    if (!line) return;
+    const quantity = line.quantity + delta,
+      discount = Math.min(
+        Number(line.discountAmount || "0"),
+        Number(line.product.price.amount) * Math.max(0, quantity),
+      ).toFixed(2);
+    void mutateProjectedLine(productId, quantity, discount).catch((e) =>
+      setStatus(message(e)),
+    );
+  };
   if (prodMode && !oidc.accessToken)
     return (
       <SafeAreaView style={s.root}>
@@ -1001,7 +1380,20 @@ export default function App() {
           </View>
           <View style={s.cart}>
             <Text style={s.cartTitle}>Текуща продажба</Text>
-            {saleProjection ? <View testID="sale-regulatory-identity" accessibilityLiveRegion="polite"><Text>УНП: {saleProjection.regulatory_identifiers[0]?.value||saleProjection.unp}</Text><Text>ФУ/каса: {saleProjection.register_id}</Text><Text>Състояние: {saleProjection.state}</Text></View>:null}
+            {saleProjection ? (
+              <View
+                testID="sale-regulatory-identity"
+                accessibilityLiveRegion="polite"
+              >
+                <Text>
+                  УНП:{" "}
+                  {saleProjection.regulatory_identifiers[0]?.value ||
+                    saleProjection.unp}
+                </Text>
+                <Text>ФУ/каса: {saleProjection.register_id}</Text>
+                <Text>Състояние: {saleProjection.state}</Text>
+              </View>
+            ) : null}
             <ScrollView style={s.lines}>
               {cart.length === 0 ? (
                 <Text style={s.empty}>Докоснете продукт</Text>

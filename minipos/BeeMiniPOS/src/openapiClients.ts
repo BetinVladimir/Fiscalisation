@@ -12,8 +12,20 @@ const headers = (authorization?: string) => ({
   ...(authorization ? { Authorization: authorization } : {}),
 });
 
-export const createFiscalOpenApiClient = ({ baseUrl, authorization }: OpenApiClientOptions) =>
-  createClient<FiscalPaths>({ baseUrl: baseUrl.replace(/\/$/, ""), headers: headers(authorization) });
+export const createFiscalOpenApiClient = ({
+  baseUrl,
+  authorization,
+}: OpenApiClientOptions) =>
+  createClient<FiscalPaths>({
+    baseUrl: baseUrl.replace(/\/$/, ""),
+    headers: headers(authorization),
+  });
 
-export const createRuntimeOpenApiClient = ({ baseUrl, authorization }: OpenApiClientOptions) =>
-  createClient<RuntimePaths>({ baseUrl: baseUrl.replace(/\/$/, ""), headers: headers(authorization) });
+export const createRuntimeOpenApiClient = ({
+  baseUrl,
+  authorization,
+}: OpenApiClientOptions) =>
+  createClient<RuntimePaths>({
+    baseUrl: baseUrl.replace(/\/$/, ""),
+    headers: headers(authorization),
+  });

@@ -14,7 +14,9 @@ export async function collectCursorPages<T>(
   let cursor: string | null = null;
   for (let pageNumber = 0; pageNumber < maxPages; pageNumber += 1) {
     const separator = path.includes("?") ? "&" : "?";
-    const page = await request(`${path}${separator}limit=${pageSize}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`);
+    const page = await request(
+      `${path}${separator}limit=${pageSize}${cursor ? `&cursor=${encodeURIComponent(cursor)}` : ""}`,
+    );
     items.push(...(page.items || []));
     if (!page.page?.has_more) return items;
     const next = page.page.next_cursor;

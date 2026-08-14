@@ -11,10 +11,16 @@ export function resolveFiscalDeviceId(
   expectedRegisterId: string,
   developmentFallback = "",
 ): string {
-  const expected = requireFiscalResourceId(expectedRegisterId, "Фискалната каса");
-  if (register.id !== expected) throw new Error("Фискалната каса не съвпада с конфигурацията");
-  if (register.status !== "ACTIVE") throw new Error("Фискалната каса не е активна");
+  const expected = requireFiscalResourceId(
+    expectedRegisterId,
+    "Фискалната каса",
+  );
+  if (register.id !== expected)
+    throw new Error("Фискалната каса не съвпада с конфигурацията");
+  if (register.status !== "ACTIVE")
+    throw new Error("Фискалната каса не е активна");
   const candidate = register.fiscal_device_id || developmentFallback;
-  if (!candidate) throw new Error("Фискалната каса няма активно фискално устройство");
+  if (!candidate)
+    throw new Error("Фискалната каса няма активно фискално устройство");
   return requireFiscalResourceId(candidate, "Фискалното устройство");
 }

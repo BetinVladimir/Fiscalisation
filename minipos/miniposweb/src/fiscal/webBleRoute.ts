@@ -97,6 +97,9 @@ export type WebBleConfiguration = {
   eventUUID: string;
 };
 export class WebBleRoute implements FiscalRoute {
+  // Browser BLE transports the same signed/canonical intent as Local HTTP.
+  // Fragment ACKs acknowledge bytes, not fiscal completion; only the correlated
+  // terminal result can complete the outbox operation.
   kind = "BLE" as const;
   constructor(private readonly configuration: WebBleConfiguration) {}
   async probe() {

@@ -3,46 +3,454 @@ package com.beeloy.fiscal.bluecash
 import java.math.BigDecimal
 import java.security.MessageDigest
 
-data class BleIntentRecord(val hash:String,val result:Map<String,Any?>?)
-data class BleLocalLine(val lineId:String,val fiscal:FiscalLine)
-data class BleLocalSale(val surrogateId:String,val version:Long,val state:String,val lines:List<BleLocalLine>,val processed:Map<String,BleIntentRecord>,val unp:String?=null,val payments:List<SalePayment> = emptyList(),val fiscalOperationId:String?=null,val fiscalReference:String?=null)
-interface BleLocalSaleStore {fun get(surrogateId:String):BleLocalSale?;fun put(sale:BleLocalSale)}
-interface BleUnpAllocator {fun next(operatorCode:String):String}
+data class BleIntentRecord(val hash: String, val result: Map<String, Any?>?)
 
-class MemoryBleLocalSaleStore:BleLocalSaleStore {private val values=mutableMapOf<String,BleLocalSale>();@Synchronized override fun get(surrogateId:String)=values[surrogateId];@Synchronized override fun put(sale:BleLocalSale){values[sale.surrogateId]=sale}}
-class RangeBleUnpAllocator(private val prefix:String,start:Long,private val endInclusive:Long):BleUnpAllocator {private var sequence=start-1;@Synchronized override fun next(operatorCode:String):String{require(sequence<endInclusive){"UNP_RANGE_EXHAUSTED"};sequence++;return "$prefix-$operatorCode-${sequence.toString().padStart(7,'0')}"}}
+data class BleLocalLine(val lineId: String, val fiscal: FiscalLine)
+
+data class BleLocalSale(
+  val surrogateId: String,
+  val version: Long,
+  val state: String,
+  val lines: List<BleLocalLine>,
+  val processed: Map<String, BleIntentRecord>,
+  val unp: String? = null,
+  val payments: List<SalePayment> = emptyList(),
+  val fiscalOperationId: String? = null,
+  val fiscalReference: String? = null
+)
+
+interface BleLocalSaleStore {
+  fun get(surrogateId: String): BleLocalSale?
+  fun put(sale: BleLocalSale)
+}
+
+interface BleUnpAllocator {
+  fun next(operatorCode: String): String
+}
+
+class MemoryBleLocalSaleStore : BleLocalSaleStore {
+  private val values = mutableMapOf<String, BleLocalSale>()
+  @Synchronized override fun get(surrogateId: String) = values[surrogateId]
+  @Synchronized
+  override fun put(sale: BleLocalSale) {
+    values[sale.surrogateId] = sale
+  }
+}
+
+class RangeBleUnpAllocator(
+  private val prefix: String,
+  start: Long,
+  private val endInclusive: Long
+) : BleUnpAllocator {
+  private var sequence = start - 1
+  @Synchronized
+  override fun next(operatorCode: String): String {
+    require(sequence < endInclusive) { "UNP_RANGE_EXHAUSTED" }
+    sequence++
+    return "$prefix-$operatorCode-${sequence.toString().padStart(7,'0')}"
+  }
+}
 
 /** Local BLE ComplianceIntent aggregate. Only PAYMENT and REVERSE invoke physical ports. */
-class BlueCashComplianceIntentExecutor(private val store:BleLocalSaleStore,private val unp:BleUnpAllocator,private val processor:BlueCashCommandProcessor,private val operatorNumber:Int,private val operatorPassword:String,private val tillNumber:Int){
- fun execute(intent:Map<String,Any?>):Map<String,Any?> {val id=text(intent,"intent_id");val surrogate=text(intent,"client_sale_surrogate_id");val action=text(intent,"action");val hash=sha(BlueCashCanonicalCbor.encode(intent));val existing=store.get(surrogate);existing?.processed?.get(id)?.let{require(it.hash==hash){"INTENT_ID_PAYLOAD_CONFLICT"};it.result?.let{return it}}
-  return when(action){"OPEN_WITH_LINE"->{require(existing==null&&(intent["expected_version"] as? Number)?.toLong()==0L){"SALE_VERSION_CONFLICT"};val line=line(intent["line"]);val result=result(id,"OPEN",1);store.put(BleLocalSale(surrogate,1,"OPEN",listOf(line),mapOf(id to BleIntentRecord(hash,result))));result}
-   "ADD_LINE"->{val sale=expected(existing,intent);require(sale.state=="OPEN"){"SALE_STATE"};val updated=sale.copy(version=sale.version+1,lines=sale.lines+line(intent["line"]));save(updated,id,hash,result(id,"OPEN",updated.version))}
-   "CHANGE_LINE"->{val sale=expected(existing,intent);val replacement=line(intent["line"]);require(sale.state=="OPEN"&&sale.lines.any{it.lineId==replacement.lineId}){"SALE_LINE_NOT_FOUND"};val updated=sale.copy(version=sale.version+1,lines=sale.lines.map{if(it.lineId==replacement.lineId)replacement else it});save(updated,id,hash,result(id,"OPEN",updated.version))}
-   "CANCEL_LINE"->{val sale=expected(existing,intent);val lineId=text(intent["line"] as? Map<*,*>?:error("LINE_REQUIRED"),"line_id");require(sale.state=="OPEN"&&sale.lines.any{it.lineId==lineId}){"SALE_LINE_NOT_FOUND"};val updated=sale.copy(version=sale.version+1,lines=sale.lines.filterNot{it.lineId==lineId});save(updated,id,hash,result(id,"OPEN",updated.version))}
-   "CANCEL_SALE"->{val sale=expected(existing,intent);require(sale.state=="OPEN"){"SALE_STATE"};val updated=sale.copy(version=sale.version+1,state="CANCELLED");save(updated,id,hash,result(id,"FAILED",updated.version,"SALE_CANCELLED"))}
-   "PAYMENT"->payment(existing,intent,id,hash)
-   "SALE_FINALIZE"->aggregate(existing,intent,id,hash)
-   "REVERSE"->reverse(existing,intent,id,hash)
-   "SALE_REVERSE"->aggregateReverse(existing,intent,id,hash)
-   "PRINTER_TEST"->{val physical=processor.printerTest(id,evidence(intent));result(id,if(physical["state"]=="PRINTER_TESTED")"FISCALIZED" else if(physical["state"]=="UNKNOWN")"FISCAL_RESULT_UNKNOWN" else "FAILED",0,physical["error_code"])}
-   "REPORT_X","REPORT_Z"->{val physical=processor.administrative(id,69,DatecsPayloads.report(action=="REPORT_Z"),evidence(intent));result(id,if(physical["state"]=="FISCALIZED")"FISCALIZED" else if(physical["state"]=="UNKNOWN")"FISCAL_RESULT_UNKNOWN" else "FAILED",0,physical["error_code"])}
-   "CASH_IN","CASH_OUT"->{val amount=money(intent["amount"]?:((intent["metadata"] as? Map<*,*>)?.get("amount"))).setScale(2).toPlainString();val physical=processor.administrative(id,70,DatecsPayloads.cash(action=="CASH_OUT",amount),evidence(intent));result(id,if(physical["state"]=="FISCALIZED")"FISCALIZED" else if(physical["state"]=="UNKNOWN")"FISCAL_RESULT_UNKNOWN" else "FAILED",0,physical["error_code"])}
-   else->error("COMPLIANCE_ACTION_UNSUPPORTED")}
- }
- private fun payment(current:BleLocalSale?,intent:Map<String,Any?>,id:String,hash:String):Map<String,Any?> {var sale=expected(current,intent);require(sale.state=="OPEN"||sale.state=="PAYMENT_PENDING"){"SALE_STATE"};require(sale.lines.isNotEmpty()){"SALE_EMPTY"};val payment=intent["payment"] as? Map<*,*>?:error("PAYMENT_REQUIRED");val type=text(payment,"type");require(type=="CASH"||type=="CARD"){"PAYMENT_TYPE"};val amount=money(payment["amount"]);val total=sale.lines.fold(BigDecimal.ZERO){sum,line->sum+net(line.fiscal)};require(amount.compareTo(total)==0){"PAYMENT_TOTAL_MISMATCH"};val pay=SalePayment(text(payment,"payment_id"),type,amount.setScale(2).toPlainString());if(sale.state=="OPEN"){sale=sale.copy(version=sale.version+1,state="PAYMENT_PENDING",processed=sale.processed+(id to BleIntentRecord(hash,null)),unp=unp.next(text(intent,"operator_code")),payments=listOf(pay),fiscalOperationId=id);store.put(sale)};val command=BlueCashSale(id,sale.unp?:error("UNP_NOT_RESERVED"),operatorNumber,operatorPassword,tillNumber,sale.lines.map{it.fiscal},sale.payments.ifEmpty{listOf(pay)});val physical=processor.sale(command,evidence(intent));val state=when(physical["state"]){"FISCALIZED"->"FISCALIZED";"UNKNOWN"->"FISCAL_RESULT_UNKNOWN";else->"FAILED"};val result=result(id,state,sale.version,physical["error_code"],physical["fiscal_reference"]);store.put(sale.copy(state=state,processed=sale.processed+(id to BleIntentRecord(hash,result)),fiscalReference=physical["fiscal_reference"]));return result}
- private fun aggregate(current:BleLocalSale?,intent:Map<String,Any?>,id:String,hash:String):Map<String,Any?> {require(current==null){"SALE_ALREADY_EXISTS"};val rawItems=intent["items"] as? List<*>?:error("ITEMS_REQUIRED");val rawPayments=intent["payments"] as? List<*>?:error("PAYMENTS_REQUIRED");require(rawItems.isNotEmpty()&&rawPayments.isNotEmpty()&&rawPayments.size<=10){"SALE_SHAPE"};val lines=rawItems.map{line(it)};val payments=rawPayments.map{payment(it)};val total=lines.fold(BigDecimal.ZERO){sum,line->sum+net(line.fiscal)};val tendered=payments.fold(BigDecimal.ZERO){sum,p->sum+BigDecimal(p.amount)};require(total.compareTo(tendered)==0){"PAYMENT_TOTAL_MISMATCH"};val assignedUnp=unp.next(text(intent,"operator_code"));val sale=BleLocalSale(text(intent,"client_sale_surrogate_id"),1,"PAYMENT_PENDING",lines,mapOf(id to BleIntentRecord(hash,null)),assignedUnp,payments,id);store.put(sale);val physical=processor.sale(BlueCashSale(id,sale.unp!!,operatorNumber,operatorPassword,tillNumber,lines.map{it.fiscal},payments),evidence(intent));val state=when(physical["state"]){"FISCALIZED"->"FISCALIZED";"UNKNOWN","RECOVERY_REQUIRED"->"FISCAL_RESULT_UNKNOWN";else->"FAILED"};val result=result(id,state,1,physical["error_code"],physical["fiscal_reference"]);store.put(sale.copy(state=state,processed=mapOf(id to BleIntentRecord(hash,result)),fiscalReference=physical["fiscal_reference"]));return result}
- private fun reverse(current:BleLocalSale?,intent:Map<String,Any?>,id:String,hash:String):Map<String,Any?> {var sale=expected(current,intent);require(sale.state=="FISCALIZED"||sale.state=="REVERSAL_PENDING"){"SALE_STATE"};val original=intent["original_document"] as? Map<*,*>?:error("ORIGINAL_DOCUMENT_REQUIRED");val reason=reason(text(intent,"reason_code"));val document=DatecsStornoDocument(reason,number(original,"document_number"),text(original,"document_datetime"),text(original,"fiscal_memory_number"),sale.unp?:error("ORIGINAL_UNP_REQUIRED"),original["invoice_number"] as? String,original["invoice_reason"] as? String);if(sale.state=="FISCALIZED"){sale=sale.copy(version=sale.version+1,state="REVERSAL_PENDING",processed=sale.processed+(id to BleIntentRecord(hash,null)));store.put(sale)};require(sale.payments.isNotEmpty()){"ORIGINAL_PAYMENT_REQUIRED"};val command=BlueCashReversal(id,sale.fiscalOperationId?:error("ORIGINAL_OPERATION_REQUIRED"),operatorNumber,operatorPassword,tillNumber,document,sale.lines.map{it.fiscal},sale.payments);val physical=processor.reverse(command,evidence(intent));val state=when(physical["state"]){"REVERSED"->"FISCALIZED";"UNKNOWN"->"FISCAL_RESULT_UNKNOWN";else->"FAILED"};val result=result(id,state,sale.version,physical["error_code"],physical["fiscal_reference"]);store.put(sale.copy(state=if(physical["state"]=="REVERSED")"REVERSED" else state,processed=sale.processed+(id to BleIntentRecord(hash,result)),fiscalReference=physical["fiscal_reference"]?:sale.fiscalReference));return result}
- private fun aggregateReverse(current:BleLocalSale?,intent:Map<String,Any?>,id:String,hash:String):Map<String,Any?> {val sale=current?:error("SALE_NOT_FOUND");return reverse(sale,intent,id,hash)}
- private fun expected(sale:BleLocalSale?,intent:Map<String,Any?>):BleLocalSale{val current=sale?:error("SALE_NOT_FOUND");require((intent["expected_version"] as? Number)?.toLong()==current.version){"SALE_VERSION_CONFLICT"};return current}
- private fun save(sale:BleLocalSale,id:String,hash:String,result:Map<String,Any?>):Map<String,Any?>{store.put(sale.copy(processed=sale.processed+(id to BleIntentRecord(hash,result))));return result}
- private fun line(raw:Any?):BleLocalLine{val v=raw as? Map<*,*>?:error("LINE_REQUIRED");val price=money(v["unit_price"]).setScale(2).toPlainString();val quantity=text(v,"quantity");val tax=text(v,"tax_group");require(tax.length==1){"TAX_GROUP"};val discount=v["discount"]?.let{money(it)}?:BigDecimal.ZERO;val gross=BigDecimal(price)*BigDecimal(quantity);require(discount>=BigDecimal.ZERO&&discount<=gross){"DISCOUNT_INVALID"};val lineId=(v["line_id"]?:v["item_id"]) as? String?:error("LINE_ID_REQUIRED");return BleLocalLine(lineId,FiscalLine(text(v,"name"),tax[0],price,quantity,if(discount.signum()==0)0 else 4,if(discount.signum()==0)"" else discount.setScale(2).toPlainString()))}
- private fun payment(raw:Any?):SalePayment{val v=raw as? Map<*,*>?:error("PAYMENT_REQUIRED");val type=text(v,"type");require(type=="CASH"||type=="CARD"){"PAYMENT_TYPE"};return SalePayment(text(v,"payment_id"),type,money(v["amount"]).setScale(2).toPlainString())}
- private fun net(line:FiscalLine):BigDecimal=BigDecimal(line.unitPrice)*BigDecimal(line.quantity)-(if(line.discountType==4)BigDecimal(line.discountValue) else BigDecimal.ZERO)
- private fun reason(value:String)=when(value){"OPERATOR_ERROR"->0;"CUSTOMER_RETURN","CUSTOMER_COMPLAINT"->1;"TAX_BASE_REDUCTION"->2;else->error("REVERSAL_REASON")}
- private fun money(v:Any?):BigDecimal=when(v){is String->BigDecimal(v);is Map<*,*>->BigDecimal(text(v,"amount"));else->error("MONEY_REQUIRED")}
- private fun text(v:Map<*,*>,key:String)=v[key] as? String?:error("${key.uppercase()}_REQUIRED")
- private fun number(v:Map<*,*>,key:String)=(v[key] as? Number)?.toLong()?:error("${key.uppercase()}_REQUIRED")
- private fun evidence(intent:Map<String,Any?>)=(intent["canonical_payload"] as? Map<*,*>)?.let{CanonicalJson.encode(org.json.JSONObject(it))}?:BlueCashCanonicalCbor.encode(intent).let{java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(it)}
- private fun result(id:String,state:String,version:Long,error:String?=null,reference:String?=null)=linkedMapOf<String,Any?>("operation_id" to id,"state" to state,"version" to version).apply{if(error!=null)put("error_code",error);if(reference!=null)put("fiscal_reference",reference)}
- private fun sha(v:ByteArray)=MessageDigest.getInstance("SHA-256").digest(v).joinToString(""){"%02x".format(it)}
+class BlueCashComplianceIntentExecutor(
+  private val store: BleLocalSaleStore,
+  private val unp: BleUnpAllocator,
+  private val processor: BlueCashCommandProcessor,
+  private val operatorNumber: Int,
+  private val operatorPassword: String,
+  private val tillNumber: Int
+) {
+  fun execute(intent: Map<String, Any?>): Map<String, Any?> {
+    val id = text(intent, "intent_id")
+    val surrogate = text(intent, "client_sale_surrogate_id")
+    val action = text(intent, "action")
+    val hash = sha(BlueCashCanonicalCbor.encode(intent))
+    val existing = store.get(surrogate)
+    existing?.processed?.get(id)?.let {
+      require(it.hash == hash) { "INTENT_ID_PAYLOAD_CONFLICT" }
+      it.result?.let {
+        return it
+      }
+    }
+    return when (action) {
+      "OPEN_WITH_LINE" -> {
+        require(existing == null && (intent["expected_version"] as? Number)?.toLong() == 0L) {
+          "SALE_VERSION_CONFLICT"
+        }
+        val line = line(intent["line"])
+        val result = result(id, "OPEN", 1)
+        store.put(
+          BleLocalSale(
+            surrogate,
+            1,
+            "OPEN",
+            listOf(line),
+            mapOf(id to BleIntentRecord(hash, result))
+          )
+        )
+        result
+      }
+      "ADD_LINE" -> {
+        val sale = expected(existing, intent)
+        require(sale.state == "OPEN") { "SALE_STATE" }
+        val updated =
+          sale.copy(version = sale.version + 1, lines = sale.lines + line(intent["line"]))
+        save(updated, id, hash, result(id, "OPEN", updated.version))
+      }
+      "CHANGE_LINE" -> {
+        val sale = expected(existing, intent)
+        val replacement = line(intent["line"])
+        require(sale.state == "OPEN" && sale.lines.any { it.lineId == replacement.lineId }) {
+          "SALE_LINE_NOT_FOUND"
+        }
+        val updated =
+          sale.copy(
+            version = sale.version + 1,
+            lines = sale.lines.map { if (it.lineId == replacement.lineId) replacement else it }
+          )
+        save(updated, id, hash, result(id, "OPEN", updated.version))
+      }
+      "CANCEL_LINE" -> {
+        val sale = expected(existing, intent)
+        val lineId = text(intent["line"] as? Map<*, *> ?: error("LINE_REQUIRED"), "line_id")
+        require(sale.state == "OPEN" && sale.lines.any { it.lineId == lineId }) {
+          "SALE_LINE_NOT_FOUND"
+        }
+        val updated =
+          sale.copy(
+            version = sale.version + 1,
+            lines = sale.lines.filterNot { it.lineId == lineId }
+          )
+        save(updated, id, hash, result(id, "OPEN", updated.version))
+      }
+      "CANCEL_SALE" -> {
+        val sale = expected(existing, intent)
+        require(sale.state == "OPEN") { "SALE_STATE" }
+        val updated = sale.copy(version = sale.version + 1, state = "CANCELLED")
+        save(updated, id, hash, result(id, "FAILED", updated.version, "SALE_CANCELLED"))
+      }
+      "PAYMENT" -> payment(existing, intent, id, hash)
+      "SALE_FINALIZE" -> aggregate(existing, intent, id, hash)
+      "REVERSE" -> reverse(existing, intent, id, hash)
+      "SALE_REVERSE" -> aggregateReverse(existing, intent, id, hash)
+      "PRINTER_TEST" -> {
+        val physical = processor.printerTest(id, evidence(intent))
+        result(
+          id,
+          if (physical["state"] == "PRINTER_TESTED") "FISCALIZED"
+          else if (physical["state"] == "UNKNOWN") "FISCAL_RESULT_UNKNOWN" else "FAILED",
+          0,
+          physical["error_code"]
+        )
+      }
+      "REPORT_X",
+      "REPORT_Z" -> {
+        val physical =
+          processor.administrative(
+            id,
+            69,
+            DatecsPayloads.report(action == "REPORT_Z"),
+            evidence(intent)
+          )
+        result(
+          id,
+          if (physical["state"] == "FISCALIZED") "FISCALIZED"
+          else if (physical["state"] == "UNKNOWN") "FISCAL_RESULT_UNKNOWN" else "FAILED",
+          0,
+          physical["error_code"]
+        )
+      }
+      "CASH_IN",
+      "CASH_OUT" -> {
+        val amount =
+          money(intent["amount"] ?: ((intent["metadata"] as? Map<*, *>)?.get("amount")))
+            .setScale(2)
+            .toPlainString()
+        val physical =
+          processor.administrative(
+            id,
+            70,
+            DatecsPayloads.cash(action == "CASH_OUT", amount),
+            evidence(intent)
+          )
+        result(
+          id,
+          if (physical["state"] == "FISCALIZED") "FISCALIZED"
+          else if (physical["state"] == "UNKNOWN") "FISCAL_RESULT_UNKNOWN" else "FAILED",
+          0,
+          physical["error_code"]
+        )
+      }
+      else -> error("COMPLIANCE_ACTION_UNSUPPORTED")
+    }
+  }
+  private fun payment(
+    current: BleLocalSale?,
+    intent: Map<String, Any?>,
+    id: String,
+    hash: String
+  ): Map<String, Any?> {
+    var sale = expected(current, intent)
+    require(sale.state == "OPEN" || sale.state == "PAYMENT_PENDING") { "SALE_STATE" }
+    require(sale.lines.isNotEmpty()) { "SALE_EMPTY" }
+    val payment = intent["payment"] as? Map<*, *> ?: error("PAYMENT_REQUIRED")
+    val type = text(payment, "type")
+    require(type == "CASH" || type == "CARD") { "PAYMENT_TYPE" }
+    val amount = money(payment["amount"])
+    val total = sale.lines.fold(BigDecimal.ZERO) { sum, line -> sum + net(line.fiscal) }
+    require(amount.compareTo(total) == 0) { "PAYMENT_TOTAL_MISMATCH" }
+    val pay = SalePayment(text(payment, "payment_id"), type, amount.setScale(2).toPlainString())
+    if (sale.state == "OPEN") {
+      sale =
+        sale.copy(
+          version = sale.version + 1,
+          state = "PAYMENT_PENDING",
+          processed = sale.processed + (id to BleIntentRecord(hash, null)),
+          unp = unp.next(text(intent, "operator_code")),
+          payments = listOf(pay),
+          fiscalOperationId = id
+        )
+      store.put(sale)
+    }
+    val command =
+      BlueCashSale(
+        id,
+        sale.unp ?: error("UNP_NOT_RESERVED"),
+        operatorNumber,
+        operatorPassword,
+        tillNumber,
+        sale.lines.map { it.fiscal },
+        sale.payments.ifEmpty { listOf(pay) }
+      )
+    val physical = processor.sale(command, evidence(intent))
+    val state =
+      when (physical["state"]) {
+        "FISCALIZED" -> "FISCALIZED"
+        "UNKNOWN" -> "FISCAL_RESULT_UNKNOWN"
+        else -> "FAILED"
+      }
+    val result =
+      result(id, state, sale.version, physical["error_code"], physical["fiscal_reference"])
+    store.put(
+      sale.copy(
+        state = state,
+        processed = sale.processed + (id to BleIntentRecord(hash, result)),
+        fiscalReference = physical["fiscal_reference"]
+      )
+    )
+    return result
+  }
+  private fun aggregate(
+    current: BleLocalSale?,
+    intent: Map<String, Any?>,
+    id: String,
+    hash: String
+  ): Map<String, Any?> {
+    require(current == null) { "SALE_ALREADY_EXISTS" }
+    val rawItems = intent["items"] as? List<*> ?: error("ITEMS_REQUIRED")
+    val rawPayments = intent["payments"] as? List<*> ?: error("PAYMENTS_REQUIRED")
+    require(rawItems.isNotEmpty() && rawPayments.isNotEmpty() && rawPayments.size <= 10) {
+      "SALE_SHAPE"
+    }
+    val lines = rawItems.map { line(it) }
+    val payments = rawPayments.map { payment(it) }
+    val total = lines.fold(BigDecimal.ZERO) { sum, line -> sum + net(line.fiscal) }
+    val tendered = payments.fold(BigDecimal.ZERO) { sum, p -> sum + BigDecimal(p.amount) }
+    require(total.compareTo(tendered) == 0) { "PAYMENT_TOTAL_MISMATCH" }
+    val assignedUnp = unp.next(text(intent, "operator_code"))
+    val sale =
+      BleLocalSale(
+        text(intent, "client_sale_surrogate_id"),
+        1,
+        "PAYMENT_PENDING",
+        lines,
+        mapOf(id to BleIntentRecord(hash, null)),
+        assignedUnp,
+        payments,
+        id
+      )
+    store.put(sale)
+    val physical =
+      processor.sale(
+        BlueCashSale(
+          id,
+          sale.unp!!,
+          operatorNumber,
+          operatorPassword,
+          tillNumber,
+          lines.map { it.fiscal },
+          payments
+        ),
+        evidence(intent)
+      )
+    val state =
+      when (physical["state"]) {
+        "FISCALIZED" -> "FISCALIZED"
+        "UNKNOWN",
+        "RECOVERY_REQUIRED" -> "FISCAL_RESULT_UNKNOWN"
+        else -> "FAILED"
+      }
+    val result = result(id, state, 1, physical["error_code"], physical["fiscal_reference"])
+    store.put(
+      sale.copy(
+        state = state,
+        processed = mapOf(id to BleIntentRecord(hash, result)),
+        fiscalReference = physical["fiscal_reference"]
+      )
+    )
+    return result
+  }
+  private fun reverse(
+    current: BleLocalSale?,
+    intent: Map<String, Any?>,
+    id: String,
+    hash: String
+  ): Map<String, Any?> {
+    var sale = expected(current, intent)
+    require(sale.state == "FISCALIZED" || sale.state == "REVERSAL_PENDING") { "SALE_STATE" }
+    val original = intent["original_document"] as? Map<*, *> ?: error("ORIGINAL_DOCUMENT_REQUIRED")
+    val reason = reason(text(intent, "reason_code"))
+    val document =
+      DatecsStornoDocument(
+        reason,
+        number(original, "document_number"),
+        text(original, "document_datetime"),
+        text(original, "fiscal_memory_number"),
+        sale.unp ?: error("ORIGINAL_UNP_REQUIRED"),
+        original["invoice_number"] as? String,
+        original["invoice_reason"] as? String
+      )
+    if (sale.state == "FISCALIZED") {
+      sale =
+        sale.copy(
+          version = sale.version + 1,
+          state = "REVERSAL_PENDING",
+          processed = sale.processed + (id to BleIntentRecord(hash, null))
+        )
+      store.put(sale)
+    }
+    require(sale.payments.isNotEmpty()) { "ORIGINAL_PAYMENT_REQUIRED" }
+    val command =
+      BlueCashReversal(
+        id,
+        sale.fiscalOperationId ?: error("ORIGINAL_OPERATION_REQUIRED"),
+        operatorNumber,
+        operatorPassword,
+        tillNumber,
+        document,
+        sale.lines.map { it.fiscal },
+        sale.payments
+      )
+    val physical = processor.reverse(command, evidence(intent))
+    val state =
+      when (physical["state"]) {
+        "REVERSED" -> "FISCALIZED"
+        "UNKNOWN" -> "FISCAL_RESULT_UNKNOWN"
+        else -> "FAILED"
+      }
+    val result =
+      result(id, state, sale.version, physical["error_code"], physical["fiscal_reference"])
+    store.put(
+      sale.copy(
+        state = if (physical["state"] == "REVERSED") "REVERSED" else state,
+        processed = sale.processed + (id to BleIntentRecord(hash, result)),
+        fiscalReference = physical["fiscal_reference"] ?: sale.fiscalReference
+      )
+    )
+    return result
+  }
+  private fun aggregateReverse(
+    current: BleLocalSale?,
+    intent: Map<String, Any?>,
+    id: String,
+    hash: String
+  ): Map<String, Any?> {
+    val sale = current ?: error("SALE_NOT_FOUND")
+    return reverse(sale, intent, id, hash)
+  }
+  private fun expected(sale: BleLocalSale?, intent: Map<String, Any?>): BleLocalSale {
+    val current = sale ?: error("SALE_NOT_FOUND")
+    require((intent["expected_version"] as? Number)?.toLong() == current.version) {
+      "SALE_VERSION_CONFLICT"
+    }
+    return current
+  }
+  private fun save(
+    sale: BleLocalSale,
+    id: String,
+    hash: String,
+    result: Map<String, Any?>
+  ): Map<String, Any?> {
+    store.put(sale.copy(processed = sale.processed + (id to BleIntentRecord(hash, result))))
+    return result
+  }
+  private fun line(raw: Any?): BleLocalLine {
+    val v = raw as? Map<*, *> ?: error("LINE_REQUIRED")
+    val price = money(v["unit_price"]).setScale(2).toPlainString()
+    val quantity = text(v, "quantity")
+    val tax = text(v, "tax_group")
+    require(tax.length == 1) { "TAX_GROUP" }
+    val discount = v["discount"]?.let { money(it) } ?: BigDecimal.ZERO
+    val gross = BigDecimal(price) * BigDecimal(quantity)
+    require(discount >= BigDecimal.ZERO && discount <= gross) { "DISCOUNT_INVALID" }
+    val lineId = (v["line_id"] ?: v["item_id"]) as? String ?: error("LINE_ID_REQUIRED")
+    return BleLocalLine(
+      lineId,
+      FiscalLine(
+        text(v, "name"),
+        tax[0],
+        price,
+        quantity,
+        if (discount.signum() == 0) 0 else 4,
+        if (discount.signum() == 0) "" else discount.setScale(2).toPlainString()
+      )
+    )
+  }
+  private fun payment(raw: Any?): SalePayment {
+    val v = raw as? Map<*, *> ?: error("PAYMENT_REQUIRED")
+    val type = text(v, "type")
+    require(type == "CASH" || type == "CARD") { "PAYMENT_TYPE" }
+    return SalePayment(text(v, "payment_id"), type, money(v["amount"]).setScale(2).toPlainString())
+  }
+  private fun net(line: FiscalLine): BigDecimal =
+    BigDecimal(line.unitPrice) * BigDecimal(line.quantity) -
+      (if (line.discountType == 4) BigDecimal(line.discountValue) else BigDecimal.ZERO)
+  private fun reason(value: String) =
+    when (value) {
+      "OPERATOR_ERROR" -> 0
+      "CUSTOMER_RETURN",
+      "CUSTOMER_COMPLAINT" -> 1
+      "TAX_BASE_REDUCTION" -> 2
+      else -> error("REVERSAL_REASON")
+    }
+  private fun money(v: Any?): BigDecimal =
+    when (v) {
+      is String -> BigDecimal(v)
+      is Map<*, *> -> BigDecimal(text(v, "amount"))
+      else -> error("MONEY_REQUIRED")
+    }
+  private fun text(v: Map<*, *>, key: String) =
+    v[key] as? String ?: error("${key.uppercase()}_REQUIRED")
+  private fun number(v: Map<*, *>, key: String) =
+    (v[key] as? Number)?.toLong() ?: error("${key.uppercase()}_REQUIRED")
+  private fun evidence(intent: Map<String, Any?>) =
+    (intent["canonical_payload"] as? Map<*, *>)?.let {
+      CanonicalJson.encode(org.json.JSONObject(it))
+    }
+      ?: BlueCashCanonicalCbor.encode(intent).let {
+        java.util.Base64.getUrlEncoder().withoutPadding().encodeToString(it)
+      }
+  private fun result(
+    id: String,
+    state: String,
+    version: Long,
+    error: String? = null,
+    reference: String? = null
+  ) =
+    linkedMapOf<String, Any?>("operation_id" to id, "state" to state, "version" to version).apply {
+      if (error != null) put("error_code", error)
+      if (reference != null) put("fiscal_reference", reference)
+    }
+  private fun sha(v: ByteArray) =
+    MessageDigest.getInstance("SHA-256").digest(v).joinToString("") { "%02x".format(it) }
 }

@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+// Postgres stores typed authoritative rows. reader uses the restricted tenant
+// role so tests and runtime reads exercise FORCE RLS rather than owner bypass.
 type Postgres struct{ db, reader *sql.DB }
 
 var ErrConcurrentState = errors.New("fiscal repository generation conflict")

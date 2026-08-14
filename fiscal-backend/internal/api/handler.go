@@ -24,6 +24,9 @@ import (
 	"github.com/fxamacker/cbor/v2"
 )
 
+// Handler is intentionally thin: authentication, versioning and generated
+// request/response validation live at HTTP boundaries while fiscal decisions
+// are delegated to domain.Service.
 type Handler struct {
 	svc *domain.Service
 	cfg config.Config

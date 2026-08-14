@@ -1,8 +1,5 @@
 package com.beeloy.fiscal.bluecash
 
-import org.eclipse.paho.client.mqttv3.*
-import org.json.JSONArray
-import org.json.JSONObject
 import java.nio.charset.StandardCharsets
 import java.security.MessageDigest
 import java.time.Instant
@@ -14,49 +11,431 @@ import java.util.concurrent.Executors
 import java.util.concurrent.TimeUnit
 import javax.crypto.Mac
 import javax.crypto.spec.SecretKeySpec
+import org.eclipse.paho.client.mqttv3.*
+import org.json.JSONArray
+import org.json.JSONObject
 
-data class BlueCashMqttConfig(val brokerUri:String,val clientId:String,val username:String="",val password:String="",val tenantId:String,val deviceId:String,val registerId:String,val bindingGeneration:Long,val commandHmacKey:ByteArray,val syncAckHmacKey:ByteArray=commandHmacKey,val socketFactory:javax.net.SocketFactory?=null,val fiscalOperatorNumber:Int,val fiscalOperatorPassword:String,val tillNumber:Int)
+data class BlueCashMqttConfig(
+  val brokerUri: String,
+  val clientId: String,
+  val username: String = "",
+  val password: String = "",
+  val tenantId: String,
+  val deviceId: String,
+  val registerId: String,
+  val bindingGeneration: Long,
+  val commandHmacKey: ByteArray,
+  val syncAckHmacKey: ByteArray = commandHmacKey,
+  val socketFactory: javax.net.SocketFactory? = null,
+  val fiscalOperatorNumber: Int,
+  val fiscalOperatorPassword: String,
+  val tillNumber: Int
+)
 
 object CanonicalJson {
- fun encode(value:Any?):String=when(value){null,JSONObject.NULL->"null";is JSONObject->value.keys().asSequence().toList().sorted().joinToString(",","{","}"){quote(it)+":"+encode(value.get(it))};is JSONArray->(0 until value.length()).joinToString(",","[","]"){encode(value.get(it))};is String->quote(value);is Boolean,is Number->value.toString();else->quote(value.toString())}
- private fun quote(v:String)=JSONObject.quote(v)
+  fun encode(value: Any?): String =
+    when (value) {
+      null,
+      JSONObject.NULL -> "null"
+      is JSONObject ->
+        value.keys().asSequence().toList().sorted().joinToString(",", "{", "}") {
+          quote(it) + ":" + encode(value.get(it))
+        }
+      is JSONArray -> (0 until value.length()).joinToString(",", "[", "]") { encode(value.get(it)) }
+      is String -> quote(value)
+      is Boolean,
+      is Number -> value.toString()
+      else -> quote(value.toString())
+    }
+  private fun quote(v: String) = JSONObject.quote(v)
 }
 
 /** Exact encoding used by Go's encoding/json for SyncAck before its signature is set. */
 object BlueCashSyncWire {
- fun verifyAck(ack:JSONObject,expectedDeviceId:String,key:ByteArray):Boolean {
-  if(ack.optString("edge_id")!=expectedDeviceId)return false
-  val supplied=runCatching{Base64.getUrlDecoder().decode(ack.getString("signature"))}.getOrNull()?:return false
-  val results=ack.optJSONArray("operation_results")?:JSONArray()
-  val resultWire=(0 until results.length()).joinToString(","){i->val v=results.getJSONObject(i);"{\"operation_id\":${JSONObject.quote(v.getString("operation_id"))},\"state\":${JSONObject.quote(v.getString("state"))},\"version\":${v.getLong("version")}}"}
-  val rejected=ack.optJSONArray("rejected")?:JSONArray()
-  val raw="{\"ack_id\":${JSONObject.quote(ack.getString("ack_id"))},\"edge_id\":${JSONObject.quote(ack.getString("edge_id"))},\"committed_through_seq\":${ack.getLong("committed_through_seq")},\"committed_event_hash\":${JSONObject.quote(ack.getString("committed_event_hash"))},\"committed_at\":${JSONObject.quote(ack.getString("committed_at"))},\"operation_results\":[${resultWire}],\"rejected\":${CanonicalJson.encode(rejected)},\"signature\":\"\"}"
-  val expected=Mac.getInstance("HmacSHA256").run{init(SecretKeySpec(key,"HmacSHA256"));doFinal(raw.toByteArray(StandardCharsets.UTF_8))}
-  return MessageDigest.isEqual(expected,supplied)
- }
+  fun verifyAck(ack: JSONObject, expectedDeviceId: String, key: ByteArray): Boolean {
+    if (ack.optString("edge_id") != expectedDeviceId) return false
+    val supplied =
+      runCatching { Base64.getUrlDecoder().decode(ack.getString("signature")) }.getOrNull()
+        ?: return false
+    val results = ack.optJSONArray("operation_results") ?: JSONArray()
+    val resultWire =
+      (0 until results.length()).joinToString(",") { i ->
+        val v = results.getJSONObject(i)
+        "{\"operation_id\":${JSONObject.quote(v.getString("operation_id"))},\"state\":${JSONObject.quote(v.getString("state"))},\"version\":${v.getLong("version")}}"
+      }
+    val rejected = ack.optJSONArray("rejected") ?: JSONArray()
+    val raw =
+      "{\"ack_id\":${JSONObject.quote(ack.getString("ack_id"))},\"edge_id\":${JSONObject.quote(ack.getString("edge_id"))},\"committed_through_seq\":${ack.getLong("committed_through_seq")},\"committed_event_hash\":${JSONObject.quote(ack.getString("committed_event_hash"))},\"committed_at\":${JSONObject.quote(ack.getString("committed_at"))},\"operation_results\":[${resultWire}],\"rejected\":${CanonicalJson.encode(rejected)},\"signature\":\"\"}"
+    val expected =
+      Mac.getInstance("HmacSHA256").run {
+        init(SecretKeySpec(key, "HmacSHA256"))
+        doFinal(raw.toByteArray(StandardCharsets.UTF_8))
+      }
+    return MessageDigest.isEqual(expected, supplied)
+  }
 }
 
-class BlueCashMqttRuntime(private val config:BlueCashMqttConfig,private val processor:BlueCashCommandProcessor,private val journal:TransactionJournal,private val batchSigner:TransactionSigner,private val executeIntent:(Map<String,Any?>)->Map<String,Any?>,private val clientFactory:(String,String)->MqttAsyncClient={uri,id->MqttAsyncClient(uri,id,null)}) : MqttCallbackExtended {
- private val commands="tenants/${config.tenantId}/devices/${config.deviceId}/commands";private val acks="tenants/${config.tenantId}/devices/${config.deviceId}/sync/acks/+";private val status="tenants/${config.tenantId}/devices/${config.deviceId}/status";private val client=clientFactory(config.brokerUri,config.clientId);private val heartbeat=Executors.newSingleThreadScheduledExecutor();private val bootId=UUID.randomUUID().toString();private var sequence=0L
- fun start(){require(config.brokerUri.startsWith("ssl://")||config.brokerUri.startsWith("wss://")){"MQTT_TLS_REQUIRED"};require(config.registerId.isNotBlank()&&config.bindingGeneration>0){"MQTT_BINDING_REQUIRED"};journal.purgeBefore(ZonedDateTime.now(ZoneId.of("Europe/Sofia")).minusMonths(3).toInstant());client.setCallback(this);val offline=health("OFFLINE",false,false);val options=MqttConnectOptions().apply{isAutomaticReconnect=true;isCleanSession=false;if(config.username.isNotBlank())userName=config.username;if(config.password.isNotBlank())password=config.password.toCharArray();config.socketFactory?.let{socketFactory=it};connectionTimeout=15;keepAliveInterval=30;setWill(status,offline.toByteArray(),1,true)};client.connect(options).waitForCompletion(15000);heartbeat.scheduleAtFixedRate({runCatching{publishHealth()}},0,15,TimeUnit.SECONDS)}
- fun stop(){heartbeat.shutdownNow();if(client.isConnected)client.disconnect().waitForCompletion(5000);client.close()}
- override fun connectComplete(reconnect:Boolean,serverURI:String?){client.subscribe(arrayOf(commands,acks),intArrayOf(1,1));publishHealth();flush()}
- override fun connectionLost(cause:Throwable?)=Unit
- override fun deliveryComplete(token:IMqttDeliveryToken?)=Unit
- override fun messageArrived(topic:String,message:MqttMessage){when{topic==commands->handleCommand(message.payload);topic.startsWith(acks.removeSuffix("+"))->handleAck(message.payload)}}
- private fun handleCommand(bytes:ByteArray){val root=JSONObject(String(bytes,StandardCharsets.UTF_8));require(root.getString("tenant_id")==config.tenantId&&root.getString("device_id")==config.deviceId){"MQTT_COMMAND_BINDING"};val commandType=root.getString("command_type");require(root.getLong("fencing_token")>=1&&commandType in setOf("FISCAL_SALE","SALE_FINALIZE","REVERSAL","PRINTER_TEST","REPORT_X","REPORT_Z","CASH_IN","CASH_OUT")){"MQTT_COMMAND_SCHEMA"};val issued=Instant.parse(root.getString("issued_at"));val expires=Instant.parse(root.getString("expires_at"));val now=Instant.now();require(expires.isAfter(issued)&&now.isBefore(expires)&&!issued.isAfter(now.plusSeconds(120))){"MQTT_COMMAND_EXPIRED"};val signature=root.remove("signature") as? String?:error("MQTT_COMMAND_SIGNATURE");val canonical=CanonicalJson.encode(root);val mac=Mac.getInstance("HmacSHA256").run{init(SecretKeySpec(config.commandHmacKey,"HmacSHA256"));doFinal(canonical.toByteArray())};require(MessageDigest.isEqual(mac,Base64.getUrlDecoder().decode(signature))){"MQTT_COMMAND_SIGNATURE"};val payload=root.getJSONObject("payload");val digest=MessageDigest.getInstance("SHA-256").digest(CanonicalJson.encode(payload).toByteArray()).joinToString(""){"%02x".format(it)};require(digest==root.getString("payload_sha256")){"MQTT_PAYLOAD_DIGEST"};val operation=root.optString("client_operation_id",root.getString("operation_id"));val action=when(commandType){"FISCAL_SALE"->"SALE_FINALIZE";"REVERSAL"->"SALE_REVERSE";else->commandType};val canonicalPayload=jsonObjectToMap(payload);val intent=canonicalPayload.toMutableMap();intent["intent_id"]=operation;intent["action"]=action;intent["client_sale_surrogate_id"]=payload.optString("external_id",operation);intent["operator_code"]=payload.optString("operator_id","A001");intent["canonical_payload"]=canonicalPayload;intent["payload_sha256"]=digest;executeIntent(intent);flush()}
- private fun jsonValue(value:Any?):Any?=when(value){JSONObject.NULL->null;is JSONObject->jsonObjectToMap(value);is JSONArray->(0 until value.length()).map{jsonValue(value.get(it))};else->value}
- private fun jsonObjectToMap(value:JSONObject):Map<String,Any?> = value.keys().asSequence().associateWith{jsonValue(value.get(it))}
- private fun parse(root:JSONObject,payload:JSONObject):BlueCashSale {val items=payload.getJSONArray("items");val lines=(0 until items.length()).map{val v=items.getJSONObject(it);val price=v.getJSONObject("unit_price").getString("amount");val discount=v.optJSONObject("discount");FiscalLine(v.getString("name"),v.getString("tax_group").single(),price,v.getString("quantity"),if(discount==null)0 else 4,discount?.getString("amount")?:"",v.optInt("department",0),v.optString("unit",""))};val payments=payload.getJSONArray("payments");val pays=(0 until payments.length()).map{val v=payments.getJSONObject(it);SalePayment(v.getString("payment_id"),v.getString("type"),v.getJSONObject("amount").getString("amount"))};return BlueCashSale(root.optString("client_operation_id",root.getString("operation_id")),payload.getString("unp"),config.fiscalOperatorNumber,config.fiscalOperatorPassword,config.tillNumber,lines,pays)}
- private fun parseReversal(root:JSONObject,payload:JSONObject):BlueCashReversal {val sale=parse(root,payload);val v=payload.getJSONObject("original_document");val document=DatecsStornoDocument(v.getInt("reason"),v.getLong("document_number"),v.getString("document_datetime"),v.getString("fiscal_memory_number"),v.getString("original_unp"),v.optString("invoice_number").ifBlank{null},v.optString("invoice_reason").ifBlank{null});return BlueCashReversal(root.getString("operation_id"),payload.getString("original_operation_id"),config.fiscalOperatorNumber,config.fiscalOperatorPassword,config.tillNumber,document,sale.lines,sale.payments)}
- @Synchronized fun flush(){if(!client.isConnected)return;val rows=journal.pending(100);if(rows.isEmpty())return;val checkpoint=journal.checkpoint();var previous=checkpoint.second;val events=JSONArray();val eventWire=mutableListOf<String>();for(r in rows){val body=payload(r.payload);val id="${config.deviceId}-${r.sequence}";val hash=goEventHash(id,r,body,previous);val signature="${batchSigner.keyId}:"+Base64.getUrlEncoder().withoutPadding().encodeToString(batchSigner.sign(hex(hash)));events.put(JSONObject().put("event_id",id).put("operation_id",r.operationId).put("device_id",config.deviceId).put("journal_seq",r.sequence).put("event_type",r.type).put("occurred_at",r.occurredAt).put("payload",body).put("prev_hash",previous?:JSONObject.NULL).put("event_hash",hash).put("signature",signature));eventWire+=goEventWire(id,r,body,previous,hash,signature);previous=hash};val batch=JSONObject().put("edge_id",config.deviceId).put("schema_version","2026-08-07").put("first_seq",rows.first().sequence).put("last_seq",rows.last().sequence).put("previous_acknowledged_hash",checkpoint.second?:JSONObject.NULL).put("events",events);val hash=goBatchHash(batch,eventWire);batch.put("batch_sha256",hash);batch.put("signature","${batchSigner.keyId}:"+Base64.getUrlEncoder().withoutPadding().encodeToString(batchSigner.sign(hex(hash))));val id="${rows.first().sequence}-${rows.last().sequence}-$hash";client.publish("tenants/${config.tenantId}/devices/${config.deviceId}/sync/batches/$id",MqttMessage(CanonicalJson.encode(batch).toByteArray()).apply{qos=1;isRetained=false})}
- private fun payload(raw:String):JSONObject=if(raw.startsWith("{"))JSONObject(raw)else JSONObject(raw.split('&').filter{it.contains('=')}.associate{it.substringBefore('=') to it.substringAfter('=')})
- private fun handleAck(bytes:ByteArray){val ack=JSONObject(String(bytes));require(BlueCashSyncWire.verifyAck(ack,config.deviceId,config.syncAckHmacKey)){"MQTT_ACK_SIGNATURE"};journal.acknowledge(ack.getLong("committed_through_seq"),ack.getString("committed_event_hash"),ack.getString("ack_id"));flush()}
- private fun goEventHash(id:String,r:JournalRecord,payload:JSONObject,previous:String?):String {val raw="{\"event_id\":${JSONObject.quote(id)},\"operation_id\":${JSONObject.quote(r.operationId)},\"device_id\":${JSONObject.quote(config.deviceId)},\"journal_seq\":${r.sequence},\"event_type\":${JSONObject.quote(r.type)},\"occurred_at\":${JSONObject.quote(r.occurredAt)},\"payload\":${CanonicalJson.encode(payload)},\"prev_hash\":${previous?.let{JSONObject.quote(it)}?:"null"},\"event_hash\":\"\",\"signature\":null}";return sha(raw.toByteArray())}
- private fun goEventWire(id:String,r:JournalRecord,payload:JSONObject,previous:String?,hash:String,signature:String)="{\"event_id\":${JSONObject.quote(id)},\"operation_id\":${JSONObject.quote(r.operationId)},\"device_id\":${JSONObject.quote(config.deviceId)},\"journal_seq\":${r.sequence},\"event_type\":${JSONObject.quote(r.type)},\"occurred_at\":${JSONObject.quote(r.occurredAt)},\"payload\":${CanonicalJson.encode(payload)},\"prev_hash\":${previous?.let{JSONObject.quote(it)}?:"null"},\"event_hash\":${JSONObject.quote(hash)},\"signature\":${JSONObject.quote(signature)}}"
- private fun goBatchHash(batch:JSONObject,eventWire:List<String>):String {val raw="{\"edge_id\":${JSONObject.quote(config.deviceId)},\"schema_version\":\"2026-08-07\",\"first_seq\":${batch.getLong("first_seq")},\"last_seq\":${batch.getLong("last_seq")},\"previous_acknowledged_hash\":${journal.checkpoint().second?.let{JSONObject.quote(it)}?:"null"},\"events\":[${eventWire.joinToString(",")}],\"batch_sha256\":\"\",\"signature\":\"\"}";return sha(raw.toByteArray())}
- private fun sha(v:ByteArray)=MessageDigest.getInstance("SHA-256").digest(v).joinToString(""){"%02x".format(it)}
- private fun hex(v:String)=v.chunked(2).map{it.toInt(16).toByte()}.toByteArray()
- private fun health(state:String,fiscalReady:Boolean,cardReady:Boolean)=CanonicalJson.encode(JSONObject().put("schema_version",1).put("adapter_device_id",config.deviceId).put("register_id",config.registerId).put("boot_id",bootId).put("sequence",++sequence).put("binding_generation",config.bindingGeneration).put("firmware_version","bluecash-mvp1").put("adapter_state",state).put("endpoints",JSONArray().put(JSONObject().put("role","ADAPTER").put("configured",true).put("reachable",state!="OFFLINE").put("state",state).put("driver_id","bluecash-android").put("protocol_version","2026-08-14")).put(JSONObject().put("role","FISCAL_DEVICE").put("configured",true).put("reachable",fiscalReady).put("state",if(fiscalReady)"READY" else "OFFLINE").put("vendor","DATECS").put("model","BLUECASH-50").put("driver_id","datecs").put("protocol_version","2.11.4")).put(JSONObject().put("role","PAYMENT_TERMINAL").put("configured",true).put("reachable",cardReady).put("state",if(cardReady)"READY" else "OFFLINE").put("vendor","DATECS").put("model","BLUECASH-50").put("driver_id","datecspay").put("protocol_version","9.0.0"))).put("observed_at",Instant.now().toString()))
- private fun publishHealth(){if(!client.isConnected)return;val fiscal=runCatching{processor.fiscalReachable()}.getOrDefault(false);val card=runCatching{processor.paymentReachable()}.getOrDefault(false);val state=if(fiscal&&card)"READY" else if(fiscal)"DEGRADED" else "OFFLINE";client.publish(status,MqttMessage(health(state,fiscal,card).toByteArray()).apply{qos=1;isRetained=true})}
+/** MQTT QoS1 adapter; command semantics, deduplication and recovery remain in the processor. */
+class BlueCashMqttRuntime(
+  private val config: BlueCashMqttConfig,
+  private val processor: BlueCashCommandProcessor,
+  private val journal: TransactionJournal,
+  private val batchSigner: TransactionSigner,
+  private val executeIntent: (Map<String, Any?>) -> Map<String, Any?>,
+  private val clientFactory: (String, String) -> MqttAsyncClient = { uri, id ->
+    MqttAsyncClient(uri, id, null)
+  }
+) : MqttCallbackExtended {
+  private val commands = "tenants/${config.tenantId}/devices/${config.deviceId}/commands"
+  private val acks = "tenants/${config.tenantId}/devices/${config.deviceId}/sync/acks/+"
+  private val status = "tenants/${config.tenantId}/devices/${config.deviceId}/status"
+  private val client = clientFactory(config.brokerUri, config.clientId)
+  private val heartbeat = Executors.newSingleThreadScheduledExecutor()
+  private val bootId = UUID.randomUUID().toString()
+  private var sequence = 0L
+  fun start() {
+    require(config.brokerUri.startsWith("ssl://") || config.brokerUri.startsWith("wss://")) {
+      "MQTT_TLS_REQUIRED"
+    }
+    require(config.registerId.isNotBlank() && config.bindingGeneration > 0) {
+      "MQTT_BINDING_REQUIRED"
+    }
+    journal.purgeBefore(ZonedDateTime.now(ZoneId.of("Europe/Sofia")).minusMonths(3).toInstant())
+    client.setCallback(this)
+    val offline = health("OFFLINE", false, false)
+    val options =
+      MqttConnectOptions().apply {
+        isAutomaticReconnect = true
+        isCleanSession = false
+        if (config.username.isNotBlank()) userName = config.username
+        if (config.password.isNotBlank()) password = config.password.toCharArray()
+        config.socketFactory?.let { socketFactory = it }
+        connectionTimeout = 15
+        keepAliveInterval = 30
+        setWill(status, offline.toByteArray(), 1, true)
+      }
+    client.connect(options).waitForCompletion(15000)
+    heartbeat.scheduleAtFixedRate({ runCatching { publishHealth() } }, 0, 15, TimeUnit.SECONDS)
+  }
+  fun stop() {
+    heartbeat.shutdownNow()
+    if (client.isConnected) client.disconnect().waitForCompletion(5000)
+    client.close()
+  }
+  override fun connectComplete(reconnect: Boolean, serverURI: String?) {
+    client.subscribe(arrayOf(commands, acks), intArrayOf(1, 1))
+    publishHealth()
+    flush()
+  }
+  override fun connectionLost(cause: Throwable?) = Unit
+  override fun deliveryComplete(token: IMqttDeliveryToken?) = Unit
+  override fun messageArrived(topic: String, message: MqttMessage) {
+    when {
+      topic == commands -> handleCommand(message.payload)
+      topic.startsWith(acks.removeSuffix("+")) -> handleAck(message.payload)
+    }
+  }
+  private fun handleCommand(bytes: ByteArray) {
+    val root = JSONObject(String(bytes, StandardCharsets.UTF_8))
+    require(
+      root.getString("tenant_id") == config.tenantId &&
+        root.getString("device_id") == config.deviceId
+    ) {
+      "MQTT_COMMAND_BINDING"
+    }
+    val commandType = root.getString("command_type")
+    require(
+      root.getLong("fencing_token") >= 1 &&
+        commandType in
+          setOf(
+            "FISCAL_SALE",
+            "SALE_FINALIZE",
+            "REVERSAL",
+            "PRINTER_TEST",
+            "REPORT_X",
+            "REPORT_Z",
+            "CASH_IN",
+            "CASH_OUT"
+          )
+    ) {
+      "MQTT_COMMAND_SCHEMA"
+    }
+    val issued = Instant.parse(root.getString("issued_at"))
+    val expires = Instant.parse(root.getString("expires_at"))
+    val now = Instant.now()
+    require(
+      expires.isAfter(issued) && now.isBefore(expires) && !issued.isAfter(now.plusSeconds(120))
+    ) {
+      "MQTT_COMMAND_EXPIRED"
+    }
+    val signature = root.remove("signature") as? String ?: error("MQTT_COMMAND_SIGNATURE")
+    val canonical = CanonicalJson.encode(root)
+    val mac =
+      Mac.getInstance("HmacSHA256").run {
+        init(SecretKeySpec(config.commandHmacKey, "HmacSHA256"))
+        doFinal(canonical.toByteArray())
+      }
+    require(MessageDigest.isEqual(mac, Base64.getUrlDecoder().decode(signature))) {
+      "MQTT_COMMAND_SIGNATURE"
+    }
+    val payload = root.getJSONObject("payload")
+    val digest =
+      MessageDigest.getInstance("SHA-256")
+        .digest(CanonicalJson.encode(payload).toByteArray())
+        .joinToString("") { "%02x".format(it) }
+    require(digest == root.getString("payload_sha256")) { "MQTT_PAYLOAD_DIGEST" }
+    val operation = root.optString("client_operation_id", root.getString("operation_id"))
+    val action =
+      when (commandType) {
+        "FISCAL_SALE" -> "SALE_FINALIZE"
+        "REVERSAL" -> "SALE_REVERSE"
+        else -> commandType
+      }
+    val canonicalPayload = jsonObjectToMap(payload)
+    val intent = canonicalPayload.toMutableMap()
+    intent["intent_id"] = operation
+    intent["action"] = action
+    intent["client_sale_surrogate_id"] = payload.optString("external_id", operation)
+    intent["operator_code"] = payload.optString("operator_id", "A001")
+    intent["canonical_payload"] = canonicalPayload
+    intent["payload_sha256"] = digest
+    executeIntent(intent)
+    flush()
+  }
+  private fun jsonValue(value: Any?): Any? =
+    when (value) {
+      JSONObject.NULL -> null
+      is JSONObject -> jsonObjectToMap(value)
+      is JSONArray -> (0 until value.length()).map { jsonValue(value.get(it)) }
+      else -> value
+    }
+  private fun jsonObjectToMap(value: JSONObject): Map<String, Any?> =
+    value.keys().asSequence().associateWith { jsonValue(value.get(it)) }
+  private fun parse(root: JSONObject, payload: JSONObject): BlueCashSale {
+    val items = payload.getJSONArray("items")
+    val lines =
+      (0 until items.length()).map {
+        val v = items.getJSONObject(it)
+        val price = v.getJSONObject("unit_price").getString("amount")
+        val discount = v.optJSONObject("discount")
+        FiscalLine(
+          v.getString("name"),
+          v.getString("tax_group").single(),
+          price,
+          v.getString("quantity"),
+          if (discount == null) 0 else 4,
+          discount?.getString("amount") ?: "",
+          v.optInt("department", 0),
+          v.optString("unit", "")
+        )
+      }
+    val payments = payload.getJSONArray("payments")
+    val pays =
+      (0 until payments.length()).map {
+        val v = payments.getJSONObject(it)
+        SalePayment(
+          v.getString("payment_id"),
+          v.getString("type"),
+          v.getJSONObject("amount").getString("amount")
+        )
+      }
+    return BlueCashSale(
+      root.optString("client_operation_id", root.getString("operation_id")),
+      payload.getString("unp"),
+      config.fiscalOperatorNumber,
+      config.fiscalOperatorPassword,
+      config.tillNumber,
+      lines,
+      pays
+    )
+  }
+  private fun parseReversal(root: JSONObject, payload: JSONObject): BlueCashReversal {
+    val sale = parse(root, payload)
+    val v = payload.getJSONObject("original_document")
+    val document =
+      DatecsStornoDocument(
+        v.getInt("reason"),
+        v.getLong("document_number"),
+        v.getString("document_datetime"),
+        v.getString("fiscal_memory_number"),
+        v.getString("original_unp"),
+        v.optString("invoice_number").ifBlank { null },
+        v.optString("invoice_reason").ifBlank { null }
+      )
+    return BlueCashReversal(
+      root.getString("operation_id"),
+      payload.getString("original_operation_id"),
+      config.fiscalOperatorNumber,
+      config.fiscalOperatorPassword,
+      config.tillNumber,
+      document,
+      sale.lines,
+      sale.payments
+    )
+  }
+  @Synchronized
+  fun flush() {
+    if (!client.isConnected) return
+    val rows = journal.pending(100)
+    if (rows.isEmpty()) return
+    val checkpoint = journal.checkpoint()
+    var previous = checkpoint.second
+    val events = JSONArray()
+    val eventWire = mutableListOf<String>()
+    for (r in rows) {
+      val body = payload(r.payload)
+      val id = "${config.deviceId}-${r.sequence}"
+      val hash = goEventHash(id, r, body, previous)
+      val signature =
+        "${batchSigner.keyId}:" +
+          Base64.getUrlEncoder().withoutPadding().encodeToString(batchSigner.sign(hex(hash)))
+      events.put(
+        JSONObject()
+          .put("event_id", id)
+          .put("operation_id", r.operationId)
+          .put("device_id", config.deviceId)
+          .put("journal_seq", r.sequence)
+          .put("event_type", r.type)
+          .put("occurred_at", r.occurredAt)
+          .put("payload", body)
+          .put("prev_hash", previous ?: JSONObject.NULL)
+          .put("event_hash", hash)
+          .put("signature", signature)
+      )
+      eventWire += goEventWire(id, r, body, previous, hash, signature)
+      previous = hash
+    }
+    val batch =
+      JSONObject()
+        .put("edge_id", config.deviceId)
+        .put("schema_version", "2026-08-07")
+        .put("first_seq", rows.first().sequence)
+        .put("last_seq", rows.last().sequence)
+        .put("previous_acknowledged_hash", checkpoint.second ?: JSONObject.NULL)
+        .put("events", events)
+    val hash = goBatchHash(batch, eventWire)
+    batch.put("batch_sha256", hash)
+    batch.put(
+      "signature",
+      "${batchSigner.keyId}:" +
+        Base64.getUrlEncoder().withoutPadding().encodeToString(batchSigner.sign(hex(hash)))
+    )
+    val id = "${rows.first().sequence}-${rows.last().sequence}-$hash"
+    client.publish(
+      "tenants/${config.tenantId}/devices/${config.deviceId}/sync/batches/$id",
+      MqttMessage(CanonicalJson.encode(batch).toByteArray()).apply {
+        qos = 1
+        isRetained = false
+      }
+    )
+  }
+  private fun payload(raw: String): JSONObject =
+    if (raw.startsWith("{")) JSONObject(raw)
+    else
+      JSONObject(
+        raw
+          .split('&')
+          .filter { it.contains('=') }
+          .associate { it.substringBefore('=') to it.substringAfter('=') }
+      )
+  private fun handleAck(bytes: ByteArray) {
+    val ack = JSONObject(String(bytes))
+    require(BlueCashSyncWire.verifyAck(ack, config.deviceId, config.syncAckHmacKey)) {
+      "MQTT_ACK_SIGNATURE"
+    }
+    journal.acknowledge(
+      ack.getLong("committed_through_seq"),
+      ack.getString("committed_event_hash"),
+      ack.getString("ack_id")
+    )
+    flush()
+  }
+  private fun goEventHash(
+    id: String,
+    r: JournalRecord,
+    payload: JSONObject,
+    previous: String?
+  ): String {
+    val raw =
+      "{\"event_id\":${JSONObject.quote(id)},\"operation_id\":${JSONObject.quote(r.operationId)},\"device_id\":${JSONObject.quote(config.deviceId)},\"journal_seq\":${r.sequence},\"event_type\":${JSONObject.quote(r.type)},\"occurred_at\":${JSONObject.quote(r.occurredAt)},\"payload\":${CanonicalJson.encode(payload)},\"prev_hash\":${previous?.let{JSONObject.quote(it)}?:"null"},\"event_hash\":\"\",\"signature\":null}"
+    return sha(raw.toByteArray())
+  }
+  private fun goEventWire(
+    id: String,
+    r: JournalRecord,
+    payload: JSONObject,
+    previous: String?,
+    hash: String,
+    signature: String
+  ) =
+    "{\"event_id\":${JSONObject.quote(id)},\"operation_id\":${JSONObject.quote(r.operationId)},\"device_id\":${JSONObject.quote(config.deviceId)},\"journal_seq\":${r.sequence},\"event_type\":${JSONObject.quote(r.type)},\"occurred_at\":${JSONObject.quote(r.occurredAt)},\"payload\":${CanonicalJson.encode(payload)},\"prev_hash\":${previous?.let{JSONObject.quote(it)}?:"null"},\"event_hash\":${JSONObject.quote(hash)},\"signature\":${JSONObject.quote(signature)}}"
+  private fun goBatchHash(batch: JSONObject, eventWire: List<String>): String {
+    val raw =
+      "{\"edge_id\":${JSONObject.quote(config.deviceId)},\"schema_version\":\"2026-08-07\",\"first_seq\":${batch.getLong("first_seq")},\"last_seq\":${batch.getLong("last_seq")},\"previous_acknowledged_hash\":${journal.checkpoint().second?.let{JSONObject.quote(it)}?:"null"},\"events\":[${eventWire.joinToString(",")}],\"batch_sha256\":\"\",\"signature\":\"\"}"
+    return sha(raw.toByteArray())
+  }
+  private fun sha(v: ByteArray) =
+    MessageDigest.getInstance("SHA-256").digest(v).joinToString("") { "%02x".format(it) }
+  private fun hex(v: String) = v.chunked(2).map { it.toInt(16).toByte() }.toByteArray()
+  private fun health(state: String, fiscalReady: Boolean, cardReady: Boolean) =
+    CanonicalJson.encode(
+      JSONObject()
+        .put("schema_version", 1)
+        .put("adapter_device_id", config.deviceId)
+        .put("register_id", config.registerId)
+        .put("boot_id", bootId)
+        .put("sequence", ++sequence)
+        .put("binding_generation", config.bindingGeneration)
+        .put("firmware_version", "bluecash-mvp1")
+        .put("adapter_state", state)
+        .put(
+          "endpoints",
+          JSONArray()
+            .put(
+              JSONObject()
+                .put("role", "ADAPTER")
+                .put("configured", true)
+                .put("reachable", state != "OFFLINE")
+                .put("state", state)
+                .put("driver_id", "bluecash-android")
+                .put("protocol_version", "2026-08-14")
+            )
+            .put(
+              JSONObject()
+                .put("role", "FISCAL_DEVICE")
+                .put("configured", true)
+                .put("reachable", fiscalReady)
+                .put("state", if (fiscalReady) "READY" else "OFFLINE")
+                .put("vendor", "DATECS")
+                .put("model", "BLUECASH-50")
+                .put("driver_id", "datecs")
+                .put("protocol_version", "2.11.4")
+            )
+            .put(
+              JSONObject()
+                .put("role", "PAYMENT_TERMINAL")
+                .put("configured", true)
+                .put("reachable", cardReady)
+                .put("state", if (cardReady) "READY" else "OFFLINE")
+                .put("vendor", "DATECS")
+                .put("model", "BLUECASH-50")
+                .put("driver_id", "datecspay")
+                .put("protocol_version", "9.0.0")
+            )
+        )
+        .put("observed_at", Instant.now().toString())
+    )
+  private fun publishHealth() {
+    if (!client.isConnected) return
+    val fiscal = runCatching { processor.fiscalReachable() }.getOrDefault(false)
+    val card = runCatching { processor.paymentReachable() }.getOrDefault(false)
+    val state = if (fiscal && card) "READY" else if (fiscal) "DEGRADED" else "OFFLINE"
+    client.publish(
+      status,
+      MqttMessage(health(state, fiscal, card).toByteArray()).apply {
+        qos = 1
+        isRetained = true
+      }
+    )
+  }
 }
