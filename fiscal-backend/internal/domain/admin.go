@@ -326,6 +326,243 @@ func (s *Service) BindRegister(registerID, tenant, deviceID, role, activeFrom st
 	return map[string]any{"id": id, "register_id": registerID, "device_id": deviceID, "role": role, "version": int64(1), "active_from": parsedActiveFrom.UTC().Format(time.RFC3339Nano)}, nil
 }
 
+// CreateCompositeBinding stages one immutable adapter/fiscal/payment profile.
+// It deliberately does not mutate the register route: only an authenticated
+// adapter apply-ACK may activate the complete generation.
+func (s *Service) CreateCompositeBinding(registerID, tenant, profile, adapterID, fiscalID, paymentID string, expectedVersion int64) (map[string]any, error) {
+	register, err := s.repo.Resource("register", registerID)
+	if err != nil || register.TenantID != tenant {
+		return nil, ErrNotFound
+	}
+	if expectedVersion != register.Version {
+		return nil, errors.New("binding version conflict")
+	}
+	adapter, err := s.repo.Resource("device", adapterID)
+	if err != nil || adapter.TenantID != tenant || stringField(adapter.Data, "status") != "ACTIVE" {
+		return nil, errors.New("invalid adapter")
+	}
+	fiscal, err := s.repo.Resource("device", fiscalID)
+	if err != nil || fiscal.TenantID != tenant || stringField(fiscal.Data, "status") != "ACTIVE" {
+		return nil, errors.New("invalid fiscal endpoint")
+	}
+	valid := false
+	switch profile {
+	case "DATECS_BLUECASH50_EMBEDDED":
+		valid = adapterID == fiscalID && paymentID == adapterID && strings.EqualFold(stringField(adapter.Data, "model"), "BLUECASH-50")
+	case "DATECS_DP150_BLUEPAD50":
+		valid = paymentID != "" && adapterID != fiscalID && adapterID != paymentID
+	case "DAISY_COMPACT_S01":
+		valid = paymentID == "" && adapterID != fiscalID
+	}
+	if !valid {
+		return nil, errors.New("invalid composite profile")
+	}
+	if paymentID != "" {
+		payment, e := s.repo.Resource("device", paymentID)
+		if e != nil || payment.TenantID != tenant || stringField(payment.Data, "status") != "ACTIVE" {
+			return nil, errors.New("invalid payment endpoint")
+		}
+	}
+	for _, old := range s.repo.Resources("composite_binding", tenant) {
+		if stringField(old.Data, "register_id") == registerID && oneOf(stringField(old.Data, "status"), "PENDING", "ACTIVE") {
+			return nil, errors.New("active composite binding exists")
+		}
+	}
+	if s.compositeBindingPublisher != nil {
+		if stringField(adapter.Data, "mqtt_uri") == "" || stringField(adapter.Data, "mqtt_client_id") == "" ||
+			stringField(adapter.Data, "ble_advertising_identity") == "" || stringField(adapter.Data, "transaction_signing_kid") == "" ||
+			stringField(adapter.Data, "unp_prefix") == "" || int64Field(adapter.Data, "unp_range_start") < 1 ||
+			int64Field(adapter.Data, "unp_range_end") < int64Field(adapter.Data, "unp_range_start") {
+			return nil, errors.New("adapter provisioning configuration incomplete")
+		}
+		if profile == "DATECS_DP150_BLUEPAD50" {
+			payment, _ := s.repo.Resource("device", paymentID)
+			if int64Field(fiscal.Data, "uart_baud") < 1200 || int64Field(fiscal.Data, "uart_data_bits") < 7 ||
+				stringField(fiscal.Data, "uart_parity") == "" || int64Field(fiscal.Data, "uart_stop_bits") < 1 ||
+				int64Field(adapter.Data, "uart_tx_pin") < 0 || int64Field(adapter.Data, "uart_rx_pin") < 0 ||
+				stringField(payment.Data, "ble_identity") == "" || stringField(payment.Data, "service_uuid") == "" ||
+				stringField(payment.Data, "tx_characteristic_uuid") == "" || stringField(payment.Data, "rx_characteristic_uuid") == "" {
+				return nil, errors.New("DP-150/BluePad endpoint configuration incomplete")
+			}
+		}
+		if profile == "DAISY_COMPACT_S01" && (int64Field(fiscal.Data, "usb_vid") < 1 || int64Field(fiscal.Data, "usb_pid") < 1) {
+			return nil, errors.New("Daisy USB endpoint configuration incomplete")
+		}
+	}
+	id, err := newUUID()
+	if err != nil {
+		return nil, err
+	}
+	now := time.Now().UTC()
+	generation := register.Version + 1
+	data := map[string]any{"binding_id": id, "register_id": registerID, "profile": profile, "adapter_device_id": adapterID, "fiscal_device_id": fiscalID, "payment_device_id": paymentID, "generation": generation, "status": "PENDING", "expected_register_version": expectedVersion, "created_at": now, "updated_at": now}
+	if err = s.repo.PutResource(ResourceRecord{Kind: "composite_binding", TenantID: tenant, ID: id, Version: 1, Data: cloneMap(data), CreatedAt: now, UpdatedAt: now}); err != nil {
+		return nil, err
+	}
+	if s.compositeBindingPublisher != nil {
+		locationID := stringField(register.Data, "location_id")
+		fiscalEndpoint := map[string]any{"device_id": fiscalID, "vendor": strings.ToUpper(stringField(fiscal.Data, "vendor")), "model": strings.ToUpper(stringField(fiscal.Data, "model")), "transport": stringField(fiscal.Data, "transport")}
+		if profile == "DATECS_DP150_BLUEPAD50" {
+			fiscalEndpoint["transport"] = "RS232"
+			fiscalEndpoint["uart"] = map[string]any{"baud": int64Field(fiscal.Data, "uart_baud"), "data_bits": int64Field(fiscal.Data, "uart_data_bits"), "parity": stringField(fiscal.Data, "uart_parity"), "stop_bits": int64Field(fiscal.Data, "uart_stop_bits"), "tx_pin": int64Field(adapter.Data, "uart_tx_pin"), "rx_pin": int64Field(adapter.Data, "uart_rx_pin")}
+		}
+		if profile == "DAISY_COMPACT_S01" {
+			fiscalEndpoint["transport"] = "USB_SERIAL"
+			fiscalEndpoint["usb"] = map[string]any{"vid": int64Field(fiscal.Data, "usb_vid"), "pid": int64Field(fiscal.Data, "usb_pid"), "interface": int64Field(fiscal.Data, "usb_interface"), "serial": stringField(fiscal.Data, "usb_serial")}
+		}
+		var paymentEndpoint any = nil
+		if paymentID != "" {
+			payment, _ := s.repo.Resource("device", paymentID)
+			paymentEndpoint = map[string]any{"device_id": paymentID, "vendor": strings.ToUpper(stringField(payment.Data, "vendor")), "model": strings.ToUpper(stringField(payment.Data, "model")), "transport": "BLE_GATT", "ble_identity": stringField(payment.Data, "ble_identity"), "service_uuid": stringField(payment.Data, "service_uuid"), "tx_characteristic_uuid": stringField(payment.Data, "tx_characteristic_uuid"), "rx_characteristic_uuid": stringField(payment.Data, "rx_characteristic_uuid")}
+		}
+		canonicalValue := map[string]any{"schema_version": 2, "generation": generation, "tenant_id": tenant, "location_id": locationID, "register_id": registerID, "edge_device_id": adapterID, "profile": profile, "ble_advertising_identity": stringField(adapter.Data, "ble_advertising_identity"), "fiscal_endpoint": fiscalEndpoint, "payment_endpoint": paymentEndpoint, "mqtt": map[string]any{"uri": stringField(adapter.Data, "mqtt_uri"), "client_id": stringField(adapter.Data, "mqtt_client_id"), "command_topic": fmt.Sprintf("tenants/%s/devices/%s/commands", tenant, adapterID), "sync_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/batches", tenant, adapterID), "ack_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/acks", tenant, adapterID), "root_ca_ref": "mqtt-ca", "client_certificate_ref": "mqtt-cert", "client_key_ref": "mqtt-key"}, "operational_authority": map[string]any{"command_hmac_ref": "command-hmac", "sync_ack_hmac_ref": "sync-ack-hmac", "transaction_signing_kid": stringField(adapter.Data, "transaction_signing_kid"), "unp_prefix": stringField(adapter.Data, "unp_prefix"), "unp_range_start": int64Field(adapter.Data, "unp_range_start"), "unp_range_end": int64Field(adapter.Data, "unp_range_end")}}
+		canonical, marshalErr := json.Marshal(canonicalValue)
+		if marshalErr != nil {
+			return nil, marshalErr
+		}
+		signature, keyID, signErr := s.signCompositeBinding(canonical)
+		if signErr != nil {
+			return nil, signErr
+		}
+		if len(keyID) > 255 || len(signature) > 65535 || len(canonical) > 8192 {
+			return nil, errors.New("composite binding envelope too large")
+		}
+		envelope := make([]byte, 12+len(keyID)+len(signature)+len(canonical))
+		copy(envelope, "BFPE")
+		envelope[4] = 1
+		envelope[5] = byte(len(keyID))
+		envelope[6] = byte(len(signature) >> 8)
+		envelope[7] = byte(len(signature))
+		envelope[8] = byte(len(canonical) >> 24)
+		envelope[9] = byte(len(canonical) >> 16)
+		envelope[10] = byte(len(canonical) >> 8)
+		envelope[11] = byte(len(canonical))
+		copy(envelope[12:], keyID)
+		copy(envelope[12+len(keyID):], signature)
+		copy(envelope[12+len(keyID)+len(signature):], canonical)
+		if publishErr := s.compositeBindingPublisher.PublishCompositeBinding(tenant, adapterID, envelope); publishErr != nil {
+			return nil, publishErr
+		}
+	}
+	return data, nil
+}
+
+func (s *Service) ApplyCompositeBinding(registerID, bindingID, tenant, adapterID string, generation int64) (map[string]any, error) {
+	b, err := s.repo.Resource("composite_binding", bindingID)
+	if err != nil || b.TenantID != tenant || stringField(b.Data, "register_id") != registerID {
+		return nil, ErrNotFound
+	}
+	if stringField(b.Data, "status") == "ACTIVE" {
+		if int64Field(b.Data, "generation") == generation && stringField(b.Data, "adapter_device_id") == adapterID {
+			return cloneMap(b.Data), nil
+		}
+		return nil, errors.New("binding already fenced")
+	}
+	if stringField(b.Data, "status") != "PENDING" || int64Field(b.Data, "generation") != generation || stringField(b.Data, "adapter_device_id") != adapterID {
+		return nil, errors.New("binding apply mismatch")
+	}
+	r, err := s.repo.Resource("register", registerID)
+	if err != nil || r.TenantID != tenant || r.Version != int64Field(b.Data, "expected_register_version") {
+		return nil, errors.New("register changed before apply")
+	}
+	now := time.Now().UTC()
+	r.Data["fiscal_device_id"] = stringField(b.Data, "fiscal_device_id")
+	r.Data["fiscal_device_active_from"] = now.Format(time.RFC3339Nano)
+	if p := stringField(b.Data, "payment_device_id"); p != "" {
+		r.Data["payment_terminal_id"] = p
+		r.Data["payment_terminal_active_from"] = now.Format(time.RFC3339Nano)
+	} else {
+		delete(r.Data, "payment_terminal_id")
+		delete(r.Data, "payment_terminal_active_from")
+	}
+	r.Data["composite_binding_id"] = bindingID
+	r.Data["device_profile"] = stringField(b.Data, "profile")
+	r.Data["adapter_device_id"] = adapterID
+	r.Version++
+	r.UpdatedAt = now
+	b.Data["status"] = "ACTIVE"
+	b.Data["applied_generation"] = generation
+	b.Data["applied_at"] = now
+	b.Data["updated_at"] = now
+	b.Version++
+	b.UpdatedAt = now
+	if err = s.repo.CommitCompositeBinding(r, b); err != nil {
+		return nil, err
+	}
+	v := cloneMap(b.Data)
+	v["version"] = b.Version
+	return v, nil
+}
+func (s *Service) ApplyCompositeBindingByAdapter(tenant, adapterID, registerID string, generation int64) (map[string]any, error) {
+	for _, binding := range s.repo.Resources("composite_binding", tenant) {
+		if stringField(binding.Data, "adapter_device_id") == adapterID && stringField(binding.Data, "register_id") == registerID && int64Field(binding.Data, "generation") == generation {
+			return s.ApplyCompositeBinding(registerID, binding.ID, tenant, adapterID, generation)
+		}
+	}
+	return nil, ErrNotFound
+}
+
+func (s *Service) CompositeBindings(registerID, tenant string) ([]map[string]any, error) {
+	if r, err := s.repo.Resource("register", registerID); err != nil || r.TenantID != tenant {
+		return nil, ErrNotFound
+	}
+	out := []map[string]any{}
+	for _, b := range s.repo.Resources("composite_binding", tenant) {
+		if stringField(b.Data, "register_id") == registerID {
+			v := cloneMap(b.Data)
+			v["version"] = b.Version
+			out = append(out, v)
+		}
+	}
+	return out, nil
+}
+
+func (s *Service) DisableCompositeBinding(registerID, bindingID, tenant string, expectedVersion int64) (map[string]any, error) {
+	b, err := s.repo.Resource("composite_binding", bindingID)
+	if err != nil || b.TenantID != tenant || stringField(b.Data, "register_id") != registerID {
+		return nil, ErrNotFound
+	}
+	if b.Version != expectedVersion {
+		return nil, errors.New("binding version conflict")
+	}
+	if stringField(b.Data, "status") == "REVOKED" {
+		return cloneMap(b.Data), nil
+	}
+	r, err := s.repo.Resource("register", registerID)
+	if err != nil || r.TenantID != tenant {
+		return nil, ErrNotFound
+	}
+	now := time.Now().UTC()
+	active := stringField(r.Data, "composite_binding_id") == bindingID
+	if active {
+		delete(r.Data, "composite_binding_id")
+		delete(r.Data, "device_profile")
+		delete(r.Data, "adapter_device_id")
+		delete(r.Data, "fiscal_device_id")
+		delete(r.Data, "fiscal_device_active_from")
+		delete(r.Data, "payment_terminal_id")
+		delete(r.Data, "payment_terminal_active_from")
+		r.Version++
+		r.UpdatedAt = now
+	}
+	b.Data["status"] = "REVOKED"
+	b.Data["revoked_at"] = now
+	b.Data["updated_at"] = now
+	b.Version++
+	b.UpdatedAt = now
+	if active {
+		err = s.repo.CommitCompositeBinding(r, b)
+	} else {
+		err = s.repo.PutResource(b)
+	}
+	if err != nil {
+		return nil, err
+	}
+	v := cloneMap(b.Data)
+	v["version"] = b.Version
+	return v, nil
+}
+
 func (s *Service) DeviceCapabilities(deviceID, tenant string) (map[string]any, error) {
 	v, err := s.repo.Resource("device", deviceID)
 	if err != nil || v.TenantID != tenant {

@@ -313,7 +313,8 @@ select collection,entity_key,payload from (
   select 'sales'::text collection,id entity_key,payload,'0'::text ordering from fiscal_runtime_sales
   union all select 'operations',id,payload,'0' from fiscal_runtime_operations
   union all select 'shifts',id,payload,'0' from fiscal_runtime_shifts
-  union all select 'resources',kind||':'||id,payload,'0' from fiscal_runtime_resources
+  union all select 'resources',kind||':'||id,payload,'0' from fiscal_runtime_resources where kind<>'composite_binding'
+  union all select 'resources','composite_binding:'||binding_id,payload,'0' from fiscal_runtime_composite_bindings
   union all select 'outbox',id,payload,'0' from fiscal_runtime_outbox
   union all select 'ble_sessions',id,payload,'0' from fiscal_runtime_ble_sessions
   union all select 'connectivity_probes',id,payload,'0' from fiscal_runtime_connectivity_probes
@@ -477,7 +478,7 @@ func (p *Postgres) LoadTenantEntity(collection, tenant, id string) ([]byte, erro
 	var raw []byte
 	switch collection {
 	case "sales":
-		err = tx.QueryRow(`select jsonb_build_object('sale_id',id,'tenant_id',tenant_id,'external_id',external_id,'location_id',coalesce(location_id,''),'register_id',register_id,'operator_id',operator_id,'unp',coalesce(unp,''),'state',state,'version',version,'lines',lines,'payments',payments,'fiscal_operation_id',coalesce(fiscal_operation_id,''),'receipt_artifact_id',coalesce(receipt_artifact_id,''),'fiscal_device',jsonb_strip_nulls(jsonb_build_object('device_id',fiscal_device_id,'serial',fiscal_device_serial,'fiscal_device_number',fiscal_device_number,'fiscal_memory_number',fiscal_memory_number,'vendor',fiscal_device_vendor,'model',fiscal_device_model,'firmware',fiscal_device_firmware)),'created_at',created_at,'updated_at',updated_at) from fiscal_runtime_sales where id=$1`, id).Scan(&raw)
+		err = tx.QueryRow(`select jsonb_build_object('sale_id',id,'tenant_id',tenant_id,'external_id',external_id,'location_id',coalesce(location_id,''),'register_id',register_id,'operator_id',operator_id,'unp',coalesce(unp,''),'state',state,'version',version,'lines',lines,'payments',payments,'fiscal_operation_id',coalesce(fiscal_operation_id,''),'receipt_artifact_id',coalesce(receipt_artifact_id,''),'fiscal_device',jsonb_strip_nulls(jsonb_build_object('device_id',fiscal_device_id,'binding_version',coalesce((payload->'fiscal_device'->>'binding_version')::bigint,0),'serial',fiscal_device_serial,'fiscal_device_number',fiscal_device_number,'fiscal_memory_number',fiscal_memory_number,'vendor',fiscal_device_vendor,'model',fiscal_device_model,'firmware',fiscal_device_firmware)),'created_at',created_at,'updated_at',updated_at) from fiscal_runtime_sales where id=$1`, id).Scan(&raw)
 	case "operations":
 		err = tx.QueryRow(`select payload from fiscal_runtime_operations where id=$1`, id).Scan(&raw)
 	case "shifts":
@@ -555,7 +556,7 @@ func (p *Postgres) LoadTenantEntities(collection, tenant string) ([][]byte, erro
 	var queryArgs []any
 	switch collection {
 	case "sales":
-		query = `select jsonb_build_object('sale_id',id,'tenant_id',tenant_id,'external_id',external_id,'location_id',coalesce(location_id,''),'register_id',register_id,'operator_id',operator_id,'unp',coalesce(unp,''),'state',state,'version',version,'lines',lines,'payments',payments,'fiscal_operation_id',coalesce(fiscal_operation_id,''),'receipt_artifact_id',coalesce(receipt_artifact_id,''),'fiscal_device',jsonb_strip_nulls(jsonb_build_object('device_id',fiscal_device_id,'serial',fiscal_device_serial,'fiscal_device_number',fiscal_device_number,'fiscal_memory_number',fiscal_memory_number,'vendor',fiscal_device_vendor,'model',fiscal_device_model,'firmware',fiscal_device_firmware)),'created_at',created_at,'updated_at',updated_at) from fiscal_runtime_sales order by created_at,id`
+		query = `select jsonb_build_object('sale_id',id,'tenant_id',tenant_id,'external_id',external_id,'location_id',coalesce(location_id,''),'register_id',register_id,'operator_id',operator_id,'unp',coalesce(unp,''),'state',state,'version',version,'lines',lines,'payments',payments,'fiscal_operation_id',coalesce(fiscal_operation_id,''),'receipt_artifact_id',coalesce(receipt_artifact_id,''),'fiscal_device',jsonb_strip_nulls(jsonb_build_object('device_id',fiscal_device_id,'binding_version',coalesce((payload->'fiscal_device'->>'binding_version')::bigint,0),'serial',fiscal_device_serial,'fiscal_device_number',fiscal_device_number,'fiscal_memory_number',fiscal_memory_number,'vendor',fiscal_device_vendor,'model',fiscal_device_model,'firmware',fiscal_device_firmware)),'created_at',created_at,'updated_at',updated_at) from fiscal_runtime_sales order by created_at,id`
 	case "operations":
 		query = `select payload from fiscal_runtime_operations order by created_at,id`
 	case "shifts":
@@ -650,8 +651,14 @@ func deleteTypedProjection(tx *sql.Tx, row stateRow) error {
 			if err := json.Unmarshal(row.Payload, &identity); err != nil || identity.Kind == "" || identity.ID == "" {
 				return errors.New("typed resource identity required")
 			}
-			_, err := tx.Exec(`delete from fiscal_runtime_resources where kind=$1 and id=$2`, identity.Kind, identity.ID)
-			return err
+			if _, err := tx.Exec(`delete from fiscal_runtime_resources where kind=$1 and id=$2`, identity.Kind, identity.ID); err != nil {
+				return err
+			}
+			if identity.Kind == "composite_binding" {
+				_, err := tx.Exec(`delete from fiscal_runtime_composite_bindings where binding_id=$1`, identity.ID)
+				return err
+			}
+			return nil
 		})
 	}
 	if table, ok := map[string]string{
@@ -745,6 +752,12 @@ where fiscal_runtime_shifts is distinct from excluded`, row.Key, payload)
 values($1::jsonb->>'kind',$1::jsonb->>'id',$1::jsonb->>'tenant_id',($1::jsonb->>'version')::bigint,$1::jsonb->'data',($1::jsonb->>'created_at')::timestamptz,($1::jsonb->>'updated_at')::timestamptz,$1::jsonb)
 on conflict(kind,id) do update set tenant_id=excluded.tenant_id,version=excluded.version,data=excluded.data,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload
 where fiscal_runtime_resources is distinct from excluded`, payload)
+		if err != nil {
+			return err
+		}
+		_, err = tx.Exec(`insert into fiscal_runtime_composite_bindings(binding_id,tenant_id,register_id,profile,adapter_device_id,fiscal_device_id,payment_device_id,generation,applied_generation,status,concurrency_version,payload,updated_at)
+select $1::jsonb->>'id',$1::jsonb->>'tenant_id',$1::jsonb->'data'->>'register_id',$1::jsonb->'data'->>'profile',$1::jsonb->'data'->>'adapter_device_id',$1::jsonb->'data'->>'fiscal_device_id',nullif($1::jsonb->'data'->>'payment_device_id',''),($1::jsonb->'data'->>'generation')::bigint,nullif($1::jsonb->'data'->>'applied_generation','')::bigint,$1::jsonb->'data'->>'status',($1::jsonb->>'version')::bigint,$1::jsonb,($1::jsonb->>'updated_at')::timestamptz where $1::jsonb->>'kind'='composite_binding'
+on conflict(binding_id)do update set tenant_id=excluded.tenant_id,register_id=excluded.register_id,profile=excluded.profile,adapter_device_id=excluded.adapter_device_id,fiscal_device_id=excluded.fiscal_device_id,payment_device_id=excluded.payment_device_id,generation=excluded.generation,applied_generation=excluded.applied_generation,status=excluded.status,concurrency_version=excluded.concurrency_version,payload=excluded.payload,updated_at=excluded.updated_at where fiscal_runtime_composite_bindings is distinct from excluded`, payload)
 		return err
 	case "outbox":
 		_, err := tx.Exec(`insert into fiscal_runtime_outbox(id,tenant_id,event_type,resource_id,attempts,next_attempt,delivered_at,payload)

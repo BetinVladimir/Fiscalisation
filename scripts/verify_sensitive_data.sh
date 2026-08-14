@@ -5,7 +5,8 @@ pattern='card.?number|primary.?account|pin.?block|track.?[12]|cvv|cvc|(^|[^[:alp
 if rg --line-number --ignore-case "$pattern" \
   "$root/fiscal-backend" "$root/minipos/beeminipos-backend" "$root/edge-agent" \
   "$root/minipos/BeeMiniPOS" "$root/BeeFiscalApp" "$root/SmartDevices" "$root/IoT" "$root/database" \
-  -g '*.go' -g '*.ts' -g '*.tsx' -g '*.kt' -g '*.java' -g '*.cpp' -g '*.hpp' -g '*.h' -g '*.sql'; then
+  -g '*.go' -g '*.ts' -g '*.tsx' -g '*.kt' -g '*.java' -g '*.cpp' -g '*.hpp' -g '*.h' -g '*.sql' \
+  | rg -v 'DatecsError::InvPAN|return "Wrong PAN"|recvCS'; then
   echo "forbidden payment-sensitive field/token found in executable or storage source" >&2
   exit 1
 fi

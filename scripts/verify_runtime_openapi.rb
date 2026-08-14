@@ -21,7 +21,7 @@ end
 
 sources = {
   "fiscal-backend/internal/api/handler.go" => [
-    "/public/v1/sales:open-with-line", "/public/v1/workstations/", "/public/v1/exports/periodized", "/public/v1/exports/", "activation-tokens",
+    "/public/v1/sales:open-with-line", ":finalize", "/public/v1/workstations/", "/public/v1/exports/periodized", "/public/v1/exports/", "activation-tokens",
     "/platform/v1/manufacturing/devices:register", "/platform/v1/devices"
   ],
   "minipos/beeminipos-backend/internal/api/handler.go" => [
@@ -36,5 +36,5 @@ sources.each do |relative, routes|
   routes.each { |route| abort "runtime route disappeared: #{route}" unless source.include?(route) }
 end
 
-abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 47
+abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 52
 puts "runtime OpenAPI coverage OK: #{operations.length} operations"

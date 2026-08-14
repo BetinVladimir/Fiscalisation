@@ -1047,6 +1047,11 @@ export interface components {
             location_id: string;
             /** Format: uuid */
             register_id: string;
+            /**
+             * @description Explicit BLE application security mode; OPEN_MVP is permitted only by the controlled MVP profile.
+             * @enum {string}
+             */
+            security_mode: "OPEN_MVP" | "X25519_AES_GCM";
         };
         WebhookEndpoint: {
             /** Format: uri */

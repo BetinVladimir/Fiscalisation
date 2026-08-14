@@ -29,8 +29,16 @@ func rateLimit(limit int, window time.Duration, next http.Handler) http.Handler 
 }
 
 func (l *requestLimiter) middleware(next http.Handler) http.Handler {
+	return l.middlewareWhen(next, func(r *http.Request) bool { return isRateLimitedPath(r.URL.Path) })
+}
+
+func (l *requestLimiter) middlewareAll(next http.Handler) http.Handler {
+	return l.middlewareWhen(next, func(*http.Request) bool { return true })
+}
+
+func (l *requestLimiter) middlewareWhen(next http.Handler, applies func(*http.Request) bool) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !isRateLimitedPath(r.URL.Path) {
+		if !applies(r) {
 			next.ServeHTTP(w, r)
 			return
 		}

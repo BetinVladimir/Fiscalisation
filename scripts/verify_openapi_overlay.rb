@@ -69,7 +69,9 @@ abort "MiniPOS product command required fields drifted" unless product_create.di
 abort "MiniPOS employee command required fields drifted" unless employee_create.dig("update", "required") == %w[first_name last_name operator_code]
 abort "MiniPOS order create must accept only an open shift reference" unless actions[16].dig("update", "required") == ["shift_id"] && actions[16].dig("update", "properties").keys == ["shift_id"]
 abort "compliance export historical filters drifted" unless actions[17].dig("update")&.keys == %w[location_id device_id]
-abort "BLE session identity correction drifted" unless actions[18].dig("update")&.keys == %w[tenant_id location_id register_id]
-abort "BLE session required identity drifted" unless actions[19].fetch("update") == %w[ble_session_id tenant_id edge_id device_id location_id register_id service_uuid signed_session_ticket expires_at]
+abort "BLE session identity/security correction drifted" unless actions[18].dig("update")&.keys == %w[tenant_id location_id register_id security_mode]
+mode = actions[18].dig("update", "security_mode")
+abort "BLE security mode must explicitly fence the MVP exception" unless mode&.fetch("enum", nil) == %w[OPEN_MVP X25519_AES_GCM]
+abort "BLE session required identity drifted" unless actions[19].fetch("update") == %w[ble_session_id tenant_id edge_id device_id location_id register_id service_uuid security_mode signed_session_ticket expires_at]
 
-puts "OpenAPI overlay OK: fiscal line discount/device receipt snapshot, historical export filters, BLE tenant/location/register binding, 1 response omission and 14 server-owned request-schema defects corrected"
+puts "OpenAPI overlay OK: fiscal line discount/device receipt snapshot, historical export filters, BLE tenant/location/register/security binding, 1 response omission and 14 server-owned request-schema defects corrected"

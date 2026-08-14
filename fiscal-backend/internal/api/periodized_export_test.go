@@ -93,7 +93,7 @@ func TestPeriodizedExportPublicContractAndTenantArtifactBoundary(t *testing.T) {
 		return w
 	}
 	body := `{"type":"SUPTO_18_1","from":"2025-12-31T20:00:00Z","to":"2026-01-01T02:00:00Z","format":"JSON"}`
-	created := call(http.MethodPost, "/public/v1/exports/periodized", "tenant-a", "periodized-export-create-0001", body)
+	created := call(http.MethodPost, "/public/v1/exports/periodized", "tenant-a", "20000000-0000-4000-8000-000000000001", body)
 	if created.Code != http.StatusAccepted {
 		t.Fatalf("create: %d %s", created.Code, created.Body.String())
 	}
@@ -103,11 +103,11 @@ func TestPeriodizedExportPublicContractAndTenantArtifactBoundary(t *testing.T) {
 	if json.Unmarshal(created.Body.Bytes(), &operation) != nil || operation.ExportID == "" {
 		t.Fatalf("operation response: %s", created.Body.String())
 	}
-	replayed := call(http.MethodPost, "/public/v1/exports/periodized", "tenant-a", "periodized-export-create-0001", body)
+	replayed := call(http.MethodPost, "/public/v1/exports/periodized", "tenant-a", "20000000-0000-4000-8000-000000000001", body)
 	if replayed.Code != http.StatusAccepted || replayed.Header().Get("Idempotency-Replayed") != "true" || replayed.Body.String() != created.Body.String() {
 		t.Fatalf("replay: %d %s", replayed.Code, replayed.Body.String())
 	}
-	mismatch := call(http.MethodPost, "/public/v1/exports/periodized", "tenant-a", "periodized-export-create-0001", `{"type":"SUPTO_18_2","from":"2025-12-31T20:00:00Z","to":"2026-01-01T02:00:00Z","format":"JSON"}`)
+	mismatch := call(http.MethodPost, "/public/v1/exports/periodized", "tenant-a", "20000000-0000-4000-8000-000000000001", `{"type":"SUPTO_18_2","from":"2025-12-31T20:00:00Z","to":"2026-01-01T02:00:00Z","format":"JSON"}`)
 	if mismatch.Code != http.StatusConflict {
 		t.Fatalf("idempotency mismatch: %d %s", mismatch.Code, mismatch.Body.String())
 	}
@@ -154,11 +154,11 @@ func TestPeriodizedExportRejectsInvalidIntervalAndCashierRole(t *testing.T) {
 		h.ServeHTTP(w, r)
 		return w
 	}
-	invalid := call("SUPERVISOR", `{"type":"SUPTO_18_1","from":"2026-01-01T00:00:00Z","to":"2026-01-01T00:00:00Z","format":"JSON"}`, "periodized-invalid-interval-01")
+	invalid := call("SUPERVISOR", `{"type":"SUPTO_18_1","from":"2026-01-01T00:00:00Z","to":"2026-01-01T00:00:00Z","format":"JSON"}`, "20000000-0000-4000-8000-000000000002")
 	if invalid.Code != http.StatusUnprocessableEntity {
 		t.Fatalf("invalid interval: %d %s", invalid.Code, invalid.Body.String())
 	}
-	denied := call("CASHIER", `{"type":"SUPTO_18_1","from":"2026-01-01T00:00:00Z","to":"2026-01-02T00:00:00Z","format":"JSON"}`, "periodized-cashier-denied-01")
+	denied := call("CASHIER", `{"type":"SUPTO_18_1","from":"2026-01-01T00:00:00Z","to":"2026-01-02T00:00:00Z","format":"JSON"}`, "20000000-0000-4000-8000-000000000003")
 	if denied.Code != http.StatusForbidden {
 		t.Fatalf("cashier export accepted: %d %s", denied.Code, denied.Body.String())
 	}

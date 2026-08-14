@@ -91,10 +91,11 @@ async function miniPosJourney(browser, appUrl) {
       const input=route.request().postDataJSON(), price=Number(input.unit_price.amount), quantity=Number(input.quantity), discount=Number(input.discount?.amount||0);
       fiscalSale={...fiscalSale,version:fiscalSale.version+1,lines:[input],totals:{gross:{amount:(price*quantity-discount).toFixed(2),currency:"EUR"}}}; return json(route,fiscalSale);
     }
-    if (/\/sales\/sale-\d+\/payment-intents$/.test(path) && method === "POST") {
-      checkoutCalls += 1; const payment=route.request().postDataJSON(); splitRequests.push(payment); fiscalOperationNumber += 1;
+    if (/\/sales\/sale-\d+:finalize$/.test(path) && method === "POST") {
+      checkoutCalls += 1; const plan=route.request().postDataJSON(); splitRequests.push(plan); fiscalOperationNumber += 1;
+      assert.equal(route.request().headers()["idempotency-key"],plan.client_operation_id,"aggregate finalize must reuse client operation id");
       const state=checkoutMode === "failed" ? "FAILED" : checkoutMode === "unknown" ? "UNKNOWN" : "FISCALIZED";
-      if(state==="FISCALIZED"){paidCents+=Math.round(Number(payment.amount.amount)*100);const totalCents=Math.round(Number(fiscalSale.totals.gross.amount)*100);fiscalSale={...fiscalSale,version:fiscalSale.version+1,payments:[...fiscalSale.payments,payment],state:paidCents>=totalCents?"COMPLETED":"OPEN"}}
+      if(state==="FISCALIZED"){fiscalSale={...fiscalSale,version:fiscalSale.version+1,payments:plan.payments,state:"COMPLETED"}}
       return json(route,{operation_id:`fiscal-${fiscalOperationNumber}`,type:"FISCAL_SALE",state,fiscal_reference:state==="FISCALIZED"?`FD-${fiscalOperationNumber}`:null,allowed_actions:state==="UNKNOWN"?["RECONCILE"]:[]},202);
     }
     if (/\/sales\/sale-\d+$/.test(path) && method === "GET") return json(route,fiscalSale);
@@ -144,7 +145,7 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("split-cash-amount").fill("1,00");
   await page.getByTestId("payment-split").click();
   await page.getByTestId("status-transport").getByText(/Успешен фискален бон/).waitFor();
-  assert.deepEqual(splitRequests.slice(-2).map(({ type, amount, terminal_policy }) => ({ type, amount: amount.amount, terminal_policy })), [
+  assert.deepEqual(splitRequests.at(-1).payments.map(({ type, amount, terminal_policy }) => ({ type, amount: amount.amount, terminal_policy })), [
     { type: "CASH", amount: "1.00", terminal_policy: "NONE" },
     { type: "CARD", amount: "1.50", terminal_policy: "AUTO_IF_AVAILABLE" },
   ], "touch split tender must preserve exact ordered EUR amounts and terminal policy");
@@ -164,7 +165,7 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("reconcile-start").click();
   await page.getByTestId("status-transport").getByText(/резултат е потвърден/).waitFor();
   assert.equal(checkoutCalls, callsBeforeReconcile, "reconciliation must not repeat checkout/payment");
-  assert.equal(checkoutCalls, 5, "exactly one payment intent per cash/card leg, including both split legs");
+  assert.equal(checkoutCalls, 4, "exactly one aggregate finalize per checkout, including split tender");
   zCloseMode = "ambiguous";
   await page.getByTestId("shift-toggle").click();
   await page.getByTestId("status-transport").getByText(/Z-отчетът изисква сверяване/).waitFor();
@@ -198,7 +199,7 @@ async function fiscalJourney(browser, appUrl) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
   const device = { id: "device-1", name: "DP-150", vendor: "Datecs", model: "DP-150 MX", serial: "DT1", status: "ACTIVE", transport: "EDGE" };
   let location = { id: "location-1", code: "SOF", name: "Sofia", address: "Center", version: 1 };
-  let reportCreated = false, reconcileCalls = 0, diagnosticsCalls = 0, provisioningCalls = 0, bleSessionCalls = 0;
+  let reportCreated = false, reconcileCalls = 0, diagnosticsCalls = 0, provisioningCalls = 0, bleSessionCalls = 0, compositeCalls=0, compositeDisableCalls=0;
   const registerFilters = [];
   let operations = [
     { id: "operation-1", type: "SALE", state: "UNKNOWN", unp: "UNP-1", allowed_actions: ["RECONCILE"], created_at: "2026-08-09T12:00:00Z" },
@@ -223,6 +224,9 @@ async function fiscalJourney(browser, appUrl) {
     if (path.endsWith("/locations")) return json(route, { items: [location] });
     if (path.endsWith("/registers")) return json(route, { items: [{ id: "00000000-0000-4000-8000-000000000001", code: "R01", location_id: "location-1", version: 1 }] });
     if (path.endsWith("/operators")) return json(route, { items: [{ id: "operator-1", code: "0001", first_name: "Ivan", last_name: "Petrov", roles: ["CASHIER"], version: 1 }] });
+    if (/\/registers\/[^/]+\/composite-bindings$/.test(path)&&method==="GET")return json(route,{items:[]});
+    if (/\/registers\/[^/]+\/composite-bindings$/.test(path)&&method==="POST"){compositeCalls+=1;return json(route,{binding_id:`00000000-0000-4000-8000-00000000010${compositeCalls}`,status:"PENDING",generation:2+compositeCalls,version:1},201)}
+    if (/\/registers\/[^/]+\/composite-bindings\/disable$/.test(path)&&method==="POST"){compositeDisableCalls+=1;return json(route,{binding_id:"00000000-0000-4000-8000-000000000101",status:"REVOKED",generation:3,version:2})}
     if (path.endsWith("/locations/location-1") && method === "PATCH") { location = { ...location, ...route.request().postDataJSON(), version: location.version + 1 }; return json(route, location); }
     return json(route, { code: "UNMOCKED", path, method }, 500);
   });
@@ -266,6 +270,16 @@ async function fiscalJourney(browser, appUrl) {
   await page.getByTestId("admin-location-save").click();
   await page.getByTestId("admin-location-code").waitFor();
   assert.equal(await page.getByTestId("admin-location-code").inputValue(), "VAR");
+  await page.getByTestId("composite-adapter-device").fill("00000000-0000-4000-8000-000000000011");
+  await page.getByTestId("composite-fiscal-device").fill("00000000-0000-4000-8000-000000000012");
+  await page.getByTestId("composite-payment-device").fill("00000000-0000-4000-8000-000000000013");
+  await page.getByTestId("composite-binding-save").click();
+  await page.getByTestId("composite-binding-awaiting-adapter").waitFor();
+  await page.getByTestId("composite-binding-disable").click();
+  await page.getByTestId("composite-binding-state").getByText(/REVOKED/).waitFor();
+  await page.getByTestId("composite-binding-save").click();
+  await page.getByTestId("composite-binding-awaiting-adapter").waitFor();
+  assert.deepEqual({compositeCalls,compositeDisableCalls},{compositeCalls:2,compositeDisableCalls:1},"UI must complete create disable and rebind lifecycle");
   await page.getByTestId("tab-Настройки").click();
   await page.getByText(/"country": "BG"/).waitFor();
   await page.close();

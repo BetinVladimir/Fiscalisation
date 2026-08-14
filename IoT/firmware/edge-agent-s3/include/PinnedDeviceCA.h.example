@@ -1,0 +1,8 @@
+#pragma once
+// Copy to PinnedDeviceCA.h only in the build pipeline and inject the approved
+// device CA certificate. PinnedDeviceCA.h is deliberately gitignored.
+static constexpr char EDGE_PINNED_DEVICE_CA_PEM[] = R"pem(
+-----BEGIN CERTIFICATE-----
+REPLACE_WITH_APPROVED_DEVICE_CA
+-----END CERTIFICATE-----
+)pem";

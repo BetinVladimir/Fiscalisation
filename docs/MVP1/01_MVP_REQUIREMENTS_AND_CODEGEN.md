@@ -256,9 +256,10 @@ result, error catalog, idempotency и timeout semantics.
 
 ### Этап 5 — BLE equivalence
 
-1. REST выдаёт session, связанную с tenant/location/register/edge/FU/operator.
-2. MiniPOS проверяет ticket до BLE connect.
-3. GATT доказывает possession X25519 key, затем AES-GCM frames.
+1. REST выдаёт route package, связанный с tenant/location/register/edge/FU.
+2. MiniPOS сверяет route identity до BLE connect.
+3. Для MVP GATT открыт без авторизации и шифрования; production handshake
+   X25519/HKDF/AES-GCM отложен отдельным обязательным production gate.
 4. BLE result сначала durable на устройстве, затем возвращается POS.
 5. После cloud recovery те же events синхронизируются без второй операции.
 6. Реализовать state machine и lightweight ping из документа 09.

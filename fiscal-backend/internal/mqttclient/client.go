@@ -19,6 +19,7 @@ import (
 
 var syncTopic = regexp.MustCompile(`^tenants/([^/]+)/devices/([^/]+)/sync/batches/([^/]+)$`)
 var activationTopic = regexp.MustCompile(`^beefiscal/v1/devices/([^/]+)/activation$`)
+var bindingAckTopic=regexp.MustCompile(`^tenants/([^/]+)/devices/([^/]+)/bindings/acks$`)
 
 type syncService interface {
 	SyncBatchForTenant(string, domain.EdgeSyncBatch) (domain.SyncAck, error)
@@ -28,6 +29,7 @@ type activationService interface {
 	ActivateDeviceCredential(string, string, string, string) (domain.DeviceActivationRequest, error)
 	SignDeviceActivationAcknowledgement([]byte) (string, error)
 }
+type bindingApplyService interface{ApplyCompositeBindingByAdapter(string,string,string,int64)(map[string]any,error)}
 
 type Processor struct {
 	service    syncService
@@ -39,6 +41,18 @@ type Bridge struct {
 	signingKey []byte
 	repo       domain.Repository
 	expire     func(string) error
+}
+
+// PublishCompositeBinding delivers the immutable signed provisioning envelope
+// to the adapter control topic. The adapter applies it monotonically and only
+// then calls the authenticated apply endpoint with the exact generation.
+func (b *Bridge) PublishCompositeBinding(tenant, adapterID string, envelope []byte) error {
+	if err := b.Probe(); err != nil { return err }
+	if tenant == "" || adapterID == "" || len(envelope) == 0 { return fmt.Errorf("invalid composite binding envelope") }
+	topic := fmt.Sprintf("tenants/%s/devices/%s/bindings", tenant, adapterID)
+	token := b.client.Publish(topic, 1, false, envelope)
+	if !token.WaitTimeout(10*time.Second) { return fmt.Errorf("mqtt binding publish timeout") }
+	return token.Error()
 }
 
 func NewBridge(signingKey string, repositories ...domain.Repository) *Bridge {
@@ -70,7 +84,14 @@ func (b *Bridge) Prepare(op domain.Operation, sale domain.Sale, payment domain.P
 	if sale.TenantID == "" || sale.FiscalDevice.DeviceID == "" || sale.FiscalDevice.BindingVersion < 1 {
 		return domain.ResourceRecord{}, fmt.Errorf("mqtt command binding missing")
 	}
-	payload := map[string]any{"currency": "EUR", "server_sale_id": sale.ID, "external_id": sale.ExternalID, "location_id": sale.LocationID, "operator_id": sale.OperatorID, "unp": sale.UNP, "items": sale.Lines, "payments": []domain.PaymentRequest{payment}, "metadata": map[string]any{}}
+	payments := []domain.PaymentRequest{payment}
+	if op.Type == "SALE_FINALIZE" {
+		payments = make([]domain.PaymentRequest, 0, len(sale.Payments))
+		for _, p := range sale.Payments {
+			payments = append(payments, domain.PaymentRequest{PaymentID: p.PaymentID, Type: p.Type, Amount: p.Amount})
+		}
+	}
+	payload := map[string]any{"currency": "EUR", "server_sale_id": sale.ID, "external_id": sale.ExternalID, "location_id": sale.LocationID, "operator_id": sale.OperatorID, "unp": sale.UNP, "items": sale.Lines, "payments": payments, "metadata": map[string]any{}}
 	if op.Type == "REVERSAL" {
 		sofia, err := time.LoadLocation("Europe/Sofia")
 		if err != nil {
@@ -95,7 +116,15 @@ func (b *Bridge) Prepare(op domain.Operation, sale domain.Sale, payment domain.P
 	payloadBytes, _ := json.Marshal(payload)
 	sum := sha256.Sum256(payloadBytes)
 	now := time.Now().UTC()
-	envelope := map[string]any{"operation_id": op.ID, "tenant_id": sale.TenantID, "register_id": sale.RegisterID, "device_id": sale.FiscalDevice.DeviceID, "fencing_token": sale.FiscalDevice.BindingVersion, "command_type": op.Type, "issued_at": now.Format(time.RFC3339Nano), "expires_at": now.Add(2 * time.Minute).Format(time.RFC3339Nano), "payload": payload, "payload_sha256": fmt.Sprintf("%x", sum)}
+	clientOperationID := op.ClientOperationID
+	if clientOperationID == "" {
+		clientOperationID = op.ID
+	}
+	receiptSessionID := op.ReceiptSessionID
+	if receiptSessionID == "" {
+		receiptSessionID = op.ID
+	}
+	envelope := map[string]any{"operation_id": op.ID, "client_operation_id": clientOperationID, "receipt_session_id": receiptSessionID, "tenant_id": sale.TenantID, "register_id": sale.RegisterID, "device_id": sale.FiscalDevice.DeviceID, "fencing_token": sale.FiscalDevice.BindingVersion, "command_type": op.Type, "issued_at": now.Format(time.RFC3339Nano), "expires_at": now.Add(2 * time.Minute).Format(time.RFC3339Nano), "payload": payload, "payload_sha256": fmt.Sprintf("%x", sum)}
 	unsigned, _ := json.Marshal(envelope)
 	signingKey := b.signingKey
 	if b.repo != nil {
@@ -170,6 +199,7 @@ func NewProcessor(service syncService, signingKey ...string) *Processor {
 }
 
 func (p *Processor) Process(topic string, payload []byte) (string, []byte, error) {
+	if parts:=bindingAckTopic.FindStringSubmatch(topic);len(parts)==3{service,ok:=p.service.(bindingApplyService);if !ok{return "",nil,fmt.Errorf("binding apply service unavailable")};var in struct{AdapterDeviceID string `json:"adapter_device_id"`;RegisterID string `json:"register_id"`;Generation int64 `json:"generation"`};if json.Unmarshal(payload,&in)!=nil||in.AdapterDeviceID!=parts[2]||in.RegisterID==""||in.Generation<1{return "",nil,fmt.Errorf("invalid binding ack")};applied,err:=service.ApplyCompositeBindingByAdapter(parts[1],parts[2],in.RegisterID,in.Generation);if err!=nil{return "",nil,err};body,_:=json.Marshal(applied);return fmt.Sprintf("tenants/%s/devices/%s/bindings/acks/confirmed",parts[1],parts[2]),body,nil}
 	if parts := activationTopic.FindStringSubmatch(topic); len(parts) == 2 {
 		service, ok := p.service.(activationService)
 		if !ok {
@@ -246,7 +276,8 @@ func Start(ctx context.Context, cfg config.Config, logger *log.Logger, service s
 	}
 
 	subscribe := func(client mqtt.Client) error {
-		for _, topic := range cfg.EMQXSubTopics {
+		topics:=append([]string{},cfg.EMQXSubTopics...);topics=append(topics,"tenants/+/devices/+/bindings/acks")
+		for _, topic := range topics {
 			token := client.Subscribe(topic, 1, handler)
 			if ok := token.WaitTimeout(10 * time.Second); !ok {
 				return fmt.Errorf("subscribe timeout for topic %s", topic)

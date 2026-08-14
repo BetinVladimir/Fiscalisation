@@ -122,6 +122,7 @@ actions:
       tenant_id: {type: string, minLength: 1}
       location_id: {type: string, format: uuid}
       register_id: {type: string, format: uuid}
+      security_mode: {type: string, enum: [OPEN_MVP, X25519_AES_GCM], description: Explicit BLE application security mode; OPEN_MVP is permitted only by the controlled MVP profile.}
   - target: $.components.schemas.BleSession.required
     description: The immutable location/register identity is mandatory in every issued or refreshed BLE authority package.
-    update: [ble_session_id, tenant_id, edge_id, device_id, location_id, register_id, service_uuid, signed_session_ticket, expires_at]
+    update: [ble_session_id, tenant_id, edge_id, device_id, location_id, register_id, service_uuid, security_mode, signed_session_ticket, expires_at]

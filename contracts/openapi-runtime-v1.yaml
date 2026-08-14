@@ -25,6 +25,43 @@ servers:
   - url: http://127.0.0.1:8082
     description: Edge loopback DEV/HIL listener
 paths:
+  /registers/{register_id}/composite-bindings:
+    get:
+      operationId: listCompositeDeviceBindings
+      description: Lists binding generations and their applied generation for one register.
+      security: [{oidcBearer: []}]
+      parameters: [{name: register_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/ApiVersion'}]
+      responses:
+        '200': {description: Binding history, content: {application/json: {schema: {type: object, required: [items], properties: {items: {type: array, items: {$ref: '#/components/schemas/CompositeDeviceBinding'}}}}}}}
+    post:
+      operationId: createCompositeDeviceBinding
+      description: Stages one complete adapter/fiscal/optional-payment generation; it is not routable until adapter apply acknowledgement.
+      security: [{oidcBearer: []}]
+      parameters: [{name: register_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/ApiVersion'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CompositeDeviceBindingRequest'}}}}
+      responses:
+        '202': {description: Pending composite binding, content: {application/json: {schema: {$ref: '#/components/schemas/CompositeDeviceBinding'}}}}
+        '409': {$ref: '#/components/responses/Problem'}
+  /registers/{register_id}/composite-bindings/apply:
+    post:
+      operationId: acknowledgeCompositeDeviceBinding
+      description: Adapter acknowledgement atomically activates both endpoints and the exact generation.
+      security: [{oidcBearer: []}]
+      parameters: [{name: register_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/ApiVersion'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CompositeDeviceBindingApply'}}}}
+      responses:
+        '200': {description: Active applied binding, content: {application/json: {schema: {$ref: '#/components/schemas/CompositeDeviceBinding'}}}}
+        '409': {$ref: '#/components/responses/Problem'}
+  /registers/{register_id}/composite-bindings/disable:
+    post:
+      operationId: disableCompositeDeviceBinding
+      description: Revokes a generation and removes its fiscal and payment routes; a new generation may then be staged for rebind.
+      security: [{oidcBearer: []}]
+      parameters: [{name: register_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/ApiVersion'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CompositeDeviceBindingDisable'}}}}
+      responses:
+        '200': {description: Revoked binding, content: {application/json: {schema: {$ref: '#/components/schemas/CompositeDeviceBinding'}}}}
+        '409': {$ref: '#/components/responses/Problem'}
   /platform/v1/manufacturing/devices:register:
     post:
       operationId: registerManufacturedDevice
@@ -266,6 +303,16 @@ paths:
         '202': {description: Durable payment operation, content: {application/json: {schema: {$ref: '#/components/schemas/FiscalOperationSummary'}}}}
         '409': {$ref: '#/components/responses/Problem'}
         '428': {$ref: '#/components/responses/Problem'}
+  /sales/{sale_id}:finalize:
+    post:
+      operationId: finalizeSale
+      description: Reserves one immutable ordered receipt and payment saga for the selected device route.
+      security: [{oidcBearer: []}]
+      parameters: [{$ref: '#/components/parameters/SaleId'}, {$ref: '#/components/parameters/ApiVersion'}, {$ref: '#/components/parameters/ClientOperationId'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SaleFinalizeRequest'}}}}
+      responses:
+        '202': {description: Durable aggregate operation accepted, content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosFiscalOperation'}}}}
+        '409': {$ref: '#/components/responses/Problem'}
   /workstations/{workstation_id}/readiness:
     get:
       operationId: getWorkstationReadiness
@@ -676,7 +723,18 @@ components:
       required: true
       schema: {type: string, format: uuid}
     ApiVersion: {name: X-Api-Version, in: header, required: true, schema: {type: string, const: '2026-08-07'}}
-    IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 16, maxLength: 255}}
+    IdempotencyKey:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile.
+      schema: {type: string, minLength: 16, maxLength: 255}
+    ClientOperationId:
+      name: Idempotency-Key
+      in: header
+      required: true
+      description: MiniPOS-generated client_operation_id. The same UUID is reused for every retry and REST/BLE failover of one fiscal mutation.
+      schema: {type: string, format: uuid}
     ShiftId: {name: shift_id, in: path, required: true, schema: {type: string, format: uuid}}
     OrderId: {name: order_id, in: path, required: true, schema: {type: string, format: uuid}}
     EmployeeId: {name: employee_id, in: path, required: true, schema: {type: string, format: uuid}}
@@ -688,6 +746,48 @@ components:
       description: RFC 9457 problem
       content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}
   schemas:
+    CompositeDeviceBindingRequest:
+      type: object
+      additionalProperties: false
+      required: [profile, adapter_device_id, fiscal_device_id, expected_register_version]
+      properties:
+        profile: {type: string, enum: [DATECS_BLUECASH50_EMBEDDED, DATECS_DP150_BLUEPAD50, DAISY_COMPACT_S01]}
+        adapter_device_id: {type: string, format: uuid}
+        fiscal_device_id: {type: string, format: uuid}
+        payment_device_id: {type: string, format: uuid}
+        expected_register_version: {type: integer, minimum: 1}
+    CompositeDeviceBindingApply:
+      type: object
+      additionalProperties: false
+      required: [binding_id, adapter_device_id, generation]
+      properties:
+        binding_id: {type: string, format: uuid}
+        adapter_device_id: {type: string, format: uuid}
+        generation: {type: integer, minimum: 1}
+    CompositeDeviceBindingDisable:
+      type: object
+      additionalProperties: false
+      required: [binding_id, expected_version]
+      properties:
+        binding_id: {type: string, format: uuid}
+        expected_version: {type: integer, minimum: 1}
+    CompositeDeviceBinding:
+      type: object
+      additionalProperties: true
+      required: [binding_id, register_id, profile, adapter_device_id, fiscal_device_id, generation, status, created_at, updated_at]
+      properties:
+        binding_id: {type: string, format: uuid}
+        register_id: {type: string, format: uuid}
+        profile: {type: string, enum: [DATECS_BLUECASH50_EMBEDDED, DATECS_DP150_BLUEPAD50, DAISY_COMPACT_S01]}
+        adapter_device_id: {type: string, format: uuid}
+        fiscal_device_id: {type: string, format: uuid}
+        payment_device_id: {type: string, format: uuid}
+        generation: {type: integer, minimum: 1}
+        applied_generation: {type: integer, minimum: 1}
+        version: {type: integer, minimum: 1}
+        status: {type: string, enum: [PENDING, ACTIVE, REVOKED, SUPERSEDED]}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
     Esp32P256Signature:
       type: string
       minLength: 86
@@ -1216,6 +1316,16 @@ components:
           type: object
           maxProperties: 32
           additionalProperties: true
+    SaleFinalizeRequest:
+      type: object
+      additionalProperties: false
+      required: [client_operation_id, receipt_session_id, payments, expected_total]
+      properties:
+        client_operation_id: {type: string, format: uuid}
+        receipt_session_id: {type: string, format: uuid}
+        payments: {type: array, minItems: 1, maxItems: 10, items: {$ref: '#/components/schemas/MiniPosTender'}}
+        expected_total: {$ref: '#/components/schemas/Money'}
+        metadata: {type: object, maxProperties: 32, additionalProperties: true}
     MiniPosReversalRequest:
       type: object
       additionalProperties: false
@@ -1230,11 +1340,22 @@ components:
       required: [operation_id, type, state, simulated, allowed_actions, created_at, updated_at]
       properties:
         operation_id: {type: string}
-        type: {type: string, enum: [FISCAL_SALE, REVERSAL]}
+        client_operation_id: {type: string, format: uuid}
+        receipt_session_id: {type: string, format: uuid}
+        tenant_id: {type: string}
+        sale_id: {type: string}
+        register_id: {type: string}
+        type: {type: string, enum: [FISCAL_SALE, SALE_FINALIZE, REVERSAL]}
         state: {type: string, enum: [FISCALIZED, FAILED, UNKNOWN]}
         fiscal_reference: {type: [string, 'null']}
+        original_fiscal_reference: {type: string}
+        reason_code: {type: string}
+        original_document_number: {type: integer, minimum: 1}
+        original_document_at: {type: string, format: date-time}
         simulated: {type: boolean}
+        error_code: {type: string}
         allowed_actions: {type: array, items: {type: string}}
+        version: {type: integer, minimum: 1}
         created_at: {type: string, format: date-time}
         updated_at: {type: string, format: date-time}
     FiscalWebhookEvent:
@@ -1372,7 +1493,7 @@ components:
         register_id: {type: string, minLength: 1}
         device_id: {type: string, minLength: 1}
         fencing_token: {type: integer, minimum: 1, description: Immutable register binding version frozen with the sale.}
-        command_type: {type: string, enum: [FISCAL_SALE, REVERSAL]}
+        command_type: {type: string, enum: [FISCAL_SALE, SALE_FINALIZE, REVERSAL]}
         issued_at: {type: string, format: date-time}
         expires_at: {type: string, format: date-time}
         payload: {type: object}

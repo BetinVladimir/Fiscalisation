@@ -4,6 +4,58 @@
  */
 
 export interface paths {
+    "/registers/{register_id}/composite-bindings": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Lists binding generations and their applied generation for one register. */
+        get: operations["listCompositeDeviceBindings"];
+        put?: never;
+        /** @description Stages one complete adapter/fiscal/optional-payment generation; it is not routable until adapter apply acknowledgement. */
+        post: operations["createCompositeDeviceBinding"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/registers/{register_id}/composite-bindings/apply": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Adapter acknowledgement atomically activates both endpoints and the exact generation. */
+        post: operations["acknowledgeCompositeDeviceBinding"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/registers/{register_id}/composite-bindings/disable": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Revokes a generation and removes its fiscal and payment routes; a new generation may then be staged for rebind. */
+        post: operations["disableCompositeDeviceBinding"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/platform/v1/manufacturing/devices:register": {
         parameters: {
             query?: never;
@@ -378,6 +430,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/sales/{sale_id}:finalize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Reserves one immutable ordered receipt and payment saga for the selected device route. */
+        post: operations["finalizeSale"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/workstations/{workstation_id}/readiness": {
         parameters: {
             query?: never;
@@ -734,6 +803,54 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        CompositeDeviceBindingRequest: {
+            /** @enum {string} */
+            profile: "DATECS_BLUECASH50_EMBEDDED" | "DATECS_DP150_BLUEPAD50" | "DAISY_COMPACT_S01";
+            /** Format: uuid */
+            adapter_device_id: string;
+            /** Format: uuid */
+            fiscal_device_id: string;
+            /** Format: uuid */
+            payment_device_id?: string;
+            expected_register_version: number;
+        };
+        CompositeDeviceBindingApply: {
+            /** Format: uuid */
+            binding_id: string;
+            /** Format: uuid */
+            adapter_device_id: string;
+            generation: number;
+        };
+        CompositeDeviceBindingDisable: {
+            /** Format: uuid */
+            binding_id: string;
+            expected_version: number;
+        };
+        CompositeDeviceBinding: {
+            /** Format: uuid */
+            binding_id: string;
+            /** Format: uuid */
+            register_id: string;
+            /** @enum {string} */
+            profile: "DATECS_BLUECASH50_EMBEDDED" | "DATECS_DP150_BLUEPAD50" | "DAISY_COMPACT_S01";
+            /** Format: uuid */
+            adapter_device_id: string;
+            /** Format: uuid */
+            fiscal_device_id: string;
+            /** Format: uuid */
+            payment_device_id?: string;
+            generation: number;
+            applied_generation?: number;
+            version?: number;
+            /** @enum {string} */
+            status: "PENDING" | "ACTIVE" | "REVOKED" | "SUPERSEDED";
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        } & {
+            [key: string]: unknown;
+        };
         /** @description Unpadded base64url of the fixed 64-byte IEEE P1363 ECDSA P-256 signature (r || s) produced by the ESP32-S3 device identity key. */
         Esp32P256Signature: string;
         /** @enum {string} */
@@ -1275,19 +1392,44 @@ export interface components {
                 [key: string]: unknown;
             };
         };
+        SaleFinalizeRequest: {
+            /** Format: uuid */
+            client_operation_id: string;
+            /** Format: uuid */
+            receipt_session_id: string;
+            payments: components["schemas"]["MiniPosTender"][];
+            expected_total: components["schemas"]["Money"];
+            metadata?: {
+                [key: string]: unknown;
+            };
+        };
         MiniPosReversalRequest: {
             /** @enum {string} */
             reason_code: "OPERATOR_ERROR" | "CUSTOMER_RETURN" | "CUSTOMER_COMPLAINT" | "TAX_BASE_REDUCTION";
         };
         MiniPosFiscalOperation: {
             operation_id: string;
+            /** Format: uuid */
+            client_operation_id?: string;
+            /** Format: uuid */
+            receipt_session_id?: string;
+            tenant_id?: string;
+            sale_id?: string;
+            register_id?: string;
             /** @enum {string} */
-            type: "FISCAL_SALE" | "REVERSAL";
+            type: "FISCAL_SALE" | "SALE_FINALIZE" | "REVERSAL";
             /** @enum {string} */
             state: "FISCALIZED" | "FAILED" | "UNKNOWN";
             fiscal_reference?: string | null;
+            original_fiscal_reference?: string;
+            reason_code?: string;
+            original_document_number?: number;
+            /** Format: date-time */
+            original_document_at?: string;
             simulated: boolean;
+            error_code?: string;
             allowed_actions: string[];
+            version?: number;
             /** Format: date-time */
             created_at: string;
             /** Format: date-time */
@@ -1404,7 +1546,7 @@ export interface components {
             /** @description Immutable register binding version frozen with the sale. */
             fencing_token: number;
             /** @enum {string} */
-            command_type: "FISCAL_SALE" | "REVERSAL";
+            command_type: "FISCAL_SALE" | "SALE_FINALIZE" | "REVERSAL";
             /** Format: date-time */
             issued_at: string;
             /** Format: date-time */
@@ -1478,7 +1620,10 @@ export interface components {
         IfMatch: number;
         WorkstationId: string;
         ApiVersion: "2026-08-07";
+        /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
         IdempotencyKey: string;
+        /** @description MiniPOS-generated client_operation_id. The same UUID is reused for every retry and REST/BLE failover of one fiscal mutation. */
+        ClientOperationId: string;
         ShiftId: string;
         OrderId: string;
         EmployeeId: string;
@@ -1492,6 +1637,125 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    listCompositeDeviceBindings: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path: {
+                register_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Binding history */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["CompositeDeviceBinding"][];
+                    };
+                };
+            };
+        };
+    };
+    createCompositeDeviceBinding: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                register_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompositeDeviceBindingRequest"];
+            };
+        };
+        responses: {
+            /** @description Pending composite binding */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompositeDeviceBinding"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    acknowledgeCompositeDeviceBinding: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                register_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompositeDeviceBindingApply"];
+            };
+        };
+        responses: {
+            /** @description Active applied binding */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompositeDeviceBinding"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
+    disableCompositeDeviceBinding: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                register_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["CompositeDeviceBindingDisable"];
+            };
+        };
+        responses: {
+            /** @description Revoked binding */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["CompositeDeviceBinding"];
+                };
+            };
+            409: components["responses"]["Problem"];
+        };
+    };
     registerManufacturedDevice: {
         parameters: {
             query?: never;
@@ -1572,6 +1836,7 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -1601,6 +1866,7 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -1630,6 +1896,7 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -1659,6 +1926,7 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -1688,6 +1956,7 @@ export interface operations {
         parameters: {
             query?: never;
             header: {
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -1797,6 +2066,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -1852,6 +2122,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -1882,6 +2153,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -1914,6 +2186,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -1944,6 +2217,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -2002,6 +2276,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 "If-Match": components["parameters"]["IfMatch"];
             };
@@ -2035,6 +2310,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 "If-Match": components["parameters"]["IfMatch"];
             };
@@ -2068,6 +2344,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 "If-Match": components["parameters"]["IfMatch"];
             };
@@ -2099,6 +2376,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 "If-Match": components["parameters"]["IfMatch"];
             };
@@ -2130,6 +2408,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 "If-Match": components["parameters"]["IfMatch"];
             };
@@ -2155,6 +2434,37 @@ export interface operations {
             };
             409: components["responses"]["Problem"];
             428: components["responses"]["Problem"];
+        };
+    };
+    finalizeSale: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description MiniPOS-generated client_operation_id. The same UUID is reused for every retry and REST/BLE failover of one fiscal mutation. */
+                "Idempotency-Key": components["parameters"]["ClientOperationId"];
+            };
+            path: {
+                sale_id: components["parameters"]["SaleId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["SaleFinalizeRequest"];
+            };
+        };
+        responses: {
+            /** @description Durable aggregate operation accepted */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosFiscalOperation"];
+                };
+            };
+            409: components["responses"]["Problem"];
         };
     };
     getWorkstationReadiness: {
@@ -2187,6 +2497,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -2213,6 +2524,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -2239,6 +2551,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path?: never;
@@ -2272,6 +2585,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path?: never;
@@ -2380,6 +2694,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
                 /** @description Omit only when creating the singleton; required for updates. */
                 "If-Match"?: number;
@@ -2440,6 +2755,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path?: never;
@@ -2468,6 +2784,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -2525,6 +2842,7 @@ export interface operations {
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
                 "X-App-Instance-Id": components["parameters"]["AppInstanceId"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path?: never;
@@ -2552,6 +2870,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -2582,6 +2901,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -2637,6 +2957,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {
@@ -2669,6 +2990,7 @@ export interface operations {
             query?: never;
             header: {
                 "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
                 "Idempotency-Key": components["parameters"]["IdempotencyKey"];
             };
             path: {

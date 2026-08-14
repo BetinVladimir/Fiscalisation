@@ -15,6 +15,9 @@ import type { BleSessionPackage } from "./src/webBle.ts";
 import { validateBleDeploymentAuthority } from "./src/bleDeployment.ts";
 import { getRandomBytes } from "expo-crypto";
 import { configureRandomSource } from "./src/portableCrypto.ts";
+import {ConnectivityController,pingFiscal} from "./src/connectivity.ts";
+import {bleFinalizeIntent,newCheckoutPlan} from "./src/checkoutPlan.ts";
+import {CheckoutJournal} from "./src/checkoutJournal.ts";
 import {
   createNativeBleBootstrap,
   requestNativeBlePermissions,
@@ -125,12 +128,14 @@ const fiscalDeviceId =
 const appInstanceId =
   process.env.EXPO_PUBLIC_APP_INSTANCE_ID ||
   "00000000-0000-4000-8000-000000000001";
-const key = () => `${Date.now()}-${Math.random().toString(16).slice(2)}`;
 const uuid = () =>
   "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
     const r = Math.floor(Math.random() * 16);
     return (c === "x" ? r : (r & 3) | 8).toString(16);
   });
+// The HTTP idempotency key is the end-to-end client operation identity. It is
+// generated before the first send and reused by fiscalCall across REST retries.
+const key = () => uuid();
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   const r = await fetchWithTimeout(apiBase + path, {
     ...init,
@@ -177,29 +182,18 @@ async function fiscalCall<T>(path: string, init: RequestInit = {}): Promise<T> {
   }
   const text = await r.text();
   if (r.status === 401 && prodMode) runtimeUnauthorized?.();
-  if (!r.ok) throw new Error(text || `Fiscal HTTP ${r.status}`);
+  if (!r.ok) throw new FiscalHttpError(r.status,text || `Fiscal HTTP ${r.status}`);
   return text ? JSON.parse(text) : ({} as T);
 }
+class FiscalHttpError extends Error{constructor(readonly status:number,message:string){super(message);this.name="FiscalHttpError"}}
+class CheckoutFinalError extends Error{constructor(message:string){super(message);this.name="CheckoutFinalError"}}
 async function fiscalCloudReachable(path: string): Promise<boolean> {
-  let response: Response;
-  try {
-    response = await fetchWithTimeout(fiscalBase + path, {
-      method: "GET",
-      headers: {
-        "X-Api-Version": apiVersion,
-        ...(runtimeFiscalToken ? { Authorization: `Bearer ${runtimeFiscalToken}` } : {}),
-      },
-    });
-  } catch {
-    return false;
-  }
-  if ([502, 503, 504].includes(response.status)) return false;
-  if (response.status === 401 && prodMode) runtimeUnauthorized?.();
-  if (!response.ok) throw new Error(`Fiscal route probe HTTP ${response.status}`);
-  return true;
+  void path; return pingFiscal(fiscalBase);
 }
 
 export default function App() {
+  const connectivity=useRef(new ConnectivityController());
+  const checkoutJournal=useRef(new CheckoutJournal());
   const oidc = useOperatorOidc();
   runtimeUnauthorized = () => oidc.logout();
   const [products, setProducts] = useState<Product[]>([]),
@@ -340,7 +334,7 @@ export default function App() {
         );
         const recovered = shifts.items.find((x) => x.state !== "CLOSED") || null;
         setShift(recovered);
-        if(recovered?.state==="OPEN"){const sales=await fiscalCall<{items:FiscalSale[]}>(`/sales?operator_id=${encodeURIComponent(employee.operator_code)}&register_id=${encodeURIComponent(recoveryRegister)}&state=OPEN`).catch(()=>({items:[]}));setSaleProjection(sales.items[0]||null)}
+        if(recovered?.state==="OPEN"){const journals=await checkoutJournal.current.pending();if(journals.length){const durable=journals[0];const sale=await fiscalCall<FiscalSale>(`/sales/${durable.sale_id}`).catch(()=>null);if(sale){setSaleProjection(sale);setPendingOrder({id:durable.sale_id,state:"UNKNOWN",version:durable.sale_version,allowed_actions:["READ"],fiscal_operation_id:durable.plan.client_operation_id})}}else{const sales=await fiscalCall<{items:FiscalSale[]}>(`/sales?operator_id=${encodeURIComponent(employee.operator_code)}&register_id=${encodeURIComponent(recoveryRegister)}&state=OPEN`).catch(()=>({items:[]}));setSaleProjection(sales.items[0]||null)}}
         if (recovered?.state !== "OPEN") {
           setSaleProjection(null);
           setSplitCash("");
@@ -577,6 +571,7 @@ export default function App() {
           ? "Разделено плащане: в брой, карта и фискализация…"
           : "Фискализация…",
     );
+    let recoveryOperationId="";
     try {
       const payments =
         type === "SPLIT"
@@ -609,18 +604,31 @@ export default function App() {
               },
             ];
       if(!saleProjection)throw new Error("Липсва приета продажба");let sale=saleProjection;let last: FiscalOperation|undefined;
-      const useBle=Boolean(bleReady&&bleBinding)&&!(await fiscalCloudReachable(`/sales/${sale.sale_id}`));
+      const stored=await checkoutJournal.current.load(sale.sale_id);const checkoutPlan=stored?.plan||newCheckoutPlan(uuid,payments,total);
+      recoveryOperationId=checkoutPlan.client_operation_id;
+      if(stored&&stored.sale_version!==sale.version)throw new Error("CHECKOUT_RECONCILIATION_REQUIRED");
+      await checkoutJournal.current.save({sale_id:sale.sale_id,sale_version:sale.version,plan:checkoutPlan,created_at:new Date().toISOString()});
+      const cloud=await fiscalCloudReachable(`/sales/${sale.sale_id}`);connectivity.current.observe(cloud,Boolean(bleReady&&bleBinding));if(!cloud){await new Promise(r=>setTimeout(r,1000));connectivity.current.observe(await fiscalCloudReachable(""),Boolean(bleReady&&bleBinding));await new Promise(r=>setTimeout(r,1000));connectivity.current.observe(await fiscalCloudReachable(""),Boolean(bleReady&&bleBinding))}const useBle=Boolean(bleReady&&bleBinding)&&connectivity.current.useBle();
       if(useBle){
-        for(const [paymentIndex,payment] of payments.entries()){const intentId=payment.payment_id;const local=await ble.current.sendComplianceIntentAndWait({intent_id:intentId,action:"PAYMENT",client_sale_surrogate_id:sale.external_id,server_sale_id:sale.sale_id,operator_code:selectedEmployee.operator_code,app_instance_id:appInstanceId,expected_version:sale.version,payment},intentId);last={operation_id:local.operation_id,type:"FISCAL_SALE",state:local.state==="FISCALIZED"?"FISCALIZED":local.state==="FISCAL_RESULT_UNKNOWN"?"UNKNOWN":"FAILED",fiscal_reference:local.fiscal_reference};if(local.state==="FISCAL_RESULT_UNKNOWN"){setPendingOrder({id:sale.sale_id,state:"UNKNOWN",version:sale.version,allowed_actions:["READ"],fiscal_operation_id:local.operation_id});throw new Error("UNKNOWN: RECONCILE")};if(local.state!=="FISCALIZED")throw new Error(local.error_code||"PAYMENT_REJECTED");if(paymentIndex===payments.length-1){sale={...sale,state:"COMPLETED"};setSaleProjection(sale)}}
+        const intent=bleFinalizeIntent(checkoutPlan,bleBinding!,sale,{operator_code:selectedEmployee.operator_code,app_instance_id:appInstanceId,expected_version:sale.version});
+        const local=await ble.current.sendComplianceIntentAndWait(intent,checkoutPlan.client_operation_id);
+        last={operation_id:local.operation_id,type:"FISCAL_SALE",state:local.state==="FISCALIZED"?"FISCALIZED":local.state==="FISCAL_RESULT_UNKNOWN"?"UNKNOWN":"FAILED",fiscal_reference:local.fiscal_reference};
+        if(local.state==="FISCAL_RESULT_UNKNOWN"){setPendingOrder({id:sale.sale_id,state:"UNKNOWN",version:sale.version,allowed_actions:["READ"],fiscal_operation_id:local.operation_id});throw new Error("UNKNOWN: RECONCILE")}
+        if(local.state!=="FISCALIZED"){await checkoutJournal.current.remove(sale.sale_id);throw new CheckoutFinalError(local.error_code||"PAYMENT_REJECTED")}
+        sale={...sale,state:"COMPLETED"};setSaleProjection(sale)
       }else{
-        for(const payment of payments){last=await fiscalCall<FiscalOperation>(`/sales/${sale.sale_id}/payment-intents`,{method:"POST",headers:{"If-Match":String(sale.version)},body:JSON.stringify(payment)});if(last.state==="UNKNOWN"){setPendingOrder({id:sale.sale_id,state:"UNKNOWN",version:sale.version,allowed_actions:["READ"],fiscal_operation_id:last.operation_id});throw new Error("UNKNOWN: RECONCILE")};if(last.state==="FAILED")throw new Error("PAYMENT_REJECTED");sale=await fiscalCall<FiscalSale>(`/sales/${sale.sale_id}`);setSaleProjection(sale)}
+        try{last=await fiscalCall<FiscalOperation>(`/sales/${sale.sale_id}:finalize`,{method:"POST",headers:{"If-Match":String(sale.version),"Idempotency-Key":checkoutPlan.client_operation_id},body:JSON.stringify(checkoutPlan)})}
+        catch(e){if(!(bleReady&&bleBinding)||e instanceof FiscalHttpError)throw e;const intent=bleFinalizeIntent(checkoutPlan,bleBinding,sale,{operator_code:selectedEmployee.operator_code,app_instance_id:appInstanceId,expected_version:sale.version});const local=await ble.current.sendComplianceIntentAndWait(intent,checkoutPlan.client_operation_id);last={operation_id:local.operation_id,type:"FISCAL_SALE",state:local.state==="FISCALIZED"?"FISCALIZED":local.state==="FISCAL_RESULT_UNKNOWN"?"UNKNOWN":"FAILED",fiscal_reference:local.fiscal_reference}}
+        if(last.state==="UNKNOWN"){setPendingOrder({id:sale.sale_id,state:"UNKNOWN",version:sale.version,allowed_actions:["READ"],fiscal_operation_id:last.operation_id});throw new Error("UNKNOWN: RECONCILE")};if(last.state==="FAILED"){await checkoutJournal.current.remove(sale.sale_id);throw new CheckoutFinalError("PAYMENT_REJECTED")};sale=await fiscalCall<FiscalSale>(`/sales/${sale.sale_id}`);setSaleProjection(sale)
       }
       if(sale.state!=="COMPLETED")throw new Error("Плащането не е завършено");
       setPendingOrder(null);
+      await checkoutJournal.current.remove(sale.sale_id);
       setSaleProjection(null);
       setSplitCash("");
       setStatus(`Успешен фискален бон • ${last?.fiscal_reference||last?.operation_id} • EUR ${total.toFixed(2)}`);
     } catch (e) {
+      if(saleProjection&&message(e)!=="UNKNOWN: RECONCILE"&&!(e instanceof CheckoutFinalError)&&!(e instanceof FiscalHttpError))setPendingOrder({id:saleProjection.sale_id,state:"UNKNOWN",version:saleProjection.version,allowed_actions:["READ"],fiscal_operation_id:recoveryOperationId||saleProjection.fiscal_operation_id});
       setStatus(`Няма потвърден фискален успех; не повтаряйте плащането: ${message(e)}`);
     } finally {
       setBusy(false);
@@ -636,12 +644,14 @@ export default function App() {
     try {
       if(!pendingOrder.fiscal_operation_id)throw new Error("Липсва operation ID");const operation=await fiscalCall<FiscalOperation>(`/operations/${pendingOrder.fiscal_operation_id}`);if(operation.state==="UNKNOWN")await fiscalCall(`/operations/${operation.operation_id}:reconcile`,{method:"POST",body:"{}"});const sale=await fiscalCall<FiscalSale>(`/sales/${pendingOrder.id}`);setSaleProjection(sale);
       if (sale.state === "COMPLETED") {
+        await checkoutJournal.current.remove(pendingOrder.id);
         setPendingOrder(null);
         setSaleProjection(null);
         setStatus(
           `Фискалният резултат е потвърден • ${operation.operation_id}`,
         );
       } else if (sale.state === "FAILED" || sale.state === "CANCELLED") {
+        await checkoutJournal.current.remove(pendingOrder.id);
         setPendingOrder(null);
         setStatus(
           `Продажбата е ${sale.state}; нов опит е разрешен само като нова продажба`,

@@ -1,4 +1,5 @@
 .pio/
 .vscode/
 compile_commands.json
-
+include/PinnedDeviceCA.h
+idf/main/BindingTrustAnchor.h

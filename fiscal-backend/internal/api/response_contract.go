@@ -49,32 +49,58 @@ func pathMatches(template, path string) bool {
 		return false
 	}
 	for index := range templateParts {
-		if strings.HasPrefix(templateParts[index], "{") && strings.HasSuffix(templateParts[index], "}") {
-			if pathParts[index] == "" {
+		templatePart := templateParts[index]
+		open, close := strings.IndexByte(templatePart, '{'), strings.IndexByte(templatePart, '}')
+		if open >= 0 && close > open {
+			prefix, suffix := templatePart[:open], templatePart[close+1:]
+			actual := pathParts[index]
+			if !strings.HasPrefix(actual, prefix) || !strings.HasSuffix(actual, suffix) || len(actual) <= len(prefix)+len(suffix) {
 				return false
 			}
 			continue
 		}
-		if templateParts[index] != pathParts[index] {
+		if templatePart != pathParts[index] {
 			return false
 		}
 	}
 	return true
 }
 
+func pathSpecificity(template string) int {
+	score, parameter := 0, false
+	for _, character := range template {
+		if character == '{' {
+			parameter = true
+			continue
+		}
+		if character == '}' {
+			parameter = false
+			continue
+		}
+		if !parameter {
+			score++
+		}
+	}
+	return score
+}
+
 func successContract(method, requestPath string, status int) (successResponseContract, bool, bool) {
 	path := strings.TrimPrefix(requestPath, "/public/v1")
 	operationFound := false
+	bestSpecificity := -1
+	var best successResponseContract
+	bestStatus := false
 	for _, contract := range generatedSuccessResponses {
 		if contract.Method != method || !pathMatches(contract.Path, path) {
 			continue
 		}
 		operationFound = true
-		if contract.Status == status {
-			return contract, true, true
+		specificity := pathSpecificity(contract.Path)
+		if specificity > bestSpecificity {
+			bestSpecificity, best, bestStatus = specificity, contract, contract.Status == status
 		}
 	}
-	return successResponseContract{}, operationFound, false
+	return best, operationFound, bestStatus
 }
 
 func enforceSuccessResponses(next http.Handler) http.Handler {
@@ -134,11 +160,14 @@ func enforceSuccessResponses(next http.Handler) http.Handler {
 
 func validateOpenAPIRequest(r *http.Request, path string) error {
 	var contract *requestContract
+	bestSpecificity := -1
 	for index := range generatedRequestContracts {
 		candidate := &generatedRequestContracts[index]
 		if candidate.Method == r.Method && pathMatches(candidate.Path, path) {
-			contract = candidate
-			break
+			specificity := pathSpecificity(candidate.Path)
+			if specificity > bestSpecificity {
+				contract, bestSpecificity = candidate, specificity
+			}
 		}
 	}
 	if contract == nil {

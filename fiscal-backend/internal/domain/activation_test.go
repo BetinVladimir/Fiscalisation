@@ -100,6 +100,11 @@ func TestProofBoundTenantlessActivationLifecycle(t *testing.T) {
 	if err != nil || device.TenantID != "tenant-1" || stringField(device.Data, "status") != "ACTIVE" {
 		t.Fatal(device, err)
 	}
+	if stringField(device.Data, "mqtt_uri") != credential.MQTTTLSURI || stringField(device.Data, "mqtt_client_id") != deviceID ||
+		stringField(device.Data, "unp_prefix") != credential.UNPPrefix || int64Field(device.Data, "unp_range_start") != credential.UNPRangeStart ||
+		int64Field(device.Data, "unp_range_end") != credential.UNPRangeEnd {
+		t.Fatal("operational activation authority was not persisted for composite provisioning", device.Data)
+	}
 	bound, _ := repo.Resource("register", "register-1")
 	if stringField(bound.Data, "fiscal_device_id") != deviceID || stringField(bound.Data, "payment_terminal_id") != deviceID {
 		t.Fatal("register roles not atomically bound", bound)

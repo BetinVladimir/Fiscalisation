@@ -84,7 +84,7 @@ type Repository interface {
 	ActivationRequest(string) (DeviceActivationRequest, error)
 	ActivationRequestByCode(string) (DeviceActivationRequest, error)
 	ConfirmActivationRequest(string, string, string, string, string, []string, string, time.Time) (DeviceActivationRequest, error)
-	MarkActivationCredentialIssued(string, string, time.Time) (DeviceActivationRequest, error)
+	MarkActivationCredentialIssued(string, DeviceCredential, time.Time) (DeviceActivationRequest, error)
 	ActivateDeviceRequest(string, string, time.Time) (DeviceActivationRequest, error)
 	RevokeActivatedDevice(string, string, string, time.Time) (DeviceActivationRequest, error)
 	ReserveUNPRange(string, string, int64) (int64, int64, error)
@@ -131,6 +131,7 @@ type Repository interface {
 	PutConnectivityProbe(ConnectivityProbe) error
 	ConnectivityProbe(string) (ConnectivityProbe, error)
 	PutResource(ResourceRecord) error
+	CommitCompositeBinding(ResourceRecord, ResourceRecord) error
 	Resource(string, string) (ResourceRecord, error)
 	Resources(string, string) []ResourceRecord
 	PutArtifact(string, string, []byte) error
@@ -785,6 +786,21 @@ func (r *MemoryRepository) PutResource(v ResourceRecord) error {
 	r.resources[resourceKey(v.Kind, v.ID)] = v
 	r.appendAuditLocked(v.TenantID, "system", "UPSERT", v.Kind, v.ID, "", before, v.Data)
 	return r.persistLocked()
+}
+func (r *MemoryRepository) CommitCompositeBinding(register, binding ResourceRecord) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	oldRegister, rok := r.resources[resourceKey("register", register.ID)]
+	oldBinding, bok := r.resources[resourceKey("composite_binding", binding.ID)]
+	if !rok || !bok || register.TenantID != binding.TenantID || register.Version != oldRegister.Version+1 || binding.Version != oldBinding.Version+1 {
+		return errors.New("composite binding atomic version conflict")
+	}
+	r.resources[resourceKey("register", register.ID)] = register
+	r.resources[resourceKey("composite_binding", binding.ID)] = binding
+	if err := r.persistLocked(); err != nil {
+		return err
+	}
+	return nil
 }
 func (r *MemoryRepository) Resource(kind, id string) (ResourceRecord, error) {
 	if reader, ok := r.store.(TenantEntityReader); ok {

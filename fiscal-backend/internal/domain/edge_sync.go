@@ -61,6 +61,16 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 	}
 	expectedPrevious := ""
 	if previous, ok := s.repo.LastSyncAck(tenant, v.EdgeID); ok {
+		// A device may retransmit the identical last batch when the signed
+		// business ACK was lost after commit. Return the authoritative ACK and
+		// never materialize its physical result/webhook a second time.
+		if v.LastSeq == previous.CommittedThroughSeq && len(v.Events) > 0 && v.Events[len(v.Events)-1].EventHash == previous.CommittedEventHash && EdgeBatchHash(v) == v.BatchSHA256 {
+			hardwareKey, hardwareKID, hardwareErr := s.deviceTransactionSigningKey(tenant, v.EdgeID)
+			valid := tenant != "" && s.requireHardwareSyncSignatures && hardwareErr == nil && verifyDeviceSignature(hardwareKey, hardwareKID, v.BatchSHA256, v.Signature)
+			if !s.requireHardwareSyncSignatures { valid = s.verifyLegacySyncHMAC(v.BatchSHA256, v.Signature) }
+			if valid { return previous, nil }
+			return SyncAck{}, errors.New("invalid replayed batch signature")
+		}
 		if v.FirstSeq != previous.CommittedThroughSeq+1 {
 			return SyncAck{}, errors.New("journal gap")
 		}
@@ -93,7 +103,7 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 	operations := []Operation{}
 	artifacts := map[string][]byte{}
 	outbox := []OutboxItem{}
-	allowed := map[string]bool{"ACCEPTED": true, "EXECUTING": true, "FISCALIZED": true, "REVERSED": true, "FAILED": true, "UNKNOWN": true, "SNAPSHOT": true, "SYNC_BATCH": true}
+	allowed := map[string]bool{"ACCEPTED": true, "EXECUTING": true, "PAYMENT_PREPARED": true, "PAYMENT_APPROVED": true, "FISCAL_OPENING": true, "FISCAL_OPEN": true, "LINES_REGISTERING": true, "PAYMENTS_REGISTERING": true, "FISCAL_CLOSING": true, "COMPENSATION_REQUIRED": true, "COMPENSATED": true, "RECOVERY_REQUIRED": true, "FISCALIZED": true, "REVERSED": true, "FAILED": true, "UNKNOWN": true, "SNAPSHOT": true, "SYNC_BATCH": true}
 	for i, event := range v.Events {
 		occurredAt, occurredErr := time.Parse(time.RFC3339Nano, event.OccurredAt)
 		if event.JournalSeq != v.FirstSeq+int64(i) || event.EventID == "" || event.OperationID == "" || event.DeviceID == "" || (s.requireHardwareSyncSignatures && event.DeviceID != v.EdgeID) || event.Payload == nil || !allowed[event.EventType] || occurredErr != nil || occurredAt.After(time.Now().UTC().Add(2*time.Minute)) || DeviceEventHash(event) != event.EventHash {
@@ -124,7 +134,7 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 				pendingUpserts = append(pendingUpserts, pending)
 			}
 		}
-		if event.EventType == "FISCALIZED" || event.EventType == "REVERSED" || event.EventType == "UNKNOWN" || event.EventType == "FAILED" {
+		if event.EventType == "FISCALIZED" || event.EventType == "REVERSED" || event.EventType == "UNKNOWN" || event.EventType == "FAILED" || event.EventType == "COMPENSATED" || event.EventType == "RECOVERY_REQUIRED" {
 			pending, ok := pendingByOperation[event.OperationID]
 			if !ok {
 				pending, err = s.repo.EdgePendingCommand(event.OperationID, tenant)
@@ -286,9 +296,43 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 		hookEvent := WebhookEvent{EventID: "event-edge-" + op.ID + "-" + event.EventType, EventType: eventType, APIVersion: "2026-08-07", TenantID: p.TenantID, ResourceID: sale.ID, ResourceVersion: op.Version, OccurredAt: finishedAt, Data: map[string]any{"state": op.State, "operation_id": op.ID, "sale_id": sale.ID, "external_id": sale.ExternalID, "fiscal_reference": ref, "error_code": op.ErrorCode}}
 		return sale, op, "", nil, OutboxItem{ID: hookEvent.EventID, Event: hookEvent, NextAttempt: finishedAt}, nil
 	}
-	if state == "UNKNOWN" {
+	if state == "UNKNOWN" || state == "RECOVERY_REQUIRED" {
 		op.ErrorCode = stringAny(event.Payload, "error_code", "ErrorCode")
 		op.AllowedActions = []string{"RECONCILE"}
+	}
+	if p.CommandType == "SALE_FINALIZE" {
+		saleID := stringAny(p.Payload, "server_sale_id", "SaleID")
+		sale, saleErr := s.repo.Sale(saleID)
+		if saleErr != nil || sale.TenantID != p.TenantID || sale.State != "PAYMENT_PENDING" {
+			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("finalize sale not found")
+		}
+		op.SaleID = sale.ID
+		ref := stringAny(event.Payload, "fiscal_reference", "FiscalReference")
+		switch state {
+		case "FISCALIZED":
+			sale.State = "COMPLETED"
+			sale.FiscalOperationID = op.ID
+			op.FiscalReference = ref
+		case "COMPENSATED":
+			sale.State = "CANCELLED"
+			op.State = "COMPENSATED"
+		case "FAILED":
+			sale.State = "OPEN"
+		default:
+			sale.State = "UNKNOWN"
+			op.State = "RECOVERY_REQUIRED"
+			op.AllowedActions = []string{"RECONCILE"}
+		}
+		sale.Version++
+		sale.UpdatedAt = finishedAt
+		eventType := "fiscal.operation.failed"
+		if state == "FISCALIZED" {
+			eventType = "fiscal.operation.succeeded"
+		} else if state == "RECOVERY_REQUIRED" || state == "UNKNOWN" {
+			eventType = "fiscal.operation.reconciliation_required"
+		}
+		hookEvent := WebhookEvent{EventID: "event-edge-" + op.ID + "-" + state, EventType: eventType, APIVersion: "2026-08-07", TenantID: p.TenantID, ResourceID: sale.ID, ResourceVersion: op.Version, OccurredAt: finishedAt, Data: map[string]any{"state": op.State, "operation_id": op.ID, "sale_id": sale.ID, "external_id": sale.ExternalID, "fiscal_reference": ref, "error_code": op.ErrorCode}}
+		return sale, op, "", nil, OutboxItem{ID: hookEvent.EventID, Event: hookEvent, NextAttempt: finishedAt}, nil
 	}
 	if p.CommandType != "FISCAL_SALE" {
 		return Sale{}, op, "", nil, OutboxItem{}, nil

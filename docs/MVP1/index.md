@@ -95,7 +95,7 @@ MiniPOS → public REST → fiscal-backend → MQTT → adapter → physical dev
                                          └→ WebHook → MiniPOS backend
 
 FALLBACK:
-MiniPOS → authenticated encrypted BLE → тот же adapter → physical devices
+MiniPOS → open BLE GATT (MVP exception) → тот же adapter → physical devices
                                               └→ local journal → MQTT sync
                                                                   → backend/WebHook
 ```
@@ -105,7 +105,7 @@ MiniPOS автоматически выбирает маршрут по state ma
 
 - пока lightweight server ping успешен, новые intents идут по REST;
 - после подтверждённой потери ping REST circuit открывается и POS автоматически
-  использует BLE при наличии действующей authority/session и physical readiness;
+  использует BLE при наличии server-issued route package и physical readiness;
 - после устойчивого восстановления ping новые intents возвращаются на REST;
 - открытый чек может начать работу по одному transport и продолжиться по другому;
 - transport switch не меняет sale/receipt session/operation/step IDs, payload
@@ -188,6 +188,26 @@ business/audit записи. Он проверяет только доступн
 17. `client_operation_id` уникален для каждой операции внутри чека: open с первой
     строкой, add/change/cancel line, sale cancel, finalize и reversal. Retry и
     смена REST↔BLE UUID не меняют; новый кассовый intent получает новый UUID.
+
+### 4.1 Явное исключение безопасности BLE для MVP1
+
+Для controlled MVP1 BLE GATT между MiniPOS и adapter **открыт и не требует
+авторизации**. Ticket validation, X25519 handshake, HKDF и AES-GCM не являются
+release gate `SOFTWARE_COMPLETE_HIL_PENDING` или hardware MVP1.
+
+Открытый transport не отменяет обязательные business-инварианты:
+
+- MiniPOS получает service/characteristic UUID и advertising identity из REST;
+- adapter принимает versioned canonical `ComplianceIntent`, а не raw-команды ФУ;
+- payload содержит tenant/location/register/edge/final-device/binding generation,
+  `client_operation_id` и canonical payload digest;
+- binding сверяется с локальной подписанной provisioned конфигурацией;
+- journal-before-I/O и общий BLE/MQTT dedupe обязательны;
+- mismatch binding, недоступность ФУ или ошибка journal блокируют исполнение.
+
+Это осознанное непроизводственное ограничение. Open BLE запрещён для production.
+Production gate требует signed short-lived ticket, revocation/expiry,
+X25519/HKDF-SHA-256, directional AES-256-GCM и replay protection.
 
 ## 5. Требования к тестированию
 

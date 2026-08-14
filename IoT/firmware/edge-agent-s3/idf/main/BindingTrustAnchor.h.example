@@ -1,0 +1,8 @@
+#pragma once
+// Supplied by the protected build pipeline. Never trust a key received in an
+// activation envelope: that would turn provisioning into trust-on-first-use.
+#define EDGE_BINDING_SIGNING_KEY_ID "backend-binding-key-2026-01"
+#define EDGE_BINDING_SIGNING_PUBLIC_KEY_PEM \
+  "-----BEGIN PUBLIC KEY-----\n" \
+  "REPLACE_WITH_BACKEND_BINDING_SIGNING_PUBLIC_KEY\n" \
+  "-----END PUBLIC KEY-----\n"

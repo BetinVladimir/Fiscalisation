@@ -138,6 +138,8 @@ type Order struct {
 	FiscalSaleID            string         `json:"fiscal_sale_id,omitempty"`
 	FiscalOperationID       string         `json:"fiscal_operation_id,omitempty"`
 	ReceiptReference        string         `json:"receipt_reference,omitempty"`
+	CheckoutOperationID     string         `json:"checkout_operation_id,omitempty"`
+	ReceiptSessionID        string         `json:"receipt_session_id,omitempty"`
 	ReversalOperationID     string         `json:"reversal_operation_id,omitempty"`
 	ReversalFiscalReference string         `json:"reversal_fiscal_reference,omitempty"`
 	ReversalReasonCode      string         `json:"reversal_reason_code,omitempty"`
@@ -1687,6 +1689,14 @@ loadOrder:
 	o.Payments = normalizedOrderPayments(payments)
 	oldIntent, oldIntentExists := s.checkoutHashes[replayKey]
 	if !resuming {
+		// MiniPOS owns these UUIDs. Persist them before the first downstream
+		// attempt and reuse them after timeout, restart, or REST/BLE failover.
+		if o.CheckoutOperationID == "" {
+			o.CheckoutOperationID = s.nextID("checkout-operation")
+		}
+		if o.ReceiptSessionID == "" {
+			o.ReceiptSessionID = s.nextID("receipt-session")
+		}
 		o.State = "FISCAL_PENDING"
 		o.Version++
 		s.orders[o.ID] = o
@@ -1727,38 +1737,27 @@ loadOrder:
 		}
 		fiscalVersion = nextVersion
 	}
-	state := ""
-	for index, payment := range payments {
-		var op map[string]any
-		paymentKey := key + "-payment"
-		if len(payments) > 1 {
-			paymentKey = fmt.Sprintf("%s-payment-%d", key, index)
+	var op map[string]any
+	finalize := map[string]any{"client_operation_id": o.CheckoutOperationID, "receipt_session_id": o.ReceiptSessionID, "payments": payments, "expected_total": o.Total}
+	if envelope, ok := hashPayload.(map[string]any); ok {
+		if metadata, present := envelope["metadata"].(map[string]any); present {
+			finalize["metadata"] = metadata
 		}
-		if e := s.call("POST", "/sales/"+o.FiscalSaleID+"/payments", paymentKey, payment, &op); e != nil {
-			return s.fail(o, e)
-		}
-		operationID, valid := op["operation_id"].(string)
-		if !valid || operationID == "" {
-			return s.fail(o, errors.New("fiscal response missing operation id"))
-		}
-		state, valid = op["state"].(string)
-		if !valid || state == "" {
-			return s.fail(o, errors.New("fiscal response missing operation state"))
-		}
-		o.FiscalOperationID = operationID
-		if fiscalReference, valid := op["fiscal_reference"].(string); valid && fiscalReference != "" {
-			o.ReceiptReference = fiscalReference
-		}
-		last := index == len(payments)-1
-		if !last && (state == "PAYMENT_ACCEPTED" || state == "EXECUTING") {
-			continue
-		}
-		if !last && (state == "FAILED" || state == "CANCELLED" || state == "UNKNOWN") {
-			break
-		}
-		if !last || state == "PAYMENT_ACCEPTED" || state == "EXECUTING" {
-			return s.fail(o, errors.New("invalid split payment state progression"))
-		}
+	}
+	if e := s.call("POST", "/sales/"+o.FiscalSaleID+":finalize", o.CheckoutOperationID, finalize, &op); e != nil {
+		return s.fail(o, e)
+	}
+	operationID, valid := op["operation_id"].(string)
+	if !valid || operationID == "" {
+		return s.fail(o, errors.New("fiscal response missing operation id"))
+	}
+	state, valid := op["state"].(string)
+	if !valid || state == "" {
+		return s.fail(o, errors.New("fiscal response missing operation state"))
+	}
+	o.FiscalOperationID = operationID
+	if fiscalReference, valid := op["fiscal_reference"].(string); valid && fiscalReference != "" {
+		o.ReceiptReference = fiscalReference
 	}
 	if state == "FISCALIZED" {
 		if o.ReceiptReference == "" {
@@ -1804,7 +1803,7 @@ func (s *Service) ReverseOrderForTenant(orderID, key, reason, tenant string) (Re
 	}
 	s.mu.Lock()
 	order, ok := s.orders[orderID]
-	if !ok || order.TenantID != tenant || order.State != "COMPLETED" || order.FiscalSaleID == "" || order.FiscalOperationID == "" {
+	if !ok || order.TenantID != tenant || order.State != "COMPLETED" || order.FiscalSaleID == "" || order.FiscalOperationID == "" || order.ReceiptReference == "" {
 		s.mu.Unlock()
 		return ReversalResult{}, errors.New("order is not reversible")
 	}
@@ -1822,7 +1821,7 @@ func (s *Service) ReverseOrderForTenant(orderID, key, reason, tenant string) (Re
 	s.mu.Unlock()
 
 	var operation map[string]any
-	payload := map[string]any{"reason_code": reason}
+	payload := map[string]any{"reason_code": reason, "original_fiscal_reference": order.ReceiptReference}
 	if err := s.call("POST", "/sales/"+order.FiscalSaleID+"/reversals", key+"-fiscal-reversal", payload, &operation); err != nil {
 		// The durable UNKNOWN transition happened before network I/O, so a
 		// timeout, crash or concurrent request cannot issue a second storno.
@@ -2005,6 +2004,13 @@ func (s *Service) callAttempt(ctx context.Context, method, path, key, expected s
 		return s.callAttempt(ctx, method, path, key, expected, b, out, false)
 	}
 	if resp.StatusCode >= 300 {
+		var problem struct {
+			Code string `json:"code"`
+		}
+		_ = json.NewDecoder(resp.Body).Decode(&problem)
+		if problem.Code != "" {
+			return fmt.Errorf("fiscal status %d: %s", resp.StatusCode, problem.Code)
+		}
 		return fmt.Errorf("fiscal status %d", resp.StatusCode)
 	}
 	return json.NewDecoder(resp.Body).Decode(out)

@@ -110,6 +110,7 @@ func typedWebhookCreated(v map[string]any) (webhookCreatedResponse, error) {
 func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	h := &Handler{s, c}
 	m := http.NewServeMux()
+	m.HandleFunc("/connectivity/ping", h.ping)
 	m.HandleFunc("/livez", h.live)
 	m.HandleFunc("/readyz", h.live)
 	m.HandleFunc("/healthz", h.live)
@@ -153,7 +154,17 @@ func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/platform/v1/devices", h.platformDevices)
 	m.HandleFunc("/platform/v1/devices/", h.platformDevice)
 	oidc := auth.NewOIDCVerifier(c.OIDCIssuer, c.OIDCAudience, c.OIDCJWKSURL)
-	return cors(c.CORSAllowedOrigins, auth.MiddlewareWithOIDC(c.AuthHMACKey, oidc, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, enforceSuccessResponses(fiscalIdempotency(s, m)))))))
+	business := auth.MiddlewareWithOIDC(c.AuthHMACKey, oidc, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, enforceSuccessResponses(fiscalIdempotency(s, m))))))
+	pingLimiter := &requestLimiter{limit: 120, window: time.Minute, now: time.Now, entries: make(map[string]rateWindow)}
+	pingRoute := pingLimiter.middlewareAll(http.HandlerFunc(h.ping))
+	root := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path == "/connectivity/ping" {
+			pingRoute.ServeHTTP(w, r)
+			return
+		}
+		business.ServeHTTP(w, r)
+	})
+	return cors(c.CORSAllowedOrigins, root)
 }
 
 func (h *Handler) manufacturingDeviceRegister(w http.ResponseWriter, r *http.Request) {
@@ -826,6 +837,16 @@ func ifMatch(r *http.Request) (int64, bool) {
 func (h *Handler) live(w http.ResponseWriter, _ *http.Request) {
 	write(w, 200, map[string]any{"status": "ok"})
 }
+func (h *Handler) ping(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodHead && r.Method != http.MethodGet {
+		w.Header().Set("Allow", "HEAD, GET")
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	w.Header().Set("Cache-Control", "no-store")
+	w.Header().Set("X-BeeFiscal-Ping", "1")
+	w.WriteHeader(http.StatusNoContent)
+}
 func (h *Handler) version(w http.ResponseWriter, _ *http.Request) {
 	write(w, 200, map[string]string{"api": h.cfg.APIVersion, "build": "mvp-dev", "policy": "BG-2026-EUR", "schema": "1"})
 }
@@ -896,6 +917,9 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 	if strings.HasSuffix(id, ":reverse") {
 		id, colonAction = strings.TrimSuffix(id, ":reverse"), "reversals"
 	}
+	if strings.HasSuffix(id, ":finalize") {
+		id, colonAction = strings.TrimSuffix(id, ":finalize"), "finalize"
+	}
 	if !h.authorizeSale(w, r, id) {
 		return
 	}
@@ -949,6 +973,20 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 			v, e := h.svc.CancelSaleForTenant(id, tenantID(r))
 			if e != nil {
 				problem(w, 409, "SALE_CANCEL_REJECTED")
+				return
+			}
+			h.saveReplay(w, r, body, 202, v)
+			return
+		}
+		if colonAction == "finalize" {
+			var in domain.SaleFinalizeRequest
+			if json.Unmarshal(body, &in) != nil {
+				problem(w, 400, "INVALID_JSON")
+				return
+			}
+			v, e := h.svc.FinalizeSaleForTenant(id, in, tenantID(r))
+			if e != nil {
+				problem(w, 409, "SALE_FINALIZE_REJECTED")
 				return
 			}
 			h.saveReplay(w, r, body, 202, v)
@@ -1197,6 +1235,15 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 	}
+	if len(p) == 2 && p[1] == "composite-bindings" && r.Method == "GET" {
+		v, e := h.svc.CompositeBindings(p[0], tenantID(r))
+		if e != nil {
+			problem(w, 404, "REGISTER_NOT_FOUND")
+			return
+		}
+		write(w, 200, map[string]any{"items": v})
+		return
+	}
 	if len(p) < 2 || r.Method != "POST" {
 		problem(w, 404, "NOT_FOUND")
 		return
@@ -1209,6 +1256,49 @@ func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	switch p[1] {
+	case "composite-bindings":
+		var in struct {
+			Profile                 string `json:"profile"`
+			AdapterDeviceID         string `json:"adapter_device_id"`
+			FiscalDeviceID          string `json:"fiscal_device_id"`
+			PaymentDeviceID         string `json:"payment_device_id"`
+			ExpectedRegisterVersion int64  `json:"expected_register_version"`
+			BindingID               string `json:"binding_id"`
+			Generation              int64  `json:"generation"`
+			ExpectedVersion         int64  `json:"expected_version"`
+		}
+		if json.Unmarshal(body, &in) != nil {
+			problem(w, 400, "INVALID_JSON")
+			return
+		}
+		if len(p) == 3 && p[2] == "apply" {
+			if actorSubject(r) == "" || actorSubject(r) != in.AdapterDeviceID {
+				problem(w, 403, "ADAPTER_IDENTITY_REQUIRED")
+				return
+			}
+			v, e := h.svc.ApplyCompositeBinding(p[0], in.BindingID, tenantID(r), in.AdapterDeviceID, in.Generation)
+			if e != nil {
+				problem(w, 409, "COMPOSITE_BINDING_APPLY_REJECTED")
+				return
+			}
+			h.saveReplay(w, r, body, 200, v)
+			return
+		}
+		if len(p) == 3 && p[2] == "disable" {
+			v, e := h.svc.DisableCompositeBinding(p[0], in.BindingID, tenantID(r), in.ExpectedVersion)
+			if e != nil {
+				problem(w, 409, "COMPOSITE_BINDING_DISABLE_REJECTED")
+				return
+			}
+			h.saveReplay(w, r, body, 200, v)
+			return
+		}
+		v, e := h.svc.CreateCompositeBinding(p[0], tenantID(r), in.Profile, in.AdapterDeviceID, in.FiscalDeviceID, in.PaymentDeviceID, in.ExpectedRegisterVersion)
+		if e != nil {
+			problem(w, 409, "COMPOSITE_BINDING_REJECTED")
+			return
+		}
+		h.saveReplay(w, r, body, 202, v)
 	case "bindings":
 		var in struct {
 			DeviceID   string `json:"device_id"`

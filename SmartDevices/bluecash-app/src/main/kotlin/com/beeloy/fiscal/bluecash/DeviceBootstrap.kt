@@ -65,7 +65,7 @@ class AndroidDeviceIdentity(private val context: Context) : TransactionSigner {
         initSign(store.getKey(KEY_ALIAS, null) as java.security.PrivateKey); update(raw.toByteArray(Charsets.UTF_8)); Base64.getUrlEncoder().withoutPadding().encodeToString(sign())
     }
     override val keyId: String get() { val digest = MessageDigest.getInstance("SHA-256").digest(CanonicalJson.encode(publicJwk()).toByteArray()); return Base64.getUrlEncoder().withoutPadding().encodeToString(digest) }
-    override fun sign(hash: ByteArray): ByteArray = Signature.getInstance("SHA256withECDSA").run { initSign(store.getKey(KEY_ALIAS, null) as java.security.PrivateKey); update(hash); sign() }
+    override fun sign(hash: ByteArray): ByteArray = Signature.getInstance("SHA256withECDSA").run { initSign(store.getKey(KEY_ALIAS, null) as java.security.PrivateKey); update(hash); EcdsaP1363.fromDer(sign()) }
 }
 
 /** Encrypts bootstrap secrets at rest with an Android Keystore AES-GCM key. */
@@ -124,6 +124,20 @@ class DeviceBootstrapClient(private val baseUrl: String, private val identity: A
         val roles = result.getJSONArray("roles").let { values -> (0 until values.length()).map { values.getString(it) } }
         val binding = ActivatedBinding(result.getString("credential_id"), result.getString("client_certificate_pem"), result.getString("ca_chain_pem"), result.getString("mqtt_tls_uri"), result.optString("mqtt_wss_uri").ifBlank { null }, result.getString("device_instance_id"), result.getString("organization_id"), result.getString("location_id"), result.getString("register_id"), roles, result.getLong("binding_version"), result.getString("command_hmac_key"), result.getString("sync_ack_hmac_key"), result.getString("ble_ticket_hmac_key"), result.getString("unp_prefix"), result.getLong("unp_range_start"), result.getLong("unp_range_end"))
         require(binding.deviceId == identity.deviceInstanceId) { "CREDENTIAL_DEVICE_MISMATCH" }
+        val signedBinding = JSONObject()
+            .put("binding_version", binding.bindingVersion)
+            .put("ble_ticket_hmac_key", binding.bleTicketHmacKey)
+            .put("command_hmac_key", binding.commandHmacKey)
+            .put("credential_id", binding.credentialId)
+            .put("device_instance_id", binding.deviceId)
+            .put("location_id", binding.locationId)
+            .put("mqtt_tls_uri", binding.mqttTlsUri)
+            .put("organization_id", binding.organizationId)
+            .put("register_id", binding.registerId)
+            .put("roles", JSONArray(binding.roles))
+            .put("sync_ack_hmac_key", binding.syncAckHmacKey)
+        binding.mqttWssUri?.let { signedBinding.put("mqtt_wss_uri", it) }
+        require(DeviceTLS.verifyCA(binding, CanonicalJson.encode(signedBinding).toByteArray(), result.getString("binding_signature"))) { "BINDING_SIGNATURE_INVALID" }
         secrets.put("binding", result.toString()); return binding
     }
 }

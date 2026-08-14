@@ -117,6 +117,12 @@ func TestBridgeFlushesDurableExecutingCommandAfterReconnect(t *testing.T) {
 	}
 }
 
+func TestBridgePublishesCompositeBindingOnlyToAdapterControlTopic(t *testing.T){client:=&captureClient{};bridge:=NewBridge("0123456789abcdef0123456789abcdef");bridge.bind(client);body:=[]byte("BFPE-signed-envelope");if err:=bridge.PublishCompositeBinding("tenant-1","adapter-1",body);err!=nil{t.Fatal(err)};if client.topic!="tenants/tenant-1/devices/adapter-1/bindings"||string(client.body)!=string(body){t.Fatal(client.topic,string(client.body))}}
+
+type bindingSync struct{fakeSync;tenant,adapter,register string;generation int64}
+func(b *bindingSync)ApplyCompositeBindingByAdapter(tenant,adapter,register string,generation int64)(map[string]any,error){b.tenant,b.adapter,b.register,b.generation=tenant,adapter,register,generation;return map[string]any{"status":"ACTIVE","applied_generation":generation},nil}
+func TestProcessorConsumesAuthenticatedAdapterBindingAck(t *testing.T){svc:=&bindingSync{};processor:=NewProcessor(svc);topic,body,err:=processor.Process("tenants/tenant-1/devices/adapter-1/bindings/acks",[]byte(`{"adapter_device_id":"adapter-1","register_id":"register-1","generation":7}`));if err!=nil||topic!="tenants/tenant-1/devices/adapter-1/bindings/acks/confirmed"||svc.generation!=7||svc.tenant!="tenant-1"{t.Fatal(topic,string(body),svc,err)}}
+
 func (f *fakeSync) SyncBatchForTenant(t string, b domain.EdgeSyncBatch) (domain.SyncAck, error) {
 	f.tenant = t
 	f.batch = b

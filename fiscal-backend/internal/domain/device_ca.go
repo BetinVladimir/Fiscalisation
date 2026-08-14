@@ -105,3 +105,4 @@ func (i *X509DeviceCredentialIssuer) SignActivationAcknowledgement(unsigned []by
 	}
 	return base64.RawURLEncoding.EncodeToString(signature), nil
 }
+func(i *X509DeviceCredentialIssuer)SignCompositeBinding(canonical []byte)(string,string,error){digest:=sha256.Sum256(canonical);signature,err:=i.signer.Sign(rand.Reader,digest[:],crypto.SHA256);if err!=nil{return "","",err};certificateDigest:=sha256.Sum256(i.ca.RawSubjectPublicKeyInfo);return base64.RawURLEncoding.EncodeToString(signature),"binding-"+base64.RawURLEncoding.EncodeToString(certificateDigest[:8]),nil}

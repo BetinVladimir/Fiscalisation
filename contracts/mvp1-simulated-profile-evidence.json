@@ -1,0 +1,10 @@
+{
+  "schema_version": "2026-08-13",
+  "evidence_state": "SIMULATED",
+  "profiles": [
+    {"profile":"DATECS_BLUECASH50_EMBEDDED","harness":"SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngineTest.kt","required_faults":["success","decline","timeout_after_send","restart","duplicate","compensation","business_ack_loss"]},
+    {"profile":"DATECS_DP150_BLUEPAD50","harness":"IoT/firmware/edge-agent-s3/idf/tests/profile_executor_native.cpp","required_faults":["success","decline","unknown","fiscal_unavailable","payment_unavailable","compensation","reversal_unknown"]},
+    {"profile":"DAISY_COMPACT_S01","harness":"IoT/firmware/edge-agent-s3/idf/tests/profile_executor_native.cpp","required_faults":["success","fiscal_unavailable","card_fail_closed","unknown_recovery"]}
+  ],
+  "cross_channel_harness":"fiscal-backend/internal/domain/dual_route_profile_e2e_test.go"
+}

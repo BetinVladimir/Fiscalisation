@@ -89,6 +89,31 @@ type Service struct {
 	policy                        PolicyCatalog
 	requireHardwareSyncSignatures bool
 	deviceCredentialIssuer        DeviceCredentialIssuer
+	compositeBindingPublisher     CompositeBindingPublisher
+}
+
+type CompositeBindingPublisher interface{ PublishCompositeBinding(string,string,[]byte) error }
+func(s *Service)SetCompositeBindingPublisher(v CompositeBindingPublisher){s.compositeBindingPublisher=v}
+
+// boundDriver revalidates the complete immutable route snapshot immediately
+// before use. The configured driver is a transport dispatcher (MQTT/simulator),
+// not a device choice; the selected device remains the snapshot carried in the
+// command. Any rebind or identity mismatch is fenced without fallback.
+func (s *Service) boundDriver(tenant, register string, expected FiscalDeviceSnapshot) (Driver, error) {
+	if s.driver == nil {
+		return nil, errors.New("device route unavailable")
+	}
+	if tenant == "" { // isolated unit/dev simulator path has no registry authority
+		return s.driver, nil
+	}
+	current, err := s.activeFiscalDeviceSnapshot(register, tenant, time.Now().UTC())
+	if err != nil || expected.DeviceID == "" || current.DeviceID != expected.DeviceID ||
+		current.BindingVersion != expected.BindingVersion || current.Serial != expected.Serial ||
+		current.FiscalMemoryNumber != expected.FiscalMemoryNumber || current.Vendor != expected.Vendor ||
+		current.Model != expected.Model {
+		return nil, errors.New("stale or mismatched device route")
+	}
+	return s.driver, nil
 }
 
 func (s *Service) SetRequireHardwareSyncSignatures(required bool) {
@@ -207,7 +232,8 @@ func (s *Service) reverseForTenant(saleID, reason, originalReference, tenant str
 	if sale.TenantID != "" && !s.registerHasActiveFiscalDevice(sale.RegisterID, sale.TenantID) {
 		return Operation{}, errors.New("fiscal device unavailable")
 	}
-	if s.driver == nil || s.driver.Probe() != nil {
+	driver, routeErr := s.boundDriver(sale.TenantID, sale.RegisterID, sale.FiscalDevice)
+	if routeErr != nil || driver.Probe() != nil {
 		return Operation{}, errors.New("fiscal device unavailable")
 	}
 	documentNumber, parseErr := strconv.ParseInt(original.FiscalReference, 10, 64)
@@ -215,7 +241,7 @@ func (s *Service) reverseForTenant(saleID, reason, originalReference, tenant str
 		return Operation{}, errors.New("original fiscal document metadata unavailable")
 	}
 	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, RegisterID: sale.RegisterID, Type: "REVERSAL", State: "EXECUTING", Version: 1, OriginalFiscalReference: original.FiscalReference, ReasonCode: reason, OriginalDocumentNumber: documentNumber, OriginalDocumentAt: original.UpdatedAt, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
-	if queued, ok := s.driver.(durableQueuedDriver); ok {
+	if queued, ok := driver.(durableQueuedDriver); ok {
 		command, prepareErr := queued.Prepare(op, sale, PaymentRequest{})
 		if prepareErr != nil {
 			return Operation{}, prepareErr
@@ -233,7 +259,7 @@ func (s *Service) reverseForTenant(saleID, reason, originalReference, tenant str
 	if e != nil {
 		return Operation{}, e
 	}
-	ref, code := s.driver.Execute(op, sale, PaymentRequest{})
+	ref, code := driver.Execute(op, sale, PaymentRequest{})
 	op.Version++
 	op.UpdatedAt = time.Now().UTC()
 	if code == "FISCAL_RESULT_UNKNOWN" {
@@ -278,7 +304,16 @@ func (s *Service) reserveFiscalOperation(register, typ, tenant string) (Operatio
 	if tenant != "" && !s.registerHasActiveFiscalDevice(register, tenant) {
 		return Operation{}, errors.New("fiscal device unavailable")
 	}
-	if s.driver == nil || s.driver.Probe() != nil {
+	device := FiscalDeviceSnapshot{}
+	if tenant != "" {
+		var err error
+		device, err = s.activeFiscalDeviceSnapshot(register, tenant, time.Now().UTC())
+		if err != nil {
+			return Operation{}, errors.New("fiscal device unavailable")
+		}
+	}
+	driver, routeErr := s.boundDriver(tenant, register, device)
+	if routeErr != nil || driver.Probe() != nil {
 		return Operation{}, errors.New("fiscal device unavailable")
 	}
 	now := time.Now().UTC()
@@ -586,6 +621,7 @@ func (s *Service) bleResponse(v BLESessionRecord) (map[string]any, error) {
 		"edge_id": v.DeviceID, "device_id": v.FiscalDeviceID, "binding_version": v.FencingToken,
 		"operator_id": v.OperatorID, "app_instance_id": v.AppInstanceID,
 		"protocol_version": "2026-08-07", "expires_at": v.ExpiresAt, "scopes": v.Scopes,
+		"security_mode":               "OPEN_MVP",
 		"service_uuid":                "7b6f0000-7c6d-4c7a-9e4f-424545464953",
 		"command_characteristic_uuid": "7b6f0002-7c6d-4c7a-9e4f-424545464953",
 		"event_characteristic_uuid":   "7b6f0003-7c6d-4c7a-9e4f-424545464953",
@@ -827,6 +863,85 @@ func (s *Service) Pay(id string, p PaymentRequest) (Operation, error) {
 func (s *Service) PayForTenant(id string, p PaymentRequest, tenant string) (Operation, error) {
 	return s.payForTenant(id, p, tenant)
 }
+
+// FinalizeSaleForTenant reserves one immutable operation for an entire receipt.
+// Adapters expand it into ordered payment/fiscal steps and journal each boundary
+// before I/O, so split tender cannot create multiple physical receipts.
+func (s *Service) FinalizeSaleForTenant(id string, in SaleFinalizeRequest, tenant string) (Operation, error) {
+	sale, err := s.saleForTenantMutation(id, tenant)
+	if err != nil {
+		return Operation{}, err
+	}
+	plan := ReceiptFinalizePlan{ClientOperationID: in.ClientOperationID, ReceiptSessionID: in.ReceiptSessionID, SaleID: id, UNP: sale.UNP, Items: sale.Lines, Payments: in.Payments, ExpectedTotal: in.ExpectedTotal}
+	if err = ValidateReceiptPlan(plan); err != nil {
+		return Operation{}, err
+	}
+	total, err := saleTotal(sale)
+	if err != nil {
+		return Operation{}, err
+	}
+	expected, err := receiptMoneyCents(in.ExpectedTotal.Amount)
+	if err != nil || expected != total {
+		return Operation{}, errors.New("finalize total mismatch")
+	}
+	if sale.State != "OPEN" || len(sale.Lines) == 0 {
+		return Operation{}, errors.New("sale not finalizable")
+	}
+	if sale.TenantID != "" && !s.registerHasActiveFiscalDevice(sale.RegisterID, sale.TenantID) {
+		return Operation{}, errors.New("fiscal device unavailable")
+	}
+	if sale.TenantID != "" {
+		sale.FiscalDevice, err = s.activeFiscalDeviceSnapshot(sale.RegisterID, sale.TenantID, time.Now().UTC())
+		if err != nil {
+			return Operation{}, errors.New("fiscal device unavailable")
+		}
+	}
+	for _, p := range in.Payments {
+		if p.Type == "CARD" && (p.TerminalPolicy == "NONE" || (sale.TenantID != "" && !s.registerHasActivePaymentTerminal(sale.RegisterID, sale.TenantID))) {
+			return Operation{}, errors.New("payment terminal unavailable")
+		}
+	}
+	driver, routeErr := s.boundDriver(sale.TenantID, sale.RegisterID, sale.FiscalDevice)
+	if routeErr != nil || driver.Probe() != nil {
+		return Operation{}, errors.New("fiscal device unavailable")
+	}
+	now := time.Now().UTC()
+	op := Operation{ID: in.ClientOperationID, ClientOperationID: in.ClientOperationID, ReceiptSessionID: in.ReceiptSessionID, TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "SALE_FINALIZE", State: "EXECUTING", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	for _, p := range in.Payments {
+		sale.Payments = append(sale.Payments, PaymentRecord{PaymentID: p.PaymentID, Type: p.Type, Amount: p.Amount, CreatedAt: now})
+	}
+	if queued, ok := driver.(durableQueuedDriver); ok {
+		command, prepErr := queued.Prepare(op, sale, PaymentRequest{})
+		if prepErr != nil {
+			return Operation{}, prepErr
+		}
+		sale, err = s.repo.ReserveSalePaymentCommand(id, tenant, sale.Version, op, sale.FiscalDevice, command)
+		if err != nil {
+			return Operation{}, err
+		}
+		if publishErr := queued.Publish(command); publishErr != nil {
+			return op, nil
+		}
+		return op, nil
+	}
+	ref, code := driver.Execute(op, sale, PaymentRequest{})
+	op.Version++
+	op.UpdatedAt = time.Now().UTC()
+	if code != "" {
+		op.State = "UNKNOWN"
+		op.ErrorCode = code
+		op.AllowedActions = []string{"RECONCILE"}
+		sale.State = "UNKNOWN"
+	} else {
+		op.State = "FISCALIZED"
+		op.FiscalReference = ref
+		sale.State = "COMPLETED"
+		sale.FiscalOperationID = op.ID
+	}
+	sale.Version++
+	sale.UpdatedAt = op.UpdatedAt
+	return op, s.repo.CommitSaleOperationEvent(sale, op, fiscalOperationEvent(sale, op))
+}
 func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Operation, error) {
 	sale, e := s.saleForTenantMutation(id, tenant)
 	if e != nil {
@@ -864,7 +979,8 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 			return Operation{}, errors.New("payment terminal unavailable")
 		}
 	}
-	if s.driver == nil || s.driver.Probe() != nil {
+	driver, routeErr := s.boundDriver(sale.TenantID, sale.RegisterID, sale.FiscalDevice)
+	if routeErr != nil || driver.Probe() != nil {
 		return Operation{}, errors.New("fiscal device unavailable")
 	}
 	amount, _ := parseFixed(p.Amount.Amount, 2)
@@ -888,7 +1004,7 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 	}
 	now := time.Now().UTC()
 	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "FISCAL_SALE", State: "EXECUTING", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
-	if queued, ok := s.driver.(durableQueuedDriver); ok {
+	if queued, ok := driver.(durableQueuedDriver); ok {
 		command, prepareErr := queued.Prepare(op, sale, p)
 		if prepareErr != nil {
 			return Operation{}, prepareErr
@@ -908,7 +1024,7 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 	if e != nil {
 		return Operation{}, e
 	}
-	if queued, ok := s.driver.(queuedDriver); ok {
+	if queued, ok := driver.(queuedDriver); ok {
 		if e = queued.Queue(op, sale, p); e != nil {
 			op.State = "UNKNOWN"
 			op.ErrorCode = "MQTT_COMMAND_PUBLICATION_UNKNOWN"
@@ -921,7 +1037,7 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 		}
 		return op, nil
 	}
-	ref, code := s.driver.Execute(op, sale, p)
+	ref, code := driver.Execute(op, sale, p)
 	op.Version++
 	op.UpdatedAt = time.Now().UTC()
 	if code == "FISCAL_RESULT_UNKNOWN" {

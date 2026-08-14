@@ -35,8 +35,8 @@ func TestCheckoutPublicAPIAndReplay(t *testing.T) {
 				t.Fatalf("missing fiscal sale version guard: %q", r.Header.Get("If-Match"))
 			}
 			body = `{"sale_id":"f-sale-1","version":2}`
-		case strings.HasSuffix(r.URL.Path, "/payments"):
-			body = `{"operation_id":"f-op-1","state":"FISCALIZED","fiscal_reference":"FD-1"}`
+		case strings.HasSuffix(r.URL.Path, ":finalize"):
+			body = `{"operation_id":"` + r.Header.Get("Idempotency-Key") + `","state":"FISCALIZED","fiscal_reference":"FD-1"}`
 		}
 		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body)), Header: http.Header{"Content-Type": []string{"application/json"}}}, nil
 	})}
@@ -54,7 +54,7 @@ func TestCheckoutPublicAPIAndReplay(t *testing.T) {
 		t.Fatalf("discount lost on MiniPOS -> Fiscal command: %#v", sentLine)
 	}
 	again, e := s.Checkout(o.ID, "1234567890123456", payment)
-	if e != nil || again.FiscalOperationID != "f-op-1" || sales.Load() != 1 {
+	if e != nil || again.FiscalOperationID == "" || again.FiscalOperationID != again.CheckoutOperationID || sales.Load() != 1 {
 		t.Fatal(again, e, sales.Load())
 	}
 	if e = s.ApplyFiscalEvent("f-sale-1", "REVERSED", "f-op-reverse", 2); e != nil {
@@ -108,8 +108,8 @@ func TestCheckoutRejectsIdempotencyPayloadMismatch(t *testing.T) {
 		if strings.HasSuffix(r.URL.Path, "/lines") {
 			body = `{"sale_id":"f-sale-1","version":2}`
 		}
-		if strings.HasSuffix(r.URL.Path, "/payments") {
-			body = `{"operation_id":"f-op-1","state":"FISCALIZED","fiscal_reference":"FD-2"}`
+		if strings.HasSuffix(r.URL.Path, ":finalize") {
+			body = `{"operation_id":"` + r.Header.Get("Idempotency-Key") + `","state":"FISCALIZED","fiscal_reference":"FD-2"}`
 		}
 		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body)), Header: http.Header{}}, nil
 	})}
@@ -143,20 +143,23 @@ func TestCheckoutMalformedFiscalResponseDoesNotPanic(t *testing.T) {
 }
 
 func TestCheckoutBatchSplitCashAndCard(t *testing.T) {
-	var paymentCalls atomic.Int32
+	var finalizeCalls atomic.Int32
 	s := NewService("http://fiscal.test", "2026-08-07")
 	s.client = &http.Client{Transport: roundTrip(func(r *http.Request) (*http.Response, error) {
 		body := `{"sale_id":"f-sale-split","version":1}`
 		if strings.HasSuffix(r.URL.Path, "/lines") {
 			body = `{"sale_id":"f-sale-split","version":2}`
 		}
-		if strings.HasSuffix(r.URL.Path, "/payments") {
-			n := paymentCalls.Add(1)
-			if n == 1 {
-				body = `{"operation_id":"f-op-cash","state":"EXECUTING"}`
-			} else {
-				body = `{"operation_id":"f-op-card","state":"FISCALIZED","fiscal_reference":"FD-SPLIT-1"}`
+		if strings.HasSuffix(r.URL.Path, ":finalize") {
+			finalizeCalls.Add(1)
+			var request map[string]any
+			if err := json.NewDecoder(r.Body).Decode(&request); err != nil {
+				t.Fatal(err)
 			}
+			if len(request["payments"].([]any)) != 2 || request["client_operation_id"] != r.Header.Get("Idempotency-Key") {
+				t.Fatalf("invalid aggregate finalize: %#v", request)
+			}
+			body = `{"operation_id":"` + r.Header.Get("Idempotency-Key") + `","state":"FISCALIZED","fiscal_reference":"FD-SPLIT-1"}`
 		}
 		return &http.Response{StatusCode: 200, Body: io.NopCloser(strings.NewReader(body)), Header: http.Header{"Content-Type": []string{"application/json"}}}, nil
 	})}
@@ -169,8 +172,8 @@ func TestCheckoutBatchSplitCashAndCard(t *testing.T) {
 		{"payment_id": "00000000-0000-4000-8000-000000000017", "type": "CARD", "amount": map[string]string{"amount": "1.50", "currency": "EUR"}, "terminal_policy": "AUTO_IF_AVAILABLE"},
 	}
 	got, err := s.CheckoutBatchForTenant(o.ID, "split-checkout-key", payments, nil, o.TenantID)
-	if err != nil || got.State != "COMPLETED" || got.FiscalOperationID != "f-op-card" || got.ReceiptReference != "FD-SPLIT-1" || paymentCalls.Load() != 2 {
-		t.Fatalf("split checkout failed: order=%+v calls=%d err=%v", got, paymentCalls.Load(), err)
+	if err != nil || got.State != "COMPLETED" || got.FiscalOperationID == "" || got.FiscalOperationID != got.CheckoutOperationID || got.ReceiptReference != "FD-SPLIT-1" || finalizeCalls.Load() != 1 {
+		t.Fatalf("split checkout failed: order=%+v calls=%d err=%v", got, finalizeCalls.Load(), err)
 	}
 }
 
@@ -203,10 +206,12 @@ func TestCompletedOrderReversalUsesFiscalPublicAPIAndIsIdempotent(t *testing.T) 
 		switch {
 		case strings.HasSuffix(r.URL.Path, "/lines"):
 			body = `{"sale_id":"f-sale-reversal","version":2}`
-		case strings.HasSuffix(r.URL.Path, "/payments"):
-			body = `{"operation_id":"f-op-sale","state":"FISCALIZED","fiscal_reference":"receipt-1","simulated":true}`
+		case strings.HasSuffix(r.URL.Path, ":finalize"):
+			body = `{"operation_id":"` + r.Header.Get("Idempotency-Key") + `","state":"FISCALIZED","fiscal_reference":"receipt-1","simulated":true}`
 		case strings.HasSuffix(r.URL.Path, "/reversals"):
 			reversals.Add(1)
+			var request map[string]any
+			if err:=json.NewDecoder(r.Body).Decode(&request);err!=nil||request["original_fiscal_reference"]!="receipt-1"{t.Fatalf("original fiscal reference missing: %#v %v",request,err)}
 			if r.Header.Get("Idempotency-Key") != "reversal-idempotency-key-fiscal-reversal" {
 				t.Fatalf("unexpected fiscal reversal key: %s", r.Header.Get("Idempotency-Key"))
 			}
@@ -233,7 +238,7 @@ func TestCompletedOrderReversalUsesFiscalPublicAPIAndIsIdempotent(t *testing.T) 
 		t.Fatalf("reversal failed: result=%+v calls=%d err=%v", result, reversals.Load(), err)
 	}
 	updated, _ := s.Order(o.ID)
-	if updated.State != "REVERSED" || updated.ReversalOperationID != "f-op-reversal" || updated.ReversalFiscalReference != "storno-1" || updated.FiscalOperationID != "f-op-sale" {
+	if updated.State != "REVERSED" || updated.ReversalOperationID != "f-op-reversal" || updated.ReversalFiscalReference != "storno-1" || updated.FiscalOperationID == "" || updated.FiscalOperationID != updated.CheckoutOperationID {
 		t.Fatalf("original/reversal linkage lost: %+v", updated)
 	}
 	if _, err = s.ReverseOrderForTenant(o.ID, "another-reversal-key", "CUSTOMER_RETURN", o.TenantID); err == nil || reversals.Load() != 1 {
@@ -269,8 +274,8 @@ func TestConcurrentReversalFreezesOrderBeforeFiscalCall(t *testing.T) {
 		switch {
 		case strings.HasSuffix(r.URL.Path, "/lines"):
 			body = `{"sale_id":"f-sale-reversal","version":2}`
-		case strings.HasSuffix(r.URL.Path, "/payments"):
-			body = `{"operation_id":"f-op-sale","state":"FISCALIZED","fiscal_reference":"receipt-1"}`
+		case strings.HasSuffix(r.URL.Path, ":finalize"):
+			body = `{"operation_id":"` + r.Header.Get("Idempotency-Key") + `","state":"FISCALIZED","fiscal_reference":"receipt-1"}`
 		case strings.HasSuffix(r.URL.Path, "/reversals"):
 			if reversals.Add(1) == 1 {
 				close(entered)

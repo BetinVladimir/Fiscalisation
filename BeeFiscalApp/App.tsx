@@ -9,6 +9,7 @@ import {
   TextInput,
   View,
 } from "react-native";
+import {MVP1_DEVICE_PROFILES} from "./src/deviceProfiles";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
 import { isRegisterId, registerCollectionPath, registerResourcePath } from "./src/registerFilter";
@@ -104,6 +105,12 @@ export default function App() {
     [deviceKind, setDeviceKind] = useState("FISCAL_DEVICE"),
     [bindingRole, setBindingRole] = useState("FISCAL_DEVICE"),
     [deviceId, setDeviceId] = useState(""),
+    [compositeProfile, setCompositeProfile] = useState(MVP1_DEVICE_PROFILES[0].id),
+    [adapterDeviceId, setAdapterDeviceId] = useState(""),
+    [fiscalEndpointId, setFiscalEndpointId] = useState(""),
+    [paymentEndpointId, setPaymentEndpointId] = useState(""),
+    [expectedRegisterVersion, setExpectedRegisterVersion] = useState("1"),
+    [compositeBinding, setCompositeBinding] = useState<Item | null>(null),
     [diagnostics, setDiagnostics] = useState<Item | null>(null),
     [provisioning, setProvisioning] = useState<Item | null>(null),
     [bleSession, setBleSession] = useState<Item | null>(null),
@@ -168,6 +175,12 @@ export default function App() {
           setDeviceId((x) => x || label(lists.devices[0]?.id));
           setOperatorId((x) => x || label(lists.operators[0]?.id));
           setItems([]);
+          const selectedRegister = register || label(lists.registers[0]?.id);
+          if (isRegisterId(selectedRegister)) {
+            const history = await call(registerResourcePath(selectedRegister,"/composite-bindings"));
+            const bindings = Array.isArray(history.items) ? history.items as Item[] : [];
+            setCompositeBinding(bindings.find((x)=>x.status==="PENDING"||x.status==="ACTIVE")||bindings[0]||null);
+          }
         }
         setMessage(`${next}: данните са обновени от BeeFiscal API`);
         setCore("CORE READY");
@@ -386,6 +399,8 @@ export default function App() {
       setAdminBusy(false);
     }
   };
+  const stageCompositeBinding=async()=>{setAdminBusy(true);try{const v=await call(registerResourcePath(register,"/composite-bindings"),{method:"POST",body:JSON.stringify({profile:compositeProfile,adapter_device_id:adapterDeviceId,fiscal_device_id:fiscalEndpointId,...(paymentEndpointId?{payment_device_id:paymentEndpointId}:{}),expected_register_version:Number(expectedRegisterVersion)})});setCompositeBinding(v);setMessage(`Composite generation ${label(v.generation)} е подготвена`)}catch(e){setMessage(`Composite binding: ${e instanceof Error?e.message:String(e)}`)}finally{setAdminBusy(false)}};
+  const disableCompositeBinding=async()=>{if(!compositeBinding)return;setAdminBusy(true);try{const v=await call(registerResourcePath(register,"/composite-bindings/disable"),{method:"POST",body:JSON.stringify({binding_id:compositeBinding.binding_id,expected_version:compositeBinding.version})});setCompositeBinding(v);setExpectedRegisterVersion(String(Number(expectedRegisterVersion)+1));setMessage("Composite binding е изключен; може да бъде подготвена нова връзка") }catch(e){setMessage(`Disable: ${e instanceof Error?e.message:String(e)}`)}finally{setAdminBusy(false)}};
   if (prodMode && !oidc.accessToken) {
     return (
       <SafeAreaView style={s.root}>
@@ -971,6 +986,14 @@ export default function App() {
                     )
                   }
                 />
+                <Text style={s.meta}>Composite profile — активира се само след apply ACK от адаптера</Text>
+                <View style={s.actions}>{MVP1_DEVICE_PROFILES.map((profile)=><Action key={profile.id} label={profile.id} disabled={adminBusy} testID={`composite-profile-${profile.id}`} onPress={()=>setCompositeProfile(profile.id)} />)}</View>
+                <Field label="Adapter device ID" value={adapterDeviceId} onChangeText={setAdapterDeviceId} testID="composite-adapter-device" />
+                <Field label="Fiscal endpoint ID" value={fiscalEndpointId} onChangeText={setFiscalEndpointId} testID="composite-fiscal-device" />
+                <Field label="Payment endpoint ID (optional)" value={paymentEndpointId} onChangeText={setPaymentEndpointId} testID="composite-payment-device" />
+                <Field label="Expected register version" value={expectedRegisterVersion} onChangeText={setExpectedRegisterVersion} testID="composite-register-version" />
+                <Action label="Подготви composite binding" disabled={adminBusy||!isRegisterId(register)} testID="composite-binding-save" onPress={stageCompositeBinding} />
+                {compositeBinding?<><Text testID="composite-binding-state" style={s.meta}>Статус: {label(compositeBinding.status)} • generation {label(compositeBinding.generation)} • applied generation {label(compositeBinding.applied_generation||"—")}</Text>{compositeBinding.status==="PENDING"?<Text testID="composite-binding-awaiting-adapter" style={s.meta}>Очаква се подписано apply потвърждение от адаптера</Text>:null}<View style={s.actions}><Action label="Изключи / rebind" disabled={adminBusy||compositeBinding.status==="REVOKED"} testID="composite-binding-disable" onPress={disableCompositeBinding}/></View></>:null}
               </AdminCard>
             </View>
           ) : (

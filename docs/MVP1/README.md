@@ -42,6 +42,9 @@ MiniPOS → backend-issued BLE session → BlueCash → ФУ/pinpad → MQTT syn
 - [`09_DUAL_ROUTE_FAILOVER_PROTOCOL.md`](09_DUAL_ROUTE_FAILOVER_PROTOCOL.md) —
   обязательный REST/WebHook↔BLE failover, lightweight ping и перенос чека между
   transports.
+- [`10_SOFTWARE_COMPLETENESS_AUDIT.md`](10_SOFTWARE_COMPLETENESS_AUDIT.md) —
+  повторная проверка текущей реализации; различает зелёные тесты существующего
+  surface и полноту обязательного software MVP.
 - [`01_MVP_REQUIREMENTS_AND_CODEGEN.md`](01_MVP_REQUIREMENTS_AND_CODEGEN.md) —
   обязательный scope, инварианты, порядок реализации и критерии приёмки.
 - [`02_BLUECASH_COMMAND_TRACEABILITY.md`](02_BLUECASH_COMMAND_TRACEABILITY.md) —
@@ -72,8 +75,9 @@ MiniPOS → backend-issued BLE session → BlueCash → ФУ/pinpad → MQTT syn
 - vendor/model combinations вне трёх profiles, перечисленных в `index.md`.
 
 Эти исключения допустимы только для controlled MVP с непроизводственными
-credentials. Transport authentication, encryption, idempotency, journal-before-I/O
-и блокировка при недоступном конечном ФУ не исключаются.
+credentials. BLE authentication/encryption явно исключены решением MVP1 в
+[`index.md`](index.md). Idempotency, binding validation, journal-before-I/O и
+блокировка при недоступном конечном ФУ не исключаются.
 
 ## MVP1 release gates
 

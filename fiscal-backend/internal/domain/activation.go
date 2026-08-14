@@ -47,6 +47,11 @@ type DeviceActivationRequest struct {
 	ClaimedRegisterID  string     `json:"claimed_register_id,omitempty"`
 	ClaimedBySubject   string     `json:"claimed_by_subject,omitempty"`
 	CredentialID       string     `json:"credential_id,omitempty"`
+	MQTTTLSURI         string     `json:"mqtt_tls_uri,omitempty"`
+	MQTTClientID       string     `json:"mqtt_client_id,omitempty"`
+	UNPPrefix          string     `json:"unp_prefix,omitempty"`
+	UNPRangeStart      int64      `json:"unp_range_start,omitempty"`
+	UNPRangeEnd        int64      `json:"unp_range_end,omitempty"`
 	BindingVersion     int64      `json:"binding_version,omitempty"`
 	ExpiresAt          time.Time  `json:"expires_at"`
 	CreatedAt          time.Time  `json:"created_at"`
@@ -107,6 +112,17 @@ type DeviceCredentialIssuer interface {
 }
 type DeviceActivationAcknowledgementSigner interface {
 	SignActivationAcknowledgement([]byte) (string, error)
+}
+type CompositeBindingSigner interface {
+	SignCompositeBinding([]byte) (string, string, error)
+}
+
+func (s *Service) signCompositeBinding(value []byte) (string, string, error) {
+	v, ok := s.deviceCredentialIssuer.(CompositeBindingSigner)
+	if !ok {
+		return "", "", errors.New("composite binding signer unavailable")
+	}
+	return v.SignCompositeBinding(value)
 }
 
 func DeviceActivationPublicView(v DeviceActivationRequest) map[string]any {
@@ -265,7 +281,7 @@ func (s *Service) IssueDeviceActivationCredential(id, requestSecret, nonce, sign
 	if e != nil {
 		return DeviceCredential{}, e
 	}
-	_, e = s.repo.MarkActivationCredentialIssued(id, credential.CredentialID, time.Now().UTC())
+	_, e = s.repo.MarkActivationCredentialIssued(id, credential, time.Now().UTC())
 	return credential, e
 }
 
@@ -436,7 +452,7 @@ func (r *MemoryRepository) ConfirmActivationRequest(id, codeHash, tenant, locati
 	r.activationRequests[id] = v
 	return v, r.persistLocked()
 }
-func (r *MemoryRepository) MarkActivationCredentialIssued(id, credential string, now time.Time) (DeviceActivationRequest, error) {
+func (r *MemoryRepository) MarkActivationCredentialIssued(id string, credential DeviceCredential, now time.Time) (DeviceActivationRequest, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
 	v, ok := r.activationRequests[id]
@@ -447,7 +463,12 @@ func (r *MemoryRepository) MarkActivationCredentialIssued(id, credential string,
 		return DeviceActivationRequest{}, errors.New("activation state conflict")
 	}
 	v.State = "CREDENTIAL_ISSUED"
-	v.CredentialID = credential
+	v.CredentialID = credential.CredentialID
+	v.MQTTTLSURI = credential.MQTTTLSURI
+	v.MQTTClientID = v.DeviceInstanceID
+	v.UNPPrefix = credential.UNPPrefix
+	v.UNPRangeStart = credential.UNPRangeStart
+	v.UNPRangeEnd = credential.UNPRangeEnd
 	v.CredentialIssuedAt = &now
 	v.UpdatedAt = now
 	r.activationRequests[id] = v
@@ -478,7 +499,7 @@ func (r *MemoryRepository) ActivateDeviceRequest(id, credential string, now time
 	if keyErr != nil {
 		return DeviceActivationRequest{}, keyErr
 	}
-	device := ResourceRecord{Kind: "device", TenantID: v.ClaimedTenantID, ID: v.DeviceInstanceID, Version: 1, Data: map[string]any{"kind": "SMART_DEVICE", "vendor": v.Vendor, "model": v.Model, "serial": v.Serial, "fiscal_memory_number": v.FMIN, "firmware": v.Firmware, "status": "ACTIVE", "environment": "PROD", "device_key_thumbprint": v.KeyThumbprint, "credential_id": credential, "transaction_signing_public_key": base64.RawURLEncoding.EncodeToString(transactionDER), "transaction_signing_kid": v.KeyThumbprint, "capabilities": v.RequestedRoles, "binding_version": v.BindingVersion}, CreatedAt: now, UpdatedAt: now}
+	device := ResourceRecord{Kind: "device", TenantID: v.ClaimedTenantID, ID: v.DeviceInstanceID, Version: 1, Data: map[string]any{"kind": "SMART_DEVICE", "vendor": v.Vendor, "model": v.Model, "serial": v.Serial, "fiscal_memory_number": v.FMIN, "firmware": v.Firmware, "status": "ACTIVE", "environment": "PROD", "device_key_thumbprint": v.KeyThumbprint, "credential_id": credential, "transaction_signing_public_key": base64.RawURLEncoding.EncodeToString(transactionDER), "transaction_signing_kid": v.KeyThumbprint, "capabilities": v.RequestedRoles, "binding_version": v.BindingVersion, "mqtt_uri": v.MQTTTLSURI, "mqtt_client_id": v.MQTTClientID, "ble_advertising_identity": v.DeviceInstanceID, "unp_prefix": v.UNPPrefix, "unp_range_start": v.UNPRangeStart, "unp_range_end": v.UNPRangeEnd}, CreatedAt: now, UpdatedAt: now}
 	register.Data["fiscal_device_id"] = device.ID
 	register.Data["fiscal_device_active_from"] = now.Format(time.RFC3339Nano)
 	if contains(v.ClaimedRoles, "PAYMENT_TERMINAL") {

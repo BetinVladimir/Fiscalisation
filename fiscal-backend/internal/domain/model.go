@@ -103,8 +103,17 @@ type PaymentRequest struct {
 	Amount         Money  `json:"amount"`
 	TerminalPolicy string `json:"terminal_policy,omitempty"`
 }
+type SaleFinalizeRequest struct {
+	ClientOperationID string           `json:"client_operation_id"`
+	ReceiptSessionID  string           `json:"receipt_session_id"`
+	Payments          []PaymentRequest `json:"payments"`
+	ExpectedTotal     Money            `json:"expected_total"`
+	Metadata          map[string]any   `json:"metadata,omitempty"`
+}
 type Operation struct {
 	ID                      string    `json:"operation_id"`
+	ClientOperationID       string    `json:"client_operation_id,omitempty"`
+	ReceiptSessionID        string    `json:"receipt_session_id,omitempty"`
 	TenantID                string    `json:"tenant_id"`
 	SaleID                  string    `json:"sale_id,omitempty"`
 	RegisterID              string    `json:"register_id,omitempty"`

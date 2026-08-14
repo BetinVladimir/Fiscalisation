@@ -50,6 +50,7 @@ func main() {
 	svc := domain.NewService(repo, driver)
 	svc.SetRequireHardwareSyncSignatures(cfg.AppEnv == "prod" || cfg.EMQXBroker != "")
 	svc.SetBLESigningKey(cfg.BLESigningKey)
+	if mqttBridge != nil { svc.SetCompositeBindingPublisher(mqttBridge) }
 	if cfg.DeviceCACertFile != "" || cfg.DeviceCAKeyFile != "" {
 		cert, certErr := os.ReadFile(cfg.DeviceCACertFile)
 		if certErr != nil {

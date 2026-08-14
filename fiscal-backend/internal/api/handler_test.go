@@ -622,15 +622,15 @@ func TestBlueCashActivationTokenEndpointBindsAuthenticatedTenantAndLocation(t *t
 		return w
 	}
 	body := fmt.Sprintf(`{"location_id":%q,"app_instance_id":"00000000-0000-4000-8000-000000000123"}`, location["id"])
-	w := call("tenant-a", body, "bluecash-activate-0001")
+	w := call("tenant-a", body, "10000000-0000-4000-8000-000000000001")
 	if w.Code != http.StatusCreated || !bytes.Contains(w.Body.Bytes(), []byte(`"organization_id":"tenant-a"`)) || !bytes.Contains(w.Body.Bytes(), []byte(`"location_id":"`+location["id"].(string)+`"`)) {
 		t.Fatalf("activation response: %d %s", w.Code, w.Body.String())
 	}
-	replayed := call("tenant-a", body, "bluecash-activate-0001")
+	replayed := call("tenant-a", body, "10000000-0000-4000-8000-000000000001")
 	if replayed.Code != http.StatusCreated || replayed.Header().Get("Idempotency-Replayed") != "true" {
 		t.Fatalf("activation replay: %d %s", replayed.Code, replayed.Body.String())
 	}
-	foreign := call("tenant-b", body, "bluecash-activate-0002")
+	foreign := call("tenant-b", body, "10000000-0000-4000-8000-000000000002")
 	if foreign.Code != http.StatusNotFound {
 		t.Fatalf("cross-tenant activation: %d %s", foreign.Code, foreign.Body.String())
 	}
@@ -990,6 +990,7 @@ func TestDeviceActivationConfirmationRequiresAdmin(t *testing.T) {
 		r.Header.Set("Authorization", "Bearer "+jwt("tenant-1", role))
 		r.Header.Set("X-Api-Version", "2026-08-07")
 		r.Header.Set("Idempotency-Key", "activation-confirm-0001")
+		r.Header.Set("Content-Type", "application/json")
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)
 		return w
@@ -1015,6 +1016,7 @@ func TestDeviceActivationLookupAndDisconnectRequireAdmin(t *testing.T) {
 		r.Header.Set("X-Api-Version", "2026-08-07")
 		if idempotency != "" {
 			r.Header.Set("Idempotency-Key", idempotency)
+			r.Header.Set("Content-Type", "application/json")
 		}
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)

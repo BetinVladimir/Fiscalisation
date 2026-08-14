@@ -70,8 +70,15 @@ func requestPathValues(template, actual string) (map[string]string, error) {
 	}
 	out := map[string]string{}
 	for index, part := range templateParts {
-		if strings.HasPrefix(part, "{") && strings.HasSuffix(part, "}") {
-			out[strings.TrimSuffix(strings.TrimPrefix(part, "{"), "}")] = actualParts[index]
+		open, close := strings.IndexByte(part, '{'), strings.IndexByte(part, '}')
+		if open >= 0 && close > open {
+			prefix, suffix, value := part[:open], part[close+1:], actualParts[index]
+			if !strings.HasPrefix(value, prefix) || !strings.HasSuffix(value, suffix) || len(value) <= len(prefix)+len(suffix) {
+				return nil, errors.New("request path does not match template")
+			}
+			out[part[open+1:close]] = value[len(prefix) : len(value)-len(suffix)]
+		} else if part != actualParts[index] {
+			return nil, errors.New("request path does not match template")
 		}
 	}
 	return out, nil

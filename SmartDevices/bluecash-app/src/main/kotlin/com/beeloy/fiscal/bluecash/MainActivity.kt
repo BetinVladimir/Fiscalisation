@@ -35,7 +35,7 @@ class MainActivity : Activity() {
         identity = AndroidDeviceIdentity(this)
         journal = AndroidTransactionJournal(this, identity)
         fiscalPort = DatecsAndroidFiscalPort(this)
-        processor = BlueCashCommandProcessor(fiscalPort, DatecsAndroidPaymentPort(this, BoricaPinpadCodec()), journal)
+        processor = BlueCashCommandProcessor(fiscalPort, DatecsAndroidPaymentPort(this, BoricaPinpadCodec(store=journal)), journal)
         secrets = DeviceCredentialStore(this)
         val content = LinearLayout(this).apply { orientation = LinearLayout.VERTICAL; setPadding(32, 32, 32, 32) }
         content.addView(TextView(this).apply { text = "BeeFiscal BlueCash-50"; textSize = 26f })
