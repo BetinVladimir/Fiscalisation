@@ -1,4 +1,12 @@
 services:
+  emqx:
+    environment:
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: "${EMQX_DASHBOARD_PASSWORD:?required}"
+      EMQX_AUTHENTICATION__1__SECRET: "${EMQX_JWT_SECRET:?required}"
+  rabbitmq:
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_DEFAULT_USER:?required}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_DEFAULT_PASS:?required}"
   fiscal-backend:
     environment:
       APP_ENV: prod

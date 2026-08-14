@@ -6,6 +6,12 @@ services:
     tmpfs:
       - /var/lib/postgresql/data:size=256m
     networks: !override [dbroute]
+  redis:
+    networks: !override [dbroute]
+  emqx:
+    networks: !override [dbroute]
+  rabbitmq:
+    networks: !override [dbroute]
   fiscal-backend:
     networks: !override [dbroute]
     volumes:

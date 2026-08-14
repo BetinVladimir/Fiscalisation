@@ -6,13 +6,58 @@ services:
     volumes: [fiscal_pg:/var/lib/postgresql/data, ./database/fiscal:/docker-entrypoint-initdb.d:ro]
     networks: [private]
     healthcheck: {test: [CMD-SHELL, "pg_isready -U fiscal -d fiscal"], interval: 5s, timeout: 3s, retries: 20}
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    command: ["redis-server", "--appendonly", "yes"]
+    ports: ["127.0.0.1:${REDIS_PORT:-6379}:6379"]
+    volumes: [fiscal_redis:/data]
+    networks: [private]
+    healthcheck: {test: [CMD, redis-cli, ping], interval: 10s, timeout: 5s, retries: 5}
+  emqx:
+    image: emqx/emqx:5
+    restart: unless-stopped
+    environment:
+      EMQX_NAME: emqx
+      EMQX_HOST: 127.0.0.1
+      EMQX_ALLOW_ANONYMOUS: "false"
+      EMQX_DASHBOARD__DEFAULT_USERNAME: "${EMQX_DASHBOARD_USERNAME:-admin}"
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: "${EMQX_DASHBOARD_PASSWORD:-dev-only-dashboard-password}"
+      EMQX_AUTHENTICATION__1__ENABLE: "true"
+      EMQX_AUTHENTICATION__1__MECHANISM: password_based
+      EMQX_AUTHENTICATION__1__BACKEND: jwt
+      EMQX_AUTHENTICATION__1__FROM: password
+      EMQX_AUTHENTICATION__1__ALGORITHM: hmac-based
+      EMQX_AUTHENTICATION__1__SECRET: "${EMQX_JWT_SECRET:-dev-only-emqx-secret}"
+      EMQX_AUTHENTICATION__1__VERIFY_CLAIMS__USERNAME: "$${username}"
+      EMQX_AUTHENTICATION__1__ACL_CLAIM_NAME: acl
+      EMQX_AUTHORIZATION__NO_MATCH: deny
+    ports:
+      - "127.0.0.1:${EMQX_MQTT_PORT:-1883}:1883"
+      - "127.0.0.1:${EMQX_WS_PORT:-8083}:8083"
+      - "127.0.0.1:${EMQX_WSS_PORT:-8084}:8084"
+      - "127.0.0.1:${EMQX_MQTTS_PORT:-8883}:8883"
+      - "127.0.0.1:${EMQX_DASHBOARD_PORT:-18083}:18083"
+    volumes: [fiscal_emqx:/opt/emqx/data]
+    networks: [private]
+  rabbitmq:
+    image: rabbitmq:3-management
+    restart: unless-stopped
+    environment:
+      RABBITMQ_DEFAULT_USER: "${RABBITMQ_DEFAULT_USER:-fiscal}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_DEFAULT_PASS:-dev-only-rabbitmq-password}"
+    ports:
+      - "127.0.0.1:${RABBITMQ_AMQP_PORT:-5672}:5672"
+      - "127.0.0.1:${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+    volumes: [fiscal_rabbitmq:/var/lib/rabbitmq]
+    networks: [private]
   fiscal-backend:
     build: ./fiscal-backend
     restart: unless-stopped
-    environment: {APP_ENV: "${APP_ENV:-dev}", HTTP_ADDR: ":8080", API_VERSION: "2026-08-07", DATABASE_URL: "postgres://fiscal:${FISCAL_DB_PASSWORD}@${FISCAL_DB_HOST:-postgres}:${FISCAL_DB_PORT:-5432}/fiscal?sslmode=disable", RLS_DATABASE_URL: "postgres://beefiscal_tenant:${FISCAL_RLS_DB_PASSWORD}@${FISCAL_DB_HOST:-postgres}:${FISCAL_DB_PORT:-5432}/fiscal?sslmode=disable", AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:-}", OIDC_ISSUER: "${OIDC_ISSUER:-}", OIDC_AUDIENCE: "${OIDC_AUDIENCE:-}", OIDC_JWKS_URL: "${OIDC_JWKS_URL:-}", BLE_SIGNING_KEY: "${BLE_SIGNING_KEY:-dev-only-ble-signing-key-32-bytes}", ALLOW_STUB_ADAPTERS: "${ALLOW_STUB_ADAPTERS:-true}", SIMULATOR_CARD_TERMINAL_AVAILABLE: "${SIMULATOR_CARD_TERMINAL_AVAILABLE:-false}", WEBHOOK_SIGNING_KEY: "${WEBHOOK_SIGNING_KEY:?required}", WEBHOOK_TARGET_URL: "${WEBHOOK_TARGET_URL:-}", EMQX_BROKER: "${EMQX_BROKER:-}", EMQX_CLIENT_ID: "${EMQX_CLIENT_ID:-beefiscal-backend}", EMQX_USERNAME: "${EMQX_USERNAME:-}", EMQX_TOKEN: "${EMQX_TOKEN:-}", EMQX_SUB_TOPICS: "${EMQX_SUB_TOPICS:-tenants/+/devices/+/sync/batches/+,tenants/+/devices/+/status,tenants/+/devices/+/bindings/acks,beefiscal/v1/devices/+/activation}", DEVICE_CA_CERT_FILE: "${DEVICE_CA_CERT_FILE:-}", DEVICE_CA_KEY_FILE: "${DEVICE_CA_KEY_FILE:-}", DEVICE_MQTT_TLS_URI: "${DEVICE_MQTT_TLS_URI:-}", DEVICE_MQTT_WSS_URI: "${DEVICE_MQTT_WSS_URI:-}", LOCAL_FISCAL_TOKEN_ISSUER: "${LOCAL_FISCAL_TOKEN_ISSUER:-beeminipos}", LOCAL_FISCAL_TOKEN_SIGNING_KID: "${LOCAL_FISCAL_TOKEN_SIGNING_KID:-minipos-local-1}", LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64: "${LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64:-}", SPA_DEPLOYMENT_DESCRIPTOR_URL: "${SPA_DEPLOYMENT_DESCRIPTOR_URL:-}", SPA_DEPLOYMENT_SIGNING_KID: "${SPA_DEPLOYMENT_SIGNING_KID:-}", SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64: "${SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64:-}"}
+    environment: {APP_ENV: "${APP_ENV:-dev}", HTTP_ADDR: ":8080", API_VERSION: "2026-08-07", DATABASE_URL: "postgres://fiscal:${FISCAL_DB_PASSWORD}@${FISCAL_DB_HOST:-postgres}:${FISCAL_DB_PORT:-5432}/fiscal?sslmode=disable", RLS_DATABASE_URL: "postgres://beefiscal_tenant:${FISCAL_RLS_DB_PASSWORD}@${FISCAL_DB_HOST:-postgres}:${FISCAL_DB_PORT:-5432}/fiscal?sslmode=disable", REDIS_URL: "${REDIS_URL:-redis://redis:6379/0}", AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:-}", OIDC_ISSUER: "${OIDC_ISSUER:-}", OIDC_AUDIENCE: "${OIDC_AUDIENCE:-}", OIDC_JWKS_URL: "${OIDC_JWKS_URL:-}", BLE_SIGNING_KEY: "${BLE_SIGNING_KEY:-dev-only-ble-signing-key-32-bytes}", ALLOW_STUB_ADAPTERS: "${ALLOW_STUB_ADAPTERS:-true}", SIMULATOR_CARD_TERMINAL_AVAILABLE: "${SIMULATOR_CARD_TERMINAL_AVAILABLE:-false}", WEBHOOK_SIGNING_KEY: "${WEBHOOK_SIGNING_KEY:?required}", WEBHOOK_TARGET_URL: "${WEBHOOK_TARGET_URL:-}", EMQX_BROKER: "${EMQX_BROKER:-tcp://emqx:1883}", EMQX_CLIENT_ID: "${EMQX_CLIENT_ID:-beefiscal-backend}", EMQX_USERNAME: "${EMQX_USERNAME:-fiscal-backend}", EMQX_TOKEN: "${FISCAL_BACKEND_EMQX_TOKEN:-}", EMQX_SUB_TOPICS: "${EMQX_SUB_TOPICS:-tenants/+/devices/+/sync/batches/+,tenants/+/devices/+/status,tenants/+/devices/+/bindings/acks,beefiscal/v1/devices/+/activation}", DEVICE_CA_CERT_FILE: "${DEVICE_CA_CERT_FILE:-}", DEVICE_CA_KEY_FILE: "${DEVICE_CA_KEY_FILE:-}", DEVICE_MQTT_TLS_URI: "${DEVICE_MQTT_TLS_URI:-}", DEVICE_MQTT_WSS_URI: "${DEVICE_MQTT_WSS_URI:-}", LOCAL_FISCAL_TOKEN_ISSUER: "${LOCAL_FISCAL_TOKEN_ISSUER:-beeminipos}", LOCAL_FISCAL_TOKEN_SIGNING_KID: "${LOCAL_FISCAL_TOKEN_SIGNING_KID:-minipos-local-1}", LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64: "${LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64:-}", SPA_DEPLOYMENT_DESCRIPTOR_URL: "${SPA_DEPLOYMENT_DESCRIPTOR_URL:-}", SPA_DEPLOYMENT_SIGNING_KID: "${SPA_DEPLOYMENT_SIGNING_KID:-}", SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64: "${SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64:-}"}
     networks: [private]
     volumes: ["${DEVICE_PKI_DIR:-./deploy/device-pki}:/run/beefiscal/device-pki:ro"]
-    depends_on: {postgres: {condition: service_healthy}}
+    depends_on: {postgres: {condition: service_healthy}, redis: {condition: service_healthy}, emqx: {condition: service_started}}
   caddy:
     image: caddy:2.10.0
     environment: {FISCAL_SITE: "${FISCAL_SITE:-http://localhost}", FISCAL_UPSTREAM: "${FISCAL_UPSTREAM:-fiscal-backend:8080}"}
@@ -21,4 +66,4 @@ services:
     networks: [private, ingress]
     depends_on: [fiscal-backend]
 networks: {private: {internal: true}, ingress: {}}
-volumes: {fiscal_pg: {}, fiscal_caddy: {}}
+volumes: {fiscal_pg: {}, fiscal_redis: {}, fiscal_emqx: {}, fiscal_rabbitmq: {}, fiscal_caddy: {}}

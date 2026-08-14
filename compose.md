@@ -1,9 +1,6 @@
 # Docker Compose configuration
 
-В репозитории используются две схемы Docker Compose:
-
-- `docker-compose.yml` — старый объединённый локальный стек;
-- `compose.fiscalisation*.yaml` и `compose.minipos*.yaml` — раздельные стеки BeeFiscal и BeeMiniPOS с дополнительными настройками для разных окружений.
+В репозитории используются раздельные стеки BeeFiscal и BeeMiniPOS с дополнительными настройками для разных окружений: `compose.fiscalisation*.yaml` и `compose.minipos*.yaml`.
 
 ## Принцип сборки конфигурации
 
@@ -23,6 +20,9 @@
 Базовый стек BeeFiscal:
 
 - PostgreSQL с отдельной базой `fiscal` и persistent volume;
+- Redis с включённым AOF-хранилищем;
+- EMQX с JWT-аутентификацией MQTT-клиентов;
+- RabbitMQ с management UI;
 - `fiscal-backend`;
 - Caddy как HTTP/HTTPS ingress;
 - внутренняя сеть для связи сервисов;
@@ -154,11 +154,9 @@ E2E-overlay выполняет для MiniPOS ту же функцию, что �
 
 Он также применяется третьим слоем после базового и dev-файла.
 
-## Отличие от `docker-compose.yml`
+## Раздельные стеки продуктов
 
-`docker-compose.yml` поднимает единый локальный стек, включающий PostgreSQL, Redis, EMQX, RabbitMQ и оба backend-сервиса. В нём оба backend используют одну базу `fiscal`, а инфраструктурные порты публикуются на host.
-
-Новая схема решает другую задачу:
+Схема развёртывания:
 
 - разделяет BeeFiscal и BeeMiniPOS на независимые Compose projects;
 - использует разные базы данных и учётные данные;
@@ -166,7 +164,7 @@ E2E-overlay выполняет для MiniPOS ту же функцию, что �
 - разделяет dev, production и E2E-политику;
 - добавляет production hardening и обязательную проверку конфигурации.
 
-Поэтому overlay-файлы не дублируют `docker-compose.yml`: они являются частями новой раздельной схемы развёртывания.
+Инфраструктура Fiscalisation находится непосредственно в `compose.fiscalisation.yaml`; отдельный объединённый `docker-compose.yml` больше не используется.
 
 ## Проверка итоговой конфигурации
 
@@ -180,3 +178,29 @@ docker compose \
 ```
 
 Аналогичные проверки dev- и production-комбинаций входят в цель `compose-check` в `Makefile`.
+
+
+### EMQX Dashboard:
+
+- адрес: [http://127.0.0.1:18083](http://127.0.0.1:18083)
+- логин: `EMQX_DASHBOARD_USERNAME`, по умолчанию `admin`
+- пароль: `EMQX_DASHBOARD_PASSWORD`, в dev по умолчанию `dev-only-dashboard-password`
+
+### RabbitMQ Management:
+
+- адрес: [http://127.0.0.1:15672](http://127.0.0.1:15672)
+- логин: `RABBITMQ_DEFAULT_USER`, по умолчанию `fiscal`
+- пароль: `RABBITMQ_DEFAULT_PASS`, в dev по умолчанию `dev-only-rabbitmq-password`
+
+Настройки находятся в [compose.fiscalisation.yaml](/Users/freelancer/Documents/Beeloy/Fiscalisation/compose.fiscalisation.yaml).
+
+Для production тестовые значения запрещены: [compose.fiscalisation.prod.yaml](/Users/freelancer/Documents/Beeloy/Fiscalisation/compose.fiscalisation.prod.yaml) требует явно задать:
+
+```env
+EMQX_DASHBOARD_PASSWORD=...
+EMQX_JWT_SECRET=...
+RABBITMQ_DEFAULT_USER=...
+RABBITMQ_DEFAULT_PASS=...
+```
+
+Важно: интерфейсы привязаны к `127.0.0.1`, поэтому доступны только с машины, где запущен Docker.

@@ -228,7 +228,7 @@ docker compose up --build
 
 ## EMQX JWT Токены
 
-В `docker-compose.yml` EMQX настроен на JWT-аутентификацию:
+В `compose.fiscalisation.yaml` EMQX настроен на JWT-аутентификацию:
 - токен передается в MQTT `password`
 - claim `acl` определяет доступные топики
 
@@ -253,7 +253,7 @@ docker compose up --build
 }
 ```
 
-Секрет подписи JWT сейчас задан как `change_me_super_secret` в [docker-compose.yml](docker-compose.yml) и должен быть заменен на безопасный секрет перед использованием.
+В dev используются явно помеченные тестовые значения. Для production overlay требует задать `EMQX_JWT_SECRET`, `EMQX_DASHBOARD_PASSWORD`, `RABBITMQ_DEFAULT_USER` и `RABBITMQ_DEFAULT_PASS`.
 
 ### Переменные окружения
 
