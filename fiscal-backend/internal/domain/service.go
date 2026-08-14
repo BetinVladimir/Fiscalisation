@@ -680,9 +680,11 @@ type OpenSaleWithFirstLineRequest struct {
 
 func (s *Service) OpenWorkstationSession(workstation, operatorCode, appInstance, actor, tenant string) (WorkstationSession, error) {
 	if workstation == "" || appInstance == "" || actor == "" || !bgOperatorPattern.MatchString(operatorCode) {
+		_ = s.repo.AppendAudit(tenant, actor, "LOGIN_FAILED", "workstation_session", workstation, "", nil, map[string]any{"operator_code": operatorCode, "app_instance_id": appInstance, "reason": "INVALID_SESSION_INPUT"})
 		return WorkstationSession{}, errors.New("invalid workstation session")
 	}
 	if _, err := s.activeFiscalDeviceSnapshot(workstation, tenant, time.Now().UTC()); err != nil {
+		_ = s.repo.AppendAudit(tenant, actor, "LOGIN_FAILED", "workstation_session", workstation, "", nil, map[string]any{"operator_code": operatorCode, "app_instance_id": appInstance, "reason": "FISCAL_DEVICE_UNAVAILABLE"})
 		return WorkstationSession{}, err
 	}
 	operatorID := ""
@@ -693,6 +695,7 @@ func (s *Service) OpenWorkstationSession(workstation, operatorCode, appInstance,
 		}
 	}
 	if operatorID == "" || !s.activeOperatorForTenant(operatorCode, tenant, time.Now().UTC()) {
+		_ = s.repo.AppendAudit(tenant, actor, "LOGIN_FAILED", "workstation_session", workstation, "", nil, map[string]any{"operator_code": operatorCode, "app_instance_id": appInstance, "reason": "OPERATOR_UNAVAILABLE"})
 		return WorkstationSession{}, errors.New("operator unavailable")
 	}
 	now := time.Now().UTC()
@@ -702,6 +705,25 @@ func (s *Service) OpenWorkstationSession(workstation, operatorCode, appInstance,
 	err := s.repo.PutResource(ResourceRecord{Kind: "workstation_session", TenantID: tenant, ID: v.SessionID, Version: 1, Data: data, CreatedAt: now, UpdatedAt: now})
 	return v, err
 }
+
+func (s *Service) LogoutWorkstationSession(id, workstation, actor, tenant string) error {
+	r, err := s.repo.Resource("workstation_session", id)
+	if err != nil || r.TenantID != tenant || stringField(r.Data, "workstation_id") != workstation || stringField(r.Data, "actor_subject") != actor {
+		return ErrNotFound
+	}
+	if revoked, _ := r.Data["revoked"].(bool); revoked {
+		return nil
+	}
+	before := cloneMap(r.Data)
+	r.Data["revoked"] = true
+	r.Data["revoked_at"] = time.Now().UTC().Format(time.RFC3339Nano)
+	r.Version++
+	r.UpdatedAt = time.Now().UTC()
+	if err = s.repo.PutResource(r); err != nil {
+		return err
+	}
+	return s.repo.AppendAudit(tenant, actor, "LOGOUT", "workstation_session", id, "", before, cloneMap(r.Data))
+}
 func (s *Service) WorkstationSession(id, workstation, tenant string) (WorkstationSession, error) {
 	r, err := s.repo.Resource("workstation_session", id)
 	if err != nil || r.TenantID != tenant {
@@ -709,7 +731,8 @@ func (s *Service) WorkstationSession(id, workstation, tenant string) (Workstatio
 	}
 	var v WorkstationSession
 	b, _ := json.Marshal(r.Data)
-	if json.Unmarshal(b, &v) != nil || v.WorkstationID != workstation || !time.Now().UTC().Before(v.ExpiresAt) || !s.activeOperatorForTenant(v.OperatorCode, tenant, time.Now().UTC()) {
+	revoked, _ := r.Data["revoked"].(bool)
+	if json.Unmarshal(b, &v) != nil || revoked || v.WorkstationID != workstation || !time.Now().UTC().Before(v.ExpiresAt) || !s.activeOperatorForTenant(v.OperatorCode, tenant, time.Now().UTC()) {
 		return WorkstationSession{}, errors.New("workstation session inactive")
 	}
 	return v, nil

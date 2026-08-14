@@ -25,6 +25,36 @@ func testHandler() http.Handler {
 	return NewHandler(s, config.Config{APIVersion: "2026-08-07", AllowStubAdapters: true})
 }
 
+func TestAuditAnnexFilters(t *testing.T) {
+	repo := domain.NewMemoryRepository()
+	svc := domain.NewService(repo, domain.NewSimulator(true))
+	operator, err := svc.CreateResource("operator", "tenant-a", map[string]any{
+		"code": "A001", "first_name": "Иван", "last_name": "Иванов",
+		"active_from": time.Now().UTC().Add(-time.Hour).Format(time.RFC3339),
+		"roles":       []any{"CASHIER"},
+	})
+	if err != nil {
+		t.Fatal(err)
+	}
+	h := NewHandler(svc, config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901"})
+	call := func(query string) *httptest.ResponseRecorder {
+		r := httptest.NewRequest(http.MethodGet, "/public/v1/audit-events?"+query, nil)
+		r.Header.Set("Authorization", "Bearer "+jwt("tenant-a", "AUDITOR"))
+		r.Header.Set("X-Api-Version", "2026-08-07")
+		w := httptest.NewRecorder()
+		h.ServeHTTP(w, r)
+		return w
+	}
+	w := call("action=OPERATOR_CREATED&object_type=operator&object_id=" + operator["id"].(string))
+	if w.Code != http.StatusOK || !bytes.Contains(w.Body.Bytes(), []byte(`"action":"OPERATOR_CREATED"`)) {
+		t.Fatalf("matching filter: %d %s", w.Code, w.Body.String())
+	}
+	w = call("action=LOGIN_FAILED")
+	if w.Code != http.StatusOK || !bytes.Contains(w.Body.Bytes(), []byte(`"items":[]`)) {
+		t.Fatalf("non-matching filter: %d %s", w.Code, w.Body.String())
+	}
+}
+
 func TestCountryPolicyAndEffectiveTaxGroups(t *testing.T) {
 	h := testHandler()
 	call := func(path string) *httptest.ResponseRecorder {

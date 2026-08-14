@@ -33,6 +33,6 @@ forbidden_pos_authority.each { |token| abort "thin POS regained fiscal authority
 abort "first-tap atomic API disappeared from POS" unless pos_sources.include?("/sales:open-with-line")
 abort "POS does not render opaque regulatory identifiers" unless pos_sources.include?("regulatory_identifiers")
 bg = JSON.parse(File.read(File.join(root, "contracts/bg-requirements-trace.json"))).fetch("requirements").find { |r| r["id"] == "BG-014" }
-abort "EPIC-00 must not fabricate BG-014 PASS" unless bg && bg["status"] == "EXCLUDED_MVP"
+abort "BG-014 must remain externally blocked until trusted activation evidence" unless bg && bg["status"] == "EXTERNAL_BLOCKED"
 counts = rows.group_by { |r| r["status"] }.transform_values(&:length)
-puts "SUPTO Annex 29 trace OK: 24/24; #{counts.sort.map { |k,v| "#{k}=#{v}" }.join(", ")}; BG-014 remains production-blocked"
+puts "SUPTO Annex 29 trace OK: 24/24; #{counts.sort.map { |k,v| "#{k}=#{v}" }.join(", ")}; software gate=#{trace['software_gate']}; BG-014 external evidence pending"

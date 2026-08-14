@@ -41,6 +41,26 @@ wait_schema() {
     sleep 1
   done
 }
+wait_postgres_stable() {
+  container=$1
+  consecutive=0
+  attempts=0
+  while [ "$consecutive" -lt 5 ]; do
+    attempts=$((attempts+1))
+    if docker exec "$container" pg_isready -U postgres -d app >/dev/null 2>&1 &&
+       docker exec "$container" psql -At -v ON_ERROR_STOP=1 -U postgres -d app -c 'select 1' 2>/dev/null | grep -qx 1; then
+      consecutive=$((consecutive+1))
+    else
+      consecutive=0
+    fi
+    if [ "$attempts" -ge 90 ]; then
+      docker logs "$container" >&2 || true
+      echo "timeout waiting for stable PostgreSQL main server" >&2
+      return 1
+    fi
+    sleep 1
+  done
+}
 
 docker network create "$network" >/dev/null
 docker run -d --name "$fiscal_db" --network "$network" \
@@ -58,6 +78,11 @@ wait_postgres "$fiscal_db"
 wait_postgres "$minipos_db"
 wait_schema "$fiscal_db" fiscal_runtime_operations
 wait_schema "$minipos_db" minipos_runtime_orders
+# The official image briefly exposes its initialization server before shutting
+# it down and exec'ing the long-lived server. A schema marker alone can race
+# that transition, so require a stable SQL window before any assertions.
+wait_postgres_stable "$fiscal_db"
+wait_postgres_stable "$minipos_db"
 
 # Prove database-enforced isolation using the non-owner/no-BYPASSRLS roles.
 fiscal_forced=$(docker exec "$fiscal_db" psql -At -v ON_ERROR_STOP=1 -U postgres -d app -c \

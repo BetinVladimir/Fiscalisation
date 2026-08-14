@@ -29,6 +29,10 @@ overlay.fetch("actions").each do |action|
 	    request.dig("content", "application/json")["schema"] = update
   elsif target == "$.paths['/webhook-endpoints'].post.responses['201']"
     document.dig("paths", "/webhook-endpoints", "post", "responses")["201"] = update
+  elsif target == "$.paths['/audit-events'].get.parameters"
+    document.dig("paths", "/audit-events", "get")["parameters"] = update
+  elsif target == "$.paths['/workstations/{workstation_id}/sessions/{session_id}:logout']"
+    document["paths"]["/workstations/{workstation_id}/sessions/{session_id}:logout"] = update
   else
     abort "unsupported effective OpenAPI overlay target: #{target}"
   end

@@ -2,7 +2,6 @@ import {
   createHash,
   createPrivateKey,
   createPublicKey,
-  generateKeyPairSync,
   sign,
   verify,
 } from "node:crypto";
@@ -43,12 +42,18 @@ if (!inventory.some((x) => x.path === "index.html"))
 const build = createHash("sha256")
   .update(JSON.stringify(inventory))
   .digest("hex");
+const sourceDateEpoch = process.env.SOURCE_DATE_EPOCH;
+if (process.env.APP_ENV === "prod" && !sourceDateEpoch)
+  throw new Error("SOURCE_DATE_EPOCH_REQUIRED");
+const createdAt = new Date(Number(sourceDateEpoch ?? "0") * 1000);
+if (!Number.isFinite(createdAt.getTime()))
+  throw new Error("SOURCE_DATE_EPOCH_INVALID");
 const unsigned = {
   schema_version: 1,
   application_id: "com.beeloy.miniposweb",
   version: process.env.npm_package_version ?? "0.1.0",
   build_id: `sha256:${build}`,
-  created_at: new Date().toISOString(),
+  created_at: createdAt.toISOString(),
   minimum_adapter_api: "2026-08-14",
   entrypoint: "index.html",
   files: inventory,
@@ -60,7 +65,10 @@ if (process.env.BEELOY_DEPLOYMENT_PRIVATE_KEY_PEM) {
 } else {
   if (process.env.APP_ENV === "prod")
     throw new Error("BEELOY_DEPLOYMENT_PRIVATE_KEY_PEM_REQUIRED");
-  ({ privateKey, publicKey } = generateKeyPairSync("ed25519"));
+  privateKey = createPrivateKey(`-----BEGIN PRIVATE KEY-----
+MC4CAQAwBQYDK2VwBCIEICFncYiXY1fPzRIRtWKwa+eCl7M+WaW+boYm0f+AWc08
+-----END PRIVATE KEY-----`);
+  publicKey = createPublicKey(privateKey);
   process.stdout.write(
     `DEV_SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64=${publicKey.export({ type: "spki", format: "der" }).toString("base64")}\n`,
   );

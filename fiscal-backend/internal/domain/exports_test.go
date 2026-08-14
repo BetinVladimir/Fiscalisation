@@ -28,42 +28,47 @@ func TestComplianceExportsJSONCSVAndXLSX(t *testing.T) {
 	if _, err = s.PayForTenant(sale.ID, PaymentRequest{PaymentID: "payment-1", Type: "CASH", Amount: Money{Amount: "0.80", Currency: "EUR"}}, "tenant-1"); err != nil {
 		t.Fatal(err)
 	}
-	for _, format := range []string{"JSON", "CSV", "XLSX"} {
-		op, err := s.CreateExport(ExportRequest{Type: "SUPTO_18_1", From: time.Now().Add(-time.Hour), To: time.Now().Add(time.Hour), Format: format}, "tenant-1")
-		if err != nil || op.State != "FISCALIZED" {
-			t.Fatal(format, op, err)
-		}
-		v, err := s.Export(op.FiscalReference, "tenant-1")
-		if err != nil {
-			t.Fatal(err)
-		}
-		if v["official_currency"] != "EUR" {
-			t.Fatal(v)
-		}
-		b, media, err := s.ExportArtifact(op.FiscalReference, "tenant-1")
-		if err != nil || len(b) == 0 || media == "" {
-			t.Fatal(format, media, err)
-		}
-		if format == "XLSX" {
-			archive, zipErr := zip.NewReader(bytes.NewReader(b), int64(len(b)))
-			if zipErr != nil {
-				t.Fatal("invalid xlsx zip", err)
+	for _, exportType := range []string{"SUPTO_18_1", "SUPTO_18_2", "SUPTO_18_3", "SUPTO_18_4", "SUPTO_18_5", "SUPTO_18_9"} {
+		for _, format := range []string{"JSON", "CSV", "XLSX"} {
+			op, err := s.CreateExport(ExportRequest{Type: exportType, From: time.Now().Add(-time.Hour), To: time.Now().Add(time.Hour), Format: format}, "tenant-1")
+			if err != nil || op.State != "FISCALIZED" {
+				t.Fatal(format, op, err)
 			}
-			for _, file := range archive.File {
-				if file.Name == "xl/worksheets/sheet1.xml" {
-					reader, _ := file.Open()
-					b, _ = io.ReadAll(reader)
-					_ = reader.Close()
+			v, err := s.Export(op.FiscalReference, "tenant-1")
+			if err != nil {
+				t.Fatal(err)
+			}
+			if v["official_currency"] != "EUR" {
+				t.Fatal(v)
+			}
+			b, media, err := s.ExportArtifact(op.FiscalReference, "tenant-1")
+			if err != nil || len(b) == 0 || media == "" {
+				t.Fatal(format, media, err)
+			}
+			if format == "XLSX" {
+				archive, zipErr := zip.NewReader(bytes.NewReader(b), int64(len(b)))
+				if zipErr != nil {
+					t.Fatal("invalid xlsx zip", err)
+				}
+				for _, file := range archive.File {
+					if file.Name == "xl/worksheets/sheet1.xml" {
+						reader, _ := file.Open()
+						b, _ = io.ReadAll(reader)
+						_ = reader.Close()
+					}
 				}
 			}
-		}
-		for _, evidence := range []string{"0.20", "0.80", "tax_group", "CASH", "lines"} {
-			if !bytes.Contains(b, []byte(evidence)) {
-				t.Fatalf("%s export lost detailed sale evidence %q: %s", format, evidence, b)
+			for _, evidence := range []string{"0.20", "0.80", "tax_group", "CASH", "lines", "sale_id"} {
+				if !bytes.Contains(b, []byte(evidence)) {
+					t.Fatalf("%s export lost detailed sale evidence %q: %s", format, evidence, b)
+				}
 			}
-		}
-		if _, _, err = s.ExportArtifact(op.FiscalReference, "tenant-2"); err == nil {
-			t.Fatal("cross tenant export leaked")
+			if format == "JSON" && (!bytes.Contains(b, []byte(`"schema_id":"BG_`+exportType+`_V1"`)) || !bytes.Contains(b, []byte(`"columns"`))) {
+				t.Fatalf("%s missing field-perfect schema metadata: %s", exportType, b)
+			}
+			if _, _, err = s.ExportArtifact(op.FiscalReference, "tenant-2"); err == nil {
+				t.Fatal("cross tenant export leaked")
+			}
 		}
 	}
 }

@@ -4,6 +4,33 @@ info:
   version: 1.1.0
 extends: ../../BeeloyBackend/docs/Fiscal/api/openapi-public-v1.yaml
 actions:
+  - target: "$.paths['/workstations/{workstation_id}/sessions/{session_id}:logout']"
+    update:
+      post:
+        operationId: logoutWorkstationSession
+        parameters:
+          - {name: workstation_id, in: path, required: true, schema: {type: string, format: uuid}}
+          - {name: session_id, in: path, required: true, schema: {type: string}}
+          - {$ref: '#/components/parameters/ApiVersion'}
+          - {$ref: '#/components/parameters/IdempotencyKey'}
+        requestBody:
+          required: true
+          content: {application/json: {schema: {type: object, additionalProperties: false}}}
+        responses:
+          '204': {description: Durable operator logout}
+          '404': {$ref: '#/components/responses/NotFound'}
+  - target: "$.paths['/audit-events'].get.parameters"
+    update:
+      - {$ref: '#/components/parameters/ApiVersion'}
+      - {$ref: '#/components/parameters/Cursor'}
+      - {$ref: '#/components/parameters/Limit'}
+      - {name: actor_id, in: query, schema: {type: string}}
+      - {name: action, in: query, schema: {type: string}}
+      - {name: object_type, in: query, schema: {type: string}}
+      - {name: object_id, in: query, schema: {type: string}}
+      - {name: unp, in: query, schema: {type: string}}
+      - {name: from, in: query, schema: {type: string, format: date-time}}
+      - {name: to, in: query, schema: {type: string, format: date-time}}
   - target: $.components.schemas.SaleLine.properties
     description: Carry the N-18 line-level absolute EUR discount through the public Fiscal command instead of losing the MiniPOS field before the device command.
     update:

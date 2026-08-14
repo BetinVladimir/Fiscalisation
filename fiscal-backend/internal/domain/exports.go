@@ -74,7 +74,7 @@ func (s *Service) CreateExport(in ExportRequest, tenant string) (Operation, erro
 	var err error
 	switch in.Format {
 	case "JSON":
-		artifact, err = json.Marshal(map[string]any{"schema_version": "2026-08-07", "policy_version": "BG-2026-EUR", "official_currency": "EUR", "interval_semantics": "[from,to)", "type": in.Type, "from": in.From, "to": in.To, "rows": rows})
+		artifact, err = json.Marshal(map[string]any{"schema_version": "2026-08-14", "schema_id": exportSchemaID(in.Type), "columns": exportCSVHeader(), "policy_version": "BG-2026-EUR", "official_currency": "EUR", "interval_semantics": "[from,to)", "type": in.Type, "from": in.From, "to": in.To, "rows": rows})
 	case "CSV":
 		media = "text/csv"
 		artifact, err = exportCSV(rows)
@@ -96,6 +96,8 @@ func (s *Service) CreateExport(in ExportRequest, tenant string) (Operation, erro
 	op := Operation{ID: newID("op"), TenantID: tenant, Type: "COMPLIANCE_EXPORT", State: "FISCALIZED", Version: 2, FiscalReference: exportID, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	return op, s.repo.CommitResourceArtifactsOperation(resource, op, map[string][]byte{artifactID: artifact})
 }
+
+func exportSchemaID(exportType string) string { return "BG_" + exportType + "_V1" }
 
 // CreatePeriodizedExport is the additive BG-020 export path. Its interval is
 // deliberately half-open [from,to), so the legal BGN/EUR boundary can never
@@ -218,7 +220,7 @@ func renderExportArtifact(in ExportRequest, rows []exportRow, currency string, f
 	switch in.Format {
 	case "JSON":
 		artifact, err := json.Marshal(map[string]any{
-			"schema_version": "2026-08-07", "policy_version": "BG-EUR-TRANSITION-2026-01-01",
+			"schema_version": "2026-08-14", "schema_id": exportSchemaID(in.Type), "columns": exportCSVHeader(), "policy_version": "BG-EUR-TRANSITION-2026-01-01",
 			"official_currency": currency, "type": in.Type, "from_inclusive": from.UTC(), "to_exclusive": to.UTC(), "rows": rows,
 		})
 		return artifact, "application/json", err

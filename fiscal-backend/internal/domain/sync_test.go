@@ -207,6 +207,35 @@ func TestOfflineFiscalSaleMaterializesAcrossSeparateSyncBatches(t *testing.T) {
 	}
 }
 
+func TestOfflineComplianceOpenProjectsUNPAndRawIntentAtomically(t *testing.T) {
+	key := []byte("01234567890123456789012345678901")
+	repo := NewMemoryRepository()
+	s := NewService(repo, NewSimulator(true))
+	s.SetBLESigningKey(string(key))
+	now := time.Now().UTC().Add(-time.Second).Format(time.RFC3339Nano)
+	saleID := "550e8400-e29b-41d4-a716-446655440000"
+	opID := "550e8400-e29b-41d4-a716-446655440001"
+	payload := map[string]any{"intent_id": opID, "action": "OPEN_WITH_LINE", "client_sale_surrogate_id": saleID, "operator_code": "A001", "app_instance_id": "550e8400-e29b-41d4-a716-446655440002", "expected_version": float64(0), "unp": "DY000600-A001-0000001", "country_code": "BG", "profile_version": BGProfileVersion, "identifier_scheme": BGUNPV1, "line": map[string]any{"line_id": "550e8400-e29b-41d4-a716-446655440003", "name": "Кафе", "quantity": "1.000", "unit_price": "2.50", "discount": "0.20", "tax_group": "B"}}
+	accepted := DeviceEventEnvelope{EventID: "550e8400-e29b-41d4-a716-446655440004", OperationID: opID, DeviceID: "edge-1", EventType: "ACCEPTED", OccurredAt: now, Payload: map[string]any{"operation_sequence": float64(1), "unp_sequence": float64(1), "command": map[string]any{"command_id": opID, "tenant_id": "tenant-1", "register_id": "550e8400-e29b-41d4-a716-446655440005", "device_id": "edge-1", "type": "FISCAL_SALE_OPEN", "payload": payload}}}
+	result := DeviceEventEnvelope{EventID: "550e8400-e29b-41d4-a716-446655440006", OperationID: opID, DeviceID: "edge-1", EventType: "FISCALIZED", OccurredAt: now, Payload: map[string]any{"state": "FISCALIZED", "fiscal_reference": "FU-1"}}
+	if _, err := s.SyncBatch(signCustomBatch("edge-1", 1, nil, []DeviceEventEnvelope{accepted, result}, key)); err != nil {
+		t.Fatal(err)
+	}
+	sale, err := repo.Sale(saleID)
+	if err != nil || sale.State != "OPEN" || sale.UNP != "DY000600-A001-0000001" || len(sale.RegulatoryIdentifiers) != 1 || len(sale.Lines) != 1 {
+		t.Fatalf("projection: %#v %v", sale, err)
+	}
+	foundRaw := false
+	for _, event := range repo.AuditEvents("tenant-1") {
+		if event.Action == "EDGE_INTENT_ACCEPTED" && event.ObjectID == saleID {
+			foundRaw = true
+		}
+	}
+	if !foundRaw {
+		t.Fatal("accepted raw intent linkage missing")
+	}
+}
+
 func TestReversedEventMaterializesSaleAndWebhook(t *testing.T) {
 	key := []byte("01234567890123456789012345678901")
 	repo := NewMemoryRepository()

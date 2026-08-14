@@ -401,12 +401,27 @@ func (h *Handler) deviceActivationConfirmation(w http.ResponseWriter, r *http.Re
 func (h *Handler) workstation(w http.ResponseWriter, r *http.Request) {
 	p := strings.Trim(strings.TrimPrefix(r.URL.Path, "/public/v1/workstations/"), "/")
 	parts := strings.Split(p, "/")
-	if len(parts) != 2 || parts[0] == "" {
+	if (len(parts) != 2 && len(parts) != 3) || parts[0] == "" {
 		problem(w, 404, "NOT_FOUND")
 		return
 	}
 	id, action := parts[0], parts[1]
 	switch {
+	case len(parts) == 3 && action == "sessions" && strings.HasSuffix(parts[2], ":logout") && r.Method == http.MethodPost:
+		sessionID := strings.TrimSuffix(parts[2], ":logout")
+		body, ok := readBody(w, r)
+		if !ok || h.replay(w, r, body) {
+			return
+		}
+		if len(bytes.TrimSpace(body)) > 0 && string(bytes.TrimSpace(body)) != "{}" {
+			problem(w, 400, "INVALID_JSON")
+			return
+		}
+		if err := h.svc.LogoutWorkstationSession(sessionID, id, actorSubject(r), tenantID(r)); err != nil {
+			problem(w, 404, "WORKSTATION_SESSION_NOT_FOUND")
+			return
+		}
+		h.saveReplay(w, r, body, http.StatusNoContent, nil)
 	case action == "sessions" && r.Method == http.MethodPost:
 		body, ok := readBody(w, r)
 		if !ok {
@@ -1451,6 +1466,15 @@ func (h *Handler) auditEvents(w http.ResponseWriter, r *http.Request) {
 	filtered := items[:0]
 	for _, item := range items {
 		if actor := r.URL.Query().Get("actor_id"); actor != "" && item.ActorID != actor {
+			continue
+		}
+		if action := r.URL.Query().Get("action"); action != "" && item.Action != action {
+			continue
+		}
+		if objectType := r.URL.Query().Get("object_type"); objectType != "" && item.ObjectType != objectType {
+			continue
+		}
+		if objectID := r.URL.Query().Get("object_id"); objectID != "" && item.ObjectID != objectID {
 			continue
 		}
 		if unp := r.URL.Query().Get("unp"); unp != "" && item.UNP != unp {

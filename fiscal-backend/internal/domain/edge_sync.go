@@ -67,8 +67,12 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 		if v.LastSeq == previous.CommittedThroughSeq && len(v.Events) > 0 && v.Events[len(v.Events)-1].EventHash == previous.CommittedEventHash && EdgeBatchHash(v) == v.BatchSHA256 {
 			hardwareKey, hardwareKID, hardwareErr := s.deviceTransactionSigningKey(tenant, v.EdgeID)
 			valid := tenant != "" && s.requireHardwareSyncSignatures && hardwareErr == nil && verifyDeviceSignature(hardwareKey, hardwareKID, v.BatchSHA256, v.Signature)
-			if !s.requireHardwareSyncSignatures { valid = s.verifyLegacySyncHMAC(v.BatchSHA256, v.Signature) }
-			if valid { return previous, nil }
+			if !s.requireHardwareSyncSignatures {
+				valid = s.verifyLegacySyncHMAC(v.BatchSHA256, v.Signature)
+			}
+			if valid {
+				return previous, nil
+			}
 			return SyncAck{}, errors.New("invalid replayed batch signature")
 		}
 		if v.FirstSeq != previous.CommittedThroughSeq+1 {
@@ -103,6 +107,7 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 	operations := []Operation{}
 	artifacts := map[string][]byte{}
 	outbox := []OutboxItem{}
+	materializedSales := map[string]Sale{}
 	allowed := map[string]bool{"ACCEPTED": true, "EXECUTING": true, "PAYMENT_PREPARED": true, "PAYMENT_APPROVED": true, "FISCAL_OPENING": true, "FISCAL_OPEN": true, "LINES_REGISTERING": true, "PAYMENTS_REGISTERING": true, "FISCAL_CLOSING": true, "COMPENSATION_REQUIRED": true, "COMPENSATED": true, "RECOVERY_REQUIRED": true, "FISCALIZED": true, "REVERSED": true, "FAILED": true, "UNKNOWN": true, "SNAPSHOT": true, "SYNC_BATCH": true}
 	for i, event := range v.Events {
 		occurredAt, occurredErr := time.Parse(time.RFC3339Nano, event.OccurredAt)
@@ -141,13 +146,14 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 				ok = err == nil
 			}
 			if ok {
-				sale, operation, artifactID, artifactBody, hook, materializeErr := s.materializeEdgeResult(pending, event)
+				sale, operation, artifactID, artifactBody, hook, materializeErr := s.materializeEdgeResult(pending, event, materializedSales)
 				if materializeErr != nil {
 					return SyncAck{}, materializeErr
 				}
 				operations = append(operations, operation)
 				if sale.ID != "" {
 					sales = append(sales, sale)
+					materializedSales[sale.ID] = sale
 				}
 				if artifactID != "" {
 					artifacts[artifactID] = artifactBody
@@ -255,7 +261,7 @@ func pendingCommandFromEvent(event DeviceEventEnvelope) (EdgePendingCommand, boo
 	return v, true
 }
 
-func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventEnvelope) (Sale, Operation, string, []byte, OutboxItem, error) {
+func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventEnvelope, materialized map[string]Sale) (Sale, Operation, string, []byte, OutboxItem, error) {
 	finishedAt, err := time.Parse(time.RFC3339Nano, event.OccurredAt)
 	if err != nil || finishedAt.Before(p.AcceptedAt) {
 		return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("invalid Edge result time")
@@ -266,6 +272,9 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 	}
 	ref := stringAny(event.Payload, "fiscal_reference", "FiscalReference")
 	op := Operation{ID: p.OperationID, TenantID: p.TenantID, RegisterID: p.RegisterID, Type: p.CommandType, State: state, Version: event.JournalSeq, FiscalReference: ref, Simulated: false, AllowedActions: []string{}, CreatedAt: p.AcceptedAt, UpdatedAt: finishedAt}
+	if strings.HasPrefix(p.CommandType, "FISCAL_SALE_") && p.CommandType != "FISCAL_SALE_PAYMENT" && p.CommandType != "FISCAL_SALE_REVERSAL" {
+		return s.materializeOfflineSaleIntent(p, event, op, finishedAt, materialized)
+	}
 	if p.CommandType == "REVERSAL" {
 		saleID := stringAny(p.Payload, "server_sale_id", "SaleID")
 		sale, saleErr := s.repo.Sale(saleID)
@@ -394,6 +403,122 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 	hookEvent := WebhookEvent{EventID: "event-edge-" + op.ID + "-" + state, EventType: eventType, APIVersion: "2026-08-07", TenantID: p.TenantID, ResourceID: sale.ID, ResourceVersion: op.Version, OccurredAt: finishedAt, Data: map[string]any{"state": op.State, "operation_id": op.ID, "sale_id": sale.ID, "external_id": sale.ExternalID, "fiscal_reference": ref, "error_code": op.ErrorCode}}
 	hook := OutboxItem{ID: hookEvent.EventID, Event: hookEvent, NextAttempt: finishedAt}
 	return sale, op, artifactID, artifact, hook, nil
+}
+
+func (s *Service) materializeOfflineSaleIntent(p EdgePendingCommand, event DeviceEventEnvelope, op Operation, finishedAt time.Time, materialized map[string]Sale) (Sale, Operation, string, []byte, OutboxItem, error) {
+	b, _ := json.Marshal(p.Payload)
+	var intent struct {
+		ClientSaleSurrogateID string `json:"client_sale_surrogate_id"`
+		ServerSaleID          string `json:"server_sale_id"`
+		OperatorCode          string `json:"operator_code"`
+		UNP                   string `json:"unp"`
+		CountryCode           string `json:"country_code"`
+		ProfileVersion        string `json:"profile_version"`
+		IdentifierScheme      string `json:"identifier_scheme"`
+		Line                  *struct {
+			LineID      string `json:"line_id"`
+			ProductCode string `json:"product_code"`
+			Name        string `json:"name"`
+			Quantity    string `json:"quantity"`
+			UnitPrice   string `json:"unit_price"`
+			Discount    string `json:"discount"`
+			TaxGroup    string `json:"tax_group"`
+		} `json:"line"`
+	}
+	if json.Unmarshal(b, &intent) != nil || intent.ClientSaleSurrogateID == "" || len(intent.OperatorCode) != 4 {
+		return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("invalid offline compliance intent")
+	}
+	saleID := intent.ServerSaleID
+	if saleID == "" {
+		saleID = intent.ClientSaleSurrogateID
+	}
+	op.SaleID = saleID
+	if p.CommandType == "FISCAL_SALE_OPEN" {
+		if intent.Line == nil || !bgUNPPattern.MatchString(intent.UNP) {
+			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("invalid offline first-line evidence")
+		}
+		line := SaleLine{LineID: intent.Line.LineID, ProductCode: intent.Line.ProductCode, Name: intent.Line.Name, Quantity: intent.Line.Quantity, UnitPrice: Money{Amount: intent.Line.UnitPrice, Currency: "EUR"}, TaxGroup: intent.Line.TaxGroup}
+		if intent.Line.Discount != "" {
+			line.Discount = &Money{Amount: intent.Line.Discount, Currency: "EUR"}
+		}
+		if line.LineID == "" || line.Name == "" || !validMoney(line.UnitPrice) || !validDiscount(line.Discount) || !validQuantity(line.Quantity) {
+			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("invalid offline first line")
+		}
+		state := "OPEN"
+		if event.EventType == "FAILED" {
+			state = "CANCELLED"
+		}
+		if event.EventType == "UNKNOWN" || event.EventType == "RECOVERY_REQUIRED" {
+			state = "UNKNOWN"
+		}
+		profile := intent.ProfileVersion
+		if profile == "" {
+			profile = BGProfileVersion
+		}
+		sale := Sale{ID: saleID, TenantID: p.TenantID, ExternalID: intent.ClientSaleSurrogateID, RegisterID: p.RegisterID, OperatorID: intent.OperatorCode, UNP: intent.UNP, State: state, Version: event.JournalSeq, Lines: []SaleLine{line}, FiscalOperationID: p.OperationID, FiscalDevice: FiscalDeviceSnapshot{DeviceID: p.DeviceID, FiscalDeviceNumber: strings.Split(intent.UNP, "-")[0]}, CreatedAt: p.AcceptedAt, UpdatedAt: finishedAt, RegulatoryIdentifiers: []RegulatoryIdentifier{{Type: "SALE", Scheme: coalesceString(intent.IdentifierScheme, BGUNPV1), Value: intent.UNP, CountryCode: coalesceString(intent.CountryCode, "BG"), ProfileVersion: profile}}}
+		return sale, op, "", nil, edgeSaleHook(sale, op, event.EventType, finishedAt), nil
+	}
+	sale, found := materialized[saleID]
+	var err error
+	if !found {
+		sale, err = s.repo.Sale(saleID)
+	}
+	if (!found && err != nil) || sale.TenantID != p.TenantID {
+		return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("offline sale projection not found")
+	}
+	beforeVersion := sale.Version
+	switch p.CommandType {
+	case "FISCAL_SALE_LINE":
+		if intent.Line == nil {
+			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("offline line missing")
+		}
+		line := SaleLine{LineID: intent.Line.LineID, ProductCode: intent.Line.ProductCode, Name: intent.Line.Name, Quantity: intent.Line.Quantity, UnitPrice: Money{Amount: intent.Line.UnitPrice, Currency: "EUR"}, TaxGroup: intent.Line.TaxGroup}
+		if intent.Line.Discount != "" {
+			line.Discount = &Money{Amount: intent.Line.Discount, Currency: "EUR"}
+		}
+		sale.Lines = append(sale.Lines, line)
+	case "FISCAL_SALE_LINE_CHANGE":
+		if intent.Line == nil {
+			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("offline line missing")
+		}
+		found := false
+		for i := range sale.Lines {
+			if sale.Lines[i].LineID == intent.Line.LineID {
+				sale.Lines[i].Quantity = intent.Line.Quantity
+				found = true
+			}
+		}
+		if !found {
+			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("offline line not found")
+		}
+	case "FISCAL_SALE_LINE_CANCEL":
+		if intent.Line == nil {
+			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("offline line missing")
+		}
+		next := sale.Lines[:0]
+		for _, line := range sale.Lines {
+			if line.LineID != intent.Line.LineID {
+				next = append(next, line)
+			}
+		}
+		sale.Lines = next
+	case "FISCAL_SALE_CANCEL":
+		sale.State = "CANCELLED"
+	}
+	sale.Version = beforeVersion + 1
+	sale.UpdatedAt = finishedAt
+	return sale, op, "", nil, edgeSaleHook(sale, op, event.EventType, finishedAt), nil
+}
+
+func coalesceString(value, fallback string) string {
+	if value != "" {
+		return value
+	}
+	return fallback
+}
+func edgeSaleHook(sale Sale, op Operation, state string, at time.Time) OutboxItem {
+	e := WebhookEvent{EventID: "event-edge-intent-" + op.ID + "-" + state, EventType: "fiscal.sale.updated", APIVersion: "2026-08-07", TenantID: sale.TenantID, ResourceID: sale.ID, ResourceVersion: sale.Version, OccurredAt: at, Data: map[string]any{"sale_id": sale.ID, "external_id": sale.ExternalID, "unp": sale.UNP, "operation_id": op.ID, "state": sale.State}}
+	return OutboxItem{ID: e.EventID, Event: e, NextAttempt: at}
 }
 
 func stringAny(v map[string]any, keys ...string) string {

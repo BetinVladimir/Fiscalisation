@@ -12,10 +12,13 @@ canonical = load_yaml.call(canonical_path)
 runtime = load_yaml.call(runtime_path)
 overlay = load_yaml.call(File.join(root, "contracts/openapi-corrections-v1.yaml"))
 overlay.fetch("actions").each do |action|
-  match = action.fetch("target").match(/\A\$\.components\.schemas\.([A-Za-z0-9_]+)\.properties\z/)
-  canonical.dig("components", "schemas", match[1], "properties").merge!(action.fetch("update")) if match
-  required = action.fetch("target").match(/\A\$\.components\.schemas\.([A-Za-z0-9_]+)\.required\z/)
-  canonical.dig("components", "schemas", required[1])["required"] = action.fetch("update") if required
+	target = action.fetch("target")
+	match = target.match(/\A\$\.components\.schemas\.([A-Za-z0-9_]+)\.properties\z/)
+	canonical.dig("components", "schemas", match[1], "properties").merge!(action.fetch("update")) if match
+	required = target.match(/\A\$\.components\.schemas\.([A-Za-z0-9_]+)\.required\z/)
+	canonical.dig("components", "schemas", required[1])["required"] = action.fetch("update") if required
+	canonical.dig("paths", "/audit-events", "get")["parameters"] = action.fetch("update") if target == "$.paths['/audit-events'].get.parameters"
+	canonical["paths"]["/workstations/{workstation_id}/sessions/{session_id}:logout"] = action.fetch("update") if target == "$.paths['/workstations/{workstation_id}/sessions/{session_id}:logout']"
 end
 
 def resolve_pointer(document, pointer)

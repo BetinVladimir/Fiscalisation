@@ -2,6 +2,7 @@
 require 'json'
 require 'yaml'
 require 'date'
+require 'tmpdir'
 
 root = File.expand_path('..', __dir__)
 record_path = ENV.fetch('ACCEPTANCE_RECORD_PATH', File.join(root, 'contracts/mvp-acceptance-v1.json'))
@@ -25,7 +26,13 @@ operation_count = lambda do |path|
     item.count { |method, operation| http_methods.include?(method) && operation.is_a?(Hash) && !operation['operationId'].to_s.empty? }
   end
 end
-canonical_count = operation_count.call('/Users/freelancer/Documents/Beeloy/BeeloyBackend/docs/Fiscal/api/openapi-public-v1.yaml')
+canonical_source = '/Users/freelancer/Documents/Beeloy/BeeloyBackend/docs/Fiscal/api/openapi-public-v1.yaml'
+canonical_count = Dir.mktmpdir('beeloy-handover-openapi') do |dir|
+  effective = File.join(dir, 'openapi-public-v1.yaml')
+  assert(system('ruby', File.join(root, 'scripts/build_effective_openapi.rb'), effective,
+                out: File::NULL), 'effective canonical OpenAPI build failed')
+  operation_count.call(effective)
+end
 runtime_count = operation_count.call(File.join(root, 'contracts/openapi-runtime-v1.yaml'))
 surface = record.fetch('contract_surface')
 assert(surface['canonical_operations'] == canonical_count, "canonical contract count drift: acceptance=#{surface['canonical_operations']} actual=#{canonical_count}")

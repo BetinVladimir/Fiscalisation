@@ -3,7 +3,7 @@
   "application_id": "com.beeloy.miniposweb",
   "version": "0.1.0",
   "build_id": "sha256:10e676ac4969b387e27ad6c5107f431250ce3b067ce1ffcf4fcd758b7e082210",
-  "created_at": "2026-08-14T15:30:10.420Z",
+  "created_at": "1970-01-01T00:00:00.000Z",
   "minimum_adapter_api": "2026-08-14",
   "entrypoint": "index.html",
   "files": [
@@ -29,6 +29,6 @@
   "signature": {
     "kid": "minipos-dev-ephemeral",
     "alg": "Ed25519",
-    "value": "a_USDwOktHSK68R3kTKSKAhqIcRA9NjjBAeTsV3HEcJqRot9tpA-8QPBnFQ_EeOO2gvpCqoHOZlhoyXTNDFiAw"
+    "value": "7AtCNXBv_MPas5QS7YDSKtGz6pf_hnIuLQJl5RlBL5w5EPI3qWVeSa9aGXL3DBfICGO5H-d46m4nU9qG6gujCA"
   }
 }

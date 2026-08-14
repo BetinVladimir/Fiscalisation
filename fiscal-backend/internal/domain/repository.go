@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"reflect"
 	"strings"
 	"sync"
 	"time"
@@ -137,6 +138,7 @@ type Repository interface {
 	PutArtifact(string, string, []byte) error
 	Artifact(string, string) ([]byte, error)
 	AuditEvents(string) []AuditEvent
+	AppendAudit(string, string, string, string, string, string, map[string]any, map[string]any) error
 }
 
 func (r *MemoryRepository) ReserveUNPRange(tenant, fmin string, count int64) (int64, int64, error) {
@@ -674,6 +676,18 @@ func (r *MemoryRepository) CommitEdgeSync(tenant string, ack SyncAck, sales []Sa
 	}
 	for _, sale := range sales {
 		r.sales[sale.ID] = sale
+		action := "EDGE_SALE_PROJECTED"
+		switch sale.State {
+		case "OPEN":
+			action = "SALE_OPENED"
+		case "COMPLETED":
+			action = "SALE_COMPLETED"
+		case "CANCELLED":
+			action = "SALE_CANCELLED"
+		case "UNKNOWN":
+			action = "FISCAL_RESULT_UNKNOWN"
+		}
+		r.appendAuditLocked(sale.TenantID, sale.OperatorID, action, "sale", sale.ID, sale.UNP, nil, asMap(sale))
 	}
 	for _, operation := range operations {
 		r.operations[operation.ID] = operation
@@ -693,6 +707,8 @@ func (r *MemoryRepository) CommitEdgeSync(tenant string, ack SyncAck, sales []Sa
 	}
 	for _, item := range pending {
 		r.edgePending[item.OperationID] = item
+		saleID := stringAny(item.Payload, "server_sale_id", "client_sale_surrogate_id", "external_id")
+		r.appendAuditLocked(item.TenantID, "edge:"+ack.EdgeID, "EDGE_INTENT_ACCEPTED", "sale", saleID, stringAny(item.Payload, "unp"), nil, map[string]any{"operation_id": item.OperationID, "command_type": item.CommandType, "raw_intent": cloneMap(item.Payload), "edge_id": ack.EdgeID})
 	}
 	for _, id := range completed {
 		delete(r.edgePending, id)
@@ -784,7 +800,27 @@ func (r *MemoryRepository) PutResource(v ResourceRecord) error {
 	}
 	v.Data = cloneMap(v.Data)
 	r.resources[resourceKey(v.Kind, v.ID)] = v
-	r.appendAuditLocked(v.TenantID, "system", "UPSERT", v.Kind, v.ID, "", before, v.Data)
+	action := "CONFIGURATION_CHANGED"
+	if v.Kind == "operator" {
+		action = "OPERATOR_CREATED"
+		if before != nil {
+			action = "OPERATOR_CHANGED"
+			if !reflect.DeepEqual(before["roles"], v.Data["roles"]) {
+				action = "OPERATOR_ROLE_CHANGED"
+			}
+			if stringField(before, "active_to") == "" && stringField(v.Data, "active_to") != "" {
+				action = "OPERATOR_DEACTIVATED"
+			}
+		}
+	} else if v.Kind == "workstation_session" {
+		if before == nil {
+			action = "LOGIN_SUCCEEDED"
+		}
+	}
+	r.appendAuditLocked(v.TenantID, "system", action, v.Kind, v.ID, "", before, v.Data)
+	if v.Kind == "workstation_session" && before == nil {
+		r.appendAuditLocked(v.TenantID, "system", "WORKSTATION_STARTED", v.Kind, v.ID, "", nil, v.Data)
+	}
 	return r.persistLocked()
 }
 func (r *MemoryRepository) CommitCompositeBinding(register, binding ResourceRecord) error {
@@ -941,6 +977,12 @@ func (r *MemoryRepository) AuditEvents(tenant string) []AuditEvent {
 	}
 	return v
 }
+func (r *MemoryRepository) AppendAudit(tenant, actor, action, kind, id, unp string, before, after map[string]any) error {
+	r.mu.Lock()
+	defer r.mu.Unlock()
+	r.appendAuditLocked(tenant, actor, action, kind, id, unp, before, after)
+	return r.persistLocked()
+}
 func (r *MemoryRepository) appendAuditLocked(tenant, actor, action, kind, id, unp string, before, after map[string]any) {
 	prev := ""
 	if len(r.audit) > 0 {
@@ -1050,7 +1092,7 @@ func (r *MemoryRepository) PutSale(v Sale) error {
 		before = asMap(old)
 	}
 	r.sales[v.ID] = v
-	r.appendAuditLocked(v.TenantID, v.OperatorID, "UPSERT", "sale", v.ID, v.UNP, before, asMap(v))
+	r.appendAuditLocked(v.TenantID, v.OperatorID, "SALE_LINE_ADDED", "sale", v.ID, v.UNP, before, asMap(v))
 	return r.persistLocked()
 }
 
@@ -1263,7 +1305,8 @@ func (r *MemoryRepository) reserveSalePayment(id, tenant string, expected int64,
 	if command != nil {
 		r.resources[resourceKey(command.Kind, command.ID)] = *command
 	}
-	r.appendAuditLocked(sale.TenantID, sale.OperatorID, "PAYMENT_RESERVED", "sale", sale.ID, sale.UNP, before, asMap(sale))
+	r.appendAuditLocked(sale.TenantID, sale.OperatorID, "PAYMENT_INTENT_CREATED", "sale", sale.ID, sale.UNP, before, asMap(sale))
+	r.appendAuditLocked(sale.TenantID, sale.OperatorID, "FISCAL_COMMAND_DURABLE", "sale", sale.ID, sale.UNP, before, asMap(sale))
 	if err := r.persistLocked(); err != nil {
 		return Sale{}, err
 	}

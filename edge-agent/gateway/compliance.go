@@ -118,7 +118,11 @@ func (g *ComplianceGateway) Execute(intent ComplianceIntent) (IntentResult, erro
 	if err != nil {
 		return IntentResult{}, err
 	}
-	out := IntentResult{OperationID: result.CommandID, State: result.State, ServerSaleID: intent.ServerSaleID, Version: intent.ExpectedVersion + 1, FiscalReference: result.FiscalReference, ErrorCode: result.ErrorCode}
+	serverSaleID := intent.ServerSaleID
+	if intent.Action == "OPEN_WITH_LINE" && serverSaleID == "" {
+		serverSaleID = intent.ClientSaleSurrogateID
+	}
+	out := IntentResult{OperationID: result.CommandID, State: result.State, ServerSaleID: serverSaleID, Version: intent.ExpectedVersion + 1, FiscalReference: result.FiscalReference, ErrorCode: result.ErrorCode}
 	if intent.Action == "OPEN_WITH_LINE" {
 		value, found := g.runtime.RegulatoryIdentifierForSurrogate(intent.ClientSaleSurrogateID)
 		if !found {

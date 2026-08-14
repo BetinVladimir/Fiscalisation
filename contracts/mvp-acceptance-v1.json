@@ -14,17 +14,17 @@
     "observed_consecutive_clean_runs": 2
   },
   "contract_surface": {
-    "canonical_operations": 73,
+    "canonical_operations": 74,
     "runtime_operations": 58,
-    "request_contracts": 131,
-    "successful_response_contracts": 131
+    "request_contracts": 132,
+    "successful_response_contracts": 132
   },
   "requirement_trace": {
     "total": 25,
     "pass": 7,
     "partial_external_only": 12,
-    "external_blocked": 5,
-    "excluded_mvp": 1
+    "external_blocked": 6,
+    "excluded_mvp": 0
   },
   "accepted_software_capabilities": [
     "isolated Fiscal and MiniPOS Compose projects with separate Caddy and PostgreSQL",

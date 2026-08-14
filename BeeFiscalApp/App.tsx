@@ -129,6 +129,13 @@ export default function App() {
     [bleAppInstance] = useState(() => `beefiscal-admin-${Date.now()}`),
     [transportMetrics, setTransportMetrics] = useState<Item | null>(null),
     [fiscalMetrics, setFiscalMetrics] = useState<Item | null>(null),
+    [auditActor, setAuditActor] = useState(""),
+    [auditAction, setAuditAction] = useState(""),
+    [auditObjectType, setAuditObjectType] = useState(""),
+    [auditObjectId, setAuditObjectId] = useState(""),
+    [auditUnp, setAuditUnp] = useState(""),
+    [auditFrom, setAuditFrom] = useState(""),
+    [auditTo, setAuditTo] = useState(""),
     [adminBusy, setAdminBusy] = useState(false),
     [loading, setLoading] = useState(false);
   useEffect(() => {
@@ -160,7 +167,15 @@ export default function App() {
           setItems(v);
         }
         if (next === "Одит") {
-          setItems(await collect("/audit-events"));
+          const params = new URLSearchParams();
+          if (auditActor) params.set("actor_id", auditActor);
+          if (auditAction) params.set("action", auditAction);
+          if (auditObjectType) params.set("object_type", auditObjectType);
+          if (auditObjectId) params.set("object_id", auditObjectId);
+          if (auditUnp) params.set("unp", auditUnp);
+          if (auditFrom) params.set("from", auditFrom);
+          if (auditTo) params.set("to", auditTo);
+          setItems(await collect(`/audit-events${params.size ? `?${params}` : ""}`));
         }
         if (next === "Настройки") {
           const [p, t] = await Promise.all([
@@ -206,7 +221,7 @@ export default function App() {
         setLoading(false);
       }
     },
-    [register, tab, canAdminister, canReadAudit, roles.join(",")],
+    [register, tab, canAdminister, canReadAudit, roles.join(","), auditActor, auditAction, auditObjectType, auditObjectId, auditUnp, auditFrom, auditTo],
   );
   useEffect(() => {
     runtimeAuthToken = oidc.accessToken || devAuthToken;
@@ -645,6 +660,19 @@ export default function App() {
             </>
           ) : tab === "Одит" && canReadAudit ? (
             <View testID="audit-events" accessibilityLabel="Неизменим одитен журнал">
+              <View style={s.card} testID="audit-filters">
+                <Text style={s.device}>Филтри на одитния журнал</Text>
+                <Field label="Оператор/участник" value={auditActor} onChangeText={setAuditActor} />
+                <Field label="Действие" value={auditAction} onChangeText={setAuditAction} />
+                <Field label="Тип обект" value={auditObjectType} onChangeText={setAuditObjectType} />
+                <Field label="Идентификатор на обект" value={auditObjectId} onChangeText={setAuditObjectId} />
+                <Field label="УНП" value={auditUnp} onChangeText={setAuditUnp} />
+                <Field label="От (RFC 3339)" value={auditFrom} onChangeText={setAuditFrom} />
+                <Field label="До (RFC 3339)" value={auditTo} onChangeText={setAuditTo} />
+                <Pressable testID="apply-audit-filters" style={s.action} onPress={() => void refresh("Одит")}>
+                  <Text style={s.probeText}>Приложи филтрите</Text>
+                </Pressable>
+              </View>
               {items.map((event) => (
                 <View
                   key={label(event.event_id)}

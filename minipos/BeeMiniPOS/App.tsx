@@ -329,6 +329,16 @@ export default function App() {
       const recoveryRegister =
         cfg?.fiscal_register_id || configuredRegister || registerId;
       if (employee && isFiscalResourceId(recoveryRegister)) {
+        // SUPTO startup orchestration: establish trusted daily time evidence,
+        // probe the selected physical FU and bind the operator before any sale
+        // intent can be accepted. A failed probe keeps the workstation blocked.
+        await fiscalCall(`/workstations/${recoveryRegister}/clock-sync`, {method:"POST", body:"{}"});
+        await fiscalCall(`/workstations/${recoveryRegister}/readiness:refresh`, {method:"POST", body:"{}"});
+        const startupSession = await fiscalCall<WorkstationSession>(`/workstations/${recoveryRegister}/sessions`, {
+          method:"POST",
+          body:JSON.stringify({operator_code:employee.operator_code,app_instance_id:appInstanceId}),
+        });
+        setWorkstationSession(startupSession);
         const shifts = await call<{ items: Shift[] }>(
           `/shifts?employee_id=${encodeURIComponent(employee.id)}&register_id=${encodeURIComponent(recoveryRegister)}`,
         );
@@ -414,7 +424,7 @@ export default function App() {
       return;
     }
     if(busy||!selectedEmployee)return;setBusy(true);try{const existing=cart.find((v)=>v.product.id===p.id);if(existing){await mutateProjectedLine(p.id,existing.quantity+1,existing.discountAmount);return}
-      let session=workstationSession;if(!session||new Date(session.expires_at).getTime()<=Date.now()){await fiscalCall(`/workstations/${activeRegisterId}/clock-sync`,{method:"POST",body:"{}"});await fiscalCall(`/workstations/${activeRegisterId}/readiness:refresh`,{method:"POST",body:"{}"});session=await fiscalCall<WorkstationSession>(`/workstations/${activeRegisterId}/sessions`,{method:"POST",body:JSON.stringify({operator_code:selectedEmployee.operator_code,app_instance_id:appInstanceId})});setWorkstationSession(session)}
+      let session=workstationSession;if(!saleProjection){await fiscalCall(`/workstations/${activeRegisterId}/clock-sync`,{method:"POST",body:"{}"});await fiscalCall(`/workstations/${activeRegisterId}/readiness:refresh`,{method:"POST",body:"{}"})}if(!session||new Date(session.expires_at).getTime()<=Date.now()){session=await fiscalCall<WorkstationSession>(`/workstations/${activeRegisterId}/sessions`,{method:"POST",body:JSON.stringify({operator_code:selectedEmployee.operator_code,app_instance_id:appInstanceId})});setWorkstationSession(session)}
       const line: FiscalSaleLine={line_id:uuid(),product_code:p.id,name:p.name,quantity:"1.000",unit_price:p.price,tax_group:p.tax_group};
       const next=saleProjection?await fiscalCall<FiscalSale>(`/sales/${saleProjection.sale_id}/lines`,{method:"POST",headers:{"If-Match":String(saleProjection.version)},body:JSON.stringify(line)}):await fiscalCall<FiscalSale>("/sales:open-with-line",{method:"POST",body:JSON.stringify({client_sale_surrogate_id:uuid(),workstation_id:activeRegisterId,operator_session_id:session.session_id,line})});setSaleProjection(next);setStatus(`Продажбата е отворена • УНП ${next.regulatory_identifiers[0]?.value||next.unp}`)
     }catch(e){setStatus(`Артикулът не е приет: ${message(e)}`)}finally{setBusy(false)}

@@ -43,10 +43,13 @@ ruby -rjson -e 'v=JSON.parse(File.read("contracts/mvp1-simulated-profile-evidenc
 make iot-test
 make test
 make contract-test
+make supto-software-acceptance
+make readiness-doc-test roadmap-acceptance-test bg-trace-test
 make typecheck
 make ui-acceptance-test
 make fault-regression-test soak-regression-test security-test
 make ui-interaction-test
+./scripts/test-spa-deployment-reproducibility.sh
 make smart-device-test
 make postgres-integration
 make compose-check compose-e2e
@@ -86,6 +89,11 @@ for required in toolchain.txt source-status.txt source-SHA256SUMS CONTRACT_LOCK.
   test -s "$evidence/$required" || { echo "missing required evidence: $required" >&2; exit 1; }
 done
 test -d "$evidence/bluecash-junit" && find "$evidence/bluecash-junit" -name '*.xml' -type f | grep -q . || { echo "missing BlueCash JUnit evidence" >&2; exit 1; }
+{ git ls-files -co --exclude-standard -z | sort -z | while IFS= read -r -d '' source; do test -f "$source" && shasum -a 256 "$source"; done; } >"$evidence/source-SHA256SUMS.after"
+cmp -s "$evidence/source-SHA256SUMS" "$evidence/source-SHA256SUMS.after" || {
+  echo "MVP1 SOFTWARE GATE FAILED: source tree changed during verification" >&2
+  exit 1
+}
 printf '%s\n' PASS >"$evidence/status.txt"
 
 echo "MVP1 software gate PASS; evidence: $evidence"
