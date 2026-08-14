@@ -1,19 +1,29 @@
 # BlueCash: трассировка REST/WebHook → MQTT/BLE → fiscal protocol
 
-Статус: **as-built audit и обязательная target specification**, версия `2026-08-07`, аудит 2026-08-11.
+Статус: **as-built**, protocol version `2026-08-07`, аудит 2026-08-14.
 
 ## Результат аудита
 
-Production path до BlueCash-50 программно замкнут для MQTT sale/sync, но ещё не готов к production activation и BLE transaction transport:
+Программный path до BlueCash-50 замкнут для MQTT. Direct BLE требует P0
+remediation:
 
 - REST, idempotency, operation state и WebHook outbox реализованы в `fiscal-backend`;
 - `fiscal-backend/internal/mqttclient/client.go` публикует подписанные команды QoS 1, принимает `sync/batches`, вызывает `SyncBatchForTenant` и публикует подписанный business ACK;
 - `bluecash-app` имеет MQTT runtime, общий command processor, SQLite WAL/FULL journal, Android Keystore ECDSA signatures, ACK verification, reconnect sync и безопасное усечение;
 - Datecs fiscal и BORICA pinpad wire protocols реализованы через реальные `com.android.fiscal.jar` и `com.android.pinpad.jar`, извлечённые из предоставленных vendor samples;
-- transaction GATT service/characteristics и control state machine реализованы: strict canonical CBOR, signed ticket validation, HELLO/CHALLENGE/AUTH_PROOF/READY, X25519/HKDF, AES-GCM directional frames, replay protection, chunking/reassembly и encrypted result notification; запуск из target activation configuration и production intent executor ещё не подключены;
-- MQTT runtime ещё не получает device-bound configuration/certificate из activation и не запускается из `MainActivity`; broker mTLS/ACL compose и physical BlueCash HIL не закрыты.
+- transaction GATT service/characteristics существуют, но используют legacy
+  ticket/X25519/HKDF/AES-GCM channel и несовместимы с MiniPOS `OPEN_MVP` BFF1;
+- activation сохраняет device-bound configuration, MQTT identity и command/ACK
+  authority; runtime запускается из активного binding;
+- production mTLS/ACL deployment и physical BlueCash HIL остаются отдельными
+  gates.
 
-Unit/integration contour доказывает REST-domain → MQTT envelope → Android processor → Datecs wire call → signed sync → domain/WebHook materialization. Утверждать production-ready работу на физическом BlueCash или BLE fallback до закрытия перечисленных gaps нельзя.
+Unit/integration contour доказывает REST-domain → MQTT → Android processor →
+Datecs wire call → signed sync → domain/WebHook materialization. Direct BLE
+BlueCash пока не соответствует фактическому `OPEN_MVP` клиенту и aggregate
+`SALE_FINALIZE`; обязательное исправление описано в
+[`MVP1/BLUECASH_BLE_MVP_REMEDIATION.md`](MVP1/BLUECASH_BLE_MVP_REMEDIATION.md).
+До его закрытия общий статус — `SOFTWARE_INCOMPLETE_HIL_PENDING`.
 
 ## Контракты
 
@@ -90,12 +100,19 @@ The vendor bridge must be typed/exhaustive. Raw Datecs commands must never be ex
 
 ## Direct BLE API
 
-Activation GATT is separate from transaction GATT. Transaction API implements BLE GATT v1:
+Activation GATT is separate from transaction GATT. Целевой обязательный MVP
+transaction API — `OPEN_MVP`; текущий BlueCash implementation ещё должен быть
+приведён к нему по P0 remediation:
 
-- command characteristic: encrypted chunks of canonical-CBOR OpenAPI `ComplianceIntent`;
+- command characteristic: framed canonical payload of OpenAPI `ComplianceIntent`;
 - event characteristic: ACK/NACK, READY and `ComplianceIntentResult`.
 
-POS first receives `BleSession` through authenticated REST, selects only its `advertising_identity`, validates signed tenant/location/register/device/binding/expiry, then uses X25519 + HKDF-SHA-256 + directional AES-256-GCM keys and monotonic counters. BLE and MQTT commands share `command_id`, journal and executor. A trusted BLE session does not prove final fiscal-device reachability; when the FU is missing the sale is blocked.
+POS получает route package через authenticated REST и выбирает устройство только
+по `advertising_identity`. BLE и MQTT используют одинаковые `operation_id`,
+payload digest, journal и executor. В MVP BLE-канал открыт и сам по себе не
+авторизует POS; устройство всё равно проверяет active binding и generation,
+идемпотентность и доступность конечного ФУ. При недоступном ФУ продажа
+блокируется. Защищённый X25519/HKDF/AES-GCM profile отложен до production.
 
 ## SQLite journal
 
@@ -130,7 +147,7 @@ SQLite uses WAL, foreign keys and `synchronous=FULL`. `ACCEPTED` is committed be
 
 ## Сквозная подпись
 
-Локальная journal chain и transport chain разделены. Локальная запись подписывает собственный deterministic journal digest. Transport `event_hash = SHA-256(exact Go JSON event с пустым event_hash и null signature)`; batch использует такой же exact Go JSON contract. `prev_hash` связывает transport events. Каждый event и batch подписывается non-exportable Android Keystore ECDSA-P256 key (StrongBox when available). Backend в production режиме проверяет зарегистрированный device public key/kid, подпись и chain continuity. Регистрация public key/attestation при target activation пока не реализована.
+Локальная journal chain и transport chain разделены. Локальная запись подписывает собственный deterministic journal digest. Transport `event_hash = SHA-256(exact Go JSON event с пустым event_hash и null signature)`; batch использует такой же exact Go JSON contract. `prev_hash` связывает transport events. Каждый event и batch подписывается non-exportable Android Keystore ECDSA-P256 key (StrongBox when available). Backend проверяет зарегистрированный при activation device public key/kid, подпись и chain continuity. Hardware attestation остаётся production-hardening gate.
 
 Current shared backend HMAC `BLE_SIGNING_KEY` is DEV compatibility and does not satisfy hardware-backed per-device signing. Target trust store contains device public keys with validity intervals and auditable rotation.
 
@@ -150,28 +167,23 @@ Three months is a minimum retention, not a TTL. Purge is allowed only when the r
 | durable operation before effect | reservation + Android ACCEPTED/EXECUTING before vendor I/O | PASS; crash recovery fail-closes to UNKNOWN |
 | MQTT command publisher/outbox | atomic `device_command_outbox` ResourceRecord + `Bridge.Prepare/Publish/FlushOutbox` | PASS software/unit: immutable envelope committed with operation/sale, reconnect republish, expiry → UNKNOWN + WebHook |
 | MQTT result → domain | `Processor.Process` → `SyncBatchForTenant` → signed ACK | PASS |
-| activation BLE | BlueCash GATT/controller | PARTIAL |
-| BLE crypto/framing | handshake crypto, strict canonical CBOR, directional frame session, reassembler | PASS software/unit for ticket binding, X25519/HKDF, AES-GCM, replay/tamper/chunks |
-| BLE GATT/control | `BlueCashTransactionGattServer` + `BlueCashBleCommandChannel` | PASS component/unit; Android instrumentation pending |
-| BLE ComplianceIntent execution | `BlueCashComplianceIntentExecutor` → durable local aggregate → `BlueCashCommandProcessor` | PASS software/unit for OPEN/ADD/CHANGE/CANCEL/PAYMENT/REVERSE, line-id/version/idempotency and one physical execution; REVERSAL uses card reverse and Datecs command 43; activation startup pending |
-| BLE local aggregate/UNP | SQLite v2 `ble_local_sale`, processed intent hashes/results, `ble_unp_range` | PASS implementation; provisioned range issuance and Android instrumentation pending |
-| shared BLE/MQTT processor | `BlueCashCommandProcessor` используется MQTT; GATT ещё не подключён | PARTIAL |
+| activation/binding | backend activation + persisted device configuration | PASS software; HIL pending |
+| BLE MVP profile | MiniPOS `OPEN_MVP` BFF1 vs BlueCash encrypted legacy channel | P0 OPEN: wire-incompatible |
+| BLE GATT/control | `BlueCashTransactionGattServer` + `BlueCashBleCommandChannel` | P0 OPEN: requires legacy handshake |
+| BLE ComplianceIntent execution | `BlueCashComplianceIntentExecutor` → `BlueCashCommandProcessor` | P0 OPEN: legacy PAYMENT only; aggregate SALE_FINALIZE and discount mapping missing |
+| BLE local aggregate/UNP | SQLite v2 `ble_local_sale`, processed intent hashes/results, `ble_unp_range` | PASS software; physical Android instrumentation pending |
+| shared BLE/MQTT processor | MQTT aggregate works; BLE enters incompatible legacy executor | P0 OPEN |
 | SQLite journal/recovery | `AndroidTransactionJournal`, WAL/FULL, fail-closed EXECUTING recovery | PASS software/unit; instrumentation pending |
-| per-event hardware signature | Keystore ECDSA + backend per-device P-256 verifier | PARTIAL: activation key registration/attestation pending |
+| per-event hardware signature | Keystore ECDSA + backend per-device P-256 verifier | PASS software; hardware attestation is production hardening |
 | acknowledged 3-month retention | signed ACK required; Europe/Sofia three calendar months; anchor retained | PASS software/unit |
 | reconnect sync/business ack | persistent journal, reconnect flush, signed ACK verification | PASS software/unit; broker fault test pending |
 | Datecs fiscal/card bridge | vendor Android JAR runtime + fiscal/BORICA protocol adapters | PASS software/unit; physical HIL BLOCKED |
 | terminal result → WebHook | atomic sync materialization/outbox | PASS software/unit |
 
-## Acceptance criteria and order
+## Оставшаяся приёмка
 
-1. Extend locked canonical OpenAPI/AsyncAPI outside this repository with runtime signed command/batch/ack fields and device public-key registration; runtime OpenAPI in this repository is updated.
-2. Implement target activation provisioning of MQTT mTLS credential, command/ACK authority and transaction-signing public key; start runtime from persisted secure configuration.
-3. Start `BlueCashTransactionGattServer` only from an active provisioned binding and prove it with Android instrumentation tests.
-4. Deploy a separately isolated broker TLS/mTLS/ACL profile in Fiscal compose; do not give fiscal-backend unrestricted production egress.
-5. Prove broker disconnect/expiry/business-ACK cases with container fault injection and physical HIL.
-6. Prove duplicate delivery causes exactly one side effect; crashes at ACCEPTED/EXECUTING/physical-close never reprint; offline BLE survives restart and later materializes one REST/WebHook result.
-7. Prove old unacknowledged rows remain and only acknowledged rows older than three calendar months purge with chain anchor.
-8. Complete broker integration, Android instrumentation, fault injection and real BlueCash HIL.
-
-Until all items pass, BlueCash remains `PROD NO-GO` as a fiscal/payment adapter.
+Software acceptance закрыта общим MVP1 gate. До physical MVP остаются Android
+instrumentation на целевом BlueCash-50, реальные fiscal/card сценарии,
+broker/network/power fault injection и доказательство одного side effect при
+duplicate/lost ACK. До production дополнительно обязательны защищённый BLE,
+production PKI/mTLS/ACL и vendor/acquirer acceptance.

@@ -1,11 +1,16 @@
-# Протокол подключения внешнего POS к BeeFiscal
+# Единый протокол подключения внешнего POS к BeeFiscal (BG SUPTO)
 
-Версия документа: `1.0`  
+Версия документа: `1.1`
 Версия API: `2026-08-07`  
 Профиль: `BG_SUPTO_FULL / BG_UNP_V1`  
 Валюта операций: `EUR`
 
-Документ определяет единый протокол интеграции внешних POS-систем, включая BeeMiniPOS, с BeeFiscal через публичный REST API, подписанные WebHooks и локальный BLE transport. POS не подключается к MQTT устройств, внутренним БД, vendor SDK или приватным API Fiscal Platform.
+Документ является единственным руководством интеграции внешних POS-систем,
+включая BeeMiniPOS, с BeeFiscal через публичный REST API, подписанные WebHooks и
+локальный BLE transport. Общий протокол сразу реализует профиль
+`BG_SUPTO_FULL / BG_UNP_V1`: отдельного альтернативного SUPTO-протокола нет.
+POS не подключается к MQTT устройств, внутренним БД, vendor SDK или приватным
+API Fiscal Platform.
 
 Машиночитаемые источники истины:
 
@@ -62,7 +67,13 @@ POS запрещено:
 | WebHook | асинхронное уведомление об изменении server state | событие; состояние подтверждается REST при необходимости |
 | BLE | локальная доставка того же `ComplianceIntent` при недоступности cloud route | Local Compliance Gateway с последующей синхронизацией |
 
-Выбор маршрута выполняется до отправки intent по server/gateway readiness. После первой подтверждённой отправки одного `intent_id` запрещено отправлять его по другому маршруту. При неопределённом результате разрешены только status lookup и reconciliation.
+Выбор маршрута выполняется до отправки intent по server/gateway readiness.
+Каждая business mutation получает отдельный `client_operation_id` UUID и
+canonical payload digest до первого I/O. Retry и REST↔BLE failover сохраняют
+этот UUID и digest. Если REST мог принять intent, BLE сначала выполняет
+`OPERATION_LOOKUP`; повторный физический side effect запрещён. После завершения
+одного шага следующая mutation того же чека может идти другим transport с теми
+же sale/receipt/route identifiers.
 
 Если недоступен cloud, но доказан маршрут `POS → BLE → Gateway → конечное ФУ`, локальная операция допустима в пределах действующей BLE authority. Если потеряно конечное ФУ, продажа блокируется независимо от доступности BLE.
 
@@ -192,10 +203,25 @@ Content-Type: application/json
     "name": "Кафе",
     "quantity": "1.000",
     "unit_price": {"amount":"2.50","currency":"EUR"},
+    "discount": {"amount":"0.25","currency":"EUR"},
     "tax_group": "B"
   }
 }
 ```
+
+`discount` — необязательная абсолютная скидка на всю строку. При отсутствии
+скидки поле не передаётся. Для BG/EUR:
+
+```text
+gross_line_total = round_half_up(quantity × unit_price)
+net_line_total   = gross_line_total - discount.amount
+```
+
+Скидка должна иметь валюту `EUR`, быть неотрицательной и не превышать gross
+line total. Ненулевая скидка требует серверной роли `SUPERVISOR` или `ADMIN`.
+Backend, а не POS, окончательно проверяет полномочия и рассчитывает authoritative
+totals/tax base. Процентный UI обязан преобразовать процент в абсолютную сумму;
+wire contract всегда содержит только `discount` money.
 
 Успех — `201` с `ETag`, server sale ID, `version`, `allowed_actions`, authoritative totals, immutable device snapshot, УНП и `regulatory_identifiers[]`. Regulatory identifiers являются opaque strings: POS хранит и отображает их без parsing/reformatting.
 
@@ -210,20 +236,47 @@ Content-Type: application/json
 | изменить строку | `PATCH /sales/{sale_id}/lines/{line_id}` |
 | отменить строку | `POST /sales/{sale_id}/lines/{line_id}:cancel` |
 | отменить продажу | `POST /sales/{sale_id}:cancel` |
-| создать payment intent | `POST /sales/{sale_id}/payment-intents` |
+| завершить CASH/CARD/split продажу | `POST /sales/{sale_id}:finalize` |
 | выполнить storno | `POST /sales/{sale_id}:reverse` |
 
 Удаление строк или completed sale отсутствует: изменения создают компенсирующее событие. POS показывает только server `allowed_actions`.
 
-### 5.3 Оплата
+### 5.3 Агрегированное завершение и оплата
 
-POS передаёт намерение CASH/CARD и сумму в EUR. BeeFiscal:
+Перед первым I/O POS durable сохраняет один immutable checkout plan и вызывает
+ровно одну mutation:
+
+```http
+POST /public/v1/sales/{sale_id}:finalize
+Authorization: Bearer <token>
+X-Api-Version: 2026-08-07
+Idempotency-Key: 550e8400-e29b-41d4-a716-446655440201
+Content-Type: application/json
+
+{
+  "client_operation_id": "550e8400-e29b-41d4-a716-446655440201",
+  "receipt_session_id": "550e8400-e29b-41d4-a716-446655440202",
+  "payments": [
+    {"payment_id":"550e8400-e29b-41d4-a716-446655440203", "type":"CASH", "amount":{"amount":"1.00","currency":"EUR"}},
+    {"payment_id":"550e8400-e29b-41d4-a716-446655440204", "type":"CARD", "amount":{"amount":"1.25","currency":"EUR"}}
+  ],
+  "expected_total": {"amount":"2.25","currency":"EUR"}
+}
+```
+
+`payments[]` упорядочен; каждый элемент имеет собственный UUID. Сумма оплат
+должна точно совпасть с authoritative net total после скидок. BeeFiscal:
 
 - повторно проверяет readiness непосредственно перед side effect;
 - рассчитывает authoritative remaining amount;
 - при CARD и активном payment terminal автоматически инициирует оплату картой;
 - связывает payment и fiscal operation;
 - возвращает durable operation со state.
+
+Adapter исполняет plan как одну receipt saga: резервирует journal до I/O,
+последовательно принимает CARD-платежи, печатает один чек с ordered tenders и
+либо фиксирует весь результат, либо выполняет обратную compensation. При
+неопределённом card/fiscal результате автоматический повтор запрещён.
 
 POS не вызывает pinpad напрямую и не переводит CARD в CASH после timeout. Изменение способа оплаты — новое явное действие оператора только после определённого результата/reconciliation.
 
@@ -363,13 +416,27 @@ Receiver обязан:
 
 ## 7. BLE Local Compliance Protocol
 
+### 7.0 MVP profile and production profile
+
+Для controlled MVP нормативным является профиль `OPEN_MVP`: GATT transport
+работает без BLE authentication/encryption. POS получает через REST route package
+с `advertising_identity`, service/characteristic UUID, binding generation и
+endpoint identity; после соединения отправляет тот же canonical business intent
+с теми же UUID и digest, что использовались бы через REST/MQTT. Adapter проверяет
+active binding/generation, durable idempotency и доступность конечного ФУ до I/O.
+
+Разделы 7.2–7.4 ниже описывают целевой защищённый production profile и **не
+являются MVP release gate**. В `OPEN_MVP` не используются session ticket,
+X25519, HKDF, AES-GCM или transport counters. Открытый transport разрешён только
+для controlled non-production MVP с непроизводственными credentials.
+
 ### 7.1 Назначение
 
 BLE используется только если cloud route недоступен, но рядом доступен доверенный Local Compliance Gateway, связанный с тем же tenant/location/register/конечным ФУ. Он принимает тот же business intent и владеет compliance policy, durable journal и device driver.
 
 BLE не предоставляет raw fiscal API и не даёт POS offline UNP range/signing key.
 
-### 7.2 Создание сессии через REST
+### 7.2 Защищённая production-сессия через REST (после MVP)
 
 POS сначала генерирует ephemeral X25519 key pair/installation public key и вызывает:
 
@@ -408,7 +475,7 @@ POST /public/v1/ble-sessions/{id}/revoke
 
 Rebind/deactivation operator/register/device или увеличение binding version делает старую BLE authority недействительной.
 
-### 7.3 Discovery и handshake
+### 7.3 Production discovery и handshake (после MVP)
 
 Gateway работает BLE peripheral. POS выбирает advertisement только по `advertising_identity` из server session, а не по имени/MAC.
 
@@ -424,7 +491,7 @@ Handshake v1:
 
 Crypto suite: `X25519 + HKDF-SHA-256 + AES-256-GCM`. BLE pairing/proximity сами по себе не являются авторизацией.
 
-### 7.4 Frames
+### 7.4 Production encrypted frames (после MVP)
 
 Binary frame header:
 
@@ -459,12 +526,65 @@ BLE передаёт canonical CBOR представление OpenAPI-схем�
     "name": "Кафе",
     "quantity": "1.000",
     "unit_price": "2.50",
+    "discount": "0.25",
     "tax_group": "B"
   }
 }
 ```
 
-Actions: `OPEN_WITH_LINE`, `ADD_LINE`, `CHANGE_LINE`, `CANCEL_LINE`, `CANCEL_SALE`, `PAYMENT`, `REVERSE`.
+Для BLE `discount` также необязателен и задаётся абсолютной строкой EUR с двумя
+десятичными знаками. Семантика и authoritative net total идентичны REST.
+
+Business actions редактора: `OPEN_WITH_LINE`, `ADD_LINE`, `CHANGE_LINE`,
+`CANCEL_LINE`, `CANCEL_SALE`, `REVERSE`. Реальный MiniPOS завершает чек
+агрегированным `SALE_FINALIZE`, содержащим `client_operation_id`,
+`receipt_session_id`, immutable `items[]` и ordered `payments[]`. MQTT и BLE
+доставляют одну и ту же saga; legacy одиночный `PAYMENT` не должен использоваться
+новыми внешними POS.
+
+Минимальный BLE `SALE_FINALIZE` соответствует фактическому payload MiniPOS:
+
+```json
+{
+  "protocol_version": "1.0",
+  "intent_id": "550e8400-e29b-41d4-a716-446655440201",
+  "action": "SALE_FINALIZE",
+  "tenant_id": "tenant-from-route-package",
+  "register_id": "550e8400-e29b-41d4-a716-446655440010",
+  "edge_device_id": "edge-from-route-package",
+  "binding_generation": 7,
+  "client_operation_id": "550e8400-e29b-41d4-a716-446655440201",
+  "receipt_session_id": "550e8400-e29b-41d4-a716-446655440202",
+  "client_sale_surrogate_id": "550e8400-e29b-41d4-a716-446655440000",
+  "server_sale_id": "server-sale-id",
+  "unp": "AB123456-A001-0000041",
+  "operator_code": "A001",
+  "app_instance_id": "550e8400-e29b-41d4-a716-446655440102",
+  "expected_version": 4,
+  "items": [
+    {
+      "line_id": "550e8400-e29b-41d4-a716-446655440001",
+      "name": "Кафе",
+      "quantity": "1.000",
+      "unit_price": "2.50",
+      "discount": "0.25",
+      "tax_group": "B"
+    }
+  ],
+  "payments": [
+    {
+      "payment_id": "550e8400-e29b-41d4-a716-446655440203",
+      "type": "CARD",
+      "amount": {"amount":"2.25","currency":"EUR"}
+    }
+  ]
+}
+```
+
+Tenant/register/edge/generation берутся только из backend route package. POS не
+может заменить ими выбранный binding. `intent_id` и `client_operation_id` для
+агрегированного finalize совпадают и повторно используются при REST→BLE lookup,
+retry и последующей MQTT-синхронизации.
 
 Для `REVERSE` обязательны `reason_code` и `original_document` с `document_number`, `document_datetime` (`dd-MM-yy HH:mm:ss`) и восьмизначным `fiscal_memory_number`. Gateway сверяет исходный УНП и сохранённую оплату локального aggregate, выполняет возврат по карте для `CARD`, затем открывает storno документ Datecs командой `43`, печатает исходные позиции, итог и закрывает документ. `invoice_number` и `invoice_reason` передаются совместно только для storno invoice. Повторный `intent_id` не повторяет ни возврат по карте, ни команду ФУ.
 
@@ -489,7 +609,10 @@ Content-Type: application/cbor
 
 Локальные записи хранятся минимум три месяца и удаляются только после durable business acknowledgement backend. Transport ack/MQTT/WebHook не заменяет business acknowledgement.
 
-Если disconnect произошёл после возможного выполнения ФУ, результат — `FISCAL_RESULT_UNKNOWN`. POS не переключается на REST и не повторяет PAYMENT/SALE. Оно блокирует новую конфликтующую операцию до reconciliation.
+Если disconnect произошёл после возможного выполнения ФУ, результат —
+`FISCAL_RESULT_UNKNOWN`. POS может сменить transport только для
+`OPERATION_LOOKUP`/reconciliation с тем же UUID и digest; повторять физический
+`SALE_FINALIZE` нельзя. Новая конфликтующая операция блокируется.
 
 ## 8. Route selection
 
@@ -514,9 +637,12 @@ Content-Type: application/cbor
 1. `REST` — использовать public REST.
 2. `BLE` — только действующая session и подтверждённый конечный ФУ.
 3. `BLOCK` — продажа не отправляется.
-4. Route фиксируется в operation journal перед отправкой.
-5. Timeout не разрешает второй route.
-6. После restart POS восстанавливает pending operations до новой продажи/оплаты.
+4. Route и transport epoch фиксируются в operation journal перед отправкой.
+5. Timeout разрешает другой transport только с тем же UUID/digest и обязательным
+   device lookup/deduplication; новая операция запрещена.
+6. Чек может продолжаться последовательными mutations через разные transports,
+   но vendor/device/binding generation не меняются.
+7. После restart POS восстанавливает pending operations до новой продажи/оплаты.
 
 ## 9. WebHook + polling consistency
 
@@ -557,7 +683,9 @@ WebHook ускоряет UI, но authoritative state остаётся REST proj
 5. Реализовать REST bootstrap, sale lifecycle, idempotency и reconciliation.
 6. Зарегистрировать HTTPS WebHook, сохранить one-time secret и проверить structured signature.
 7. Реализовать durable WebHook inbox и polling recovery.
-8. При необходимости BLE — реализовать GATT v1, canonical CBOR, crypto/counters и Local Compliance Intent; иначе при потере REST POS работает fail-close.
+8. Для MVP BLE — реализовать `OPEN_MVP` GATT, canonical intent, общий UUID/digest
+   и Local Compliance journal; X25519/HKDF/AES-GCM относится к production
+   hardening.
 9. Пройти contract tests и sandbox E2E для CASH/CARD/split/cancel/storno/timeout/UNKNOWN.
 10. BLE/физическое ФУ/платёжный терминал проходят отдельный HIL; STUB не является production evidence.
 
@@ -570,9 +698,41 @@ WebHook ускоряет UI, но authoritative state остаётся REST proj
 - поддерживает `Idempotency-Key`, `If-Match`, `202` и `UNKNOWN` без двойного side effect;
 - проверяет structured WebHook HMAC по raw body, дедуплицирует event и восстанавливается polling;
 - не доверяет порядку WebHooks без `resource_version`;
-- BLE использует server-issued binding ticket, X25519/HKDF/AES-GCM, counters и canonical CBOR;
+- MVP BLE использует `OPEN_MVP`, общий UUID/digest и canonical intent; production
+  profile добавляет server-issued ticket, X25519/HKDF/AES-GCM и counters;
 - не переключает route после принятия intent;
 - блокирует продажу при недоступности конечного ФУ;
 - не содержит vendor fiscal protocol и не подключается к MQTT SmartDevices;
 - хранит opaque regulatory identifiers без изменения;
+- поддерживает необязательную абсолютную скидку строки и server-side
+  authorization роли;
+- завершает CASH/CARD/split одним `SALE_FINALIZE` и ordered `payments[]`;
 - проходит OpenAPI drift, REST/WebHook contract и end-to-end tests.
+
+## 13. Соответствие текущей реализации
+
+Срез 2026-08-14:
+
+| Контур | Состояние |
+|---|---|
+| MiniPOS → REST `:finalize` | соответствует: один durable aggregate, UUID операции/receipt/payments |
+| Fiscal REST/WebHook | соответствует: OpenAPI, operation projection, structured `t,kid,v1` signature, retry/inbox semantics |
+| Fiscal backend → MQTT | соответствует: `SALE_FINALIZE`, immutable payload digest, QoS1/outbox, signed business ACK |
+| edge-agent-s3 direct BLE | соответствует `OPEN_MVP`, canonical aggregate intent и общий MQTT/BLE journal |
+| BlueCash MQTT | соответствует aggregate `SALE_FINALIZE` и signed sync |
+| BlueCash direct BLE | **не соответствует текущему MVP wire profile**: Android GATT запускает legacy ticket/X25519/AES-GCM handshake, тогда как MiniPOS принимает `OPEN_MVP`; local executor принимает legacy `PAYMENT`, но не фактический aggregate `SALE_FINALIZE` MiniPOS |
+| BlueCash BLE line discount | **не соответствует**: local line mapper не переносит optional `discount` в `FiscalLine`; через этот path net total может разойтись с REST/MQTT projection |
+
+До устранения двух последних разрывов direct BLE fallback для BlueCash-50 нельзя
+считать software-complete или использовать как acceptance evidence. Допустимы
+REST→MQTT BlueCash и `OPEN_MVP` BLE через соответствующий edge-agent-s3 profile.
+Исправление должно сохранить этот OpenAPI contract: запрещено возвращать внешний
+POS на legacy `PAYMENT` или делать защищённый handshake обязательным для MVP.
+
+## 14. BG SUPTO rollout gate
+
+Software protocol и профиль `BG_SUPTO_FULL` реализованы на уровне BeeFiscal, а
+POS остаётся intent/render client. Production activation требует selected-device
+HIL, release/security evidence, production IdP/residency evidence и внешней
+регуляторной/сервисной приёмки. Локальный STUB, simulator или самостоятельно
+созданная подпись не заменяют эти доказательства.

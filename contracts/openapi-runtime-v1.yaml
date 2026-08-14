@@ -1411,14 +1411,24 @@ components:
       additionalProperties: false
       required: [intent_id, action, client_sale_surrogate_id, operator_code, app_instance_id, expected_version]
       properties:
+        protocol_version: {type: string, const: '1.0'}
         intent_id: {type: string, format: uuid}
-        action: {type: string, enum: [OPEN_WITH_LINE, ADD_LINE, CHANGE_LINE, CANCEL_LINE, CANCEL_SALE, PAYMENT, REVERSE]}
+        action: {type: string, enum: [OPEN_WITH_LINE, ADD_LINE, CHANGE_LINE, CANCEL_LINE, CANCEL_SALE, PAYMENT, SALE_FINALIZE, REVERSE]}
+        tenant_id: {type: string, minLength: 1}
+        register_id: {type: string, format: uuid}
+        edge_device_id: {type: string, minLength: 1}
+        binding_generation: {type: integer, minimum: 1}
+        client_operation_id: {type: string, format: uuid}
+        receipt_session_id: {type: string, format: uuid}
         client_sale_surrogate_id: {type: string, format: uuid}
         server_sale_id: {type: string}
+        unp: {type: string, pattern: '^[A-Za-z0-9]{8}-[A-Za-z0-9]{4}-[0-9]{7}$'}
         operator_code: {type: string, pattern: '^[A-Za-z0-9]{4}$'}
         app_instance_id: {type: string, format: uuid}
         expected_version: {type: integer, minimum: 0}
         line: {$ref: '#/components/schemas/ComplianceIntentLine'}
+        items: {type: array, minItems: 1, items: {$ref: '#/components/schemas/ComplianceIntentLine'}}
+        payments: {type: array, minItems: 1, maxItems: 10, items: {$ref: '#/components/schemas/MiniPosTender'}}
         payment: {type: object, additionalProperties: true}
         reason_code: {type: string, maxLength: 64}
         original_document:

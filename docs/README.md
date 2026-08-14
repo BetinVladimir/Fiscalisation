@@ -15,15 +15,15 @@
 
 ## Актуальная архитектура и интеграция
 
-- [`MVP1/README.md`](MVP1/README.md) — исполнимая спецификация MVP1,
-  command-by-command трассировка MiniPOS/REST/MQTT/BLE/BlueCash, protocol gaps,
-  ESP32-equivalent track и backend route selection.
+- [`MVP1/README.md`](MVP1/README.md) — только актуальный незакрытый MVP1 backlog.
+- [`MVP1/BLUECASH_BLE_MVP_REMEDIATION.md`](MVP1/BLUECASH_BLE_MVP_REMEDIATION.md)
+  — требования устранения несовместимости BlueCash direct BLE, aggregate
+  `SALE_FINALIZE` и скидок.
 - [`system-overview.md`](system-overview.md) — состав системы, границы продуктов
   и текущие production gates.
 - [`EXTERNAL_POS_INTEGRATION_PROTOCOL.md`](EXTERNAL_POS_INTEGRATION_PROTOCOL.md) —
-  публичный REST/WebHook/BLE протокол внешнего POS.
-- [`POS_INTEGRATION_BG_SUPTO.md`](POS_INTEGRATION_BG_SUPTO.md) — подключение POS
-  в профиле `BG_SUPTO_FULL`.
+  единый публичный REST/WebHook/BLE протокол внешнего POS, сразу реализующий
+  профиль `BG_SUPTO_FULL`.
 
 Нормативные машинные контракты находятся в [`../contracts`](../contracts):
 
@@ -75,23 +75,13 @@ anti-rollback eFuse и закрытие JTAG не блокируют controlled 
 - [`release-evidence.md`](release-evidence.md) — SBOM, scan, подпись и release
   evidence gate.
 
-## Legacy-кандидаты на удаление
+## Удалённые legacy-документы
 
-Следующие документы не являются актуальными источниками истины и сохранены только
-до отдельного подтверждения удаления:
-
-- `EDGE_AGENT_S3_DEVICE_IDENTITY_AND_BINDING_IMPLEMENTATION_TASK.md` — исходное
-  ТЗ с ложным статусом «реализация не начата»; часть production-критериев ещё
-  полезна как checklist.
-- `SMART_DEVICE_ACTIVATION_AND_BINDING.md` — ранний проект activation envelope,
-  заменён OpenAPI и BlueCash as-built guide.
-- `SMART_DEVICE_MQTT_ACTIVATION_REQUIREMENTS.md` — промежуточный target/current
-  анализ, частично противоречащий текущему коду.
-- `beeminipos-mvp-reference.md` — локальная исходная спецификация; актуальная
-  реализация и запуск описаны в `../minipos/README.md`, интеграция — в POS guides.
-
-До удаления требования, отсутствующие в актуальных документах и machine traces,
-должны быть перенесены в соответствующий as-built guide или blocker registry.
+Исходные implementation tasks, промежуточные activation/MQTT proposals,
+устаревшие readiness-аудиты и ранняя MiniPOS reference specification удалены
+2026-08-14. Их заменяют OpenAPI/AsyncAPI, machine traces, as-built guides и
+актуальный [`MVP1/README.md`](MVP1/README.md).
+История решений сохраняется в Git и действующих ADR.
 
 ## Документационная дисциплина
 

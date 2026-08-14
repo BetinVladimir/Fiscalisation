@@ -1475,18 +1475,32 @@ export interface components {
             tax_group: string;
         };
         ComplianceIntent: {
+            /** @constant */
+            protocol_version?: "1.0";
             /** Format: uuid */
             intent_id: string;
             /** @enum {string} */
-            action: "OPEN_WITH_LINE" | "ADD_LINE" | "CHANGE_LINE" | "CANCEL_LINE" | "CANCEL_SALE" | "PAYMENT" | "REVERSE";
+            action: "OPEN_WITH_LINE" | "ADD_LINE" | "CHANGE_LINE" | "CANCEL_LINE" | "CANCEL_SALE" | "PAYMENT" | "SALE_FINALIZE" | "REVERSE";
+            tenant_id?: string;
+            /** Format: uuid */
+            register_id?: string;
+            edge_device_id?: string;
+            binding_generation?: number;
+            /** Format: uuid */
+            client_operation_id?: string;
+            /** Format: uuid */
+            receipt_session_id?: string;
             /** Format: uuid */
             client_sale_surrogate_id: string;
             server_sale_id?: string;
+            unp?: string;
             operator_code: string;
             /** Format: uuid */
             app_instance_id: string;
             expected_version: number;
             line?: components["schemas"]["ComplianceIntentLine"];
+            items?: components["schemas"]["ComplianceIntentLine"][];
+            payments?: components["schemas"]["MiniPosTender"][];
             payment?: {
                 [key: string]: unknown;
             };
