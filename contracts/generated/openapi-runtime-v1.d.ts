@@ -299,6 +299,54 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/devices/{device_id}/health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getDeviceHealth"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/devices/{device_id}/activity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listDeviceActivity"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/devices/{device_id}/tests/printer": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["testDevicePrinter"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/operations/{operation_id}:reconcile": {
         parameters: {
             query?: never;
@@ -582,6 +630,38 @@ export interface paths {
         patch: operations["saveMiniPosConfiguration"];
         trace?: never;
     };
+    "/minipos/fiscal-route-health": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMiniPosFiscalRouteHealth"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/minipos/fiscal-local-tokens": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["issueMiniPosLocalFiscalToken"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/minipos/shifts": {
         parameters: {
             query?: never;
@@ -661,6 +741,23 @@ export interface paths {
         put?: never;
         /** @description Resolves a BLOCKED_RECONCILIATION Z close without issuing a second fiscal command. If the original response was lost before an operation id was persisted, the same deterministic downstream idempotency key is replayed. */
         post: operations["reconcileMiniPosShiftClose"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/minipos/orders:import-offline": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Idempotently materializes a sale already executed by a local fiscal adapter while the POS backend was unavailable. */
+        post: operations["importMiniPosOfflineOrder"];
         delete?: never;
         options?: never;
         head?: never;
@@ -803,6 +900,77 @@ export interface paths {
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        DeviceEndpointHealth: {
+            /** @enum {string} */
+            role: "ADAPTER" | "FISCAL_DEVICE" | "PAYMENT_TERMINAL";
+            configured: boolean;
+            reachable: boolean;
+            /** @enum {string} */
+            state: "READY" | "DEGRADED" | "OFFLINE" | "MISCONFIGURED" | "STALE";
+            vendor?: string;
+            model?: string;
+            serial?: string;
+            driver_id?: string;
+            protocol_id?: string;
+            protocol_version?: string;
+            last_error?: string;
+            /** Format: date-time */
+            last_success_at?: string;
+        };
+        DeviceHealth: {
+            /** Format: uuid */
+            id: string;
+            version: number;
+            /** Format: uuid */
+            adapter_device_id: string;
+            /** Format: uuid */
+            register_id: string;
+            boot_id: string;
+            sequence: number;
+            binding_generation: number;
+            firmware_version?: string;
+            /** @enum {string} */
+            adapter_state: "READY" | "DEGRADED" | "OFFLINE" | "MISCONFIGURED" | "STALE";
+            /** @enum {string} */
+            effective_state: "READY" | "DEGRADED" | "OFFLINE" | "MISCONFIGURED" | "STALE";
+            endpoints: components["schemas"]["DeviceEndpointHealth"][];
+            /** Format: date-time */
+            observed_at: string;
+            /** Format: date-time */
+            received_at: string;
+            age_seconds: number;
+        } & {
+            [key: string]: unknown;
+        };
+        DeviceHealthTransition: {
+            /** Format: uuid */
+            id: string;
+            /** Format: uuid */
+            adapter_device_id: string;
+            /** @enum {string} */
+            state: "READY" | "DEGRADED" | "OFFLINE" | "MISCONFIGURED" | "STALE";
+            boot_id: string;
+            sequence: number;
+            /** Format: date-time */
+            observed_at: string;
+        } & {
+            [key: string]: unknown;
+        };
+        DeviceTestOperation: {
+            id: string;
+            /** @constant */
+            type: "PRINTER_TEST";
+            /** @enum {string} */
+            state: "EXECUTING" | "FISCALIZED" | "FAILED" | "UNKNOWN";
+            error_code?: string;
+            version: number;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        } & {
+            [key: string]: unknown;
+        };
         CompositeDeviceBindingRequest: {
             /** @enum {string} */
             profile: "DATECS_BLUECASH50_EMBEDDED" | "DATECS_DP150_BLUEPAD50" | "DAISY_COMPACT_S01";
@@ -1029,6 +1197,16 @@ export interface components {
             unp_prefix: string;
             unp_range_start: number;
             unp_range_end: number;
+            /** Format: uri */
+            local_token_issuer?: string;
+            local_token_signing_kid?: string;
+            /** @description Base64 encoded X.509 SubjectPublicKeyInfo for ES256 local token verification */
+            local_token_public_key_der_base64?: string;
+            /** Format: uri */
+            spa_deployment_descriptor_url?: string;
+            spa_deployment_signing_kid?: string;
+            /** @description Base64 encoded Ed25519 SubjectPublicKeyInfo */
+            spa_deployment_public_key_der_base64?: string;
         };
         DeviceActivationCommit: {
             /** Format: uuid */
@@ -1318,6 +1496,19 @@ export interface components {
             workstation_name: string;
             /** Format: uuid */
             fiscal_register_id: string;
+            /** Format: uuid */
+            location_id: string;
+            /** Format: uuid */
+            fiscal_adapter_id: string;
+            binding_generation: number;
+            adapter_base_url: string;
+            ble_advertising_identity?: string;
+            /** Format: uuid */
+            ble_service_uuid?: string;
+            /** Format: uuid */
+            ble_command_uuid?: string;
+            /** Format: uuid */
+            ble_event_uuid?: string;
         };
         MiniPosConfiguration: {
             /** Format: uuid */
@@ -1328,11 +1519,47 @@ export interface components {
             workstation_name: string;
             /** Format: uuid */
             fiscal_register_id: string;
+            /** Format: uuid */
+            location_id: string;
+            /** Format: uuid */
+            fiscal_adapter_id: string;
+            binding_generation: number;
+            adapter_base_url: string;
+            ble_advertising_identity?: string;
+            /** Format: uuid */
+            ble_service_uuid?: string;
+            /** Format: uuid */
+            ble_command_uuid?: string;
+            /** Format: uuid */
+            ble_event_uuid?: string;
             version: number;
             /** Format: date-time */
             created_at: string;
             /** Format: date-time */
             updated_at: string;
+        };
+        MiniPosLocalFiscalTokenRequest: {
+            /** Format: uuid */
+            adapter_device_id: string;
+            /** Format: uuid */
+            location_id: string;
+            /** Format: uuid */
+            register_id: string;
+            /** Format: uuid */
+            operator_id: string;
+            /** Format: uuid */
+            shift_id: string;
+            binding_generation: number;
+            adapter_base_url: string;
+        };
+        MiniPosLocalFiscalToken: {
+            access_token: string;
+            /** @constant */
+            token_type: "Bearer";
+            /** Format: date-time */
+            expires_at: string;
+            adapter_base_url: string;
+            kid: string;
         };
         MiniPosShift: {
             /** Format: uuid */
@@ -1365,6 +1592,41 @@ export interface components {
                 /** @constant */
                 has_more: false;
             };
+        };
+        MiniPosOfflineOrderImport: {
+            /** Format: uuid */
+            external_id: string;
+            /** Format: uuid */
+            shift_id: string;
+            /** Format: uuid */
+            client_operation_id: string;
+            /** Format: uuid */
+            receipt_session_id: string;
+            fiscal_reference?: string;
+            /** @enum {string} */
+            fiscal_state: "FISCALIZED" | "UNKNOWN" | "FAILED";
+            lines: components["schemas"]["MiniPosOfflineLine"][];
+            payments: components["schemas"]["MiniPosOfflinePayment"][];
+        };
+        MiniPosOfflineLine: {
+            /** Format: uuid */
+            line_id: string;
+            /** Format: uuid */
+            product_id?: string;
+            name: string;
+            quantity: string;
+            unit_price: components["schemas"]["Money"];
+            discount?: components["schemas"]["Money"];
+            tax_group: string;
+        };
+        MiniPosOfflinePayment: {
+            /** Format: uuid */
+            payment_id: string;
+            /** @enum {string} */
+            type: "CASH" | "CARD";
+            amount: components["schemas"]["Money"];
+            /** @enum {string} */
+            terminal_policy?: "REQUIRED" | "AUTO_IF_AVAILABLE" | "NONE";
         };
         MiniPosOrderRuntimeState: {
             /** Format: uuid */
@@ -2195,6 +2457,90 @@ export interface operations {
             422: components["responses"]["Problem"];
         };
     };
+    getDeviceHealth: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description MQTT-materialized current endpoint health */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceHealth"];
+                };
+            };
+            404: components["responses"]["Problem"];
+        };
+    };
+    listDeviceActivity: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Device state transitions */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["DeviceHealthTransition"][];
+                    };
+                };
+            };
+            404: components["responses"]["Problem"];
+        };
+    };
+    testDevicePrinter: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": Record<string, never>;
+            };
+        };
+        responses: {
+            /** @description Durable non-fiscal printer test operation */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["DeviceTestOperation"];
+                };
+            };
+            403: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+        };
+    };
     reconcileOperationExactAlias: {
         parameters: {
             query?: never;
@@ -2734,6 +3080,65 @@ export interface operations {
             409: components["responses"]["Problem"];
         };
     };
+    getMiniPosFiscalRouteHealth: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "X-App-Instance-Id": components["parameters"]["AppInstanceId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Lightweight Fiscal cloud route liveness */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        status: "ok";
+                        latency_ms: number;
+                    };
+                };
+            };
+            503: components["responses"]["Problem"];
+        };
+    };
+    issueMiniPosLocalFiscalToken: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "X-App-Instance-Id": components["parameters"]["AppInstanceId"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MiniPosLocalFiscalTokenRequest"];
+            };
+        };
+        responses: {
+            /** @description Short-lived adapter-bound ES256 JWT */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosLocalFiscalToken"];
+                };
+            };
+            403: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+        };
+    };
     listMiniPosShifts: {
         parameters: {
             query: {
@@ -2939,6 +3344,38 @@ export interface operations {
                 };
             };
             409: components["responses"]["Problem"];
+        };
+    };
+    importMiniPosOfflineOrder: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "X-App-Instance-Id": components["parameters"]["AppInstanceId"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MiniPosOfflineOrderImport"];
+            };
+        };
+        responses: {
+            /** @description Imported or existing idempotent order */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosOrderRuntimeState"];
+                };
+            };
+            403: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            422: components["responses"]["Problem"];
         };
     };
     getMiniPosOrderRuntimeState: {

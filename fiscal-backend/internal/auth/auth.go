@@ -137,6 +137,9 @@ func Allowed(c Claims, method, path string) bool {
 	if strings.Contains(path, "/ble-sessions") {
 		return hasAny(c, "CASHIER", "SUPERVISOR", "ADMIN")
 	}
+	if strings.Contains(path, "/tests/printer") {
+		return hasAny(c, "ADMIN", "SERVICE")
+	}
 	if strings.Contains(path, "/reports") || strings.Contains(path, "/cash-movements") || strings.Contains(path, "/reconcile") || strings.Contains(path, "/reversals") || strings.HasPrefix(path, "/public/v1/exports") || strings.Contains(path, "/bindings") {
 		return hasAny(c, "SUPERVISOR", "ADMIN")
 	}

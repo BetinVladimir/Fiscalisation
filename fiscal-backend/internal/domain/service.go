@@ -83,17 +83,28 @@ func (s *Simulator) SetDeviceTime(at time.Time) error {
 }
 
 type Service struct {
-	repo                          Repository
-	driver                        Driver
-	bleSigningKey                 []byte
-	policy                        PolicyCatalog
-	requireHardwareSyncSignatures bool
-	deviceCredentialIssuer        DeviceCredentialIssuer
-	compositeBindingPublisher     CompositeBindingPublisher
+	repo                            Repository
+	driver                          Driver
+	bleSigningKey                   []byte
+	policy                          PolicyCatalog
+	requireHardwareSyncSignatures   bool
+	deviceCredentialIssuer          DeviceCredentialIssuer
+	compositeBindingPublisher       CompositeBindingPublisher
+	localTokenIssuer                string
+	localTokenSigningKID            string
+	localTokenPublicKeyDERBase64    string
+	spaDeploymentDescriptorURL      string
+	spaDeploymentSigningKID         string
+	spaDeploymentPublicKeyDERBase64 string
 }
 
-type CompositeBindingPublisher interface{ PublishCompositeBinding(string,string,[]byte) error }
-func(s *Service)SetCompositeBindingPublisher(v CompositeBindingPublisher){s.compositeBindingPublisher=v}
+type CompositeBindingPublisher interface {
+	PublishCompositeBinding(string, string, []byte) error
+}
+
+func (s *Service) SetCompositeBindingPublisher(v CompositeBindingPublisher) {
+	s.compositeBindingPublisher = v
+}
 
 // boundDriver revalidates the complete immutable route snapshot immediately
 // before use. The configured driver is a transport dispatcher (MQTT/simulator),
@@ -289,6 +300,24 @@ func (s *Service) FiscalOperation(register, typ, tenant string) (Operation, erro
 	if e != nil {
 		return Operation{}, e
 	}
+	device, deviceErr := s.activeFiscalDeviceSnapshot(register, tenant, time.Now().UTC())
+	if deviceErr == nil {
+		if driver, routeErr := s.boundDriver(tenant, register, device); routeErr == nil {
+			if queued, ok := driver.(durableQueuedDriver); ok {
+				command, prepareErr := queued.Prepare(op, Sale{TenantID: tenant, RegisterID: register, FiscalDevice: device}, PaymentRequest{})
+				if prepareErr != nil {
+					return Operation{}, prepareErr
+				}
+				if putErr := s.repo.PutResource(command); putErr != nil {
+					return Operation{}, putErr
+				}
+				if publishErr := queued.Publish(command); publishErr != nil {
+					return op, nil
+				}
+				return op, nil
+			}
+		}
+	}
 	op = s.executeReservedFiscalOperation(op, register, tenant)
 	return op, s.repo.CommitOperationEvent(op, fiscalCommandEvent(register, op))
 }
@@ -297,7 +326,7 @@ func (s *Service) reserveFiscalOperation(register, typ, tenant string) (Operatio
 	if register == "" {
 		return Operation{}, errors.New("register required")
 	}
-	allowed := []string{"CASH_IN", "CASH_OUT", "X", "Z", "KLEN", "FISCAL_MEMORY", "OPERATOR", "DEPARTMENT", "PLU"}
+	allowed := []string{"CASH_IN", "CASH_OUT", "X", "Z", "KLEN", "FISCAL_MEMORY", "OPERATOR", "DEPARTMENT", "PLU", "PRINTER_TEST", "DEVICE_IDENTITY", "DEVICE_TIME"}
 	if !contains(allowed, typ) {
 		return Operation{}, errors.New("unsupported operation")
 	}

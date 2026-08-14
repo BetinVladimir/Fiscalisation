@@ -29,6 +29,21 @@ type Handler struct {
 	cfg config.Config
 }
 
+func hasAnyRole(r *http.Request, allowed ...string) bool {
+	claims, ok := auth.ClaimsFrom(r.Context())
+	if !ok {
+		return false
+	}
+	for _, actual := range claims.Roles {
+		for _, expected := range allowed {
+			if strings.EqualFold(actual, expected) {
+				return true
+			}
+		}
+	}
+	return false
+}
+
 var apiUUIDPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$`)
 
 type webhookCreatedResponse struct {
@@ -111,6 +126,7 @@ func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	h := &Handler{s, c}
 	m := http.NewServeMux()
 	m.HandleFunc("/connectivity/ping", h.ping)
+	m.HandleFunc("/public/v1/connectivity/ping", h.ping)
 	m.HandleFunc("/livez", h.live)
 	m.HandleFunc("/readyz", h.live)
 	m.HandleFunc("/healthz", h.live)
@@ -158,7 +174,7 @@ func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	pingLimiter := &requestLimiter{limit: 120, window: time.Minute, now: time.Now, entries: make(map[string]rateWindow)}
 	pingRoute := pingLimiter.middlewareAll(http.HandlerFunc(h.ping))
 	root := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path == "/connectivity/ping" {
+		if r.URL.Path == "/connectivity/ping" || r.URL.Path == "/public/v1/connectivity/ping" {
 			pingRoute.ServeHTTP(w, r)
 			return
 		}
@@ -1724,6 +1740,36 @@ func (h *Handler) device(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		write(w, 200, v)
+		return
+	}
+	if len(parts) == 2 && parts[1] == "health" && r.Method == "GET" {
+		v, e := h.svc.DeviceHealth(parts[0], tenantID(r))
+		if e != nil {
+			problem(w, 404, "DEVICE_HEALTH_NOT_FOUND")
+			return
+		}
+		write(w, 200, v)
+		return
+	}
+	if len(parts) == 2 && parts[1] == "activity" && r.Method == "GET" {
+		if _, e := h.svc.GetResource("device", parts[0], tenantID(r)); e != nil {
+			problem(w, 404, "DEVICE_NOT_FOUND")
+			return
+		}
+		write(w, 200, map[string]any{"items": h.svc.DeviceActivity(parts[0], tenantID(r))})
+		return
+	}
+	if len(parts) == 3 && parts[1] == "tests" && parts[2] == "printer" && r.Method == "POST" {
+		if !hasAnyRole(r, "ADMIN", "SERVICE", "SERVICE_TECHNICIAN") {
+			problem(w, 403, "ROLE_SERVICE_REQUIRED")
+			return
+		}
+		v, e := h.svc.PrinterTest(parts[0], tenantID(r))
+		if e != nil {
+			problem(w, 409, "PRINTER_TEST_REJECTED")
+			return
+		}
+		write(w, 202, v)
 		return
 	}
 	if len(parts) == 2 && parts[1] == "provisioning-sessions" && r.Method == "POST" {

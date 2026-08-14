@@ -19,6 +19,7 @@ struct RecoveryItem{std::string operation_id;std::string receipt_id;std::string 
   int64_t updated_at;};
 struct AuthorityReservation{int64_t operation_sequence{},unp_sequence{};std::string unp;};
 struct InitialPayment{std::string payment_id;int64_t amount_minor{};};
+struct OperationRecord{std::string operation_id,payload_digest,state,result_payload;int64_t updated_at{};};
 struct AtomicReservationResult{ReservationStatus status;std::string prior_result;
   AuthorityReservation authority;};
 struct StorageConfig{const char* mount_point;const char* database_relative_path;
@@ -43,6 +44,7 @@ public:
     const std::function<std::string(const AuthorityReservation&)>& event_payload);
   esp_err_t set_operation_state(const char* operation_id,const char* state,
     const char* result_payload,int64_t now);
+  esp_err_t operation(const char* operation_id,OperationRecord&)const;
   esp_err_t upsert_receipt(const char* receipt_id,const char* operation_id,
     const char* state,const char* canonical_payload,int64_t now);
   esp_err_t upsert_payment(const char* payment_id,const char* operation_id,

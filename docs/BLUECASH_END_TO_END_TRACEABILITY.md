@@ -4,26 +4,25 @@
 
 ## Результат аудита
 
-Программный path до BlueCash-50 замкнут для MQTT. Direct BLE требует P0
-remediation:
+Программные MQTT, Local HTTP и direct BLE paths до BlueCash-50 замкнуты:
 
 - REST, idempotency, operation state и WebHook outbox реализованы в `fiscal-backend`;
 - `fiscal-backend/internal/mqttclient/client.go` публикует подписанные команды QoS 1, принимает `sync/batches`, вызывает `SyncBatchForTenant` и публикует подписанный business ACK;
 - `bluecash-app` имеет MQTT runtime, общий command processor, SQLite WAL/FULL journal, Android Keystore ECDSA signatures, ACK verification, reconnect sync и безопасное усечение;
 - Datecs fiscal и BORICA pinpad wire protocols реализованы через реальные `com.android.fiscal.jar` и `com.android.pinpad.jar`, извлечённые из предоставленных vendor samples;
-- transaction GATT service/characteristics существуют, но используют legacy
-  ticket/X25519/HKDF/AES-GCM channel и несовместимы с MiniPOS `OPEN_MVP` BFF1;
+- transaction GATT принимает утверждённый для MVP открытый `BFF1` transport,
+  проверяет binding/generation, UUID и canonical payload digest и передаёт
+  aggregate intent в тот же durable processor;
 - activation сохраняет device-bound configuration, MQTT identity и command/ACK
   authority; runtime запускается из активного binding;
 - production mTLS/ACL deployment и physical BlueCash HIL остаются отдельными
   gates.
 
-Unit/integration contour доказывает REST-domain → MQTT → Android processor →
-Datecs wire call → signed sync → domain/WebHook materialization. Direct BLE
-BlueCash пока не соответствует фактическому `OPEN_MVP` клиенту и aggregate
-`SALE_FINALIZE`; обязательное исправление описано в
-[`MVP1/BLUECASH_BLE_MVP_REMEDIATION.md`](MVP1/BLUECASH_BLE_MVP_REMEDIATION.md).
-До его закрытия общий статус — `SOFTWARE_INCOMPLETE_HIL_PENDING`.
+Unit/integration contour доказывает REST-domain → MQTT/HTTP/BLE → Android
+processor → Datecs wire call → signed sync → domain/WebHook materialization.
+Aggregate `SALE_FINALIZE`, optional discount, ordered split tenders, refund,
+printer test, reports и cash movements используют общий journal. Текущий статус
+— `SOFTWARE_COMPLETE_HIL_PENDING`; физический BlueCash/acquirer HIL не заявлен.
 
 ## Контракты
 
@@ -168,11 +167,11 @@ Three months is a minimum retention, not a TTL. Purge is allowed only when the r
 | MQTT command publisher/outbox | atomic `device_command_outbox` ResourceRecord + `Bridge.Prepare/Publish/FlushOutbox` | PASS software/unit: immutable envelope committed with operation/sale, reconnect republish, expiry → UNKNOWN + WebHook |
 | MQTT result → domain | `Processor.Process` → `SyncBatchForTenant` → signed ACK | PASS |
 | activation/binding | backend activation + persisted device configuration | PASS software; HIL pending |
-| BLE MVP profile | MiniPOS `OPEN_MVP` BFF1 vs BlueCash encrypted legacy channel | P0 OPEN: wire-incompatible |
-| BLE GATT/control | `BlueCashTransactionGattServer` + `BlueCashBleCommandChannel` | P0 OPEN: requires legacy handshake |
-| BLE ComplianceIntent execution | `BlueCashComplianceIntentExecutor` → `BlueCashCommandProcessor` | P0 OPEN: legacy PAYMENT only; aggregate SALE_FINALIZE and discount mapping missing |
+| BLE MVP profile | MiniPOS и BlueCash `OPEN_MVP` BFF1 | PASS software; физический BLE HIL pending |
+| BLE GATT/control | `BlueCashTransactionGattServer` + `BlueCashOpenMvpFrames` | PASS: открытый MVP framing, binding fence, UUID/digest replay control |
+| BLE ComplianceIntent execution | `BlueCashComplianceIntentExecutor` → `BlueCashCommandProcessor` | PASS: aggregate SALE_FINALIZE, discount, ordered split, reversal и printer test |
 | BLE local aggregate/UNP | SQLite v2 `ble_local_sale`, processed intent hashes/results, `ble_unp_range` | PASS software; physical Android instrumentation pending |
-| shared BLE/MQTT processor | MQTT aggregate works; BLE enters incompatible legacy executor | P0 OPEN |
+| shared BLE/MQTT/HTTP processor | все каналы входят в `BlueCashComplianceIntentExecutor`; ACCEPTED хранит canonical payload | PASS software |
 | SQLite journal/recovery | `AndroidTransactionJournal`, WAL/FULL, fail-closed EXECUTING recovery | PASS software/unit; instrumentation pending |
 | per-event hardware signature | Keystore ECDSA + backend per-device P-256 verifier | PASS software; hardware attestation is production hardening |
 | acknowledged 3-month retention | signed ACK required; Europe/Sofia three calendar months; anchor retained | PASS software/unit |

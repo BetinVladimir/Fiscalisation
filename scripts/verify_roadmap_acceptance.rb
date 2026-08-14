@@ -11,7 +11,7 @@ abort "canonical roadmap missing" unless File.file?(roadmap)
 stages = register.fetch("stages")
 abort "roadmap stages must be exactly 1..25" unless stages.map { |row| row.fetch("stage") } == (1..25).to_a
 
-allowed = %w[SOFTWARE_PASS FORMALLY_EXCLUDED_EXTERNAL PENDING_EXTERNAL_ACCEPTANCE]
+allowed = %w[SOFTWARE_PASS SOFTWARE_PASS_HIL_PENDING FORMALLY_EXCLUDED_EXTERNAL PENDING_EXTERNAL_ACCEPTANCE]
 makefile = File.read(File.join(root, "Makefile"))
 stages.each do |row|
   id = "stage #{row.fetch('stage')}"

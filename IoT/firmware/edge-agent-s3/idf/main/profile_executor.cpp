@@ -21,7 +21,32 @@ bool EspIdfDeviceIo::begin(){if(binding_.profile==EdgeProfile::DatecsDp150BluePa
 bool EspIdfDeviceIo::fiscal_ready(){return binding_.profile==EdgeProfile::DatecsDp150BluePad50?uart_runtime_ready():usb_cdc_ready();}
 bool EspIdfDeviceIo::payment_ready(){return binding_.payment.present&&bluepad_ble_ready();}
 ExecutionResult EspIdfDeviceIo::fiscalize(const ReceiptPlan&p){if(!fiscal_ready())return{ExecutionCertainty::DeviceUnavailable,"","FISCAL_DEVICE_UNAVAILABLE","","",""};uint8_t sequence=0x20;std::vector<uint8_t>payload;std::string error;bee::OpenReceiptPayload open{1,"0000",p.unp,1,false};bool built=binding_.profile==EdgeProfile::DatecsDp150BluePad50?bee::buildDatecsOpenReceipt(open,payload,error):bee::buildDaisyOpenReceipt(open,payload,error);if(!built||!exchange(binding_,48,payload,sequence))return{ExecutionCertainty::Unknown,"","FISCAL_OPEN_UNKNOWN","","",""};return finish_receipt(binding_,p,sequence);}
-ExecutionResult EspIdfDeviceIo::fiscal_command(const ReceiptPlan&p){if(!fiscal_ready())return{ExecutionCertainty::DeviceUnavailable,"","FISCAL_DEVICE_UNAVAILABLE","","",""};uint8_t sequence=0x20;std::vector<uint8_t>payload;std::string error;uint16_t command=0;if(p.command_type=="REPORT_X"||p.command_type=="REPORT_Z"){command=69;const bool z=p.command_type=="REPORT_Z";if(!(binding_.profile==EdgeProfile::DatecsDp150BluePad50?bee::buildDatecsDailyReport(z,payload):bee::buildDaisyDailyReport(z,payload)))return{ExecutionCertainty::Rejected,"","REPORT_PAYLOAD_INVALID","","",""};}else if(p.command_type=="CASH_IN"||p.command_type=="CASH_OUT"){command=70;bee::CashMovementPayload movement{p.amount,p.command_type=="CASH_OUT"};if(!(binding_.profile==EdgeProfile::DatecsDp150BluePad50?bee::buildDatecsCashMovement(movement,payload,error):bee::buildDaisyCashMovement(movement,payload,error)))return{ExecutionCertainty::Rejected,"","CASH_MOVEMENT_INVALID","","",""};}else if(p.command_type=="SALE_REVERSE"){command=binding_.profile==EdgeProfile::DatecsDp150BluePad50?43:48;bee::ReversalOpenPayload reversal{1,binding_.profile==EdgeProfile::DatecsDp150BluePad50?"00000000":"0000",1,p.reversal_reason,p.original_document,p.original_datetime,p.original_fmin,false,"","",p.unp};if(!(binding_.profile==EdgeProfile::DatecsDp150BluePad50?bee::buildDatecsOpenReversal(reversal,payload,error):bee::buildDaisyOpenReversal(reversal,payload,error))||!exchange(binding_,command,payload,sequence))return{ExecutionCertainty::Unknown,"","REVERSAL_OPEN_UNKNOWN","","",""};return finish_receipt(binding_,p,sequence);}else if(p.command_type=="DEVICE_IDENTITY"){command=binding_.profile==EdgeProfile::DatecsDp150BluePad50?123:90;if(binding_.profile==EdgeProfile::DatecsDp150BluePad50)payload={'1','\t'};}else if(p.command_type=="DEVICE_TIME")command=62;else return{ExecutionCertainty::Rejected,"","UNSUPPORTED_FISCAL_COMMAND","","",""};if(!exchange(binding_,command,payload,sequence))return{ExecutionCertainty::Unknown,"","FISCAL_COMMAND_UNKNOWN","","",""};return{ExecutionCertainty::Committed,reference(p),"","","",""};}
+ExecutionResult EspIdfDeviceIo::fiscal_command(const ReceiptPlan&p){
+ if(!fiscal_ready())return{ExecutionCertainty::DeviceUnavailable,"","FISCAL_DEVICE_UNAVAILABLE","","",""};
+ uint8_t sequence=0x20;std::vector<uint8_t>payload;std::string error;uint16_t command=0;
+ if(p.command_type=="REPORT_X"||p.command_type=="REPORT_Z"){
+  command=69;const bool z=p.command_type=="REPORT_Z";
+  if(!(binding_.profile==EdgeProfile::DatecsDp150BluePad50?bee::buildDatecsDailyReport(z,payload):bee::buildDaisyDailyReport(z,payload)))return{ExecutionCertainty::Rejected,"","REPORT_PAYLOAD_INVALID","","",""};
+ }else if(p.command_type=="CASH_IN"||p.command_type=="CASH_OUT"){
+  command=70;bee::CashMovementPayload movement{p.amount,p.command_type=="CASH_OUT"};
+  if(!(binding_.profile==EdgeProfile::DatecsDp150BluePad50?bee::buildDatecsCashMovement(movement,payload,error):bee::buildDaisyCashMovement(movement,payload,error)))return{ExecutionCertainty::Rejected,"","CASH_MOVEMENT_INVALID","","",""};
+ }else if(p.command_type=="SALE_REVERSE"){
+  command=binding_.profile==EdgeProfile::DatecsDp150BluePad50?43:48;bee::ReversalOpenPayload reversal{1,binding_.profile==EdgeProfile::DatecsDp150BluePad50?"00000000":"0000",1,p.reversal_reason,p.original_document,p.original_datetime,p.original_fmin,false,"","",p.unp};
+  if(!(binding_.profile==EdgeProfile::DatecsDp150BluePad50?bee::buildDatecsOpenReversal(reversal,payload,error):bee::buildDaisyOpenReversal(reversal,payload,error))||!exchange(binding_,command,payload,sequence))return{ExecutionCertainty::Unknown,"","REVERSAL_OPEN_UNKNOWN","","",""};
+  return finish_receipt(binding_,p,sequence);
+ }else if(p.command_type=="PRINTER_TEST"){
+  if(!exchange(binding_,38,payload,sequence))return{ExecutionCertainty::Unknown,"","PRINTER_TEST_OPEN_UNKNOWN","","",""};
+  std::string text="BEELOY PRINTER TEST";if(binding_.profile==EdgeProfile::DatecsDp150BluePad50)text+="\t\t\t\t\t\t";payload.assign(text.begin(),text.end());
+  if(!exchange(binding_,42,payload,sequence))return{ExecutionCertainty::Unknown,"","PRINTER_TEST_TEXT_UNKNOWN","","",""};
+  payload.clear();if(!exchange(binding_,39,payload,sequence))return{ExecutionCertainty::Unknown,"","PRINTER_TEST_CLOSE_UNKNOWN","","",""};
+  return{ExecutionCertainty::Committed,reference(p),"","","",""};
+ }else if(p.command_type=="DEVICE_IDENTITY"){
+  command=binding_.profile==EdgeProfile::DatecsDp150BluePad50?123:90;if(binding_.profile==EdgeProfile::DatecsDp150BluePad50)payload={'1','\t'};
+ }else if(p.command_type=="DEVICE_TIME")command=62;
+ else return{ExecutionCertainty::Rejected,"","UNSUPPORTED_FISCAL_COMMAND","","",""};
+ if(!exchange(binding_,command,payload,sequence))return{ExecutionCertainty::Unknown,"","FISCAL_COMMAND_UNKNOWN","","",""};
+ return{ExecutionCertainty::Committed,reference(p),"","","",""};
+}
 PaymentOutcome EspIdfDeviceIo::purchase(const std::string&id,int64_t amount){return bluepad_ble_purchase(id,amount);}
 PaymentOutcome EspIdfDeviceIo::payment_lookup(const std::string&id){return bluepad_ble_lookup(id);}
 PaymentOutcome EspIdfDeviceIo::reverse(const std::string&id,int64_t amount){return bluepad_ble_reverse(id,amount);}

@@ -15,10 +15,8 @@
 
 ## Актуальная архитектура и интеграция
 
-- [`MVP1/README.md`](MVP1/README.md) — только актуальный незакрытый MVP1 backlog.
-- [`MVP1/BLUECASH_BLE_MVP_REMEDIATION.md`](MVP1/BLUECASH_BLE_MVP_REMEDIATION.md)
-  — требования устранения несовместимости BlueCash direct BLE, aggregate
-  `SALE_FINALIZE` и скидок.
+- [`MVP1/README.md`](MVP1/README.md) — актуальный as-built статус
+  `SOFTWARE_COMPLETE_HIL_PENDING` и перечень оставшихся внешних gates.
 - [`system-overview.md`](system-overview.md) — состав системы, границы продуктов
   и текущие production gates.
 - [`EXTERNAL_POS_INTEGRATION_PROTOCOL.md`](EXTERNAL_POS_INTEGRATION_PROTOCOL.md) —

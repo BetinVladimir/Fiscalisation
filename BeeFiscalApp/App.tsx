@@ -103,6 +103,11 @@ export default function App() {
     [deviceModel, setDeviceModel] = useState("DP-150 MX"),
     [deviceSerial, setDeviceSerial] = useState(""),
     [deviceKind, setDeviceKind] = useState("FISCAL_DEVICE"),
+    [deviceDriverId, setDeviceDriverId] = useState("datecs"),
+    [deviceProtocolId, setDeviceProtocolId] = useState("datecs-fp"),
+    [deviceProtocolVersion, setDeviceProtocolVersion] = useState("2.11.4"),
+    [deviceTransport, setDeviceTransport] = useState("RS232"),
+    [deviceTransportParameters, setDeviceTransportParameters] = useState('{"baud":115200,"data_bits":8,"parity":"N","stop_bits":1}'),
     [bindingRole, setBindingRole] = useState("FISCAL_DEVICE"),
     [deviceId, setDeviceId] = useState(""),
     [compositeProfile, setCompositeProfile] = useState(MVP1_DEVICE_PROFILES[0].id),
@@ -112,6 +117,8 @@ export default function App() {
     [expectedRegisterVersion, setExpectedRegisterVersion] = useState("1"),
     [compositeBinding, setCompositeBinding] = useState<Item | null>(null),
     [diagnostics, setDiagnostics] = useState<Item | null>(null),
+    [deviceHealth, setDeviceHealth] = useState<Item | null>(null),
+    [deviceActivity, setDeviceActivity] = useState<Item[]>([]),
     [provisioning, setProvisioning] = useState<Item | null>(null),
     [bleSession, setBleSession] = useState<Item | null>(null),
     [blueCashActivation, setBlueCashActivation] = useState<Item | null>(null),
@@ -124,6 +131,14 @@ export default function App() {
     [fiscalMetrics, setFiscalMetrics] = useState<Item | null>(null),
     [adminBusy, setAdminBusy] = useState(false),
     [loading, setLoading] = useState(false);
+  useEffect(() => {
+    if (tab !== "Устройства" || !selected) return;
+    let active = true;
+    const poll = async () => { if (typeof document !== "undefined" && document.visibilityState === "hidden") return; try { const [health,activity]=await Promise.all([call(`/devices/${encodeURIComponent(label(selected.id))}/health`),call(`/devices/${encodeURIComponent(label(selected.id))}/activity`)]);if(active){setDeviceHealth(health);setDeviceActivity(Array.isArray(activity.items)?activity.items as Item[]:[])} } catch { if(active)setDeviceHealth({effective_state:"STALE"}) } };
+    void poll();const timer=setInterval(()=>void poll(),5000);return()=>{active=false;clearInterval(timer)};
+  }, [tab, selected?.id]);
+  const transportParameter=(name:string,fallback="")=>{try{const parsed=JSON.parse(deviceTransportParameters||"{}");return String(parsed[name]??fallback)}catch{return fallback}};
+  const setTransportParameter=(name:string,value:string,numeric=false)=>{let parsed:Record<string,unknown>={};try{parsed=JSON.parse(deviceTransportParameters||"{}")}catch{};parsed[name]=numeric?Number(value):value;setDeviceTransportParameters(JSON.stringify(parsed))};
   const refresh = useCallback(
     async (next = tab) => {
       setLoading(true);
@@ -259,6 +274,10 @@ export default function App() {
     } finally {
       setLoading(false);
     }
+  };
+  const printerTest = async () => {
+    if (!selected || !canDiagnose) { setMessage("Тестът на принтера изисква ADMIN или SERVICE"); return; }
+    setLoading(true);try{const result=await call(`/devices/${encodeURIComponent(label(selected.id))}/tests/printer`,{method:"POST",body:"{}"});setMessage(`Тест на принтера: ${label(result.state)} • ${label(result.id)}`)}catch(e){setMessage(`Тестът на принтера е отказан: ${e instanceof Error?e.message:String(e)}`)}finally{setLoading(false)}
   };
   const startProvisioning = async () => {
     if (!selected || !canAdminister) {
@@ -518,6 +537,7 @@ export default function App() {
               <Text style={s.meta}>Transport/cloud и достижимостта на крайното ФУ са отделни групи метрики.</Text>
               <View style={s.actions}>
                 {canDiagnose ? <Action testID="device-diagnostics" label="Диагностика" disabled={loading || !selected} onPress={() => void loadDiagnostics()} /> : null}
+                {canDiagnose ? <Action testID="device-printer-test" label="Тест на принтера" disabled={loading || !selected} onPress={() => void printerTest()} /> : null}
                 {canAdminister ? <Action testID="device-provision" label="Нова provisioning сесия" disabled={loading || !selected} onPress={() => void startProvisioning()} /> : null}
               </View>
               {canIssueBleSession ? <>
@@ -536,6 +556,8 @@ export default function App() {
                 <Action testID="smart-device-disconnect" label="Изключи избраното устройство от компанията" disabled={loading || !selected} onPress={() => void disconnectDevice()} />
               </> : null}
               {transportMetrics ? <Text testID="transport-metrics" style={s.json}>Transport: {JSON.stringify(transportMetrics, null, 2)}</Text> : null}
+              {deviceHealth ? <Text testID="device-realtime-health" style={s.json}>Realtime MQTT→REST: {JSON.stringify(deviceHealth, null, 2)}</Text> : null}
+              {deviceActivity.length ? <Text testID="device-activity-timeline" style={s.json}>Последни преходи: {JSON.stringify(deviceActivity.slice(0,20), null, 2)}</Text> : null}
               {fiscalMetrics ? <Text testID="fiscal-device-metrics" style={s.json}>Крайно ФУ: {JSON.stringify(fiscalMetrics, null, 2)}</Text> : null}
               {diagnostics ? <Text testID="diagnostics-result" style={s.json}>{JSON.stringify(diagnostics, null, 2)}</Text> : null}
               {provisioning ? <Text testID="provisioning-result" style={s.json}>{JSON.stringify(provisioning, null, 2)}</Text> : null}
@@ -849,6 +871,11 @@ export default function App() {
                     setDeviceModel(label(x.model));
                     setDeviceSerial(label(x.serial));
                     setDeviceKind(label(x.kind));
+                    setDeviceDriverId(label(x.driver_id||"datecs"));
+                    setDeviceProtocolId(label(x.protocol_id||"datecs-fp"));
+                    setDeviceProtocolVersion(label(x.protocol_version||"2.11.4"));
+                    setDeviceTransport(label(x.transport||"RS232"));
+                    setDeviceTransportParameters(JSON.stringify(x.transport_parameters||{},null,2));
                     setBindingRole(label(x.kind) === "PAYMENT_TERMINAL" ? "OPTIONAL_PAYMENT_TERMINAL" : "FISCAL_DEVICE");
                   }}
                 />
@@ -873,6 +900,36 @@ export default function App() {
                   onChangeText={setDeviceSerial}
                   testID="admin-device-serial"
                 />
+                <Field label="Driver ID" value={deviceDriverId} onChangeText={setDeviceDriverId} testID="admin-device-driver" />
+                <Field label="Protocol ID" value={deviceProtocolId} onChangeText={setDeviceProtocolId} testID="admin-device-protocol" />
+                <Field label="Protocol version" value={deviceProtocolVersion} onChangeText={setDeviceProtocolVersion} testID="admin-device-protocol-version" />
+                <View style={s.actions}>
+                  <Action testID="transport-rs232" label="RS-232" disabled={adminBusy} onPress={()=>{setDeviceTransport("RS232");setDeviceTransportParameters('{"baud":115200,"data_bits":8,"parity":"N","stop_bits":1,"tx_pin":17,"rx_pin":18}')}} />
+                  <Action testID="transport-usb" label="USB CDC" disabled={adminBusy} onPress={()=>{setDeviceTransport("USB_SERIAL");setDeviceTransportParameters('{"vid":0,"pid":0,"interface":0}')}} />
+                  <Action testID="transport-ble" label="BLE GATT" disabled={adminBusy} onPress={()=>{setDeviceTransport("BLE_GATT");setDeviceTransportParameters('{"address_policy":"ADVERTISING_IDENTITY"}')}} />
+                </View>
+                <Text style={s.meta}>Избран transport: {deviceTransport}</Text>
+                {deviceTransport==="RS232"?<>
+                  <Field label="Baud" value={transportParameter("baud","115200")} onChangeText={(v)=>setTransportParameter("baud",v,true)} />
+                  <Field label="Data bits" value={transportParameter("data_bits","8")} onChangeText={(v)=>setTransportParameter("data_bits",v,true)} />
+                  <Field label="Parity (N/E/O)" value={transportParameter("parity","N")} onChangeText={(v)=>setTransportParameter("parity",v)} />
+                  <Field label="Stop bits" value={transportParameter("stop_bits","1")} onChangeText={(v)=>setTransportParameter("stop_bits",v,true)} />
+                  <Field label="TX pin" value={transportParameter("tx_pin","17")} onChangeText={(v)=>setTransportParameter("tx_pin",v,true)} />
+                  <Field label="RX pin" value={transportParameter("rx_pin","18")} onChangeText={(v)=>setTransportParameter("rx_pin",v,true)} />
+                </>:null}
+                {deviceTransport==="USB_SERIAL"?<>
+                  <Field label="USB VID" value={transportParameter("vid","0")} onChangeText={(v)=>setTransportParameter("vid",v,true)} />
+                  <Field label="USB PID" value={transportParameter("pid","0")} onChangeText={(v)=>setTransportParameter("pid",v,true)} />
+                  <Field label="CDC interface" value={transportParameter("interface","0")} onChangeText={(v)=>setTransportParameter("interface",v,true)} />
+                  <Field label="Очакван USB serial" value={transportParameter("serial","")} onChangeText={(v)=>setTransportParameter("serial",v)} />
+                </>:null}
+                {deviceTransport==="BLE_GATT"?<>
+                  <Field label="Advertising identity" value={transportParameter("advertising_identity","")} onChangeText={(v)=>setTransportParameter("advertising_identity",v)} />
+                  <Field label="Service UUID" value={transportParameter("service_uuid","")} onChangeText={(v)=>setTransportParameter("service_uuid",v)} />
+                  <Field label="TX characteristic UUID" value={transportParameter("tx_characteristic_uuid","")} onChangeText={(v)=>setTransportParameter("tx_characteristic_uuid",v)} />
+                  <Field label="RX characteristic UUID" value={transportParameter("rx_characteristic_uuid","")} onChangeText={(v)=>setTransportParameter("rx_characteristic_uuid",v)} />
+                </>:null}
+                <Field label="Advanced transport JSON (read-only contract preview)" value={deviceTransportParameters} onChangeText={setDeviceTransportParameters} testID="admin-device-transport-parameters" />
                 <Action
                   label="Запази DEV ФУ"
                   disabled={adminBusy}
@@ -896,6 +953,11 @@ export default function App() {
                             vendor: deviceVendor,
                             model: deviceModel,
                             serial: deviceSerial,
+                            driver_id: deviceDriverId,
+                            protocol_id: deviceProtocolId,
+                            protocol_version: deviceProtocolVersion,
+                            transport: deviceTransport,
+                            transport_parameters: JSON.parse(deviceTransportParameters||"{}"),
                             status: current?.status || "DRAFT",
                             environment: current?.environment || "DEV",
                             simulated: current?.simulated ?? true,

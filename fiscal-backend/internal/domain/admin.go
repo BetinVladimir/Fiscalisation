@@ -401,7 +401,7 @@ func (s *Service) CreateCompositeBinding(registerID, tenant, profile, adapterID,
 	}
 	if s.compositeBindingPublisher != nil {
 		locationID := stringField(register.Data, "location_id")
-		fiscalEndpoint := map[string]any{"device_id": fiscalID, "vendor": strings.ToUpper(stringField(fiscal.Data, "vendor")), "model": strings.ToUpper(stringField(fiscal.Data, "model")), "transport": stringField(fiscal.Data, "transport")}
+		fiscalEndpoint := map[string]any{"device_id": fiscalID, "vendor": strings.ToUpper(stringField(fiscal.Data, "vendor")), "model": strings.ToUpper(stringField(fiscal.Data, "model")), "transport": stringField(fiscal.Data, "transport"), "driver_id": stringField(fiscal.Data, "driver_id"), "protocol_id": stringField(fiscal.Data, "protocol_id"), "protocol_version": stringField(fiscal.Data, "protocol_version")}
 		if profile == "DATECS_DP150_BLUEPAD50" {
 			fiscalEndpoint["transport"] = "RS232"
 			fiscalEndpoint["uart"] = map[string]any{"baud": int64Field(fiscal.Data, "uart_baud"), "data_bits": int64Field(fiscal.Data, "uart_data_bits"), "parity": stringField(fiscal.Data, "uart_parity"), "stop_bits": int64Field(fiscal.Data, "uart_stop_bits"), "tx_pin": int64Field(adapter.Data, "uart_tx_pin"), "rx_pin": int64Field(adapter.Data, "uart_rx_pin")}
@@ -413,9 +413,17 @@ func (s *Service) CreateCompositeBinding(registerID, tenant, profile, adapterID,
 		var paymentEndpoint any = nil
 		if paymentID != "" {
 			payment, _ := s.repo.Resource("device", paymentID)
-			paymentEndpoint = map[string]any{"device_id": paymentID, "vendor": strings.ToUpper(stringField(payment.Data, "vendor")), "model": strings.ToUpper(stringField(payment.Data, "model")), "transport": "BLE_GATT", "ble_identity": stringField(payment.Data, "ble_identity"), "service_uuid": stringField(payment.Data, "service_uuid"), "tx_characteristic_uuid": stringField(payment.Data, "tx_characteristic_uuid"), "rx_characteristic_uuid": stringField(payment.Data, "rx_characteristic_uuid")}
+			paymentEndpoint = map[string]any{"device_id": paymentID, "vendor": strings.ToUpper(stringField(payment.Data, "vendor")), "model": strings.ToUpper(stringField(payment.Data, "model")), "transport": "BLE_GATT", "driver_id": stringField(payment.Data, "driver_id"), "protocol_id": stringField(payment.Data, "protocol_id"), "protocol_version": stringField(payment.Data, "protocol_version"), "ble_identity": stringField(payment.Data, "ble_identity"), "service_uuid": stringField(payment.Data, "service_uuid"), "tx_characteristic_uuid": stringField(payment.Data, "tx_characteristic_uuid"), "rx_characteristic_uuid": stringField(payment.Data, "rx_characteristic_uuid")}
 		}
-		canonicalValue := map[string]any{"schema_version": 2, "generation": generation, "tenant_id": tenant, "location_id": locationID, "register_id": registerID, "edge_device_id": adapterID, "profile": profile, "ble_advertising_identity": stringField(adapter.Data, "ble_advertising_identity"), "fiscal_endpoint": fiscalEndpoint, "payment_endpoint": paymentEndpoint, "mqtt": map[string]any{"uri": stringField(adapter.Data, "mqtt_uri"), "client_id": stringField(adapter.Data, "mqtt_client_id"), "command_topic": fmt.Sprintf("tenants/%s/devices/%s/commands", tenant, adapterID), "sync_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/batches", tenant, adapterID), "ack_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/acks", tenant, adapterID), "root_ca_ref": "mqtt-ca", "client_certificate_ref": "mqtt-cert", "client_key_ref": "mqtt-key"}, "operational_authority": map[string]any{"command_hmac_ref": "command-hmac", "sync_ack_hmac_ref": "sync-ack-hmac", "transaction_signing_kid": stringField(adapter.Data, "transaction_signing_kid"), "unp_prefix": stringField(adapter.Data, "unp_prefix"), "unp_range_start": int64Field(adapter.Data, "unp_range_start"), "unp_range_end": int64Field(adapter.Data, "unp_range_end")}}
+		localHTTPEnabled := s.localTokenIssuer != "" && s.localTokenSigningKID != "" && s.localTokenPublicKeyDERBase64 != ""
+		localHTTP := map[string]any{"enabled": localHTTPEnabled, "port": 8088}
+		if localHTTPEnabled {
+			localHTTP["token_issuer"], localHTTP["token_signing_kid"], localHTTP["token_public_key_der_base64"] = s.localTokenIssuer, s.localTokenSigningKID, s.localTokenPublicKeyDERBase64
+		}
+		if s.spaDeploymentDescriptorURL != "" && s.spaDeploymentSigningKID != "" && s.spaDeploymentPublicKeyDERBase64 != "" {
+			localHTTP["deployment_descriptor_url"], localHTTP["deployment_signing_kid"], localHTTP["deployment_public_key_base64"] = s.spaDeploymentDescriptorURL, s.spaDeploymentSigningKID, s.spaDeploymentPublicKeyDERBase64
+		}
+		canonicalValue := map[string]any{"schema_version": 2, "generation": generation, "tenant_id": tenant, "location_id": locationID, "register_id": registerID, "edge_device_id": adapterID, "profile": profile, "ble_advertising_identity": stringField(adapter.Data, "ble_advertising_identity"), "fiscal_endpoint": fiscalEndpoint, "payment_endpoint": paymentEndpoint, "mqtt": map[string]any{"uri": stringField(adapter.Data, "mqtt_uri"), "client_id": stringField(adapter.Data, "mqtt_client_id"), "command_topic": fmt.Sprintf("tenants/%s/devices/%s/commands", tenant, adapterID), "sync_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/batches", tenant, adapterID), "ack_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/acks", tenant, adapterID), "root_ca_ref": "mqtt-ca", "client_certificate_ref": "mqtt-cert", "client_key_ref": "mqtt-key"}, "operational_authority": map[string]any{"command_hmac_ref": "command-hmac", "sync_ack_hmac_ref": "sync-ack-hmac", "transaction_signing_kid": stringField(adapter.Data, "transaction_signing_kid"), "unp_prefix": stringField(adapter.Data, "unp_prefix"), "unp_range_start": int64Field(adapter.Data, "unp_range_start"), "unp_range_end": int64Field(adapter.Data, "unp_range_end")}, "local_http": localHTTP}
 		canonical, marshalErr := json.Marshal(canonicalValue)
 		if marshalErr != nil {
 			return nil, marshalErr
@@ -646,6 +654,29 @@ func (s *Service) DeviceDiagnostics(deviceID, tenant string) (map[string]any, er
 	if _, err := s.GetResource("device", deviceID, tenant); err != nil {
 		return nil, err
 	}
-	ready := s.driver != nil && s.driver.Probe() == nil
-	return map[string]any{"device_id": deviceID, "observed_at": time.Now().UTC(), "metrics": map[string]any{"transport": map[string]any{"cloud_route": "READY"}, "fiscal_device": map[string]any{"reachable": ready}}, "redactions_applied": true}, nil
+	health, err := s.DeviceHealth(deviceID, tenant)
+	if err != nil {
+		return map[string]any{"device_id": deviceID, "observed_at": time.Now().UTC(), "effective_state": "STALE", "metrics": map[string]any{}, "redactions_applied": true}, nil
+	}
+	return map[string]any{"device_id": deviceID, "observed_at": time.Now().UTC(), "effective_state": health["effective_state"], "age_seconds": health["age_seconds"], "metrics": map[string]any{"adapter_state": health["adapter_state"], "endpoints": health["endpoints"], "binding_generation": health["binding_generation"]}, "redactions_applied": true}, nil
+}
+
+func (s *Service) PrinterTest(deviceID, tenant string) (Operation, error) {
+	if _, err := s.GetResource("device", deviceID, tenant); err != nil {
+		return Operation{}, err
+	}
+	for _, binding := range s.repo.Resources("composite_binding", tenant) {
+		if stringField(binding.Data, "status") != "ACTIVE" {
+			continue
+		}
+		if stringField(binding.Data, "adapter_device_id") == deviceID || stringField(binding.Data, "fiscal_device_id") == deviceID {
+			return s.FiscalOperation(stringField(binding.Data, "register_id"), "PRINTER_TEST", tenant)
+		}
+	}
+	for _, register := range s.repo.Resources("register", tenant) {
+		if stringField(register.Data, "fiscal_device_id") == deviceID {
+			return s.FiscalOperation(register.ID, "PRINTER_TEST", tenant)
+		}
+	}
+	return Operation{}, errors.New("active device binding not found")
 }

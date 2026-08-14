@@ -11,6 +11,7 @@ import (
 	"fmt"
 	"math"
 	"net/http"
+	"net/url"
 	"sort"
 	"strconv"
 	"strings"
@@ -105,15 +106,23 @@ func withShiftActions(shift Shift) Shift {
 }
 
 type Configuration struct {
-	ID               string    `json:"id"`
-	TenantID         string    `json:"tenant_id"`
-	LocationName     string    `json:"location_name"`
-	LocationAddress  string    `json:"location_address"`
-	WorkstationName  string    `json:"workstation_name"`
-	FiscalRegisterID string    `json:"fiscal_register_id"`
-	Version          int64     `json:"version"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	ID                     string    `json:"id"`
+	TenantID               string    `json:"tenant_id"`
+	LocationName           string    `json:"location_name"`
+	LocationAddress        string    `json:"location_address"`
+	WorkstationName        string    `json:"workstation_name"`
+	FiscalRegisterID       string    `json:"fiscal_register_id"`
+	LocationID             string    `json:"location_id"`
+	FiscalAdapterID        string    `json:"fiscal_adapter_id"`
+	BindingGeneration      int64     `json:"binding_generation"`
+	AdapterBaseURL         string    `json:"adapter_base_url"`
+	BLEAdvertisingIdentity string    `json:"ble_advertising_identity,omitempty"`
+	BLEServiceUUID         string    `json:"ble_service_uuid,omitempty"`
+	BLECommandUUID         string    `json:"ble_command_uuid,omitempty"`
+	BLEEventUUID           string    `json:"ble_event_uuid,omitempty"`
+	Version                int64     `json:"version"`
+	CreatedAt              time.Time `json:"created_at"`
+	UpdatedAt              time.Time `json:"updated_at"`
 }
 type Line struct {
 	LineID    string `json:"line_id"`
@@ -150,8 +159,21 @@ type Order struct {
 }
 
 type OrderPayment struct {
-	Type   string `json:"type"`
-	Amount Money  `json:"amount"`
+	PaymentID      string `json:"payment_id,omitempty"`
+	Type           string `json:"type"`
+	Amount         Money  `json:"amount"`
+	TerminalPolicy string `json:"terminal_policy,omitempty"`
+}
+
+type OfflineOrderImport struct {
+	ExternalID        string         `json:"external_id"`
+	ShiftID           string         `json:"shift_id"`
+	ClientOperationID string         `json:"client_operation_id"`
+	ReceiptSessionID  string         `json:"receipt_session_id"`
+	FiscalReference   string         `json:"fiscal_reference,omitempty"`
+	FiscalState       string         `json:"fiscal_state"`
+	Lines             []Line         `json:"lines"`
+	Payments          []OrderPayment `json:"payments"`
 }
 
 func (o Order) MarshalJSON() ([]byte, error) {
@@ -215,6 +237,10 @@ func (s *Service) SetFiscalAuthToken(v string) {
 	}
 }
 func (s *Service) SetFiscalAuthProvider(v AccessTokenProvider) { s.authProvider = v; s.authToken = "" }
+func (s *Service) FiscalPing() error {
+	var response map[string]any
+	return s.call(http.MethodGet, "/connectivity/ping", "", nil, &response)
+}
 
 type Store interface {
 	Load() ([]byte, error)
@@ -571,7 +597,8 @@ func (s *Service) ConfigurationFor(tenant string) (Configuration, error) {
 }
 
 func (s *Service) SaveConfiguration(tenant string, expected int64, v Configuration) (Configuration, error) {
-	if strings.TrimSpace(v.LocationName) == "" || strings.TrimSpace(v.WorkstationName) == "" || !validUUID(strings.TrimSpace(v.FiscalRegisterID)) || len(v.LocationName) > 120 || len(v.LocationAddress) > 240 || len(v.WorkstationName) > 120 {
+	adapterURL, adapterURLErr := url.Parse(v.AdapterBaseURL)
+	if strings.TrimSpace(v.LocationName) == "" || strings.TrimSpace(v.WorkstationName) == "" || !validUUID(strings.TrimSpace(v.LocationID)) || !validUUID(strings.TrimSpace(v.FiscalRegisterID)) || !validUUID(strings.TrimSpace(v.FiscalAdapterID)) || v.BindingGeneration < 1 || adapterURLErr != nil || adapterURL.Scheme != "http" || adapterURL.Host == "" || adapterURL.User != nil || strings.TrimSuffix(adapterURL.Path, "/") != "/beeloy/local/v1" || adapterURL.RawQuery != "" || adapterURL.Fragment != "" || len(v.LocationName) > 120 || len(v.LocationAddress) > 240 || len(v.WorkstationName) > 120 {
 		return Configuration{}, errors.New("invalid configuration")
 	}
 	s.mu.Lock()
@@ -1236,6 +1263,71 @@ func (s *Service) CreateOrder(v Order) (Order, error) {
 	s.orders[v.ID] = v
 	return v, s.persistLocked()
 }
+
+// ImportOfflineOrder materializes a POS-owned sale which was durably executed
+// by a local fiscal adapter while the MiniPOS backend was unavailable. The
+// external sale UUID is the immutable idempotency key and the authenticated
+// shift remains the authority for tenant, register and operator identity.
+func (s *Service) ImportOfflineOrder(tenant string, v OfflineOrderImport) (Order, error) {
+	if !validUUID(v.ExternalID) || !validUUID(v.ClientOperationID) || !validUUID(v.ReceiptSessionID) || len(v.Lines) == 0 || len(v.Lines) > 200 {
+		return Order{}, errors.New("invalid offline order identity")
+	}
+	if v.FiscalState != "FISCALIZED" && v.FiscalState != "UNKNOWN" && v.FiscalState != "FAILED" {
+		return Order{}, errors.New("invalid offline fiscal state")
+	}
+	shift, err := s.ShiftForTenant(v.ShiftID, tenant)
+	if err != nil || shift.State != "OPEN" {
+		return Order{}, errors.New("shift not open")
+	}
+	total, err := orderTotal(v.Lines)
+	if err != nil {
+		return Order{}, errors.New("invalid offline order total")
+	}
+	paymentMaps := make([]map[string]any, 0, len(v.Payments))
+	for _, payment := range v.Payments {
+		policy := payment.TerminalPolicy
+		if policy == "" && payment.Type == "CARD" {
+			policy = "REQUIRED"
+		}
+		paymentMaps = append(paymentMaps, map[string]any{"payment_id": payment.PaymentID, "type": payment.Type, "amount": map[string]any{"amount": payment.Amount.Amount, "currency": payment.Amount.Currency}, "terminal_policy": policy})
+	}
+	if err = validateCheckoutPayments(total, paymentMaps); err != nil {
+		return Order{}, err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, existing := range s.orders {
+		if existing.TenantID != tenant || existing.ExternalID != v.ExternalID {
+			continue
+		}
+		if existing.CheckoutOperationID != v.ClientOperationID || existing.ReceiptSessionID != v.ReceiptSessionID || existing.Total != total {
+			return Order{}, errors.New("offline order payload mismatch")
+		}
+		return existing, nil
+	}
+	for _, line := range v.Lines {
+		if !validUUID(line.LineID) || line.Name == "" || !validMoney(line.UnitPrice) || !validDiscount(line.Discount) || !validTax(line.TaxGroup) || !validQuantity(line.Quantity) {
+			return Order{}, errors.New("invalid offline line")
+		}
+		if line.ProductID != "" {
+			product, ok := s.products[line.ProductID]
+			if !ok || product.TenantID != tenant {
+				return Order{}, errors.New("product not found")
+			}
+		}
+	}
+	employee := s.employees[shift.EmployeeID]
+	now := time.Now().UTC()
+	state := map[string]string{"FISCALIZED": "COMPLETED", "UNKNOWN": "UNKNOWN", "FAILED": "FAILED"}[v.FiscalState]
+	order := Order{ID: s.nextID("order"), TenantID: tenant, ExternalID: v.ExternalID,
+		ShiftID: v.ShiftID, RegisterID: shift.RegisterID, OperatorCode: employee.OperatorCode,
+		State: state, Lines: append([]Line(nil), v.Lines...), Total: total,
+		Payments: append([]OrderPayment(nil), v.Payments...), FiscalOperationID: v.ClientOperationID,
+		CheckoutOperationID: v.ClientOperationID, ReceiptSessionID: v.ReceiptSessionID,
+		ReceiptReference: v.FiscalReference, Version: 1, CreatedAt: now, UpdatedAt: now}
+	s.orders[order.ID] = order
+	return order, s.persistLocked()
+}
 func (s *Service) Orders() []Order {
 	s.mu.RLock()
 	defer s.mu.RUnlock()
@@ -1692,10 +1784,23 @@ loadOrder:
 		// MiniPOS owns these UUIDs. Persist them before the first downstream
 		// attempt and reuse them after timeout, restart, or REST/BLE failover.
 		if o.CheckoutOperationID == "" {
-			o.CheckoutOperationID = s.nextID("checkout-operation")
+			if validUUID(key) {
+				o.CheckoutOperationID = key
+			} else {
+				o.CheckoutOperationID = s.nextID("checkout-operation")
+			}
 		}
 		if o.ReceiptSessionID == "" {
-			o.ReceiptSessionID = s.nextID("receipt-session")
+			if envelope, ok := hashPayload.(map[string]any); ok {
+				if metadata, present := envelope["metadata"].(map[string]any); present {
+					if receipt, valid := metadata["receipt_session_id"].(string); valid && validUUID(receipt) {
+						o.ReceiptSessionID = receipt
+					}
+				}
+			}
+			if o.ReceiptSessionID == "" {
+				o.ReceiptSessionID = s.nextID("receipt-session")
+			}
 		}
 		o.State = "FISCAL_PENDING"
 		o.Version++

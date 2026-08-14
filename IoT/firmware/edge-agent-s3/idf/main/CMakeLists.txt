@@ -18,10 +18,13 @@ idf_component_register(
     "profile_orchestrator.cpp"
     "receipt_saga.cpp"
     "bluepad_ble_central.cpp"
+    "local_token_validator.cpp"
+    "local_http_server.cpp"
+    "spa_deployment_manager.cpp"
     "../../../../protocol-abstraction/src/CommandPayload.cpp"
     "../../../../protocol-abstraction/src/FrameCodec.cpp"
     "../../../../protocol-abstraction/src/AllCommands.cpp"
   INCLUDE_DIRS "." "../../../../protocol-abstraction/include"
-  REQUIRES esp_event esp_netif esp_wifi mqtt nvs_flash mbedtls json bt usb usb_host_cdc_acm sqlite3 fatfs sdmmc esp_driver_uart
+  REQUIRES esp_event esp_netif esp_wifi esp_http_server esp_http_client mqtt nvs_flash mbedtls json bt usb usb_host_cdc_acm sqlite3 fatfs sdmmc esp_driver_uart
 )
 target_compile_features(${COMPONENT_LIB} PRIVATE cxx_std_17)

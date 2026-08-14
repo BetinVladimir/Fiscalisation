@@ -630,7 +630,7 @@ func TestProductBarcodeRoundTripAndTenantUniqueness(t *testing.T) {
 
 func TestAutonomousConfigurationCreateUpdateAndVersionConflict(t *testing.T) {
 	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{APIVersion: "2026-08-07"})
-	body := `{"location_name":"Sofia Shop","location_address":"1 Main St","workstation_name":"POS 01","fiscal_register_id":"00000000-0000-4000-8000-000000000001"}`
+	body := `{"location_name":"Sofia Shop","location_address":"1 Main St","workstation_name":"POS 01","location_id":"00000000-0000-4000-8000-000000000010","fiscal_register_id":"00000000-0000-4000-8000-000000000001","fiscal_adapter_id":"00000000-0000-4000-8000-000000000020","binding_generation":1,"adapter_base_url":"http://192.168.4.1/beeloy/local/v1"}`
 	request := func(key, version, payload string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(http.MethodPatch, "/public/v1/minipos/configuration", bytes.NewBufferString(payload))
 		r.Header.Set("Content-Type", "application/json")
@@ -651,7 +651,7 @@ func TestAutonomousConfigurationCreateUpdateAndVersionConflict(t *testing.T) {
 	if json.Unmarshal(first.Body.Bytes(), &created) != nil || created.Version != 1 {
 		t.Fatal("invalid created configuration")
 	}
-	updatedBody := `{"location_name":"Sofia Shop","location_address":"2 Main St","workstation_name":"POS 01","fiscal_register_id":"00000000-0000-4000-8000-000000000001"}`
+	updatedBody := `{"location_name":"Sofia Shop","location_address":"2 Main St","workstation_name":"POS 01","location_id":"00000000-0000-4000-8000-000000000010","fiscal_register_id":"00000000-0000-4000-8000-000000000001","fiscal_adapter_id":"00000000-0000-4000-8000-000000000020","binding_generation":1,"adapter_base_url":"http://192.168.4.1/beeloy/local/v1"}`
 	updated := request("configuration-update", "1", updatedBody)
 	if updated.Code != http.StatusOK {
 		t.Fatal(updated.Code, updated.Body.String())

@@ -9,7 +9,10 @@ import android.view.ViewGroup
 import android.widget.*
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
+import fi.iki.elonen.NanoHTTPD
 import java.util.Base64
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
 
 class MainActivity : Activity() {
     private lateinit var status: TextView
@@ -29,6 +32,9 @@ class MainActivity : Activity() {
     private var activationMqtt: DeviceActivationMqtt? = null
     private var operationalMqtt: BlueCashMqttRuntime? = null
     private var transactionGatt: BlueCashTransactionGattServer? = null
+    private var localHttp: BlueCashLocalHttpServer? = null
+    private var deploymentManager: SpaDeploymentManager? = null
+    private val deploymentScheduler=Executors.newSingleThreadScheduledExecutor()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,13 +82,23 @@ class MainActivity : Activity() {
         val password = operatorPassword.text.toString(); require(password.isNotBlank()) { "OPERATOR_PASSWORD_REQUIRED" }
         journal.provisionUnpRange(binding.unpPrefix, binding.unpRangeStart, binding.unpRangeEnd)
         val decoder = Base64.getUrlDecoder()
-        operationalMqtt = BlueCashMqttRuntime(BlueCashMqttConfig(brokerUri=binding.mqttTlsUri,clientId="beefiscal-${binding.deviceId}",tenantId=binding.organizationId,deviceId=binding.deviceId,commandHmacKey=decoder.decode(binding.commandHmacKey),syncAckHmacKey=decoder.decode(binding.syncAckHmacKey),socketFactory=DeviceTLS.socketFactory(binding),fiscalOperatorNumber=op,fiscalOperatorPassword=password,tillNumber=till),processor,journal,identity).also { it.start() }
         val executor = BlueCashComplianceIntentExecutor(journal,journal,processor,op,password,till)
-        transactionGatt = BlueCashTransactionGattServer(this,decoder.decode(binding.bleTicketHmacKey),BlueCashBleBinding(binding.organizationId,binding.locationId,binding.registerId,binding.deviceId,binding.deviceId),executor::execute).also { it.start() }
+        operationalMqtt = BlueCashMqttRuntime(BlueCashMqttConfig(brokerUri=binding.mqttTlsUri,clientId="beefiscal-${binding.deviceId}",tenantId=binding.organizationId,deviceId=binding.deviceId,registerId=binding.registerId,bindingGeneration=binding.bindingVersion,commandHmacKey=decoder.decode(binding.commandHmacKey),syncAckHmacKey=decoder.decode(binding.syncAckHmacKey),socketFactory=DeviceTLS.socketFactory(binding),fiscalOperatorNumber=op,fiscalOperatorPassword=password,tillNumber=till),processor,journal,identity,executor::execute).also { it.start() }
+        transactionGatt = BlueCashTransactionGattServer(this,decoder.decode(binding.bleTicketHmacKey),BlueCashBleBinding(binding.organizationId,binding.locationId,binding.registerId,binding.deviceId,binding.deviceId,binding.bindingVersion),executor::execute).also { it.start() }
+        val issuer=binding.localTokenIssuer
+        val kid=binding.localTokenSigningKID
+        val publicKey=binding.localTokenPublicKeyDERBase64
+        if(!issuer.isNullOrBlank()&&!kid.isNullOrBlank()&&!publicKey.isNullOrBlank()){
+            val verifier=LocalFiscalTokenVerifier(issuer,publicKey,kid,binding.organizationId,binding.locationId,binding.registerId,binding.deviceId,binding.bindingVersion)
+            deploymentManager=SpaDeploymentManager(this,binding.spaDeploymentDescriptorURL,binding.spaDeploymentSigningKID,binding.spaDeploymentPublicKeyDERBase64).also{manager->deploymentScheduler.scheduleWithFixedDelay({manager.checkAndActivate()},0,6,TimeUnit.HOURS)}
+            val manager=deploymentManager!!
+            localHttp=BlueCashLocalHttpServer(8088,binding.deviceId,binding.registerId,binding.bindingVersion,verifier,executor::execute,{operationResult(it)},processor::fiscalReachable,processor::paymentReachable,manager::activeRoot,manager::state).also{it.start(NanoHTTPD.SOCKET_READ_TIMEOUT,false)}
+        }
         runOnUiThread { status.text = "Състояние: ACTIVE\nMQTT mTLS + direct BLE enabled" }
     }
     private fun background(state: String, work: () -> Unit) { status.text = "Състояние: $state"; Thread { runCatching(work).onFailure { error -> runOnUiThread { status.text = "Отказ: ${error.message}" } } }.start() }
     private fun qrBitmap(value: String, size: Int): Bitmap { val matrix = MultiFormatWriter().encode(value, BarcodeFormat.QR_CODE, size, size); return Bitmap.createBitmap(size, size, Bitmap.Config.RGB_565).also { image -> for (x in 0 until size) for (y in 0 until size) image.setPixel(x, y, if (matrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE) } }
     private fun requestBlePermissions() { val permissions = if (Build.VERSION.SDK_INT >= 31) arrayOf(Manifest.permission.BLUETOOTH_SCAN, Manifest.permission.BLUETOOTH_CONNECT, Manifest.permission.BLUETOOTH_ADVERTISE) else arrayOf(Manifest.permission.ACCESS_FINE_LOCATION); requestPermissions(permissions, 1001) }
-    override fun onDestroy() { transactionGatt?.stop(); operationalMqtt?.stop(); activationMqtt?.stop(); fiscalPort.close(); journal.close(); super.onDestroy() }
+    private fun operationResult(id:String):Map<String,Any?>?{val row=journal.find(id).lastOrNull{it.type in setOf("FISCALIZED","REVERSED","PRINTER_TESTED","FAILED","UNKNOWN","COMPENSATED","RECOVERY_REQUIRED")}?:return null;val values=row.payload.split('&').mapNotNull{part->part.split('=',limit=2).takeIf{it.size==2}?.let{it[0] to it[1]}}.toMap().toMutableMap<String,Any?>();values.putIfAbsent("state",row.type);values["operation_id"]=id;return values}
+    override fun onDestroy() { deploymentScheduler.shutdownNow();localHttp?.stop(); transactionGatt?.stop(); operationalMqtt?.stop(); activationMqtt?.stop(); fiscalPort.close(); journal.close(); super.onDestroy() }
 }

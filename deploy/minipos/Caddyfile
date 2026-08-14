@@ -1,6 +1,20 @@
 {$MINIPOS_SITE:http://localhost} {
   encode zstd gzip
-  reverse_proxy {env.MINIPOS_UPSTREAM}
+  handle /api/* {
+    reverse_proxy {env.MINIPOS_UPSTREAM}
+  }
+  handle /public/* {
+    reverse_proxy {env.MINIPOS_UPSTREAM}
+  }
+  handle /healthz {
+    reverse_proxy {env.MINIPOS_UPSTREAM}
+  }
+  handle /readyz {
+    reverse_proxy {env.MINIPOS_UPSTREAM}
+  }
+  handle {
+    reverse_proxy {env.MINIPOS_WEB_UPSTREAM}
+  }
   header {
     X-Content-Type-Options nosniff
     Referrer-Policy no-referrer

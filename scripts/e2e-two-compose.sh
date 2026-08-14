@@ -163,6 +163,7 @@ device_version=$(printf '%s' "$device" | jq -er .version)
 device=$(request PATCH "$fiscal/devices/$device_id" fiscal-device-active-00001 '{"kind":"FISCAL_DEVICE","vendor":"Datecs","model":"DP-150 MX","serial":"E2E-DP150-001","fiscal_device_number":"DT000001","fiscal_memory_number":"00000001","status":"ACTIVE","environment":"DEV","simulated":true}' "$device_version")
 binding=$(request POST "$fiscal/registers/$register_id/bindings" fiscal-binding-0001 "{\"device_id\":\"$device_id\",\"role\":\"FISCAL_DEVICE\"}")
 assert_json_eq "$binding" .role FISCAL_DEVICE
+binding_generation=$(printf '%s' "$binding" | jq -er '.binding_version // .version // 1')
 step="provision and bind simulated optional payment terminal"
 terminal=$(request POST "$fiscal/devices" payment-terminal-create-0001 '{"kind":"PAYMENT_TERMINAL","vendor":"Simulator","model":"CARD-STUB","serial":"E2E-CARD-001","status":"DRAFT","environment":"DEV","simulated":true}')
 terminal_id=$(printf '%s' "$terminal" | jq -er .id)
@@ -175,7 +176,7 @@ assert_json_eq "$terminal_binding" .role OPTIONAL_PAYMENT_TERMINAL
 operator=$(request POST "$fiscal/operators" fiscal-operator-0001 '{"code":"A001","first_name":"Ada","last_name":"Lovelace","roles":["CASHIER"],"active_from":"2026-01-01T00:00:00Z"}')
 assert_json_eq "$operator" .code A001
 step="configure MiniPOS"
-configuration=$(request PATCH "$pos/configuration" configuration-create-0001 "{\"location_name\":\"E2E Shop\",\"location_address\":\"Sofia\",\"workstation_name\":\"POS 01\",\"fiscal_register_id\":\"$register_id\"}")
+configuration=$(request PATCH "$pos/configuration" configuration-create-0001 "{\"location_name\":\"E2E Shop\",\"location_address\":\"Sofia\",\"workstation_name\":\"POS 01\",\"location_id\":\"$location_id\",\"fiscal_register_id\":\"$register_id\",\"fiscal_adapter_id\":\"$device_id\",\"binding_generation\":$binding_generation,\"adapter_base_url\":\"http://$device_id.local/beeloy/local/v1/\"}")
 assert_json_eq "$configuration" .version 1
 
 step="create employee"

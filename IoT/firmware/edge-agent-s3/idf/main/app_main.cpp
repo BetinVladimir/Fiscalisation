@@ -9,13 +9,20 @@
 #include "device_identity.h"
 #include "sync_runtime.h"
 #include "profile_executor.h"
+#include "local_http_server.h"
+#include "spa_deployment_manager.h"
 #if __has_include("BindingTrustAnchor.h")
 #include "BindingTrustAnchor.h"
 #endif
 #include "esp_log.h"
+#include "esp_random.h"
 #include "esp_system.h"
+#include "esp_timer.h"
+#include "freertos/FreeRTOS.h"
+#include "freertos/task.h"
 #include "nvs_flash.h"
 #include <cstring>
+#include <ctime>
 #include <string>
 
 namespace { constexpr char TAG[]="beefiscal-edge";
@@ -33,6 +40,27 @@ beefiscal::idf::RuntimeSecrets secrets;
 beefiscal::idf::DeviceIdentity device_identity;
 beefiscal::idf::IntentProcessor*processor{};
 beefiscal::idf::CommandQueue command_queue;
+beefiscal::idf::DeviceIo*health_io{};
+bool local_fiscal_ready(void*context){auto*io=static_cast<beefiscal::idf::DeviceIo*>(context);return io&&io->fiscal_ready();}
+bool local_payment_ready(void*context){auto*io=static_cast<beefiscal::idf::DeviceIo*>(context);return io&&io->payment_ready();}
+void health_task(void*) {
+  uint64_t sequence=0;const uint32_t boot=esp_random();
+  for(;;){
+    if(health_io){
+      const bool fiscal=health_io->fiscal_ready();
+      const bool payment=!binding.payment.present||health_io->payment_ready();
+      const char*state=fiscal&&payment?"READY":fiscal?"DEGRADED":"OFFLINE";
+      char observed[32]{};const time_t now=time(nullptr);struct tm utc{};
+      if(now>1700000000&&gmtime_r(&now,&utc))strftime(observed,sizeof(observed),"%Y-%m-%dT%H:%M:%SZ",&utc);
+      else strcpy(observed,"1970-01-01T00:00:00Z");
+      char body[2048];
+      snprintf(body,sizeof(body),"{\"schema_version\":1,\"adapter_device_id\":\"%s\",\"register_id\":\"%s\",\"boot_id\":\"%08lx\",\"sequence\":%llu,\"binding_generation\":%lld,\"firmware_version\":\"mvp1\",\"adapter_state\":\"%s\",\"endpoints\":[{\"role\":\"ADAPTER\",\"configured\":true,\"reachable\":true,\"state\":\"READY\",\"driver_id\":\"edge-agent-s3\",\"protocol_version\":\"2026-08-14\"},{\"role\":\"FISCAL_DEVICE\",\"configured\":true,\"reachable\":%s,\"state\":\"%s\",\"vendor\":\"%s\",\"model\":\"%s\",\"driver_id\":\"%s\",\"protocol_version\":\"%s\"}%s],\"observed_at\":\"%s\"}",binding.edge_device_id.c_str(),binding.register_id.c_str(),(unsigned long)boot,(unsigned long long)++sequence,(long long)binding.generation,state,fiscal?"true":"false",fiscal?"READY":"OFFLINE",binding.fiscal.vendor.c_str(),binding.fiscal.model.c_str(),binding.profile==beefiscal::idf::EdgeProfile::DatecsDp150BluePad50?"datecs":"daisy",binding.profile==beefiscal::idf::EdgeProfile::DatecsDp150BluePad50?"2.11.4":"2.0-4",binding.payment.present?(payment?",{\"role\":\"PAYMENT_TERMINAL\",\"configured\":true,\"reachable\":true,\"state\":\"READY\",\"vendor\":\"DATECS\",\"model\":\"BLUEPAD-50 PLUS\",\"driver_id\":\"datecspay\",\"protocol_version\":\"1.9\"}":",{\"role\":\"PAYMENT_TERMINAL\",\"configured\":true,\"reachable\":false,\"state\":\"OFFLINE\",\"vendor\":\"DATECS\",\"model\":\"BLUEPAD-50 PLUS\",\"driver_id\":\"datecspay\",\"protocol_version\":\"1.9\"}"):"",observed);
+      beefiscal::idf::mqtt_publish_status(binding.tenant_id.c_str(),binding.edge_device_id.c_str(),body,true);
+    }
+    vTaskDelay(pdMS_TO_TICKS(15000));
+  }
+}
+void deployment_task(void*context){auto*manager=static_cast<beefiscal::idf::SpaDeploymentManager*>(context);for(;;){manager->check_and_activate();vTaskDelay(pdMS_TO_TICKS(21600000));}}
 esp_err_t command(const beefiscal::idf::CommandView& view,void* context) {
   auto*value=static_cast<beefiscal::idf::IntentProcessor*>(context);
   return value?value->accept(view):ESP_ERR_INVALID_STATE;
@@ -129,11 +157,13 @@ extern "C" void app_main(void) {
     beefiscal::idf::queued_command_sink,&command_queue,
     beefiscal::idf::sync_runtime_accept_ack,nullptr,provision,&binding_store);
   if(mqtt_status!=ESP_ERR_INVALID_STATE)ESP_ERROR_CHECK(mqtt_status);
+  health_io=&physical_io;xTaskCreate(health_task,"device-health",6144,nullptr,4,nullptr);
   ESP_ERROR_CHECK(beefiscal::idf::sync_runtime_start(storage,binding,device_identity,
     secrets.sync_ack_hmac_key.c_str()));
   const beefiscal::idf::BleConfig ble_binding{binding.ble_advertising_identity.c_str()};
   ESP_ERROR_CHECK(beefiscal::idf::ble_runtime_start(ble_binding,
     beefiscal::idf::queued_command_sink,&command_queue));
+  if(binding.local_http.enabled){static beefiscal::idf::SpaDeploymentManager deployments(binding);const beefiscal::idf::LocalHttpRuntime local{&binding,&storage,&command_queue,local_fiscal_ready,local_payment_ready,&physical_io,"/sdcard/beeloy/spa/slot-a",&deployments};ESP_ERROR_CHECK(beefiscal::idf::local_http_server_start(local));xTaskCreate(deployment_task,"spa-deployment",8192,&deployments,3,nullptr);}
   ESP_LOGI(TAG,"profile %s generation %lld initialized; execution remains journal-gated",
     beefiscal::idf::edge_profile_name(binding.profile),(long long)binding.generation);
 }

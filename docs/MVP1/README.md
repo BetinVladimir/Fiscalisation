@@ -1,44 +1,67 @@
-# MVP1 — открытые требования
+# MVP1 — состояние реализации
 
-Дата актуализации: 2026-08-14
+Дата проверки: 2026-08-14
+Статус: `SOFTWARE_COMPLETE_HIL_PENDING`
 
-Каталог содержит только незакрытые программные требования MVP1. Завершённые
-спецификации, roadmap и промежуточные аудиты удалены; их история остаётся в Git.
-
-Канонические общие контракты:
+Открытых программных P0 в утверждённом функциональном профиле MVP1 нет.
+Удалённые remediation-документы закрыты кодом и regression evidence; их история
+остаётся в Git. Канонические действующие документы:
 
 - [`../EXTERNAL_POS_INTEGRATION_PROTOCOL.md`](../EXTERNAL_POS_INTEGRATION_PROTOCOL.md)
-  — единый REST/WebHook/BLE протокол с профилем `BG_SUPTO_FULL`;
-- [`../SUPTO/index.md`](../SUPTO/index.md) — нормативная conceptual matrix;
+  — REST/WebHook, Local HTTP и BLE, общий UUID/digest и SUPTO-профиль;
+- [`../SUPTO/index.md`](../SUPTO/index.md) — regulatory conceptual matrix;
 - [`../../contracts/openapi-runtime-v1.yaml`](../../contracts/openapi-runtime-v1.yaml)
-  — runtime OpenAPI;
-- [`../../contracts/supto-annex29-trace.json`](../../contracts/supto-annex29-trace.json)
-  — machine-readable SUPTO trace.
+  — cloud/runtime OpenAPI;
+- [`../../contracts/openapi-local-adapter-v1.yaml`](../../contracts/openapi-local-adapter-v1.yaml)
+  — Local HTTP adapter OpenAPI;
+- [`../../contracts/beeloy-pos-deployment-v1.schema.json`](../../contracts/beeloy-pos-deployment-v1.schema.json)
+  — signed SPA deployment descriptor.
 
-## Текущий программный backlog
+## Закрытый software scope
 
-- [`BLUECASH_BLE_MVP_REMEDIATION.md`](BLUECASH_BLE_MVP_REMEDIATION.md) — два
-  обязательных P0: привести BlueCash direct BLE к `OPEN_MVP` wire profile и
-  провести aggregate `SALE_FINALIZE` со скидками через общий durable processor.
-- [`CARD_STORNO_AND_PRINTER_REMEDIATION.md`](CARD_STORNO_AND_PRINTER_REMEDIATION.md)
-  — per-payment card orchestration, корректный возврат при сторно для edge и
-  BlueCash, каноническая нефискальная команда тестовой печати.
-- [`EDGE_MQTT_CONFIGURATION_AND_HEALTH_REMEDIATION.md`](EDGE_MQTT_CONFIGURATION_AND_HEALTH_REMEDIATION.md)
-  — явный driver/protocol configuration, endpoint heartbeat/probe и честная
-  materialization MQTT→REST.
-- [`DEVICE_CONFIGURATION_AND_REALTIME_UI_REMEDIATION.md`](DEVICE_CONFIGURATION_AND_REALTIME_UI_REMEDIATION.md)
-  — типизированный мастер настройки, realtime activity и безопасные тесты в
-  BeeFiscalApp.
-- [`LOCAL_HTTP_POS_CHANNEL_AND_MINIPOSWEB_IMPLEMENTATION.md`](LOCAL_HTTP_POS_CHANNEL_AND_MINIPOSWEB_IMPLEMENTATION.md)
-  — третий Local REST/HTTP канал, signed A/B cache Web SPA на ESP32/BlueCash,
-  offline token validation и эталонный React `miniposweb` с MiniPOS backend/БД.
+- BlueCash-50: aggregate sale, ordered CASH/CARD/split, скидки, компенсация,
+  сторно/refund, printer test, X/Z и cash-in/out через один durable processor для
+  MQTT, Local HTTP и открытого MVP BLE.
+- edge-agent-s3: DP-150/BluePad и Daisy Compact profiles, UART/BLE/USB,
+  SQLite/SD reservation-before-I/O, recovery, cross-channel deduplication,
+  MQTT TLS/QoS1 sync и Local HTTP.
+- MiniPOS: одинаковый client UUID и canonical payload digest при Cloud ↔ Local
+  HTTP ↔ BLE, hysteresis, lookup-only UNKNOWN, IndexedDB outbox и durable offline
+  import в собственный PostgreSQL.
+- MiniPOS Web: React/Vite touch POS, offline references, shifts, discounts,
+  cash/card/split, storno, diagnostics и signed reproducible bundle descriptor.
+- Fiscal backend/BeeFiscalApp: composite binding, typed endpoint configuration,
+  generation fencing, MQTT health materialization/history, activity UI,
+  printer test и role gates.
+- Два независимых Compose-проекта с PostgreSQL и Caddy; расширенная MiniPOS
+  adapter configuration сохраняется typed и без потери полей после restart.
 
-Пока все перечисленные P0 не закрыты тестами, статус полного MVP —
-`SOFTWARE_INCOMPLETE_HIL_PENDING`. REST→MQTT BlueCash и edge-agent-s3 BLE не
-отменяют обязательность direct BLE fallback на BlueCash-50.
+## Проверенное evidence
 
-## После закрытия software P0
+- `make regression` — PASS;
+- `make postgres-integration` — PASS;
+- `make compose-e2e` — PASS;
+- чистая PlatformIO ESP-IDF сборка — `firmware.elf` и `firmware.bin` созданы;
+- Android BlueCash/Daisy debug и release APK — PASS;
+- MiniPOS/BeeFiscalApp Android/iOS/Web bundles — PASS;
+- signed SPA descriptor generation с Ed25519 self-verification — PASS.
 
-Остаются только физические HIL, vendor/acquirer acceptance и production
-hardening. Их критерии перечислены в едином POS-протоколе и machine traces; они
-не дублируются в этом каталоге.
+Regression также включает Go race/vet, OpenAPI drift/coverage, SUPTO/BG trace,
+fault/security/72-hour accelerated soak, UI interaction E2E, protocol drivers и
+ESP-IDF native saga. Симуляторы и stubs доказывают software semantics, но не
+подменяют физическое evidence.
+
+## Что остаётся вне software-complete
+
+Только внешние и аппаратные gates:
+
+- реальные BlueCash-50 fiscal/card/BLE сценарии и acquirer acceptance;
+- DP-150 MX RS-232 и BluePad-50 Plus BLE HIL;
+- Daisy Compact S 01 USB/electrical/EUR firmware HIL;
+- SD power-loss/endurance и LAN/радио soak на целевом ESP32-S3;
+- NAP/BIM/authorized-service и юридическое подтверждение;
+- production signing, vulnerability scan, Secure Boot/Flash Encryption и
+  formal HTTP-in-trusted-LAN risk acceptance.
+
+До появления этих артефактов `PILOT` и `PROD` остаются `NO_GO`; статус
+`SOFTWARE_COMPLETE_HIL_PENDING` не является разрешением production deployment.

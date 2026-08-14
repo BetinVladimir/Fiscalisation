@@ -720,14 +720,13 @@ WebHook ускоряет UI, но authoritative state остаётся REST proj
 | Fiscal backend → MQTT | соответствует: `SALE_FINALIZE`, immutable payload digest, QoS1/outbox, signed business ACK |
 | edge-agent-s3 direct BLE | соответствует `OPEN_MVP`, canonical aggregate intent и общий MQTT/BLE journal |
 | BlueCash MQTT | соответствует aggregate `SALE_FINALIZE` и signed sync |
-| BlueCash direct BLE | **не соответствует текущему MVP wire profile**: Android GATT запускает legacy ticket/X25519/AES-GCM handshake, тогда как MiniPOS принимает `OPEN_MVP`; local executor принимает legacy `PAYMENT`, но не фактический aggregate `SALE_FINALIZE` MiniPOS |
-| BlueCash BLE line discount | **не соответствует**: local line mapper не переносит optional `discount` в `FiscalLine`; через этот path net total может разойтись с REST/MQTT projection |
+| BlueCash direct BLE | соответствует `OPEN_MVP` BFF1, aggregate `SALE_FINALIZE`, UUID/digest deduplication и общему Android journal |
+| BlueCash BLE line discount | соответствует: absolute line discount преобразуется в Datecs discount type 4 и входит в net/payment invariant ровно один раз |
+| Local HTTP | соответствует `openapi-local-adapter-v1.yaml`; ESP-IDF и BlueCash используют тот же processor, token fence и operation lookup |
 
-До устранения двух последних разрывов direct BLE fallback для BlueCash-50 нельзя
-считать software-complete или использовать как acceptance evidence. Допустимы
-REST→MQTT BlueCash и `OPEN_MVP` BLE через соответствующий edge-agent-s3 profile.
-Исправление должно сохранить этот OpenAPI contract: запрещено возвращать внешний
-POS на legacy `PAYMENT` или делать защищённый handshake обязательным для MVP.
+Legacy пооперационный `PAYMENT` оставлен только для совместимости старого
+внутреннего клиента и не является внешним MVP wire profile. Защищённый
+X25519/AES-GCM handshake не обязателен в утверждённом `OPEN_MVP` исключении.
 
 ## 14. BG SUPTO rollout gate
 

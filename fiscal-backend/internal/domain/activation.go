@@ -81,24 +81,30 @@ type ConfirmDeviceActivationInput struct {
 	Roles        []string `json:"roles"`
 }
 type DeviceCredential struct {
-	CredentialID         string   `json:"credential_id"`
-	ClientCertificatePEM string   `json:"client_certificate_pem"`
-	CAChainPEM           string   `json:"ca_chain_pem"`
-	MQTTTLSURI           string   `json:"mqtt_tls_uri"`
-	MQTTWSSURI           string   `json:"mqtt_wss_uri,omitempty"`
-	BindingSignature     string   `json:"binding_signature"`
-	DeviceInstanceID     string   `json:"device_instance_id"`
-	OrganizationID       string   `json:"organization_id"`
-	LocationID           string   `json:"location_id"`
-	RegisterID           string   `json:"register_id"`
-	Roles                []string `json:"roles"`
-	BindingVersion       int64    `json:"binding_version"`
-	CommandHMACKey       string   `json:"command_hmac_key"`
-	SyncAckHMACKey       string   `json:"sync_ack_hmac_key"`
-	BLETicketHMACKey     string   `json:"ble_ticket_hmac_key"`
-	UNPPrefix            string   `json:"unp_prefix"`
-	UNPRangeStart        int64    `json:"unp_range_start"`
-	UNPRangeEnd          int64    `json:"unp_range_end"`
+	CredentialID                    string   `json:"credential_id"`
+	ClientCertificatePEM            string   `json:"client_certificate_pem"`
+	CAChainPEM                      string   `json:"ca_chain_pem"`
+	MQTTTLSURI                      string   `json:"mqtt_tls_uri"`
+	MQTTWSSURI                      string   `json:"mqtt_wss_uri,omitempty"`
+	BindingSignature                string   `json:"binding_signature"`
+	DeviceInstanceID                string   `json:"device_instance_id"`
+	OrganizationID                  string   `json:"organization_id"`
+	LocationID                      string   `json:"location_id"`
+	RegisterID                      string   `json:"register_id"`
+	Roles                           []string `json:"roles"`
+	BindingVersion                  int64    `json:"binding_version"`
+	CommandHMACKey                  string   `json:"command_hmac_key"`
+	SyncAckHMACKey                  string   `json:"sync_ack_hmac_key"`
+	BLETicketHMACKey                string   `json:"ble_ticket_hmac_key"`
+	UNPPrefix                       string   `json:"unp_prefix"`
+	UNPRangeStart                   int64    `json:"unp_range_start"`
+	UNPRangeEnd                     int64    `json:"unp_range_end"`
+	LocalTokenIssuer                string   `json:"local_token_issuer,omitempty"`
+	LocalTokenSigningKID            string   `json:"local_token_signing_kid,omitempty"`
+	LocalTokenPublicKeyDERBase64    string   `json:"local_token_public_key_der_base64,omitempty"`
+	SPADeploymentDescriptorURL      string   `json:"spa_deployment_descriptor_url,omitempty"`
+	SPADeploymentSigningKID         string   `json:"spa_deployment_signing_kid,omitempty"`
+	SPADeploymentPublicKeyDERBase64 string   `json:"spa_deployment_public_key_der_base64,omitempty"`
 }
 
 func DeriveDeviceTransportKey(master []byte, purpose, deviceID, credentialID string) []byte {
@@ -130,6 +136,12 @@ func DeviceActivationPublicView(v DeviceActivationRequest) map[string]any {
 }
 
 func (s *Service) SetDeviceCredentialIssuer(v DeviceCredentialIssuer) { s.deviceCredentialIssuer = v }
+func (s *Service) SetLocalTokenTrust(issuer, kid, publicKeyDERBase64 string) {
+	s.localTokenIssuer, s.localTokenSigningKID, s.localTokenPublicKeyDERBase64 = issuer, kid, publicKeyDERBase64
+}
+func (s *Service) SetSPADeploymentTrust(url, kid, publicKeyDERBase64 string) {
+	s.spaDeploymentDescriptorURL, s.spaDeploymentSigningKID, s.spaDeploymentPublicKeyDERBase64 = url, kid, publicKeyDERBase64
+}
 
 func (s *Service) SignDeviceActivationAcknowledgement(unsigned []byte) (string, error) {
 	signer, ok := s.deviceCredentialIssuer.(DeviceActivationAcknowledgementSigner)
@@ -276,6 +288,12 @@ func (s *Service) IssueDeviceActivationCredential(id, requestSecret, nonce, sign
 	if credential.CredentialID == "" || credential.ClientCertificatePEM == "" || credential.CAChainPEM == "" || !strings.HasPrefix(credential.MQTTTLSURI, "ssl://") || credential.CommandHMACKey == "" || credential.SyncAckHMACKey == "" || credential.BLETicketHMACKey == "" {
 		return DeviceCredential{}, errors.New("invalid issued credential")
 	}
+	credential.LocalTokenIssuer = s.localTokenIssuer
+	credential.LocalTokenSigningKID = s.localTokenSigningKID
+	credential.LocalTokenPublicKeyDERBase64 = s.localTokenPublicKeyDERBase64
+	credential.SPADeploymentDescriptorURL = s.spaDeploymentDescriptorURL
+	credential.SPADeploymentSigningKID = s.spaDeploymentSigningKID
+	credential.SPADeploymentPublicKeyDERBase64 = s.spaDeploymentPublicKeyDERBase64
 	credential.UNPPrefix = v.FMIN
 	credential.UNPRangeStart, credential.UNPRangeEnd, e = s.repo.ReserveUNPRange(v.ClaimedTenantID, v.FMIN, 1000)
 	if e != nil {

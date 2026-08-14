@@ -14,6 +14,9 @@ services:
       FISCAL_OAUTH_SCOPE: "${FISCAL_OAUTH_SCOPE:-fiscal.base}"
       FISCAL_OAUTH_AUDIENCE: "${FISCAL_OAUTH_AUDIENCE:-beefiscal}"
       WEBHOOK_VERIFICATION_KEY: "${WEBHOOK_VERIFICATION_KEY:?required}"
+      LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM: "${LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM:?required}"
+      LOCAL_FISCAL_TOKEN_SIGNING_KID: "${LOCAL_FISCAL_TOKEN_SIGNING_KID:?required}"
+      LOCAL_FISCAL_TOKEN_ISSUER: "${LOCAL_FISCAL_TOKEN_ISSUER:-beeminipos}"
     read_only: true
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]

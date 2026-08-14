@@ -11,4 +11,4 @@ for file in fiscal-backend/internal/api/response_contracts_gen.go fiscal-backend
     exit 1
   }
 done
-echo "generated OpenAPI runtime contracts drift gate OK: 112 requests + 112 successful responses across 3 services"
+echo "generated OpenAPI contracts drift gate OK: canonical + runtime request/response validators match across 3 services"

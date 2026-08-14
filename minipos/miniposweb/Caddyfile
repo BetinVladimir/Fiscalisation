@@ -1,0 +1,17 @@
+:8080 {
+  root * /srv
+  @descriptor path /.well-known/beeloy-pos-deployment.json
+  header @descriptor Cache-Control "no-store"
+  @index path / /index.html
+  header @index Cache-Control "no-cache"
+  @assets path /assets/*
+  header @assets Cache-Control "public,max-age=31536000,immutable"
+  header {
+    Content-Security-Policy "default-src 'self'; connect-src 'self' http: https:; object-src 'none'; base-uri 'none'; frame-ancestors 'none'"
+    X-Content-Type-Options nosniff
+    Referrer-Policy no-referrer
+    -Server
+  }
+  try_files {path} /index.html
+  file_server
+}

@@ -10,5 +10,5 @@ check() {
 }
 check 5aeacae5be26b5f8c6cb19b48e6725bb751dd7ad2ce6bee2773044964cdce203 "$docs/api/openapi-public-v1.yaml"
 check 16c9ebb272c272189d08843739b1e6ca439aff16844e7d307cab835212cfe797 "$docs/events/asyncapi-device-v1.yaml"
-check f3cac7fa5645631307b67ab3185c2f13ac205ee6a44a42a5c8ddbbb6a45342e3 "$root/contracts/openapi-runtime-v1.yaml"
+check f7f1a83122371336c7ac732ba8c2f7e7929c9a9d925bb1752213beb24d254c41 "$root/contracts/openapi-runtime-v1.yaml"
 check 5daf7640e20a610bc6c5bedfed84ca3e428d867cebb555be8bb9c043716342a4 "$root/contracts/openapi-corrections-v1.yaml"

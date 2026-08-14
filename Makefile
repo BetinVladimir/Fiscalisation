@@ -1,4 +1,4 @@
-.PHONY: deps generate-openapi test test-race vet governance-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test web-build native-bundle android-build ios-build native-regression smart-device-test iot-test compose-check compose-e2e regression full-regression
+.PHONY: deps generate-openapi test test-race vet governance-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test web-build native-bundle android-build ios-build native-regression smart-device-test iot-test compose-check compose-e2e regression full-regression
 deps:
 	cd minipos/BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
 	cd BeeFiscalApp && npm ci --cache /tmp/beefiscalapp-npm-cache --no-audit --no-fund
@@ -59,6 +59,7 @@ typecheck:
 	cd minipos/BeeMiniPOS && npm test
 	cd BeeFiscalApp && npx tsc --noEmit
 	cd BeeFiscalApp && npm test
+	cd minipos/miniposweb && npm test && npm run build
 contract-test:
 	./scripts/verify-contract-lock.sh
 	./scripts/verify-generated-openapi.sh
@@ -71,6 +72,9 @@ contract-test:
 
 roadmap-acceptance-test:
 	ruby scripts/verify_roadmap_acceptance.rb
+
+mvp1-software-gate:
+	./scripts/run_mvp1_software_gate.sh
 
 bg-trace-test:
 	ruby scripts/verify_bg_trace.rb
@@ -105,6 +109,8 @@ evidence-test:
 web-build:
 	cd minipos/BeeMiniPOS && EXPO_PUBLIC_APP_ENV=dev npx expo export --clear --platform web --output-dir .regression-web && test -f .regression-web/index.html
 	cd BeeFiscalApp && npx expo export --platform web --output-dir .regression-web && test -f .regression-web/index.html
+	cd minipos/miniposweb && npm run build && test -f dist/index.html
+	cd minipos/miniposweb && npm run deployment && test -s dist/.well-known/beeloy-pos-deployment.json
 native-bundle:
 	./scripts/test-minipos-metro-resolution.sh .regression-native
 	test -f minipos/BeeMiniPOS/.regression-native/index.html
@@ -140,9 +146,9 @@ compose-check:
 	docker compose --env-file .env.example -f compose.fiscalisation.yaml -f compose.fiscalisation.dev.yaml config >/dev/null
 	docker compose --env-file .env.example -f compose.minipos.yaml -f compose.minipos.dev.yaml config >/dev/null
 	FISCAL_DB_PASSWORD=test FISCAL_RLS_DB_PASSWORD=test-rls WEBHOOK_SIGNING_KEY=dev-key docker compose -f compose.fiscalisation.yaml -f compose.fiscalisation.dev.yaml config >/dev/null
-	FISCAL_DB_PASSWORD=test FISCAL_RLS_DB_PASSWORD=test-rls WEBHOOK_SIGNING_KEY=production-webhook-key-at-least-32-bytes OIDC_ISSUER=https://id.example.test OIDC_AUDIENCE=beefiscal OIDC_JWKS_URL=https://id.example.test/jwks BLE_SIGNING_KEY=production-ble-key-at-least-32-bytes FISCAL_SITE=https://fiscal.example.test FISCAL_PUBLIC_BASE_URL=https://fiscal.example.test/public/v1 FISCAL_CORS_ALLOWED_ORIGINS=https://admin.example.test,https://pos.example.test EMQX_BROKER=ssl://mqtt.example.test:8883 EMQX_USERNAME=fiscal-backend EMQX_TOKEN=production-mqtt-token DEVICE_MQTT_TLS_URI=ssl://mqtt.example.test:8883 DEVICE_MQTT_WSS_URI=wss://mqtt.example.test/mqtt docker compose -f compose.fiscalisation.yaml -f compose.fiscalisation.prod.yaml config >/dev/null
+	FISCAL_DB_PASSWORD=test FISCAL_RLS_DB_PASSWORD=test-rls WEBHOOK_SIGNING_KEY=production-webhook-key-at-least-32-bytes OIDC_ISSUER=https://id.example.test OIDC_AUDIENCE=beefiscal OIDC_JWKS_URL=https://id.example.test/jwks BLE_SIGNING_KEY=production-ble-key-at-least-32-bytes FISCAL_SITE=https://fiscal.example.test FISCAL_PUBLIC_BASE_URL=https://fiscal.example.test/public/v1 FISCAL_CORS_ALLOWED_ORIGINS=https://admin.example.test,https://pos.example.test EMQX_BROKER=ssl://mqtt.example.test:8883 EMQX_USERNAME=fiscal-backend EMQX_TOKEN=production-mqtt-token DEVICE_MQTT_TLS_URI=ssl://mqtt.example.test:8883 DEVICE_MQTT_WSS_URI=wss://mqtt.example.test/mqtt LOCAL_FISCAL_TOKEN_ISSUER=https://pos.example.test LOCAL_FISCAL_TOKEN_SIGNING_KID=local-2026-01 LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64=test-public-key SPA_DEPLOYMENT_DESCRIPTOR_URL=https://pos.example.test/.well-known/beeloy-pos-deployment.json SPA_DEPLOYMENT_SIGNING_KID=release-2026-01 SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64=test-release-key docker compose -f compose.fiscalisation.yaml -f compose.fiscalisation.prod.yaml config >/dev/null
 	MINIPOS_DB_PASSWORD=test MINIPOS_RLS_DB_PASSWORD=test-rls FISCAL_PUBLIC_BASE_URL=http://fiscal.test/public/v1 WEBHOOK_VERIFICATION_KEY=dev-key docker compose -f compose.minipos.yaml -f compose.minipos.dev.yaml config >/dev/null
-	MINIPOS_DB_PASSWORD=test MINIPOS_RLS_DB_PASSWORD=test-rls FISCAL_PUBLIC_BASE_URL=https://fiscal.example.test/public/v1 FISCAL_OAUTH_TOKEN_URL=https://id.example.test/token FISCAL_OAUTH_CLIENT_ID=minipos FISCAL_OAUTH_CLIENT_SECRET=production-client-secret OIDC_ISSUER=https://id.example.test OIDC_AUDIENCE=beeminipos OIDC_JWKS_URL=https://id.example.test/jwks WEBHOOK_VERIFICATION_KEY=production-webhook-key-at-least-32-bytes MINIPOS_SITE=https://pos.example.test MINIPOS_CORS_ALLOWED_ORIGINS=https://pos.example.test docker compose -f compose.minipos.yaml -f compose.minipos.prod.yaml config >/dev/null
+	MINIPOS_DB_PASSWORD=test MINIPOS_RLS_DB_PASSWORD=test-rls FISCAL_PUBLIC_BASE_URL=https://fiscal.example.test/public/v1 FISCAL_OAUTH_TOKEN_URL=https://id.example.test/token FISCAL_OAUTH_CLIENT_ID=minipos FISCAL_OAUTH_CLIENT_SECRET=production-client-secret OIDC_ISSUER=https://id.example.test OIDC_AUDIENCE=beeminipos OIDC_JWKS_URL=https://id.example.test/jwks WEBHOOK_VERIFICATION_KEY=production-webhook-key-at-least-32-bytes LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM=test-private-key LOCAL_FISCAL_TOKEN_SIGNING_KID=local-2026-01 MINIPOS_SITE=https://pos.example.test MINIPOS_CORS_ALLOWED_ORIGINS=https://pos.example.test docker compose -f compose.minipos.yaml -f compose.minipos.prod.yaml config >/dev/null
 compose-e2e:
 	./scripts/e2e-two-compose.sh
 regression: test-race vet governance-test supto-trace-test supto-document-policy-test boundary-test typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test evidence-test web-build native-bundle smart-device-test iot-test compose-check

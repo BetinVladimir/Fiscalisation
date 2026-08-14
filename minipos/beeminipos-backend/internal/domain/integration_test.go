@@ -88,6 +88,36 @@ func TestOfflineFiscalWebhookLinksOrderByExternalID(t *testing.T) {
 	}
 }
 
+func TestOfflineOrderImportIsDurableIdempotentAndTenantScoped(t *testing.T) {
+	s := NewService("http://fiscal.test", "2026-08-14")
+	emp, _ := s.CreateEmployee(Employee{TenantID: "tenant-1", FirstName: "Ada", LastName: "Lovelace", OperatorCode: "A001"})
+	shift, _ := s.OpenShiftForTenant("00000000-0000-4000-8000-000000000001", emp.ID, "tenant-1")
+	input := OfflineOrderImport{
+		ExternalID: "00000000-0000-4000-8000-000000000101", ShiftID: shift.ID,
+		ClientOperationID: "00000000-0000-4000-8000-000000000102",
+		ReceiptSessionID:  "00000000-0000-4000-8000-000000000103",
+		FiscalReference:   "FD-OFFLINE-2", FiscalState: "FISCALIZED",
+		Lines:    []Line{{LineID: "00000000-0000-4000-8000-000000000104", Name: "Coffee", Quantity: "1.000", UnitPrice: Money{Amount: "2.50", Currency: "EUR"}, TaxGroup: "B"}},
+		Payments: []OrderPayment{{PaymentID: "00000000-0000-4000-8000-000000000105", Type: "CARD", Amount: Money{Amount: "2.50", Currency: "EUR"}}},
+	}
+	created, err := s.ImportOfflineOrder("tenant-1", input)
+	if err != nil || created.State != "COMPLETED" || created.ExternalID != input.ExternalID || created.ReceiptReference != "FD-OFFLINE-2" {
+		t.Fatal(created, err)
+	}
+	replayed, err := s.ImportOfflineOrder("tenant-1", input)
+	if err != nil || replayed.ID != created.ID || len(s.OrdersFor("tenant-1")) != 1 {
+		t.Fatal(replayed, err)
+	}
+	changed := input
+	changed.ClientOperationID = "00000000-0000-4000-8000-000000000199"
+	if _, err = s.ImportOfflineOrder("tenant-1", changed); err == nil {
+		t.Fatal("payload mismatch was accepted")
+	}
+	if _, err = s.ImportOfflineOrder("tenant-2", input); err == nil {
+		t.Fatal("cross-tenant import was accepted")
+	}
+}
+
 func TestFiscalWebhookCannotCrossTenantBoundary(t *testing.T) {
 	s := NewService("http://fiscal.test", "2026-08-07")
 	s.orders["order-a"] = Order{ID: "order-a", TenantID: "tenant-a", ExternalID: "external-a", FiscalSaleID: "sale-a", State: "UNKNOWN", Version: 1}
@@ -211,7 +241,9 @@ func TestCompletedOrderReversalUsesFiscalPublicAPIAndIsIdempotent(t *testing.T) 
 		case strings.HasSuffix(r.URL.Path, "/reversals"):
 			reversals.Add(1)
 			var request map[string]any
-			if err:=json.NewDecoder(r.Body).Decode(&request);err!=nil||request["original_fiscal_reference"]!="receipt-1"{t.Fatalf("original fiscal reference missing: %#v %v",request,err)}
+			if err := json.NewDecoder(r.Body).Decode(&request); err != nil || request["original_fiscal_reference"] != "receipt-1" {
+				t.Fatalf("original fiscal reference missing: %#v %v", request, err)
+			}
 			if r.Header.Get("Idempotency-Key") != "reversal-idempotency-key-fiscal-reversal" {
 				t.Fatalf("unexpected fiscal reversal key: %s", r.Header.Get("Idempotency-Key"))
 			}

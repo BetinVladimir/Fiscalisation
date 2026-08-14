@@ -53,4 +53,5 @@ int mqtt_publish_sync(const char*batch_id,const uint8_t*data,size_t size){
   return esp_mqtt_client_publish(client,topic.c_str(),(const char*)data,(int)size,1,0);
 }
 int mqtt_publish_binding_applied(const char*tenant,const char*device,const char*register_id,int64_t generation){if(!client||!tenant||!device||!register_id||generation<1)return-1;std::string topic="tenants/"+std::string(tenant)+"/devices/"+device+"/bindings/acks";std::string body="{\"adapter_device_id\":\""+std::string(device)+"\",\"register_id\":\""+register_id+"\",\"generation\":"+std::to_string(generation)+"}";return esp_mqtt_client_publish(client,topic.c_str(),body.c_str(),body.size(),1,0);}
+int mqtt_publish_status(const char*tenant,const char*device,const char*payload,bool retained){if(!client||!tenant||!device||!payload||!*payload)return-1;std::string topic="tenants/"+std::string(tenant)+"/devices/"+device+"/status";return esp_mqtt_client_publish(client,topic.c_str(),payload,0,1,retained?1:0);}
 }

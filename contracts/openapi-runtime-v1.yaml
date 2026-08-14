@@ -220,6 +220,35 @@ paths:
         '404': {$ref: '#/components/responses/Problem'}
         '409': {$ref: '#/components/responses/Problem'}
         '422': {$ref: '#/components/responses/Problem'}
+  /devices/{device_id}/health:
+    get:
+      operationId: getDeviceHealth
+      tags: [Devices]
+      security: [{oidcBearer: []}]
+      parameters: [{name: device_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/ApiVersion'}]
+      responses:
+        '200': {description: MQTT-materialized current endpoint health, content: {application/json: {schema: {$ref: '#/components/schemas/DeviceHealth'}}}}
+        '404': {$ref: '#/components/responses/Problem'}
+  /devices/{device_id}/activity:
+    get:
+      operationId: listDeviceActivity
+      tags: [Devices]
+      security: [{oidcBearer: []}]
+      parameters: [{name: device_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/ApiVersion'}]
+      responses:
+        '200': {description: Device state transitions, content: {application/json: {schema: {type: object, required: [items], properties: {items: {type: array, items: {$ref: '#/components/schemas/DeviceHealthTransition'}}}}}}}
+        '404': {$ref: '#/components/responses/Problem'}
+  /devices/{device_id}/tests/printer:
+    post:
+      operationId: testDevicePrinter
+      tags: [Devices]
+      security: [{oidcBearer: []}]
+      parameters: [{name: device_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/ApiVersion'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: false}}}}
+      responses:
+        '202': {description: Durable non-fiscal printer test operation, content: {application/json: {schema: {$ref: '#/components/schemas/DeviceTestOperation'}}}}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
   /operations/{operation_id}:reconcile:
     post:
       operationId: reconcileOperationExactAlias
@@ -449,6 +478,27 @@ paths:
           description: Created or updated autonomous configuration
           content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosConfiguration'}}}
         '409': {$ref: '#/components/responses/Problem'}
+  /minipos/fiscal-route-health:
+    get:
+      operationId: getMiniPosFiscalRouteHealth
+      parameters: [{$ref: '#/components/parameters/ApiVersion'}, {$ref: '#/components/parameters/AppInstanceId'}]
+      responses:
+        '200': {description: Lightweight Fiscal cloud route liveness, content: {application/json: {schema: {type: object, additionalProperties: false, required: [status, latency_ms], properties: {status: {const: ok}, latency_ms: {type: integer, minimum: 0}}}}}}
+        '503': {$ref: '#/components/responses/Problem'}
+  /minipos/fiscal-local-tokens:
+    post:
+      operationId: issueMiniPosLocalFiscalToken
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/AppInstanceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosLocalFiscalTokenRequest'}}}
+      responses:
+        '201': {description: Short-lived adapter-bound ES256 JWT, content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosLocalFiscalToken'}}}}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
   /minipos/shifts:
     get:
       operationId: listMiniPosShifts
@@ -572,6 +622,22 @@ paths:
           description: Shift closed with final Z operation and fiscal reference
           content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosShift'}}}
         '409': {$ref: '#/components/responses/Problem'}
+  /minipos/orders:import-offline:
+    post:
+      operationId: importMiniPosOfflineOrder
+      description: Idempotently materializes a sale already executed by a local fiscal adapter while the POS backend was unavailable.
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/AppInstanceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosOfflineOrderImport'}}}
+      responses:
+        '201': {description: Imported or existing idempotent order, content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosOrderRuntimeState'}}}}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '422': {$ref: '#/components/responses/Problem'}
   /minipos/orders/{order_id}:
     get:
       operationId: getMiniPosOrderRuntimeState
@@ -746,6 +812,65 @@ components:
       description: RFC 9457 problem
       content: {application/problem+json: {schema: {$ref: '#/components/schemas/Problem'}}}
   schemas:
+    DeviceEndpointHealth:
+      type: object
+      additionalProperties: false
+      required: [role, configured, reachable, state]
+      properties:
+        role: {type: string, enum: [ADAPTER, FISCAL_DEVICE, PAYMENT_TERMINAL]}
+        configured: {type: boolean}
+        reachable: {type: boolean}
+        state: {type: string, enum: [READY, DEGRADED, OFFLINE, MISCONFIGURED, STALE]}
+        vendor: {type: string}
+        model: {type: string}
+        serial: {type: string}
+        driver_id: {type: string}
+        protocol_id: {type: string}
+        protocol_version: {type: string}
+        last_error: {type: string}
+        last_success_at: {type: string, format: date-time}
+    DeviceHealth:
+      type: object
+      additionalProperties: true
+      required: [id, version, adapter_device_id, register_id, boot_id, sequence, binding_generation, adapter_state, endpoints, observed_at, received_at, effective_state, age_seconds]
+      properties:
+        id: {type: string, format: uuid}
+        version: {type: integer, minimum: 1}
+        adapter_device_id: {type: string, format: uuid}
+        register_id: {type: string, format: uuid}
+        boot_id: {type: string}
+        sequence: {type: integer, minimum: 1}
+        binding_generation: {type: integer, minimum: 1}
+        firmware_version: {type: string}
+        adapter_state: {type: string, enum: [READY, DEGRADED, OFFLINE, MISCONFIGURED, STALE]}
+        effective_state: {type: string, enum: [READY, DEGRADED, OFFLINE, MISCONFIGURED, STALE]}
+        endpoints: {type: array, items: {$ref: '#/components/schemas/DeviceEndpointHealth'}}
+        observed_at: {type: string, format: date-time}
+        received_at: {type: string, format: date-time}
+        age_seconds: {type: integer, minimum: 0}
+    DeviceHealthTransition:
+      type: object
+      additionalProperties: true
+      required: [id, adapter_device_id, state, boot_id, sequence, observed_at]
+      properties:
+        id: {type: string, format: uuid}
+        adapter_device_id: {type: string, format: uuid}
+        state: {type: string, enum: [READY, DEGRADED, OFFLINE, MISCONFIGURED, STALE]}
+        boot_id: {type: string}
+        sequence: {type: integer, minimum: 1}
+        observed_at: {type: string, format: date-time}
+    DeviceTestOperation:
+      type: object
+      additionalProperties: true
+      required: [id, type, state, version, created_at, updated_at]
+      properties:
+        id: {type: string}
+        type: {const: PRINTER_TEST}
+        state: {type: string, enum: [EXECUTING, FISCALIZED, FAILED, UNKNOWN]}
+        error_code: {type: string}
+        version: {type: integer, minimum: 1}
+        created_at: {type: string, format: date-time}
+        updated_at: {type: string, format: date-time}
     CompositeDeviceBindingRequest:
       type: object
       additionalProperties: false
@@ -963,6 +1088,12 @@ components:
         unp_prefix: {type: string, description: Server-reserved fiscal identifier prefix; never exposed to the external POS}
         unp_range_start: {type: integer, minimum: 1}
         unp_range_end: {type: integer, minimum: 1}
+        local_token_issuer: {type: string, format: uri}
+        local_token_signing_kid: {type: string, minLength: 1, maxLength: 128}
+        local_token_public_key_der_base64: {type: string, minLength: 32, description: Base64 encoded X.509 SubjectPublicKeyInfo for ES256 local token verification}
+        spa_deployment_descriptor_url: {type: string, format: uri, pattern: '^https://'}
+        spa_deployment_signing_kid: {type: string, minLength: 1, maxLength: 128}
+        spa_deployment_public_key_der_base64: {type: string, minLength: 32, description: Base64 encoded Ed25519 SubjectPublicKeyInfo}
     DeviceActivationCommit:
       type: object
       additionalProperties: false
@@ -1225,16 +1356,24 @@ components:
     MiniPosConfigurationInput:
       type: object
       additionalProperties: false
-      required: [location_name, location_address, workstation_name, fiscal_register_id]
+      required: [location_name, location_address, workstation_name, location_id, fiscal_register_id, fiscal_adapter_id, binding_generation, adapter_base_url]
       properties:
         location_name: {type: string, minLength: 1, maxLength: 120}
         location_address: {type: string, maxLength: 240}
         workstation_name: {type: string, minLength: 1, maxLength: 120}
         fiscal_register_id: {type: string, format: uuid}
+        location_id: {type: string, format: uuid}
+        fiscal_adapter_id: {type: string, format: uuid}
+        binding_generation: {type: integer, minimum: 1}
+        adapter_base_url: {type: string, pattern: '^http://[^/]+/beeloy/local/v1/?$'}
+        ble_advertising_identity: {type: string, maxLength: 128}
+        ble_service_uuid: {type: string, format: uuid}
+        ble_command_uuid: {type: string, format: uuid}
+        ble_event_uuid: {type: string, format: uuid}
     MiniPosConfiguration:
       type: object
       additionalProperties: false
-      required: [id, location_name, location_address, workstation_name, fiscal_register_id, version, created_at, updated_at]
+      required: [id, location_name, location_address, workstation_name, location_id, fiscal_register_id, fiscal_adapter_id, binding_generation, adapter_base_url, version, created_at, updated_at]
       properties:
         id: {type: string, format: uuid}
         tenant_id: {type: string}
@@ -1242,9 +1381,39 @@ components:
         location_address: {type: string, maxLength: 240}
         workstation_name: {type: string, minLength: 1, maxLength: 120}
         fiscal_register_id: {type: string, format: uuid}
+        location_id: {type: string, format: uuid}
+        fiscal_adapter_id: {type: string, format: uuid}
+        binding_generation: {type: integer, minimum: 1}
+        adapter_base_url: {type: string, pattern: '^http://[^/]+/beeloy/local/v1/?$'}
+        ble_advertising_identity: {type: string, maxLength: 128}
+        ble_service_uuid: {type: string, format: uuid}
+        ble_command_uuid: {type: string, format: uuid}
+        ble_event_uuid: {type: string, format: uuid}
         version: {type: integer, minimum: 1}
         created_at: {type: string, format: date-time}
         updated_at: {type: string, format: date-time}
+    MiniPosLocalFiscalTokenRequest:
+      type: object
+      additionalProperties: false
+      required: [adapter_device_id, location_id, register_id, operator_id, shift_id, binding_generation, adapter_base_url]
+      properties:
+        adapter_device_id: {type: string, format: uuid}
+        location_id: {type: string, format: uuid}
+        register_id: {type: string, format: uuid}
+        operator_id: {type: string, format: uuid}
+        shift_id: {type: string, format: uuid}
+        binding_generation: {type: integer, minimum: 1}
+        adapter_base_url: {type: string, pattern: '^http://[^/]+/beeloy/local/v1/?$'}
+    MiniPosLocalFiscalToken:
+      type: object
+      additionalProperties: false
+      required: [access_token, token_type, expires_at, adapter_base_url, kid]
+      properties:
+        access_token: {type: string, minLength: 128}
+        token_type: {const: Bearer}
+        expires_at: {type: string, format: date-time}
+        adapter_base_url: {type: string}
+        kid: {type: string}
     MiniPosShift:
       type: object
       additionalProperties: false
@@ -1281,6 +1450,48 @@ components:
           properties:
             next_cursor: {type: [string, 'null']}
             has_more: {type: boolean, const: false}
+    MiniPosOfflineOrderImport:
+      type: object
+      additionalProperties: false
+      required: [external_id, shift_id, client_operation_id, receipt_session_id, fiscal_state, lines, payments]
+      properties:
+        external_id: {type: string, format: uuid}
+        shift_id: {type: string, format: uuid}
+        client_operation_id: {type: string, format: uuid}
+        receipt_session_id: {type: string, format: uuid}
+        fiscal_reference: {type: string, maxLength: 256}
+        fiscal_state: {type: string, enum: [FISCALIZED, UNKNOWN, FAILED]}
+        lines:
+          type: array
+          minItems: 1
+          maxItems: 200
+          items: {$ref: '#/components/schemas/MiniPosOfflineLine'}
+        payments:
+          type: array
+          minItems: 1
+          maxItems: 10
+          items: {$ref: '#/components/schemas/MiniPosOfflinePayment'}
+    MiniPosOfflineLine:
+      type: object
+      additionalProperties: false
+      required: [line_id, name, quantity, unit_price, tax_group]
+      properties:
+        line_id: {type: string, format: uuid}
+        product_id: {type: string, format: uuid}
+        name: {type: string, minLength: 1, maxLength: 160}
+        quantity: {type: string, pattern: '^[0-9]+\.[0-9]{3}$'}
+        unit_price: {$ref: '#/components/schemas/Money'}
+        discount: {$ref: '#/components/schemas/Money'}
+        tax_group: {type: string, pattern: '^[A-H]$'}
+    MiniPosOfflinePayment:
+      type: object
+      additionalProperties: false
+      required: [payment_id, type, amount]
+      properties:
+        payment_id: {type: string, format: uuid}
+        type: {type: string, enum: [CASH, CARD]}
+        amount: {$ref: '#/components/schemas/Money'}
+        terminal_policy: {type: string, enum: [REQUIRED, AUTO_IF_AVAILABLE, NONE]}
     MiniPosOrderRuntimeState:
       type: object
       additionalProperties: true

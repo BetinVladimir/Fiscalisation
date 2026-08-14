@@ -9,7 +9,7 @@ import javax.crypto.Cipher
 import javax.crypto.spec.GCMParameterSpec
 import javax.crypto.spec.SecretKeySpec
 
-data class BlueCashBleBinding(val tenantId:String,val locationId:String,val registerId:String,val edgeId:String,val fiscalDeviceId:String)
+data class BlueCashBleBinding(val tenantId:String,val locationId:String,val registerId:String,val edgeId:String,val fiscalDeviceId:String,val generation:Long=1)
 
 /** Peripheral side of HELLO → CHALLENGE → AUTH_PROOF → READY. */
 class BlueCashBleServerHandshake(private val ticketSigningKey:ByteArray,private val expected:BlueCashBleBinding,private val clock:()->Instant={Instant.now()},private val random:SecureRandom=SecureRandom()){

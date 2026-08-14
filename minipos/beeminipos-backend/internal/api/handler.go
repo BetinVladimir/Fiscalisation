@@ -45,9 +45,12 @@ func New(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/public/v1/minipos/employees", h.employees)
 	m.HandleFunc("/public/v1/minipos/employees/", h.employee)
 	m.HandleFunc("/public/v1/minipos/operator-session", h.operatorSession)
+	m.HandleFunc("/public/v1/minipos/fiscal-local-tokens", h.localFiscalToken)
+	m.HandleFunc("/public/v1/minipos/fiscal-route-health", h.fiscalRouteHealth)
 	m.HandleFunc("/public/v1/minipos/shifts", h.shifts)
 	m.HandleFunc("/public/v1/minipos/shifts/", h.shift)
 	m.HandleFunc("/public/v1/minipos/orders", h.orders)
+	m.HandleFunc("/public/v1/minipos/orders:import-offline", h.importOfflineOrder)
 	m.HandleFunc("/public/v1/minipos/orders/", h.order)
 	m.HandleFunc("/public/v1/minipos/reports/sales", h.salesReport)
 	m.HandleFunc("/public/v1/fiscal-webhooks", h.webhook)
@@ -617,6 +620,34 @@ func (h *handler) orders(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	write(w, 201, x)
+}
+
+func (h *handler) importOfflineOrder(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		problem(w, http.StatusMethodNotAllowed, "method")
+		return
+	}
+	if strings.TrimSpace(r.Header.Get("Idempotency-Key")) == "" {
+		problem(w, http.StatusBadRequest, "idempotency required")
+		return
+	}
+	var input domain.OfflineOrderImport
+	if !decode(w, r, &input) {
+		return
+	}
+	if r.Header.Get("Idempotency-Key") != input.ExternalID {
+		problem(w, http.StatusUnprocessableEntity, "idempotency key must equal external_id")
+		return
+	}
+	if !h.authorizeShiftActor(w, r, input.ShiftID) {
+		return
+	}
+	order, err := h.s.ImportOfflineOrder(tenantID(r), input)
+	if err != nil {
+		problem(w, http.StatusConflict, err.Error())
+		return
+	}
+	write(w, http.StatusCreated, order)
 }
 
 func paginate[T any](r *http.Request, all []T) (map[string]any, error) {

@@ -1,7 +1,7 @@
 {
   "schema_version": "1.0",
   "profile": "BG_MVP_FUNCTIONAL_NONPROD",
-  "evaluated_at": "2026-08-09",
+  "evaluated_at": "2026-08-14",
   "acceptance_state": "READY_FOR_HUMAN_SIGNATURE",
   "base_profile_status": "PASS",
   "pilot_status": "NO_GO",
@@ -15,9 +15,9 @@
   },
   "contract_surface": {
     "canonical_operations": 73,
-    "runtime_operations": 50,
-    "request_contracts": 121,
-    "successful_response_contracts": 121
+    "runtime_operations": 58,
+    "request_contracts": 131,
+    "successful_response_contracts": 131
   },
   "requirement_trace": {
     "total": 25,

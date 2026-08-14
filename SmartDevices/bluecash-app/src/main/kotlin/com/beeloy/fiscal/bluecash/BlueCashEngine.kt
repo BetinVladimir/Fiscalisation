@@ -31,6 +31,19 @@ class SignedMemoryJournal(private val signer:TransactionSigner,private val clock
 }
 
 class BlueCashCommandProcessor(private val fiscal:DatecsFiscalPort,private val card:DatecsPaymentPort,private val journal:TransactionJournal) {
+ fun fiscalReachable()=fiscal.reachable()
+ fun paymentReachable()=card.reachable()
+ fun administrative(operationId:String,command:Int,payload:ByteArray,acceptedEvidence:String="state=ACCEPTED"):Map<String,String>{
+  require(operationId.isNotBlank()&&command in setOf(69,70));val old=journal.find(operationId);old.firstOrNull{it.type=="ACCEPTED"}?.let{require(it.payload==acceptedEvidence){"COMMAND_ID_PAYLOAD_CONFLICT"}};old.lastOrNull{it.type in setOf("FISCALIZED","FAILED","UNKNOWN")}?.let{return parse(it.payload)}
+  if(old.any{it.type=="ACCEPTED"||it.type=="EXECUTING"})return mapOf("state" to "UNKNOWN","error_code" to "RECOVERY_REQUIRED")
+  require(fiscal.reachable()){"FISCAL_DEVICE_UNREACHABLE"};journal.append(operationId,"ACCEPTED",acceptedEvidence);journal.append(operationId,"EXECUTING","state=EXECUTING")
+  return try{ok(fiscal.execute(command,payload));mapOf("state" to "FISCALIZED").also{journal.append(operationId,"FISCALIZED",encode(it))}}catch(e:Throwable){val unknown=e.message in setOf("DATECS_EOF","DATECS_BAD_FRAME","DATECS_BCC","DATECS_CORRELATION");val result=mapOf("state" to if(unknown)"UNKNOWN" else "FAILED","error_code" to (e.message?:"DATECS_FAILURE"));journal.append(operationId,result.getValue("state"),encode(result));result}
+ }
+ fun printerTest(operationId:String,acceptedEvidence:String="state=ACCEPTED"):Map<String,String>{
+  require(operationId.isNotBlank());val old=journal.find(operationId);old.firstOrNull{it.type=="ACCEPTED"}?.let{require(it.payload==acceptedEvidence){"COMMAND_ID_PAYLOAD_CONFLICT"}};old.lastOrNull{it.type in setOf("PRINTER_TESTED","FAILED","UNKNOWN")}?.let{return parse(it.payload)}
+  require(fiscal.reachable()){"FISCAL_DEVICE_UNREACHABLE"};journal.append(operationId,"ACCEPTED",acceptedEvidence);journal.append(operationId,"EXECUTING","state=EXECUTING")
+  return try{ok(fiscal.execute(38));ok(fiscal.execute(42,"BEELOY PRINTER TEST\t\t\t\t\t\t".toByteArray()));ok(fiscal.execute(39));mapOf("state" to "PRINTER_TESTED").also{journal.append(operationId,"PRINTER_TESTED",encode(it))}}catch(e:Throwable){val unknown=e.message in setOf("DATECS_EOF","DATECS_BAD_FRAME","DATECS_BCC","DATECS_CORRELATION");val result=mapOf("state" to if(unknown)"UNKNOWN" else "FAILED","error_code" to (e.message?:"PRINTER_TEST_FAILURE"));journal.append(operationId,result.getValue("state"),encode(result));result}
+ }
  fun sale(command:BlueCashSale, acceptedEvidence:String="state=ACCEPTED"):Map<String,String> {
   require(command.operationId.isNotBlank()&&command.lines.isNotEmpty()&&command.payments.isNotEmpty())
   val old=journal.find(command.operationId);old.firstOrNull{it.type=="ACCEPTED"}?.let{require(it.payload==acceptedEvidence){"COMMAND_ID_PAYLOAD_CONFLICT"}};old.lastOrNull{it.type in setOf("FISCALIZED","FAILED","UNKNOWN")}?.let{return parse(it.payload)}
@@ -61,7 +74,7 @@ class BlueCashCommandProcessor(private val fiscal:DatecsFiscalPort,private val c
   if(old.any{it.type=="ACCEPTED"||it.type=="EXECUTING"})return mapOf("state" to "UNKNOWN","error_code" to "RECOVERY_REQUIRED")
   require(fiscal.reachable()){"FISCAL_DEVICE_UNREACHABLE"};journal.append(command.operationId,"ACCEPTED",acceptedEvidence);journal.append(command.operationId,"EXECUTING","state=EXECUTING")
   return try {
-   for(p in command.payments.filter{it.type=="CARD"}){require(card.reachable()){"PAYMENT_TERMINAL_UNREACHABLE"};val payment=card.reverse(command.originalOperationId);require(payment["approved"]=="true"){payment["error_code"]?:"CARD_REVERSAL_DECLINED"}}
+   for(p in command.payments.filter{it.type=="CARD"}.asReversed()){require(card.reachable()){"PAYMENT_TERMINAL_UNREACHABLE"};journal.append(command.operationId,"REFUND_PREPARED","payment_id=${p.id}&amount=${p.amount}&original_operation_id=${command.originalOperationId}");val payment=card.reverse(p.id);require(payment["approved"]=="true"){payment["error_code"]?:"CARD_REVERSAL_DECLINED"};journal.append(command.operationId,"REFUND_APPROVED","payment_id=${p.id}&rrn=${payment["rrn"].orEmpty()}&authorization_code=${payment["authorization_code"].orEmpty()}")}
    ok(fiscal.execute(43,DatecsPayloads.stornoOpen(command.operator,command.password,command.till,command.originalDocument)))
    command.lines.forEach{ok(fiscal.execute(49,DatecsPayloads.line(it)))}
    command.payments.forEach{ok(fiscal.execute(53,DatecsPayloads.payment(if(it.type=="CASH")0 else 1,it.amount)))}

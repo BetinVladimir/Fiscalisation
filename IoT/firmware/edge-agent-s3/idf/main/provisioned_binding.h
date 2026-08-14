@@ -6,19 +6,22 @@
 
 namespace beefiscal::idf {
 enum class EdgeProfile:uint8_t{Unconfigured,DatecsDp150BluePad50,DaisyCompactS01};
-struct FiscalEndpointBinding{std::string device_id,vendor,model,transport,usb_serial;
+struct FiscalEndpointBinding{std::string device_id,vendor,model,transport,driver_id,protocol_id,protocol_version,usb_serial;
   uint32_t uart_baud{};uint8_t uart_data_bits{};char uart_parity{'N'};uint8_t uart_stop_bits{};
   int uart_tx_pin{-1},uart_rx_pin{-1};uint16_t usb_vid{},usb_pid{};uint8_t usb_interface{};};
-struct PaymentEndpointBinding{bool present{};std::string device_id,vendor,model,transport,
+struct PaymentEndpointBinding{bool present{};std::string device_id,vendor,model,transport,driver_id,protocol_id,protocol_version,
   ble_identity,service_uuid,tx_characteristic_uuid,rx_characteristic_uuid;};
 struct MqttBinding{std::string uri,client_id,command_topic,sync_topic,ack_topic,
   root_ca_ref,client_certificate_ref,client_key_ref;};
 struct OperationalAuthority{std::string command_hmac_ref,sync_ack_hmac_ref,
   transaction_signing_kid,unp_prefix;int64_t unp_range_start{},unp_range_end{};};
+struct LocalHttpBinding{bool enabled{};uint16_t port{8088};std::string token_issuer,
+  token_signing_kid,token_public_key_der_base64,deployment_descriptor_url,
+  deployment_signing_kid,deployment_public_key_base64;};
 struct CompositeBinding{uint32_t schema_version{};int64_t generation{};
   std::string tenant_id,location_id,register_id,edge_device_id,ble_advertising_identity;
   EdgeProfile profile{EdgeProfile::Unconfigured};FiscalEndpointBinding fiscal;
-  PaymentEndpointBinding payment;MqttBinding mqtt;OperationalAuthority authority;
+  PaymentEndpointBinding payment;MqttBinding mqtt;OperationalAuthority authority;LocalHttpBinding local_http;
   std::string payload_sha256;};
 struct SignedBindingEnvelope{const char* canonical_json{};size_t canonical_json_size{};
   const char* signature_base64url{};const char* key_id{};};

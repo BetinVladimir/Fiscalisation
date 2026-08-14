@@ -4,7 +4,7 @@
 #include "esp_err.h"
 
 namespace beefiscal::idf {
-enum class Ingress : uint8_t { Mqtt, Ble };
+enum class Ingress : uint8_t { Mqtt, Ble, Http };
 struct CommandView { const uint8_t* data; size_t size; Ingress ingress; };
 using CommandSink = esp_err_t (*)(const CommandView&, void*);
 using ProvisioningSink = esp_err_t (*)(const uint8_t*, size_t, void*);
@@ -20,6 +20,7 @@ using AckSink=esp_err_t(*)(const uint8_t*,size_t,void*);
 esp_err_t mqtt_runtime_start(const MqttConfig&,CommandSink,void*,AckSink=nullptr,void* = nullptr,ProvisioningSink=nullptr,void* = nullptr);
 int mqtt_publish_sync(const char*batch_id,const uint8_t*,size_t);
 int mqtt_publish_binding_applied(const char*tenant,const char*device,const char*register_id,int64_t generation);
+int mqtt_publish_status(const char*tenant,const char*device,const char*payload,bool retained=true);
 struct BleConfig { const char* advertising_name; };
 esp_err_t ble_runtime_start(const BleConfig&, CommandSink, void*);
 esp_err_t ble_publish_event(const char* message_uuid,const uint8_t*,size_t);
