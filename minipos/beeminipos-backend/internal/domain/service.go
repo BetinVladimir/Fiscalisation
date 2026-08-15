@@ -244,8 +244,7 @@ func (s *Service) SetFiscalAuthToken(v string) {
 }
 func (s *Service) SetFiscalAuthProvider(v AccessTokenProvider) { s.authProvider = v; s.authToken = "" }
 func (s *Service) FiscalPing() error {
-	var response map[string]any
-	return s.call(http.MethodGet, "/connectivity/ping", "", nil, &response)
+	return s.call(http.MethodGet, "/connectivity/ping", "", nil, nil)
 }
 
 type Store interface {
@@ -2123,6 +2122,9 @@ func (s *Service) callAttempt(ctx context.Context, method, path, key, expected s
 			return fmt.Errorf("fiscal status %d: %s", resp.StatusCode, problem.Code)
 		}
 		return fmt.Errorf("fiscal status %d", resp.StatusCode)
+	}
+	if resp.StatusCode == http.StatusNoContent || out == nil {
+		return nil
 	}
 	return json.NewDecoder(resp.Body).Decode(out)
 }

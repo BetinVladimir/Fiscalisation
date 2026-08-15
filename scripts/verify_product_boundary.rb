@@ -9,7 +9,7 @@ abort "MiniPOS Compose crossed into Fiscal private services" if minipos.match?(/
 abort "Fiscal Compose crossed into MiniPOS private services" if fiscal.match?(/^\s{2}beeminipos-backend:/) || fiscal.include?("database/minipos")
 abort "MiniPOS database ownership drift" unless minipos.include?("/minipos?sslmode=disable") && minipos.include?("./database/minipos:")
 abort "Fiscal database ownership drift" unless fiscal.include?("/fiscal?sslmode=disable") && fiscal.include?("./database/fiscal:")
-abort "MiniPOS must receive only FISCAL_PUBLIC_BASE_URL" unless minipos.include?('FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:-http://localhost:8080/public/v1}"')
+abort "MiniPOS must receive only FISCAL_PUBLIC_BASE_URL" unless minipos.include?('FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:-http://host.docker.internal:8080/public/v1}"')
 abort "MiniPOS PROD must require FISCAL_PUBLIC_BASE_URL" unless minipos_prod.include?('FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:?required}"')
 
 def service_block(body, service)
@@ -19,7 +19,7 @@ end
 
 {
   "MiniPOS postgres" => [minipos, "postgres", "networks: [private]"],
-  "MiniPOS backend" => [minipos, "beeminipos-backend", "networks: [private, egress]"],
+  "MiniPOS backend" => [minipos, "beeminipos-backend", "networks: [private]"],
   "MiniPOS Caddy" => [minipos, "caddy", "networks: [private, ingress]"],
   "Fiscal postgres" => [fiscal, "postgres", "networks: [private]"],
   "Fiscal backend" => [fiscal, "fiscal-backend", "networks: [private]"],

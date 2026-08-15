@@ -12,10 +12,10 @@ services:
     command: ["redis-server", "--appendonly", "yes"]
     ports: ["127.0.0.1:${REDIS_PORT:-6379}:6379"]
     volumes: [fiscal_redis:/data]
-    networks: [private]
+    networks: [private, ingress]
     healthcheck: {test: [CMD, redis-cli, ping], interval: 10s, timeout: 5s, retries: 5}
   emqx:
-    image: emqx/emqx:5
+    image: emqx/emqx:5.9.3
     restart: unless-stopped
     environment:
       EMQX_NAME: emqx
@@ -24,12 +24,11 @@ services:
       EMQX_DASHBOARD__DEFAULT_USERNAME: "${EMQX_DASHBOARD_USERNAME:-admin}"
       EMQX_DASHBOARD__DEFAULT_PASSWORD: "${EMQX_DASHBOARD_PASSWORD:-dev-only-dashboard-password}"
       EMQX_AUTHENTICATION__1__ENABLE: "true"
-      EMQX_AUTHENTICATION__1__MECHANISM: password_based
-      EMQX_AUTHENTICATION__1__BACKEND: jwt
+      EMQX_AUTHENTICATION__1__MECHANISM: jwt
+      EMQX_AUTHENTICATION__1__USE_JWKS: "false"
       EMQX_AUTHENTICATION__1__FROM: password
       EMQX_AUTHENTICATION__1__ALGORITHM: hmac-based
       EMQX_AUTHENTICATION__1__SECRET: "${EMQX_JWT_SECRET:-dev-only-emqx-secret}"
-      EMQX_AUTHENTICATION__1__VERIFY_CLAIMS__USERNAME: "$${username}"
       EMQX_AUTHENTICATION__1__ACL_CLAIM_NAME: acl
       EMQX_AUTHORIZATION__NO_MATCH: deny
     ports:
@@ -39,7 +38,7 @@ services:
       - "127.0.0.1:${EMQX_MQTTS_PORT:-8883}:8883"
       - "127.0.0.1:${EMQX_DASHBOARD_PORT:-18083}:18083"
     volumes: [fiscal_emqx:/opt/emqx/data]
-    networks: [private]
+    networks: [private, ingress]
   rabbitmq:
     image: rabbitmq:3-management
     restart: unless-stopped
@@ -47,10 +46,10 @@ services:
       RABBITMQ_DEFAULT_USER: "${RABBITMQ_DEFAULT_USER:-fiscal}"
       RABBITMQ_DEFAULT_PASS: "${RABBITMQ_DEFAULT_PASS:-dev-only-rabbitmq-password}"
     ports:
-      - "127.0.0.1:${RABBITMQ_AMQP_PORT:-5672}:5672"
-      - "127.0.0.1:${RABBITMQ_MANAGEMENT_PORT:-15672}:15672"
+      - "127.0.0.1:${RABBITMQ_AMQP_PORT:-5673}:5672"
+      - "127.0.0.1:${RABBITMQ_MANAGEMENT_PORT:-15673}:15672"
     volumes: [fiscal_rabbitmq:/var/lib/rabbitmq]
-    networks: [private]
+    networks: [private, ingress]
   fiscal-backend:
     build: ./fiscal-backend
     restart: unless-stopped
