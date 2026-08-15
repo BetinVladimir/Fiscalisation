@@ -1848,11 +1848,9 @@ const s = StyleSheet.create({
     overflow: "hidden",
   },
   authBackground: {
-    position: "absolute",
-    top: 0,
-    bottom: 0,
-    left: 0,
-    aspectRatio: 1680 / 945,
+    ...StyleSheet.absoluteFillObject,
+    width: "100%",
+    height: "100%",
     opacity: 0.7,
   },
   login: {

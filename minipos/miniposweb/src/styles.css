@@ -77,7 +77,7 @@ button:disabled {
   position: absolute;
   inset: 0;
   z-index: -1;
-  background: url("../../imgs/background.png") left center / auto 100% no-repeat;
+  background: url("../../imgs/background.png") center / cover no-repeat;
   opacity: 0.7;
 }
 .auth-card {
