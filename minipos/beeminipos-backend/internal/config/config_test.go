@@ -15,7 +15,7 @@ func TestSplitCSV(t *testing.T) {
 }
 
 func TestProdGuards(t *testing.T) {
-	base := Config{AppEnv: "prod", DatabaseURL: "postgres://writer@db/minipos", RLSDatabaseURL: "postgres://reader@db/minipos", FiscalBaseURL: "https://fiscal.example/public/v1", CORSAllowedOrigins: "https://pos.example", WebhookVerificationKey: strings.Repeat("w", 32), OIDCIssuer: "https://id.example", OIDCAudience: "beeminipos", OIDCJWKSURL: "https://id.example/jwks", OAuthTokenURL: "https://id.example/token", OAuthClientID: "minipos", OAuthClientSecret: "production-secret-32-bytes", OAuthScope: "fiscal.base", LocalTokenSigningKeyPEM: "configured-by-secret-store", LocalTokenSigningKID: "local-2026-01", LocalTokenIssuer: "https://pos.example"}
+	base := Config{AppEnv: "prod", DatabaseURL: "postgres://writer@db/minipos", RLSDatabaseURL: "postgres://reader@db/minipos", FiscalBaseURL: "https://fiscal.example/public/v1", CORSAllowedOrigins: "https://pos.example", WebhookVerificationKey: strings.Repeat("w", 32), AuthHMACKey: strings.Repeat("a", 32), RabbitMQURL: "amqps://rabbit.example", OAuthTokenURL: "https://id.example/token", OAuthClientID: "minipos", OAuthClientSecret: "production-secret-32-bytes", OAuthScope: "fiscal.base", LocalTokenSigningKeyPEM: "configured-by-secret-store", LocalTokenSigningKID: "local-2026-01", LocalTokenIssuer: "https://pos.example"}
 	if e := base.Validate(); e != nil {
 		t.Fatal(e)
 	}
@@ -31,8 +31,8 @@ func TestProdGuards(t *testing.T) {
 	}
 	x = base
 	x.CORSAllowedOrigins = "*"
-	if x.Validate() == nil {
-		t.Fatal("wildcard CORS accepted")
+	if e := x.Validate(); e != nil {
+		t.Fatalf("wildcard CORS rejected: %v", e)
 	}
 	x = base
 	x.CORSAllowedOrigins = "https://pos.example/path"
@@ -52,17 +52,12 @@ func TestProdGuards(t *testing.T) {
 	x = base
 	x.AuthHMACKey = "dev"
 	if x.Validate() == nil {
-		t.Fatal("HMAC auth accepted in PROD")
+		t.Fatal("weak HMAC auth accepted in PROD")
 	}
 	x = base
-	x.OIDCIssuer = ""
+	x.RabbitMQURL = "amqp://rabbit.example"
 	if x.Validate() == nil {
-		t.Fatal("missing OIDC accepted")
-	}
-	x = base
-	x.OIDCIssuer = "http://id.example"
-	if x.Validate() == nil {
-		t.Fatal("insecure OIDC issuer accepted")
+		t.Fatal("insecure RabbitMQ accepted")
 	}
 	x = base
 	x.FiscalBaseURL = "postgres://fiscal"

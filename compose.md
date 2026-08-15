@@ -184,6 +184,23 @@ docker compose \
   config
 ```
 
+Пересборка:
+
+```bash
+docker compose \
+  -f compose.fiscalisation.yaml \
+  -f compose.fiscalisation.dev.yaml \
+  build
+```
+
+```bash
+docker compose \
+  -f compose.minipos.yaml \
+  -f compose.minipos.dev.yaml \
+  build
+```
+
+
 Запуск:
 
 ```bash

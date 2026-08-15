@@ -2,6 +2,12 @@ services:
   beeminipos-backend:
     environment:
       APP_ENV: dev
+      AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:-dev-only-minipos-auth-signing-key-32-bytes}"
+      RABBITMQ_URL: "${MINIPOS_RABBITMQ_URL:-amqp://fiscal:dev-only-rabbitmq-password@host.docker.internal:5673/}"
+      FISCAL_AUTH_TOKEN: "${FISCAL_AUTH_TOKEN:-}"
+      FISCAL_OAUTH_CLIENT_SECRET: "${FISCAL_OAUTH_CLIENT_SECRET:-}"
+      WEBHOOK_VERIFICATION_KEY: "${WEBHOOK_VERIFICATION_KEY:-dev-only-fiscal-webhook-key}"
+      LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM: "${LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM:-}"
   caddy:
     environment:
       MINIPOS_SITE: :80

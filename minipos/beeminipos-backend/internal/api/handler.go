@@ -11,6 +11,7 @@ import (
 	"fiscalisation/beeminipos-backend/internal/auth"
 	"fiscalisation/beeminipos-backend/internal/config"
 	"fiscalisation/beeminipos-backend/internal/domain"
+	"fiscalisation/beeminipos-backend/internal/emailauth"
 	"fmt"
 	"io"
 	"net/http"
@@ -22,10 +23,14 @@ import (
 type handler struct {
 	s *domain.Service
 	c config.Config
+	a *emailauth.Service
 }
 
 func New(s *domain.Service, c config.Config) http.Handler {
-	h := &handler{s, c}
+	return NewWithEmailAuth(s, c, nil)
+}
+func NewWithEmailAuth(s *domain.Service, c config.Config, email *emailauth.Service) http.Handler {
+	h := &handler{s: s, c: c, a: email}
 	m := http.NewServeMux()
 	m.HandleFunc("/livez", h.health)
 	m.HandleFunc("/readyz", h.health)
@@ -55,10 +60,91 @@ func New(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/public/v1/minipos/reports/sales", h.salesReport)
 	m.HandleFunc("/public/v1/fiscal-webhooks", h.webhook)
 	m.HandleFunc("/public/v1/minipos/configuration", h.configuration)
-	oidc := auth.NewOIDCVerifier(c.OIDCIssuer, c.OIDCAudience, c.OIDCJWKSURL)
-	return cors(c.CORSAllowedOrigins, auth.MiddlewareWithOIDCAndRevocation(c.AuthHMACKey, oidc, func(claims auth.Claims) bool {
+	protected := auth.MiddlewareWithRevocation(c.AuthHMACKey, func(claims auth.Claims) bool {
 		return s.OperatorSessionRevoked(claims.TenantID, claims.TokenHash)
-	}, rateLimit(600, time.Minute, apiVersion(c.APIVersion, enforceSuccessResponses(idempotency(s, m))))))
+	}, rateLimit(600, time.Minute, apiVersion(c.APIVersion, enforceSuccessResponses(idempotency(s, m)))))
+	root := http.NewServeMux()
+	root.HandleFunc("/public/v1/minipos/auth/request-code", h.requestCode)
+	root.HandleFunc("/public/v1/minipos/auth/verify-code", h.verifyCode)
+	root.HandleFunc("/public/v1/minipos/auth/onboarding", h.onboarding)
+	root.HandleFunc("/public/v1/minipos/auth/refresh", h.refresh)
+	root.Handle("/", protected)
+	return cors(c.CORSAllowedOrigins, root)
+}
+
+func (h *handler) requestCode(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || h.a == nil {
+		problem(w, http.StatusNotFound, "not found")
+		return
+	}
+	var input struct {
+		Email    string `json:"email"`
+		Language string `json:"language"`
+	}
+	if !decode(w, r, &input) {
+		return
+	}
+	if err := h.a.RequestCode(r.Context(), input.Email, input.Language); err != nil {
+		problem(w, http.StatusBadGateway, err.Error())
+		return
+	}
+	write(w, http.StatusAccepted, map[string]any{"sent": true, "expires_in": 600})
+}
+func (h *handler) verifyCode(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || h.a == nil {
+		problem(w, http.StatusNotFound, "not found")
+		return
+	}
+	var input struct {
+		Email string `json:"email"`
+		Code  string `json:"code"`
+	}
+	if !decode(w, r, &input) {
+		return
+	}
+	result, err := h.a.VerifyCode(r.Context(), input.Email, input.Code)
+	if err != nil {
+		problem(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	write(w, http.StatusOK, result)
+}
+func (h *handler) onboarding(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || h.a == nil {
+		problem(w, http.StatusNotFound, "not found")
+		return
+	}
+	var input struct {
+		OnboardingToken string `json:"onboarding_token"`
+		emailauth.Onboarding
+	}
+	if !decode(w, r, &input) {
+		return
+	}
+	tokens, err := h.a.Onboard(r.Context(), input.OnboardingToken, input.Onboarding)
+	if err != nil {
+		problem(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+	write(w, http.StatusCreated, tokens)
+}
+func (h *handler) refresh(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || h.a == nil {
+		problem(w, http.StatusNotFound, "not found")
+		return
+	}
+	var input struct {
+		RefreshToken string `json:"refresh_token"`
+	}
+	if !decode(w, r, &input) {
+		return
+	}
+	tokens, err := h.a.Refresh(r.Context(), input.RefreshToken)
+	if err != nil {
+		problem(w, http.StatusUnauthorized, err.Error())
+		return
+	}
+	write(w, http.StatusOK, tokens)
 }
 
 func (h *handler) configuration(w http.ResponseWriter, r *http.Request) {
@@ -979,20 +1065,23 @@ func apiVersion(v string, next http.Handler) http.Handler {
 	})
 }
 func cors(allowed string, next http.Handler) http.Handler {
+	wildcard := strings.TrimSpace(allowed) == "*"
 	set := map[string]bool{}
 	for _, v := range strings.Split(allowed, ",") {
 		set[strings.TrimSpace(v)] = true
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		if origin != "" && set[origin] {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-			w.Header().Set("Vary", "Origin")
+		if wildcard || (origin != "" && set[origin]) {
+			w.Header().Set("Access-Control-Allow-Origin", map[bool]string{true: "*", false: origin}[wildcard])
+			if !wildcard {
+				w.Header().Set("Vary", "Origin")
+			}
 			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Idempotency-Key, If-Match, X-Api-Version, X-App-Instance-Id")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
 		}
 		if r.Method == "OPTIONS" {
-			if origin == "" || !set[origin] {
+			if !wildcard && (origin == "" || !set[origin]) {
 				problem(w, 403, "origin not allowed")
 				return
 			}

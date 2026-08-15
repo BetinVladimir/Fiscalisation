@@ -25,13 +25,10 @@ type key struct{}
 
 func ClaimsFrom(ctx context.Context) (Claims, bool) { v, ok := ctx.Value(key{}).(Claims); return v, ok }
 func Middleware(secret string, next http.Handler) http.Handler {
-	return MiddlewareWithOIDC(secret, nil, next)
+	return MiddlewareWithRevocation(secret, nil, next)
 }
-func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) http.Handler {
-	return MiddlewareWithOIDCAndRevocation(secret, oidc, nil, next)
-}
-func MiddlewareWithOIDCAndRevocation(secret string, oidc *OIDCVerifier, revoked func(Claims) bool, next http.Handler) http.Handler {
-	if secret == "" && oidc == nil {
+func MiddlewareWithRevocation(secret string, revoked func(Claims) bool, next http.Handler) http.Handler {
+	if secret == "" {
 		return next
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -44,13 +41,7 @@ func MiddlewareWithOIDCAndRevocation(secret string, oidc *OIDCVerifier, revoked 
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
-		var c Claims
-		var e error
-		if oidc != nil {
-			c, e = oidc.Parse(raw, time.Now())
-		} else {
-			c, e = Parse(raw, []byte(secret), time.Now())
-		}
+		c, e := Parse(raw, []byte(secret), time.Now())
 		if e != nil {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
@@ -142,6 +133,17 @@ func Parse(raw string, secret []byte, now time.Time) (Claims, error) {
 		return c, err
 	}
 	return c, nil
+}
+func Sign(c Claims, secret []byte) (string, error) {
+	header, _ := json.Marshal(map[string]string{"alg": "HS256", "typ": "JWT"})
+	payload, err := json.Marshal(c)
+	if err != nil {
+		return "", err
+	}
+	encoded := base64.RawURLEncoding.EncodeToString(header) + "." + base64.RawURLEncoding.EncodeToString(payload)
+	m := hmac.New(sha256.New, secret)
+	_, _ = m.Write([]byte(encoded))
+	return encoded + "." + base64.RawURLEncoding.EncodeToString(m.Sum(nil)), nil
 }
 func validateClaims(c Claims, now time.Time) error {
 	if c.Subject == "" || c.TenantID == "" || len(c.Roles) == 0 || c.ExpiresAt <= now.Unix() {

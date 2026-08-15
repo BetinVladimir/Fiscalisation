@@ -4,11 +4,14 @@ import (
 	"errors"
 	"net/url"
 	"os"
+	"strconv"
 	"strings"
 )
 
 type Config struct {
 	HTTPAddr, AppEnv, PublicBaseURL, APIVersion, WebhookSigningKey, WebhookTargetURL, DatabaseURL, RLSDatabaseURL, CORSAllowedOrigins, AuthHMACKey, OIDCIssuer, OIDCAudience, OIDCJWKSURL, BLESigningKey string
+	RabbitMQURL, SMTPHost, SMTPUser, SMTPPassword, SMTPMailDomain, SMTPFrom                                                                                                                              string
+	SMTPPort                                                                                                                                                                                             int
 	EMQXBroker, EMQXClientID, EMQXUsername, EMQXToken                                                                                                                                                    string
 	DeviceCACertFile, DeviceCAKeyFile, DeviceMQTTTLSURI, DeviceMQTTWSSURI                                                                                                                                string
 	LocalTokenIssuer, LocalTokenSigningKID, LocalTokenPublicKeyDERBase64                                                                                                                                 string
@@ -18,9 +21,10 @@ type Config struct {
 }
 
 func Load() Config {
+	port, _ := strconv.Atoi(getenv("SMTP_PORT", "587"))
 	return Config{
 		HTTPAddr: getenv("HTTP_ADDR", ":8080"), AppEnv: getenv("APP_ENV", "dev"), PublicBaseURL: getenv("PUBLIC_BASE_URL", "http://localhost:8080/public/v1"), APIVersion: getenv("API_VERSION", "2026-08-07"),
-		WebhookSigningKey: getenv("WEBHOOK_SIGNING_KEY", "dev-only-webhook-key"), WebhookTargetURL: os.Getenv("WEBHOOK_TARGET_URL"), DatabaseURL: os.Getenv("DATABASE_URL"), RLSDatabaseURL: os.Getenv("RLS_DATABASE_URL"), CORSAllowedOrigins: getenv("CORS_ALLOWED_ORIGINS", "http://localhost:19006"),
+		WebhookSigningKey: getenv("WEBHOOK_SIGNING_KEY", "dev-only-webhook-key"), WebhookTargetURL: os.Getenv("WEBHOOK_TARGET_URL"), DatabaseURL: os.Getenv("DATABASE_URL"), RLSDatabaseURL: os.Getenv("RLS_DATABASE_URL"), CORSAllowedOrigins: getenv("CORS_ALLOWED_ORIGINS", "*"), RabbitMQURL: os.Getenv("RABBITMQ_URL"), SMTPHost: os.Getenv("SMTP_HOST"), SMTPUser: os.Getenv("SMTP_USER"), SMTPPassword: os.Getenv("SMTP_PASSWORD"), SMTPMailDomain: os.Getenv("SMTP_MAILDOMAIN"), SMTPFrom: os.Getenv("SMTP_FROM"), SMTPPort: port,
 		AuthHMACKey: os.Getenv("AUTH_HMAC_KEY"), OIDCIssuer: os.Getenv("OIDC_ISSUER"), OIDCAudience: os.Getenv("OIDC_AUDIENCE"), OIDCJWKSURL: os.Getenv("OIDC_JWKS_URL"), BLESigningKey: getenv("BLE_SIGNING_KEY", "dev-only-ble-signing-key-32-bytes"),
 		EMQXBroker: os.Getenv("EMQX_BROKER"), EMQXClientID: getenv("EMQX_CLIENT_ID", "beefiscal-backend"), EMQXUsername: os.Getenv("EMQX_USERNAME"), EMQXToken: os.Getenv("EMQX_TOKEN"), EMQXSubTopics: splitCSV(os.Getenv("EMQX_SUB_TOPICS")),
 		DeviceCACertFile: os.Getenv("DEVICE_CA_CERT_FILE"), DeviceCAKeyFile: os.Getenv("DEVICE_CA_KEY_FILE"), DeviceMQTTTLSURI: os.Getenv("DEVICE_MQTT_TLS_URI"), DeviceMQTTWSSURI: os.Getenv("DEVICE_MQTT_WSS_URI"),
@@ -45,8 +49,8 @@ func (c Config) Validate() error {
 	if c.AppEnv == "prod" && !httpsURL(c.PublicBaseURL) {
 		return errors.New("PUBLIC_BASE_URL must use HTTPS in PROD")
 	}
-	if c.AppEnv == "prod" && !secureOrigins(c.CORSAllowedOrigins) {
-		return errors.New("CORS_ALLOWED_ORIGINS must be an explicit HTTPS origin list in PROD")
+	if c.AppEnv == "prod" && c.CORSAllowedOrigins != "*" && !secureOrigins(c.CORSAllowedOrigins) {
+		return errors.New("CORS_ALLOWED_ORIGINS must be * or an explicit HTTPS origin list in PROD")
 	}
 	if c.AppEnv == "prod" && c.DatabaseURL == "" {
 		return errors.New("DATABASE_URL required in PROD")
@@ -63,8 +67,11 @@ func (c Config) Validate() error {
 	if c.AppEnv == "prod" && (!httpsURL(c.OIDCIssuer) || !httpsURL(c.OIDCJWKSURL)) {
 		return errors.New("OIDC issuer and JWKS URL must use HTTPS in PROD")
 	}
-	if c.AppEnv == "prod" && c.AuthHMACKey != "" {
-		return errors.New("AUTH_HMAC_KEY forbidden in PROD; use OIDC RS256")
+	if c.AppEnv == "prod" && (c.RabbitMQURL == "" || c.SMTPHost == "" || c.SMTPUser == "" || c.SMTPPassword == "" || c.SMTPFrom == "" || c.SMTPPort < 1) {
+		return errors.New("RabbitMQ and SMTP configuration required in PROD")
+	}
+	if c.AppEnv == "prod" && (len(c.AuthHMACKey) < 32 || strings.Contains(c.AuthHMACKey, "dev-")) {
+		return errors.New("strong AUTH_HMAC_KEY required in PROD for BeeMiniPOS tokens")
 	}
 	if c.AppEnv == "prod" && (len(c.BLESigningKey) < 32 || strings.Contains(c.BLESigningKey, "dev-")) {
 		return errors.New("strong BLE_SIGNING_KEY required in PROD")

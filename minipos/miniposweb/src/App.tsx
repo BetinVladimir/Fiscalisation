@@ -2,11 +2,13 @@ import { useEffect, useMemo, useState } from "react";
 import { buildIntent } from "./fiscal/intentBuilder";
 import {
   ApiError,
+  EmailAuthClient,
   LocalFiscalClient,
   MiniPosClient,
   type OperatorSession,
   type PosConfiguration,
   type Product,
+  type Employee,
   type Shift,
 } from "./api/client";
 import { RouteController, type FiscalRoute } from "./fiscal/routeController";
@@ -20,6 +22,8 @@ import type {
   SalePayment,
 } from "./types";
 import "./styles.css";
+import { AuthFlow } from "./AuthFlow";
+import { Management } from "./Management";
 
 type CartLine = { product: Product; quantity: number; discount: number };
 const appInstance =
@@ -47,11 +51,13 @@ export default function App() {
     localStorage.getItem("minipos-backend") ?? "/public/v1/minipos",
   );
   const [accessToken, setAccessToken] = useState(
-    sessionStorage.getItem("minipos-access-token") ?? "",
+    localStorage.getItem("minipos-access-token") ?? "",
   );
   const [session, setSession] = useState<OperatorSession>();
   const [configuration, setConfiguration] = useState<PosConfiguration>();
   const [products, setProducts] = useState<Product[]>([]);
+  const [employees, setEmployees] = useState<Employee[]>([]);
+  const [view, setView] = useState<"sale" | "products" | "employees">("sale");
   const [shift, setShift] = useState<Shift>();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cardAmount, setCardAmount] = useState(0);
@@ -73,8 +79,28 @@ export default function App() {
     0,
   );
   useEffect(() => {
-    if (accessToken) void login();
-  }, []);
+    if (accessToken && !session) void login();
+  }, [accessToken]);
+  useEffect(() => {
+    if (!accessToken) return;
+    const refresh = async () => {
+      const token = localStorage.getItem("minipos-refresh-token");
+      if (!token) return;
+      try {
+        const next = await new EmailAuthClient(backend).refresh(token);
+        localStorage.setItem("minipos-access-token", next.access_token);
+        localStorage.setItem("minipos-refresh-token", next.refresh_token);
+        setAccessToken(next.access_token);
+      } catch {
+        localStorage.removeItem("minipos-access-token");
+        localStorage.removeItem("minipos-refresh-token");
+        setAccessToken("");
+        setSession(undefined);
+      }
+    };
+    const timer = window.setInterval(() => void refresh(), 12 * 60 * 1000);
+    return () => window.clearInterval(timer);
+  }, [accessToken, backend]);
   useEffect(() => {
     if (!session || !configuration || !shift) return;
     const expires = Date.parse(
@@ -103,22 +129,19 @@ export default function App() {
       const active = await api.session();
       setSession(active);
       const [cfg, refs] = await Promise.all([
-        api.configuration(),
+        api.configuration().catch(() => undefined),
         api.products(),
       ]);
-      setConfiguration(cfg);
+      if (cfg) setConfiguration(cfg);
       setProducts(refs.items.filter((item) => item.status === "ACTIVE"));
-      await Promise.all([
-        cachePut("configuration", cfg),
-        cachePut("products", refs.items),
-      ]);
+      await Promise.all([cfg ? cachePut("configuration", cfg) : Promise.resolve(), cachePut("products", refs.items)]);
       const shifts = await api.shifts(active.employee.id);
       setShift(shifts.items[0]);
       await Promise.all([
         cachePut("operator-session", active),
         cachePut("active-shift", shifts.items[0]),
       ]);
-      sessionStorage.setItem("minipos-access-token", accessToken);
+      localStorage.setItem("minipos-access-token", accessToken);
       localStorage.setItem("minipos-backend", backend);
     } catch (error) {
       const [cfg, refs] = await Promise.all([
@@ -437,34 +460,8 @@ export default function App() {
       setBusy(false);
     }
   }
-  if (!session)
-    return (
-      <main>
-        <section className="login">
-          <h1>Bee MiniPOS Web</h1>
-          <p>Входът и правата се проверяват единствено от MiniPOS backend.</p>
-          <label>
-            Backend
-            <input
-              value={backend}
-              onChange={(event) => setBackend(event.target.value)}
-            />
-          </label>
-          <label>
-            OIDC access token
-            <input
-              type="password"
-              value={accessToken}
-              onChange={(event) => setAccessToken(event.target.value)}
-            />
-          </label>
-          <button disabled={busy || !accessToken} onClick={login}>
-            Вход
-          </button>
-          {message && <p className="error">{message}</p>}
-        </section>
-      </main>
-    );
+  if (!accessToken) return <AuthFlow backend={backend} onAuthenticated={(tokens)=>setAccessToken(tokens.access_token)} />;
+  if (!session) return <main><section><h1>Bee MiniPOS Web</h1><p>{message || "Зареждане…"}</p><button onClick={()=>void login()} disabled={busy}>Повтори</button><button className="secondary" onClick={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}}>Изход</button></section></main>;
   return (
     <main>
       <header>
@@ -478,6 +475,9 @@ export default function App() {
         <button className="secondary" onClick={() => setSettings(!settings)}>
           Настройки
         </button>
+        <button className="secondary" onClick={() => setView("sale")}>Продажби</button>
+        <button className="secondary" onClick={async () => { setView("products"); const result=await api.products(); setProducts(result.items); }}>Товари</button>
+        <button className="secondary" onClick={async () => { setView("employees"); const result=await api.employees(); setEmployees(result.items); }}>Сотрудники</button>
       </header>
       {settings && (
         <section>
@@ -497,7 +497,7 @@ export default function App() {
           {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
         </section>
       )}
-      {!shift ? (
+      {view !== "sale" ? <Management kind={view} products={products} employees={employees} api={api} onProducts={setProducts} onEmployees={setEmployees} /> : !shift ? (
         <section>
           <h2>Касова смяна</h2>
           <button disabled={busy || !configuration} onClick={openShift}>

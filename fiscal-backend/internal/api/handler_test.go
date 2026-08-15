@@ -256,7 +256,7 @@ func TestRequestContractRejectsInvalidQueryAndMissingIfMatch(t *testing.T) {
 
 func TestCORSPreflightExposesEveryFiscalPublicMutationMethod(t *testing.T) {
 	nextCalled := false
-	handler := cors("https://admin.example, https://pos.example", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
+	handler := cors("*", http.HandlerFunc(func(http.ResponseWriter, *http.Request) {
 		nextCalled = true
 	}))
 
@@ -268,7 +268,7 @@ func TestCORSPreflightExposesEveryFiscalPublicMutationMethod(t *testing.T) {
 	if response.Code != http.StatusNoContent || nextCalled {
 		t.Fatalf("valid preflight failed: status=%d called=%v body=%s", response.Code, nextCalled, response.Body.String())
 	}
-	if got := response.Header().Get("Access-Control-Allow-Origin"); got != "https://admin.example" {
+	if got := response.Header().Get("Access-Control-Allow-Origin"); got != "*" {
 		t.Fatalf("unexpected allowed origin %q", got)
 	}
 	methods := response.Header().Get("Access-Control-Allow-Methods")
@@ -283,8 +283,8 @@ func TestCORSPreflightExposesEveryFiscalPublicMutationMethod(t *testing.T) {
 	denied.Header.Set("Access-Control-Request-Method", http.MethodDelete)
 	deniedResponse := httptest.NewRecorder()
 	handler.ServeHTTP(deniedResponse, denied)
-	if deniedResponse.Code != http.StatusForbidden || deniedResponse.Header().Get("Access-Control-Allow-Origin") != "" {
-		t.Fatalf("foreign origin accepted: status=%d origin=%q", deniedResponse.Code, deniedResponse.Header().Get("Access-Control-Allow-Origin"))
+	if deniedResponse.Code != http.StatusNoContent || deniedResponse.Header().Get("Access-Control-Allow-Origin") != "*" {
+		t.Fatalf("wildcard origin rejected: status=%d origin=%q", deniedResponse.Code, deniedResponse.Header().Get("Access-Control-Allow-Origin"))
 	}
 }
 

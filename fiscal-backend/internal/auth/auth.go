@@ -45,6 +45,9 @@ func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) ht
 		var e error
 		if oidc != nil {
 			c, e = oidc.Parse(raw, time.Now())
+			if e != nil && secret != "" {
+				c, e = Parse(raw, []byte(secret), time.Now())
+			}
 		} else {
 			c, e = Parse(raw, []byte(secret), time.Now())
 		}

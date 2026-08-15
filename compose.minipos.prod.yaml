@@ -6,11 +6,10 @@ services:
   beeminipos-backend:
     environment:
       APP_ENV: prod
-      CORS_ALLOWED_ORIGINS: "${MINIPOS_CORS_ALLOWED_ORIGINS:?required}"
-      AUTH_HMAC_KEY: ""
-      OIDC_ISSUER: "${OIDC_ISSUER:?required}"
-      OIDC_AUDIENCE: "${OIDC_AUDIENCE:?required}"
-      OIDC_JWKS_URL: "${OIDC_JWKS_URL:?required}"
+      CORS_ALLOWED_ORIGINS: "*"
+      AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:?required}"
+      AUTH_TOKEN_ISSUER: "${AUTH_TOKEN_ISSUER:-beeminipos}"
+      RABBITMQ_URL: "${MINIPOS_RABBITMQ_URL:?required}"
       FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:?required}"
       FISCAL_AUTH_TOKEN: ""
       FISCAL_OAUTH_TOKEN_URL: "${FISCAL_OAUTH_TOKEN_URL:?required}"

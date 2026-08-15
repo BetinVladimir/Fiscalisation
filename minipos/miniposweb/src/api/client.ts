@@ -38,6 +38,8 @@ export type Employee = {
   operator_code: string;
   roles: string[];
 };
+export type AuthTokens = { access_token: string; refresh_token: string; expires_in: number };
+export type VerifyCodeResult = AuthTokens & { onboarding_required: boolean; onboarding_token?: string };
 export type OperatorSession = {
   authenticated: boolean;
   employee: Employee;
@@ -138,6 +140,15 @@ export class MiniPosClient {
       this.token(),
       this.appInstance,
     );
+  }
+  employees() {
+    return json<{ items: Employee[] }>(`${this.baseUrl}/employees`, {}, this.token(), this.appInstance);
+  }
+  createProduct(body: Record<string, unknown>) {
+    return json<Product>(`${this.baseUrl}/products`, { method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }, body: JSON.stringify(body) }, this.token(), this.appInstance);
+  }
+  createEmployee(body: Record<string, unknown>) {
+    return json<Employee>(`${this.baseUrl}/employees`, { method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }, body: JSON.stringify(body) }, this.token(), this.appInstance);
   }
   shifts(employee: string, state = "OPEN") {
     return json<{ items: Shift[] }>(
@@ -260,5 +271,21 @@ export class MiniPosClient {
       this.token(),
       this.appInstance,
     );
+  }
+}
+
+export class EmailAuthClient {
+  constructor(readonly baseUrl: string) {}
+  requestCode(email: string, language: string) {
+    return json<{ sent: boolean; expires_in: number }>(`${this.baseUrl}/auth/request-code`, { method: "POST", body: JSON.stringify({ email, language }) });
+  }
+  verifyCode(email: string, code: string) {
+    return json<VerifyCodeResult>(`${this.baseUrl}/auth/verify-code`, { method: "POST", body: JSON.stringify({ email, code }) });
+  }
+  onboarding(onboardingToken: string, body: { company_name: string; address: string; tax_identifier: string; full_name: string }) {
+    return json<AuthTokens>(`${this.baseUrl}/auth/onboarding`, { method: "POST", body: JSON.stringify({ onboarding_token: onboardingToken, ...body }) });
+  }
+  refresh(refreshToken: string) {
+    return json<AuthTokens>(`${this.baseUrl}/auth/refresh`, { method: "POST", body: JSON.stringify({ refresh_token: refreshToken }) });
   }
 }

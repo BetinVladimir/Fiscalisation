@@ -37,9 +37,9 @@ MiniPOS — полностью автономная система. Запрещ
 
 | Переменная | Описание |
 |---|---|
-| `OIDC_ISSUER` | Issuer OIDC (HTTPS) |
-| `OIDC_AUDIENCE` | Audience токена |
-| `OIDC_JWKS_URL` | URL JWKS endpoint (HTTPS) |
+| `AUTH_HMAC_KEY` | Общий ключ подписи BeeMiniPOS access token, минимум 32 байта |
+| `AUTH_TOKEN_ISSUER` | Issuer собственных BeeMiniPOS-токенов |
+| `RABBITMQ_URL` | Очередь доставки одноразовых email-кодов (`amqps://` в PROD) |
 | `FISCAL_OAUTH_TOKEN_URL` | OAuth 2.0 token endpoint для MiniPOS→Fiscal (HTTPS) |
 | `FISCAL_OAUTH_CLIENT_ID` | Client ID |
 | `FISCAL_OAUTH_CLIENT_SECRET` | Client Secret |
@@ -47,7 +47,7 @@ MiniPOS — полностью автономная система. Запрещ
 | `MINIPOS_SITE` | Публичный HTTPS URL, через который работает Caddy |
 | `MINIPOS_CORS_ALLOWED_ORIGINS` | Разрешённые CORS origins |
 
-> **DEV-запрещено в PROD:** `AUTH_HMAC_KEY`, `FISCAL_AUTH_TOKEN`, `MINIPOS_SITE=:80`,
+> **DEV-запрещено в PROD:** тестовый `AUTH_HMAC_KEY`, `FISCAL_AUTH_TOKEN`, `MINIPOS_SITE=:80`,
 > wildcard CORS. Конфигурационные guards проверяются при старте.
 
 ---
@@ -72,6 +72,24 @@ docker compose -p beeminipos-dev \
 
 ---
 
+## Email OTP авторизация
+
+BeeMiniPOS использует собственный поток авторизации:
+
+1. `POST /public/v1/minipos/auth/request-code` ставит письмо с одноразовым кодом в очередь `beeloy.email.otp`.
+2. Fiscalisation worker получает сообщение из RabbitMQ и отправляет код через SMTP.
+3. `POST /public/v1/minipos/auth/verify-code` возвращает access/refresh tokens либо одноразовый onboarding token.
+4. `POST /public/v1/minipos/auth/onboarding` создаёт компанию и первого пользователя с ролью `ADMIN`.
+5. `POST /public/v1/minipos/auth/refresh` выполняет ротацию refresh token.
+
+Access token действует 15 минут, refresh token — 30 дней. Web-клиент хранит их в `localStorage`, а React Native использует эквивалентное постоянное хранилище `AsyncStorage`.
+
+### Автоматические миграции
+
+При старте `beeminipos-backend` автоматически применяет встроенные SQL-файлы из `internal/migrations/sql`. Выполненные миграции записываются в `minipos_schema_migrations`; checksum предотвращает незаметное изменение уже применённого файла. PostgreSQL advisory lock не позволяет нескольким экземплярам backend выполнять одну миграцию одновременно.
+
+Ошибка миграции блокирует запуск HTTP-сервера. После исправления backend повторяет применение при следующем старте контейнера.
+
 ## Запуск PROD
 
 ```bash
@@ -82,7 +100,7 @@ docker compose -p beeminipos-prod \
   up -d --build
 ```
 
-PROD требует HTTPS Caddy (`MINIPOS_SITE=https://pos.example.com`), внешний OIDC,
+PROD требует HTTPS Caddy (`MINIPOS_SITE=https://pos.example.com`), собственный email OTP auth,
 OAuth 2.0 client credentials и принудительно запрещает все DEV-значения.
 
 ---

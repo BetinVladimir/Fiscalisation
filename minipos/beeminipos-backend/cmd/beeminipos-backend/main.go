@@ -6,6 +6,8 @@ import (
 	"fiscalisation/beeminipos-backend/internal/api"
 	"fiscalisation/beeminipos-backend/internal/config"
 	"fiscalisation/beeminipos-backend/internal/domain"
+	"fiscalisation/beeminipos-backend/internal/emailauth"
+	"fiscalisation/beeminipos-backend/internal/migrations"
 	"fiscalisation/beeminipos-backend/internal/mqttclient"
 	"fiscalisation/beeminipos-backend/internal/persistence"
 	"fiscalisation/beeminipos-backend/internal/startup"
@@ -25,6 +27,11 @@ func main() {
 	if c.DatabaseURL != "" {
 		startupContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
+		if _, e := startup.Retry(startupContext, 500*time.Millisecond, func() (struct{}, error) {
+			return struct{}{}, migrations.Run(startupContext, c.DatabaseURL)
+		}); e != nil {
+			log.Fatal(e)
+		}
 		store, e := startup.Retry(startupContext, 500*time.Millisecond, func() (*persistence.Postgres, error) {
 			return persistence.OpenWithReader(c.DatabaseURL, c.RLSDatabaseURL)
 		})
@@ -44,7 +51,12 @@ func main() {
 	} else {
 		svc.SetFiscalAuthToken(c.FiscalAuthToken)
 	}
-	h := api.New(svc, c)
+	authService, e := emailauth.New(context.Background(), c.DatabaseURL, c.RabbitMQURL, c.AuthHMACKey, c.AuthTokenIssuer, svc)
+	if e != nil {
+		log.Fatal(e)
+	}
+	defer authService.Close()
+	h := api.NewWithEmailAuth(svc, c, authService)
 	s := newHTTPServer(c.HTTPAddr, h)
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()

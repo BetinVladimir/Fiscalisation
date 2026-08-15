@@ -4,6 +4,8 @@ go 1.26.3
 
 require github.com/jackc/pgx/v5 v5.7.6
 
+require github.com/rabbitmq/amqp091-go v1.12.0
+
 require (
 	github.com/eclipse/paho.mqtt.golang v1.5.1
 	github.com/fxamacker/cbor/v2 v2.9.2

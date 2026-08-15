@@ -13,6 +13,7 @@ import (
 	"fiscalisation/fiscal-backend/internal/api"
 	"fiscalisation/fiscal-backend/internal/config"
 	"fiscalisation/fiscal-backend/internal/domain"
+	"fiscalisation/fiscal-backend/internal/emailworker"
 	"fiscalisation/fiscal-backend/internal/mqttclient"
 	"fiscalisation/fiscal-backend/internal/persistence"
 	"fiscalisation/fiscal-backend/internal/startup"
@@ -81,6 +82,7 @@ func main() {
 		defer mqttCleanup()
 	}
 	go webhook.New(svc, cfg.WebhookTargetURL, cfg.WebhookSigningKey).Run(ctx)
+	go emailworker.Run(ctx, cfg, log.Default())
 	go func() {
 		<-ctx.Done()
 		c, cancel := context.WithTimeout(context.Background(), 5*time.Second)

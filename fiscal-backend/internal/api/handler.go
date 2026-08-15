@@ -1997,20 +1997,23 @@ func recoverer(next http.Handler) http.Handler {
 	})
 }
 func cors(allowed string, next http.Handler) http.Handler {
+	wildcard := strings.TrimSpace(allowed) == "*"
 	set := map[string]bool{}
 	for _, v := range strings.Split(allowed, ",") {
 		set[strings.TrimSpace(v)] = true
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		origin := r.Header.Get("Origin")
-		if origin != "" && set[origin] {
-			w.Header().Set("Access-Control-Allow-Origin", origin)
-			w.Header().Set("Vary", "Origin")
+		if wildcard || (origin != "" && set[origin]) {
+			w.Header().Set("Access-Control-Allow-Origin", map[bool]string{true: "*", false: origin}[wildcard])
+			if !wildcard {
+				w.Header().Set("Vary", "Origin")
+			}
 			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Idempotency-Key, If-Match, X-Api-Version, X-Tenant-ID")
 			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
 		}
 		if r.Method == "OPTIONS" {
-			if origin == "" || !set[origin] {
+			if !wildcard && (origin == "" || !set[origin]) {
 				problem(w, 403, "ORIGIN_NOT_ALLOWED")
 				return
 			}

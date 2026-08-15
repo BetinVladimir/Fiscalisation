@@ -3,6 +3,16 @@ services:
     environment:
       APP_ENV: dev
       ALLOW_STUB_ADAPTERS: "true"
+      AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:-dev-only-fiscal-auth-signing-key-32-bytes}"
+      RABBITMQ_URL: "${FISCAL_RABBITMQ_URL:-amqp://fiscal:dev-only-rabbitmq-password@rabbitmq:5672/}"
+      SMTP_HOST: "${SMTP_HOST:-smtp-relay.brevo.com}"
+      SMTP_PORT: "${SMTP_PORT:-587}"
+      SMTP_USER: "${SMTP_USER:-}"
+      SMTP_PASSWORD: "${SMTP_PASSWORD:-}"
+      SMTP_MAILDOMAIN: "${SMTP_MAILDOMAIN:-mail.beeloy.com}"
+      SMTP_FROM: "${SMTP_FROM:-noreply@beeloy.com}"
+      WEBHOOK_SIGNING_KEY: "${WEBHOOK_SIGNING_KEY:-dev-only-fiscal-webhook-key}"
+      EMQX_TOKEN: "${FISCAL_BACKEND_EMQX_TOKEN:-}"
   caddy:
     environment:
       FISCAL_SITE: :80

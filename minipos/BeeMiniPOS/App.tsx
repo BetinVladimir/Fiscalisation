@@ -23,7 +23,7 @@ import {
   requestNativeBlePermissions,
 } from "./src/nativeBle";
 import type { NativeBleBootstrapContract } from "./src/nativeBle";
-import { useOperatorOidc } from "./src/operatorOidc";
+import { useEmailAuth } from "./src/emailAuth";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
 import {
@@ -252,8 +252,10 @@ async function fiscalCloudReachable(path: string): Promise<boolean> {
 export default function App() {
   const connectivity = useRef(new ConnectivityController());
   const checkoutJournal = useRef(new CheckoutJournal());
-  const oidc = useOperatorOidc();
-  runtimeUnauthorized = () => oidc.logout();
+  const emailAuth = useEmailAuth(apiBase);
+  const authText = ({bg:{title:"Вход с имейл",send:"Изпрати код",next:"Продължи",company:"Данни за компанията",companyName:"Наименование",address:"Адрес",tax:"Данъчен идентификатор",fullName:"Вашите имена",create:"Създай компания"},ru:{title:"Вход по email",send:"Отправить код",next:"Продолжить",company:"Данные компании",companyName:"Название",address:"Адрес",tax:"Налоговый идентификатор",fullName:"Ваше ФИО",create:"Создать компанию"},en:{title:"Email sign in",send:"Send code",next:"Continue",company:"Company details",companyName:"Company name",address:"Address",tax:"Tax identifier",fullName:"Your full name",create:"Create company"}} as const)[emailAuth.language];
+  runtimeUnauthorized = () => void emailAuth.logout();
+  const [loginCode,setLoginCode]=useState(""), [companyName,setCompanyName]=useState(""), [companyAddress,setCompanyAddress]=useState(""), [taxIdentifier,setTaxIdentifier]=useState(""), [currentUserName,setCurrentUserName]=useState("");
   const [products, setProducts] = useState<Product[]>([]),
     [employees, setEmployees] = useState<Employee[]>([]),
     [shift, setShift] = useState<Shift | null>(null),
@@ -543,7 +545,7 @@ export default function App() {
     }
   };
   useEffect(() => {
-    if (prodMode && !oidc.accessToken) {
+    if (!emailAuth.accessToken) {
       if (runtimeAuthToken) void revokeActiveBle();
       runtimeAuthToken = "";
       runtimeFiscalToken = "";
@@ -555,10 +557,10 @@ export default function App() {
       setStatus("Влезте с персоналния си профил");
       return;
     }
-    runtimeAuthToken = oidc.accessToken || devAuthToken;
-    runtimeFiscalToken = oidc.accessToken || devFiscalToken;
+    runtimeAuthToken = emailAuth.accessToken;
+    runtimeFiscalToken = emailAuth.accessToken;
     void refresh();
-  }, [oidc.accessToken]);
+  }, [emailAuth.accessToken]);
   useEffect(() => {
     if (!bleBinding) return;
     const remaining = new Date(bleBinding.expires_at).getTime() - Date.now();
@@ -1136,7 +1138,7 @@ export default function App() {
       await call("/operator-session", { method: "POST", body: "{}" });
     } finally {
       clearBleLocal();
-      oidc.logout();
+      await emailAuth.logout();
       runtimeAuthToken = "";
       runtimeFiscalToken = "";
       setOperatorEmployee(null);
@@ -1156,34 +1158,18 @@ export default function App() {
       setStatus(message(e)),
     );
   };
-  if (prodMode && !oidc.accessToken)
+  if (!emailAuth.accessToken)
     return (
       <SafeAreaView style={s.root}>
         <StatusBar style="dark" />
         <View testID="operator-login" style={s.login}>
           <Text style={s.brand}>BeeMiniPOS</Text>
-          <Text style={s.loginTitle}>Персонален вход на оператор</Text>
-          <Text style={s.loginText}>
-            Входът използва OIDC Authorization Code + PKCE. Споделен касиерски
-            профил и избор на служител не са разрешени.
-          </Text>
-          {!oidc.configured ? (
-            <Text style={s.loginError}>
-              OIDC не е конфигуриран: задайте issuer и client ID.
-            </Text>
-          ) : null}
-          {oidc.error ? <Text style={s.loginError}>{oidc.error}</Text> : null}
-          <Pressable
-            testID="operator-login-start"
-            accessibilityRole="button"
-            accessibilityLabel="Влез с персонален профил"
-            accessibilityState={{ disabled: !oidc.ready }}
-            disabled={!oidc.ready}
-            style={s.cash}
-            onPress={() => void oidc.login()}
-          >
-            <Text style={s.payText}>Влез</Text>
-          </Pressable>
+          <Text style={s.loginTitle}>{authText.title}</Text>
+          <View style={s.languageRow}>{(["bg","ru","en"] as const).map(value=><Pressable key={value} style={s.adminButton} onPress={()=>void emailAuth.setLanguage(value)}><Text>{value.toUpperCase()}</Text></Pressable>)}</View>
+          {emailAuth.stage === "email" ? <><TextInput style={s.search} keyboardType="email-address" autoCapitalize="none" placeholder="email@example.com" value={emailAuth.email} onChangeText={emailAuth.setEmail}/><Pressable testID="operator-login-start" style={s.cash} disabled={emailAuth.busy||!emailAuth.email} onPress={()=>void emailAuth.requestCode()}><Text style={s.payText}>{authText.send}</Text></Pressable></> : null}
+          {emailAuth.stage === "code" ? <><TextInput style={s.search} keyboardType="number-pad" maxLength={6} placeholder="000000" value={loginCode} onChangeText={setLoginCode}/><Pressable style={s.cash} disabled={emailAuth.busy||loginCode.length!==6} onPress={()=>void emailAuth.verifyCode(loginCode)}><Text style={s.payText}>{authText.next}</Text></Pressable></> : null}
+          {emailAuth.stage === "onboarding" ? <><Text style={s.loginTitle}>{authText.company}</Text><TextInput style={s.search} placeholder={authText.companyName} value={companyName} onChangeText={setCompanyName}/><TextInput style={s.search} placeholder={authText.address} value={companyAddress} onChangeText={setCompanyAddress}/><TextInput style={s.search} placeholder={authText.tax} value={taxIdentifier} onChangeText={setTaxIdentifier}/><TextInput style={s.search} placeholder={authText.fullName} value={currentUserName} onChangeText={setCurrentUserName}/><Pressable style={s.cash} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName})}><Text style={s.payText}>{authText.create}</Text></Pressable></> : null}
+          {emailAuth.error ? <Text style={s.loginError}>{emailAuth.error}</Text> : null}
         </View>
       </SafeAreaView>
     );
@@ -1566,7 +1552,8 @@ function Admin({
   loadReport,
 }: any) {
   const [orders, setOrders] = useState<Order[]>([]),
-    [reversalStatus, setReversalStatus] = useState("");
+    [reversalStatus, setReversalStatus] = useState(""),
+    [catalogScreen, setCatalogScreen] = useState<"home"|"products"|"product-new"|"employees"|"employee-new">("home");
   const loadOrders = async () => {
     try {
       setOrders(await collect<Order>("/orders"));
@@ -1577,6 +1564,13 @@ function Admin({
   useEffect(() => {
     void loadOrders();
   }, []);
+  if (catalogScreen !== "home") return <ScrollView contentContainerStyle={s.admin}>
+    <Pressable style={s.adminButton} onPress={()=>setCatalogScreen("home")}><Text>← Назад</Text></Pressable>
+    {catalogScreen === "products" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>Товары</Text><Pressable style={s.fab} onPress={()=>setCatalogScreen("product-new")}><Text style={s.fabText}>+</Text></Pressable></View>{products.map((p:Product)=><View key={p.id} style={s.line}><Text>{p.name}</Text><Text>€ {p.price.amount}</Text></View>)}</View>:null}
+    {catalogScreen === "product-new" ? <View style={s.editor}><Text style={s.adminTitle}>Новый товар</Text><TextInput style={s.search} placeholder="Название" value={values.pName} onChangeText={setters.setPName}/><TextInput style={s.search} placeholder="Штрихкод" value={values.pBarcode} onChangeText={setters.setPBarcode}/><TextInput style={s.search} placeholder="Цена EUR" value={values.pPrice} onChangeText={setters.setPPrice}/><Pressable style={s.cash} onPress={async()=>{await createProduct();setCatalogScreen("products");}}><Text style={s.payText}>Сохранить</Text></Pressable></View>:null}
+    {catalogScreen === "employees" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>Сотрудники</Text><Pressable style={s.fab} onPress={()=>setCatalogScreen("employee-new")}><Text style={s.fabText}>+</Text></Pressable></View>{employees.map((e:Employee)=><View key={e.id} style={s.line}><Text>{e.first_name} {e.last_name}</Text><Text>{e.operator_code}</Text></View>)}</View>:null}
+    {catalogScreen === "employee-new" ? <View style={s.editor}><Text style={s.adminTitle}>Новый сотрудник</Text><TextInput style={s.search} placeholder="Имя" value={values.eFirst} onChangeText={setters.setEFirst}/><TextInput style={s.search} placeholder="Фамилия" value={values.eLast} onChangeText={setters.setELast}/><TextInput style={s.search} placeholder="Код оператора" maxLength={4} value={values.eCode} onChangeText={setters.setECode}/><Pressable style={s.cash} onPress={async()=>{await createEmployee();setCatalogScreen("employees");}}><Text style={s.payText}>Сохранить</Text></Pressable></View>:null}
+  </ScrollView>;
   const reverse = async (order: Order) => {
     if (!order.allowed_actions?.includes("REVERSE")) {
       setReversalStatus("Сторното е блокирано: backend не го разрешава");
@@ -1607,6 +1601,7 @@ function Admin({
   return (
     <ScrollView testID="admin-editors" contentContainerStyle={s.admin}>
       <Text style={s.adminTitle}>Минимални редактори и отчети</Text>
+      <View style={s.screenHeading}><Pressable style={s.card} onPress={()=>setCatalogScreen("products")}><Text style={s.payText}>Товары ({products.length})</Text></Pressable><Pressable style={s.card} onPress={()=>setCatalogScreen("employees")}><Text style={s.payText}>Сотрудники ({employees.length})</Text></Pressable></View>
       <View testID="reversal-editor" style={s.editor}>
         <Text style={s.cartTitle}>Сторно на завършена продажба</Text>
         <Text>
@@ -1683,6 +1678,7 @@ function Admin({
           <Text style={s.payText}>Запиши конфигурацията</Text>
         </Pressable>
       </View>
+      {false && <>
       <View style={s.editor}>
         <Text style={s.cartTitle}>Продукт ({products.length})</Text>
         <TextInput
@@ -1724,7 +1720,7 @@ function Admin({
         <Text style={s.cartTitle}>Служител ({employees.length})</Text>
         {production ? (
           <Text style={s.loginText}>
-            Активният оператор идва само от OIDC сесията; изборът на друг
+            Активният оператор идва от личната email сесия; изборът на друг
             служител е забранен.
           </Text>
         ) : null}
@@ -1782,6 +1778,7 @@ function Admin({
           <Text style={s.payText}>Добави служител</Text>
         </Pressable>
       </View>
+      </>}
       <View style={s.editor}>
         <Text style={s.cartTitle}>Търговски отчет</Text>
         <Pressable
@@ -1836,14 +1833,14 @@ function message(e: unknown) {
   return e instanceof Error ? e.message : String(e);
 }
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#f3f1ea" },
+  root: { flex: 1, backgroundColor: "#f7f1ee" },
   login: {
     alignSelf: "center",
     width: "90%",
     maxWidth: 520,
     marginTop: 80,
     padding: 28,
-    backgroundColor: "white",
+    backgroundColor: "#fffaf7",
     borderRadius: 16,
     gap: 18,
   },
@@ -1855,6 +1852,7 @@ const s = StyleSheet.create({
     marginBottom: 10,
   },
   loginError: { fontSize: 15, color: "#9a2f24", fontWeight: "700" },
+  languageRow: { flexDirection: "row", gap: 8 },
   top: {
     padding: 18,
     flexDirection: "row",
@@ -1879,18 +1877,18 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   shift: {
-    backgroundColor: "#39453e",
+    backgroundColor: "#9bb0a4",
     padding: 12,
     borderRadius: 10,
     minHeight: 48,
     justifyContent: "center",
   },
-  shiftOpen: { backgroundColor: "#99573f" },
+  shiftOpen: { backgroundColor: "#c99f91" },
   shiftText: { color: "white", fontWeight: "700" },
   body: { flex: 1, flexDirection: "row" },
   catalog: { flex: 3, padding: 16 },
   search: {
-    backgroundColor: "white",
+    backgroundColor: "#fffaf7",
     borderWidth: 1,
     borderColor: "#d8d4c7",
     borderRadius: 12,
@@ -1911,7 +1909,7 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
   },
   productName: { fontSize: 19, fontWeight: "700" },
-  price: { fontSize: 22, fontWeight: "800", color: "#17613a" },
+  price: { fontSize: 22, fontWeight: "800", color: "#668b78" },
   tax: { color: "#777" },
   cart: {
     flex: 2,
@@ -1980,7 +1978,7 @@ const s = StyleSheet.create({
   },
   split: {
     flex: 2,
-    backgroundColor: "#6c4d9a",
+    backgroundColor: "#aa9cbb",
     padding: 14,
     borderRadius: 12,
     alignItems: "center",
@@ -1990,7 +1988,7 @@ const s = StyleSheet.create({
   payRow: { flexDirection: "row", gap: 10 },
   cash: {
     flex: 1,
-    backgroundColor: "#17613a",
+    backgroundColor: "#8fac9b",
     padding: 18,
     borderRadius: 12,
     alignItems: "center",
@@ -1999,7 +1997,7 @@ const s = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: "#174a61",
+    backgroundColor: "#91aabd",
     padding: 18,
     borderRadius: 12,
     alignItems: "center",
@@ -2011,7 +2009,7 @@ const s = StyleSheet.create({
     padding: 12,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#17251d",
+    backgroundColor: "#68766f",
   },
   dot: {
     width: 10,
@@ -2024,8 +2022,11 @@ const s = StyleSheet.create({
   status: { color: "white", fontWeight: "600", flex: 1 },
   admin: { padding: 20, gap: 16 },
   adminTitle: { fontSize: 24, fontWeight: "800" },
+  screenHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12 },
+  fab: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#a7c4b5", alignItems: "center", justifyContent: "center" },
+  fabText: { fontSize: 28, color: "#33443b" },
   editor: {
-    backgroundColor: "white",
+    backgroundColor: "#fffaf7",
     padding: 18,
     borderRadius: 14,
     maxWidth: 620,
