@@ -1,10 +1,11 @@
 FROM node:22.18.0-alpine AS build
-WORKDIR /app
-COPY package*.json ./
+WORKDIR /app/miniposweb
+COPY miniposweb/package*.json ./
 RUN npm install --ignore-scripts --no-audit --no-fund
-COPY . .
+COPY miniposweb/ ./
+COPY imgs/background.png ../imgs/background.png
 RUN npm run build
 RUN npm run deployment
 FROM caddy:2.10.0-alpine
-COPY --from=build /app/dist /srv
-COPY Caddyfile /etc/caddy/Caddyfile
+COPY --from=build /app/miniposweb/dist /srv
+COPY miniposweb/Caddyfile /etc/caddy/Caddyfile

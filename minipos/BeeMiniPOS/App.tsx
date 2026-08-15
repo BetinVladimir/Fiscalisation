@@ -1,6 +1,7 @@
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
+  Image,
   Platform,
   Pressable,
   SafeAreaView,
@@ -1160,8 +1161,14 @@ export default function App() {
   };
   if (!emailAuth.accessToken)
     return (
-      <SafeAreaView style={s.root}>
+      <SafeAreaView style={[s.root, s.authRoot]}>
         <StatusBar style="dark" />
+        <Image
+          accessibilityIgnoresInvertColors
+          source={require("../imgs/background.png")}
+          resizeMode="cover"
+          style={s.authBackground}
+        />
         <View testID="operator-login" style={s.login}>
           <Text style={s.brand}>BeeMiniPOS</Text>
           <Text style={s.loginTitle}>{authText.title}</Text>
@@ -1834,6 +1841,20 @@ function message(e: unknown) {
 }
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#f7f1ee" },
+  authRoot: {
+    width: "100%",
+    minHeight: "100%",
+    alignItems: "center",
+    overflow: "hidden",
+  },
+  authBackground: {
+    position: "absolute",
+    top: 0,
+    bottom: 0,
+    left: 0,
+    aspectRatio: 1680 / 945,
+    opacity: 0.7,
+  },
   login: {
     alignSelf: "center",
     width: "90%",

@@ -13,7 +13,9 @@ services:
     networks: [private]
     depends_on: {postgres: {condition: service_healthy}}
   miniposweb:
-    build: ./minipos/miniposweb
+    build:
+      context: ./minipos
+      dockerfile: miniposweb/Dockerfile
     restart: unless-stopped
     networks: [private]
   caddy:

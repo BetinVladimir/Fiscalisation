@@ -18,7 +18,7 @@ export function AuthFlow({ backend, onAuthenticated }: { backend: string; onAuth
   const t = copy[language];
   const save = (tokens: AuthTokens) => { localStorage.setItem("minipos-access-token", tokens.access_token); localStorage.setItem("minipos-refresh-token", tokens.refresh_token); onAuthenticated(tokens); };
   async function run(action: () => Promise<void>) { setBusy(true); setError(""); try { await action(); } catch (e) { setError(e instanceof Error ? e.message : String(e)); } finally { setBusy(false); } }
-  return <main><section className="login auth-card">
+  return <main className="auth-shell"><section className="login auth-card">
     <div className="auth-heading"><h1>{t.title}</h1><select aria-label="Language" value={language} onChange={e => { const value=e.target.value as Language; setLanguage(value); localStorage.setItem("minipos-language", value); }}><option value="bg">Български</option><option value="ru">Русский</option><option value="en">English</option></select></div>
     {stage === "email" && <><label>{t.email}<input type="email" autoComplete="email" value={email} onChange={e=>setEmail(e.target.value)} /></label><button disabled={busy || !email} onClick={()=>run(async()=>{ await auth.requestCode(email, language); setStage("code"); })}>{t.send}</button></>}
     {stage === "code" && <><p>{email}</p><label>{t.code}<input inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/\D/g,""))} /></label><button disabled={busy || code.length!==6} onClick={()=>run(async()=>{ const result=await auth.verifyCode(email,code); if(result.onboarding_required){ setOnboardingToken(result.onboarding_token || ""); setStage("onboarding"); } else save(result); })}>{t.verify}</button></>}

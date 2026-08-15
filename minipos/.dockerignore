@@ -1,0 +1,7 @@
+BeeMiniPOS
+beeminipos-backend
+PROMT.md
+miniposweb/node_modules
+miniposweb/dist
+imgs/*
+!imgs/background.png
