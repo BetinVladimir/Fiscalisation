@@ -1,4 +1,8 @@
 services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: "${FISCAL_DB_PASSWORD:?required}"
+      FISCAL_RLS_DB_PASSWORD: "${FISCAL_RLS_DB_PASSWORD:?required}"
   emqx:
     environment:
       EMQX_DASHBOARD__DEFAULT_PASSWORD: "${EMQX_DASHBOARD_PASSWORD:?required}"

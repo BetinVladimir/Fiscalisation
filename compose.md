@@ -177,6 +177,29 @@ docker compose \
   config
 ```
 
+```bash
+docker compose \
+  -f compose.minipos.yaml \
+  -f compose.minipos.dev.yaml \
+  config
+```
+
+Запуск:
+
+```bash
+docker compose \
+  -f compose.fiscalisation.yaml \
+  -f compose.fiscalisation.dev.yaml \
+  up -d
+```
+
+```bash
+docker compose \
+  -f compose.minipos.yaml \
+  -f compose.minipos.dev.yaml \
+  up -d
+```
+
 Аналогичные проверки dev- и production-комбинаций входят в цель `compose-check` в `Makefile`.
 
 

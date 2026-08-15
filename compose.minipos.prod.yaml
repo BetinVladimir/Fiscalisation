@@ -1,4 +1,8 @@
 services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: "${MINIPOS_DB_PASSWORD:?required}"
+      MINIPOS_RLS_DB_PASSWORD: "${MINIPOS_RLS_DB_PASSWORD:?required}"
   beeminipos-backend:
     environment:
       APP_ENV: prod
@@ -7,6 +11,7 @@ services:
       OIDC_ISSUER: "${OIDC_ISSUER:?required}"
       OIDC_AUDIENCE: "${OIDC_AUDIENCE:?required}"
       OIDC_JWKS_URL: "${OIDC_JWKS_URL:?required}"
+      FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:?required}"
       FISCAL_AUTH_TOKEN: ""
       FISCAL_OAUTH_TOKEN_URL: "${FISCAL_OAUTH_TOKEN_URL:?required}"
       FISCAL_OAUTH_CLIENT_ID: "${FISCAL_OAUTH_CLIENT_ID:?required}"

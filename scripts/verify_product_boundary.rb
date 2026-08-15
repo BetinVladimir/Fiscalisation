@@ -2,13 +2,15 @@
 root = File.expand_path("..", __dir__)
 fiscal = File.read(File.join(root, "compose.fiscalisation.yaml"))
 minipos = File.read(File.join(root, "compose.minipos.yaml"))
+minipos_prod = File.read(File.join(root, "compose.minipos.prod.yaml"))
 
 abort "Compose product names must be independent" unless fiscal.include?("name: beefiscal-") && minipos.include?("name: beeminipos-")
 abort "MiniPOS Compose crossed into Fiscal private services" if minipos.match?(/^\s{2}fiscal-backend:/) || minipos.include?("database/fiscal")
 abort "Fiscal Compose crossed into MiniPOS private services" if fiscal.match?(/^\s{2}beeminipos-backend:/) || fiscal.include?("database/minipos")
 abort "MiniPOS database ownership drift" unless minipos.include?("/minipos?sslmode=disable") && minipos.include?("./database/minipos:")
 abort "Fiscal database ownership drift" unless fiscal.include?("/fiscal?sslmode=disable") && fiscal.include?("./database/fiscal:")
-abort "MiniPOS must receive only FISCAL_PUBLIC_BASE_URL" unless minipos.include?('FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:?required}"')
+abort "MiniPOS must receive only FISCAL_PUBLIC_BASE_URL" unless minipos.include?('FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:-http://localhost:8080/public/v1}"')
+abort "MiniPOS PROD must require FISCAL_PUBLIC_BASE_URL" unless minipos_prod.include?('FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:?required}"')
 
 def service_block(body, service)
   match = body.match(/^  #{Regexp.escape(service)}:\n(?<block>.*?)(?=^  [a-zA-Z0-9_-]+:\n|^networks:)/m)
