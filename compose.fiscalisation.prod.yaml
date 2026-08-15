@@ -18,6 +18,8 @@ services:
       PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:?required}"
       CORS_ALLOWED_ORIGINS: "*"
       AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:?required}"
+      INTEGRATION_SECRET_PEPPER: "${INTEGRATION_SECRET_PEPPER:?required}"
+      INTEGRATION_ENCRYPTION_KEY_BASE64: "${INTEGRATION_ENCRYPTION_KEY_BASE64:?required}"
       RABBITMQ_URL: "${FISCAL_RABBITMQ_URL:?required}"
       SMTP_HOST: "${SMTP_HOST:-smtp-relay.brevo.com}"
       SMTP_USER: "${SMTP_USER:?required}"

@@ -19,6 +19,7 @@ type Claims struct {
 	Roles     []string `json:"roles"`
 	Scope     string   `json:"scope"`
 	ExpiresAt int64    `json:"exp"`
+	JTI       string   `json:"jti,omitempty"`
 }
 type key struct{}
 
@@ -27,6 +28,9 @@ func Middleware(secret string, next http.Handler) http.Handler {
 	return MiddlewareWithOIDC(secret, nil, next)
 }
 func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) http.Handler {
+	return MiddlewareWithOIDCAndRevocation(secret, oidc, nil, next)
+}
+func MiddlewareWithOIDCAndRevocation(secret string, oidc *OIDCVerifier, revoked func(context.Context, string) bool, next http.Handler) http.Handler {
 	if secret == "" && oidc == nil {
 		return next
 	}
@@ -52,6 +56,10 @@ func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) ht
 			c, e = Parse(raw, []byte(secret), time.Now())
 		}
 		if e != nil {
+			http.Error(w, "unauthorized", http.StatusUnauthorized)
+			return
+		}
+		if c.JTI != "" && revoked != nil && revoked(r.Context(), c.JTI) {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
 			return
 		}
@@ -105,7 +113,7 @@ func Allowed(c Claims, method, path string) bool {
 		return hasAny(c, "MANUFACTURING_STATION")
 	}
 	if strings.HasPrefix(path, "/platform/v1/") {
-		return hasAny(c, "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN") && (method == http.MethodGet || hasAny(c, "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN"))
+		return hasAny(c, "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN", "PLATFORM_INTEGRATION_ADMIN") && (method == http.MethodGet || hasAny(c, "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN", "PLATFORM_INTEGRATION_ADMIN"))
 	}
 	if strings.HasPrefix(path, "/public/v1/device-activation-requests") {
 		return hasAny(c, "ADMIN")
@@ -187,12 +195,12 @@ func Parse(raw string, secret []byte, now time.Time) (Claims, error) {
 }
 
 func validateClaims(c Claims, now time.Time) error {
-	platform := hasAny(c, "MANUFACTURING_STATION", "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN")
+	platform := hasAny(c, "MANUFACTURING_STATION", "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN", "PLATFORM_INTEGRATION_ADMIN")
 	if c.Subject == "" || (!platform && c.TenantID == "") || len(c.Roles) == 0 || c.ExpiresAt <= now.Unix() {
 		return errors.New("expired or incomplete")
 	}
 	for _, role := range c.Roles {
-		if !hasAny(Claims{Roles: []string{role}}, "CASHIER", "SUPERVISOR", "ADMIN", "AUDITOR", "SERVICE", "MANUFACTURING_STATION", "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN") {
+		if !hasAny(Claims{Roles: []string{role}}, "CASHIER", "SUPERVISOR", "ADMIN", "AUDITOR", "SERVICE", "MANUFACTURING_STATION", "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN", "PLATFORM_INTEGRATION_ADMIN") {
 			return errors.New("unknown role")
 		}
 	}

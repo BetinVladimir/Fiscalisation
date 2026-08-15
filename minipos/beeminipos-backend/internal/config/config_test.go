@@ -15,7 +15,7 @@ func TestSplitCSV(t *testing.T) {
 }
 
 func TestProdGuards(t *testing.T) {
-	base := Config{AppEnv: "prod", DatabaseURL: "postgres://writer@db/minipos", RLSDatabaseURL: "postgres://reader@db/minipos", FiscalBaseURL: "https://fiscal.example/public/v1", CORSAllowedOrigins: "https://pos.example", WebhookVerificationKey: strings.Repeat("w", 32), AuthHMACKey: strings.Repeat("a", 32), RabbitMQURL: "amqps://rabbit.example", OAuthTokenURL: "https://id.example/token", OAuthClientID: "minipos", OAuthClientSecret: "production-secret-32-bytes", OAuthScope: "fiscal.base", LocalTokenSigningKeyPEM: "configured-by-secret-store", LocalTokenSigningKID: "local-2026-01", LocalTokenIssuer: "https://pos.example"}
+	base := Config{AppEnv: "prod", DatabaseURL: "postgres://writer@db/minipos", RLSDatabaseURL: "postgres://reader@db/minipos", FiscalBaseURL: "https://fiscal.example/public/v1", CORSAllowedOrigins: "https://pos.example", WebhookVerificationKey: strings.Repeat("w", 32), AuthHMACKey: strings.Repeat("a", 32), RabbitMQURL: "amqps://rabbit.example", OAuthTokenURL: "https://id.example/token", OAuthClientID: "minipos", OAuthClientSecret: "production-secret-32-bytes", OAuthScope: "fiscal.base", LocalTokenSigningKeyPEM: "configured-by-secret-store", LocalTokenSigningKID: "local-2026-01", LocalTokenIssuer: "https://pos.example", FiscalSystemToken: "sys_live_configured", FiscalCredentialEncryptionKeyBase64: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=", FiscalCredentialKEKID: "vault/minipos/fiscal", SMTPHost: "smtp.example", SMTPFrom: "noreply@example", SMTPPort: 587}
 	if e := base.Validate(); e != nil {
 		t.Fatal(e)
 	}
@@ -40,9 +40,9 @@ func TestProdGuards(t *testing.T) {
 		t.Fatal("non-origin CORS URL accepted")
 	}
 	x = base
-	x.OAuthClientSecret = ""
+	x.FiscalSystemToken = ""
 	if x.Validate() == nil {
-		t.Fatal("missing OAuth secret accepted")
+		t.Fatal("missing Fiscal system token accepted")
 	}
 	x = base
 	x.FiscalAuthToken = "static"

@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/base64"
 	"errors"
 	"log"
 	"net/http"
@@ -13,7 +14,7 @@ import (
 	"fiscalisation/fiscal-backend/internal/api"
 	"fiscalisation/fiscal-backend/internal/config"
 	"fiscalisation/fiscal-backend/internal/domain"
-	"fiscalisation/fiscal-backend/internal/emailworker"
+	"fiscalisation/fiscal-backend/internal/integration"
 	"fiscalisation/fiscal-backend/internal/mqttclient"
 	"fiscalisation/fiscal-backend/internal/persistence"
 	"fiscalisation/fiscal-backend/internal/startup"
@@ -26,10 +27,12 @@ func main() {
 		log.Fatal(err)
 	}
 	repo := domain.Repository(domain.NewMemoryRepository())
-	var emailJournal emailworker.Journal
 	if cfg.DatabaseURL != "" {
 		startupContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
+		if e := persistence.RunMigrations(startupContext, cfg.DatabaseURL); e != nil {
+			log.Fatal(e)
+		}
 		store, e := startup.Retry(startupContext, 500*time.Millisecond, func() (*persistence.Postgres, error) {
 			return persistence.OpenWithReader(cfg.DatabaseURL, cfg.RLSDatabaseURL)
 		})
@@ -37,7 +40,6 @@ func main() {
 			log.Fatal(e)
 		}
 		defer store.Close()
-		emailJournal = store
 		persistent, e := domain.NewPersistentRepository(store)
 		if e != nil {
 			log.Fatal(e)
@@ -73,9 +75,33 @@ func main() {
 		}
 		svc.SetDeviceCredentialIssuer(issuer)
 	}
-	srv := &http.Server{Addr: cfg.HTTPAddr, Handler: api.NewHandler(svc, cfg), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
+	var integrationService *integration.Service
+	var integrationHTTP http.Handler
+	if cfg.DatabaseURL != "" {
+		key, decodeErr := base64.StdEncoding.DecodeString(cfg.IntegrationEncryptionKeyBase64)
+		if decodeErr != nil {
+			log.Fatal(decodeErr)
+		}
+		var integrationErr error
+		integrationService, integrationErr = integration.New(cfg.DatabaseURL, []byte(cfg.IntegrationSecretPepper), key)
+		if integrationErr != nil {
+			log.Fatal(integrationErr)
+		}
+		defer integrationService.Close()
+		integrationService.SetAppSigningKey([]byte(cfg.AuthHMACKey))
+		integrationHTTP = &integration.HTTPHandler{Service: integrationService, PublicBaseURL: cfg.PublicBaseURL}
+	}
+	var revoked func(context.Context, string) bool
+	if integrationService != nil {
+		revoked = integrationService.IsAppTokenRevoked
+	}
+	srv := &http.Server{Addr: cfg.HTTPAddr, Handler: api.NewHandlerWithIntegrationRevocation(svc, cfg, integrationHTTP, revoked), ReadHeaderTimeout: 5 * time.Second, ReadTimeout: 15 * time.Second, WriteTimeout: 30 * time.Second, IdleTimeout: 60 * time.Second}
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
+	if integrationService != nil {
+		go integrationService.RunEmailWorker(ctx, integration.SMTPConfig{Host: cfg.SMTPHost, Port: cfg.SMTPPort, User: cfg.SMTPUser, Password: cfg.SMTPPassword, From: cfg.SMTPFrom})
+		go integrationService.RunRabbit(ctx, cfg.RabbitMQURL, nil)
+	}
 	mqttCleanup, err := mqttclient.Start(ctx, cfg, log.Default(), svc, mqttBridge)
 	if err != nil {
 		log.Fatal(err)
@@ -84,7 +110,6 @@ func main() {
 		defer mqttCleanup()
 	}
 	go webhook.New(svc, cfg.WebhookTargetURL, cfg.WebhookSigningKey).Run(ctx)
-	go emailworker.Run(ctx, cfg, log.Default(), emailJournal)
 	go func() {
 		<-ctx.Done()
 		c, cancel := context.WithTimeout(context.Background(), 5*time.Second)

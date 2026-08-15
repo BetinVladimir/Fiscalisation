@@ -15,7 +15,7 @@ func TestSplitCSV(t *testing.T) {
 }
 
 func TestProdGuards(t *testing.T) {
-	base := Config{AppEnv: "prod", PublicBaseURL: "https://fiscal.example/public/v1", CORSAllowedOrigins: "https://admin.example,https://pos.example", DatabaseURL: "postgres://writer@db/fiscal", RLSDatabaseURL: "postgres://reader@db/fiscal", WebhookSigningKey: strings.Repeat("w", 32), AuthHMACKey: strings.Repeat("a", 32), OIDCIssuer: "https://id.example", OIDCAudience: "beefiscal", OIDCJWKSURL: "https://id.example/jwks", BLESigningKey: strings.Repeat("b", 32), RabbitMQURL: "amqps://rabbit.example", SMTPHost: "smtp.example", SMTPUser: "user", SMTPPassword: "secret", SMTPFrom: "noreply@example", SMTPPort: 587, DeviceCACertFile: "/run/secrets/device-ca.crt", DeviceCAKeyFile: "/run/secrets/device-ca.key", DeviceMQTTTLSURI: "ssl://mqtt.example:8883", LocalTokenIssuer: "https://pos.example", LocalTokenSigningKID: "local-2026-01", LocalTokenPublicKeyDERBase64: "configured-key", SPADeploymentDescriptorURL: "https://pos.example/.well-known/beeloy-pos-deployment.json", SPADeploymentSigningKID: "release-2026-01", SPADeploymentPublicKeyDERBase64: "configured-key"}
+	base := Config{AppEnv: "prod", PublicBaseURL: "https://fiscal.example/public/v1", CORSAllowedOrigins: "https://admin.example,https://pos.example", DatabaseURL: "postgres://writer@db/fiscal", RLSDatabaseURL: "postgres://reader@db/fiscal", WebhookSigningKey: strings.Repeat("w", 32), AuthHMACKey: strings.Repeat("a", 32), OIDCIssuer: "https://id.example", OIDCAudience: "beefiscal", OIDCJWKSURL: "https://id.example/jwks", BLESigningKey: strings.Repeat("b", 32), RabbitMQURL: "amqps://rabbit.example", SMTPHost: "smtp.example", SMTPUser: "user", SMTPPassword: "secret", SMTPFrom: "noreply@example", SMTPPort: 587, DeviceCACertFile: "/run/secrets/device-ca.crt", DeviceCAKeyFile: "/run/secrets/device-ca.key", DeviceMQTTTLSURI: "ssl://mqtt.example:8883", LocalTokenIssuer: "https://pos.example", LocalTokenSigningKID: "local-2026-01", LocalTokenPublicKeyDERBase64: "configured-key", SPADeploymentDescriptorURL: "https://pos.example/.well-known/beeloy-pos-deployment.json", SPADeploymentSigningKID: "release-2026-01", SPADeploymentPublicKeyDERBase64: "configured-key", IntegrationSecretPepper: strings.Repeat("p", 32), IntegrationEncryptionKeyBase64: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="}
 	if e := base.Validate(); e != nil {
 		t.Fatal(e)
 	}
@@ -53,6 +53,11 @@ func TestProdGuards(t *testing.T) {
 	x.AuthHMACKey = "dev-key"
 	if x.Validate() == nil {
 		t.Fatal("weak HMAC auth accepted in PROD")
+	}
+	x = base
+	x.IntegrationSecretPepper = "dev-key"
+	if x.Validate() == nil {
+		t.Fatal("weak integration pepper accepted in PROD")
 	}
 	x = base
 	x.OIDCJWKSURL = ""

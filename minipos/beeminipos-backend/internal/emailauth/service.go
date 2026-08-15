@@ -7,10 +7,11 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/hex"
-	"encoding/json"
 	"errors"
 	"fmt"
 	"net/mail"
+	"net/smtp"
+	"strconv"
 	"strings"
 	"time"
 
@@ -18,17 +19,15 @@ import (
 	"fiscalisation/beeminipos-backend/internal/domain"
 	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgxpool"
-	"github.com/rabbitmq/amqp091-go"
 )
 
-const queueName = "beeloy.email.otp"
-
 type Service struct {
-	db        *pgxpool.Pool
-	rabbitURL string
-	secret    []byte
-	issuer    string
-	app       *domain.Service
+	db                                         *pgxpool.Pool
+	secret                                     []byte
+	issuer                                     string
+	app                                        *domain.Service
+	smtpHost, smtpUser, smtpPassword, smtpFrom string
+	smtpPort                                   int
 }
 
 type Tokens struct {
@@ -50,9 +49,9 @@ type Onboarding struct {
 	FullName      string `json:"full_name"`
 }
 
-func New(ctx context.Context, databaseURL, rabbitURL, signingKey, issuer string, app *domain.Service) (*Service, error) {
-	if databaseURL == "" || rabbitURL == "" || len(signingKey) < 32 {
-		return nil, errors.New("email auth requires DATABASE_URL, RABBITMQ_URL and TOKEN_SIGNING_KEY (32+ bytes)")
+func New(ctx context.Context, databaseURL, signingKey, issuer string, app *domain.Service) (*Service, error) {
+	if databaseURL == "" || len(signingKey) < 32 {
+		return nil, errors.New("email auth requires DATABASE_URL and TOKEN_SIGNING_KEY (32+ bytes)")
 	}
 	db, err := pgxpool.New(ctx, databaseURL)
 	if err != nil {
@@ -62,7 +61,60 @@ func New(ctx context.Context, databaseURL, rabbitURL, signingKey, issuer string,
 		db.Close()
 		return nil, err
 	}
-	return &Service{db: db, rabbitURL: rabbitURL, secret: []byte(signingKey), issuer: issuer, app: app}, nil
+	return &Service{db: db, secret: []byte(signingKey), issuer: issuer, app: app}, nil
+}
+
+func (s *Service) ConfigureSMTP(host string, port int, user, password, from string) {
+	s.smtpHost = host
+	s.smtpPort = port
+	s.smtpUser = user
+	s.smtpPassword = password
+	s.smtpFrom = from
+}
+func (s *Service) RunEmailWorker(ctx context.Context) {
+	ticker := time.NewTicker(time.Second)
+	defer ticker.Stop()
+	for {
+		select {
+		case <-ctx.Done():
+			return
+		case <-ticker.C:
+			_ = s.deliverOne(ctx)
+		}
+	}
+}
+func (s *Service) deliverOne(ctx context.Context) error {
+	if s.smtpHost == "" || s.smtpFrom == "" {
+		return nil
+	}
+	tx, e := s.db.Begin(ctx)
+	if e != nil {
+		return e
+	}
+	defer tx.Rollback(ctx)
+	var id, to, subject, body string
+	e = tx.QueryRow(ctx, `with picked as (select id from minipos_email_outbox where status in ('PENDING','FAILED') and available_at<=now() and (lease_until is null or lease_until<now()) order by available_at,id for update skip locked limit 1) update minipos_email_outbox o set status='SENDING',lease_until=now()+interval '30 seconds',updated_at=now() from picked where o.id=picked.id returning o.id::text,o.recipient,o.subject,o.body_text`).Scan(&id, &to, &subject, &body)
+	if errors.Is(e, pgx.ErrNoRows) {
+		return tx.Commit(ctx)
+	}
+	if e != nil {
+		return e
+	}
+	if e = tx.Commit(ctx); e != nil {
+		return e
+	}
+	message := []byte("From: " + s.smtpFrom + "\r\nTo: " + to + "\r\nSubject: " + subject + "\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body)
+	var auth smtp.Auth
+	if s.smtpUser != "" {
+		auth = smtp.PlainAuth("", s.smtpUser, s.smtpPassword, s.smtpHost)
+	}
+	e = smtp.SendMail(s.smtpHost+":"+strconv.Itoa(s.smtpPort), auth, s.smtpFrom, []string{to}, message)
+	if e != nil {
+		_, _ = s.db.Exec(ctx, `update minipos_email_outbox set status='FAILED',attempts=attempts+1,available_at=now()+least(interval '1 hour',interval '30 seconds'*(attempts+1)),lease_until=null,last_error=$2,updated_at=now() where id=$1`, id, e.Error())
+		return e
+	}
+	_, e = s.db.Exec(ctx, `update minipos_email_outbox set status='SENT',sent_at=now(),lease_until=null,last_error=null,updated_at=now() where id=$1`, id)
+	return e
 }
 
 func (s *Service) Close() { s.db.Close() }
@@ -119,28 +171,23 @@ func (s *Service) RequestCode(ctx context.Context, email, language string) error
 		return err
 	}
 	hash := digest(challenge + ":" + code + ":" + string(s.secret))
-	if _, err = s.db.Exec(ctx, `insert into minipos_auth_challenges(id,email,code_hash,expires_at) values($1,$2,$3,now()+interval '10 minutes')`, challenge, email, hash); err != nil {
-		return err
-	}
-	payload, _ := json.Marshal(map[string]string{"to": email, "code": code, "language": language})
-	conn, err := amqp091.Dial(s.rabbitURL)
+	tx, err := s.db.Begin(ctx)
 	if err != nil {
 		return err
 	}
-	defer conn.Close()
-	channel, err := conn.Channel()
-	if err != nil {
+	defer tx.Rollback(ctx)
+	if _, err = tx.Exec(ctx, `insert into minipos_auth_challenges(id,email,code_hash,expires_at) values($1,$2,$3,now()+interval '10 minutes')`, challenge, email, hash); err != nil {
 		return err
 	}
-	defer channel.Close()
-	if _, err = channel.QueueDeclare(queueName, true, false, false, false, nil); err != nil {
+	subject := "MiniPOS sign-in code"
+	body := "Your MiniPOS sign-in code is: " + code
+	if language != "" {
+		body += "\nLanguage: " + language
+	}
+	if _, err = tx.Exec(ctx, `insert into minipos_email_outbox(purpose,recipient,subject,body_text,status) values('MINIPOS_LOGIN_OTP',$1,$2,$3,'PENDING')`, email, subject, body); err != nil {
 		return err
 	}
-	if err = channel.PublishWithContext(ctx, "", queueName, false, false, amqp091.Publishing{ContentType: "application/json", DeliveryMode: amqp091.Persistent, Body: payload}); err != nil {
-		_, _ = s.db.Exec(ctx, `delete from minipos_auth_challenges where id=$1`, challenge)
-		return err
-	}
-	return nil
+	return tx.Commit(ctx)
 }
 
 func (s *Service) VerifyCode(ctx context.Context, email, code string) (VerifyResult, error) {

@@ -43,3 +43,6 @@ func safeHTTPClient() *http.Client {
 		},
 	}
 }
+
+// SafeHTTPClient is shared by every outbound webhook transport.
+func SafeHTTPClient() *http.Client { return safeHTTPClient() }

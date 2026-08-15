@@ -16,6 +16,7 @@ type Config struct {
 	DeviceCACertFile, DeviceCAKeyFile, DeviceMQTTTLSURI, DeviceMQTTWSSURI                                                                                                                                string
 	LocalTokenIssuer, LocalTokenSigningKID, LocalTokenPublicKeyDERBase64                                                                                                                                 string
 	SPADeploymentDescriptorURL, SPADeploymentSigningKID, SPADeploymentPublicKeyDERBase64                                                                                                                 string
+	IntegrationSecretPepper, IntegrationEncryptionKeyBase64                                                                                                                                              string
 	EMQXSubTopics                                                                                                                                                                                        []string
 	AllowStubAdapters, SimulatorCardTerminalAvailable                                                                                                                                                    bool
 }
@@ -30,6 +31,7 @@ func Load() Config {
 		DeviceCACertFile: os.Getenv("DEVICE_CA_CERT_FILE"), DeviceCAKeyFile: os.Getenv("DEVICE_CA_KEY_FILE"), DeviceMQTTTLSURI: os.Getenv("DEVICE_MQTT_TLS_URI"), DeviceMQTTWSSURI: os.Getenv("DEVICE_MQTT_WSS_URI"),
 		LocalTokenIssuer: os.Getenv("LOCAL_FISCAL_TOKEN_ISSUER"), LocalTokenSigningKID: os.Getenv("LOCAL_FISCAL_TOKEN_SIGNING_KID"), LocalTokenPublicKeyDERBase64: os.Getenv("LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64"),
 		SPADeploymentDescriptorURL: os.Getenv("SPA_DEPLOYMENT_DESCRIPTOR_URL"), SPADeploymentSigningKID: os.Getenv("SPA_DEPLOYMENT_SIGNING_KID"), SPADeploymentPublicKeyDERBase64: os.Getenv("SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64"),
+		IntegrationSecretPepper: getenv("INTEGRATION_SECRET_PEPPER", "dev-only-integration-pepper-32-bytes"), IntegrationEncryptionKeyBase64: getenv("INTEGRATION_ENCRYPTION_KEY_BASE64", "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="),
 		AllowStubAdapters: strings.EqualFold(getenv("ALLOW_STUB_ADAPTERS", "true"), "true"), SimulatorCardTerminalAvailable: strings.EqualFold(getenv("SIMULATOR_CARD_TERMINAL_AVAILABLE", "false"), "true"),
 	}
 }
@@ -69,6 +71,9 @@ func (c Config) Validate() error {
 	}
 	if c.AppEnv == "prod" && (c.RabbitMQURL == "" || c.SMTPHost == "" || c.SMTPUser == "" || c.SMTPPassword == "" || c.SMTPFrom == "" || c.SMTPPort < 1) {
 		return errors.New("RabbitMQ and SMTP configuration required in PROD")
+	}
+	if c.AppEnv == "prod" && (len(c.IntegrationSecretPepper) < 32 || strings.Contains(c.IntegrationSecretPepper, "dev-") || c.IntegrationEncryptionKeyBase64 == "") {
+		return errors.New("strong integration pepper and encryption key required in PROD")
 	}
 	if c.AppEnv == "prod" && (len(c.AuthHMACKey) < 32 || strings.Contains(c.AuthHMACKey, "dev-")) {
 		return errors.New("strong AUTH_HMAC_KEY required in PROD for BeeMiniPOS tokens")

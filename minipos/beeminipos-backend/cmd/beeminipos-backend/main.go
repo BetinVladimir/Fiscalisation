@@ -7,6 +7,7 @@ import (
 	"fiscalisation/beeminipos-backend/internal/config"
 	"fiscalisation/beeminipos-backend/internal/domain"
 	"fiscalisation/beeminipos-backend/internal/emailauth"
+	"fiscalisation/beeminipos-backend/internal/fiscalintegration"
 	"fiscalisation/beeminipos-backend/internal/migrations"
 	"fiscalisation/beeminipos-backend/internal/mqttclient"
 	"fiscalisation/beeminipos-backend/internal/persistence"
@@ -51,15 +52,25 @@ func main() {
 	} else {
 		svc.SetFiscalAuthToken(c.FiscalAuthToken)
 	}
-	authService, e := emailauth.New(context.Background(), c.DatabaseURL, c.RabbitMQURL, c.AuthHMACKey, c.AuthTokenIssuer, svc)
+	authService, e := emailauth.New(context.Background(), c.DatabaseURL, c.AuthHMACKey, c.AuthTokenIssuer, svc)
 	if e != nil {
 		log.Fatal(e)
 	}
 	defer authService.Close()
-	h := api.NewWithEmailAuth(svc, c, authService)
+	authService.ConfigureSMTP(c.SMTPHost, c.SMTPPort, c.SMTPUser, c.SMTPPassword, c.SMTPFrom)
+	var fiscalClient *fiscalintegration.Client
+	if c.DatabaseURL != "" && c.FiscalSystemToken != "" && c.FiscalCredentialEncryptionKeyBase64 != "" {
+		fiscalClient, e = fiscalintegration.New(c.DatabaseURL, c.FiscalBaseURL, c.FiscalSystemToken, c.FiscalCredentialEncryptionKeyBase64, c.FiscalCredentialKEKID)
+		if e != nil {
+			log.Fatal(e)
+		}
+		defer fiscalClient.Close()
+	}
+	h := api.NewWithIntegrations(svc, c, authService, fiscalClient)
 	s := newHTTPServer(c.HTTPAddr, h)
 	ctx, stop := signal.NotifyContext(context.Background(), syscall.SIGINT, syscall.SIGTERM)
 	defer stop()
+	go authService.RunEmailWorker(ctx)
 	mqttCleanup, err := mqttclient.Start(ctx, c, log.Default())
 	if err != nil {
 		log.Fatal(err)

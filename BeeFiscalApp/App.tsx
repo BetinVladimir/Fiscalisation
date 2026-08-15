@@ -17,7 +17,7 @@ import {
   registerCollectionPath,
   registerResourcePath,
 } from "./src/registerFilter";
-import { useAdminOidc } from "./src/adminOidc";
+import { useEmailOtpAuth } from "./src/emailOtpAuth";
 
 const base = (
   process.env.EXPO_PUBLIC_FISCAL_API_URL || "http://localhost:8080/public/v1"
@@ -72,7 +72,7 @@ const label = (v: unknown) =>
 export default function App() {
   // Token roles are reduced to explicit UI capabilities. The backend remains
   // authoritative; these guards prevent presenting accidental admin paths.
-  const oidc = useAdminOidc();
+  const oidc = useEmailOtpAuth();
   const roles = prodMode ? oidc.roles : ["ADMIN", "SUPERVISOR", "AUDITOR"];
   const hasRole = (...allowed: string[]) =>
     roles.some((role) => allowed.includes(role));
@@ -681,26 +681,16 @@ export default function App() {
         <View testID="admin-login" style={s.login}>
           <Text style={s.loginTitle}>BeeFiscal • административен вход</Text>
           <Text style={s.loginText}>
-            OIDC Authorization Code + PKCE. Публични статични токени са
-            забранени в production build.
+            Вход с код по email. Доступ разрешён только ранее зарегистрированным пользователям Fiscal.
           </Text>
-          {!oidc.configured ? (
-            <Text style={s.loginError}>
-              OIDC не е конфигуриран: задайте issuer и client ID.
-            </Text>
-          ) : null}
           {oidc.error ? <Text style={s.loginError}>{oidc.error}</Text> : null}
-          <Pressable
-            testID="admin-login-start"
-            accessibilityRole="button"
-            accessibilityLabel="Влез с административен профил"
-            accessibilityState={{ disabled: !oidc.ready }}
-            disabled={!oidc.ready}
-            style={s.loginButton}
-            onPress={() => void oidc.login()}
-          >
-            <Text style={s.loginButtonText}>Влез</Text>
-          </Pressable>
+          {!oidc.temporary ? <>
+            <TextInput style={s.input} placeholder="Email" autoCapitalize="none" keyboardType="email-address" value={oidc.email} onChangeText={oidc.setEmail}/>
+            <Pressable testID="admin-login-start" accessibilityRole="button" disabled={!oidc.ready||!oidc.email} style={s.loginButton} onPress={() => void oidc.requestCode()}><Text style={s.loginButtonText}>Получить код</Text></Pressable>
+          </> : oidc.tenants.length === 0 ? <>
+            <TextInput style={s.input} placeholder="Код из email" keyboardType="number-pad" value={oidc.code} onChangeText={oidc.setCode}/>
+            <Pressable accessibilityRole="button" disabled={!oidc.ready||oidc.code.length!==6} style={s.loginButton} onPress={() => void oidc.verifyCode()}><Text style={s.loginButtonText}>Подтвердить</Text></Pressable>
+          </> : <View style={{gap:8}}><Text style={s.loginText}>Выберите компанию</Text>{oidc.tenants.map(t=><Pressable key={t.tenant_id} style={s.loginButton} onPress={()=>void oidc.selectTenant(t.tenant_id)}><Text style={s.loginButtonText}>{t.display_name}</Text></Pressable>)}</View>}
         </View>
       </SafeAreaView>
     );
@@ -724,6 +714,7 @@ export default function App() {
         >
           <Text style={s.readyText}>{core}</Text>
         </View>
+        {prodMode && oidc.tenants.length > 1 ? <View style={s.actions}>{oidc.tenants.map(t=><Pressable key={t.tenant_id} disabled={t.tenant_id===oidc.currentTenant?.tenant_id} style={s.logout} onPress={()=>{setItems([]);setSelected(null);setAdminLists({locations:[],registers:[],operators:[],devices:[]});void oidc.switchTenant(t.tenant_id)}}><Text style={s.readyText}>{t.display_name}</Text></Pressable>)}</View>:null}
         {prodMode ? (
           <Pressable
             testID="admin-logout"
@@ -732,7 +723,7 @@ export default function App() {
             style={s.logout}
             onPress={() => {
               runtimeAuthToken = "";
-              oidc.logout();
+              void oidc.logout();
             }}
           >
             <Text style={s.readyText}>Излез</Text>

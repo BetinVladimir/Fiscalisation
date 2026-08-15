@@ -8,6 +8,12 @@ services:
       APP_ENV: dev
       AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:-dev-only-minipos-auth-signing-key-32-bytes}"
       RABBITMQ_URL: "${MINIPOS_RABBITMQ_URL:-amqp://fiscal:dev-only-rabbitmq-password@host.docker.internal:5673/}"
+      FISCAL_SYSTEM_TOKEN: "${FISCAL_SYSTEM_TOKEN:-}"
+      FISCAL_CREDENTIAL_ENCRYPTION_KEY_BASE64: "${FISCAL_CREDENTIAL_ENCRYPTION_KEY_BASE64:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
+      FISCAL_CREDENTIAL_KEK_ID: "${FISCAL_CREDENTIAL_KEK_ID:-dev/minipos/fiscal}"
+      SMTP_HOST: "${MINIPOS_SMTP_HOST:-host.docker.internal}"
+      SMTP_PORT: "${MINIPOS_SMTP_PORT:-25}"
+      SMTP_FROM: "${MINIPOS_SMTP_FROM:-noreply@beeloy.com}"
       FISCAL_AUTH_TOKEN: "${FISCAL_AUTH_TOKEN:-}"
       FISCAL_OAUTH_CLIENT_SECRET: "${FISCAL_OAUTH_CLIENT_SECRET:-}"
       WEBHOOK_VERIFICATION_KEY: "${WEBHOOK_VERIFICATION_KEY:-dev-only-fiscal-webhook-key}"

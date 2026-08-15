@@ -126,6 +126,18 @@ func typedWebhookCreated(v map[string]any) (webhookCreatedResponse, error) {
 }
 
 func NewHandler(s *domain.Service, c config.Config) http.Handler {
+	return newHandler(s, c, nil, nil)
+}
+
+func NewHandlerWithIntegration(s *domain.Service, c config.Config, integrationHandler http.Handler) http.Handler {
+	return newHandler(s, c, integrationHandler, nil)
+}
+
+func NewHandlerWithIntegrationRevocation(s *domain.Service, c config.Config, integrationHandler http.Handler, revoked func(context.Context, string) bool) http.Handler {
+	return newHandler(s, c, integrationHandler, revoked)
+}
+
+func newHandler(s *domain.Service, c config.Config, integrationHandler http.Handler, revoked func(context.Context, string) bool) http.Handler {
 	h := &Handler{s, c}
 	m := http.NewServeMux()
 	m.HandleFunc("/connectivity/ping", h.ping)
@@ -172,11 +184,20 @@ func NewHandler(s *domain.Service, c config.Config) http.Handler {
 	m.HandleFunc("/platform/v1/manufacturing/devices:register", h.manufacturingDeviceRegister)
 	m.HandleFunc("/platform/v1/devices", h.platformDevices)
 	m.HandleFunc("/platform/v1/devices/", h.platformDevice)
+	if integrationHandler != nil {
+		m.Handle("/platform/v1/external-systems", integrationHandler)
+		m.Handle("/platform/v1/external-systems/", integrationHandler)
+		m.Handle("/platform/v1/webhook-deliveries/", integrationHandler)
+	}
 	oidc := auth.NewOIDCVerifier(c.OIDCIssuer, c.OIDCAudience, c.OIDCJWKSURL)
-	business := auth.MiddlewareWithOIDC(c.AuthHMACKey, oidc, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, enforceSuccessResponses(fiscalIdempotency(s, m))))))
+	business := auth.MiddlewareWithOIDCAndRevocation(c.AuthHMACKey, oidc, revoked, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, enforceSuccessResponses(fiscalIdempotency(s, m))))))
 	pingLimiter := &requestLimiter{limit: 120, window: time.Minute, now: time.Now, entries: make(map[string]rateWindow)}
 	pingRoute := pingLimiter.middlewareAll(http.HandlerFunc(h.ping))
 	root := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if integrationHandler != nil && (strings.HasPrefix(r.URL.Path, "/integration/v1/") || strings.HasPrefix(r.URL.Path, "/public/v1/app-auth/")) {
+			integrationHandler.ServeHTTP(w, r)
+			return
+		}
 		if r.URL.Path == "/connectivity/ping" || r.URL.Path == "/public/v1/connectivity/ping" {
 			pingRoute.ServeHTTP(w, r)
 			return

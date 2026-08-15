@@ -12,6 +12,7 @@ import (
 	"fiscalisation/beeminipos-backend/internal/config"
 	"fiscalisation/beeminipos-backend/internal/domain"
 	"fiscalisation/beeminipos-backend/internal/emailauth"
+	"fiscalisation/beeminipos-backend/internal/fiscalintegration"
 	"fmt"
 	"io"
 	"net/http"
@@ -24,13 +25,17 @@ type handler struct {
 	s *domain.Service
 	c config.Config
 	a *emailauth.Service
+	f *fiscalintegration.Client
 }
 
 func New(s *domain.Service, c config.Config) http.Handler {
 	return NewWithEmailAuth(s, c, nil)
 }
 func NewWithEmailAuth(s *domain.Service, c config.Config, email *emailauth.Service) http.Handler {
-	h := &handler{s: s, c: c, a: email}
+	return NewWithIntegrations(s, c, email, nil)
+}
+func NewWithIntegrations(s *domain.Service, c config.Config, email *emailauth.Service, fiscal *fiscalintegration.Client) http.Handler {
+	h := &handler{s: s, c: c, a: email, f: fiscal}
 	m := http.NewServeMux()
 	m.HandleFunc("/livez", h.health)
 	m.HandleFunc("/readyz", h.health)
@@ -64,6 +69,10 @@ func NewWithEmailAuth(s *domain.Service, c config.Config, email *emailauth.Servi
 	m.HandleFunc("/public/v1/minipos/reports/sales", h.salesReport)
 	m.HandleFunc("/public/v1/fiscal-webhooks", h.webhook)
 	m.HandleFunc("/public/v1/minipos/configuration", h.configuration)
+	m.HandleFunc("/public/v1/minipos/fiscal-enrollment", h.fiscalEnrollment)
+	m.HandleFunc("/public/v1/minipos/fiscal-enrollment:verify", h.fiscalEnrollmentVerify)
+	m.HandleFunc("/public/v1/minipos/fiscal-credential-recovery", h.fiscalCredentialRecovery)
+	m.HandleFunc("/public/v1/minipos/fiscal-credential-recovery:verify", h.fiscalCredentialRecoveryVerify)
 	protected := auth.MiddlewareWithRevocation(c.AuthHMACKey, func(claims auth.Claims) bool {
 		return s.OperatorSessionRevoked(claims.TenantID, claims.TokenHash)
 	}, rateLimit(600, time.Minute, apiVersion(c.APIVersion, enforceSuccessResponses(idempotency(s, m)))))
@@ -74,6 +83,89 @@ func NewWithEmailAuth(s *domain.Service, c config.Config, email *emailauth.Servi
 	root.HandleFunc("/public/v1/minipos/auth/refresh", h.refresh)
 	root.Handle("/", protected)
 	return cors(c.CORSAllowedOrigins, root)
+}
+
+func (h *handler) fiscalCredentialRecovery(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || h.f == nil {
+		problem(w, http.StatusNotFound, "Fiscal integration unavailable")
+		return
+	}
+	var in struct {
+		Email      string `json:"email"`
+		TaxCountry string `json:"tax_country"`
+		TaxType    string `json:"tax_type"`
+		TaxValue   string `json:"tax_value"`
+	}
+	if json.NewDecoder(io.LimitReader(r.Body, 1<<20)).Decode(&in) != nil {
+		problem(w, http.StatusBadRequest, "invalid JSON")
+		return
+	}
+	out, e := h.f.StartRecovery(r.Context(), tenantID(r), r.Header.Get("Idempotency-Key"), in.Email, in.TaxCountry, in.TaxType, in.TaxValue)
+	if e != nil {
+		problem(w, http.StatusBadGateway, e.Error())
+		return
+	}
+	write(w, http.StatusAccepted, out)
+}
+
+func (h *handler) fiscalCredentialRecoveryVerify(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || h.f == nil {
+		problem(w, http.StatusNotFound, "Fiscal integration unavailable")
+		return
+	}
+	var in struct {
+		Code                   string `json:"code"`
+		RecoveryIdempotencyKey string `json:"recovery_idempotency_key"`
+	}
+	if json.NewDecoder(io.LimitReader(r.Body, 1<<20)).Decode(&in) != nil {
+		problem(w, http.StatusBadRequest, "invalid JSON")
+		return
+	}
+	out, e := h.f.VerifyRecovery(r.Context(), tenantID(r), in.RecoveryIdempotencyKey, in.Code)
+	if e != nil {
+		problem(w, http.StatusBadGateway, e.Error())
+		return
+	}
+	write(w, http.StatusOK, out)
+}
+
+func (h *handler) fiscalEnrollment(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || h.f == nil {
+		problem(w, http.StatusNotFound, "not found")
+		return
+	}
+	var input fiscalintegration.Enrollment
+	if !decode(w, r, &input) {
+		return
+	}
+	if input.SourceCompanyID == "" {
+		input.SourceCompanyID = tenantID(r)
+	}
+	out, err := h.f.Start(r.Context(), tenantID(r), r.Header.Get("Idempotency-Key"), input)
+	if err != nil {
+		problem(w, http.StatusBadGateway, err.Error())
+		return
+	}
+	write(w, http.StatusAccepted, out)
+}
+func (h *handler) fiscalEnrollmentVerify(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost || h.f == nil {
+		problem(w, http.StatusNotFound, "not found")
+		return
+	}
+	var input struct {
+		EnrollmentIdempotencyKey string `json:"enrollment_idempotency_key"`
+		Code                     string `json:"code"`
+	}
+	if !decode(w, r, &input) {
+		return
+	}
+	out, err := h.f.Verify(r.Context(), tenantID(r), input.EnrollmentIdempotencyKey, input.Code)
+	if err != nil {
+		problem(w, http.StatusUnprocessableEntity, err.Error())
+		return
+	}
+	write(w, http.StatusOK, out)
 }
 
 func (h *handler) requestCode(w http.ResponseWriter, r *http.Request) {
@@ -184,7 +276,32 @@ func (h *handler) configuration(w http.ResponseWriter, r *http.Request) {
 		problem(w, http.StatusConflict, err.Error())
 		return
 	}
+	if err = h.syncFiscal(r, "locations", result.LocationID, result.Version, map[string]any{"name": result.LocationName, "address": result.LocationAddress, "status": "ACTIVE"}, "-location"); err != nil {
+		problem(w, http.StatusBadGateway, err.Error())
+		return
+	}
+	if err = h.syncFiscal(r, "registers", result.FiscalRegisterID, result.Version, map[string]any{"location_source_id": result.LocationID, "name": result.WorkstationName, "status": "ACTIVE"}, "-register"); err != nil {
+		problem(w, http.StatusBadGateway, err.Error())
+		return
+	}
 	write(w, http.StatusOK, result)
+}
+
+func (h *handler) syncFiscal(r *http.Request, resource, sourceID string, version int64, payload any, suffix string) error {
+	if h.f == nil {
+		return nil
+	}
+	claims, ok := auth.ClaimsFrom(r.Context())
+	actorType, actorID, session := "SERVICE", "minipos-backend", ""
+	if ok {
+		actorType, actorID, session = "USER", claims.Subject, claims.TokenHash
+	}
+	key := r.Header.Get("Idempotency-Key") + suffix
+	if sourceID == "" || len(key) < 16 {
+		return errors.New("Fiscal synchronization metadata missing")
+	}
+	_, err := h.f.PutResource(r.Context(), tenantID(r), resource, sourceID, key, version, actorType, actorID, session, payload)
+	return err
 }
 
 type capturedResponse struct {
@@ -333,8 +450,37 @@ func (h *handler) webhook(w http.ResponseWriter, r *http.Request) {
 		problem(w, 400, "invalid body")
 		return
 	}
-	if !validWebhookSignature(r.Header.Get("BeeFiscal-Signature"), b, []byte(h.c.WebhookVerificationKey), time.Now().UTC()) {
+	verificationKey := []byte(h.c.WebhookVerificationKey)
+	if r.Header.Get("BeeFiscal-Source-System-Id") != "" && h.c.FiscalSystemToken != "" {
+		m := hmac.New(sha256.New, []byte(h.c.FiscalSystemToken))
+		m.Write([]byte("beefiscal-webhook-signing-v1"))
+		verificationKey = m.Sum(nil)
+	}
+	if !validWebhookSignature(r.Header.Get("BeeFiscal-Signature"), b, verificationKey, time.Now().UTC()) {
 		problem(w, 401, "invalid signature")
+		return
+	}
+	var integrationEvent struct {
+		EventID        string         `json:"event_id"`
+		EventType      string         `json:"event_type"`
+		SourceSystemID string         `json:"source_system_id"`
+		TenantID       string         `json:"tenant_id"`
+		OperationID    string         `json:"operation_id"`
+		SourceEntityID string         `json:"source_entity_id"`
+		SourceVersion  int64          `json:"source_version"`
+		Status         string         `json:"status"`
+		Result         map[string]any `json:"result"`
+	}
+	if json.Unmarshal(b, &integrationEvent) == nil && integrationEvent.EventType == "integration.command.updated" {
+		if h.f == nil || integrationEvent.EventID == "" || integrationEvent.SourceSystemID == "" || integrationEvent.TenantID == "" || integrationEvent.OperationID == "" || integrationEvent.SourceEntityID == "" || integrationEvent.SourceVersion < 1 || r.Header.Get("BeeFiscal-Event-Id") != integrationEvent.EventID || r.Header.Get("BeeFiscal-Source-System-Id") != integrationEvent.SourceSystemID {
+			problem(w, http.StatusBadRequest, "INVALID_INTEGRATION_WEBHOOK")
+			return
+		}
+		if e = h.f.ProcessWebhook(r.Context(), integrationEvent.EventID, integrationEvent.SourceSystemID, integrationEvent.TenantID, integrationEvent.OperationID, integrationEvent.SourceEntityID, integrationEvent.Status, integrationEvent.SourceVersion, integrationEvent.Result); e != nil {
+			problem(w, http.StatusConflict, e.Error())
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 	var v struct {
@@ -557,6 +703,10 @@ func (h *handler) employees(w http.ResponseWriter, r *http.Request) {
 			problem(w, 422, e.Error())
 			return
 		}
+		if e = h.syncFiscal(r, "operators", x.ID, x.Version, x, "-operator"); e != nil {
+			problem(w, http.StatusBadGateway, e.Error())
+			return
+		}
 		write(w, 201, x)
 		return
 	}
@@ -625,6 +775,10 @@ func (h *handler) employee(w http.ResponseWriter, r *http.Request) {
 		x, e := h.s.UpdateEmployeeForTenant(id, expected, v, tenantID(r))
 		if e != nil {
 			problem(w, 409, e.Error())
+			return
+		}
+		if e = h.syncFiscal(r, "operators", x.ID, x.Version, x, "-operator"); e != nil {
+			problem(w, http.StatusBadGateway, e.Error())
 			return
 		}
 		write(w, 200, x)

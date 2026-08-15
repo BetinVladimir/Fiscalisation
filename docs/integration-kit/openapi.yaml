@@ -1,0 +1,135 @@
+openapi: 3.1.0
+info:
+  title: BeeFiscal External Systems API
+  version: 2026-08-16
+servers:
+  - url: https://fiscal.example.com
+paths:
+  /integration/v1/enrollments:
+    post:
+      operationId: startEnrollment
+      security: [{systemToken: []}]
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/EnrollmentRequest'}}}}
+      responses:
+        '202': {description: OTP challenge created, content: {application/json: {schema: {$ref: '#/components/schemas/EnrollmentChallenge'}}}}
+        '400': {$ref: '#/components/responses/Error'}
+        '401': {$ref: '#/components/responses/Error'}
+        '409': {$ref: '#/components/responses/Error'}
+  /integration/v1/enrollments:verify:
+    post:
+      operationId: verifyEnrollment
+      security: [{temporaryToken: []}]
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: false, required: [code], properties: {code: {type: string, pattern: '^[0-9]{6}$'}}}}}}
+      responses:
+        '200': {description: Tenant binding and reveal-once credential, content: {application/json: {schema: {$ref: '#/components/schemas/EnrollmentResult'}}}}
+        '401': {$ref: '#/components/responses/Error'}
+        '409': {$ref: '#/components/responses/Error'}
+  /integration/v1/credentials:recover:
+    post:
+      operationId: startCredentialRecovery
+      security: [{systemToken: []}]
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/CredentialRecoveryRequest'}}}}
+      responses:
+        '202': {description: Generic OTP recovery challenge, content: {application/json: {schema: {$ref: '#/components/schemas/EnrollmentChallenge'}}}}
+        '401': {$ref: '#/components/responses/Error'}
+        '429': {$ref: '#/components/responses/Error'}
+  /integration/v1/credentials:recover-verify:
+    post:
+      operationId: verifyCredentialRecovery
+      security: [{recoveryToken: []}]
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: false, required: [code], properties: {code: {type: string, pattern: '^[0-9]{6}$'}}}}}}
+      responses:
+        '200': {description: Rotated reveal-once tenant credential, content: {application/json: {schema: {$ref: '#/components/schemas/EnrollmentResult'}}}}
+        '401': {$ref: '#/components/responses/Error'}
+  /integration/v1/organization:
+    put:
+      operationId: putOrganization
+      security: [{tenantToken: []}]
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}, {$ref: '#/components/parameters/SourceVersion'}, {$ref: '#/components/parameters/ActorType'}, {$ref: '#/components/parameters/ActorId'}]
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: true}}}}
+      responses: {'202': {$ref: '#/components/responses/Accepted'}, '400': {$ref: '#/components/responses/Error'}, '401': {$ref: '#/components/responses/Error'}, '409': {$ref: '#/components/responses/Error'}}
+  /integration/v1/locations/{source_id}:
+    parameters: [{$ref: '#/components/parameters/SourceId'}]
+    put: {$ref: '#/components/pathItems/ResourcePut'}
+    delete: {$ref: '#/components/pathItems/ResourceDelete'}
+  /integration/v1/registers/{source_id}:
+    parameters: [{$ref: '#/components/parameters/SourceId'}]
+    put: {$ref: '#/components/pathItems/ResourcePut'}
+    delete: {$ref: '#/components/pathItems/ResourceDelete'}
+  /integration/v1/operators/{source_id}:
+    parameters: [{$ref: '#/components/parameters/SourceId'}]
+    put: {$ref: '#/components/pathItems/ResourcePut'}
+    delete: {$ref: '#/components/pathItems/ResourceDelete'}
+  /integration/v1/operations/{operation_id}:
+    get:
+      operationId: getIntegrationOperation
+      security: [{tenantToken: []}]
+      parameters: [{name: operation_id, in: path, required: true, schema: {type: string, format: uuid}}]
+      responses:
+        '200': {description: Operation state, content: {application/json: {schema: {$ref: '#/components/schemas/Operation'}}}}
+        '401': {$ref: '#/components/responses/Error'}
+        '404': {$ref: '#/components/responses/Error'}
+webhooks:
+  integrationCommandUpdated:
+    post:
+      parameters:
+        - {name: BeeFiscal-Event-Id, in: header, required: true, schema: {type: string, format: uuid}}
+        - {name: BeeFiscal-Source-System-Id, in: header, required: true, schema: {type: string, format: uuid}}
+        - {name: BeeFiscal-Delivery-Id, in: header, required: true, schema: {type: string, format: uuid}}
+        - {name: BeeFiscal-Signature, in: header, required: true, schema: {type: string}}
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/WebhookEvent'}}}}
+      responses: {'204': {description: Accepted and durably deduplicated}}
+components:
+  securitySchemes:
+    systemToken: {type: http, scheme: bearer, bearerFormat: 'sys_live_<id>.<secret>'}
+    temporaryToken: {type: http, scheme: bearer, bearerFormat: 'enroll_tmp_<id>.<secret>'}
+    recoveryToken: {type: http, scheme: bearer, bearerFormat: 'recover_tmp_<id>.<secret>'}
+    tenantToken: {type: http, scheme: bearer, bearerFormat: 'tenant_live_<id>.<secret>'}
+  parameters:
+    IdempotencyKey: {name: Idempotency-Key, in: header, required: true, schema: {type: string, minLength: 16, maxLength: 255}}
+    SourceVersion: {name: Source-Version, in: header, required: true, schema: {type: integer, minimum: 1}}
+    ActorType: {name: BeeFiscal-Source-Actor-Type, in: header, required: true, schema: {type: string, enum: [USER, SERVICE]}}
+    ActorId: {name: BeeFiscal-Source-Actor-Id, in: header, required: true, schema: {type: string, minLength: 1, maxLength: 255}}
+    SourceId: {name: source_id, in: path, required: true, schema: {type: string, minLength: 1, maxLength: 255}}
+  pathItems:
+    ResourcePut:
+      security: [{tenantToken: []}]
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}, {$ref: '#/components/parameters/SourceVersion'}, {$ref: '#/components/parameters/ActorType'}, {$ref: '#/components/parameters/ActorId'}]
+      requestBody: {required: true, content: {application/json: {schema: {type: object, additionalProperties: true}}}}
+      responses: {'202': {$ref: '#/components/responses/Accepted'}, '400': {$ref: '#/components/responses/Error'}, '401': {$ref: '#/components/responses/Error'}, '409': {$ref: '#/components/responses/Error'}}
+    ResourceDelete:
+      security: [{tenantToken: []}]
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}, {$ref: '#/components/parameters/SourceVersion'}, {$ref: '#/components/parameters/ActorType'}, {$ref: '#/components/parameters/ActorId'}]
+      responses: {'202': {$ref: '#/components/responses/Accepted'}, '400': {$ref: '#/components/responses/Error'}, '401': {$ref: '#/components/responses/Error'}, '409': {$ref: '#/components/responses/Error'}}
+  responses:
+    Accepted: {description: Durably accepted, content: {application/json: {schema: {$ref: '#/components/schemas/AcceptedOperation'}}}}
+    Error: {description: Stable error, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
+  schemas:
+    TaxIdentifier:
+      type: object
+      additionalProperties: false
+      required: [country, type, value]
+      properties: {country: {type: string, pattern: '^[A-Z]{2}$'}, type: {type: string, pattern: '^[A-Z][A-Z0-9_-]{1,62}$'}, value: {type: string, minLength: 3, maxLength: 128}}
+    EnrollmentRequest:
+      type: object
+      additionalProperties: false
+      required: [email, source_company_id, company]
+      properties:
+        email: {type: string, format: email}
+        source_company_id: {type: string, minLength: 1, maxLength: 255}
+        company:
+          type: object
+          additionalProperties: false
+          required: [legal_name, tax_identifier]
+          properties: {legal_name: {type: string}, tax_identifier: {$ref: '#/components/schemas/TaxIdentifier'}, address: {type: string}}
+    EnrollmentChallenge: {type: object, required: [temporary_token, expires_at, resend_after], properties: {temporary_token: {type: string}, expires_at: {type: string, format: date-time}, resend_after: {type: string, format: date-time}}}
+    CredentialRecoveryRequest: {type: object, additionalProperties: false, required: [email, tax_identifier], properties: {email: {type: string, format: email}, tax_identifier: {$ref: '#/components/schemas/TaxIdentifier'}}}
+    EnrollmentResult: {type: object, required: [tenant_id, source_system_id, source_company_id, access_token, token_type, scopes], properties: {tenant_id: {type: string, format: uuid}, source_system_id: {type: string, format: uuid}, source_company_id: {type: string}, access_token: {type: string, writeOnly: true}, token_type: {const: Bearer}, scopes: {type: array, items: {type: string}}}}
+    AcceptedOperation: {type: object, required: [operation_id, status, status_url, accepted_at], properties: {operation_id: {type: string, format: uuid}, status: {const: ACCEPTED}, status_url: {type: string, format: uri}, accepted_at: {type: string, format: date-time}}}
+    Operation: {type: object, required: [operation_id, status, resource_type, source_entity_id, source_version], properties: {operation_id: {type: string, format: uuid}, status: {type: string, enum: [ACCEPTED, QUEUED, PROCESSING, SUCCEEDED, FAILED, DEAD, SUPERSEDED]}, resource_type: {type: string}, source_entity_id: {type: string}, source_version: {type: integer}, result: {type: object}}}
+    WebhookEvent: {type: object, required: [event_id, event_type, source_system_id, tenant_id, operation_id, status, occurred_at], properties: {event_id: {type: string, format: uuid}, event_type: {const: integration.command.updated}, source_system_id: {type: string, format: uuid}, tenant_id: {type: string, format: uuid}, operation_id: {type: string, format: uuid}, resource_type: {type: string}, source_entity_id: {type: string}, source_version: {type: integer}, status: {type: string}, result: {type: object}, error: {type: [object, 'null']}, occurred_at: {type: string, format: date-time}}}
+    Error: {type: object, required: [error], properties: {error: {type: object, required: [code, message], properties: {code: {type: string}, message: {type: string}}}}}
