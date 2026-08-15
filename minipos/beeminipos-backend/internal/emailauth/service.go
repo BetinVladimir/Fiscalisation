@@ -178,8 +178,11 @@ func (s *Service) VerifyCode(ctx context.Context, email, code string) (VerifyRes
 
 func splitName(full string) (string, string, error) {
 	parts := strings.Fields(full)
-	if len(parts) < 2 {
+	if len(parts) == 0 {
 		return "", "", errors.New("full name is required")
+	}
+	if len(parts) == 1 {
+		return parts[0], "", nil
 	}
 	return parts[0], strings.Join(parts[1:], " "), nil
 }

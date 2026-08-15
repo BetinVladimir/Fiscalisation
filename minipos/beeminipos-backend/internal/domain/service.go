@@ -1537,7 +1537,7 @@ func validUUID(v string) bool {
 	return true
 }
 func validEmployee(v Employee) bool {
-	if v.FirstName == "" || v.LastName == "" || len(v.OperatorCode) != 4 || (v.Status != "" && v.Status != "ACTIVE" && v.Status != "INACTIVE") {
+	if strings.TrimSpace(v.FirstName) == "" || len(v.OperatorCode) != 4 || (v.Status != "" && v.Status != "ACTIVE" && v.Status != "INACTIVE") {
 		return false
 	}
 	for _, c := range v.OperatorCode {

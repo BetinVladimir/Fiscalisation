@@ -19,13 +19,19 @@ const queueName = "beeloy.email.otp"
 
 type message struct{ To, Code, Language string }
 
-func Run(ctx context.Context, cfg config.Config, logger *log.Logger) {
-	if cfg.RabbitMQURL == "" || cfg.SMTPHost == "" {
+type Journal interface {
+	BeginOutboundEmail(context.Context, string, string, string) (string, error)
+	MarkOutboundEmailSent(context.Context, string) error
+	MarkOutboundEmailFailed(context.Context, string, string) error
+}
+
+func Run(ctx context.Context, cfg config.Config, logger *log.Logger, journal Journal) {
+	if cfg.RabbitMQURL == "" || cfg.SMTPHost == "" || journal == nil {
 		logger.Print("email worker disabled")
 		return
 	}
 	for ctx.Err() == nil {
-		if err := consume(ctx, cfg, logger); err != nil {
+		if err := consume(ctx, cfg, logger, journal); err != nil {
 			logger.Printf("email worker: %v", err)
 		}
 		select {
@@ -36,7 +42,7 @@ func Run(ctx context.Context, cfg config.Config, logger *log.Logger) {
 	}
 }
 
-func consume(ctx context.Context, cfg config.Config, logger *log.Logger) error {
+func consume(ctx context.Context, cfg config.Config, logger *log.Logger, journal Journal) error {
 	conn, err := amqp091.Dial(cfg.RabbitMQURL)
 	if err != nil {
 		return err
@@ -71,17 +77,30 @@ func consume(ctx context.Context, cfg config.Config, logger *log.Logger) error {
 				_ = delivery.Reject(false)
 				continue
 			}
-			if err = send(cfg, value); err != nil {
-				logger.Printf("OTP email to %s failed: %v", mask(value.To), err)
+			subject, body := compose(cfg, value)
+			recordID, journalErr := journal.BeginOutboundEmail(ctx, value.To, subject, body)
+			if journalErr != nil {
+				logger.Printf("OTP email to %s was not sent because journaling failed: %v", mask(value.To), journalErr)
 				_ = delivery.Nack(false, true)
 				continue
+			}
+			if err = send(cfg, value.To, body); err != nil {
+				logger.Printf("OTP email to %s failed: %v", mask(value.To), err)
+				if updateErr := journal.MarkOutboundEmailFailed(ctx, recordID, err.Error()); updateErr != nil {
+					logger.Printf("OTP email %s failure status update failed: %v", recordID, updateErr)
+				}
+				_ = delivery.Nack(false, true)
+				continue
+			}
+			if updateErr := markSent(ctx, journal, recordID); updateErr != nil {
+				logger.Printf("OTP email %s sent, but status update failed: %v", recordID, updateErr)
 			}
 			_ = delivery.Ack(false)
 		}
 	}
 }
 
-func send(cfg config.Config, value message) error {
+func compose(cfg config.Config, value message) (string, string) {
 	subject, intro := "Your BeeMiniPOS sign-in code", "Your one-time sign-in code is"
 	if strings.HasPrefix(strings.ToLower(value.Language), "bg") {
 		subject, intro = "Код за вход в BeeMiniPOS", "Вашият еднократен код за вход е"
@@ -90,6 +109,10 @@ func send(cfg config.Config, value message) error {
 		subject, intro = "Код входа в BeeMiniPOS", "Ваш одноразовый код для входа"
 	}
 	body := fmt.Sprintf("From: %s\r\nTo: %s\r\nSubject: %s\r\nMIME-Version: 1.0\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n%s: %s\r\n\r\nThe code expires in 10 minutes.\r\n", cfg.SMTPFrom, value.To, subject, intro, value.Code)
+	return subject, body
+}
+
+func send(cfg config.Config, recipient, body string) error {
 	address := fmt.Sprintf("%s:%d", cfg.SMTPHost, cfg.SMTPPort)
 	connection, err := net.DialTimeout("tcp", address, 15*time.Second)
 	if err != nil {
@@ -117,7 +140,7 @@ func send(cfg config.Config, value message) error {
 	if err = client.Mail(cfg.SMTPFrom); err != nil {
 		return err
 	}
-	if err = client.Rcpt(value.To); err != nil {
+	if err = client.Rcpt(recipient); err != nil {
 		return err
 	}
 	w, err := client.Data()
@@ -132,6 +155,21 @@ func send(cfg config.Config, value message) error {
 		return err
 	}
 	return client.Quit()
+}
+
+func markSent(ctx context.Context, journal Journal, id string) error {
+	var err error
+	for attempt := 0; attempt < 3; attempt++ {
+		if err = journal.MarkOutboundEmailSent(ctx, id); err == nil {
+			return nil
+		}
+		select {
+		case <-ctx.Done():
+			return ctx.Err()
+		case <-time.After(time.Duration(attempt+1) * 100 * time.Millisecond):
+		}
+	}
+	return err
 }
 
 func mask(email string) string {

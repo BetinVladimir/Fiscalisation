@@ -26,6 +26,7 @@ func main() {
 		log.Fatal(err)
 	}
 	repo := domain.Repository(domain.NewMemoryRepository())
+	var emailJournal emailworker.Journal
 	if cfg.DatabaseURL != "" {
 		startupContext, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
@@ -36,6 +37,7 @@ func main() {
 			log.Fatal(e)
 		}
 		defer store.Close()
+		emailJournal = store
 		persistent, e := domain.NewPersistentRepository(store)
 		if e != nil {
 			log.Fatal(e)
@@ -82,7 +84,7 @@ func main() {
 		defer mqttCleanup()
 	}
 	go webhook.New(svc, cfg.WebhookTargetURL, cfg.WebhookSigningKey).Run(ctx)
-	go emailworker.Run(ctx, cfg, log.Default())
+	go emailworker.Run(ctx, cfg, log.Default(), emailJournal)
 	go func() {
 		<-ctx.Done()
 		c, cancel := context.WithTimeout(context.Background(), 5*time.Second)

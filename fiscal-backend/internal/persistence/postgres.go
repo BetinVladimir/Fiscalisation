@@ -18,6 +18,37 @@ import (
 // role so tests and runtime reads exercise FORCE RLS rather than owner bypass.
 type Postgres struct{ db, reader *sql.DB }
 
+// BeginOutboundEmail durably records the complete message before SMTP is attempted.
+func (p *Postgres) BeginOutboundEmail(ctx context.Context, recipient, subject, messageText string) (string, error) {
+	var id string
+	err := p.db.QueryRowContext(ctx, `insert into outbound_email_messages(recipient,subject,message_text,status) values($1,$2,$3,'SENDING') returning id::text`, recipient, subject, messageText).Scan(&id)
+	return id, err
+}
+
+func (p *Postgres) MarkOutboundEmailSent(ctx context.Context, id string) error {
+	result, err := p.db.ExecContext(ctx, `update outbound_email_messages set status='SENT',sent_at=now(),updated_at=now(),last_error=null where id=$1 and status='SENDING'`, id)
+	return ensureOutboundEmailUpdated(result, err)
+}
+
+func (p *Postgres) MarkOutboundEmailFailed(ctx context.Context, id, failure string) error {
+	result, err := p.db.ExecContext(ctx, `update outbound_email_messages set status='FAILED',updated_at=now(),last_error=$2 where id=$1 and status='SENDING'`, id, failure)
+	return ensureOutboundEmailUpdated(result, err)
+}
+
+func ensureOutboundEmailUpdated(result sql.Result, err error) error {
+	if err != nil {
+		return err
+	}
+	rows, err := result.RowsAffected()
+	if err != nil {
+		return err
+	}
+	if rows != 1 {
+		return errors.New("outbound email record was not updated")
+	}
+	return nil
+}
+
 var ErrConcurrentState = errors.New("fiscal repository generation conflict")
 var allocationIdentityPattern = regexp.MustCompile(`^[A-Za-z0-9]{8}$`)
 var allocationOperatorPattern = regexp.MustCompile(`^[A-Za-z0-9]{4}$`)

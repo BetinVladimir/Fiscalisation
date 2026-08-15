@@ -3,6 +3,7 @@ services:
   postgres:
     image: postgres:16.10
     environment: {POSTGRES_USER: fiscal, POSTGRES_PASSWORD: "${FISCAL_DB_PASSWORD:-dev-fiscal-writer-password}", POSTGRES_DB: fiscal, FISCAL_RLS_DB_PASSWORD: "${FISCAL_RLS_DB_PASSWORD:-dev-fiscal-rls-password}"}
+    ports: ["127.0.0.1:${FISCAL_POSTGRES_PUBLISH_PORT:-5433}:5432"]
     volumes: [fiscal_pg:/var/lib/postgresql/data, ./database/fiscal:/docker-entrypoint-initdb.d:ro]
     networks: [private]
     healthcheck: {test: [CMD-SHELL, "pg_isready -U fiscal -d fiscal"], interval: 5s, timeout: 3s, retries: 20}
@@ -64,5 +65,5 @@ services:
     volumes: [./deploy/fiscalisation/Caddyfile:/etc/caddy/Caddyfile:ro, fiscal_caddy:/data]
     networks: [private, ingress]
     depends_on: [fiscal-backend]
-networks: {private: {internal: true}, ingress: {}}
+networks: {private: {}, ingress: {}}
 volumes: {fiscal_pg: {}, fiscal_redis: {}, fiscal_emqx: {}, fiscal_rabbitmq: {}, fiscal_caddy: {}}

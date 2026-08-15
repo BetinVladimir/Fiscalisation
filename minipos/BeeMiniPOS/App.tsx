@@ -9,8 +9,18 @@ import {
   StyleSheet,
   Text,
   TextInput,
+  useColorScheme,
+  useWindowDimensions,
   View,
 } from "react-native";
+import AsyncStorage from "@react-native-async-storage/async-storage";
+import {
+  Button as PaperButton,
+  MD3DarkTheme,
+  MD3LightTheme,
+  Menu as PaperMenu,
+  PaperProvider,
+} from "react-native-paper";
 import { WebBleBootstrap, webBluetoothSupported } from "./src/webBle.ts";
 import type { BleSessionPackage } from "./src/webBle.ts";
 import { validateBleDeploymentAuthority } from "./src/bleDeployment.ts";
@@ -25,6 +35,9 @@ import {
 } from "./src/nativeBle";
 import type { NativeBleBootstrapContract } from "./src/nativeBle";
 import { useEmailAuth } from "./src/emailAuth";
+import type { Language } from "./src/emailAuth";
+import { useTranslation } from "./src/languageStore";
+import type { Translation } from "./src/languageStore";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
 import {
@@ -180,6 +193,26 @@ const uuid = () =>
 // The HTTP idempotency key is the end-to-end client operation identity. It is
 // generated before the first send and reused by fiscalCall across REST retries.
 const key = () => uuid();
+class MiniPosHttpError extends Error {
+  constructor(
+    readonly status: number,
+    message: string,
+  ) {
+    super(message);
+    this.name = "MiniPosHttpError";
+  }
+}
+function responseErrorMessage(text: string, fallback: string) {
+  if (!text) return fallback;
+  try {
+    const problem = JSON.parse(text) as { detail?: unknown; title?: unknown };
+    if (typeof problem.detail === "string" && problem.detail.trim())
+      return problem.detail;
+    if (typeof problem.title === "string" && problem.title.trim())
+      return problem.title;
+  } catch {}
+  return text;
+}
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   const r = await fetchWithTimeout(apiBase + path, {
     ...init,
@@ -196,7 +229,11 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   });
   const text = await r.text();
   if (r.status === 401 && prodMode) runtimeUnauthorized?.();
-  if (!r.ok) throw new Error(text || `HTTP ${r.status}`);
+  if (!r.ok)
+    throw new MiniPosHttpError(
+      r.status,
+      responseErrorMessage(text, `HTTP ${r.status}`),
+    );
   return text ? JSON.parse(text) : ({} as T);
 }
 const collect = <T,>(path: string) =>
@@ -250,11 +287,66 @@ async function fiscalCloudReachable(path: string): Promise<boolean> {
   return pingFiscal(fiscalBase);
 }
 
+type ThemePreference = "system" | "light" | "dark";
+const themePreferenceKey = "beeminipos.theme.preference";
 export default function App() {
+  const systemScheme = useColorScheme();
+  const [themePreference, setThemePreference] =
+    useState<ThemePreference>("system");
+  const dark =
+    themePreference === "dark" ||
+    (themePreference === "system" && systemScheme === "dark");
+  const paperTheme = useMemo(
+    () => ({
+      ...(dark ? MD3DarkTheme : MD3LightTheme),
+      colors: {
+        ...(dark ? MD3DarkTheme.colors : MD3LightTheme.colors),
+        primary: dark ? "#9bc9b0" : "#456b59",
+        secondary: dark ? "#b9c9bd" : "#668b78",
+      },
+    }),
+    [dark],
+  );
+
+  useEffect(() => {
+    void AsyncStorage.getItem(themePreferenceKey).then((value) => {
+      if (value === "system" || value === "light" || value === "dark")
+        setThemePreference(value);
+    });
+  }, []);
+
+  const selectTheme = (value: ThemePreference) => {
+    setThemePreference(value);
+    void AsyncStorage.setItem(themePreferenceKey, value);
+  };
+
+  return (
+    <PaperProvider theme={paperTheme}>
+      <MiniPosApp
+        dark={dark}
+        themePreference={themePreference}
+        selectTheme={selectTheme}
+      />
+    </PaperProvider>
+  );
+}
+
+function MiniPosApp({
+  dark,
+  themePreference,
+  selectTheme,
+}: {
+  dark: boolean;
+  themePreference: ThemePreference;
+  selectTheme: (value: ThemePreference) => void;
+}) {
+  const { width } = useWindowDimensions();
+  const isPhone = width < 720;
+  const isCompact = width < 1024;
   const connectivity = useRef(new ConnectivityController());
   const checkoutJournal = useRef(new CheckoutJournal());
   const emailAuth = useEmailAuth(apiBase);
-  const authText = ({bg:{title:"Вход с имейл",send:"Изпрати код",next:"Продължи",company:"Данни за компанията",companyName:"Наименование",address:"Адрес",tax:"Данъчен идентификатор",fullName:"Вашите имена",create:"Създай компания"},ru:{title:"Вход по email",send:"Отправить код",next:"Продолжить",company:"Данные компании",companyName:"Название",address:"Адрес",tax:"Налоговый идентификатор",fullName:"Ваше ФИО",create:"Создать компанию"},en:{title:"Email sign in",send:"Send code",next:"Continue",company:"Company details",companyName:"Company name",address:"Address",tax:"Tax identifier",fullName:"Your full name",create:"Create company"}} as const)[emailAuth.language];
+  const uiText = useTranslation();
   runtimeUnauthorized = () => void emailAuth.logout();
   const [loginCode,setLoginCode]=useState(""), [companyName,setCompanyName]=useState(""), [companyAddress,setCompanyAddress]=useState(""), [taxIdentifier,setTaxIdentifier]=useState(""), [currentUserName,setCurrentUserName]=useState("");
   const [products, setProducts] = useState<Product[]>([]),
@@ -268,7 +360,9 @@ export default function App() {
     [splitCash, setSplitCash] = useState(""),
     [busy, setBusy] = useState(false),
     [admin, setAdmin] = useState(false),
+    [mobilePosView, setMobilePosView] = useState<"catalog" | "cart">("catalog"),
     [pendingOrder, setPendingOrder] = useState<Order | null>(null);
+  useEffect(() => setStatus(uiText.ready), [uiText]);
   const [pName, setPName] = useState(""),
     [pPrice, setPPrice] = useState(""),
     [pBarcode, setPBarcode] = useState(""),
@@ -450,16 +544,25 @@ export default function App() {
         setOperatorEmployee(session.employee);
         setSelectedEmployeeId(session.employee.id);
       } else setSelectedEmployeeId((v) => v || employee?.id || "");
-      const cfg = await call<Configuration>("/configuration").catch(() => null);
-      if (cfg) {
-        setConfiguration(cfg);
-        setLocationName(cfg.location_name);
-        setLocationAddress(cfg.location_address);
-        setWorkstationName(cfg.workstation_name);
-        setConfiguredRegister(cfg.fiscal_register_id);
+      let cfg: Configuration;
+      try {
+        cfg = await call<Configuration>("/configuration");
+      } catch (error) {
+        if (error instanceof MiniPosHttpError && error.status === 404) {
+          setConfiguration(null);
+          setAdmin(true);
+          setStatus("Настройте POS преди първата продажба");
+          return;
+        }
+        throw error;
       }
+      setConfiguration(cfg);
+      setLocationName(cfg.location_name);
+      setLocationAddress(cfg.location_address);
+      setWorkstationName(cfg.workstation_name);
+      setConfiguredRegister(cfg.fiscal_register_id);
       const recoveryRegister =
-        cfg?.fiscal_register_id || configuredRegister || registerId;
+        cfg.fiscal_register_id || configuredRegister || registerId;
       if (employee && isFiscalResourceId(recoveryRegister)) {
         // SUPTO startup orchestration: establish trusted daily time evidence,
         // probe the selected physical FU and bind the operator before any sale
@@ -680,6 +783,7 @@ export default function App() {
   };
   const toggleShift = async () => {
     if (busy) return;
+    const opening = !shift;
     setBusy(true);
     try {
       if (shift) {
@@ -700,7 +804,11 @@ export default function App() {
         setSaleProjection(null);
         setStatus(`Смяната е затворена • Z ${closed.z_fiscal_reference}`);
       } else {
-        if (!selectedEmployee) throw new Error("Създайте и изберете служител");
+        if (!configuration) throw new Error(uiText.configureBeforeShift);
+        if (!selectedEmployee)
+          throw new Error(uiText.selectEmployeeBeforeShift);
+        if (!isFiscalResourceId(activeRegisterId))
+          throw new Error(uiText.invalidRegister);
         const fiscalRegister = requireFiscalResourceId(
           activeRegisterId,
           "Фискалната каса",
@@ -716,8 +824,9 @@ export default function App() {
         setStatus("Смяната е отворена • проверете готовността на ФУ");
       }
     } catch (e) {
-      setStatus(`Операцията е отказана: ${message(e)}`);
-      await refresh();
+      setStatus(
+        `${opening ? uiText.openShiftFailed : uiText.shiftOperationFailed}: ${message(e)}`,
+      );
     } finally {
       setBusy(false);
     }
@@ -1161,8 +1270,8 @@ export default function App() {
   };
   if (!emailAuth.accessToken)
     return (
-      <SafeAreaView style={[s.root, s.authRoot]}>
-        <StatusBar style="dark" />
+      <SafeAreaView style={[s.root, s.authRoot, dark && s.rootDark]}>
+        <StatusBar style={dark ? "light" : "dark"} />
         <Image
           accessibilityIgnoresInvertColors
           source={require("../imgs/background.png")}
@@ -1171,22 +1280,26 @@ export default function App() {
         />
         <View testID="operator-login" style={s.login}>
           <Text style={s.brand}>BeeMiniPOS</Text>
-          <Text style={s.loginTitle}>{authText.title}</Text>
-          <View style={s.languageRow}>{(["bg","ru","en"] as const).map(value=><Pressable key={value} style={s.adminButton} onPress={()=>void emailAuth.setLanguage(value)}><Text>{value.toUpperCase()}</Text></Pressable>)}</View>
-          {emailAuth.stage === "email" ? <><TextInput style={s.search} keyboardType="email-address" autoCapitalize="none" placeholder="email@example.com" value={emailAuth.email} onChangeText={emailAuth.setEmail}/><Pressable testID="operator-login-start" style={s.cash} disabled={emailAuth.busy||!emailAuth.email} onPress={()=>void emailAuth.requestCode()}><Text style={s.payText}>{authText.send}</Text></Pressable></> : null}
-          {emailAuth.stage === "code" ? <><TextInput style={s.search} keyboardType="number-pad" maxLength={6} placeholder="000000" value={loginCode} onChangeText={setLoginCode}/><Pressable style={s.cash} disabled={emailAuth.busy||loginCode.length!==6} onPress={()=>void emailAuth.verifyCode(loginCode)}><Text style={s.payText}>{authText.next}</Text></Pressable></> : null}
-          {emailAuth.stage === "onboarding" ? <><Text style={s.loginTitle}>{authText.company}</Text><TextInput style={s.search} placeholder={authText.companyName} value={companyName} onChangeText={setCompanyName}/><TextInput style={s.search} placeholder={authText.address} value={companyAddress} onChangeText={setCompanyAddress}/><TextInput style={s.search} placeholder={authText.tax} value={taxIdentifier} onChangeText={setTaxIdentifier}/><TextInput style={s.search} placeholder={authText.fullName} value={currentUserName} onChangeText={setCurrentUserName}/><Pressable style={s.cash} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName})}><Text style={s.payText}>{authText.create}</Text></Pressable></> : null}
+          <Text style={s.loginTitle}>{uiText.signIn}</Text>
+          <LanguageMenu
+            language={emailAuth.language}
+            label={uiText.language}
+            onSelect={(value) => void emailAuth.setLanguage(value)}
+          />
+          {emailAuth.stage === "email" ? <><TextInput style={s.search} keyboardType="email-address" autoCapitalize="none" placeholder="email@example.com" value={emailAuth.email} onChangeText={emailAuth.setEmail}/><Pressable testID="operator-login-start" style={s.cash} disabled={emailAuth.busy||!emailAuth.email} onPress={()=>void emailAuth.requestCode()}><Text style={s.payText}>{uiText.sendCode}</Text></Pressable></> : null}
+          {emailAuth.stage === "code" ? <><TextInput style={s.search} keyboardType="number-pad" maxLength={6} placeholder="000000" value={loginCode} onChangeText={setLoginCode}/><Pressable style={s.cash} disabled={emailAuth.busy||loginCode.length!==6} onPress={()=>void emailAuth.verifyCode(loginCode)}><Text style={s.payText}>{uiText.continue}</Text></Pressable></> : null}
+          {emailAuth.stage === "onboarding" ? <><Text style={s.loginTitle}>{uiText.companyDetails}</Text><TextInput style={s.search} placeholder={uiText.companyName} value={companyName} onChangeText={setCompanyName}/><TextInput style={s.search} placeholder={uiText.address} value={companyAddress} onChangeText={setCompanyAddress}/><TextInput style={s.search} placeholder={uiText.taxIdentifier} value={taxIdentifier} onChangeText={setTaxIdentifier}/><TextInput style={s.search} placeholder={uiText.fullName} value={currentUserName} onChangeText={setCurrentUserName}/><Pressable style={s.cash} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName})}><Text style={s.payText}>{uiText.createCompany}</Text></Pressable></> : null}
           {emailAuth.error ? <Text style={s.loginError}>{emailAuth.error}</Text> : null}
         </View>
       </SafeAreaView>
     );
   return (
-    <SafeAreaView style={s.root}>
-      <StatusBar style="dark" />
-      <View style={s.top}>
-        <View>
-          <Text style={s.brand}>BeeMiniPOS</Text>
-          <Text style={s.caption}>
+    <SafeAreaView style={[s.root, dark && s.rootDark]}>
+      <StatusBar style={dark ? "light" : "dark"} />
+      <View style={[s.top, isCompact && s.topCompact, dark && s.topDark]}>
+        <View style={s.topIdentity}>
+          <Text style={[s.brand, dark && s.textDark]}>BeeMiniPOS</Text>
+          <Text style={[s.caption, dark && s.captionDark]}>
             {configuration?.location_name || "1 точка"} •{" "}
             {configuration?.workstation_name || "каса 01"} • {activeRegisterId}{" "}
             •{" "}
@@ -1196,65 +1309,75 @@ export default function App() {
             • EUR • BLE {bleReady ? "READY" : "OFF"}
           </Text>
         </View>
-        <View style={s.topActions}>
+        <View style={[s.topActions, isCompact && s.topActionsCompact]}>
           {prodMode ? (
             <Pressable
               testID="operator-logout"
               accessibilityRole="button"
-              accessibilityLabel="Излез от операторската сесия"
+              accessibilityLabel={uiText.logout}
               accessibilityState={{ disabled: !!shift }}
               disabled={!!shift}
               style={s.adminButton}
               onPress={() => void logoutOperator()}
             >
-              <Text>Излез</Text>
+              <Text>{uiText.logout}</Text>
             </Pressable>
           ) : null}
           <Pressable
             testID="ble-connect"
             accessibilityRole="button"
             accessibilityLabel={
-              bleReady ? "BLE връзката е готова" : "Свържи BLE"
+              bleReady ? uiText.bleReady : uiText.connectBle
             }
             accessibilityState={{ disabled: busy || bleReady }}
             disabled={busy || bleReady}
             style={s.adminButton}
             onPress={connectBle}
           >
-            <Text>{bleReady ? "BLE свързан" : "Свържи BLE"}</Text>
+            <Text>{bleReady ? uiText.bleConnected : uiText.connectBle}</Text>
           </Pressable>
           {canManage ? (
             <Pressable
               testID="admin-toggle"
               accessibilityRole="button"
-              accessibilityLabel={admin ? "Отвори продажби" : "Отвори обекти"}
+              accessibilityLabel={admin ? uiText.openSales : uiText.openConfiguration}
               style={s.adminButton}
               onPress={() => setAdmin((v) => !v)}
             >
-              <Text>{admin ? "Продажби" : "Обекти"}</Text>
+              <Text>{admin ? uiText.sales : uiText.configuration}</Text>
             </Pressable>
           ) : null}
+          <ThemeMenu
+            preference={themePreference}
+            text={uiText}
+            onSelect={selectTheme}
+          />
+          <LanguageMenu
+            language={emailAuth.language}
+            label={uiText.language}
+            onSelect={(value) => void emailAuth.setLanguage(value)}
+          />
           <Pressable
             testID="shift-toggle"
             accessibilityRole="button"
             accessibilityLabel={
               shift?.allowed_actions?.includes("RECONCILE")
-                ? "Свери Z отчет"
+                ? uiText.reconcileZ
                 : shift
-                  ? "Затвори смяна"
-                  : "Отвори смяна"
+                  ? uiText.closeShift
+                  : uiText.openShift
             }
-            accessibilityState={{ disabled: busy || !selectedEmployee }}
-            disabled={busy || !selectedEmployee}
+            accessibilityState={{ disabled: busy }}
+            disabled={busy}
             style={[s.shift, shift && s.shiftOpen]}
             onPress={toggleShift}
           >
             <Text style={s.shiftText}>
               {shift?.allowed_actions?.includes("RECONCILE")
-                ? "Свери Z"
+                ? uiText.reconcileZ
                 : shift
-                  ? "Затвори смяна"
-                  : "Отвори смяна"}
+                  ? uiText.closeShift
+                  : uiText.openShift}
             </Text>
           </Pressable>
         </View>
@@ -1263,38 +1386,42 @@ export default function App() {
         <View
           testID="operation-unknown"
           accessibilityLiveRegion="assertive"
-          style={reconciliationStyles.panel}
+          style={[
+            reconciliationStyles.panel,
+            isPhone && reconciliationStyles.panelPhone,
+          ]}
         >
           <View>
             <Text style={reconciliationStyles.title}>
-              Резултатът се проверява
+              {uiText.resultChecking}
             </Text>
             <Text style={reconciliationStyles.text}>
-              Не повтаряйте плащането. Поръчка {pendingOrder.id} •{" "}
+              {uiText.doNotRepeatPayment}. {pendingOrder.id} •{" "}
               {pendingOrder.state}
             </Text>
             <Text style={reconciliationStyles.text}>
-              Разрешени действия:{" "}
-              {pendingOrder.allowed_actions?.join(", ") || "няма"}
+              {uiText.allowedActions}:{" "}
+              {pendingOrder.allowed_actions?.join(", ") || uiText.noActions}
             </Text>
           </View>
           {pendingOrder.allowed_actions?.includes("READ") ? (
             <Pressable
               testID="reconcile-start"
               accessibilityRole="button"
-              accessibilityLabel="Провери фискалния резултат без повторно плащане"
+              accessibilityLabel={uiText.checkFiscalResult}
               accessibilityState={{ disabled: busy }}
               disabled={busy}
               style={reconciliationStyles.button}
               onPress={reconcile}
             >
-              <Text style={s.payText}>Провери резултата</Text>
+              <Text style={s.payText}>{uiText.checkResult}</Text>
             </Pressable>
           ) : null}
         </View>
       ) : null}
       {admin ? (
         <Admin
+          compact={isPhone}
           production={prodMode}
           products={products}
           employees={employees}
@@ -1331,16 +1458,41 @@ export default function App() {
           loadReport={loadReport}
         />
       ) : (
-        <View style={s.body}>
-          <View style={s.catalog}>
+        <View style={[s.posShell, dark && s.posShellDark]}>
+          {isPhone ? (
+            <View style={s.mobileTabs} accessibilityRole="tablist">
+              <Pressable
+                testID="mobile-view-catalog"
+                accessibilityRole="tab"
+                accessibilityState={{ selected: mobilePosView === "catalog" }}
+                style={[s.mobileTab, mobilePosView === "catalog" && s.mobileTabActive]}
+                onPress={() => setMobilePosView("catalog")}
+              >
+                <Text style={[s.mobileTabText, mobilePosView === "catalog" && s.mobileTabTextActive]}>{uiText.products}</Text>
+              </Pressable>
+              <Pressable
+                testID="mobile-view-cart"
+                accessibilityRole="tab"
+                accessibilityState={{ selected: mobilePosView === "cart" }}
+                style={[s.mobileTab, mobilePosView === "cart" && s.mobileTabActive]}
+                onPress={() => setMobilePosView("cart")}
+              >
+                <Text style={[s.mobileTabText, mobilePosView === "cart" && s.mobileTabTextActive]}>
+                  {uiText.currentSale} ({cart.length}) • € {total.toFixed(2)}
+                </Text>
+              </Pressable>
+            </View>
+          ) : null}
+          <View style={[s.body, isPhone && s.bodyPhone]}>
+          {(!isPhone || mobilePosView === "catalog") ? <View style={[s.catalog, isPhone && s.panelPhone]}>
             <TextInput
               testID="product-search"
-              accessibilityLabel="Търсене или баркод"
+              accessibilityLabel={uiText.searchBarcode}
               value={search}
               onChangeText={setSearch}
               onSubmitEditing={submitProductLookup}
               returnKeyType="done"
-              placeholder="Търсене или сканиране на баркод"
+              placeholder={uiText.searchBarcode}
               style={s.search}
             />
             <ScrollView contentContainerStyle={s.grid}>
@@ -1357,22 +1509,22 @@ export default function App() {
                   <Pressable
                     testID={`product-${p.id}`}
                     accessibilityRole="button"
-                    accessibilityLabel={`Добави ${p.name}`}
+                    accessibilityLabel={`${uiText.add} ${p.name}`}
                     key={p.id}
-                    style={s.product}
+                    style={[s.product, isPhone && s.productPhone]}
                     onPress={() => add(p)}
                   >
                     <Text style={s.productName}>{p.name}</Text>
                     <Text style={s.price}>
                       € {Number(p.price.amount).toFixed(2)}
                     </Text>
-                    <Text style={s.tax}>ДДС {p.tax_group}</Text>
+                    <Text style={s.tax}>{uiText.vat} {p.tax_group}</Text>
                   </Pressable>
                 ))}
             </ScrollView>
-          </View>
-          <View style={s.cart}>
-            <Text style={s.cartTitle}>Текуща продажба</Text>
+          </View> : null}
+          {(!isPhone || mobilePosView === "cart") ? <View style={[s.cart, isPhone && s.cartPhone]}>
+            <Text style={s.cartTitle}>{uiText.currentSale}</Text>
             {saleProjection ? (
               <View
                 testID="sale-regulatory-identity"
@@ -1383,13 +1535,13 @@ export default function App() {
                   {saleProjection.regulatory_identifiers[0]?.value ||
                     saleProjection.unp}
                 </Text>
-                <Text>ФУ/каса: {saleProjection.register_id}</Text>
-                <Text>Състояние: {saleProjection.state}</Text>
+                <Text>{uiText.registerState}: {saleProjection.register_id}</Text>
+                <Text>{uiText.state}: {saleProjection.state}</Text>
               </View>
             ) : null}
             <ScrollView style={s.lines}>
               {cart.length === 0 ? (
-                <Text style={s.empty}>Докоснете продукт</Text>
+                <Text style={s.empty}>{uiText.touchProduct}</Text>
               ) : (
                 cart.map((x) => (
                   <View
@@ -1397,7 +1549,7 @@ export default function App() {
                     style={s.line}
                     key={x.product.id}
                   >
-                    <View>
+                    <View style={s.lineContent}>
                       <Text style={s.lineName}>
                         {x.quantity} × {x.product.name}
                       </Text>
@@ -1405,7 +1557,7 @@ export default function App() {
                         <Pressable
                           testID={`quantity-dec-${x.product.id}`}
                           accessibilityRole="button"
-                          accessibilityLabel={`Намали ${x.product.name}`}
+                          accessibilityLabel={`${uiText.decrease} ${x.product.name}`}
                           style={s.qtyButton}
                           onPress={() => changeQuantity(x.product.id, -1)}
                         >
@@ -1414,7 +1566,7 @@ export default function App() {
                         <Pressable
                           testID={`quantity-inc-${x.product.id}`}
                           accessibilityRole="button"
-                          accessibilityLabel={`Увеличи ${x.product.name}`}
+                          accessibilityLabel={`${uiText.increase} ${x.product.name}`}
                           style={s.qtyButton}
                           onPress={() => changeQuantity(x.product.id, 1)}
                         >
@@ -1426,7 +1578,7 @@ export default function App() {
                           <Pressable
                             testID={`discount-percent-${x.product.id}`}
                             accessibilityRole="button"
-                            accessibilityLabel={`Отстъпка 10 процента за ${x.product.name}`}
+                            accessibilityLabel={`${uiText.discount10} ${x.product.name}`}
                             style={s.discountButton}
                             onPress={() =>
                               setLineDiscount(
@@ -1441,7 +1593,7 @@ export default function App() {
                           </Pressable>
                           <TextInput
                             testID={`discount-amount-${x.product.id}`}
-                            accessibilityLabel={`Отстъпка в евро за ${x.product.name}`}
+                            accessibilityLabel={`${uiText.discountEur} ${x.product.name}`}
                             style={s.discountInput}
                             keyboardType="decimal-pad"
                             value={x.discountAmount ?? "0.00"}
@@ -1464,7 +1616,7 @@ export default function App() {
               )}
             </ScrollView>
             <View style={s.total}>
-              <Text style={s.totalLabel}>ОБЩО</Text>
+              <Text style={s.totalLabel}>{uiText.total}</Text>
               <Text testID="sale-total" style={s.totalValue}>
                 € {total.toFixed(2)}
               </Text>
@@ -1472,17 +1624,17 @@ export default function App() {
             <View style={s.splitRow}>
               <TextInput
                 testID="split-cash-amount"
-                accessibilityLabel="Сума в брой при разделено плащане"
+                accessibilityLabel={uiText.splitCashAmount}
                 value={splitCash}
                 onChangeText={setSplitCash}
-                placeholder="В брой EUR"
+                placeholder={uiText.cashEur}
                 keyboardType="decimal-pad"
                 style={s.splitInput}
               />
               <Pressable
                 testID="payment-split"
                 accessibilityRole="button"
-                accessibilityLabel="Разделено плащане в брой и с карта"
+                accessibilityLabel={uiText.splitPayment}
                 accessibilityState={{
                   disabled: busy || !cart.length || !!pendingOrder,
                 }}
@@ -1490,14 +1642,14 @@ export default function App() {
                 style={s.split}
                 onPress={() => checkout("SPLIT")}
               >
-                <Text style={s.payText}>В брой + карта</Text>
+                <Text style={s.payText}>{uiText.cashCard}</Text>
               </Pressable>
             </View>
             <View style={s.payRow}>
               <Pressable
                 testID="sale-pay"
                 accessibilityRole="button"
-                accessibilityLabel="Плащане в брой"
+                accessibilityLabel={uiText.cashPayment}
                 accessibilityState={{
                   disabled: busy || !cart.length || !!pendingOrder,
                 }}
@@ -1505,12 +1657,12 @@ export default function App() {
                 style={s.cash}
                 onPress={() => checkout("CASH")}
               >
-                <Text style={s.payText}>В брой</Text>
+                <Text style={s.payText}>{uiText.cash}</Text>
               </Pressable>
               <Pressable
                 testID="payment-card"
                 accessibilityRole="button"
-                accessibilityLabel="Плащане с карта"
+                accessibilityLabel={uiText.cardPayment}
                 accessibilityState={{
                   disabled: busy || !cart.length || !!pendingOrder,
                 }}
@@ -1518,9 +1670,10 @@ export default function App() {
                 style={s.card}
                 onPress={() => checkout("CARD")}
               >
-                <Text style={s.payText}>Карта</Text>
+                <Text style={s.payText}>{uiText.card}</Text>
               </Pressable>
             </View>
+          </View> : null}
           </View>
         </View>
       )}
@@ -1528,7 +1681,7 @@ export default function App() {
         testID="status-transport"
         accessibilityRole="text"
         accessibilityLiveRegion="polite"
-        accessibilityLabel={`Състояние: ${status}`}
+        accessibilityLabel={`${uiText.statusLabel}: ${status}`}
         style={s.footer}
       >
         <View
@@ -1545,7 +1698,116 @@ export default function App() {
     </SafeAreaView>
   );
 }
+
+function ThemeMenu({
+  preference,
+  text,
+  onSelect,
+}: {
+  preference: ThemePreference;
+  text: Translation;
+  onSelect: (value: ThemePreference) => void;
+}) {
+  const [visible, setVisible] = useState(false);
+  const labels: Record<ThemePreference, string> = {
+    system: text.systemTheme,
+    light: text.lightTheme,
+    dark: text.darkTheme,
+  };
+  const choose = (value: ThemePreference) => {
+    setVisible(false);
+    onSelect(value);
+  };
+
+  return (
+    <PaperMenu
+      visible={visible}
+      onDismiss={() => setVisible(false)}
+      anchor={
+        <PaperButton
+          testID="theme-menu-open"
+          mode="contained-tonal"
+          icon="theme-light-dark"
+          contentStyle={s.themeButtonContent}
+          onPress={() => setVisible(true)}
+        >
+          {text.theme}: {labels[preference]}
+        </PaperButton>
+      }
+    >
+      <PaperMenu.Item
+        testID="theme-system"
+        leadingIcon={preference === "system" ? "check" : "cellphone-cog"}
+        title={text.systemTheme}
+        onPress={() => choose("system")}
+      />
+      <PaperMenu.Item
+        testID="theme-light"
+        leadingIcon={preference === "light" ? "check" : "white-balance-sunny"}
+        title={text.lightTheme}
+        onPress={() => choose("light")}
+      />
+      <PaperMenu.Item
+        testID="theme-dark"
+        leadingIcon={preference === "dark" ? "check" : "weather-night"}
+        title={text.darkTheme}
+        onPress={() => choose("dark")}
+      />
+    </PaperMenu>
+  );
+}
+
+function LanguageMenu({
+  language,
+  label,
+  onSelect,
+}: {
+  language: Language;
+  label: string;
+  onSelect: (value: Language) => void;
+}) {
+  const [visible, setVisible] = useState(false);
+  const labels: Record<Language, string> = {
+    bg: "Български",
+    ru: "Русский",
+    en: "English",
+  };
+  const choose = (value: Language) => {
+    setVisible(false);
+    onSelect(value);
+  };
+
+  return (
+    <PaperMenu
+      visible={visible}
+      onDismiss={() => setVisible(false)}
+      anchor={
+        <PaperButton
+          testID="language-menu-open"
+          mode="contained-tonal"
+          icon="translate"
+          contentStyle={s.themeButtonContent}
+          onPress={() => setVisible(true)}
+        >
+          {label}: {labels[language]}
+        </PaperButton>
+      }
+    >
+      {(["bg", "ru", "en"] as const).map((value) => (
+        <PaperMenu.Item
+          key={value}
+          testID={`language-${value}`}
+          leadingIcon={language === value ? "check" : "translate"}
+          title={labels[value]}
+          onPress={() => choose(value)}
+        />
+      ))}
+    </PaperMenu>
+  );
+}
+
 function Admin({
+  compact,
   production,
   products,
   employees,
@@ -1558,6 +1820,7 @@ function Admin({
   saveConfiguration,
   loadReport,
 }: any) {
+  const text = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]),
     [reversalStatus, setReversalStatus] = useState(""),
     [catalogScreen, setCatalogScreen] = useState<"home"|"products"|"product-new"|"employees"|"employee-new">("home");
@@ -1571,12 +1834,12 @@ function Admin({
   useEffect(() => {
     void loadOrders();
   }, []);
-  if (catalogScreen !== "home") return <ScrollView contentContainerStyle={s.admin}>
-    <Pressable style={s.adminButton} onPress={()=>setCatalogScreen("home")}><Text>← Назад</Text></Pressable>
-    {catalogScreen === "products" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>Товары</Text><Pressable style={s.fab} onPress={()=>setCatalogScreen("product-new")}><Text style={s.fabText}>+</Text></Pressable></View>{products.map((p:Product)=><View key={p.id} style={s.line}><Text>{p.name}</Text><Text>€ {p.price.amount}</Text></View>)}</View>:null}
-    {catalogScreen === "product-new" ? <View style={s.editor}><Text style={s.adminTitle}>Новый товар</Text><TextInput style={s.search} placeholder="Название" value={values.pName} onChangeText={setters.setPName}/><TextInput style={s.search} placeholder="Штрихкод" value={values.pBarcode} onChangeText={setters.setPBarcode}/><TextInput style={s.search} placeholder="Цена EUR" value={values.pPrice} onChangeText={setters.setPPrice}/><Pressable style={s.cash} onPress={async()=>{await createProduct();setCatalogScreen("products");}}><Text style={s.payText}>Сохранить</Text></Pressable></View>:null}
-    {catalogScreen === "employees" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>Сотрудники</Text><Pressable style={s.fab} onPress={()=>setCatalogScreen("employee-new")}><Text style={s.fabText}>+</Text></Pressable></View>{employees.map((e:Employee)=><View key={e.id} style={s.line}><Text>{e.first_name} {e.last_name}</Text><Text>{e.operator_code}</Text></View>)}</View>:null}
-    {catalogScreen === "employee-new" ? <View style={s.editor}><Text style={s.adminTitle}>Новый сотрудник</Text><TextInput style={s.search} placeholder="Имя" value={values.eFirst} onChangeText={setters.setEFirst}/><TextInput style={s.search} placeholder="Фамилия" value={values.eLast} onChangeText={setters.setELast}/><TextInput style={s.search} placeholder="Код оператора" maxLength={4} value={values.eCode} onChangeText={setters.setECode}/><Pressable style={s.cash} onPress={async()=>{await createEmployee();setCatalogScreen("employees");}}><Text style={s.payText}>Сохранить</Text></Pressable></View>:null}
+  if (catalogScreen !== "home") return <ScrollView contentContainerStyle={[s.admin, compact && s.adminCompact]}>
+    <Pressable style={s.adminButton} onPress={()=>setCatalogScreen("home")}><Text>← {text.back}</Text></Pressable>
+    {catalogScreen === "products" ? <View style={[s.editor, compact && s.editorCompact]}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.products}</Text><Pressable style={s.fab} onPress={()=>setCatalogScreen("product-new")}><Text style={s.fabText}>+</Text></Pressable></View>{products.map((p:Product)=><View key={p.id} style={s.line}><Text>{p.name}</Text><Text>€ {p.price.amount}</Text></View>)}</View>:null}
+    {catalogScreen === "product-new" ? <View style={s.editor}><Text style={s.adminTitle}>{text.newProduct}</Text><TextInput style={s.search} placeholder={text.name} value={values.pName} onChangeText={setters.setPName}/><TextInput style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={setters.setPBarcode}/><TextInput style={s.search} placeholder={text.priceEur} value={values.pPrice} onChangeText={setters.setPPrice}/><Pressable style={s.cash} onPress={async()=>{await createProduct();setCatalogScreen("products");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
+    {catalogScreen === "employees" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.employees}</Text><Pressable style={s.fab} onPress={()=>setCatalogScreen("employee-new")}><Text style={s.fabText}>+</Text></Pressable></View>{employees.map((e:Employee)=><View key={e.id} style={s.line}><Text>{e.first_name} {e.last_name}</Text><Text>{e.operator_code}</Text></View>)}</View>:null}
+    {catalogScreen === "employee-new" ? <View style={s.editor}><Text style={s.adminTitle}>{text.newEmployee}</Text><TextInput style={s.search} placeholder={text.firstName} value={values.eFirst} onChangeText={setters.setEFirst}/><TextInput style={s.search} placeholder={text.lastName} value={values.eLast} onChangeText={setters.setELast}/><TextInput style={s.search} placeholder={text.operatorCode} maxLength={4} value={values.eCode} onChangeText={setters.setECode}/><Pressable style={s.cash} onPress={async()=>{await createEmployee();setCatalogScreen("employees");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
   </ScrollView>;
   const reverse = async (order: Order) => {
     if (!order.allowed_actions?.includes("REVERSE")) {
@@ -1606,13 +1869,13 @@ function Admin({
     }
   };
   return (
-    <ScrollView testID="admin-editors" contentContainerStyle={s.admin}>
-      <Text style={s.adminTitle}>Минимални редактори и отчети</Text>
-      <View style={s.screenHeading}><Pressable style={s.card} onPress={()=>setCatalogScreen("products")}><Text style={s.payText}>Товары ({products.length})</Text></Pressable><Pressable style={s.card} onPress={()=>setCatalogScreen("employees")}><Text style={s.payText}>Сотрудники ({employees.length})</Text></Pressable></View>
+    <ScrollView testID="admin-editors" contentContainerStyle={[s.admin, compact && s.adminCompact]}>
+      <Text style={s.adminTitle}>{text.configuration}</Text>
+      <View style={[s.screenHeading, s.stackCompact]}><Pressable style={s.card} onPress={()=>setCatalogScreen("products")}><Text style={s.payText}>{text.products} ({products.length})</Text></Pressable><Pressable style={s.card} onPress={()=>setCatalogScreen("employees")}><Text style={s.payText}>{text.employees} ({employees.length})</Text></Pressable></View>
       <View testID="reversal-editor" style={s.editor}>
-        <Text style={s.cartTitle}>Сторно на завършена продажба</Text>
+        <Text style={s.cartTitle}>{text.reversal}</Text>
         <Text>
-          {reversalStatus || "Изберете продажба с разрешено действие REVERSE"}
+          {reversalStatus || text.selectReversal}
         </Text>
         {orders
           .filter(
@@ -1637,78 +1900,78 @@ function Admin({
                 <Pressable
                   testID={`reversal-${order.id}`}
                   accessibilityRole="button"
-                  accessibilityLabel={`Сторно на продажба ${order.id}`}
+                  accessibilityLabel={`${text.reverseSale} ${order.id}`}
                   style={s.card}
                   onPress={() => void reverse(order)}
                 >
-                  <Text style={s.payText}>Сторно • връщане</Text>
+                  <Text style={s.payText}>{text.returnSale}</Text>
                 </Pressable>
               ) : null}
             </View>
           ))}
       </View>
       <View style={s.editor}>
-        <Text style={s.cartTitle}>Точка и касово място</Text>
+        <Text style={s.cartTitle}>{text.locationWorkstation}</Text>
         <TextInput
           testID="config-location-name"
-          accessibilityLabel="Име на точката"
+          accessibilityLabel={text.locationName}
           style={s.search}
-          placeholder="Име на точката"
+          placeholder={text.locationName}
           value={values.locationName}
           onChangeText={setters.setLocationName}
         />
         <TextInput
           style={s.search}
-          placeholder="Адрес"
+          placeholder={text.address}
           value={values.locationAddress}
           onChangeText={setters.setLocationAddress}
         />
         <TextInput
           style={s.search}
-          placeholder="Име на касата"
+          placeholder={text.workstationName}
           value={values.workstationName}
           onChangeText={setters.setWorkstationName}
         />
         <TextInput
           style={s.search}
-          placeholder="Fiscal register ID"
+          placeholder={text.fiscalRegisterId}
           value={values.configuredRegister}
           onChangeText={setters.setConfiguredRegister}
         />
         <Pressable
           testID="config-save"
           accessibilityRole="button"
-          accessibilityLabel="Запиши конфигурацията"
+          accessibilityLabel={text.saveConfiguration}
           style={s.cash}
           onPress={saveConfiguration}
         >
-          <Text style={s.payText}>Запиши конфигурацията</Text>
+          <Text style={s.payText}>{text.saveConfiguration}</Text>
         </Pressable>
       </View>
       {false && <>
       <View style={s.editor}>
-        <Text style={s.cartTitle}>Продукт ({products.length})</Text>
+        <Text style={s.cartTitle}>{text.product} ({products.length})</Text>
         <TextInput
           testID="product-name"
-          accessibilityLabel="Име на продукт"
+          accessibilityLabel={text.name}
           style={s.search}
-          placeholder="Име"
+          placeholder={text.name}
           value={values.pName}
           onChangeText={setters.setPName}
         />
         <TextInput
           testID="product-barcode"
-          accessibilityLabel="Баркод на продукт"
+          accessibilityLabel={text.barcode}
           style={s.search}
-          placeholder="Баркод (по избор)"
+          placeholder={text.optionalBarcode}
           value={values.pBarcode}
           onChangeText={setters.setPBarcode}
         />
         <TextInput
           testID="product-price"
-          accessibilityLabel="Цена EUR"
+          accessibilityLabel={text.priceEur}
           style={s.search}
-          placeholder="Цена EUR"
+          placeholder={text.priceEur}
           keyboardType="decimal-pad"
           value={values.pPrice}
           onChangeText={setters.setPPrice}
@@ -1716,15 +1979,15 @@ function Admin({
         <Pressable
           testID="product-create"
           accessibilityRole="button"
-          accessibilityLabel="Добави продукт"
+          accessibilityLabel={text.addProduct}
           style={s.cash}
           onPress={createProduct}
         >
-          <Text style={s.payText}>Добави продукт</Text>
+          <Text style={s.payText}>{text.addProduct}</Text>
         </Pressable>
       </View>
       <View style={s.editor}>
-        <Text style={s.cartTitle}>Служител ({employees.length})</Text>
+        <Text style={s.cartTitle}>{text.employee} ({employees.length})</Text>
         {production ? (
           <Text style={s.loginText}>
             Активният оператор идва от личната email сесия; изборът на друг
@@ -1752,50 +2015,50 @@ function Admin({
         </View>
         <TextInput
           testID="employee-first-name"
-          accessibilityLabel="Име на служител"
+          accessibilityLabel={text.firstName}
           style={s.search}
-          placeholder="Име"
+          placeholder={text.firstName}
           value={values.eFirst}
           onChangeText={setters.setEFirst}
         />
         <TextInput
           testID="employee-last-name"
-          accessibilityLabel="Фамилия на служител"
+          accessibilityLabel={text.lastName}
           style={s.search}
-          placeholder="Фамилия"
+          placeholder={text.lastName}
           value={values.eLast}
           onChangeText={setters.setELast}
         />
         <TextInput
           testID="employee-code"
-          accessibilityLabel="Код на служител"
+          accessibilityLabel={text.operatorCode}
           style={s.search}
           maxLength={4}
-          placeholder="Код (4)"
+          placeholder={text.code4}
           value={values.eCode}
           onChangeText={setters.setECode}
         />
         <Pressable
           testID="employee-create"
           accessibilityRole="button"
-          accessibilityLabel="Добави служител"
+          accessibilityLabel={text.addEmployee}
           style={s.card}
           onPress={createEmployee}
         >
-          <Text style={s.payText}>Добави служител</Text>
+          <Text style={s.payText}>{text.addEmployee}</Text>
         </Pressable>
       </View>
       </>}
       <View style={s.editor}>
-        <Text style={s.cartTitle}>Търговски отчет</Text>
+        <Text style={s.cartTitle}>{text.salesReport}</Text>
         <Pressable
           testID="sales-report-load"
           accessibilityRole="button"
-          accessibilityLabel="Обнови търговския отчет"
+          accessibilityLabel={text.refreshReport}
           style={s.card}
           onPress={loadReport}
         >
-          <Text style={s.payText}>Обнови отчета</Text>
+          <Text style={s.payText}>{text.refreshReport}</Text>
         </Pressable>
         {salesReport && (
           <View testID="sales-report-result" style={s.report}>
@@ -1825,6 +2088,7 @@ const reconciliationStyles = StyleSheet.create({
     justifyContent: "space-between",
     gap: 16,
   },
+  panelPhone: { flexDirection: "column", alignItems: "stretch", padding: 12 },
   title: { fontSize: 18, fontWeight: "900", color: "#5f4200" },
   text: { color: "#5f4200", marginTop: 4 },
   button: {
@@ -1841,6 +2105,7 @@ function message(e: unknown) {
 }
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: "#f7f1ee" },
+  rootDark: { backgroundColor: "#151a17" },
   authRoot: {
     width: "100%",
     minHeight: "100%",
@@ -1880,14 +2145,21 @@ const s = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#d8d4c7",
   },
+  topCompact: { alignItems: "stretch", flexDirection: "column", gap: 12, padding: 12 },
+  topDark: { backgroundColor: "#1f2823", borderColor: "#39483f" },
+  topIdentity: { flexShrink: 1 },
   brand: { fontSize: 28, fontWeight: "800", color: "#17251d" },
-  caption: { color: "#637067", marginTop: 2 },
+  textDark: { color: "#f0f5f1" },
+  caption: { color: "#637067", marginTop: 2, lineHeight: 19 },
+  captionDark: { color: "#bdc9c0" },
   topActions: {
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
     flexWrap: "wrap",
   },
+  topActionsCompact: { width: "100%" },
+  themeButtonContent: { minHeight: 48 },
   adminButton: {
     backgroundColor: "#e8e4d8",
     padding: 12,
@@ -1904,7 +2176,30 @@ const s = StyleSheet.create({
   },
   shiftOpen: { backgroundColor: "#c99f91" },
   shiftText: { color: "white", fontWeight: "700" },
+  posShell: { flex: 1 },
+  posShellDark: { backgroundColor: "#151a17" },
   body: { flex: 1, flexDirection: "row" },
+  bodyPhone: { flexDirection: "column" },
+  panelPhone: { flex: 1, width: "100%", padding: 12 },
+  mobileTabs: {
+    flexDirection: "row",
+    paddingHorizontal: 12,
+    paddingTop: 10,
+    gap: 8,
+    backgroundColor: "#f7f1ee",
+  },
+  mobileTab: {
+    flex: 1,
+    minHeight: 48,
+    paddingHorizontal: 10,
+    borderRadius: 12,
+    alignItems: "center",
+    justifyContent: "center",
+    backgroundColor: "#e8e4d8",
+  },
+  mobileTabActive: { backgroundColor: "#456b59" },
+  mobileTabText: { color: "#33443b", fontWeight: "800", textAlign: "center" },
+  mobileTabTextActive: { color: "white" },
   catalog: { flex: 3, padding: 16 },
   search: {
     backgroundColor: "#fffaf7",
@@ -1927,6 +2222,7 @@ const s = StyleSheet.create({
     borderColor: "#ddd8ca",
     justifyContent: "space-between",
   },
+  productPhone: { width: "48%", minHeight: 108, padding: 12 },
   productName: { fontSize: 19, fontWeight: "700" },
   price: { fontSize: 22, fontWeight: "800", color: "#668b78" },
   tax: { color: "#777" },
@@ -1937,6 +2233,7 @@ const s = StyleSheet.create({
     borderColor: "#d8d4c7",
     padding: 16,
   },
+  cartPhone: { flex: 1, width: "100%", borderLeftWidth: 0, padding: 12 },
   cartTitle: { fontSize: 20, fontWeight: "800", marginBottom: 12 },
   lines: { marginVertical: 12 },
   empty: { color: "#888", textAlign: "center", marginTop: 40 },
@@ -1947,6 +2244,7 @@ const s = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: "#eee",
   },
+  lineContent: { flex: 1, paddingRight: 10 },
   lineName: { fontSize: 16 },
   linePrice: { fontSize: 16, fontWeight: "700" },
   quantity: { flexDirection: "row", gap: 8, marginTop: 8 },
@@ -2040,6 +2338,7 @@ const s = StyleSheet.create({
   dotBad: { backgroundColor: "#ff765f" },
   status: { color: "white", fontWeight: "600", flex: 1 },
   admin: { padding: 20, gap: 16 },
+  adminCompact: { padding: 12 },
   adminTitle: { fontSize: 24, fontWeight: "800" },
   screenHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12 },
   fab: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#a7c4b5", alignItems: "center", justifyContent: "center" },
@@ -2048,8 +2347,11 @@ const s = StyleSheet.create({
     backgroundColor: "#fffaf7",
     padding: 18,
     borderRadius: 14,
-    maxWidth: 620,
+    width: "100%",
+    maxWidth: "100%",
   },
+  editorCompact: { width: "100%", padding: 14 },
+  stackCompact: { flexDirection: "column", alignItems: "stretch", width: "100%" },
   employeeList: { gap: 8, marginBottom: 14 },
   employee: {
     padding: 12,
