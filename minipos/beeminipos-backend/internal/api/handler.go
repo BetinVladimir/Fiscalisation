@@ -37,6 +37,8 @@ func NewWithEmailAuth(s *domain.Service, c config.Config, email *emailauth.Servi
 	m.HandleFunc("/healthz", h.health)
 	m.HandleFunc("/api/v1/products", h.products)
 	m.HandleFunc("/api/v1/products/", h.product)
+	m.HandleFunc("/api/v1/tax-groups", h.taxGroups)
+	m.HandleFunc("/api/v1/tax-groups/", h.taxGroup)
 	m.HandleFunc("/api/v1/employees", h.employees)
 	m.HandleFunc("/api/v1/employees/", h.employee)
 	m.HandleFunc("/api/v1/shifts", h.shifts)
@@ -47,6 +49,8 @@ func NewWithEmailAuth(s *domain.Service, c config.Config, email *emailauth.Servi
 	m.HandleFunc("/api/v1/configuration", h.configuration)
 	m.HandleFunc("/public/v1/minipos/products", h.products)
 	m.HandleFunc("/public/v1/minipos/products/", h.product)
+	m.HandleFunc("/public/v1/minipos/tax-groups", h.taxGroups)
+	m.HandleFunc("/public/v1/minipos/tax-groups/", h.taxGroup)
 	m.HandleFunc("/public/v1/minipos/employees", h.employees)
 	m.HandleFunc("/public/v1/minipos/employees/", h.employee)
 	m.HandleFunc("/public/v1/minipos/operator-session", h.operatorSession)
@@ -464,6 +468,67 @@ func (h *handler) product(w http.ResponseWriter, r *http.Request) {
 		x, e := h.s.UpdateProductForTenant(id, expected, v, tenantID(r))
 		if e != nil {
 			problem(w, 409, e.Error())
+			return
+		}
+		write(w, 200, x)
+		return
+	}
+	problem(w, 405, "method")
+}
+func (h *handler) taxGroups(w http.ResponseWriter, r *http.Request) {
+	if r.Method == "GET" {
+		page, err := paginate(r, h.s.TaxGroupsFor(tenantID(r)))
+		if err != nil {
+			problem(w, http.StatusBadRequest, "INVALID_PAGINATION")
+			return
+		}
+		write(w, 200, page)
+		return
+	}
+	if r.Method == "POST" {
+		var v domain.TaxGroup
+		if !decode(w, r, &v) {
+			return
+		}
+		v.TenantID = tenantID(r)
+		x, err := h.s.CreateTaxGroup(v)
+		if err != nil {
+			problem(w, 422, err.Error())
+			return
+		}
+		write(w, 201, x)
+		return
+	}
+	problem(w, 405, "method")
+}
+func (h *handler) taxGroup(w http.ResponseWriter, r *http.Request) {
+	id := lastID(r.URL.Path, "tax-groups")
+	if id == "" {
+		problem(w, 404, "not found")
+		return
+	}
+	current, err := h.s.TaxGroupForTenant(id, tenantID(r))
+	if err != nil {
+		problem(w, 404, "not found")
+		return
+	}
+	if r.Method == "GET" {
+		write(w, 200, current)
+		return
+	}
+	if r.Method == "PATCH" {
+		expected, err := strconv.ParseInt(strings.Trim(r.Header.Get("If-Match"), `"`), 10, 64)
+		if err != nil {
+			problem(w, 400, "If-Match required")
+			return
+		}
+		var v domain.TaxGroup
+		if !decode(w, r, &v) {
+			return
+		}
+		x, err := h.s.UpdateTaxGroupForTenant(id, expected, v, tenantID(r))
+		if err != nil {
+			problem(w, 409, err.Error())
 			return
 		}
 		write(w, 200, x)

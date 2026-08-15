@@ -63,6 +63,14 @@ type Product = {
   tax_group: string;
   active: boolean;
 };
+type TaxGroup = {
+  id: string;
+  code: string;
+  name: string;
+  rate: string;
+  status: "ACTIVE" | "INACTIVE";
+  version: number;
+};
 type Employee = {
   id: string;
   first_name: string;
@@ -350,6 +358,7 @@ function MiniPosApp({
   runtimeUnauthorized = () => void emailAuth.logout();
   const [loginCode,setLoginCode]=useState(""), [companyName,setCompanyName]=useState(""), [companyAddress,setCompanyAddress]=useState(""), [taxIdentifier,setTaxIdentifier]=useState(""), [currentUserName,setCurrentUserName]=useState("");
   const [products, setProducts] = useState<Product[]>([]),
+    [taxGroups, setTaxGroups] = useState<TaxGroup[]>([]),
     [employees, setEmployees] = useState<Employee[]>([]),
     [shift, setShift] = useState<Shift | null>(null),
     [saleProjection, setSaleProjection] = useState<FiscalSale | null>(null),
@@ -366,6 +375,7 @@ function MiniPosApp({
   const [pName, setPName] = useState(""),
     [pPrice, setPPrice] = useState(""),
     [pBarcode, setPBarcode] = useState(""),
+    [pTaxGroup, setPTaxGroup] = useState(""),
     [eFirst, setEFirst] = useState(""),
     [eLast, setELast] = useState(""),
     [eCode, setECode] = useState("");
@@ -532,11 +542,14 @@ function MiniPosApp({
         prodMode && !privileged
           ? Promise.resolve(session ? [session.employee] : [])
           : collect<Employee>("/employees");
-      const [p, e] = await Promise.all([
+      const [p, groups, e] = await Promise.all([
         collect<Product>("/products"),
+        collect<TaxGroup>("/tax-groups"),
         employeeRequest,
       ]);
       setProducts(p.filter((x) => x.active));
+      setTaxGroups(groups);
+      setPTaxGroup((current) => current || groups.find((group) => group.status === "ACTIVE")?.code || "");
       setEmployees(e);
       const employee =
         session?.employee || e.find((x) => x.id === selectedEmployeeId) || e[0];
@@ -1165,7 +1178,7 @@ function MiniPosApp({
           barcode: pBarcode.trim() || null,
           name: pName,
           price: { amount: Number(pPrice).toFixed(2), currency: "EUR" },
-          tax_group: "B",
+          tax_group: pTaxGroup,
         }),
       });
       setPName("");
@@ -1192,6 +1205,25 @@ function MiniPosApp({
       await refresh();
     } catch (e) {
       setStatus(message(e));
+    }
+  };
+  const saveTaxGroup = async (group: Partial<TaxGroup> & { code: string; name: string; rate: string }) => {
+    try {
+      const body = JSON.stringify({ code: group.code, name: group.name, rate: group.rate, status: group.status || "ACTIVE" });
+      if (group.id) {
+        await call(`/tax-groups/${group.id}`, {
+          method: "PATCH",
+          headers: { "If-Match": String(group.version) },
+          body,
+        });
+      } else {
+        await call("/tax-groups", { method: "POST", body });
+      }
+      await refresh();
+      return true;
+    } catch (e) {
+      setStatus(message(e));
+      return false;
     }
   };
   const saveConfiguration = async () => {
@@ -1424,6 +1456,7 @@ function MiniPosApp({
           compact={isPhone}
           production={prodMode}
           products={products}
+          taxGroups={taxGroups}
           employees={employees}
           selectedEmployeeId={selectedEmployee?.id || ""}
           salesReport={salesReport}
@@ -1431,6 +1464,7 @@ function MiniPosApp({
             pName,
             pPrice,
             pBarcode,
+            pTaxGroup,
             eFirst,
             eLast,
             eCode,
@@ -1443,6 +1477,7 @@ function MiniPosApp({
             setPName,
             setPPrice,
             setPBarcode,
+            setPTaxGroup,
             setEFirst,
             setELast,
             setECode,
@@ -1454,6 +1489,7 @@ function MiniPosApp({
           }}
           createProduct={createProduct}
           createEmployee={createEmployee}
+          saveTaxGroup={saveTaxGroup}
           saveConfiguration={saveConfiguration}
           loadReport={loadReport}
         />
@@ -1810,6 +1846,7 @@ function Admin({
   compact,
   production,
   products,
+  taxGroups,
   employees,
   selectedEmployeeId,
   salesReport,
@@ -1817,13 +1854,25 @@ function Admin({
   setters,
   createProduct,
   createEmployee,
+  saveTaxGroup,
   saveConfiguration,
   loadReport,
 }: any) {
   const text = useTranslation();
   const [orders, setOrders] = useState<Order[]>([]),
     [reversalStatus, setReversalStatus] = useState(""),
-    [catalogScreen, setCatalogScreen] = useState<"home"|"products"|"product-new"|"employees"|"employee-new">("home");
+    [catalogScreen, setCatalogScreen] = useState<"home"|"products"|"product-new"|"tax-groups"|"tax-group-edit"|"employees"|"employee-new">("home"),
+    [editingTaxGroup, setEditingTaxGroup] = useState<TaxGroup | null>(null),
+    [taxCode, setTaxCode] = useState(""),
+    [taxName, setTaxName] = useState(""),
+    [taxRate, setTaxRate] = useState("");
+  const editTaxGroup = (group?: TaxGroup) => {
+    setEditingTaxGroup(group || null);
+    setTaxCode(group?.code || "");
+    setTaxName(group?.name || "");
+    setTaxRate(group?.rate || "");
+    setCatalogScreen("tax-group-edit");
+  };
   const loadOrders = async () => {
     try {
       setOrders(await collect<Order>("/orders"));
@@ -1837,7 +1886,9 @@ function Admin({
   if (catalogScreen !== "home") return <ScrollView contentContainerStyle={[s.admin, compact && s.adminCompact]}>
     <Pressable style={s.adminButton} onPress={()=>setCatalogScreen("home")}><Text>← {text.back}</Text></Pressable>
     {catalogScreen === "products" ? <View style={[s.editor, compact && s.editorCompact]}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.products}</Text><Pressable style={s.fab} onPress={()=>setCatalogScreen("product-new")}><Text style={s.fabText}>+</Text></Pressable></View>{products.map((p:Product)=><View key={p.id} style={s.line}><Text>{p.name}</Text><Text>€ {p.price.amount}</Text></View>)}</View>:null}
-    {catalogScreen === "product-new" ? <View style={s.editor}><Text style={s.adminTitle}>{text.newProduct}</Text><TextInput style={s.search} placeholder={text.name} value={values.pName} onChangeText={setters.setPName}/><TextInput style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={setters.setPBarcode}/><TextInput style={s.search} placeholder={text.priceEur} value={values.pPrice} onChangeText={setters.setPPrice}/><Pressable style={s.cash} onPress={async()=>{await createProduct();setCatalogScreen("products");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
+    {catalogScreen === "product-new" ? <View style={s.editor}><Text style={s.adminTitle}>{text.newProduct}</Text><TextInput style={s.search} placeholder={text.name} value={values.pName} onChangeText={setters.setPName}/><TextInput style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={setters.setPBarcode}/><TextInput style={s.search} placeholder={text.priceEur} value={values.pPrice} onChangeText={setters.setPPrice}/><Text style={s.cartTitle}>{text.vatGroup}</Text><View style={s.stackCompact}>{taxGroups.filter((group:TaxGroup)=>group.status==="ACTIVE").map((group:TaxGroup)=><Pressable key={group.id} style={[s.card, values.pTaxGroup===group.code && s.selectedCard]} onPress={()=>setters.setPTaxGroup(group.code)}><Text style={s.payText}>{group.code} • {group.name} • {group.rate}%</Text></Pressable>)}</View>{!taxGroups.some((group:TaxGroup)=>group.status==="ACTIVE")?<Pressable style={s.adminButton} onPress={()=>setCatalogScreen("tax-groups")}><Text>{text.configureTaxGroups}</Text></Pressable>:null}<Pressable style={s.cash} disabled={!values.pTaxGroup} onPress={async()=>{await createProduct();setCatalogScreen("products");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
+    {catalogScreen === "tax-groups" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.taxGroups}</Text><Pressable style={s.fab} onPress={()=>editTaxGroup()}><Text style={s.fabText}>+</Text></Pressable></View>{taxGroups.map((group:TaxGroup)=><Pressable key={group.id} style={s.line} onPress={()=>editTaxGroup(group)}><Text>{group.code} • {group.name}</Text><Text>{group.rate}% • {group.status === "ACTIVE" ? text.active : text.inactive}</Text></Pressable>)}</View>:null}
+    {catalogScreen === "tax-group-edit" ? <View style={s.editor}><Text style={s.adminTitle}>{editingTaxGroup ? text.editTaxGroup : text.newTaxGroup}</Text><TextInput style={s.search} placeholder={text.taxCode} maxLength={1} autoCapitalize="characters" value={taxCode} onChangeText={setTaxCode}/><TextInput style={s.search} placeholder={text.name} value={taxName} onChangeText={setTaxName}/><TextInput style={s.search} placeholder={text.taxRate} keyboardType="decimal-pad" value={taxRate} onChangeText={setTaxRate}/><Pressable style={s.cash} onPress={async()=>{const saved=await saveTaxGroup({...editingTaxGroup,code:taxCode,name:taxName,rate:taxRate,status:editingTaxGroup?.status||"ACTIVE"});if(saved)setCatalogScreen("tax-groups");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
     {catalogScreen === "employees" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.employees}</Text><Pressable style={s.fab} onPress={()=>setCatalogScreen("employee-new")}><Text style={s.fabText}>+</Text></Pressable></View>{employees.map((e:Employee)=><View key={e.id} style={s.line}><Text>{e.first_name} {e.last_name}</Text><Text>{e.operator_code}</Text></View>)}</View>:null}
     {catalogScreen === "employee-new" ? <View style={s.editor}><Text style={s.adminTitle}>{text.newEmployee}</Text><TextInput style={s.search} placeholder={text.firstName} value={values.eFirst} onChangeText={setters.setEFirst}/><TextInput style={s.search} placeholder={text.lastName} value={values.eLast} onChangeText={setters.setELast}/><TextInput style={s.search} placeholder={text.operatorCode} maxLength={4} value={values.eCode} onChangeText={setters.setECode}/><Pressable style={s.cash} onPress={async()=>{await createEmployee();setCatalogScreen("employees");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
   </ScrollView>;
@@ -1871,7 +1922,7 @@ function Admin({
   return (
     <ScrollView testID="admin-editors" contentContainerStyle={[s.admin, compact && s.adminCompact]}>
       <Text style={s.adminTitle}>{text.configuration}</Text>
-      <View style={[s.screenHeading, s.stackCompact]}><Pressable style={s.card} onPress={()=>setCatalogScreen("products")}><Text style={s.payText}>{text.products} ({products.length})</Text></Pressable><Pressable style={s.card} onPress={()=>setCatalogScreen("employees")}><Text style={s.payText}>{text.employees} ({employees.length})</Text></Pressable></View>
+      <View style={[s.screenHeading, s.stackCompact]}><Pressable style={s.card} onPress={()=>setCatalogScreen("products")}><Text style={s.payText}>{text.products} ({products.length})</Text></Pressable><Pressable style={s.card} onPress={()=>setCatalogScreen("tax-groups")}><Text style={s.payText}>{text.taxGroups} ({taxGroups.length})</Text></Pressable><Pressable style={s.card} onPress={()=>setCatalogScreen("employees")}><Text style={s.payText}>{text.employees} ({employees.length})</Text></Pressable></View>
       <View testID="reversal-editor" style={s.editor}>
         <Text style={s.cartTitle}>{text.reversal}</Text>
         <Text>
@@ -2321,6 +2372,7 @@ const s = StyleSheet.create({
     minHeight: 56,
     justifyContent: "center",
   },
+  selectedCard: { backgroundColor: "#496b83", borderWidth: 3, borderColor: "#dcebf5" },
   payText: { color: "white", fontSize: 17, fontWeight: "800" },
   footer: {
     padding: 12,

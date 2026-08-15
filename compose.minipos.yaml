@@ -6,6 +6,15 @@ services:
     volumes: [minipos_pg:/var/lib/postgresql/data, ./database/minipos:/docker-entrypoint-initdb.d:ro]
     networks: [private]
     healthcheck: {test: [CMD-SHELL, "pg_isready -U minipos -d minipos"], interval: 5s, timeout: 3s, retries: 20}
+  dap-minio:
+    image: "${DAP_MINIO_IMAGE:-quay.io/minio/minio:RELEASE.2025-09-07T16-13-09Z}"
+    restart: unless-stopped
+    command: [server, /data, --console-address, ":9001"]
+    environment:
+      MINIO_ROOT_USER: "${DAP_MINIO_ROOT_USER:-minipos}"
+      MINIO_ROOT_PASSWORD: "${DAP_MINIO_ROOT_PASSWORD:-dev-only-minio-password}"
+    volumes: [dap_minio:/data]
+    networks: [private]
   beeminipos-backend:
     build: ./minipos/beeminipos-backend
     restart: unless-stopped
@@ -26,4 +35,4 @@ services:
     networks: [private, ingress]
     depends_on: [beeminipos-backend, miniposweb]
 networks: {private: {}, ingress: {}}
-volumes: {minipos_pg: {}, minipos_caddy: {}}
+volumes: {minipos_pg: {}, minipos_caddy: {}, dap_minio: {}}

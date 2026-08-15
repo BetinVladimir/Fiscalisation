@@ -26,7 +26,7 @@ type stateRow struct {
 	Payload         json.RawMessage
 }
 
-var mapCollections = map[string]bool{"products": true, "employees": true, "identity_bindings": true, "operator_sessions": true, "shifts": true, "orders": true, "checkouts": true, "checkout_hashes": true, "api_replays": true, "webhook_inbox": true, "configurations": true}
+var mapCollections = map[string]bool{"products": true, "tax_groups": true, "employees": true, "identity_bindings": true, "operator_sessions": true, "shifts": true, "orders": true, "checkouts": true, "checkout_hashes": true, "api_replays": true, "webhook_inbox": true, "configurations": true}
 
 func Open(url string) (*Postgres, error) {
 	if url == "" {
@@ -297,6 +297,7 @@ func loadMiniPOSTypedSnapshot(tx *sql.Tx, sequence int64) ([]byte, error) {
 	rows, err := tx.Query(`
 select collection,entity_key,payload from (
   select 'products'::text collection,id entity_key,payload from minipos_runtime_products
+  union all select 'tax_groups',id,payload from minipos_runtime_tax_groups
   union all select 'employees',id,payload from minipos_runtime_employees
   union all select 'identity_bindings',binding_key,payload from minipos_runtime_identity_bindings
   union all select 'operator_sessions',session_key,payload from minipos_runtime_operator_sessions
@@ -332,6 +333,7 @@ func miniPOSTypedCoverageComplete(tx *sql.Tx) (bool, error) {
 	var missing int
 	err := tx.QueryRow(`select count(*) from minipos_state_rows s where s.collection <> 'sequence' and not (
   (s.collection='products' and exists(select 1 from minipos_runtime_products t where t.id=s.entity_key and t.payload=s.payload)) or
+  (s.collection='tax_groups' and exists(select 1 from minipos_runtime_tax_groups t where t.id=s.entity_key and t.payload=s.payload)) or
   (s.collection='employees' and exists(select 1 from minipos_runtime_employees t where t.id=s.entity_key and t.payload=s.payload)) or
   (s.collection='identity_bindings' and exists(select 1 from minipos_runtime_identity_bindings t where t.binding_key=s.entity_key and t.payload=s.payload)) or
   (s.collection='operator_sessions' and exists(select 1 from minipos_runtime_operator_sessions t where t.session_key=s.entity_key and t.payload=s.payload)) or
@@ -455,6 +457,8 @@ func (p *Postgres) LoadTenantEntity(collection, tenant, id string) ([]byte, erro
 	switch collection {
 	case "products":
 		e = tx.QueryRow(`select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'sku',sku,'barcode',barcode,'name',name,'unit',unit,'price',jsonb_build_object('amount',amount::text,'currency',currency),'tax_group',tax_group,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at)) from minipos_runtime_products where id=$1`, id).Scan(&raw)
+	case "tax_groups":
+		e = tx.QueryRow(`select payload from minipos_runtime_tax_groups where id=$1`, id).Scan(&raw)
 	case "employees":
 		e = tx.QueryRow(`select jsonb_build_object('id',id,'tenant_id',organization_id,'first_name',first_name,'last_name',last_name,'operator_code',operator_code,'roles',roles,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at) from minipos_runtime_employees where id=$1`, id).Scan(&raw)
 	case "shifts":
@@ -501,6 +505,8 @@ func (p *Postgres) LoadTenantEntities(collection, tenant string) ([][]byte, erro
 	switch collection {
 	case "products":
 		query = `select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'sku',sku,'barcode',barcode,'name',name,'unit',unit,'price',jsonb_build_object('amount',amount::text,'currency',currency),'tax_group',tax_group,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at)) from minipos_runtime_products order by name,id`
+	case "tax_groups":
+		query = `select payload from minipos_runtime_tax_groups order by code,id`
 	case "employees":
 		query = `select jsonb_build_object('id',id,'tenant_id',organization_id,'first_name',first_name,'last_name',last_name,'operator_code',operator_code,'roles',roles,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at) from minipos_runtime_employees order by last_name,first_name,id`
 	case "shifts":
@@ -552,7 +558,7 @@ func deleteTypedProjection(tx *sql.Tx, row stateRow) error {
 			return e
 		})
 	}
-	tables := map[string]string{"products": "minipos_runtime_products", "employees": "minipos_runtime_employees", "identity_bindings": "minipos_runtime_identity_bindings", "operator_sessions": "minipos_runtime_operator_sessions", "shifts": "minipos_runtime_shifts", "orders": "minipos_runtime_orders", "configurations": "minipos_runtime_configurations", "api_replays": "minipos_runtime_api_replays", "webhook_inbox": "minipos_runtime_webhook_inbox", "checkouts": "minipos_runtime_checkout_results", "checkout_hashes": "minipos_runtime_checkout_hashes"}
+	tables := map[string]string{"products": "minipos_runtime_products", "tax_groups": "minipos_runtime_tax_groups", "employees": "minipos_runtime_employees", "identity_bindings": "minipos_runtime_identity_bindings", "operator_sessions": "minipos_runtime_operator_sessions", "shifts": "minipos_runtime_shifts", "orders": "minipos_runtime_orders", "configurations": "minipos_runtime_configurations", "api_replays": "minipos_runtime_api_replays", "webhook_inbox": "minipos_runtime_webhook_inbox", "checkouts": "minipos_runtime_checkout_results", "checkout_hashes": "minipos_runtime_checkout_hashes"}
 	table := tables[row.Collection]
 	if table == "" {
 		return nil
@@ -583,6 +589,9 @@ func upsertTypedProjectionAsOrganization(tx *sql.Tx, row stateRow) error {
 	switch row.Collection {
 	case "products":
 		_, e := tx.Exec(`insert into minipos_runtime_products(id,organization_id,sku,barcode,name,unit,amount,currency,tax_group,active,status,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'sku',nullif($2::jsonb->>'barcode',''),$2::jsonb->>'name',$2::jsonb->>'unit',($2::jsonb->'price'->>'amount')::numeric,$2::jsonb->'price'->>'currency',$2::jsonb->>'tax_group',($2::jsonb->>'active')::boolean,$2::jsonb->>'status',($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,sku=excluded.sku,barcode=excluded.barcode,name=excluded.name,unit=excluded.unit,amount=excluded.amount,currency=excluded.currency,tax_group=excluded.tax_group,active=excluded.active,status=excluded.status,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_products is distinct from excluded`, row.Key, p)
+		return e
+	case "tax_groups":
+		_, e := tx.Exec(`insert into minipos_runtime_tax_groups(id,organization_id,code,name,rate,status,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'code',$2::jsonb->>'name',($2::jsonb->>'rate')::numeric,$2::jsonb->>'status',($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,code=excluded.code,name=excluded.name,rate=excluded.rate,status=excluded.status,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_tax_groups is distinct from excluded`, row.Key, p)
 		return e
 	case "employees":
 		_, e := tx.Exec(`insert into minipos_runtime_employees(id,organization_id,first_name,last_name,operator_code,roles,active,status,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'first_name',$2::jsonb->>'last_name',$2::jsonb->>'operator_code',$2::jsonb->'roles',($2::jsonb->>'active')::boolean,$2::jsonb->>'status',($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,first_name=excluded.first_name,last_name=excluded.last_name,operator_code=excluded.operator_code,roles=excluded.roles,active=excluded.active,status=excluded.status,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_employees is distinct from excluded`, row.Key, p)
@@ -730,7 +739,7 @@ func rebuildSnapshot(rows []stateRow) ([]byte, error) {
 		// Identity bindings were added after the original snapshots. Preserve
 		// byte/semantic compatibility for legacy states until the first binding
 		// exists; the domain initializes an absent collection to an empty map.
-		if (c == "identity_bindings" || c == "operator_sessions") && len(v) == 0 {
+		if (c == "identity_bindings" || c == "operator_sessions" || c == "tax_groups") && len(v) == 0 {
 			continue
 		}
 		root[c] = v

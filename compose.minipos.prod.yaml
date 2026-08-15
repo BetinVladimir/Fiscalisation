@@ -1,4 +1,12 @@
 services:
+  dap-minio:
+    environment:
+      MINIO_ROOT_USER: "${DAP_MINIO_ROOT_USER:?required}"
+      MINIO_ROOT_PASSWORD: "${DAP_MINIO_ROOT_PASSWORD:?required}"
+    read_only: true
+    tmpfs: [/tmp]
+    security_opt: [no-new-privileges:true]
+    cap_drop: [ALL]
   postgres:
     environment:
       POSTGRES_PASSWORD: "${MINIPOS_DB_PASSWORD:?required}"

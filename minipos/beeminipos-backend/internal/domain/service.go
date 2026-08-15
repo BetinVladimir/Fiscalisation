@@ -38,6 +38,17 @@ type Product struct {
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
+type TaxGroup struct {
+	ID        string    `json:"id"`
+	TenantID  string    `json:"tenant_id"`
+	Code      string    `json:"code"`
+	Name      string    `json:"name"`
+	Rate      string    `json:"rate"`
+	Status    string    `json:"status"`
+	Version   int64     `json:"version"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
 type Employee struct {
 	ID           string    `json:"id"`
 	TenantID     string    `json:"tenant_id"`
@@ -216,6 +227,7 @@ type ReversalResult struct {
 type Service struct {
 	mu                sync.RWMutex
 	products          map[string]Product
+	taxGroups         map[string]TaxGroup
 	employees         map[string]Employee
 	identityBindings  map[string]IdentityBinding
 	operatorSessions  map[string]OperatorSessionRecord
@@ -266,6 +278,7 @@ type TenantEntityReader interface {
 }
 type snapshot struct {
 	Products         map[string]Product               `json:"products"`
+	TaxGroups        map[string]TaxGroup              `json:"tax_groups"`
 	Employees        map[string]Employee              `json:"employees"`
 	IdentityBindings map[string]IdentityBinding       `json:"identity_bindings"`
 	OperatorSessions map[string]OperatorSessionRecord `json:"operator_sessions"`
@@ -280,7 +293,7 @@ type snapshot struct {
 }
 
 func NewService(f, v string) *Service {
-	return &Service{products: map[string]Product{}, employees: map[string]Employee{}, identityBindings: map[string]IdentityBinding{}, operatorSessions: map[string]OperatorSessionRecord{}, shifts: map[string]Shift{}, orders: map[string]Order{}, checkouts: map[string]Order{}, checkoutHashes: map[string]string{}, apiReplays: map[string]APIReplay{}, webhookInbox: map[string]WebhookInboxRecord{}, configurations: map[string]Configuration{}, fiscal: f, version: v, client: &http.Client{Timeout: 10 * time.Second}}
+	return &Service{products: map[string]Product{}, taxGroups: map[string]TaxGroup{}, employees: map[string]Employee{}, identityBindings: map[string]IdentityBinding{}, operatorSessions: map[string]OperatorSessionRecord{}, shifts: map[string]Shift{}, orders: map[string]Order{}, checkouts: map[string]Order{}, checkoutHashes: map[string]string{}, apiReplays: map[string]APIReplay{}, webhookInbox: map[string]WebhookInboxRecord{}, configurations: map[string]Configuration{}, fiscal: f, version: v, client: &http.Client{Timeout: 10 * time.Second}}
 }
 func NewPersistentService(f, v string, store Store) (*Service, error) {
 	s := NewService(f, v)
@@ -302,6 +315,10 @@ func NewPersistentService(f, v string, store Store) (*Service, error) {
 			return nil, e
 		}
 		s.products = x.Products
+		s.taxGroups = x.TaxGroups
+		if s.taxGroups == nil {
+			s.taxGroups = map[string]TaxGroup{}
+		}
 		s.employees = x.Employees
 		s.identityBindings = x.IdentityBindings
 		if s.identityBindings == nil {
@@ -369,7 +386,7 @@ func (s *Service) persistLocked() error {
 	if s.store == nil {
 		return nil
 	}
-	b, e := json.Marshal(snapshot{Products: s.products, Employees: s.employees, IdentityBindings: s.identityBindings, OperatorSessions: s.operatorSessions, Shifts: s.shifts, Orders: s.orders, Checkouts: s.checkouts, CheckoutHashes: s.checkoutHashes, APIReplays: s.apiReplays, WebhookInbox: s.webhookInbox, Configurations: s.configurations, Sequence: s.sequence})
+	b, e := json.Marshal(snapshot{Products: s.products, TaxGroups: s.taxGroups, Employees: s.employees, IdentityBindings: s.identityBindings, OperatorSessions: s.operatorSessions, Shifts: s.shifts, Orders: s.orders, Checkouts: s.checkouts, CheckoutHashes: s.checkoutHashes, APIReplays: s.apiReplays, WebhookInbox: s.webhookInbox, Configurations: s.configurations, Sequence: s.sequence})
 	if e != nil {
 		return e
 	}
@@ -415,7 +432,7 @@ func (s *Service) restoreLocked() {
 	if json.Unmarshal(b, &x) != nil {
 		return
 	}
-	s.products, s.employees, s.identityBindings, s.operatorSessions, s.shifts, s.orders = x.Products, x.Employees, x.IdentityBindings, x.OperatorSessions, x.Shifts, x.Orders
+	s.products, s.taxGroups, s.employees, s.identityBindings, s.operatorSessions, s.shifts, s.orders = x.Products, x.TaxGroups, x.Employees, x.IdentityBindings, x.OperatorSessions, x.Shifts, x.Orders
 	if s.identityBindings == nil {
 		s.identityBindings = map[string]IdentityBinding{}
 	}
@@ -426,6 +443,9 @@ func (s *Service) restoreLocked() {
 	s.sequence = x.Sequence
 	if s.products == nil {
 		s.products = map[string]Product{}
+	}
+	if s.taxGroups == nil {
+		s.taxGroups = map[string]TaxGroup{}
 	}
 	if s.employees == nil {
 		s.employees = map[string]Employee{}
@@ -673,6 +693,125 @@ func (s *Service) ProductsFor(tenant string) []Product {
 	sort.Slice(v, func(i, j int) bool { return v[i].ID < v[j].ID })
 	return v
 }
+func (s *Service) TaxGroupsFor(tenant string) []TaxGroup {
+	if reader, ok := s.store.(TenantEntityReader); ok && tenant != "" {
+		rows, err := reader.LoadTenantEntities("tax_groups", tenant)
+		if err != nil {
+			return []TaxGroup{}
+		}
+		out := make([]TaxGroup, 0, len(rows))
+		for _, raw := range rows {
+			var group TaxGroup
+			if json.Unmarshal(raw, &group) != nil {
+				return []TaxGroup{}
+			}
+			out = append(out, group)
+		}
+		sort.Slice(out, func(i, j int) bool { return out[i].Code < out[j].Code })
+		return out
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	out := make([]TaxGroup, 0, len(s.taxGroups))
+	for _, group := range s.taxGroups {
+		if tenant == "" || group.TenantID == tenant {
+			out = append(out, group)
+		}
+	}
+	sort.Slice(out, func(i, j int) bool { return out[i].Code < out[j].Code })
+	return out
+}
+
+func normalizeTaxRate(value string) (string, error) {
+	rate, err := strconv.ParseFloat(strings.ReplaceAll(strings.TrimSpace(value), ",", "."), 64)
+	if err != nil || math.IsNaN(rate) || math.IsInf(rate, 0) || rate < 0 || rate > 100 {
+		return "", errors.New("tax rate must be between 0 and 100")
+	}
+	return strconv.FormatFloat(rate, 'f', 2, 64), nil
+}
+
+func (s *Service) CreateTaxGroup(group TaxGroup) (TaxGroup, error) {
+	group.Code = strings.ToUpper(strings.TrimSpace(group.Code))
+	group.Name = strings.TrimSpace(group.Name)
+	if !validTax(group.Code) || group.Name == "" || (group.Status != "" && group.Status != "ACTIVE" && group.Status != "INACTIVE") {
+		return group, errors.New("invalid tax group")
+	}
+	rate, err := normalizeTaxRate(group.Rate)
+	if err != nil {
+		return group, err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, existing := range s.taxGroups {
+		if existing.TenantID == group.TenantID && existing.Code == group.Code {
+			return group, errors.New("duplicate tax group code")
+		}
+	}
+	group.ID = s.nextID("tax-group")
+	group.Rate = rate
+	if group.Status == "" {
+		group.Status = "ACTIVE"
+	}
+	group.Version = 1
+	group.CreatedAt = time.Now().UTC()
+	group.UpdatedAt = group.CreatedAt
+	s.taxGroups[group.ID] = group
+	return group, s.persistLocked()
+}
+
+func (s *Service) TaxGroupForTenant(id, tenant string) (TaxGroup, error) {
+	if reader, ok := s.store.(TenantEntityReader); ok && tenant != "" {
+		raw, err := reader.LoadTenantEntity("tax_groups", tenant, id)
+		if err != nil {
+			return TaxGroup{}, err
+		}
+		var group TaxGroup
+		err = json.Unmarshal(raw, &group)
+		return group, err
+	}
+	s.mu.RLock()
+	defer s.mu.RUnlock()
+	group, ok := s.taxGroups[id]
+	if !ok || group.TenantID != tenant {
+		return TaxGroup{}, errors.New("not found")
+	}
+	return group, nil
+}
+
+func (s *Service) UpdateTaxGroupForTenant(id string, expected int64, group TaxGroup, tenant string) (TaxGroup, error) {
+	current, err := s.TaxGroupForTenant(id, tenant)
+	if err != nil || expected <= 0 || current.Version != expected {
+		return TaxGroup{}, errors.New("version conflict")
+	}
+	group.Code = strings.ToUpper(strings.TrimSpace(group.Code))
+	group.Name = strings.TrimSpace(group.Name)
+	if !validTax(group.Code) || group.Name == "" || (group.Status != "" && group.Status != "ACTIVE" && group.Status != "INACTIVE") {
+		return group, errors.New("invalid tax group")
+	}
+	rate, err := normalizeTaxRate(group.Rate)
+	if err != nil {
+		return group, err
+	}
+	s.mu.Lock()
+	defer s.mu.Unlock()
+	for _, existing := range s.taxGroups {
+		if existing.ID != id && existing.TenantID == tenant && existing.Code == group.Code {
+			return group, errors.New("duplicate tax group code")
+		}
+	}
+	group.ID = id
+	group.TenantID = tenant
+	group.Rate = rate
+	if group.Status == "" {
+		group.Status = current.Status
+	}
+	group.Version = current.Version + 1
+	group.CreatedAt = current.CreatedAt
+	group.UpdatedAt = time.Now().UTC()
+	s.taxGroups[id] = group
+	return group, s.persistLocked()
+}
+
 func (s *Service) CreateProduct(v Product) (Product, error) {
 	if v.SKU == "" || v.Name == "" || !validMoney(v.Price) || !validTax(v.TaxGroup) || (v.Status != "" && v.Status != "ACTIVE" && v.Status != "INACTIVE") {
 		return v, errors.New("invalid product")
