@@ -1,4 +1,10 @@
 services:
+  redis:
+    networks: !override [private]
+  emqx:
+    networks: !override [private]
+  rabbitmq:
+    networks: !override [private]
   fiscal-backend:
     extra_hosts: ["host.docker.internal:host-gateway"]
     environment:
@@ -7,4 +13,7 @@ services:
       SMTP_USER: ""
       SMTP_PASSWORD: ""
       SMTP_FROM: e2e-fiscal@beeloy.test
+      EMQX_BROKER: ""
       SIMULATOR_CARD_TERMINAL_AVAILABLE: "true"
+  caddy:
+    networks: !override [private]

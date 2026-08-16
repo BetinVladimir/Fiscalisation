@@ -11,3 +11,5 @@ services:
       FISCAL_SYSTEM_TOKEN: "${E2E_FISCAL_SYSTEM_TOKEN}"
       FISCAL_CREDENTIAL_ENCRYPTION_KEY_BASE64: "${E2E_CREDENTIAL_KEY}"
       FISCAL_CREDENTIAL_KEK_ID: e2e-kek-1
+  caddy:
+    networks: !override [private]

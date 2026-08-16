@@ -28,7 +28,15 @@ type Client struct {
 	aead                     cipher.AEAD
 	http                     *http.Client
 }
-type Enrollment struct{ Email, SourceCompanyID, LegalName, TaxCountry, TaxType, TaxValue, Address string }
+type Enrollment struct {
+	Email           string `json:"email"`
+	SourceCompanyID string `json:"source_company_id"`
+	LegalName       string `json:"legal_name"`
+	TaxCountry      string `json:"tax_country"`
+	TaxType         string `json:"tax_type"`
+	TaxValue        string `json:"tax_value"`
+	Address         string `json:"address"`
+}
 type Challenge struct {
 	TemporaryToken string    `json:"temporary_token"`
 	ExpiresAt      time.Time `json:"expires_at"`

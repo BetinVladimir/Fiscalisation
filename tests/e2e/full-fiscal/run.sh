@@ -17,13 +17,15 @@ mini_compose="docker compose -p beeloy-full-e2e-minipos -f $root/compose.minipos
 mock_compose="docker compose -p beeloy-full-e2e-mocks -f $test_dir/compose.yaml"
 
 cleanup() {
+  cleanup_status=$?
   if [ "${KEEP_E2E:-0}" = 1 ]; then
     printf '%s\n' 'KEEP_E2E=1: окружение оставлено запущенным'
-    return
+    return "$cleanup_status"
   fi
   $mini_compose down -v --remove-orphans >/dev/null 2>&1 || true
   $fiscal_compose down -v --remove-orphans >/dev/null 2>&1 || true
   $mock_compose down -v --remove-orphans >/dev/null 2>&1 || true
+  return "$cleanup_status"
 }
 trap cleanup EXIT INT TERM
 
@@ -53,19 +55,38 @@ jwt() {
 }
 
 api() {
-  method=$1; url=$2; token=$3; key=$4; body=${5:-}
-  if [ -n "$body" ]; then
-    curl --max-time 20 -fsS -X "$method" "$url" -H "Authorization: Bearer $token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: $key" -H 'Content-Type: application/json' --data "$body"
+  method=$1; url=$2; token=$3; key=$4; body=${5:-}; if_match=${6:-}
+  response_file=$(mktemp "${TMPDIR:-/tmp}/beeloy-e2e-response.XXXXXX")
+  if [ -n "$body" ] && [ -n "$if_match" ]; then
+    response_status=$(curl --max-time 20 -sS -o "$response_file" -w '%{http_code}' -X "$method" "$url" -H "Authorization: Bearer $token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: $key" -H "If-Match: $if_match" -H 'Content-Type: application/json' --data "$body") || { cat "$response_file" >&2; rm -f "$response_file"; return 1; }
+  elif [ -n "$body" ]; then
+    response_status=$(curl --max-time 20 -sS -o "$response_file" -w '%{http_code}' -X "$method" "$url" -H "Authorization: Bearer $token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: $key" -H 'Content-Type: application/json' --data "$body") || { cat "$response_file" >&2; rm -f "$response_file"; return 1; }
   else
-    curl --max-time 20 -fsS -X "$method" "$url" -H "Authorization: Bearer $token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: $key"
+    response_status=$(curl --max-time 20 -sS -o "$response_file" -w '%{http_code}' -X "$method" "$url" -H "Authorization: Bearer $token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: $key") || { cat "$response_file" >&2; rm -f "$response_file"; return 1; }
   fi
+  case "$response_status" in
+    2??) ;;
+    *) printf 'HTTP %s %s %s\n' "$response_status" "$method" "$url" >&2; cat "$response_file" >&2; rm -f "$response_file"; return 1 ;;
+  esac
+  cat "$response_file"
+  rm -f "$response_file"
 }
 
 printf '%s\n' '[1/8] Запуск SMTP и device mocks'
 $mock_compose up -d --build --wait
 
 printf '%s\n' '[2/8] Запуск Fiscal dev stack'
-APP_ENV=e2e AUTH_HMAC_KEY="$auth_key" FISCAL_HTTP_PORT=18000 FISCAL_HTTPS_PORT=18443 FISCAL_POSTGRES_PUBLISH_PORT=15433 REDIS_PORT=16380 RABBITMQ_AMQP_PORT=15674 RABBITMQ_MANAGEMENT_PORT=25674 EMQX_MQTT_PORT=11884 EMQX_WS_PORT=28083 EMQX_WSS_PORT=28084 EMQX_MQTTS_PORT=18884 EMQX_DASHBOARD_PORT=28085 $fiscal_compose up -d --build
+APP_ENV=e2e AUTH_HMAC_KEY="$auth_key" FISCAL_HTTP_PORT=18000 FISCAL_HTTPS_PORT=18443 FISCAL_POSTGRES_PUBLISH_PORT=15433 REDIS_PORT=16380 RABBITMQ_AMQP_PORT=15674 RABBITMQ_MANAGEMENT_PORT=25674 EMQX_MQTT_PORT=11884 EMQX_WS_PORT=28083 EMQX_WSS_PORT=28084 EMQX_MQTTS_PORT=18884 EMQX_DASHBOARD_PORT=28085 $fiscal_compose up -d postgres redis rabbitmq emqx
+# Docker Compose <2.24 merges multi-network lists and on some Docker Desktop
+# versions attaches only the last network. Explicit connects keep the runner
+# compatible with the repository's currently supported Compose 2.19.
+for service in redis rabbitmq emqx; do
+  container=$($fiscal_compose ps -q "$service")
+  docker network connect beeloy-full-e2e-fiscal_private "$container" 2>/dev/null || true
+done
+APP_ENV=e2e AUTH_HMAC_KEY="$auth_key" FISCAL_HTTP_PORT=18000 FISCAL_HTTPS_PORT=18443 FISCAL_POSTGRES_PUBLISH_PORT=15433 REDIS_PORT=16380 RABBITMQ_AMQP_PORT=15674 RABBITMQ_MANAGEMENT_PORT=25674 EMQX_MQTT_PORT=11884 EMQX_WS_PORT=28083 EMQX_WSS_PORT=28084 EMQX_MQTTS_PORT=18884 EMQX_DASHBOARD_PORT=28085 $fiscal_compose up -d --build fiscal-backend caddy
+fiscal_caddy=$($fiscal_compose ps -q caddy)
+docker network connect beeloy-full-e2e-fiscal_private "$fiscal_caddy" 2>/dev/null || true
 wait_url "$fiscal_base/healthz" Fiscal
 
 admin_token=$(jwt platform PLATFORM_INTEGRATION_ADMIN beefiscal.platform)
@@ -74,6 +95,8 @@ export E2E_FISCAL_SYSTEM_TOKEN=$(printf '%s' "$system" | jq -er .bootstrap_token
 
 printf '%s\n' '[3/8] Запуск MiniPOS и регистрация компании по OTP'
 APP_ENV=e2e AUTH_HMAC_KEY="$auth_key" MINIPOS_HTTP_PORT=18001 MINIPOS_HTTPS_PORT=18444 $mini_compose up -d --build
+mini_caddy=$($mini_compose ps -q caddy)
+docker network connect beeloy-full-e2e-minipos_private "$mini_caddy" 2>/dev/null || true
 wait_url "$mini_base/healthz" MiniPOS
 before=$(curl -fsS http://localhost:18080/messages | jq '.items | length')
 curl -fsS -X POST "$mini_base/public/v1/minipos/auth/request-code" -H "X-Api-Version: $api_version" -H 'Content-Type: application/json' --data "{\"email\":\"$email\",\"language\":\"ru\"}" >/dev/null
@@ -86,10 +109,11 @@ company_id=$(JWT_VALUE="$mini_token" node -e 'const p=process.env.JWT_VALUE.spli
 
 printf '%s\n' '[4/8] Связывание MiniPOS → Fiscal и проверка ACTIVE tenant'
 before=$(curl -fsS http://localhost:18080/messages | jq '.items | length')
-enroll_key="enroll-company-$suffix"
-api POST "$mini_base/public/v1/minipos/fiscal-enrollment" "$mini_token" "$enroll_key" "{\"Email\":\"$email\",\"SourceCompanyID\":\"$company_id\",\"LegalName\":\"E2E Company $suffix\",\"TaxCountry\":\"BG\",\"TaxType\":\"EIK\",\"TaxValue\":\"$tax\",\"Address\":\"Sofia, E2E 1\"}" >/dev/null
+enroll_key=$(node -e 'console.log(require("crypto").randomUUID())')
+api POST "$mini_base/public/v1/minipos/fiscal-enrollment" "$mini_token" "$enroll_key" "{\"email\":\"$email\",\"source_company_id\":\"$company_id\",\"legal_name\":\"E2E Company $suffix\",\"tax_country\":\"BG\",\"tax_type\":\"EIK\",\"tax_value\":\"$tax\",\"address\":\"Sofia, E2E 1\"}" >/dev/null
 fiscal_otp=$(otp_after "$email" "$before")
-enrollment=$(api POST "$mini_base/public/v1/minipos/fiscal-enrollment:verify" "$mini_token" "verify-$suffix" "{\"enrollment_idempotency_key\":\"$enroll_key\",\"code\":\"$fiscal_otp\"}")
+mini_verify_key=$(node -e 'console.log(require("crypto").randomUUID())')
+enrollment=$(api POST "$mini_base/public/v1/minipos/fiscal-enrollment:verify" "$mini_token" "$mini_verify_key" "{\"enrollment_idempotency_key\":\"$enroll_key\",\"code\":\"$fiscal_otp\"}")
 tenant_id=$(printf '%s' "$enrollment" | jq -er .tenant_id)
 active=$($fiscal_compose exec -T postgres psql -U fiscal -d fiscal -Atc "select count(*) from tenant_source_bindings where tenant_id='$tenant_id' and source_company_id='$company_id' and status='ACTIVE'")
 [ "$active" = 1 ] || { printf '%s\n' 'Fiscal tenant binding is not ACTIVE' >&2; exit 1; }
@@ -98,13 +122,15 @@ printf '%s\n' '[5/8] Синхронизация конфигурации и оп
 location_source=$(node -e 'console.log(require("crypto").randomUUID())')
 register_source=$(node -e 'console.log(require("crypto").randomUUID())')
 adapter_id=$(node -e 'console.log(require("crypto").randomUUID())')
-api PATCH "$mini_base/public/v1/minipos/configuration" "$mini_token" "configuration-$suffix" "{\"location_name\":\"E2E Shop\",\"location_address\":\"Sofia\",\"workstation_name\":\"E2E Register\",\"location_id\":\"$location_source\",\"fiscal_register_id\":\"$register_source\",\"fiscal_adapter_id\":\"$adapter_id\",\"binding_generation\":1,\"adapter_base_url\":\"http://edge-agent-s3-mock/beeloy/local/v1\"}" >/dev/null
-employees=$(curl -fsS "$mini_base/public/v1/minipos/employees" -H "Authorization: Bearer $mini_token" -H "X-Api-Version: $api_version")
+configuration_key=$(node -e 'console.log(require("crypto").randomUUID())')
+api PATCH "$mini_base/public/v1/minipos/configuration" "$mini_token" "$configuration_key" "{\"location_name\":\"E2E Shop\",\"location_address\":\"Sofia\",\"workstation_name\":\"E2E Register\",\"location_id\":\"$location_source\",\"fiscal_register_id\":\"$register_source\",\"fiscal_adapter_id\":\"$adapter_id\",\"binding_generation\":1,\"adapter_base_url\":\"http://edge-agent-s3-mock/beeloy/local/v1\"}" >/dev/null
+employees=$(api GET "$mini_base/public/v1/minipos/employees" "$mini_token" "read-employees-$suffix")
 employee=$(printf '%s' "$employees" | jq -c '.items[0]')
 employee_id=$(printf '%s' "$employee" | jq -er .id)
 employee_version=$(printf '%s' "$employee" | jq -er .version)
-employee_body=$(printf '%s' "$employee" | jq -c '.operator_code="E001" | .status="ACTIVE" | .active=true')
-curl -fsS -X PATCH "$mini_base/public/v1/minipos/employees/$employee_id" -H "Authorization: Bearer $mini_token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: employee-$suffix" -H "If-Match: $employee_version" -H 'Content-Type: application/json' --data "$employee_body" >/dev/null
+employee_body=$(printf '%s' "$employee" | jq -c '{first_name,last_name,operator_code:"E001",roles,status:"ACTIVE"}')
+employee_key=$(node -e 'console.log(require("crypto").randomUUID())')
+curl -fsS -X PATCH "$mini_base/public/v1/minipos/employees/$employee_id" -H "Authorization: Bearer $mini_token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: $employee_key" -H "If-Match: $employee_version" -H 'Content-Type: application/json' --data "$employee_body" >/dev/null
 
 printf '%s\n' '[6/8] Реальные Fiscal CASH/CARD операции, чек и возврат'
 tenant_token=$(jwt "$tenant_id" ADMIN fiscal.base)
@@ -121,8 +147,16 @@ location_id=$(printf '%s' "$location" | jq -er .id)
 register=$(api POST "$fiscal_base/public/v1/registers" "$tenant_token" "register-$suffix" "{\"code\":\"R$suffix\",\"location_id\":\"$location_id\",\"status\":\"ACTIVE\"}")
 register_id=$(printf '%s' "$register" | jq -er .id)
 api POST "$fiscal_base/public/v1/registers/$register_id/bindings" "$tenant_token" "bind-fiscal-$suffix" "{\"device_id\":\"$device_id\",\"role\":\"FISCAL_DEVICE\",\"active_from\":\"2020-01-01T00:00:00Z\"}" >/dev/null
-api POST "$fiscal_base/public/v1/registers/$register_id/bindings" "$tenant_token" "bind-payment-$suffix" "{\"device_id\":\"$device_id\",\"role\":\"PAYMENT_TERMINAL\",\"active_from\":\"2020-01-01T00:00:00Z\"}" >/dev/null
-api POST "$fiscal_base/public/v1/operators" "$tenant_token" "operator-$suffix" "{\"code\":\"E001\",\"first_name\":\"E2E\",\"last_name\":\"Operator\",\"roles\":[\"CASHIER\"],\"status\":\"ACTIVE\",\"active_from\":\"2020-01-01T00:00:00Z\"}" >/dev/null
+api POST "$fiscal_base/public/v1/registers/$register_id/bindings" "$tenant_token" "bind-payment-$suffix" "{\"device_id\":\"$device_id\",\"role\":\"OPTIONAL_PAYMENT_TERMINAL\",\"active_from\":\"2020-01-01T00:00:00Z\"}" >/dev/null
+operator_ready=0
+operator_wait=0
+while [ "$operator_wait" -lt 60 ]; do
+  operator_ready=$($fiscal_compose exec -T postgres psql -U fiscal -d fiscal -Atc "select count(*) from fiscal_runtime_resources where tenant_id='$tenant_id' and kind='operator' and data->>'code'='E001'")
+  [ "$operator_ready" = 1 ] && break
+  operator_wait=$((operator_wait+1))
+  sleep 1
+done
+[ "$operator_ready" = 1 ] || { printf '%s\n' 'Synced Fiscal operator E001 was not projected' >&2; exit 1; }
 
 sale_flow() {
   payment=$1; serial=$2
@@ -130,12 +164,13 @@ sale_flow() {
   sale_id=$(printf '%s' "$sale" | jq -er .sale_id)
   line=$(curl -fsS -X POST "$fiscal_base/public/v1/sales/$sale_id/lines" -H "Authorization: Bearer $tenant_token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: line-$serial-$suffix" -H 'If-Match: 1' -H 'Content-Type: application/json' --data "{\"line_id\":\"line-$serial\",\"name\":\"E2E item\",\"quantity\":\"1.000\",\"unit_price\":{\"amount\":\"2.50\",\"currency\":\"EUR\"},\"tax_group\":\"B\"}")
   version=$(printf '%s' "$line" | jq -er .version)
-  operation=$(curl -fsS -X POST "$fiscal_base/public/v1/sales/$sale_id/payments" -H "Authorization: Bearer $tenant_token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: payment-$serial-$suffix" -H "If-Match: $version" -H 'Content-Type: application/json' --data "{\"payment_id\":\"payment-$serial\",\"type\":\"$payment\",\"amount\":{\"amount\":\"2.50\",\"currency\":\"EUR\"},\"terminal_policy\":\"REQUIRED\"}")
+  operation=$(api POST "$fiscal_base/public/v1/sales/$sale_id/payments" "$tenant_token" "payment-$serial-$suffix" "{\"payment_id\":\"payment-$serial\",\"type\":\"$payment\",\"amount\":{\"amount\":\"2.50\",\"currency\":\"EUR\"},\"terminal_policy\":\"REQUIRED\"}")
   [ "$(printf '%s' "$operation" | jq -r .state)" = FISCALIZED ]
-  receipt=$(curl -fsS "$fiscal_base/public/v1/sales/$sale_id/receipt" -H "Authorization: Bearer $tenant_token" -H "X-Api-Version: $api_version")
+  receipt=$(api GET "$fiscal_base/public/v1/sales/$sale_id/receipt" "$tenant_token" "receipt-$serial-$suffix")
   printf '%s' "$receipt" | jq -e '.fiscal_reference != null or .regulatory_identifiers != null' >/dev/null
   fiscal_reference=$(printf '%s' "$operation" | jq -er .fiscal_reference)
-  reversal=$(api POST "$fiscal_base/public/v1/sales/$sale_id:reverse" "$tenant_token" "reverse-$serial-$suffix" "{\"reason_code\":\"CUSTOMER_RETURN\",\"original_fiscal_reference\":\"$fiscal_reference\"}")
+  sale_version=$(api GET "$fiscal_base/public/v1/sales/$sale_id" "$tenant_token" "sale-version-$serial-$suffix" | jq -er .version)
+  reversal=$(api POST "$fiscal_base/public/v1/sales/$sale_id:reverse" "$tenant_token" "reverse-$serial-$suffix" "{\"reason_code\":\"CUSTOMER_RETURN\",\"original_fiscal_reference\":\"$fiscal_reference\"}" "$sale_version")
   printf '%s' "$reversal" | jq -e '.state == "FISCALIZED"' >/dev/null
 }
 sale_flow CASH cash

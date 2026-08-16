@@ -320,7 +320,7 @@ paths:
       parameters: [{$ref: '#/components/parameters/SaleId'}, {$ref: '#/components/parameters/ApiVersion'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$ref: '#/components/parameters/IfMatch'}]
       requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/SUPTOReversalRequest'}}}}
       responses:
-        '202': {description: Storno operation, content: {application/json: {schema: {$ref: '#/components/schemas/FiscalOperationSummary'}}}}
+        '202': {description: Storno operation, content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosFiscalOperation'}}}}
         '409': {$ref: '#/components/responses/Problem'}
   /sales/{sale_id}/payment-intents:
     post:
@@ -478,6 +478,75 @@ paths:
           description: Created or updated autonomous configuration
           content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosConfiguration'}}}
         '409': {$ref: '#/components/responses/Problem'}
+  /minipos/fiscal-enrollment:
+    post:
+      operationId: startMiniPosFiscalEnrollment
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [email, source_company_id, legal_name, tax_country, tax_type, tax_value, address]
+              properties:
+                email: {type: string, format: email}
+                source_company_id: {type: string, format: uuid}
+                legal_name: {type: string, minLength: 1, maxLength: 240}
+                tax_country: {type: string, pattern: '^[A-Z]{2}$'}
+                tax_type: {type: string, minLength: 1, maxLength: 32}
+                tax_value: {type: string, minLength: 1, maxLength: 64}
+                address: {type: string, minLength: 1, maxLength: 500}
+      responses:
+        '202':
+          description: Fiscal OTP challenge created and temporary credential retained by MiniPOS
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [temporary_token, expires_at, resend_after]
+                properties:
+                  temporary_token: {type: string, maxLength: 0}
+                  expires_at: {type: string, format: date-time}
+                  resend_after: {type: string, format: date-time}
+        '502': {$ref: '#/components/responses/Problem'}
+  /minipos/fiscal-enrollment:verify:
+    post:
+      operationId: verifyMiniPosFiscalEnrollment
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              additionalProperties: false
+              required: [enrollment_idempotency_key, code]
+              properties:
+                enrollment_idempotency_key: {type: string, format: uuid}
+                code: {type: string, pattern: '^[0-9]{6}$'}
+      responses:
+        '200':
+          description: Fiscal tenant binding and encrypted credential stored by MiniPOS
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: false
+                required: [tenant_id, source_system_id, source_company_id, access_token, scopes]
+                properties:
+                  tenant_id: {type: string, format: uuid}
+                  source_system_id: {type: string, format: uuid}
+                  source_company_id: {type: string, format: uuid}
+                  access_token: {type: string, maxLength: 0}
+                  scopes: {type: array, items: {type: string}}
+        '422': {$ref: '#/components/responses/Problem'}
   /minipos/fiscal-route-health:
     get:
       operationId: getMiniPosFiscalRouteHealth

@@ -1241,7 +1241,9 @@ func (s *Service) receiptForTenant(id, tenant string) (map[string]any, error) {
 	if err != nil {
 		return nil, errors.New("invalid sale total")
 	}
-	return map[string]any{"sale_id": v.ID, "operation_id": v.FiscalOperationID, "unp": v.UNP, "state": v.State, "fiscal_reference": ref, "issued_at": v.UpdatedAt, "total": Money{Amount: formatFixed(total), Currency: "EUR"}, "artifact_id": v.ReceiptArtifactID, "fiscal_device": v.FiscalDevice, "fiscal_device_number": v.FiscalDevice.FiscalDeviceNumber, "fiscal_memory_number": v.FiscalDevice.FiscalMemoryNumber, "lines": v.Lines, "payments": v.Payments}, nil
+	device := v.FiscalDevice
+	device.BindingVersion = 0 // Internal route-fencing metadata is not part of the public receipt contract.
+	return map[string]any{"sale_id": v.ID, "operation_id": v.FiscalOperationID, "unp": v.UNP, "state": v.State, "fiscal_reference": ref, "issued_at": v.UpdatedAt, "total": Money{Amount: formatFixed(total), Currency: "EUR"}, "artifact_id": v.ReceiptArtifactID, "fiscal_device": device, "fiscal_device_number": v.FiscalDevice.FiscalDeviceNumber, "fiscal_memory_number": v.FiscalDevice.FiscalMemoryNumber, "lines": v.Lines, "payments": v.Payments}, nil
 }
 func (s *Service) saleForTenantMutation(id, tenant string) (Sale, error) {
 	if tenant == "" {

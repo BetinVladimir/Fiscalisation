@@ -33,7 +33,7 @@ http.createServer(async (req, res) => {
     operations.set(operation.operation_id, operation); idempotency.set(key, operation);
     return json(res, 202, operation);
   }
-  const match = url.pathname.match(new RegExp(`^${root}/operations/([^/]+)(:reconcile)?$`));
+  const match = url.pathname.match(new RegExp(`^${root}/operations/([^/:]+)(:reconcile)?$`));
   if (match) {
     const operation = operations.get(match[1]);
     if (!operation) return json(res, 404, {code:'OPERATION_NOT_FOUND'});

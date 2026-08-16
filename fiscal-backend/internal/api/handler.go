@@ -11,6 +11,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"net/url"
 	"regexp"
@@ -1133,6 +1134,7 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 		}
 		v, e := h.svc.PayForTenant(id, in, tenantID(r))
 		if e != nil {
+			log.Printf("payment rejected tenant=%s sale=%s: %v", tenantID(r), id, e)
 			problem(w, 409, "PAYMENT_REJECTED")
 			return
 		}
