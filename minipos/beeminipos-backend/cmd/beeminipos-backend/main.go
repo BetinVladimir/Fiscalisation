@@ -64,6 +64,9 @@ func main() {
 		if e != nil {
 			log.Fatal(e)
 		}
+		svc.SetFiscalReadinessCheck(func(tenant, register string) bool {
+			return fiscalClient.ReadyForFiscalOperations(context.Background(), tenant, register)
+		})
 		defer fiscalClient.Close()
 	}
 	h := api.NewWithIntegrations(svc, c, authService, fiscalClient)

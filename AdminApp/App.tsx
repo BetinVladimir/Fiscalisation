@@ -54,6 +54,8 @@ export default function App() {
     [webhookUrl, setWebhookUrl] = useState(""),
     [revealedToken, setRevealedToken] = useState("");
   const [selectedSystem,setSelectedSystem]=useState<ExternalSystem|null>(null), [systemAudit,setSystemAudit]=useState<any[]>([]), [systemBindings,setSystemBindings]=useState<any[]>([]), [systemDeliveries,setSystemDeliveries]=useState<any[]>([]);
+  const [enrollmentConflicts,setEnrollmentConflicts]=useState<any[]>([]),[conflictReason,setConflictReason]=useState("");
+  const [integrationMetrics,setIntegrationMetrics]=useState<Record<string,number>>({});
   const api = useCallback(
     async (path: string, init: RequestInit = {}) => {
       if (!oidc.accessToken) throw new Error("AUTH_REQUIRED");
@@ -100,8 +102,10 @@ export default function App() {
     if (!oidc.accessToken) return;
     setBusy(true);
     try {
-      const result = await api("/platform/v1/external-systems");
+      const [result,conflicts,metrics] = await Promise.all([api("/platform/v1/external-systems"),api("/platform/v1/enrollment-conflicts"),api("/platform/v1/integration-metrics")]);
       setSystems(result.items || []);
+      setEnrollmentConflicts(conflicts.items||[]);
+      setIntegrationMetrics(metrics||{});
       setMessage(`${result.items?.length || 0} external systems`);
     } catch (e) {
       setMessage(String(e));
@@ -141,6 +145,7 @@ export default function App() {
   const loadSystemJournal=async(system:ExternalSystem)=>{setSelectedSystem(system);setBusy(true);try{const [audit,bindings,deliveries]=await Promise.all([api(`/platform/v1/external-systems/${system.id}/audit-events`),api(`/platform/v1/external-systems/${system.id}/tenant-bindings`),api(`/platform/v1/external-systems/${system.id}/webhook-deliveries`)]);setSystemAudit(audit.items||[]);setSystemBindings(bindings.items||[]);setSystemDeliveries(deliveries.items||[])}catch(e){setMessage(String(e))}finally{setBusy(false)}};
   const editSystem=async()=>{if(!selectedSystem)return;setBusy(true);try{await api(`/platform/v1/external-systems/${selectedSystem.id}`,{method:"PATCH",headers:{"Idempotency-Key":crypto.randomUUID(),"If-Match":String(selectedSystem.version)},body:JSON.stringify({display_name:systemName||selectedSystem.display_name,webhook_url:webhookUrl||selectedSystem.webhook_url,webhook_events:selectedSystem.webhook_events,version:selectedSystem.version})});setSelectedSystem(null);setSystemName("");setWebhookUrl("");await loadSystems()}catch(e){setMessage(String(e))}finally{setBusy(false)}};
   const requeue=async(id:string)=>{setBusy(true);try{await api(`/platform/v1/webhook-deliveries/${id}:requeue`,{method:"POST",headers:{"Idempotency-Key":crypto.randomUUID()}});if(selectedSystem)await loadSystemJournal(selectedSystem)}catch(e){setMessage(String(e))}finally{setBusy(false)}};
+  const resolveConflict=async(id:string,decision:"KEEP_EXISTING"|"REPLACE_EXISTING")=>{if(!conflictReason.trim())return;setBusy(true);try{await api(`/platform/v1/enrollment-conflicts/${id}:resolve`,{method:"POST",headers:{"Idempotency-Key":crypto.randomUUID()},body:JSON.stringify({decision,reason:conflictReason})});setConflictReason("");await loadSystems()}catch(e){setMessage(String(e))}finally{setBusy(false)}};
   const transition = async (action: string) => {
     if (!selected) return;
     setBusy(true);
@@ -194,6 +199,7 @@ export default function App() {
       </View>
       {section === "integrations" ? (
         <ScrollView contentContainerStyle={s.integrationBody}>
+          <View style={s.card}><Text style={s.title}>Integration health</Text><Text>Commands backlog: {integrationMetrics.command_backlog||0} · dead: {integrationMetrics.command_dead||0}</Text><Text>Webhooks backlog: {integrationMetrics.webhook_backlog||0} · dead: {integrationMetrics.webhook_dead||0}</Text><Text>Enrollment conflicts: {integrationMetrics.enrollment_conflicts||0} · locked OTP: {integrationMetrics.otp_locked||0}</Text></View>
           <View style={s.detail}>
             <Text style={s.title}>Register external system</Text>
             <TextInput style={s.input} placeholder="System code" value={systemCode} onChangeText={setSystemCode} autoCapitalize="characters" />
@@ -211,6 +217,7 @@ export default function App() {
               {system.status === "ACTIVE" ? <Button label="Suspend enrollment" onPress={() => void systemAction(system,"suspend")} disabled={busy} /> : <Button label="Resume enrollment" onPress={() => void systemAction(system,"resume")} disabled={busy} />}
             </View>
           </Pressable>)}
+          {enrollmentConflicts.length?<View style={s.detail}><Text style={s.title}>Enrollment conflicts</Text><TextInput style={s.input} placeholder="Mandatory decision reason" value={conflictReason} onChangeText={setConflictReason}/>{enrollmentConflicts.map(x=><View key={x.challenge_id} style={s.card}><Text selectable>{x.tax_country}/{x.tax_type}: {x.tax_identifier}</Text><Text selectable>Existing tenant: {x.existing_tenant_id}</Text><Text selectable>Requested company: {x.source_company_id}</Text><View style={s.actions}><Button label="Keep existing" onPress={()=>void resolveConflict(x.challenge_id,"KEEP_EXISTING")} disabled={busy||!conflictReason.trim()}/><Button label="Block existing and continue" onPress={()=>void resolveConflict(x.challenge_id,"REPLACE_EXISTING")} disabled={busy||!conflictReason.trim()}/></View></View>)}</View>:null}
           {selectedSystem ? <View style={s.detail}><Text style={s.title}>Audit · {selectedSystem.code}</Text>{systemAudit.map(x=><Text key={x.id} selectable>{x.occurred_at} · {x.action} · {x.actor_subject}</Text>)}<Text style={s.title}>Tenant bindings</Text>{systemBindings.map(x=><Text key={x.id} selectable>{x.tenant_id} · {x.source_company_id} · {x.status}</Text>)}<Text style={s.title}>Webhook deliveries</Text>{systemDeliveries.map(x=><View key={x.id} style={s.card}><Text selectable>{x.event_id} · {x.status} · attempts {x.attempts}</Text>{x.last_error_detail?<Text>{x.last_error_detail}</Text>:null}{x.status==="DEAD"?<Button label="Requeue" onPress={()=>void requeue(x.id)} disabled={busy}/>:null}</View>)}</View>:null}
         </ScrollView>
       ) : <>

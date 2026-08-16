@@ -1360,9 +1360,9 @@ Resolved:
 13. Bulk/mass OTP onboarding is deferred to a later phase and is not required for the initial MiniPOS rollout.
 14. Fiscal authenticates the external system through the tenant credential and stores the source user/service separately as an assertion by that system. Audit records never present an asserted source actor as independently authenticated by Fiscal.
 
-Remaining:
-
-1. Which webhook event types are subscribed by BeeMiniPOS?
+Resolved webhook subscription for the first release: BeeMiniPOS subscribes to
+`integration.command.updated`. New event families are opt-in and require a
+backward-compatible OpenAPI/webhook-schema revision before subscription.
 2. Is the five-attempt limit applied only to HTTP delivery attempts, or also to DB-to-Rabbit publish attempts? Recommended: five only for HTTP delivery; broker publication retries remain durable with alerting.
 3. What retention periods apply to challenges, idempotent response records, commands, change-journal payloads, delivery payloads, and security audit records?
 4. Who is allowed to create and revoke BeeFiscalApp tenant memberships: tenant ADMIN, platform administrator, source-system synchronization, or a combination with explicit ownership rules?

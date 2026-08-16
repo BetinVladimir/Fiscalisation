@@ -37,7 +37,7 @@ func (s *Service) deliverEmail(ctx context.Context, c SMTPConfig) error {
 	}
 	defer tx.Rollback()
 	var id, to, subject, body string
-	e = tx.QueryRowContext(ctx, `with picked as (select id from fiscal_email_outbox where status in ('PENDING','FAILED') and available_at<=now() order by available_at,id for update skip locked limit 1) update fiscal_email_outbox o set status='SENDING',updated_at=now() from picked where o.id=picked.id returning o.id::text,o.recipient,o.subject,o.body_text`).Scan(&id, &to, &subject, &body)
+	e = tx.QueryRowContext(ctx, `with picked as (select id from fiscal_email_outbox where ((status in ('PENDING','FAILED') and available_at<=now()) or (status='SENDING' and lease_until<now())) order by available_at,id for update skip locked limit 1) update fiscal_email_outbox o set status='SENDING',lease_until=now()+interval '2 minutes',updated_at=now() from picked where o.id=picked.id returning o.id::text,o.recipient,o.subject,o.body_text`).Scan(&id, &to, &subject, &body)
 	if errors.Is(e, sql.ErrNoRows) {
 		return tx.Commit()
 	}
@@ -54,9 +54,9 @@ func (s *Service) deliverEmail(ctx context.Context, c SMTPConfig) error {
 	}
 	e = smtp.SendMail(c.Host+":"+strconv.Itoa(c.Port), auth, c.From, []string{to}, message)
 	if e != nil {
-		_, _ = s.db.ExecContext(ctx, `update fiscal_email_outbox set status='FAILED',attempts=attempts+1,available_at=now()+least(interval '1 hour',interval '30 seconds'*(attempts+1)),last_error=$2,updated_at=now() where id=$1`, id, e.Error())
+		_, _ = s.db.ExecContext(ctx, `update fiscal_email_outbox set status='FAILED',attempts=attempts+1,available_at=now()+least(interval '1 hour',interval '30 seconds'*(attempts+1)),lease_until=null,last_error=$2,updated_at=now() where id=$1`, id, e.Error())
 		return e
 	}
-	_, e = s.db.ExecContext(ctx, `update fiscal_email_outbox set status='SENT',sent_at=now(),last_error=null,updated_at=now() where id=$1`, id)
+	_, e = s.db.ExecContext(ctx, `update fiscal_email_outbox set status='SENT',sent_at=now(),lease_until=null,last_error=null,updated_at=now() where id=$1`, id)
 	return e
 }

@@ -1,0 +1,22 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://beefiscal.example/schemas/webhook-event.schema.json",
+  "title": "Integration command status webhook",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["event_id", "event_type", "source_system_id", "tenant_id", "operation_id", "resource_type", "source_entity_id", "source_version", "status", "occurred_at"],
+  "properties": {
+    "event_id": {"type": "string", "format": "uuid"},
+    "event_type": {"const": "integration.command.updated"},
+    "source_system_id": {"type": "string", "format": "uuid"},
+    "tenant_id": {"type": "string", "format": "uuid"},
+    "operation_id": {"type": "string", "format": "uuid"},
+    "resource_type": {"enum": ["organization", "location", "register", "operator"]},
+    "source_entity_id": {"type": "string"},
+    "source_version": {"type": "integer", "minimum": 1},
+    "status": {"enum": ["SUCCEEDED", "FAILED", "DEAD", "SUPERSEDED"]},
+    "result": {"type": ["object", "null"]},
+    "error": {"type": ["object", "null"]},
+    "occurred_at": {"type": "string", "format": "date-time"}
+  }
+}

@@ -246,6 +246,11 @@ type Service struct {
 	sequence          uint64
 	generation        int64
 	confirmedSnapshot []byte
+	fiscalReadiness   func(tenant, register string) bool
+}
+
+func (s *Service) SetFiscalReadinessCheck(v func(tenant, register string) bool) {
+	s.fiscalReadiness = v
 }
 
 func (s *Service) SetFiscalAuthToken(v string) {
@@ -1209,6 +1214,9 @@ func (s *Service) OpenShiftForTenant(register, employee, tenant string) (Shift, 
 		return Shift{}, errors.New("invalid fiscal register")
 	}
 	if tenant != "" {
+		if s.fiscalReadiness != nil && !s.fiscalReadiness(tenant, register) {
+			return Shift{}, errors.New("Fiscal binding and required resources are not ready")
+		}
 		if _, err := s.EmployeeForTenant(employee, tenant); err != nil {
 			return Shift{}, errors.New("employee not found")
 		}

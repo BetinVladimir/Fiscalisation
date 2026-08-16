@@ -73,6 +73,7 @@ func NewWithIntegrations(s *domain.Service, c config.Config, email *emailauth.Se
 	m.HandleFunc("/public/v1/minipos/fiscal-enrollment:verify", h.fiscalEnrollmentVerify)
 	m.HandleFunc("/public/v1/minipos/fiscal-credential-recovery", h.fiscalCredentialRecovery)
 	m.HandleFunc("/public/v1/minipos/fiscal-credential-recovery:verify", h.fiscalCredentialRecoveryVerify)
+	m.HandleFunc("/public/v1/minipos/fiscal-binding", h.fiscalBinding)
 	protected := auth.MiddlewareWithRevocation(c.AuthHMACKey, func(claims auth.Claims) bool {
 		return s.OperatorSessionRevoked(claims.TenantID, claims.TokenHash)
 	}, rateLimit(600, time.Minute, apiVersion(c.APIVersion, enforceSuccessResponses(idempotency(s, m)))))
@@ -83,6 +84,30 @@ func NewWithIntegrations(s *domain.Service, c config.Config, email *emailauth.Se
 	root.HandleFunc("/public/v1/minipos/auth/refresh", h.refresh)
 	root.Handle("/", protected)
 	return cors(c.CORSAllowedOrigins, root)
+}
+func (h *handler) fiscalBinding(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPatch || h.f == nil {
+		problem(w, http.StatusNotFound, "Fiscal integration unavailable")
+		return
+	}
+	var in struct {
+		SourceCompanyID string `json:"source_company_id"`
+		ExpectedVersion int64  `json:"expected_version"`
+		Reason          string `json:"reason"`
+	}
+	if !decode(w, r, &in) {
+		return
+	}
+	claims, ok := auth.ClaimsFrom(r.Context())
+	if !ok {
+		problem(w, http.StatusUnauthorized, "unauthorized")
+		return
+	}
+	if e := h.f.UpdateSourceCompanyID(r.Context(), claims.TenantID, in.SourceCompanyID, in.ExpectedVersion, r.Header.Get("Idempotency-Key"), "USER", claims.Subject, claims.TokenHash, in.Reason); e != nil {
+		problem(w, http.StatusConflict, e.Error())
+		return
+	}
+	w.WriteHeader(http.StatusNoContent)
 }
 
 func (h *handler) fiscalCredentialRecovery(w http.ResponseWriter, r *http.Request) {
@@ -302,6 +327,22 @@ func (h *handler) syncFiscal(r *http.Request, resource, sourceID string, version
 	}
 	_, err := h.f.PutResource(r.Context(), tenantID(r), resource, sourceID, key, version, actorType, actorID, session, payload)
 	return err
+}
+func (h *handler) syncFiscalDelete(r *http.Request, resource, sourceID string, version int64, suffix string) error {
+	if h.f == nil {
+		return nil
+	}
+	claims, ok := auth.ClaimsFrom(r.Context())
+	actorType, actorID, session := "SERVICE", "minipos-backend", ""
+	if ok {
+		actorType, actorID, session = "USER", claims.Subject, claims.TokenHash
+	}
+	key := r.Header.Get("Idempotency-Key") + suffix
+	if sourceID == "" || len(key) < 16 {
+		return errors.New("Fiscal synchronization metadata missing")
+	}
+	_, e := h.f.DeleteResource(r.Context(), tenantID(r), resource, sourceID, key, version, actorType, actorID, session)
+	return e
 }
 
 type capturedResponse struct {
@@ -703,7 +744,8 @@ func (h *handler) employees(w http.ResponseWriter, r *http.Request) {
 			problem(w, 422, e.Error())
 			return
 		}
-		if e = h.syncFiscal(r, "operators", x.ID, x.Version, x, "-operator"); e != nil {
+		operatorPayload := map[string]any{"operator_code": x.OperatorCode, "first_name": x.FirstName, "last_name": x.LastName, "roles": x.Roles, "status": x.Status, "active_from": x.CreatedAt}
+		if e = h.syncFiscal(r, "operators", x.ID, x.Version, operatorPayload, "-operator"); e != nil {
 			problem(w, http.StatusBadGateway, e.Error())
 			return
 		}
@@ -777,11 +819,37 @@ func (h *handler) employee(w http.ResponseWriter, r *http.Request) {
 			problem(w, 409, e.Error())
 			return
 		}
-		if e = h.syncFiscal(r, "operators", x.ID, x.Version, x, "-operator"); e != nil {
+		operatorPayload := map[string]any{"operator_code": x.OperatorCode, "first_name": x.FirstName, "last_name": x.LastName, "roles": x.Roles, "status": x.Status, "active_from": x.CreatedAt}
+		if e = h.syncFiscal(r, "operators", x.ID, x.Version, operatorPayload, "-operator"); e != nil {
 			problem(w, http.StatusBadGateway, e.Error())
 			return
 		}
 		write(w, 200, x)
+		return
+	}
+	if r.Method == http.MethodDelete {
+		expected, e := strconv.ParseInt(strings.Trim(r.Header.Get("If-Match"), `"`), 10, 64)
+		if e != nil {
+			problem(w, http.StatusBadRequest, "If-Match required")
+			return
+		}
+		current, e := h.s.EmployeeForTenant(id, tenantID(r))
+		if e != nil {
+			problem(w, http.StatusNotFound, e.Error())
+			return
+		}
+		current.Active = false
+		current.Status = "INACTIVE"
+		updated, e := h.s.UpdateEmployeeForTenant(id, expected, current, tenantID(r))
+		if e != nil {
+			problem(w, http.StatusConflict, e.Error())
+			return
+		}
+		if e = h.syncFiscalDelete(r, "operators", id, updated.Version, "-operator-delete"); e != nil {
+			problem(w, http.StatusBadGateway, e.Error())
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 	problem(w, 405, "method")

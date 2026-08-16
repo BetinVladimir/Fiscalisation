@@ -1,0 +1,23 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://beefiscal.example/schemas/organization.schema.json",
+  "title": "Organization mutation",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["legal_name", "tax_identifier", "status"],
+  "properties": {
+    "legal_name": {"type": "string", "minLength": 1, "maxLength": 255},
+    "address": {"type": "string", "maxLength": 1000},
+    "tax_identifier": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["country", "type", "value"],
+      "properties": {
+        "country": {"type": "string", "pattern": "^[A-Z]{2}$"},
+        "type": {"type": "string", "minLength": 1, "maxLength": 32},
+        "value": {"type": "string", "minLength": 1, "maxLength": 64}
+      }
+    },
+    "status": {"enum": ["ACTIVE", "INACTIVE"]}
+  }
+}

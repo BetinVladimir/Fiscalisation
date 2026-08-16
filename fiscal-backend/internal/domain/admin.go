@@ -161,7 +161,7 @@ func oneOf(v string, allowed ...string) bool {
 func validateResource(kind string, v map[string]any) error {
 	switch kind {
 	case "organization":
-		if stringField(v, "legal_name") == "" || stringField(v, "eik") == "" || stringField(v, "country") != "BG" || !oneOf(stringField(v, "status"), "ACTIVE", "SUSPENDED") {
+		if stringField(v, "legal_name") == "" || stringField(v, "eik") == "" || len(stringField(v, "country")) != 2 || !oneOf(stringField(v, "status"), "ACTIVE", "SUSPENDED") {
 			return errors.New("invalid organization")
 		}
 	case "location":

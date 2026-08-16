@@ -188,6 +188,9 @@ func newHandler(s *domain.Service, c config.Config, integrationHandler http.Hand
 		m.Handle("/platform/v1/external-systems", integrationHandler)
 		m.Handle("/platform/v1/external-systems/", integrationHandler)
 		m.Handle("/platform/v1/webhook-deliveries/", integrationHandler)
+		m.Handle("/platform/v1/enrollment-conflicts", integrationHandler)
+		m.Handle("/platform/v1/enrollment-conflicts/", integrationHandler)
+		m.Handle("/platform/v1/integration-metrics", integrationHandler)
 	}
 	oidc := auth.NewOIDCVerifier(c.OIDCIssuer, c.OIDCAudience, c.OIDCJWKSURL)
 	business := auth.MiddlewareWithOIDCAndRevocation(c.AuthHMACKey, oidc, revoked, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, enforceSuccessResponses(fiscalIdempotency(s, m))))))

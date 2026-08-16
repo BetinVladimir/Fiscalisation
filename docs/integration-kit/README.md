@@ -13,3 +13,7 @@ The contract is [openapi.yaml](./openapi.yaml). Production onboarding requires p
 `typescript/` contains a dependency-free reference client and constant-time webhook verifier. Persist each idempotency key before sending and reuse it after a timeout. Verify the signature against the raw body before parsing JSON.
 
 Run the non-destructive acceptance/idempotency smoke test with `node conformance/check.mjs` after setting `BEEFISCAL_BASE_URL` and `BEEFISCAL_TENANT_TOKEN`.
+
+Additional artifacts include JSON Schemas, a Postman collection, a local raw-body webhook receiver, and the production readiness/compatibility policy. Sandbox credentials are created through AdminApp in the isolated sandbox environment; they are never committed to this kit.
+
+Open `reference.html` through any static HTTP server for the rendered API reference. CI lints the OpenAPI document and rejects breaking contract changes. The TypeScript reference client intentionally has no runtime dependency; regenerate API types from `openapi.yaml` with `npx openapi-typescript openapi.yaml -o typescript/types.generated.ts` when the contract changes.

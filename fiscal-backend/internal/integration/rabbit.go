@@ -100,6 +100,7 @@ func (s *Service) rabbitSession(ctx context.Context, url string, apply ApplyReso
 				var dead bool
 				_ = s.db.QueryRowContext(ctx, `update integration_commands set status=case when attempts>=5 then 'DEAD' else 'QUEUED' end,processing_started_at=null,last_error_code='WORKER_ERROR',last_error_detail=$2,updated_at=now() where id=$1 returning status='DEAD'`, v.CommandID, e.Error()).Scan(&dead)
 				if dead {
+					_ = s.finishDeadCommand(ctx, v.CommandID, e)
 					_ = d.Ack(false)
 				} else {
 					_ = d.Nack(false, true)
@@ -130,6 +131,16 @@ func (s *Service) rabbitSession(ctx context.Context, url string, apply ApplyReso
 		}
 	}
 }
+
+func (s *Service) finishDeadCommand(ctx context.Context, id string, workerErr error) error {
+	var tenant, system, method, resource, source string
+	var version int64
+	e := s.db.QueryRowContext(ctx, `select tenant_id::text,external_system_id::text,http_method,resource_type,aggregate_source_id,source_version from integration_commands where id=$1 and status='DEAD'`, id).Scan(&tenant, &system, &method, &resource, &source, &version)
+	if e != nil {
+		return e
+	}
+	return s.finishCommand(ctx, id, tenant, system, method, resource, source, version, "DEAD", nil, workerErr)
+}
 func publishConfirmed(ctx context.Context, ch *amqp091.Channel, routing string, body []byte) error {
 	dc, dcancel := context.WithTimeout(ctx, 5*time.Second)
 	defer dcancel()
@@ -148,7 +159,7 @@ func publishConfirmed(ctx context.Context, ch *amqp091.Channel, routing string, 
 }
 func sha256Bytes(v []byte) []byte { h := sha256.Sum256(v); return h[:] }
 func (s *Service) publishCommandBatch(ctx context.Context, ch *amqp091.Channel) error {
-	rows, e := s.db.QueryContext(ctx, `with picked as (select id from integration_command_outbox where status in ('PENDING','FAILED') and available_at<=now() and (lease_until is null or lease_until<now()) order by available_at,id for update skip locked limit 50) update integration_command_outbox o set status='LEASED',lease_id=gen_random_uuid(),lease_until=now()+interval '30 seconds',updated_at=now() from picked where o.id=picked.id returning o.id::text,o.command_id::text,o.topic,o.payload`)
+	rows, e := s.db.QueryContext(ctx, `with picked as (select id from integration_command_outbox where ((status in ('PENDING','FAILED') and available_at<=now()) or (status='LEASED' and lease_until<now())) order by available_at,id for update skip locked limit 50) update integration_command_outbox o set status='LEASED',lease_id=gen_random_uuid(),lease_until=now()+interval '30 seconds',updated_at=now() from picked where o.id=picked.id returning o.id::text,o.command_id::text,o.topic,o.payload`)
 	if e != nil {
 		return e
 	}
@@ -204,6 +215,8 @@ func (s *Service) processCommand(ctx context.Context, id string, apply ApplyReso
 		var doc map[string]any
 		if json.Unmarshal(payload, &doc) != nil {
 			applyErr = errors.New("invalid command payload")
+		} else if apply != nil {
+			result, applyErr = apply(ctx, tenant, system, method, resource, source, version, doc)
 		} else {
 			result = doc
 		}
@@ -256,7 +269,7 @@ func (s *Service) finishCommand(ctx context.Context, id, tenant, system, method,
 		return map[string]string{"code": "RESOURCE_APPLY_FAILED", "message": applyErr.Error()}
 	}(), "occurred_at": s.now()})
 	hash := sha256.Sum256(payload)
-	_, e = tx.ExecContext(ctx, `insert into webhook_deliveries(event_id,external_system_id,tenant_id,event_type,payload,payload_hash,status) values($1,$2,$3,'integration.command.updated',$4,$5,'PENDING')`, eventID, system, tenant, payload, hash[:])
+	_, e = tx.ExecContext(ctx, `insert into webhook_deliveries(event_id,external_system_id,tenant_id,event_type,payload,payload_hash,status,destination_url,signing_secret_ciphertext,signing_key_id) select $1,$2,$3,'integration.command.updated',$4,$5,'PENDING',webhook_url,webhook_signing_secret_ciphertext,id::text from external_systems where id=$2`, eventID, system, tenant, payload, hash[:])
 	if e != nil {
 		return e
 	}
@@ -302,7 +315,7 @@ func (s *Service) sendWebhook(ctx context.Context, id string) error {
 	var eventID, system, url string
 	var payload, encrypted []byte
 	var attempts int
-	e = tx.QueryRowContext(ctx, `select d.event_id::text,d.external_system_id::text,s.webhook_url,d.payload,s.webhook_signing_secret_ciphertext,d.attempts from webhook_deliveries d join external_systems s on s.id=d.external_system_id where d.id=$1 and d.status='QUEUED' for update`, id).Scan(&eventID, &system, &url, &payload, &encrypted, &attempts)
+	e = tx.QueryRowContext(ctx, `select d.event_id::text,d.external_system_id::text,coalesce(d.destination_url,s.webhook_url),d.payload,coalesce(d.signing_secret_ciphertext,s.webhook_signing_secret_ciphertext),d.attempts from webhook_deliveries d join external_systems s on s.id=d.external_system_id where d.id=$1 and d.status='QUEUED' for update`, id).Scan(&eventID, &system, &url, &payload, &encrypted, &attempts)
 	if errors.Is(e, sql.ErrNoRows) {
 		return nil
 	}
@@ -349,7 +362,20 @@ func (s *Service) sendWebhook(ctx context.Context, id string) error {
 		}
 	}
 	if e == nil {
-		_, e = s.db.ExecContext(ctx, `update webhook_deliveries set status='DELIVERED',attempts=attempts+1,delivered_at=now(),lease_until=null,last_http_status=$2,last_error_code=null,last_error_detail=null,updated_at=now() where id=$1`, id, status)
+		tx, e := s.db.BeginTx(ctx, nil)
+		if e != nil {
+			return e
+		}
+		defer tx.Rollback()
+		_, e = tx.ExecContext(ctx, `update webhook_deliveries set status='DELIVERED',attempts=attempts+1,delivered_at=now(),lease_until=null,last_http_status=$2,last_error_code=null,last_error_detail=null,updated_at=now() where id=$1`, id, status)
+		if e != nil {
+			return e
+		}
+		_, e = tx.ExecContext(ctx, `insert into webhook_delivery_attempts(delivery_id,attempt_number,outcome,destination_url,http_status) values($1,$2,'DELIVERED',$3,$4) on conflict(delivery_id,attempt_number) do nothing`, id, attempts+1, url, status)
+		if e != nil {
+			return e
+		}
+		e = tx.Commit()
 		return e
 	}
 	attempts++
@@ -358,6 +384,18 @@ func (s *Service) sendWebhook(ctx context.Context, id string) error {
 	if attempts >= 5 {
 		state = "DEAD"
 	}
-	_, dbErr := s.db.ExecContext(ctx, `update webhook_deliveries set status=$2,attempts=$3,next_attempt_at=$4,lease_until=null,last_http_status=$5,last_error_code='DELIVERY_FAILED',last_error_detail=$6,updated_at=now() where id=$1`, id, state, attempts, s.now().Add(next), status, e.Error())
-	return dbErr
+	dbtx, dbErr := s.db.BeginTx(ctx, nil)
+	if dbErr != nil {
+		return dbErr
+	}
+	defer dbtx.Rollback()
+	_, dbErr = dbtx.ExecContext(ctx, `update webhook_deliveries set status=$2,attempts=$3,next_attempt_at=$4,lease_until=null,last_http_status=$5,last_error_code='DELIVERY_FAILED',last_error_detail=$6,updated_at=now() where id=$1`, id, state, attempts, s.now().Add(next), status, e.Error())
+	if dbErr != nil {
+		return dbErr
+	}
+	_, dbErr = dbtx.ExecContext(ctx, `insert into webhook_delivery_attempts(delivery_id,attempt_number,outcome,destination_url,http_status,error_code,error_detail) values($1,$2,'FAILED',$3,$4,'DELIVERY_FAILED',$5) on conflict(delivery_id,attempt_number) do nothing`, id, attempts, url, status, e.Error())
+	if dbErr != nil {
+		return dbErr
+	}
+	return dbtx.Commit()
 }

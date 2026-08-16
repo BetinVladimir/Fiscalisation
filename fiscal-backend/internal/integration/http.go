@@ -171,7 +171,7 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
-	if strings.HasPrefix(path, "/platform/v1/external-systems") {
+	if strings.HasPrefix(path, "/platform/v1/external-systems") || strings.HasPrefix(path, "/platform/v1/webhook-deliveries/") || strings.HasPrefix(path, "/platform/v1/enrollment-conflicts") || path == "/platform/v1/integration-metrics" {
 		h.platform(w, r, path)
 		return
 	}
@@ -249,6 +249,15 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, out)
 		return
 	}
+	if path == "/integration/v1/credentials:revoke" && r.Method == http.MethodPost {
+		e := h.Service.RevokeTenantCredential(r.Context(), p, r.Header.Get("Idempotency-Key"), r.Header.Get("BeeFiscal-Source-Actor-Type"), r.Header.Get("BeeFiscal-Source-Actor-Id"), r.Header.Get("BeeFiscal-Source-Actor-Session-Id"))
+		if e != nil {
+			writeError(w, e)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 	if path == "/integration/v1/binding" && r.Method == http.MethodPatch {
 		var in struct {
 			SourceCompanyID string `json:"source_company_id"`
@@ -295,6 +304,7 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 	out, e := h.Service.AcceptResource(r.Context(), p, r.Method, resource, sourceID, r.Header.Get("Idempotency-Key"), version, r.Header.Get("BeeFiscal-Source-Actor-Type"), r.Header.Get("BeeFiscal-Source-Actor-Id"), r.Header.Get("BeeFiscal-Source-Actor-Session-Id"), body, h.PublicBaseURL)
 	if e != nil {
+		h.Service.AuditRejectedMutation(r.Context(), p, resource, sourceID, r.Header.Get("Idempotency-Key"), r.Header.Get("BeeFiscal-Source-Actor-Type"), r.Header.Get("BeeFiscal-Source-Actor-Id"), e)
 		writeError(w, e)
 		return
 	}
@@ -335,6 +345,41 @@ func (h *HTTPHandler) platform(w http.ResponseWriter, r *http.Request, path stri
 		return
 	}
 	base := "/platform/v1/external-systems"
+	if path == "/platform/v1/integration-metrics" && r.Method == http.MethodGet {
+		out, e := h.Service.IntegrationMetrics(r.Context())
+		if e != nil {
+			writeError(w, e)
+			return
+		}
+		writeJSON(w, http.StatusOK, out)
+		return
+	}
+	if path == "/platform/v1/enrollment-conflicts" && r.Method == http.MethodGet {
+		items, e := h.Service.EnrollmentConflicts(r.Context())
+		if e != nil {
+			writeError(w, e)
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"items": items})
+		return
+	}
+	if strings.HasPrefix(path, "/platform/v1/enrollment-conflicts/") && strings.HasSuffix(path, ":resolve") && r.Method == http.MethodPost {
+		id := strings.TrimSuffix(strings.TrimPrefix(path, "/platform/v1/enrollment-conflicts/"), ":resolve")
+		var in struct {
+			Decision string `json:"decision"`
+			Reason   string `json:"reason"`
+		}
+		if e := decode(r, &in); e != nil {
+			writeError(w, e)
+			return
+		}
+		if e := h.Service.ResolveEnrollmentConflict(r.Context(), id, in.Decision, in.Reason, actor, r.Header.Get("Idempotency-Key")); e != nil {
+			writeError(w, e)
+			return
+		}
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 	if strings.HasPrefix(path, "/platform/v1/webhook-deliveries/") && strings.HasSuffix(path, ":requeue") && r.Method == http.MethodPost {
 		id := strings.TrimSuffix(strings.TrimPrefix(path, "/platform/v1/webhook-deliveries/"), ":requeue")
 		if e := h.Service.RequeueDelivery(r.Context(), id, actor, r.Header.Get("Idempotency-Key")); e != nil {

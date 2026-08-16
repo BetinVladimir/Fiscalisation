@@ -1,5 +1,7 @@
+import type { components } from "./types.generated";
+
 export type Actor = { type: "USER" | "SERVICE"; id: string; sessionId?: string };
-export type AcceptedOperation = { operation_id: string; status: string; status_url: string; accepted_at: string };
+export type AcceptedOperation = components["schemas"]["AcceptedOperation"];
 
 export class BeeFiscalIntegrationClient {
   constructor(private readonly baseUrl: string, private readonly token: string) {}

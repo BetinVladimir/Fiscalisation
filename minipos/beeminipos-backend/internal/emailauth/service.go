@@ -93,7 +93,7 @@ func (s *Service) deliverOne(ctx context.Context) error {
 	}
 	defer tx.Rollback(ctx)
 	var id, to, subject, body string
-	e = tx.QueryRow(ctx, `with picked as (select id from minipos_email_outbox where status in ('PENDING','FAILED') and available_at<=now() and (lease_until is null or lease_until<now()) order by available_at,id for update skip locked limit 1) update minipos_email_outbox o set status='SENDING',lease_until=now()+interval '30 seconds',updated_at=now() from picked where o.id=picked.id returning o.id::text,o.recipient,o.subject,o.body_text`).Scan(&id, &to, &subject, &body)
+	e = tx.QueryRow(ctx, `with picked as (select id from minipos_email_outbox where ((status in ('PENDING','FAILED') and available_at<=now()) or (status='SENDING' and lease_until<now())) order by available_at,id for update skip locked limit 1) update minipos_email_outbox o set status='SENDING',lease_until=now()+interval '2 minutes',updated_at=now() from picked where o.id=picked.id returning o.id::text,o.recipient,o.subject,o.body_text`).Scan(&id, &to, &subject, &body)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return tx.Commit(ctx)
 	}

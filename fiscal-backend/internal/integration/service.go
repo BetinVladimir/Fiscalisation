@@ -14,6 +14,7 @@ import (
 	"errors"
 	"fmt"
 	"net"
+	"net/http"
 	"net/url"
 	"regexp"
 	"strings"
@@ -29,6 +30,7 @@ var (
 	ErrRateLimited  = errors.New("too many requests")
 	codePattern     = regexp.MustCompile(`^[A-Z][A-Z0-9_-]{1,62}$`)
 	actorPattern    = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,254}$`)
+	digitsPattern   = regexp.MustCompile(`^[0-9]+$`)
 )
 
 type Service struct {
@@ -165,6 +167,9 @@ func normalizeTax(country, kind, value string) (string, string, string, error) {
 	if len(country) != 2 || !codePattern.MatchString(kind) || len(value) < 3 || len(value) > 64 {
 		return "", "", "", errors.New("invalid tax identifier")
 	}
+	if country == "BG" && kind == "EIK" && (!digitsPattern.MatchString(value) || (len(value) != 9 && len(value) != 13)) {
+		return "", "", "", errors.New("BG EIK must contain 9 or 13 digits")
+	}
 	return country, kind, value, nil
 }
 func normalizeEmail(v string) (string, error) {
@@ -173,6 +178,87 @@ func normalizeEmail(v string) (string, error) {
 		return "", errors.New("invalid email")
 	}
 	return v, nil
+}
+func validateResourcePayload(kind string, raw []byte) error {
+	var v map[string]any
+	if json.Unmarshal(raw, &v) != nil {
+		return errors.New("resource body must be a JSON object")
+	}
+	allowed := map[string]map[string]bool{
+		"organization": {"legal_name": true, "tax_identifier": true, "address": true, "status": true},
+		"location":     {"code": true, "name": true, "address": true, "status": true},
+		"register":     {"code": true, "name": true, "location_source_id": true, "status": true},
+		"operator":     {"operator_code": true, "first_name": true, "last_name": true, "roles": true, "status": true, "active_from": true},
+	}[kind]
+	if allowed == nil {
+		return errors.New("unsupported resource type")
+	}
+	for k := range v {
+		if !allowed[k] {
+			return fmt.Errorf("undocumented field %q", k)
+		}
+	}
+	required := map[string][]string{"organization": {"legal_name", "tax_identifier"}, "location": {"name", "address"}, "register": {"location_source_id", "name"}, "operator": {"operator_code", "first_name", "last_name", "roles"}}[kind]
+	for _, k := range required {
+		if _, ok := v[k]; !ok {
+			return fmt.Errorf("missing field %q", k)
+		}
+	}
+	requireString := func(name string) error {
+		value, ok := v[name].(string)
+		if !ok || strings.TrimSpace(value) == "" || len(value) > 1000 {
+			return fmt.Errorf("field %q must be a non-empty string", name)
+		}
+		return nil
+	}
+	for _, name := range map[string][]string{
+		"organization": {"legal_name"}, "location": {"name", "address"},
+		"register": {"name", "location_source_id"}, "operator": {"operator_code", "first_name", "last_name"},
+	}[kind] {
+		if e := requireString(name); e != nil {
+			return e
+		}
+	}
+	if status, exists := v["status"]; exists {
+		value, ok := status.(string)
+		valid := map[string]map[string]bool{
+			"organization": {"ACTIVE": true, "INACTIVE": true}, "location": {"ACTIVE": true, "INACTIVE": true},
+			"register": {"ACTIVE": true, "BLOCKED": true, "INACTIVE": true}, "operator": {"ACTIVE": true, "INACTIVE": true},
+		}[kind]
+		if !ok || !valid[value] {
+			return errors.New("invalid resource status")
+		}
+	}
+	if kind == "organization" {
+		tax, ok := v["tax_identifier"].(map[string]any)
+		if !ok {
+			return errors.New("invalid tax_identifier")
+		}
+		if len(tax) != 3 || tax["country"] == nil || tax["type"] == nil || tax["value"] == nil {
+			return errors.New("tax_identifier contains undocumented or missing fields")
+		}
+		if _, _, _, e := normalizeTax(fmt.Sprint(tax["country"]), fmt.Sprint(tax["type"]), fmt.Sprint(tax["value"])); e != nil {
+			return e
+		}
+	}
+	if kind == "operator" {
+		code, _ := v["operator_code"].(string)
+		if len(code) != 4 {
+			return errors.New("operator_code must contain four characters")
+		}
+		roles, ok := v["roles"].([]any)
+		if !ok || len(roles) == 0 {
+			return errors.New("operator roles required")
+		}
+		validRoles := map[string]bool{"CASHIER": true, "SUPERVISOR": true, "ADMIN": true, "AUDITOR": true, "SERVICE": true}
+		for _, role := range roles {
+			name, ok := role.(string)
+			if !ok || !validRoles[name] {
+				return errors.New("invalid operator role")
+			}
+		}
+	}
+	return nil
 }
 func validateSystemWebhook(raw string, events []string) error {
 	u, e := url.Parse(raw)
@@ -369,7 +455,7 @@ func (s *Service) SystemBindings(ctx context.Context, systemID string) ([]map[st
 	return s.queryObjects(ctx, `select jsonb_build_object('id',id,'tenant_id',tenant_id,'source_company_id',source_company_id,'tax_country',tax_country,'tax_type',tax_type,'tax_identifier',tax_normalized_value,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at) from tenant_source_bindings where external_system_id=$1 order by created_at desc limit 500`, systemID)
 }
 func (s *Service) SystemDeliveries(ctx context.Context, systemID string) ([]map[string]any, error) {
-	return s.queryObjects(ctx, `select jsonb_build_object('id',id,'event_id',event_id,'tenant_id',tenant_id,'event_type',event_type,'status',status,'attempts',attempts,'next_attempt_at',next_attempt_at,'last_http_status',last_http_status,'last_error_code',last_error_code,'last_error_detail',last_error_detail,'delivered_at',delivered_at,'created_at',created_at) from webhook_deliveries where external_system_id=$1 order by created_at desc limit 500`, systemID)
+	return s.queryObjects(ctx, `select jsonb_build_object('id',d.id,'event_id',d.event_id,'tenant_id',d.tenant_id,'event_type',d.event_type,'status',d.status,'attempts',d.attempts,'next_attempt_at',d.next_attempt_at,'last_http_status',d.last_http_status,'last_error_code',d.last_error_code,'last_error_detail',d.last_error_detail,'delivered_at',d.delivered_at,'created_at',d.created_at,'attempt_history',coalesce((select jsonb_agg(to_jsonb(a) order by a.attempt_number) from webhook_delivery_attempts a where a.delivery_id=d.id),'[]'::jsonb)) from webhook_deliveries d where d.external_system_id=$1 order by d.created_at desc limit 500`, systemID)
 }
 func (s *Service) queryObjects(ctx context.Context, query string, arg any) ([]map[string]any, error) {
 	rows, e := s.db.QueryContext(ctx, query, arg)
@@ -519,7 +605,7 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 	var tokenHash, otpHash, profile, replay []byte
 	var attempts int
 	var expires time.Time
-	e = tx.QueryRowContext(ctx, `select external_system_id::text,source_company_id,tax_country,tax_type,tax_normalized_value,status,temporary_token_hash,otp_hash,legal_profile,response_ciphertext,attempts,expires_at from external_enrollment_challenges where id=$1 for update`, id).Scan(&systemID, &sourceCompany, &country, &kind, &tax, &status, &tokenHash, &otpHash, &profile, &replay, &attempts, &expires)
+	e = tx.QueryRowContext(ctx, `select c.external_system_id::text,c.source_company_id,c.tax_country,c.tax_type,c.tax_normalized_value,c.status,c.temporary_token_hash,c.otp_hash,c.legal_profile,c.response_ciphertext,c.attempts,c.expires_at from external_enrollment_challenges c join external_systems s on s.id=c.external_system_id and s.status='ACTIVE' where c.id=$1 for update`, id).Scan(&systemID, &sourceCompany, &country, &kind, &tax, &status, &tokenHash, &otpHash, &profile, &replay, &attempts, &expires)
 	if e != nil || !hmac.Equal(tokenHash, s.digest(tempToken)) {
 		return EnrollmentResult{}, ErrUnauthorized
 	}
@@ -547,7 +633,7 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 		return EnrollmentResult{}, e
 	}
 	var duplicate bool
-	e = tx.QueryRowContext(ctx, `select exists(select 1 from tenant_source_bindings where tax_country=$1 and tax_type=$2 and tax_normalized_value=$3 and status<>'REVOKED')`, country, kind, tax).Scan(&duplicate)
+	e = tx.QueryRowContext(ctx, `select exists(select 1 from tenant_source_bindings where tax_country=$1 and tax_type=$2 and tax_normalized_value=$3 and status='ACTIVE')`, country, kind, tax).Scan(&duplicate)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
@@ -879,6 +965,73 @@ func (s *Service) RotateTenantCredential(ctx context.Context, p Principal, idemp
 	}
 	return out, tx.Commit()
 }
+func (s *Service) RevokeTenantCredential(ctx context.Context, p Principal, idempotency, actorType, actorID, session string) error {
+	if idempotency == "" || !actorPattern.MatchString(actorID) || (actorType != "USER" && actorType != "SERVICE") {
+		return errors.New("invalid credential revocation")
+	}
+	tx, e := s.db.BeginTx(ctx, nil)
+	if e != nil {
+		return e
+	}
+	defer tx.Rollback()
+	r, e := tx.ExecContext(ctx, `update tenant_integration_credentials set status='REVOKED',revoked_at=now() where credential_id=$1 and status='ACTIVE'`, p.CredentialID)
+	if e != nil {
+		return e
+	}
+	n, _ := r.RowsAffected()
+	if n != 1 {
+		return ErrConflict
+	}
+	_, e = tx.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,authenticated_system_id,idempotency_key,resource_type,source_entity_id,action,outcome,asserted_actor_type,asserted_actor_id,asserted_actor_session_id,after_redacted) values($1,$2,$2,$3,'credential',$4,'CREDENTIAL_REVOKED','APPLIED',$5,$6,nullif($7,''),jsonb_build_object('credential_id',$8))`, p.TenantID, p.SystemID, idempotency, p.SourceCompanyID, actorType, actorID, session, p.CredentialID)
+	if e != nil {
+		return e
+	}
+	return tx.Commit()
+}
+
+func (s *Service) EnrollmentConflicts(ctx context.Context) ([]map[string]any, error) {
+	return s.queryObjects(ctx, `select jsonb_build_object('challenge_id',c.id,'external_system_id',c.external_system_id,'source_company_id',c.source_company_id,'email',c.normalized_email,'tax_country',c.tax_country,'tax_type',c.tax_type,'tax_identifier',c.tax_normalized_value,'created_at',c.created_at,'existing_binding_id',b.id,'existing_tenant_id',b.tenant_id,'existing_source_company_id',b.source_company_id) from external_enrollment_challenges c join tenant_source_bindings b on b.tax_country=c.tax_country and b.tax_type=c.tax_type and b.tax_normalized_value=c.tax_normalized_value and b.status='ACTIVE' where c.status='CONFLICT' and $1::text is null order by c.created_at`, nil)
+}
+func (s *Service) ResolveEnrollmentConflict(ctx context.Context, challengeID, decision, reason, actor, requestID string) error {
+	if (decision != "KEEP_EXISTING" && decision != "REPLACE_EXISTING") || strings.TrimSpace(reason) == "" || requestID == "" {
+		return errors.New("invalid conflict decision")
+	}
+	tx, e := s.db.BeginTx(ctx, &sql.TxOptions{Isolation: sql.LevelSerializable})
+	if e != nil {
+		return e
+	}
+	defer tx.Rollback()
+	var bindingID, tenantID, systemID, sourceCompany string
+	var before []byte
+	e = tx.QueryRowContext(ctx, `select b.id::text,b.tenant_id::text,c.external_system_id::text,c.source_company_id,to_jsonb(b) from external_enrollment_challenges c join tenant_source_bindings b on b.tax_country=c.tax_country and b.tax_type=c.tax_type and b.tax_normalized_value=c.tax_normalized_value and b.status='ACTIVE' where c.id=$1 and c.status='CONFLICT' for update of c,b`, challengeID).Scan(&bindingID, &tenantID, &systemID, &sourceCompany, &before)
+	if errors.Is(e, sql.ErrNoRows) {
+		return ErrNotFound
+	}
+	if e != nil {
+		return e
+	}
+	after := mapJSON(map[string]any{"decision": decision, "reason": reason})
+	if decision == "REPLACE_EXISTING" {
+		_, e = tx.ExecContext(ctx, `update tenant_source_bindings set status='SUSPENDED',version=version+1,updated_at=now() where id=$1`, bindingID)
+		if e == nil {
+			_, e = tx.ExecContext(ctx, `update external_enrollment_challenges set status='PENDING',expires_at=greatest(expires_at,now()+interval '10 minutes') where id=$1`, challengeID)
+		}
+	} else {
+		_, e = tx.ExecContext(ctx, `update external_enrollment_challenges set status='CANCELLED' where id=$1`, challengeID)
+	}
+	if e != nil {
+		return e
+	}
+	_, e = tx.ExecContext(ctx, `insert into enrollment_conflict_decisions(challenge_id,existing_binding_id,decision,reason,actor_subject,request_id,before_redacted,after_redacted) values($1,$2,$3,$4,$5,$6,$7,$8)`, challengeID, bindingID, decision, reason, actor, requestID, before, after)
+	if e != nil {
+		return e
+	}
+	_, e = tx.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,fiscal_platform_actor_subject,idempotency_key,resource_type,source_entity_id,action,outcome,before_redacted,after_redacted,reason_code) values($1,$2,$3,$4,'binding',$5,'ENROLLMENT_CONFLICT_RESOLVED','APPLIED',$6,$7,$8)`, tenantID, systemID, actor, requestID, sourceCompany, before, after, decision)
+	if e != nil {
+		return e
+	}
+	return tx.Commit()
+}
 func (s *Service) AcceptResource(ctx context.Context, p Principal, method, resourceType, sourceID, idempotency string, version int64, actorType, actorID, session string, payload []byte, baseURL string) (AcceptedOperation, error) {
 	baseURL = strings.TrimSuffix(strings.TrimRight(baseURL, "/"), "/public/v1")
 	if !p.Scopes[resourceType+"s.write"] && !p.Scopes[resourceType+".write"] {
@@ -890,9 +1043,10 @@ func (s *Service) AcceptResource(ctx context.Context, p Principal, method, resou
 	if len(payload) == 0 {
 		payload = []byte(`{}`)
 	}
-	var doc any
-	if json.Unmarshal(payload, &doc) != nil {
-		return AcceptedOperation{}, errors.New("invalid json")
+	if method == http.MethodPut {
+		if e := validateResourcePayload(resourceType, payload); e != nil {
+			return AcceptedOperation{}, e
+		}
 	}
 	hash := sha256.Sum256(append([]byte(method+":"+resourceType+":"+sourceID+":"+fmt.Sprint(version)+":"), payload...))
 	tx, e := s.db.BeginTx(ctx, nil)
@@ -949,4 +1103,8 @@ func (s *Service) Operation(ctx context.Context, p Principal, id string) (map[st
 	var parsed any
 	_ = json.Unmarshal(result, &parsed)
 	return map[string]any{"operation_id": id, "status": status, "resource_type": resource, "source_entity_id": source, "source_version": version, "result": parsed, "accepted_at": created, "updated_at": updated}, nil
+}
+func (s *Service) AuditRejectedMutation(ctx context.Context, p Principal, resource, source, idempotency, actorType, actorID string, failure error) {
+	_, _ = s.db.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,authenticated_system_id,asserted_actor_type,asserted_actor_id,idempotency_key,resource_type,source_entity_id,action,outcome,reason_code,after_redacted) values($1,$2,$2,nullif($3,''),nullif($4,''),nullif($5,''),$6,$7,'MUTATION','REJECTED','VALIDATION_REJECTED',jsonb_build_object('error',$8))`, p.TenantID, p.SystemID, actorType, actorID, idempotency, resource, source, failure.Error())
+	_, _ = s.db.ExecContext(ctx, `insert into integration_security_events(external_system_id,tenant_id,event_type,actor_type,actor_id,request_id,detail_redacted) values($1,$2,'MUTATION_REJECTED',nullif($3,''),nullif($4,''),nullif($5,''),jsonb_build_object('resource_type',$6,'source_id',$7))`, p.SystemID, p.TenantID, actorType, actorID, idempotency, resource, source)
 }

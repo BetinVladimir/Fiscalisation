@@ -1,0 +1,18 @@
+{
+  "name": "@beefiscal/integration-kit",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "generate": "openapi-typescript openapi.yaml -o typescript/types.generated.ts",
+    "lint:contract": "redocly lint --config ../../.redocly.yaml openapi.yaml",
+    "check:static": "node conformance/static-check.mjs",
+    "typecheck": "tsc --noEmit --lib es2020,dom --module esnext --moduleResolution bundler --target es2020 typescript/client.ts typescript/webhook.ts typescript/types.generated.ts"
+  },
+  "devDependencies": {
+    "@redocly/cli": "^2.0.8",
+    "@types/node": "^24.0.0",
+    "openapi-typescript": "^7.13.0",
+    "typescript": "^5.9.0"
+  }
+}

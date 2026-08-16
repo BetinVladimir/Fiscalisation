@@ -1,0 +1,1 @@
+{"$schema":"https://json-schema.org/draft/2020-12/schema","$id":"https://beefiscal.example/schemas/location.json","type":"object","additionalProperties":false,"required":["name","address"],"properties":{"code":{"type":"string"},"name":{"type":"string","minLength":1},"address":{"type":"string","minLength":1},"status":{"enum":["ACTIVE","INACTIVE"]}}}

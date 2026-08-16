@@ -1,0 +1,8 @@
+{
+  "info":{"name":"BeeFiscal External Systems API","schema":"https://schema.getpostman.com/json/collection/v2.1.0/collection.json"},
+  "variable":[{"key":"baseUrl","value":"https://fiscal.example.com"},{"key":"token","value":""}],
+  "item":[
+    {"name":"Start enrollment","request":{"method":"POST","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Idempotency-Key","value":"{{$guid}}"},{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/integration/v1/enrollments","body":{"mode":"raw","raw":"{\"email\":\"owner@example.com\",\"source_company_id\":\"company-1\",\"company\":{\"legal_name\":\"Example Ltd\",\"tax_identifier\":{\"country\":\"BG\",\"type\":\"EIK\",\"value\":\"123456789\"}}}"}}},
+    {"name":"Put location","request":{"method":"PUT","header":[{"key":"Authorization","value":"Bearer {{token}}"},{"key":"Idempotency-Key","value":"{{$guid}}"},{"key":"Source-Version","value":"1"},{"key":"BeeFiscal-Source-Actor-Type","value":"SERVICE"},{"key":"BeeFiscal-Source-Actor-Id","value":"postman"},{"key":"Content-Type","value":"application/json"}],"url":"{{baseUrl}}/integration/v1/locations/location-1","body":{"mode":"raw","raw":"{\"name\":\"Main store\",\"address\":\"1 Main Street\",\"status\":\"ACTIVE\"}"}}}
+  ]
+}

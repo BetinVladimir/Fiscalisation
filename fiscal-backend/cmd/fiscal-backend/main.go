@@ -100,7 +100,9 @@ func main() {
 	defer stop()
 	if integrationService != nil {
 		go integrationService.RunEmailWorker(ctx, integration.SMTPConfig{Host: cfg.SMTPHost, Port: cfg.SMTPPort, User: cfg.SMTPUser, Password: cfg.SMTPPassword, From: cfg.SMTPFrom})
-		go integrationService.RunRabbit(ctx, cfg.RabbitMQURL, nil)
+		go integrationService.RunRabbit(ctx, cfg.RabbitMQURL, func(ctx context.Context, tenantID, systemID, method, resourceType, sourceID string, sourceVersion int64, payload map[string]any) (map[string]any, error) {
+			return svc.ApplyExternalResource(tenantID, systemID, method, resourceType, sourceID, sourceVersion, payload)
+		})
 	}
 	mqttCleanup, err := mqttclient.Start(ctx, cfg, log.Default(), svc, mqttBridge)
 	if err != nil {
