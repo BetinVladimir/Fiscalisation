@@ -1,0 +1,20 @@
+name: beeloy-full-e2e-mocks
+services:
+  smtp-capture:
+    build: .
+    command: [node, smtp-capture.mjs]
+    environment: {SMTP_PORT: "2525", HTTP_PORT: "8080"}
+    ports: ["127.0.0.1:18025:2525", "127.0.0.1:18080:8080"]
+    healthcheck: {test: [CMD, wget, -qO-, http://localhost:8080/healthz], interval: 2s, timeout: 2s, retries: 30}
+  edge-agent-s3-mock:
+    build: .
+    command: [node, device-mock.mjs]
+    environment: {HTTP_PORT: "8080", DEVICE_PROFILE: edge-agent-s3}
+    ports: ["127.0.0.1:19001:8080"]
+    healthcheck: {test: [CMD, wget, -qO-, http://localhost:8080/beeloy/local/v1/healthz], interval: 2s, timeout: 2s, retries: 30}
+  bluecash-app-mock:
+    build: .
+    command: [node, device-mock.mjs]
+    environment: {HTTP_PORT: "8080", DEVICE_PROFILE: bluecash-app}
+    ports: ["127.0.0.1:19002:8080"]
+    healthcheck: {test: [CMD, wget, -qO-, http://localhost:8080/beeloy/local/v1/healthz], interval: 2s, timeout: 2s, retries: 30}

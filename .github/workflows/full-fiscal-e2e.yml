@@ -1,0 +1,29 @@
+name: Full fiscal E2E
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'fiscal-backend/**'
+      - 'minipos/beeminipos-backend/**'
+      - 'database/**'
+      - 'compose.fiscalisation.yaml'
+      - 'compose.minipos.yaml'
+      - 'tests/e2e/full-fiscal/**'
+      - '.github/workflows/full-fiscal-e2e.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: full-fiscal-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 35
+    steps:
+      - uses: actions/checkout@v4
+      - name: Run full fiscal E2E
+        run: ./tests/e2e/full-fiscal/run.sh
