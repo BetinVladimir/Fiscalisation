@@ -31,7 +31,6 @@ services:
       OIDC_AUDIENCE: "${OIDC_AUDIENCE:?required}"
       OIDC_JWKS_URL: "${OIDC_JWKS_URL:?required}"
       BLE_SIGNING_KEY: "${BLE_SIGNING_KEY:?required}"
-      WEBHOOK_SIGNING_KEY: "${WEBHOOK_SIGNING_KEY:?required}"
       EMQX_BROKER: "${EMQX_BROKER:?required}"
       EMQX_CLIENT_ID: "${EMQX_CLIENT_ID:-beefiscal-backend}"
       EMQX_USERNAME: "${EMQX_USERNAME:?required}"

@@ -21,4 +21,15 @@ export class BeeFiscalIntegrationClient {
     return this.request<AcceptedOperation>(`/integration/v1/${path}`, { method, headers, body: method === "PUT" ? JSON.stringify(payload ?? {}) : undefined }, key);
   }
   operation(id: string) { return this.request<any>(`/integration/v1/operations/${encodeURIComponent(id)}`, { method: "GET" }); }
+  async pollOperation(id: string, timeoutMs = 30_000, intervalMs = 250) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      const value = await this.operation(id);
+      if (["SUCCEEDED", "FAILED", "DEAD", "SUPERSEDED"].includes(value.status)) return value;
+      await new Promise(resolve => setTimeout(resolve, intervalMs));
+    }
+    throw new Error(`operation ${id} did not finish within ${timeoutMs}ms`);
+  }
 }
+
+export const newIdempotencyKey = (): string => crypto.randomUUID();

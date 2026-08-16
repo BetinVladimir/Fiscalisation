@@ -11,6 +11,25 @@ import (
 // normal Fiscal domain repository. Source markers make the operation
 // idempotent even when a worker crashes after the repository commit.
 func (s *Service) ApplyExternalResource(tenant, system, method, kind, source string, sourceVersion int64, payload map[string]any) (map[string]any, error) {
+	prepared, err := s.PrepareExternalResource(tenant, system, method, kind, source, sourceVersion, payload)
+	if err != nil {
+		return nil, err
+	}
+	record, ok := prepared["_projection_record"].(ResourceRecord)
+	if !ok {
+		return prepared, nil
+	}
+	if err = s.repo.PutResource(record); err != nil {
+		return nil, err
+	}
+	delete(prepared, "_projection_record")
+	return prepared, nil
+}
+
+// PrepareExternalResource validates and constructs the canonical domain row
+// without persisting it. The Rabbit consumer commits this row together with the
+// command result, integration audit and webhook delivery in one SQL transaction.
+func (s *Service) PrepareExternalResource(tenant, system, method, kind, source string, sourceVersion int64, payload map[string]any) (map[string]any, error) {
 	if tenant == "" || system == "" || source == "" || sourceVersion < 1 {
 		return nil, errors.New("invalid external resource identity")
 	}
@@ -33,20 +52,45 @@ func (s *Service) ApplyExternalResource(tenant, system, method, kind, source str
 	if err != nil {
 		return nil, err
 	}
-	if current == nil {
-		if kind == "organization" {
-			return s.UpsertOrganization(tenant, 0, data)
+	if err = validateResource(kind, data); err != nil {
+		return nil, err
+	}
+	// Register references were resolved above by external source identity. The
+	// repository cache may intentionally lag the atomically committed SQL row;
+	// re-reading by internal ID here would incorrectly reject a valid dependency.
+	if kind != "register" {
+		if err = s.validateResourceReferences(kind, tenant, data); err != nil {
+			return nil, err
 		}
-		return s.CreateResource(kind, tenant, data)
 	}
-	expected, ok := numberInt64(current["version"])
-	if !ok {
-		return nil, errors.New("invalid stored resource version")
+	excludeID := ""
+	if current != nil {
+		excludeID = stringField(current, "id")
 	}
-	if kind == "organization" {
-		return s.UpsertOrganization(tenant, expected, data)
+	if err = s.ensureUniqueResource(kind, tenant, data, excludeID); err != nil {
+		return nil, err
 	}
-	return s.UpdateResource(kind, stringField(current, "id"), tenant, expected, data)
+	id, err := newUUID()
+	if err != nil {
+		return nil, err
+	}
+	now := time.Now().UTC()
+	record := ResourceRecord{Kind: kind, TenantID: tenant, ID: id, Version: 1, Data: cloneMap(data), CreatedAt: now, UpdatedAt: now}
+	if current != nil {
+		record.ID = stringField(current, "id")
+		record.CreatedAt, _ = current["created_at"].(time.Time)
+		if record.CreatedAt.IsZero() {
+			record.CreatedAt = now
+		}
+		expected, ok := numberInt64(current["version"])
+		if !ok {
+			return nil, errors.New("invalid stored resource version")
+		}
+		record.Version = expected + 1
+	}
+	out := publicResource(record)
+	out["_projection_record"] = record
+	return out, nil
 }
 
 func numberInt64(v any) (int64, bool) {
@@ -83,6 +127,9 @@ func (s *Service) externalResourceData(tenant, system, method, kind, source stri
 		data["eik"] = firstString(company, "eik", "tax_identifier", "tax_value")
 		if tax, ok := company["tax_identifier"].(map[string]any); ok {
 			data["eik"] = firstString(tax, "value")
+			data["tax_identifier_type"] = strings.ToUpper(firstString(tax, "type"))
+			data["country"] = strings.ToUpper(firstString(tax, "country"))
+			data["tax_identifier_normalized"] = strings.NewReplacer("-", "", ".", "", "/", "", " ", "").Replace(strings.ToUpper(firstString(tax, "value")))
 		}
 		data["country"] = strings.ToUpper(firstString(company, "country", "tax_country"))
 		if data["country"] == "" {

@@ -13,7 +13,6 @@ services:
       SMTP_FROM: "${SMTP_FROM:-noreply@beeloy.com}"
       INTEGRATION_SECRET_PEPPER: "${INTEGRATION_SECRET_PEPPER:-dev-only-integration-pepper-32-bytes}"
       INTEGRATION_ENCRYPTION_KEY_BASE64: "${INTEGRATION_ENCRYPTION_KEY_BASE64:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
-      WEBHOOK_SIGNING_KEY: "${WEBHOOK_SIGNING_KEY:-dev-only-fiscal-webhook-key}"
       EMQX_TOKEN: "${FISCAL_BACKEND_EMQX_TOKEN:-}"
   caddy:
     environment:

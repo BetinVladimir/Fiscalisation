@@ -239,6 +239,25 @@ func (s *Service) finishCommand(ctx context.Context, id, tenant, system, method,
 	}
 	resultJSON := mapJSON(result)
 	if status == "SUCCEEDED" {
+		if projection, ok := result["_projection_record"]; ok {
+			projectionJSON := string(mapJSON(projection))
+			_, e = tx.ExecContext(ctx, `insert into fiscal_state_rows(collection,entity_key,payload,updated_at) values('resources',($1::jsonb->>'kind')||':'||($1::jsonb->>'id'),$1::jsonb,now()) on conflict(collection,entity_key) do update set payload=excluded.payload,updated_at=now() where (fiscal_state_rows.payload->>'version')::bigint<(excluded.payload->>'version')::bigint`, projectionJSON)
+			if e != nil {
+				return e
+			}
+			_, e = tx.ExecContext(ctx, `insert into fiscal_runtime_resources(kind,id,tenant_id,version,data,created_at,updated_at,payload) values($1::jsonb->>'kind',$1::jsonb->>'id',$1::jsonb->>'tenant_id',($1::jsonb->>'version')::bigint,$1::jsonb->'data',($1::jsonb->>'created_at')::timestamptz,($1::jsonb->>'updated_at')::timestamptz,$1::jsonb) on conflict(kind,id) do update set tenant_id=excluded.tenant_id,version=excluded.version,data=excluded.data,updated_at=excluded.updated_at,payload=excluded.payload where fiscal_runtime_resources.version<excluded.version`, projectionJSON)
+			if e != nil {
+				return e
+			}
+			if resource == "organization" {
+				_, e = tx.ExecContext(ctx, `update tenant_source_bindings set tax_country=$1::jsonb->'data'->>'country',tax_type=$1::jsonb->'data'->>'tax_identifier_type',tax_normalized_value=$1::jsonb->'data'->>'tax_identifier_normalized',version=version+1,updated_at=now() where tenant_id=$1::jsonb->>'tenant_id' and external_system_id=$2 and (tax_country,tax_type,tax_normalized_value) is distinct from (($1::jsonb->'data'->>'country')::char(2),$1::jsonb->'data'->>'tax_identifier_type',$1::jsonb->'data'->>'tax_identifier_normalized')`, projectionJSON, system)
+				if e != nil {
+					return e
+				}
+			}
+			delete(result, "_projection_record")
+			resultJSON = mapJSON(result)
+		}
 		resourceStatus := "ACTIVE"
 		if method == http.MethodDelete {
 			resourceStatus = "INACTIVE"

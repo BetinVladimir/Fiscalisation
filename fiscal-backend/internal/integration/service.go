@@ -24,13 +24,20 @@ import (
 )
 
 var (
-	ErrUnauthorized = errors.New("integration credential invalid")
-	ErrConflict     = errors.New("integration conflict")
-	ErrNotFound     = errors.New("integration record not found")
-	ErrRateLimited  = errors.New("too many requests")
-	codePattern     = regexp.MustCompile(`^[A-Z][A-Z0-9_-]{1,62}$`)
-	actorPattern    = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,254}$`)
-	digitsPattern   = regexp.MustCompile(`^[0-9]+$`)
+	ErrUnauthorized           = errors.New("integration credential invalid")
+	ErrConflict               = errors.New("integration conflict")
+	ErrNotFound               = errors.New("integration record not found")
+	ErrRateLimited            = errors.New("too many requests")
+	ErrSystemSuspended        = errors.New("external system suspended")
+	ErrEnrollmentExpired      = errors.New("enrollment challenge expired")
+	ErrEnrollmentCodeInvalid  = errors.New("enrollment code invalid")
+	ErrEnrollmentLocked       = errors.New("enrollment challenge locked")
+	ErrSourceVersionConflict  = errors.New("source version conflict")
+	ErrCommandPayloadConflict = errors.New("idempotency key payload conflict")
+	ErrWebhookDeliveryDead    = errors.New("webhook delivery is not dead")
+	codePattern               = regexp.MustCompile(`^[A-Z][A-Z0-9_-]{1,62}$`)
+	actorPattern              = regexp.MustCompile(`^[A-Za-z0-9][A-Za-z0-9._:@/-]{0,254}$`)
+	digitsPattern             = regexp.MustCompile(`^[0-9]+$`)
 )
 
 type Service struct {
@@ -178,87 +185,6 @@ func normalizeEmail(v string) (string, error) {
 		return "", errors.New("invalid email")
 	}
 	return v, nil
-}
-func validateResourcePayload(kind string, raw []byte) error {
-	var v map[string]any
-	if json.Unmarshal(raw, &v) != nil {
-		return errors.New("resource body must be a JSON object")
-	}
-	allowed := map[string]map[string]bool{
-		"organization": {"legal_name": true, "tax_identifier": true, "address": true, "status": true},
-		"location":     {"code": true, "name": true, "address": true, "status": true},
-		"register":     {"code": true, "name": true, "location_source_id": true, "status": true},
-		"operator":     {"operator_code": true, "first_name": true, "last_name": true, "roles": true, "status": true, "active_from": true},
-	}[kind]
-	if allowed == nil {
-		return errors.New("unsupported resource type")
-	}
-	for k := range v {
-		if !allowed[k] {
-			return fmt.Errorf("undocumented field %q", k)
-		}
-	}
-	required := map[string][]string{"organization": {"legal_name", "tax_identifier"}, "location": {"name", "address"}, "register": {"location_source_id", "name"}, "operator": {"operator_code", "first_name", "last_name", "roles"}}[kind]
-	for _, k := range required {
-		if _, ok := v[k]; !ok {
-			return fmt.Errorf("missing field %q", k)
-		}
-	}
-	requireString := func(name string) error {
-		value, ok := v[name].(string)
-		if !ok || strings.TrimSpace(value) == "" || len(value) > 1000 {
-			return fmt.Errorf("field %q must be a non-empty string", name)
-		}
-		return nil
-	}
-	for _, name := range map[string][]string{
-		"organization": {"legal_name"}, "location": {"name", "address"},
-		"register": {"name", "location_source_id"}, "operator": {"operator_code", "first_name", "last_name"},
-	}[kind] {
-		if e := requireString(name); e != nil {
-			return e
-		}
-	}
-	if status, exists := v["status"]; exists {
-		value, ok := status.(string)
-		valid := map[string]map[string]bool{
-			"organization": {"ACTIVE": true, "INACTIVE": true}, "location": {"ACTIVE": true, "INACTIVE": true},
-			"register": {"ACTIVE": true, "BLOCKED": true, "INACTIVE": true}, "operator": {"ACTIVE": true, "INACTIVE": true},
-		}[kind]
-		if !ok || !valid[value] {
-			return errors.New("invalid resource status")
-		}
-	}
-	if kind == "organization" {
-		tax, ok := v["tax_identifier"].(map[string]any)
-		if !ok {
-			return errors.New("invalid tax_identifier")
-		}
-		if len(tax) != 3 || tax["country"] == nil || tax["type"] == nil || tax["value"] == nil {
-			return errors.New("tax_identifier contains undocumented or missing fields")
-		}
-		if _, _, _, e := normalizeTax(fmt.Sprint(tax["country"]), fmt.Sprint(tax["type"]), fmt.Sprint(tax["value"])); e != nil {
-			return e
-		}
-	}
-	if kind == "operator" {
-		code, _ := v["operator_code"].(string)
-		if len(code) != 4 {
-			return errors.New("operator_code must contain four characters")
-		}
-		roles, ok := v["roles"].([]any)
-		if !ok || len(roles) == 0 {
-			return errors.New("operator roles required")
-		}
-		validRoles := map[string]bool{"CASHIER": true, "SUPERVISOR": true, "ADMIN": true, "AUDITOR": true, "SERVICE": true}
-		for _, role := range roles {
-			name, ok := role.(string)
-			if !ok || !validRoles[name] {
-				return errors.New("invalid operator role")
-			}
-		}
-	}
-	return nil
 }
 func validateSystemWebhook(raw string, events []string) error {
 	u, e := url.Parse(raw)
@@ -486,7 +412,7 @@ func (s *Service) RequeueDelivery(ctx context.Context, id, actor, requestID stri
 	var systemID string
 	e = tx.QueryRowContext(ctx, `update webhook_deliveries set status='RETRY',attempts=0,next_attempt_at=now(),lease_id=null,lease_until=null,updated_at=now() where id=$1 and status='DEAD' returning external_system_id::text`, id).Scan(&systemID)
 	if errors.Is(e, sql.ErrNoRows) {
-		return ErrConflict
+		return ErrWebhookDeliveryDead
 	}
 	if e != nil {
 		return e
@@ -506,8 +432,16 @@ func (s *Service) authenticateSystem(ctx context.Context, raw string) (string, e
 	var systemID, status string
 	var hash []byte
 	e := s.db.QueryRowContext(ctx, `select c.external_system_id::text,c.secret_hash,s.status from external_system_credentials c join external_systems s on s.id=c.external_system_id where c.credential_id=$1 and c.status='ACTIVE'`, id).Scan(&systemID, &hash, &status)
-	if e != nil || !hmac.Equal(hash, s.digest(raw)) || status != "ACTIVE" {
+	if e != nil {
 		return "", ErrUnauthorized
+	}
+	if !hmac.Equal(hash, s.digest(raw)) {
+		_, _ = s.db.ExecContext(ctx, `insert into integration_security_events(external_system_id,event_type,detail_redacted) values($1,'SYSTEM_AUTH_FAILED',jsonb_build_object('credential_id',$2))`, systemID, id)
+		return "", ErrUnauthorized
+	}
+	if status != "ACTIVE" {
+		_, _ = s.db.ExecContext(ctx, `insert into integration_security_events(external_system_id,event_type,detail_redacted) values($1,'SYSTEM_SUSPENDED_REJECTED','{}')`, systemID)
+		return "", ErrSystemSuspended
 	}
 	_, _ = s.db.ExecContext(ctx, `update external_system_credentials set last_used_at=now() where credential_id=$1`, id)
 	return systemID, nil
@@ -528,11 +462,11 @@ func (s *Service) StartEnrollment(ctx context.Context, systemToken, idempotency,
 	if in.SourceCompanyID == "" || in.Company.LegalName == "" || idempotency == "" {
 		return EnrollmentStart{}, errors.New("missing enrollment fields")
 	}
-	var recent int
-	if e = s.db.QueryRowContext(ctx, `select count(*) from external_enrollment_challenges where created_at>now()-interval '15 minutes' and (external_system_id=$1 or normalized_email=$2 or request_ip_hash=$3)`, systemID, email, s.digest(requestIP)).Scan(&recent); e != nil {
+	var bySystem, byEmail, byIP, bySource int
+	if e = s.db.QueryRowContext(ctx, `select count(*) filter(where external_system_id=$1),count(*) filter(where normalized_email=$2),count(*) filter(where request_ip_hash=$3),count(*) filter(where external_system_id=$1 and source_company_id=$4) from external_enrollment_challenges where created_at>now()-interval '15 minutes'`, systemID, email, s.digest(requestIP), in.SourceCompanyID).Scan(&bySystem, &byEmail, &byIP, &bySource); e != nil {
 		return EnrollmentStart{}, e
 	}
-	if recent >= 10 {
+	if bySystem >= 10 || byEmail >= 10 || byIP >= 10 || bySource >= 10 {
 		return EnrollmentStart{}, ErrRateLimited
 	}
 	payload := mapJSON(in)
@@ -602,14 +536,18 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 	}
 	defer tx.Rollback()
 	var systemID, sourceCompany, country, kind, tax, status string
-	var tokenHash, otpHash, profile, replay []byte
+	var tokenHash, otpHash, profile, replay, verificationHash []byte
+	var verificationKey sql.NullString
 	var attempts int
 	var expires time.Time
-	e = tx.QueryRowContext(ctx, `select c.external_system_id::text,c.source_company_id,c.tax_country,c.tax_type,c.tax_normalized_value,c.status,c.temporary_token_hash,c.otp_hash,c.legal_profile,c.response_ciphertext,c.attempts,c.expires_at from external_enrollment_challenges c join external_systems s on s.id=c.external_system_id and s.status='ACTIVE' where c.id=$1 for update`, id).Scan(&systemID, &sourceCompany, &country, &kind, &tax, &status, &tokenHash, &otpHash, &profile, &replay, &attempts, &expires)
+	e = tx.QueryRowContext(ctx, `select c.external_system_id::text,c.source_company_id,c.tax_country,c.tax_type,c.tax_normalized_value,c.status,c.temporary_token_hash,c.otp_hash,c.legal_profile,c.response_ciphertext,c.attempts,c.expires_at,c.verification_idempotency_key,c.verification_request_hash from external_enrollment_challenges c join external_systems s on s.id=c.external_system_id and s.status='ACTIVE' where c.id=$1 for update`, id).Scan(&systemID, &sourceCompany, &country, &kind, &tax, &status, &tokenHash, &otpHash, &profile, &replay, &attempts, &expires, &verificationKey, &verificationHash)
 	if e != nil || !hmac.Equal(tokenHash, s.digest(tempToken)) {
 		return EnrollmentResult{}, ErrUnauthorized
 	}
 	if status == "VERIFIED" {
+		if !verificationKey.Valid || verificationKey.String != idempotency || !hmac.Equal(verificationHash, s.digest("verify:"+code)) {
+			return EnrollmentResult{}, ErrConflict
+		}
 		plain, de := s.decrypt(replay)
 		if de != nil {
 			return EnrollmentResult{}, de
@@ -620,13 +558,24 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 		}
 		return out, nil
 	}
-	if status != "PENDING" || s.now().After(expires) || attempts >= 5 {
+	if status == "LOCKED" || attempts >= 5 {
+		return EnrollmentResult{}, ErrEnrollmentLocked
+	}
+	if s.now().After(expires) {
+		_, _ = tx.ExecContext(ctx, `update external_enrollment_challenges set status='EXPIRED' where id=$1 and status='PENDING'`, id)
+		_ = tx.Commit()
+		return EnrollmentResult{}, ErrEnrollmentExpired
+	}
+	if status != "PENDING" {
 		return EnrollmentResult{}, ErrUnauthorized
 	}
 	if !hmac.Equal(otpHash, s.digest(code)) {
 		_, _ = tx.ExecContext(ctx, `update external_enrollment_challenges set attempts=attempts+1,status=case when attempts+1>=5 then 'LOCKED' else status end where id=$1`, id)
 		_ = tx.Commit()
-		return EnrollmentResult{}, ErrUnauthorized
+		if attempts+1 >= 5 {
+			return EnrollmentResult{}, ErrEnrollmentLocked
+		}
+		return EnrollmentResult{}, ErrEnrollmentCodeInvalid
 	}
 	_, e = tx.ExecContext(ctx, `select pg_advisory_xact_lock(hashtextextended($1,0))`, country+":"+kind+":"+tax)
 	if e != nil {
@@ -663,6 +612,26 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
+	var enrollment EnrollmentRequest
+	if e = json.Unmarshal(profile, &enrollment); e != nil {
+		return EnrollmentResult{}, errors.New("invalid stored enrollment profile")
+	}
+	createdAt := s.now()
+	organizationData := map[string]any{
+		"legal_name": enrollment.Company.LegalName, "eik": tax, "country": country,
+		"tax_identifier_type": kind, "tax_identifier_original": enrollment.Company.TaxIdentifier.Value,
+		"address": enrollment.Company.Address, "status": "ACTIVE", "external_system_id": systemID,
+		"external_source_id": "organization", "external_source_version": int64(1),
+	}
+	organizationRecord := map[string]any{"kind": "organization", "tenant_id": tenantID, "id": tenantID, "version": int64(1), "data": organizationData, "created_at": createdAt, "updated_at": createdAt}
+	_, e = tx.ExecContext(ctx, `insert into fiscal_runtime_resources(kind,id,tenant_id,version,data,created_at,updated_at,payload) values('organization',$1,$1,1,$2::jsonb,$3,$3,$4::jsonb)`, tenantID, string(mapJSON(organizationData)), createdAt, string(mapJSON(organizationRecord)))
+	if e != nil {
+		return EnrollmentResult{}, e
+	}
+	_, e = tx.ExecContext(ctx, `insert into fiscal_state_rows(collection,entity_key,payload,updated_at) values('resources','organization:'||$1,$2::jsonb,now())`, tenantID, string(mapJSON(organizationRecord)))
+	if e != nil {
+		return EnrollmentResult{}, e
+	}
 	_, e = tx.ExecContext(ctx, `insert into tenant_integration_credentials(credential_id,binding_id,secret_hash,scopes,status,expires_at) values($1,$2,$3,$4,'ACTIVE',now()+interval '1 year')`, credID, bindingID, s.digest(access), scopes)
 	if e != nil {
 		return EnrollmentResult{}, e
@@ -680,7 +649,7 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `update external_enrollment_challenges set status='VERIFIED',verified_at=now(),tenant_id=$2,response_ciphertext=$3 where id=$1`, id, tenantID, enc)
+	_, e = tx.ExecContext(ctx, `update external_enrollment_challenges set status='VERIFIED',verified_at=now(),tenant_id=$2,response_ciphertext=$3,verification_idempotency_key=$4,verification_request_hash=$5 where id=$1`, id, tenantID, enc, idempotency, s.digest("verify:"+code))
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
@@ -708,8 +677,15 @@ func (s *Service) StartCredentialRecovery(ctx context.Context, systemToken, idem
 	}
 	var bindingID, tenantID, sourceCompany string
 	e = s.db.QueryRowContext(ctx, `select b.id::text,b.tenant_id::text,b.source_company_id from tenant_source_bindings b join tenant_user_memberships m on m.tenant_id=b.tenant_id and m.normalized_email=$5 and m.status='ACTIVE' where b.external_system_id=$1 and b.tax_country=$2 and b.tax_type=$3 and b.tax_normalized_value=$4 and b.status='ACTIVE'`, systemID, country, kind, tax, email).Scan(&bindingID, &tenantID, &sourceCompany)
-	if e != nil {
-		return EnrollmentStart{}, ErrUnauthorized
+	unknown := errors.Is(e, sql.ErrNoRows)
+	if e != nil && !unknown {
+		return EnrollmentStart{}, e
+	}
+	if unknown {
+		sourceCompany, e = uuid()
+		if e != nil {
+			return EnrollmentStart{}, e
+		}
 	}
 	requestHash := sha256.Sum256(mapJSON(in))
 	var replay, replayHash []byte
@@ -750,18 +726,26 @@ func (s *Service) StartCredentialRecovery(ctx context.Context, systemToken, idem
 	if e != nil {
 		return EnrollmentStart{}, e
 	}
-	profile := mapJSON(map[string]string{"binding_id": bindingID, "tenant_id": tenantID})
+	profile := mapJSON(map[string]any{"binding_id": bindingID, "tenant_id": tenantID, "recoverable": !unknown})
 	ph := requestHash
 	tx, e := s.db.BeginTx(ctx, nil)
 	if e != nil {
 		return EnrollmentStart{}, e
 	}
 	defer tx.Rollback()
-	_, e = tx.ExecContext(ctx, `insert into external_enrollment_challenges(id,external_system_id,source_company_id,normalized_email,tax_country,tax_type,tax_normalized_value,temporary_token_hash,otp_hash,payload_hash,legal_profile,idempotency_key,response_ciphertext,status,expires_at,purpose,tenant_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'PENDING',$14,'CREDENTIAL_RECOVERY',$15)`, id, systemID, sourceCompany, email, country, kind, tax, s.digest(temp), s.digest(otp), ph[:], profile, idempotency, enc, out.ExpiresAt, tenantID)
+	purpose := "CREDENTIAL_RECOVERY"
+	var storedTenant any = tenantID
+	if unknown {
+		purpose = "UNKNOWN_CREDENTIAL_RECOVERY"
+		storedTenant = nil
+	}
+	_, e = tx.ExecContext(ctx, `insert into external_enrollment_challenges(id,external_system_id,source_company_id,normalized_email,tax_country,tax_type,tax_normalized_value,temporary_token_hash,otp_hash,payload_hash,legal_profile,idempotency_key,response_ciphertext,status,expires_at,purpose,tenant_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'PENDING',$14,$15,$16)`, id, systemID, sourceCompany, email, country, kind, tax, s.digest(temp), s.digest(otp), ph[:], profile, idempotency, enc, out.ExpiresAt, purpose, storedTenant)
 	if e != nil {
 		return EnrollmentStart{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into fiscal_email_outbox(purpose,recipient,subject,body_text) values('FISCAL_CREDENTIAL_RECOVERY_OTP',$1,'Fiscal credential recovery code',$2)`, email, "Your Fiscal credential recovery code is: "+otp)
+	if !unknown {
+		_, e = tx.ExecContext(ctx, `insert into fiscal_email_outbox(purpose,recipient,subject,body_text) values('FISCAL_CREDENTIAL_RECOVERY_OTP',$1,'Fiscal credential recovery code',$2)`, email, "Your Fiscal credential recovery code is: "+otp)
+	}
 	if e != nil {
 		return EnrollmentStart{}, e
 	}
@@ -779,14 +763,18 @@ func (s *Service) VerifyCredentialRecovery(ctx context.Context, tempToken, code,
 	}
 	defer tx.Rollback()
 	var systemID, sourceCompany, tenantID, bindingID, status, purpose string
-	var tokenHash, otpHash, replay []byte
+	var tokenHash, otpHash, replay, verificationHash []byte
+	var verificationKey sql.NullString
 	var attempts int
 	var expires time.Time
-	e = tx.QueryRowContext(ctx, `select c.external_system_id::text,c.source_company_id,c.tenant_id::text,b.id::text,c.status,c.purpose,c.temporary_token_hash,c.otp_hash,c.response_ciphertext,c.attempts,c.expires_at from external_enrollment_challenges c join tenant_source_bindings b on b.tenant_id=c.tenant_id and b.external_system_id=c.external_system_id where c.id=$1 for update`, id).Scan(&systemID, &sourceCompany, &tenantID, &bindingID, &status, &purpose, &tokenHash, &otpHash, &replay, &attempts, &expires)
+	e = tx.QueryRowContext(ctx, `select c.external_system_id::text,c.source_company_id,c.tenant_id::text,b.id::text,c.status,c.purpose,c.temporary_token_hash,c.otp_hash,c.response_ciphertext,c.attempts,c.expires_at,c.verification_idempotency_key,c.verification_request_hash from external_enrollment_challenges c join tenant_source_bindings b on b.tenant_id=c.tenant_id and b.external_system_id=c.external_system_id where c.id=$1 for update`, id).Scan(&systemID, &sourceCompany, &tenantID, &bindingID, &status, &purpose, &tokenHash, &otpHash, &replay, &attempts, &expires, &verificationKey, &verificationHash)
 	if e != nil || purpose != "CREDENTIAL_RECOVERY" || !hmac.Equal(tokenHash, s.digest(tempToken)) {
 		return EnrollmentResult{}, ErrUnauthorized
 	}
 	if status == "VERIFIED" {
+		if !verificationKey.Valid || verificationKey.String != idempotency || !hmac.Equal(verificationHash, s.digest("recover-verify:"+code)) {
+			return EnrollmentResult{}, ErrConflict
+		}
 		plain, de := s.decrypt(replay)
 		if de != nil {
 			return EnrollmentResult{}, de
@@ -797,13 +785,24 @@ func (s *Service) VerifyCredentialRecovery(ctx context.Context, tempToken, code,
 		}
 		return out, nil
 	}
-	if status != "PENDING" || s.now().After(expires) || attempts >= 5 {
+	if status == "LOCKED" || attempts >= 5 {
+		return EnrollmentResult{}, ErrEnrollmentLocked
+	}
+	if s.now().After(expires) {
+		_, _ = tx.ExecContext(ctx, `update external_enrollment_challenges set status='EXPIRED' where id=$1 and status='PENDING'`, id)
+		_ = tx.Commit()
+		return EnrollmentResult{}, ErrEnrollmentExpired
+	}
+	if status != "PENDING" {
 		return EnrollmentResult{}, ErrUnauthorized
 	}
 	if !hmac.Equal(otpHash, s.digest(code)) {
 		_, _ = tx.ExecContext(ctx, `update external_enrollment_challenges set attempts=attempts+1,status=case when attempts+1>=5 then 'LOCKED' else status end where id=$1`, id)
 		_ = tx.Commit()
-		return EnrollmentResult{}, ErrUnauthorized
+		if attempts+1 >= 5 {
+			return EnrollmentResult{}, ErrEnrollmentLocked
+		}
+		return EnrollmentResult{}, ErrEnrollmentCodeInvalid
 	}
 	credID, e := uuid()
 	if e != nil {
@@ -827,7 +826,7 @@ func (s *Service) VerifyCredentialRecovery(ctx context.Context, tempToken, code,
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `update external_enrollment_challenges set status='VERIFIED',verified_at=now(),response_ciphertext=$2 where id=$1`, id, enc)
+	_, e = tx.ExecContext(ctx, `update external_enrollment_challenges set status='VERIFIED',verified_at=now(),response_ciphertext=$2,verification_idempotency_key=$3,verification_request_hash=$4 where id=$1`, id, enc, idempotency, s.digest("recover-verify:"+code))
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
@@ -850,7 +849,11 @@ func (s *Service) AuthenticateTenant(ctx context.Context, raw string) (Principal
 	var expires time.Time
 	var rawScopes []byte
 	e := s.db.QueryRowContext(ctx, `select c.credential_id::text,c.binding_id::text,b.tenant_id::text,b.external_system_id::text,b.source_company_id,c.secret_hash,array_to_json(c.scopes),c.status,c.expires_at from tenant_integration_credentials c join tenant_source_bindings b on b.id=c.binding_id where c.credential_id=$1 and b.status='ACTIVE'`, id).Scan(&p.CredentialID, &p.BindingID, &p.TenantID, &p.SystemID, &p.SourceCompanyID, &hash, &rawScopes, &status, &expires)
-	if e != nil || status != "ACTIVE" || s.now().After(expires) || !hmac.Equal(hash, s.digest(raw)) {
+	if e != nil || status != "ACTIVE" || s.now().After(expires) {
+		return Principal{}, ErrUnauthorized
+	}
+	if !hmac.Equal(hash, s.digest(raw)) {
+		_, _ = s.db.ExecContext(ctx, `insert into integration_security_events(external_system_id,tenant_id,event_type,detail_redacted) values($1,$2,'TENANT_AUTH_FAILED',jsonb_build_object('credential_id',$3))`, p.SystemID, p.TenantID, id)
 		return Principal{}, ErrUnauthorized
 	}
 	if json.Unmarshal(rawScopes, &scopes) != nil {
@@ -862,6 +865,29 @@ func (s *Service) AuthenticateTenant(ctx context.Context, raw string) (Principal
 	}
 	_, _ = s.db.ExecContext(ctx, `update tenant_integration_credentials set last_used_at=now() where credential_id=$1`, id)
 	return p, nil
+}
+
+func (s *Service) AuthenticateTenantRevocation(ctx context.Context, raw, idempotency string) (Principal, bool, error) {
+	id, ok := splitToken(raw, "tenant_live")
+	if !ok || idempotency == "" {
+		return Principal{}, false, ErrUnauthorized
+	}
+	var p Principal
+	var hash []byte
+	var status string
+	e := s.db.QueryRowContext(ctx, `select c.credential_id::text,c.binding_id::text,b.tenant_id::text,b.external_system_id::text,b.source_company_id,c.secret_hash,c.status from tenant_integration_credentials c join tenant_source_bindings b on b.id=c.binding_id where c.credential_id=$1`, id).Scan(&p.CredentialID, &p.BindingID, &p.TenantID, &p.SystemID, &p.SourceCompanyID, &hash, &status)
+	if e != nil || !hmac.Equal(hash, s.digest(raw)) {
+		return Principal{}, false, ErrUnauthorized
+	}
+	if status == "ACTIVE" {
+		return p, false, nil
+	}
+	var replay bool
+	e = s.db.QueryRowContext(ctx, `select exists(select 1 from integration_change_journal where tenant_id=$1 and external_system_id=$2 and idempotency_key=$3 and action='CREDENTIAL_REVOKED' and source_entity_id=$4)`, p.TenantID, p.SystemID, idempotency, p.SourceCompanyID).Scan(&replay)
+	if e != nil || !replay {
+		return Principal{}, false, ErrUnauthorized
+	}
+	return p, true, nil
 }
 func (s *Service) UpdateSourceCompanyID(ctx context.Context, p Principal, next string, expected int64, actorType, actorID, session, idempotency string) error {
 	if strings.TrimSpace(next) == "" || expected < 1 || idempotency == "" || !actorPattern.MatchString(actorID) || (actorType != "USER" && actorType != "SERVICE") {
@@ -1047,6 +1073,25 @@ func (s *Service) AcceptResource(ctx context.Context, p Principal, method, resou
 		if e := validateResourcePayload(resourceType, payload); e != nil {
 			return AcceptedOperation{}, e
 		}
+		if resourceType == "organization" {
+			var document struct {
+				TaxIdentifier struct{ Country, Type, Value string } `json:"tax_identifier"`
+			}
+			if json.Unmarshal(payload, &document) != nil {
+				return AcceptedOperation{}, errors.New("invalid organization payload")
+			}
+			country, kind, tax, e := normalizeTax(document.TaxIdentifier.Country, document.TaxIdentifier.Type, document.TaxIdentifier.Value)
+			if e != nil {
+				return AcceptedOperation{}, e
+			}
+			var duplicate bool
+			if e = s.db.QueryRowContext(ctx, `select exists(select 1 from tenant_source_bindings where tax_country=$1 and tax_type=$2 and tax_normalized_value=$3 and tenant_id<>$4 and status='ACTIVE')`, country, kind, tax, p.TenantID).Scan(&duplicate); e != nil {
+				return AcceptedOperation{}, e
+			}
+			if duplicate {
+				return AcceptedOperation{}, ErrConflict
+			}
+		}
 	}
 	hash := sha256.Sum256(append([]byte(method+":"+resourceType+":"+sourceID+":"+fmt.Sprint(version)+":"), payload...))
 	tx, e := s.db.BeginTx(ctx, nil)
@@ -1059,13 +1104,21 @@ func (s *Service) AcceptResource(ctx context.Context, p Principal, method, resou
 	e = tx.QueryRowContext(ctx, `select id::text,status,created_at,payload_hash from integration_commands where external_system_id=$1 and tenant_id=$2 and idempotency_key=$3`, p.SystemID, p.TenantID, idempotency).Scan(&existing.OperationID, &existing.Status, &existing.AcceptedAt, &oldHash)
 	if e == nil {
 		if !hmac.Equal(oldHash, hash[:]) {
-			return AcceptedOperation{}, ErrConflict
+			return AcceptedOperation{}, ErrCommandPayloadConflict
 		}
 		existing.StatusURL = strings.TrimRight(baseURL, "/") + "/integration/v1/operations/" + existing.OperationID
 		return existing, nil
 	}
 	if e != sql.ErrNoRows {
 		return AcceptedOperation{}, e
+	}
+	var latest int64
+	e = tx.QueryRowContext(ctx, `select coalesce(max(source_version),0) from integration_commands where tenant_id=$1 and external_system_id=$2 and resource_type=$3 and aggregate_source_id=$4 and status not in ('FAILED','DEAD')`, p.TenantID, p.SystemID, resourceType, sourceID).Scan(&latest)
+	if e != nil {
+		return AcceptedOperation{}, e
+	}
+	if latest >= version {
+		return AcceptedOperation{}, ErrSourceVersionConflict
 	}
 	id, e := uuid()
 	if e != nil {

@@ -18,9 +18,25 @@ paths:
     patch:
       operationId: updateExternalSystem
       security: [{platformOIDC: []}]
-      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}, {name: If-Match, in: header, required: true, schema: {type: integer, minimum: 1}}]
-      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ExternalSystemInput'}}}}
+      parameters: [{$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/ExternalSystemUpdate'}}}}
       responses: {'200': {description: Updated system}, '409': {$ref: '#/components/responses/Error'}}
+  /platform/v1/external-systems/{system_id}:rotate-key:
+    post: {operationId: rotateExternalSystemKey, security: [{platformOIDC: []}], parameters: [{name: system_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/IdempotencyKey'}], responses: {'200': {description: Reveal-once replacement key}, '404': {$ref: '#/components/responses/Error'}}}
+  /platform/v1/external-systems/{system_id}:suspend:
+    post: {operationId: suspendExternalSystem, security: [{platformOIDC: []}], parameters: [{name: system_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/IdempotencyKey'}], responses: {'204': {description: Suspended}}}
+  /platform/v1/external-systems/{system_id}:resume:
+    post: {operationId: resumeExternalSystem, security: [{platformOIDC: []}], parameters: [{name: system_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/IdempotencyKey'}], responses: {'204': {description: Active}}}
+  /platform/v1/external-systems/{system_id}/audit-events:
+    get: {operationId: listExternalSystemAudit, security: [{platformOIDC: []}], parameters: [{name: system_id, in: path, required: true, schema: {type: string, format: uuid}}], responses: {'200': {description: Append-only audit events}}}
+  /platform/v1/external-systems/{system_id}/tenant-bindings:
+    get: {operationId: listExternalSystemBindings, security: [{platformOIDC: []}], parameters: [{name: system_id, in: path, required: true, schema: {type: string, format: uuid}}], responses: {'200': {description: Tenant bindings}}}
+  /platform/v1/external-systems/{system_id}/webhook-deliveries:
+    get: {operationId: listExternalSystemDeliveries, security: [{platformOIDC: []}], parameters: [{name: system_id, in: path, required: true, schema: {type: string, format: uuid}}], responses: {'200': {description: Delivery and attempt journal}}}
+  /platform/v1/webhook-deliveries/{delivery_id}:requeue:
+    post: {operationId: requeueWebhookDelivery, security: [{platformOIDC: []}], parameters: [{name: delivery_id, in: path, required: true, schema: {type: string, format: uuid}}, {$ref: '#/components/parameters/IdempotencyKey'}], responses: {'204': {description: Dead delivery requeued}, '409': {$ref: '#/components/responses/Error'}}}
+  /platform/v1/integration-metrics:
+    get: {operationId: getIntegrationMetrics, security: [{platformOIDC: []}], responses: {'200': {description: 'Queue, security and conflict metrics'}}}
   /platform/v1/enrollment-conflicts:
     get: {operationId: listEnrollmentConflicts, security: [{platformOIDC: []}], responses: {'200': {description: Conflicts awaiting decision}}}
   /platform/v1/enrollment-conflicts/{challenge_id}:resolve:
@@ -173,7 +189,8 @@ components:
     Accepted: {description: Durably accepted, content: {application/json: {schema: {$ref: '#/components/schemas/AcceptedOperation'}}}}
     Error: {description: Stable error, content: {application/json: {schema: {$ref: '#/components/schemas/Error'}}}}
   schemas:
-    ExternalSystemInput: {type: object, additionalProperties: false, required: [display_name, webhook_url, webhook_events], properties: {code: {type: string, pattern: '^[A-Z][A-Z0-9_-]{1,62}$'}, display_name: {type: string, minLength: 1}, webhook_url: {type: string, format: uri, pattern: '^https://'}, webhook_events: {type: array, items: {const: integration.command.updated}, minItems: 1, uniqueItems: true}}}
+    ExternalSystemInput: {type: object, additionalProperties: false, required: [code, display_name, webhook_url, webhook_events], properties: {code: {type: string, pattern: '^[A-Z][A-Z0-9_-]{1,62}$'}, display_name: {type: string, minLength: 1}, webhook_url: {type: string, format: uri, pattern: '^https://'}, webhook_events: {type: array, items: {const: integration.command.updated}, minItems: 1, uniqueItems: true}}}
+    ExternalSystemUpdate: {type: object, additionalProperties: false, required: [display_name, webhook_url, webhook_events, version], properties: {display_name: {type: string, minLength: 1}, webhook_url: {type: string, format: uri, pattern: '^https://'}, webhook_events: {type: array, items: {const: integration.command.updated}, minItems: 1, uniqueItems: true}, version: {type: integer, minimum: 1}}}
     TaxIdentifier:
       type: object
       additionalProperties: false

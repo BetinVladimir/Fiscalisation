@@ -6,10 +6,37 @@ jobs:
     steps:
       - uses: actions/checkout@v4
         with: {fetch-depth: 0}
-      - run: npx --yes @redocly/cli@latest lint docs/integration-kit/openapi.yaml
+      - uses: actions/setup-node@v4
+        with: {node-version: 22, cache: npm, cache-dependency-path: docs/integration-kit/package-lock.json}
+      - run: npm ci
+        working-directory: docs/integration-kit
+      - run: npm run generate
+        working-directory: docs/integration-kit
+      - run: git diff --exit-code -- docs/integration-kit/typescript/types.generated.ts fiscal-backend/internal/integration/resource_schemas_gen.go
+      - run: npm run lint:contract
+        working-directory: docs/integration-kit
+      - run: npm run typecheck
+        working-directory: docs/integration-kit
       - name: Reject breaking API changes
         if: github.event_name == 'pull_request'
         run: |
           git show "origin/${{ github.base_ref }}:docs/integration-kit/openapi.yaml" > /tmp/base-openapi.yaml
           docker run --rm -v "$PWD:/work" -v /tmp:/base tufin/oasdiff:latest breaking /base/base-openapi.yaml /work/docs/integration-kit/openapi.yaml --fail-on WARN
-      - run: node docs/integration-kit/conformance/static-check.mjs
+      - run: npm run check:static
+        working-directory: docs/integration-kit
+  server2server-e2e:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: {node-version: 22}
+      - name: Start Fiscal integration stack
+        env:
+          AUTH_HMAC_KEY: server2server-e2e-signing-key-32-bytes
+        run: docker compose -f compose.fiscalisation.yaml -f compose.fiscalisation.dev.yaml up -d --build fiscal-backend
+      - name: Wait for Fiscal
+        run: for i in $(seq 1 60); do curl -fsS http://localhost:8080/healthz && exit 0; sleep 1; done; exit 1
+      - name: Enrollment and Rabbit projection E2E
+        run: sh scripts/e2e-server2server.sh
+      - if: always()
+        run: docker compose -f compose.fiscalisation.yaml -f compose.fiscalisation.dev.yaml down -v --remove-orphans

@@ -25,6 +25,23 @@ const staleHeaders={...headers,"Idempotency-Key":crypto.randomUUID()};
 const stale=await fetch(`${base}/integration/v1/locations/${source}`,{method:"PUT",headers:staleHeaders,body:JSON.stringify(payload)});
 if (stale.status!==409) throw new Error(`stale Source-Version must be 409, got ${stale.status}`);
 
+const mutateAndWait=async(path,payload)=>{
+  const requestHeaders={...headers,"Idempotency-Key":crypto.randomUUID(),"Source-Version":"1"};
+  const response=await fetch(`${base}/integration/v1/${path}`,{method:"PUT",headers:requestHeaders,body:JSON.stringify(payload)});
+  const accepted=await response.json();
+  if(response.status!==202)throw new Error(`${path} mutation ${response.status}: ${JSON.stringify(accepted)}`);
+  for(let attempt=0;attempt<60;attempt++){
+    const polled=await fetch(`${base}/integration/v1/operations/${accepted.operation_id}`,{headers:{Authorization:`Bearer ${token}`}}).then(v=>v.json());
+    if(polled.status==="SUCCEEDED")return polled;
+    if(["FAILED","DEAD"].includes(polled.status))throw new Error(`${path} failed: ${JSON.stringify(polled)}`);
+    await new Promise(resolve=>setTimeout(resolve,250));
+  }
+  throw new Error(`${path} did not finish`);
+};
+const registerSource=`register-${crypto.randomUUID()}`,operatorSource=`operator-${crypto.randomUUID()}`;
+await mutateAndWait(`registers/${registerSource}`,{location_source_id:source,name:"Conformance POS",status:"ACTIVE"});
+await mutateAndWait(`operators/${operatorSource}`,{operator_code:"C001",first_name:"Conformance",last_name:"Operator",roles:["CASHIER"],status:"ACTIVE"});
+
 // Deterministic verifier vector ensures implementations sign the raw body and
 // compare the complete MAC in constant time. Network retry/dedup is verified by
 // the receiver example using event_id as its idempotency key.

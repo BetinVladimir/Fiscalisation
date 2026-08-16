@@ -16,4 +16,6 @@ Run the non-destructive acceptance/idempotency smoke test with `node conformance
 
 Additional artifacts include JSON Schemas, a Postman collection, a local raw-body webhook receiver, and the production readiness/compatibility policy. Sandbox credentials are created through AdminApp in the isolated sandbox environment; they are never committed to this kit.
 
+See [SANDBOX.md](./SANDBOX.md) for automated isolated provisioning and the full Rabbit-backed conformance run.
+
 Open `reference.html` through any static HTTP server for the rendered API reference. CI lints the OpenAPI document and rejects breaking contract changes. The TypeScript reference client intentionally has no runtime dependency; regenerate API types from `openapi.yaml` with `npx openapi-typescript openapi.yaml -o typescript/types.generated.ts` when the contract changes.

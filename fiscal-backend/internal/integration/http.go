@@ -43,6 +43,27 @@ func writeError(w http.ResponseWriter, err error) {
 	} else if errors.Is(err, ErrRateLimited) {
 		status = http.StatusTooManyRequests
 		code = "RATE_LIMITED"
+	} else if errors.Is(err, ErrSystemSuspended) {
+		status = http.StatusForbidden
+		code = "SYSTEM_SUSPENDED"
+	} else if errors.Is(err, ErrEnrollmentExpired) {
+		status = http.StatusGone
+		code = "ENROLLMENT_EXPIRED"
+	} else if errors.Is(err, ErrEnrollmentCodeInvalid) {
+		status = http.StatusUnauthorized
+		code = "ENROLLMENT_CODE_INVALID"
+	} else if errors.Is(err, ErrEnrollmentLocked) {
+		status = http.StatusLocked
+		code = "ENROLLMENT_LOCKED"
+	} else if errors.Is(err, ErrSourceVersionConflict) {
+		status = http.StatusConflict
+		code = "SOURCE_VERSION_CONFLICT"
+	} else if errors.Is(err, ErrCommandPayloadConflict) {
+		status = http.StatusConflict
+		code = "COMMAND_PAYLOAD_CONFLICT"
+	} else if errors.Is(err, ErrWebhookDeliveryDead) {
+		status = http.StatusConflict
+		code = "WEBHOOK_DELIVERY_DEAD"
 	}
 	writeJSON(w, status, map[string]any{"error": map[string]any{"code": code, "message": err.Error()}})
 }
@@ -235,6 +256,22 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, out)
 		return
 	}
+	if path == "/integration/v1/credentials:revoke" && r.Method == http.MethodPost {
+		p, replay, e := h.Service.AuthenticateTenantRevocation(r.Context(), bearer(r), r.Header.Get("Idempotency-Key"))
+		if e != nil {
+			writeError(w, e)
+			return
+		}
+		if !replay {
+			e = h.Service.RevokeTenantCredential(r.Context(), p, r.Header.Get("Idempotency-Key"), r.Header.Get("BeeFiscal-Source-Actor-Type"), r.Header.Get("BeeFiscal-Source-Actor-Id"), r.Header.Get("BeeFiscal-Source-Actor-Session-Id"))
+			if e != nil {
+				writeError(w, e)
+				return
+			}
+		}
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 	p, e := h.Service.AuthenticateTenant(r.Context(), bearer(r))
 	if e != nil {
 		writeError(w, e)
@@ -247,15 +284,6 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		writeJSON(w, http.StatusOK, out)
-		return
-	}
-	if path == "/integration/v1/credentials:revoke" && r.Method == http.MethodPost {
-		e := h.Service.RevokeTenantCredential(r.Context(), p, r.Header.Get("Idempotency-Key"), r.Header.Get("BeeFiscal-Source-Actor-Type"), r.Header.Get("BeeFiscal-Source-Actor-Id"), r.Header.Get("BeeFiscal-Source-Actor-Session-Id"))
-		if e != nil {
-			writeError(w, e)
-			return
-		}
-		w.WriteHeader(http.StatusNoContent)
 		return
 	}
 	if path == "/integration/v1/binding" && r.Method == http.MethodPatch {
