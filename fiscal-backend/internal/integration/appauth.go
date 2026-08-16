@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
+	"database/sql"
 	"encoding/base64"
 	"encoding/json"
 	"errors"
@@ -103,7 +104,15 @@ func fmtSix(b []byte) string {
 	return digits[len(digits)-6:]
 }
 func (s *Service) appTenants(ctx context.Context, email string) ([]AppTenant, error) {
-	rows, e := s.db.QueryContext(ctx, `select m.tenant_id::text,coalesce((b.source_metadata->'company'->>'legal_name'),(b.source_metadata->>'legal_name'),m.tenant_id::text),array_to_json(m.roles) from tenant_user_memberships m left join tenant_source_bindings b on b.tenant_id=m.tenant_id where m.normalized_email=$1 and m.status='ACTIVE' order by 2`, email)
+	return appTenantsQuery(ctx, s.db, email)
+}
+
+type appQuerier interface {
+	QueryContext(context.Context, string, ...any) (*sql.Rows, error)
+}
+
+func appTenantsQuery(ctx context.Context, q appQuerier, email string) ([]AppTenant, error) {
+	rows, e := q.QueryContext(ctx, `select m.tenant_id::text,coalesce((b.source_metadata->'company'->>'legal_name'),(b.source_metadata->>'legal_name'),m.tenant_id::text),array_to_json(m.roles) from tenant_user_memberships m left join tenant_source_bindings b on b.tenant_id=m.tenant_id where m.normalized_email=$1 and m.status='ACTIVE' order by 2`, email)
 	if e != nil {
 		return nil, e
 	}
@@ -145,14 +154,7 @@ func (s *Service) VerifyAppChallenge(ctx context.Context, temporary, code, appIn
 		_ = tx.Commit()
 		return AppVerification{}, ErrUnauthorized
 	}
-	_, e = tx.ExecContext(ctx, `update app_auth_challenges set status='VERIFIED',verified_at=now() where id=$1`, id)
-	if e != nil {
-		return AppVerification{}, e
-	}
-	if e = tx.Commit(); e != nil {
-		return AppVerification{}, e
-	}
-	tenants, e := s.appTenants(ctx, email)
+	tenants, e := appTenantsQuery(ctx, tx, email)
 	if e != nil {
 		return AppVerification{}, e
 	}
@@ -160,8 +162,25 @@ func (s *Service) VerifyAppChallenge(ctx context.Context, temporary, code, appIn
 		return AppVerification{}, ErrUnauthorized
 	}
 	if len(tenants) == 1 {
-		session, e := s.createAppSession(ctx, email, appInstance, tenants[0])
-		return AppVerification{Session: &session}, e
+		_, e = tx.ExecContext(ctx, `update app_auth_challenges set status='CANCELLED',verified_at=now() where id=$1 and status='PENDING'`, id)
+		if e != nil {
+			return AppVerification{}, e
+		}
+		session, e := s.createAppSessionTx(ctx, tx, email, appInstance, tenants[0])
+		if e != nil {
+			return AppVerification{}, e
+		}
+		if e = tx.Commit(); e != nil {
+			return AppVerification{}, e
+		}
+		return AppVerification{Session: &session}, nil
+	}
+	_, e = tx.ExecContext(ctx, `update app_auth_challenges set status='VERIFIED',verified_at=now() where id=$1 and status='PENDING'`, id)
+	if e != nil {
+		return AppVerification{}, e
+	}
+	if e = tx.Commit(); e != nil {
+		return AppVerification{}, e
 	}
 	return AppVerification{SelectionRequired: true, TenantSelectionToken: temporary, ExpiresAt: expires, Tenants: tenants}, nil
 }
@@ -170,29 +189,57 @@ func (s *Service) SelectAppTenant(ctx context.Context, selection, tenantID, appI
 	if !ok {
 		return AppSession{}, ErrUnauthorized
 	}
+	tx, e := s.db.BeginTx(ctx, nil)
+	if e != nil {
+		return AppSession{}, e
+	}
+	defer tx.Rollback()
 	var email, status, instance string
 	var hash []byte
 	var expires time.Time
-	e := s.db.QueryRowContext(ctx, `select normalized_email,status,app_instance_id::text,temporary_token_hash,expires_at from app_auth_challenges where id=$1`, id).Scan(&email, &status, &instance, &hash, &expires)
+	e = tx.QueryRowContext(ctx, `select normalized_email,status,app_instance_id::text,temporary_token_hash,expires_at from app_auth_challenges where id=$1 for update`, id).Scan(&email, &status, &instance, &hash, &expires)
 	if e != nil || status != "VERIFIED" || instance != appInstance || s.now().After(expires) || !hmac.Equal(hash, s.digest(selection)) {
 		return AppSession{}, ErrUnauthorized
 	}
-	tenants, e := s.appTenants(ctx, email)
+	tenants, e := appTenantsQuery(ctx, tx, email)
 	if e != nil {
 		return AppSession{}, e
 	}
 	for _, v := range tenants {
 		if v.TenantID == tenantID {
-			session, e := s.createAppSession(ctx, email, appInstance, v)
-			if e == nil {
-				_, _ = s.db.ExecContext(ctx, `update app_auth_challenges set status='CANCELLED' where id=$1`, id)
+			session, e := s.createAppSessionTx(ctx, tx, email, appInstance, v)
+			if e != nil {
+				return AppSession{}, e
 			}
-			return session, e
+			result, e := tx.ExecContext(ctx, `update app_auth_challenges set status='CANCELLED' where id=$1 and status='VERIFIED'`, id)
+			if e != nil {
+				return AppSession{}, e
+			}
+			if affected, _ := result.RowsAffected(); affected != 1 {
+				return AppSession{}, ErrUnauthorized
+			}
+			if e = tx.Commit(); e != nil {
+				return AppSession{}, e
+			}
+			return session, nil
 		}
 	}
 	return AppSession{}, ErrUnauthorized
 }
 func (s *Service) createAppSession(ctx context.Context, email, instance string, tenant AppTenant) (AppSession, error) {
+	tx, e := s.db.BeginTx(ctx, nil)
+	if e != nil {
+		return AppSession{}, e
+	}
+	defer tx.Rollback()
+	session, e := s.createAppSessionTx(ctx, tx, email, instance, tenant)
+	if e != nil {
+		return AppSession{}, e
+	}
+	return session, tx.Commit()
+}
+
+func (s *Service) createAppSessionTx(ctx context.Context, tx *sql.Tx, email, instance string, tenant AppTenant) (AppSession, error) {
 	if len(s.appSigningKey) < 32 {
 		return AppSession{}, errors.New("app token signing key unavailable")
 	}
@@ -213,18 +260,13 @@ func (s *Service) createAppSession(ctx context.Context, email, instance string, 
 		return AppSession{}, e
 	}
 	var userID string
-	e = s.db.QueryRowContext(ctx, `select user_id::text from tenant_user_memberships where tenant_id=$1 and normalized_email=$2 and status='ACTIVE'`, tenant.TenantID, email).Scan(&userID)
+	e = tx.QueryRowContext(ctx, `select user_id::text from tenant_user_memberships where tenant_id=$1 and normalized_email=$2 and status='ACTIVE' for key share`, tenant.TenantID, email).Scan(&userID)
 	if e != nil {
 		return AppSession{}, e
 	}
 	now := s.now()
 	expires := now.Add(15 * time.Minute)
 	access := signAppJWT(s.appSigningKey, map[string]any{"sub": userID, "iss": "beefiscal-app", "tenant_id": tenant.TenantID, "roles": tenant.Roles, "scope": "fiscal.base", "jti": jti, "iat": now.Unix(), "exp": expires.Unix()})
-	tx, e := s.db.BeginTx(ctx, nil)
-	if e != nil {
-		return AppSession{}, e
-	}
-	defer tx.Rollback()
 	_, e = tx.ExecContext(ctx, `insert into app_auth_sessions(id,user_id,normalized_email,selected_tenant_id,refresh_token_hash,app_instance_id,status,expires_at) values($1,$2,$3,$4,$5,$6,'ACTIVE',now()+interval '30 days')`, sessionID, userID, email, tenant.TenantID, s.digest(refresh), instance)
 	if e != nil {
 		return AppSession{}, e
@@ -233,7 +275,7 @@ func (s *Service) createAppSession(ctx context.Context, email, instance string, 
 	if e != nil {
 		return AppSession{}, e
 	}
-	return AppSession{AccessToken: access, RefreshToken: refresh, ExpiresIn: 900, Tenant: tenant}, tx.Commit()
+	return AppSession{AccessToken: access, RefreshToken: refresh, ExpiresIn: 900, Tenant: tenant}, nil
 }
 func signAppJWT(key []byte, claims map[string]any) string {
 	head := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`))
@@ -269,23 +311,28 @@ func (s *Service) RevokeAppToken(ctx context.Context, jti, reason string) error 
 	return e
 }
 
-func (s *Service) appSessionByRefresh(ctx context.Context, raw, instance string) (string, string, string, error) {
+func (s *Service) appSessionByRefreshTx(ctx context.Context, tx *sql.Tx, raw, instance string) (string, string, string, error) {
 	var sessionID, email, tenant string
-	e := s.db.QueryRowContext(ctx, `select id::text,normalized_email,selected_tenant_id::text from app_auth_sessions where refresh_token_hash=$1 and app_instance_id=$2 and status='ACTIVE' and expires_at>now()`, s.digest(raw), instance).Scan(&sessionID, &email, &tenant)
+	e := tx.QueryRowContext(ctx, `select id::text,normalized_email,selected_tenant_id::text from app_auth_sessions where refresh_token_hash=$1 and app_instance_id=$2 and status='ACTIVE' and expires_at>now() for update`, s.digest(raw), instance).Scan(&sessionID, &email, &tenant)
 	if e != nil {
 		return "", "", "", ErrUnauthorized
 	}
 	return sessionID, email, tenant, nil
 }
 func (s *Service) RotateAppSession(ctx context.Context, refresh, instance, targetTenant string) (AppSession, error) {
-	sessionID, email, current, e := s.appSessionByRefresh(ctx, refresh, instance)
+	tx, e := s.db.BeginTx(ctx, nil)
+	if e != nil {
+		return AppSession{}, e
+	}
+	defer tx.Rollback()
+	sessionID, email, current, e := s.appSessionByRefreshTx(ctx, tx, refresh, instance)
 	if e != nil {
 		return AppSession{}, e
 	}
 	if targetTenant == "" {
 		targetTenant = current
 	}
-	tenants, e := s.appTenants(ctx, email)
+	tenants, e := appTenantsQuery(ctx, tx, email)
 	if e != nil {
 		return AppSession{}, e
 	}
@@ -299,11 +346,10 @@ func (s *Service) RotateAppSession(ctx context.Context, refresh, instance, targe
 	if selected == nil {
 		return AppSession{}, ErrUnauthorized
 	}
-	tx, e := s.db.BeginTx(ctx, nil)
+	newSession, e := s.createAppSessionTx(ctx, tx, email, instance, *selected)
 	if e != nil {
 		return AppSession{}, e
 	}
-	defer tx.Rollback()
 	_, e = tx.ExecContext(ctx, `update app_issued_tokens set status='REVOKED',revoked_at=now(),revoke_reason=$2 where session_id=$1 and status='ACTIVE'`, sessionID, "SESSION_ROTATED")
 	if e != nil {
 		return AppSession{}, e
@@ -315,18 +361,18 @@ func (s *Service) RotateAppSession(ctx context.Context, refresh, instance, targe
 	if e = tx.Commit(); e != nil {
 		return AppSession{}, e
 	}
-	return s.createAppSession(ctx, email, instance, *selected)
+	return newSession, nil
 }
 func (s *Service) LogoutAppSession(ctx context.Context, refresh, instance string) error {
-	sessionID, _, _, e := s.appSessionByRefresh(ctx, refresh, instance)
-	if e != nil {
-		return e
-	}
 	tx, e := s.db.BeginTx(ctx, nil)
 	if e != nil {
 		return e
 	}
 	defer tx.Rollback()
+	sessionID, _, _, e := s.appSessionByRefreshTx(ctx, tx, refresh, instance)
+	if e != nil {
+		return e
+	}
 	_, e = tx.ExecContext(ctx, `update app_issued_tokens set status='REVOKED',revoked_at=now(),revoke_reason='LOGOUT' where session_id=$1 and status='ACTIVE'`, sessionID)
 	if e != nil {
 		return e

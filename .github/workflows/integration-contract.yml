@@ -38,5 +38,10 @@ jobs:
         run: for i in $(seq 1 60); do curl -fsS http://localhost:8080/healthz && exit 0; sleep 1; done; exit 1
       - name: Enrollment and Rabbit projection E2E
         run: sh scripts/e2e-server2server.sh
+      - name: BeeFiscalApp session concurrency
+        env:
+          PG_INTEGRATION_URL: postgres://fiscal:dev-fiscal-writer-password@localhost:5433/fiscal?sslmode=disable
+        run: go test ./internal/integration -run 'TestApp(TenantSelection|RefreshRotation)'
+        working-directory: fiscal-backend
       - if: always()
         run: docker compose -f compose.fiscalisation.yaml -f compose.fiscalisation.dev.yaml down -v --remove-orphans
