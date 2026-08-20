@@ -356,7 +356,7 @@ export async function setup(
 /**
  * Waits for the app to finish startup and show the product catalog.
  */
-export async function waitForReady(page: Page, text = /Готово|Смяната е отворена/) {
+export async function waitForReady(page: Page, text = /Готово|Смяната е отворена|Отворената смяна е възстановена/) {
   await page.getByTestId('status-transport').filter({ hasText: text }).waitFor({ timeout: 15_000 });
 }
 
@@ -368,5 +368,5 @@ export async function loginViaUI(page: Page, email = 'operator@example.com', cod
   await page.locator('input[type="email"], [placeholder="email@example.com"]').fill(email);
   await page.getByTestId('operator-login-start').click();
   await page.locator('input[keyboardtype="number-pad"], input[placeholder="000000"]').fill(code);
-  await page.locator('button, [role="button"]').filter({ hasText: /Продължи|Continue|Продолжить/ }).click();
+  await page.getByTestId('operator-login-verify').click();
 }

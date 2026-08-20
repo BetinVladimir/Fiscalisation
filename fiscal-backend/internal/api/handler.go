@@ -1045,6 +1045,7 @@ func (h *Handler) sale(w http.ResponseWriter, r *http.Request) {
 			}
 			v, e := h.svc.FinalizeSaleForTenant(id, in, tenantID(r))
 			if e != nil {
+				log.Printf("sale finalize rejected tenant=%s sale=%s: %v", tenantID(r), id, e)
 				problem(w, 409, "SALE_FINALIZE_REJECTED")
 				return
 			}

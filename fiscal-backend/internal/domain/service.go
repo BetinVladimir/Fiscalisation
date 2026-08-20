@@ -945,13 +945,10 @@ func (s *Service) FinalizeSaleForTenant(id string, in SaleFinalizeRequest, tenan
 	if sale.State != "OPEN" || len(sale.Lines) == 0 {
 		return Operation{}, errors.New("sale not finalizable")
 	}
-	if sale.TenantID != "" && !s.registerHasActiveFiscalDevice(sale.RegisterID, sale.TenantID) {
-		return Operation{}, errors.New("fiscal device unavailable")
-	}
 	if sale.TenantID != "" {
 		sale.FiscalDevice, err = s.activeFiscalDeviceSnapshot(sale.RegisterID, sale.TenantID, time.Now().UTC())
 		if err != nil {
-			return Operation{}, errors.New("fiscal device unavailable")
+			return Operation{}, fmt.Errorf("fiscal device unavailable: %w", err)
 		}
 	}
 	for _, p := range in.Payments {
@@ -960,8 +957,11 @@ func (s *Service) FinalizeSaleForTenant(id string, in SaleFinalizeRequest, tenan
 		}
 	}
 	driver, routeErr := s.boundDriver(sale.TenantID, sale.RegisterID, sale.FiscalDevice)
-	if routeErr != nil || driver.Probe() != nil {
-		return Operation{}, errors.New("fiscal device unavailable")
+	if routeErr != nil {
+		return Operation{}, fmt.Errorf("fiscal device route unavailable: %w", routeErr)
+	}
+	if probeErr := driver.Probe(); probeErr != nil {
+		return Operation{}, fmt.Errorf("fiscal device probe failed: %w", probeErr)
 	}
 	now := time.Now().UTC()
 	op := Operation{ID: in.ClientOperationID, ClientOperationID: in.ClientOperationID, ReceiptSessionID: in.ReceiptSessionID, TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "SALE_FINALIZE", State: "EXECUTING", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}

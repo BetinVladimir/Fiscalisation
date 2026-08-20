@@ -13,7 +13,7 @@ test.describe('Email auth flow', () => {
     await page.getByTestId('operator-login-start').click();
 
     await page.locator('[placeholder="000000"]').fill('123456');
-    await page.locator('[role="button"]').filter({ hasText: /Продължи|Continue/ }).click();
+    await page.getByTestId('operator-login-verify').click();
 
     // After auth → startup → product catalog visible
     await page.getByTestId('status-transport').filter({ hasText: /Готово|Отворена/ }).waitFor({ timeout: 15_000 });
@@ -21,6 +21,8 @@ test.describe('Email auth flow', () => {
   });
 
   test('email → OTP → onboarding → authenticated', async ({ page }) => {
+    await setupMiniposRoutes(page);
+    await setupFiscalRoutes(page);
     await page.route('**/auth/verify-code', (route) =>
       route.fulfill({
         status: 200,
@@ -35,21 +37,19 @@ test.describe('Email auth flow', () => {
         body: JSON.stringify({ access_token: TEST_JWT, refresh_token: TEST_REFRESH, expires_in: 3600 }),
       }),
     );
-    await setupMiniposRoutes(page);
-    await setupFiscalRoutes(page);
     await page.goto('/');
 
     await page.locator('[placeholder="email@example.com"]').fill('new@example.com');
     await page.getByTestId('operator-login-start').click();
     await page.locator('[placeholder="000000"]').fill('999999');
-    await page.locator('[role="button"]').filter({ hasText: /Продължи|Continue/ }).click();
+    await page.getByTestId('operator-login-verify').click();
 
     // Onboarding screen
-    await page.locator('[placeholder*="компани"], [placeholder*="Company"]').first().fill('Тест ЕООД');
-    await page.locator('[placeholder*="дрес"], [placeholder*="ddress"]').first().fill('ул. Тест 1');
-    await page.locator('[placeholder*="данъч"], [placeholder*="ax"]').first().fill('BG123456789');
-    await page.locator('[placeholder*="Вашите имена"], [placeholder*="full name"]').first().fill('Иван Иванов');
-    await page.locator('[role="button"]').filter({ hasText: /Създай|Create/ }).click();
+    await page.getByTestId('onboarding-company-name').fill('Тест ЕООД');
+    await page.getByTestId('onboarding-address').fill('ул. Тест 1');
+    await page.getByTestId('onboarding-tax-id').fill('BG123456789');
+    await page.getByTestId('onboarding-full-name').fill('Иван Иванов');
+    await page.getByTestId('operator-onboarding-create').click();
 
     await page.getByTestId('status-transport').filter({ hasText: /Готово/ }).waitFor({ timeout: 15_000 });
     await expect(page.getByTestId('product-coffee')).toBeVisible();
@@ -85,6 +85,8 @@ test.describe('Email auth flow', () => {
   });
 
   test('invalid OTP → shows error text', async ({ page }) => {
+    await setupMiniposRoutes(page);
+    await setupFiscalRoutes(page);
     await page.route('**/auth/verify-code', (route) =>
       route.fulfill({ status: 401, body: 'Неверен код', contentType: 'text/plain' }),
     );
@@ -93,8 +95,8 @@ test.describe('Email auth flow', () => {
     await page.locator('[placeholder="email@example.com"]').fill('operator@example.com');
     await page.getByTestId('operator-login-start').click();
     await page.locator('[placeholder="000000"]').fill('000000');
-    await page.locator('[role="button"]').filter({ hasText: /Продължи/ }).click();
+    await page.getByTestId('operator-login-verify').click();
 
-    await expect(page.locator('[style*="loginError"], [role="text"]').filter({ hasText: /Неверен|код|error/i })).toBeVisible({ timeout: 5_000 });
+    await expect(page.getByTestId('operator-login-error')).toContainText(/Неверен|код|error/i);
   });
 });

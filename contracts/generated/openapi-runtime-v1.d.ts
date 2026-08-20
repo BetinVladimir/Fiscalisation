@@ -630,6 +630,38 @@ export interface paths {
         patch: operations["saveMiniPosConfiguration"];
         trace?: never;
     };
+    "/minipos/fiscal-enrollment": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["startMiniPosFiscalEnrollment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/minipos/fiscal-enrollment:verify": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["verifyMiniPosFiscalEnrollment"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/minipos/fiscal-route-health": {
         parameters: {
             query?: never;
@@ -896,10 +928,69 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/minipos/tax-groups": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["listMiniPosTaxGroups"];
+        put?: never;
+        post: operations["createMiniPosTaxGroup"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/minipos/tax-groups/{tax_group_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get: operations["getMiniPosTaxGroup"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch: operations["updateMiniPosTaxGroup"];
+        trace?: never;
+    };
 }
 export type webhooks = Record<string, never>;
 export interface components {
     schemas: {
+        MiniPosTaxGroupInput: {
+            /** @enum {string} */
+            code: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
+            name: string;
+            rate: string;
+            /**
+             * @default ACTIVE
+             * @enum {string}
+             */
+            status: "ACTIVE" | "INACTIVE";
+        };
+        MiniPosTaxGroup: {
+            /** Format: uuid */
+            id: string;
+            tenant_id?: string;
+            /** @enum {string} */
+            code: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
+            name: string;
+            rate: string;
+            /** @enum {string} */
+            status: "ACTIVE" | "INACTIVE";
+            version: number;
+            /** Format: date-time */
+            created_at: string;
+            /** Format: date-time */
+            updated_at: string;
+        };
         DeviceEndpointHealth: {
             /** @enum {string} */
             role: "ADAPTER" | "FISCAL_DEVICE" | "PAYMENT_TERMINAL";
@@ -2757,7 +2848,7 @@ export interface operations {
                     [name: string]: unknown;
                 };
                 content: {
-                    "application/json": components["schemas"]["FiscalOperationSummary"];
+                    "application/json": components["schemas"]["MiniPosFiscalOperation"];
                 };
             };
             409: components["responses"]["Problem"];
@@ -3078,6 +3169,93 @@ export interface operations {
                 };
             };
             409: components["responses"]["Problem"];
+        };
+    };
+    startMiniPosFiscalEnrollment: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: email */
+                    email: string;
+                    /** Format: uuid */
+                    source_company_id: string;
+                    legal_name: string;
+                    tax_country: string;
+                    tax_type: string;
+                    tax_value: string;
+                    address: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Fiscal OTP challenge created and temporary credential retained by MiniPOS */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        temporary_token: string;
+                        /** Format: date-time */
+                        expires_at: string;
+                        /** Format: date-time */
+                        resend_after: string;
+                    };
+                };
+            };
+            502: components["responses"]["Problem"];
+        };
+    };
+    verifyMiniPosFiscalEnrollment: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    enrollment_idempotency_key: string;
+                    code: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Fiscal tenant binding and encrypted credential stored by MiniPOS */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        tenant_id: string;
+                        /** Format: uuid */
+                        source_system_id: string;
+                        /** Format: uuid */
+                        source_company_id: string;
+                        access_token: string;
+                        scopes: string[];
+                    };
+                };
+            };
+            422: components["responses"]["Problem"];
         };
     };
     getMiniPosFiscalRouteHealth: {
@@ -3599,6 +3777,120 @@ export interface operations {
             };
             409: components["responses"]["Problem"];
             422: components["responses"]["Problem"];
+        };
+    };
+    listMiniPosTaxGroups: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Tenant VAT groups */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        items: components["schemas"]["MiniPosTaxGroup"][];
+                        page: {
+                            next_cursor?: string | null;
+                            has_more: boolean;
+                        };
+                    };
+                };
+            };
+        };
+    };
+    createMiniPosTaxGroup: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MiniPosTaxGroupInput"];
+            };
+        };
+        responses: {
+            /** @description VAT group created */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosTaxGroup"];
+                };
+            };
+            422: components["responses"]["Problem"];
+        };
+    };
+    getMiniPosTaxGroup: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path: {
+                tax_group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description VAT group */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosTaxGroup"];
+                };
+            };
+            404: components["responses"]["Problem"];
+        };
+    };
+    updateMiniPosTaxGroup: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                tax_group_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MiniPosTaxGroupInput"];
+            };
+        };
+        responses: {
+            /** @description VAT group updated */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosTaxGroup"];
+                };
+            };
+            409: components["responses"]["Problem"];
         };
     };
 }

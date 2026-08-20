@@ -27,7 +27,8 @@ sources = {
   "minipos/beeminipos-backend/internal/api/handler.go" => [
     "/public/v1/minipos/configuration", "/public/v1/minipos/employees/", "/public/v1/minipos/operator-session",
     "/public/v1/minipos/shifts", "/public/v1/minipos/shifts/", "/public/v1/minipos/orders/",
-    "identity-binding", "checkout-batch", "reversals", "/public/v1/fiscal-webhooks"
+    "identity-binding", "checkout-batch", "reversals", "/public/v1/fiscal-webhooks",
+    "/public/v1/minipos/fiscal-enrollment", "/public/v1/minipos/tax-groups"
   ],
   "edge-agent/localapi/handler.go" => ["/internal/v1/final-device", "/internal/v1/commands", "/internal/v1/storage", "/local/v1/intents"],
 }
@@ -36,5 +37,5 @@ sources.each do |relative, routes|
   routes.each { |route| abort "runtime route disappeared: #{route}" unless source.include?(route) }
 end
 
-abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 58
+abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 64
 puts "runtime OpenAPI coverage OK: #{operations.length} operations"

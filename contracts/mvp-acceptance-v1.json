@@ -15,9 +15,9 @@
   },
   "contract_surface": {
     "canonical_operations": 74,
-    "runtime_operations": 58,
-    "request_contracts": 132,
-    "successful_response_contracts": 132
+    "runtime_operations": 64,
+    "request_contracts": 138,
+    "successful_response_contracts": 138
   },
   "requirement_trace": {
     "total": 25,

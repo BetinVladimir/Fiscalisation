@@ -50,6 +50,10 @@ const pathOf = (route) => new URL(route.request().url()).pathname;
 
 async function miniPosJourney(browser, appUrl) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  page.on("pageerror", error => console.error("[MiniPOS pageerror]", error.message));
+  await page.addInitScript(() => {
+    localStorage.setItem("minipos-refresh-token", "ui-e2e-refresh");
+  });
   const products = [{ id: "coffee", sku: "COF", barcode: "380000000001", name: "Кафе", price: { amount: "2.50", currency: "EUR" }, tax_group: "B", active: true }];
   const employees = [{ id: "employee-1", first_name: "Иван", last_name: "Петров", operator_code: "0001" }];
   let checkoutMode = "success", checkoutCalls = 0, splitRequests = [], reportPeriodValid = false, shiftRecoveryCalls = 0, openShift = null, zCloseMode = "success", zCloseCalls = 0, zReconcileCalls = 0;
@@ -58,11 +62,14 @@ async function miniPosJourney(browser, appUrl) {
 
   await page.route("http://minipos-api.test/**", async (route) => {
     const path = pathOf(route), method = route.request().method();
+    if (path.endsWith("/auth/refresh") && method === "POST") return json(route, { access_token: "ui-e2e-access", refresh_token: "ui-e2e-refresh-rotated", expires_in: 3600 });
     if (path.endsWith("/products") && method === "GET") return json(route, { items: products });
+    if (path.endsWith("/tax-groups") && method === "GET") return json(route, { items: [{ id: "tax-b", code: "B", name: "Стандартна", rate: "20.00", status: "ACTIVE", version: 1 }] });
     if (path.endsWith("/products") && method === "POST") { const input=route.request().postDataJSON(); products.push({ id: "product-2", sku: "NEW", ...input, active: true }); return json(route, products.at(-1), 201); }
     if (path.endsWith("/employees") && method === "GET") return json(route, { items: employees });
     if (path.endsWith("/employees") && method === "POST") { employees.push({ id: "employee-2", first_name: "Мария", last_name: "Иванова", operator_code: "0002" }); return json(route, employees.at(-1), 201); }
-    if (path.endsWith("/configuration") && method === "GET") return json(route, configuration);
+    if (path.endsWith("/orders") && method === "GET") return json(route, { items: [], page: { next_cursor: null, has_more: false } });
+    if (path.endsWith("/configuration") && method === "GET") return configuration ? json(route, configuration) : json(route, { code: "NOT_FOUND" }, 404);
     if (path.endsWith("/configuration") && method === "PATCH") { configuration = { ...configuration, ...route.request().postDataJSON(), version: configuration.version + 1 }; return json(route, configuration); }
     if (path.endsWith("/reports/sales")) { const url=new URL(route.request().url()),from=Date.parse(url.searchParams.get("from")||""),to=Date.parse(url.searchParams.get("to")||""); reportPeriodValid=Number.isFinite(from)&&Number.isFinite(to)&&from<to; return json(route, { from: new Date(from).toISOString(), to: new Date(to).toISOString(), currency: "EUR", gross: { amount: "12.50", currency: "EUR" }, payments: [{ type: "CASH", amount: { amount: "12.50", currency: "EUR" } }], generated_at: "2026-08-09T12:00:00Z" }); }
     if (path.endsWith("/shifts") && method === "GET") { shiftRecoveryCalls += 1; return json(route, { items: openShift ? [openShift] : [], page: { next_cursor: null, has_more: false } }); }
@@ -105,7 +112,12 @@ async function miniPosJourney(browser, appUrl) {
   });
 
   await page.goto(appUrl);
-  await page.getByTestId("status-transport").getByText(/Готово/).waitFor();
+  try {
+    await page.getByTestId("status-transport").getByText(/Готово/).waitFor();
+  } catch (error) {
+    console.error("[MiniPOS initial body]", (await page.locator("body").innerText()).slice(0, 2000));
+    throw error;
+  }
   await page.getByTestId("product-coffee").click();
   await page.getByTestId("status-transport").getByText(/няма .*отворена смяна/).waitFor();
 
@@ -113,16 +125,24 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("config-location-name").fill("Магазин София");
   await page.getByTestId("config-save").click();
   await page.getByTestId("status-transport").getByText(/кас[оа]вото място са записани/).waitFor();
+  await page.getByTestId("admin-products").click();
+  await page.getByTestId("product-add").click();
   await page.getByTestId("product-name").fill("Чай");
   await page.getByTestId("product-barcode").fill("380000000002");
   await page.getByTestId("product-price").fill("3.20");
   await page.getByTestId("product-create").click();
-  await page.getByText("Продукт (2)").waitFor();
+  await page.getByText("Продукти").waitFor();
+  await page.getByText("Чай").waitFor();
+  await page.getByTestId("admin-catalog-back").click();
+  await page.getByTestId("admin-employees").click();
+  await page.getByTestId("employee-add").click();
   await page.getByTestId("employee-first-name").fill("Мария");
   await page.getByTestId("employee-last-name").fill("Иванова");
   await page.getByTestId("employee-code").fill("0002");
   await page.getByTestId("employee-create").click();
-  await page.getByText("Служител (2)").waitFor();
+  await page.getByText("Служители").waitFor();
+  await page.getByText("Мария Иванова").waitFor();
+  await page.getByTestId("admin-catalog-back").click();
   await page.getByTestId("sales-report-load").click();
   await page.getByTestId("sales-report-result").getByText("€ 12.50", { exact: true }).waitFor();
   assert.equal(reportPeriodValid, true, "MiniPOS commercial report must send the required ordered RFC3339 period");
@@ -177,7 +197,7 @@ async function miniPosJourney(browser, appUrl) {
   const recoveryCallsBeforeMissingConfiguration = shiftRecoveryCalls;
   configuration = null;
   await page.reload();
-  await page.getByTestId("status-transport").getByText(/Настройте валидна фискална каса/).waitFor();
+  await page.getByTestId("status-transport").getByText(/Настройте POS преди първата продажба/).waitFor();
   assert.equal(shiftRecoveryCalls, recoveryCallsBeforeMissingConfiguration, "missing register configuration must not recover a shift across every register");
   await page.close();
 }
@@ -187,9 +207,9 @@ async function miniPosProductionLoginFailClosed(browser, appUrl) {
   let apiCalls = 0;
   await page.route("http://minipos-api.test/**", route => { apiCalls += 1; return json(route, { code: "STATIC_TOKEN_MUST_NOT_BE_USED" }, 500); });
   await page.goto(appUrl);
-  await page.getByTestId("operator-login").getByText(/Персонален вход/).waitFor();
-  await page.getByText(/OIDC не е конфигуриран/).waitFor();
-  assert.equal(await page.getByTestId("operator-login-start").isDisabled(), true, "PROD login must fail closed without OIDC discovery/client configuration");
+  await page.getByTestId("operator-login").getByText(/Вход с имейл/).waitFor();
+  await page.getByTestId("operator-login-start").click();
+  assert.equal(apiCalls, 0, "PROD login must not request OTP without a personal email");
   assert.equal(await page.getByTestId("shift-toggle").count(), 0, "PROD must not expose sales before an authenticated bound operator session");
   assert.equal(apiCalls, 0, "EXPO_PUBLIC static token must be ignored in PROD");
   await page.close();

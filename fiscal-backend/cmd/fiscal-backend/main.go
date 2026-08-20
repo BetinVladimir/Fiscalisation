@@ -47,7 +47,11 @@ func main() {
 	}
 	var driver domain.Driver = domain.NewSimulatorWithCardTerminal(cfg.AllowStubAdapters, cfg.SimulatorCardTerminalAvailable)
 	var mqttBridge *mqttclient.Bridge
-	if cfg.EMQXBroker != "" {
+	// Keep the development simulator authoritative until MQTT has a complete
+	// credential and subscription configuration. A broker URL alone is present
+	// in the base compose file and must not replace a working simulator with an
+	// unusable bridge.
+	if cfg.EMQXBroker != "" && cfg.EMQXToken != "" && len(cfg.EMQXSubTopics) > 0 {
 		mqttBridge = mqttclient.NewBridge(cfg.BLESigningKey, repo)
 		driver = mqttBridge
 	}

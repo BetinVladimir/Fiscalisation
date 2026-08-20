@@ -1,0 +1,40 @@
+{
+  "schema_version": 1,
+  "application_id": "com.beeloy.miniposweb",
+  "version": "0.1.0",
+  "build_id": "sha256:856aa677f003a54c6a222a7e181bbcad1e69940f39bf00d4d0062f6b1881e55d",
+  "created_at": "1970-01-01T00:00:00.000Z",
+  "minimum_adapter_api": "2026-08-14",
+  "entrypoint": "index.html",
+  "files": [
+    {
+      "path": "assets/background-CG49wPm7.png",
+      "size": 2253083,
+      "sha256": "c345a69bb21458f024a923ff123c39b20ea3dcfbae1be88fed46ab6d132206fa",
+      "media_type": "application/octet-stream"
+    },
+    {
+      "path": "assets/index-CwW-oYyC.js",
+      "size": 244874,
+      "sha256": "6d44214ad44a0e276c5c4a538b3aa635e168d34f9b07de97f0d0e26bb18a78be",
+      "media_type": "text/javascript"
+    },
+    {
+      "path": "assets/index-mlS6v9Xe.css",
+      "size": 2228,
+      "sha256": "57a7dafa1af2d98b8fab365cc61d3a40bd541211357c5aea457b41a53f4c97a2",
+      "media_type": "text/css"
+    },
+    {
+      "path": "index.html",
+      "size": 597,
+      "sha256": "17741b66960f4d3872bb0c2c325ebf7f7dd1eb716f9adb3a5b006e9df7506b5b",
+      "media_type": "text/html"
+    }
+  ],
+  "signature": {
+    "kid": "minipos-dev-ephemeral",
+    "alg": "Ed25519",
+    "value": "C13RMagIHm44bZX_016TaDlVF23hrrXak-YKBljPYOu6gj4dB3C7VfBGhMkVXm3WWvDwC2_vAVMW0V6Jp0R4DA"
+  }
+}

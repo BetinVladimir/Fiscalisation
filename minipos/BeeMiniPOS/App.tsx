@@ -837,6 +837,28 @@ function MiniPosApp({
         setStatus("Смяната е отворена • проверете готовността на ФУ");
       }
     } catch (e) {
+      if (!opening && shift) {
+        try {
+          const recovered = (await collect<Shift>("/shifts")).find(
+            (candidate) => candidate.id === shift.id && candidate.state !== "CLOSED",
+          );
+          if (recovered) {
+            setShift(recovered);
+            if (
+              recovered.state === "BLOCKED_RECONCILIATION" &&
+              recovered.allowed_actions?.includes("RECONCILE")
+            ) {
+              setStatus(
+                "Z-отчетът изисква сверяване • продажбите са блокирани",
+              );
+              return;
+            }
+          }
+        } catch {
+          // Preserve the original close failure when authoritative recovery is
+          // unavailable; never infer a successful close locally.
+        }
+      }
       setStatus(
         `${opening ? uiText.openShiftFailed : uiText.shiftOperationFailed}: ${message(e)}`,
       );
@@ -1319,9 +1341,9 @@ function MiniPosApp({
             onSelect={(value) => void emailAuth.setLanguage(value)}
           />
           {emailAuth.stage === "email" ? <><TextInput style={s.search} keyboardType="email-address" autoCapitalize="none" placeholder="email@example.com" value={emailAuth.email} onChangeText={emailAuth.setEmail}/><Pressable testID="operator-login-start" style={s.cash} disabled={emailAuth.busy||!emailAuth.email} onPress={()=>void emailAuth.requestCode()}><Text style={s.payText}>{uiText.sendCode}</Text></Pressable></> : null}
-          {emailAuth.stage === "code" ? <><TextInput style={s.search} keyboardType="number-pad" maxLength={6} placeholder="000000" value={loginCode} onChangeText={setLoginCode}/><Pressable style={s.cash} disabled={emailAuth.busy||loginCode.length!==6} onPress={()=>void emailAuth.verifyCode(loginCode)}><Text style={s.payText}>{uiText.continue}</Text></Pressable></> : null}
-          {emailAuth.stage === "onboarding" ? <><Text style={s.loginTitle}>{uiText.companyDetails}</Text><TextInput style={s.search} placeholder={uiText.companyName} value={companyName} onChangeText={setCompanyName}/><TextInput style={s.search} placeholder={uiText.address} value={companyAddress} onChangeText={setCompanyAddress}/><TextInput style={s.search} placeholder={uiText.taxIdentifier} value={taxIdentifier} onChangeText={setTaxIdentifier}/><TextInput style={s.search} placeholder={uiText.fullName} value={currentUserName} onChangeText={setCurrentUserName}/><Pressable style={s.cash} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName})}><Text style={s.payText}>{uiText.createCompany}</Text></Pressable></> : null}
-          {emailAuth.error ? <Text style={s.loginError}>{emailAuth.error}</Text> : null}
+          {emailAuth.stage === "code" ? <><TextInput style={s.search} keyboardType="number-pad" maxLength={6} placeholder="000000" value={loginCode} onChangeText={setLoginCode}/><Pressable testID="operator-login-verify" accessibilityRole="button" style={s.cash} disabled={emailAuth.busy||loginCode.length!==6} onPress={()=>void emailAuth.verifyCode(loginCode)}><Text style={s.payText}>{uiText.continue}</Text></Pressable></> : null}
+          {emailAuth.stage === "onboarding" ? <><Text style={s.loginTitle}>{uiText.companyDetails}</Text><TextInput testID="onboarding-company-name" style={s.search} placeholder={uiText.companyName} value={companyName} onChangeText={setCompanyName}/><TextInput testID="onboarding-address" style={s.search} placeholder={uiText.address} value={companyAddress} onChangeText={setCompanyAddress}/><TextInput testID="onboarding-tax-id" style={s.search} placeholder={uiText.taxIdentifier} value={taxIdentifier} onChangeText={setTaxIdentifier}/><TextInput testID="onboarding-full-name" style={s.search} placeholder={uiText.fullName} value={currentUserName} onChangeText={setCurrentUserName}/><Pressable testID="operator-onboarding-create" accessibilityRole="button" style={s.cash} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName})}><Text style={s.payText}>{uiText.createCompany}</Text></Pressable></> : null}
+          {emailAuth.error ? <Text testID="operator-login-error" style={s.loginError}>{emailAuth.error}</Text> : null}
         </View>
       </SafeAreaView>
     );
@@ -1884,13 +1906,13 @@ function Admin({
     void loadOrders();
   }, []);
   if (catalogScreen !== "home") return <ScrollView contentContainerStyle={[s.admin, compact && s.adminCompact]}>
-    <Pressable style={s.adminButton} onPress={()=>setCatalogScreen("home")}><Text>← {text.back}</Text></Pressable>
-    {catalogScreen === "products" ? <View style={[s.editor, compact && s.editorCompact]}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.products}</Text><Pressable style={s.fab} onPress={()=>setCatalogScreen("product-new")}><Text style={s.fabText}>+</Text></Pressable></View>{products.map((p:Product)=><View key={p.id} style={s.line}><Text>{p.name}</Text><Text>€ {p.price.amount}</Text></View>)}</View>:null}
-    {catalogScreen === "product-new" ? <View style={s.editor}><Text style={s.adminTitle}>{text.newProduct}</Text><TextInput style={s.search} placeholder={text.name} value={values.pName} onChangeText={setters.setPName}/><TextInput style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={setters.setPBarcode}/><TextInput style={s.search} placeholder={text.priceEur} value={values.pPrice} onChangeText={setters.setPPrice}/><Text style={s.cartTitle}>{text.vatGroup}</Text><View style={s.stackCompact}>{taxGroups.filter((group:TaxGroup)=>group.status==="ACTIVE").map((group:TaxGroup)=><Pressable key={group.id} style={[s.card, values.pTaxGroup===group.code && s.selectedCard]} onPress={()=>setters.setPTaxGroup(group.code)}><Text style={s.payText}>{group.code} • {group.name} • {group.rate}%</Text></Pressable>)}</View>{!taxGroups.some((group:TaxGroup)=>group.status==="ACTIVE")?<Pressable style={s.adminButton} onPress={()=>setCatalogScreen("tax-groups")}><Text>{text.configureTaxGroups}</Text></Pressable>:null}<Pressable style={s.cash} disabled={!values.pTaxGroup} onPress={async()=>{await createProduct();setCatalogScreen("products");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
+    <Pressable testID="admin-catalog-back" style={s.adminButton} onPress={()=>setCatalogScreen("home")}><Text>← {text.back}</Text></Pressable>
+    {catalogScreen === "products" ? <View style={[s.editor, compact && s.editorCompact]}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.products}</Text><Pressable testID="product-add" style={s.fab} onPress={()=>setCatalogScreen("product-new")}><Text style={s.fabText}>+</Text></Pressable></View>{products.map((p:Product)=><View key={p.id} style={s.line}><Text>{p.name}</Text><Text>€ {p.price.amount}</Text></View>)}</View>:null}
+    {catalogScreen === "product-new" ? <View style={s.editor}><Text style={s.adminTitle}>{text.newProduct}</Text><TextInput testID="product-name" style={s.search} placeholder={text.name} value={values.pName} onChangeText={setters.setPName}/><TextInput testID="product-barcode" style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={setters.setPBarcode}/><TextInput testID="product-price" style={s.search} placeholder={text.priceEur} value={values.pPrice} onChangeText={setters.setPPrice}/><Text style={s.cartTitle}>{text.vatGroup}</Text><View style={s.stackCompact}>{taxGroups.filter((group:TaxGroup)=>group.status==="ACTIVE").map((group:TaxGroup)=><Pressable key={group.id} style={[s.card, values.pTaxGroup===group.code && s.selectedCard]} onPress={()=>setters.setPTaxGroup(group.code)}><Text style={s.payText}>{group.code} • {group.name} • {group.rate}%</Text></Pressable>)}</View>{!taxGroups.some((group:TaxGroup)=>group.status==="ACTIVE")?<Pressable style={s.adminButton} onPress={()=>setCatalogScreen("tax-groups")}><Text>{text.configureTaxGroups}</Text></Pressable>:null}<Pressable testID="product-create" style={s.cash} disabled={!values.pTaxGroup} onPress={async()=>{await createProduct();setCatalogScreen("products");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
     {catalogScreen === "tax-groups" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.taxGroups}</Text><Pressable style={s.fab} onPress={()=>editTaxGroup()}><Text style={s.fabText}>+</Text></Pressable></View>{taxGroups.map((group:TaxGroup)=><Pressable key={group.id} style={s.line} onPress={()=>editTaxGroup(group)}><Text>{group.code} • {group.name}</Text><Text>{group.rate}% • {group.status === "ACTIVE" ? text.active : text.inactive}</Text></Pressable>)}</View>:null}
     {catalogScreen === "tax-group-edit" ? <View style={s.editor}><Text style={s.adminTitle}>{editingTaxGroup ? text.editTaxGroup : text.newTaxGroup}</Text><TextInput style={s.search} placeholder={text.taxCode} maxLength={1} autoCapitalize="characters" value={taxCode} onChangeText={setTaxCode}/><TextInput style={s.search} placeholder={text.name} value={taxName} onChangeText={setTaxName}/><TextInput style={s.search} placeholder={text.taxRate} keyboardType="decimal-pad" value={taxRate} onChangeText={setTaxRate}/><Pressable style={s.cash} onPress={async()=>{const saved=await saveTaxGroup({...editingTaxGroup,code:taxCode,name:taxName,rate:taxRate,status:editingTaxGroup?.status||"ACTIVE"});if(saved)setCatalogScreen("tax-groups");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
-    {catalogScreen === "employees" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.employees}</Text><Pressable style={s.fab} onPress={()=>setCatalogScreen("employee-new")}><Text style={s.fabText}>+</Text></Pressable></View>{employees.map((e:Employee)=><View key={e.id} style={s.line}><Text>{e.first_name} {e.last_name}</Text><Text>{e.operator_code}</Text></View>)}</View>:null}
-    {catalogScreen === "employee-new" ? <View style={s.editor}><Text style={s.adminTitle}>{text.newEmployee}</Text><TextInput style={s.search} placeholder={text.firstName} value={values.eFirst} onChangeText={setters.setEFirst}/><TextInput style={s.search} placeholder={text.lastName} value={values.eLast} onChangeText={setters.setELast}/><TextInput style={s.search} placeholder={text.operatorCode} maxLength={4} value={values.eCode} onChangeText={setters.setECode}/><Pressable style={s.cash} onPress={async()=>{await createEmployee();setCatalogScreen("employees");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
+    {catalogScreen === "employees" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.employees}</Text><Pressable testID="employee-add" style={s.fab} onPress={()=>setCatalogScreen("employee-new")}><Text style={s.fabText}>+</Text></Pressable></View>{employees.map((e:Employee)=><View key={e.id} style={s.line}><Text>{e.first_name} {e.last_name}</Text><Text>{e.operator_code}</Text></View>)}</View>:null}
+    {catalogScreen === "employee-new" ? <View style={s.editor}><Text style={s.adminTitle}>{text.newEmployee}</Text><TextInput testID="employee-first-name" style={s.search} placeholder={text.firstName} value={values.eFirst} onChangeText={setters.setEFirst}/><TextInput testID="employee-last-name" style={s.search} placeholder={text.lastName} value={values.eLast} onChangeText={setters.setELast}/><TextInput testID="employee-code" style={s.search} placeholder={text.operatorCode} maxLength={4} value={values.eCode} onChangeText={setters.setECode}/><Pressable testID="employee-create" style={s.cash} onPress={async()=>{await createEmployee();setCatalogScreen("employees");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
   </ScrollView>;
   const reverse = async (order: Order) => {
     if (!order.allowed_actions?.includes("REVERSE")) {
@@ -1922,7 +1944,7 @@ function Admin({
   return (
     <ScrollView testID="admin-editors" contentContainerStyle={[s.admin, compact && s.adminCompact]}>
       <Text style={s.adminTitle}>{text.configuration}</Text>
-      <View style={[s.screenHeading, s.stackCompact]}><Pressable style={s.card} onPress={()=>setCatalogScreen("products")}><Text style={s.payText}>{text.products} ({products.length})</Text></Pressable><Pressable style={s.card} onPress={()=>setCatalogScreen("tax-groups")}><Text style={s.payText}>{text.taxGroups} ({taxGroups.length})</Text></Pressable><Pressable style={s.card} onPress={()=>setCatalogScreen("employees")}><Text style={s.payText}>{text.employees} ({employees.length})</Text></Pressable></View>
+      <View style={[s.screenHeading, s.stackCompact]}><Pressable testID="admin-products" style={s.card} onPress={()=>setCatalogScreen("products")}><Text style={s.payText}>{text.products} ({products.length})</Text></Pressable><Pressable testID="admin-tax-groups" style={s.card} onPress={()=>setCatalogScreen("tax-groups")}><Text style={s.payText}>{text.taxGroups} ({taxGroups.length})</Text></Pressable><Pressable testID="admin-employees" style={s.card} onPress={()=>setCatalogScreen("employees")}><Text style={s.payText}>{text.employees} ({employees.length})</Text></Pressable></View>
       <View testID="reversal-editor" style={s.editor}>
         <Text style={s.cartTitle}>{text.reversal}</Text>
         <Text>
