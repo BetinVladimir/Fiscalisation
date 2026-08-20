@@ -164,8 +164,18 @@ sale_flow() {
   sale_id=$(printf '%s' "$sale" | jq -er .sale_id)
   line=$(curl -fsS -X POST "$fiscal_base/public/v1/sales/$sale_id/lines" -H "Authorization: Bearer $tenant_token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: line-$serial-$suffix" -H 'If-Match: 1' -H 'Content-Type: application/json' --data "{\"line_id\":\"line-$serial\",\"name\":\"E2E item\",\"quantity\":\"1.000\",\"unit_price\":{\"amount\":\"2.50\",\"currency\":\"EUR\"},\"tax_group\":\"B\"}")
   version=$(printf '%s' "$line" | jq -er .version)
-  operation=$(api POST "$fiscal_base/public/v1/sales/$sale_id/payments" "$tenant_token" "payment-$serial-$suffix" "{\"payment_id\":\"payment-$serial\",\"type\":\"$payment\",\"amount\":{\"amount\":\"2.50\",\"currency\":\"EUR\"},\"terminal_policy\":\"REQUIRED\"}")
+  payment_key="payment-$serial-$suffix"
+  payment_body="{\"payment_id\":\"payment-$serial\",\"type\":\"$payment\",\"amount\":{\"amount\":\"2.50\",\"currency\":\"EUR\"},\"terminal_policy\":\"REQUIRED\"}"
+  operation=$(api POST "$fiscal_base/public/v1/sales/$sale_id/payments" "$tenant_token" "$payment_key" "$payment_body")
   [ "$(printf '%s' "$operation" | jq -r .state)" = FISCALIZED ]
+  # A client may lose the first response after the device has already printed.
+  # Replaying the same durable key must return the same operation, never charge
+  # or fiscalise a second time.
+  replay_operation=$(api POST "$fiscal_base/public/v1/sales/$sale_id/payments" "$tenant_token" "$payment_key" "$payment_body")
+  [ "$(printf '%s' "$operation" | jq -r .operation_id)" = "$(printf '%s' "$replay_operation" | jq -r .operation_id)" ] || {
+    printf '%s\n' 'Idempotency replay created a different fiscal operation' >&2
+    exit 1
+  }
   receipt=$(api GET "$fiscal_base/public/v1/sales/$sale_id/receipt" "$tenant_token" "receipt-$serial-$suffix")
   printf '%s' "$receipt" | jq -e '.fiscal_reference != null or .regulatory_identifiers != null' >/dev/null
   fiscal_reference=$(printf '%s' "$operation" | jq -er .fiscal_reference)
@@ -175,6 +185,20 @@ sale_flow() {
 }
 sale_flow CASH cash
 sale_flow CARD card
+
+# Optimistic concurrency is checked against the real persistence layer. A
+# stale editor must not overwrite a register updated by another client.
+conflict_file=$(mktemp "${TMPDIR:-/tmp}/beeloy-e2e-conflict.XXXXXX")
+conflict_status=$(curl --max-time 20 -sS -o "$conflict_file" -w '%{http_code}' -X PATCH "$fiscal_base/public/v1/registers/$register_id" \
+  -H "Authorization: Bearer $tenant_token" -H "X-Api-Version: $api_version" \
+  -H "Idempotency-Key: stale-register-$suffix" -H 'If-Match: 0' \
+  -H 'Content-Type: application/json' \
+  --data "{\"code\":\"R$suffix\",\"location_id\":\"$location_id\",\"status\":\"ACTIVE\"}")
+case "$conflict_status" in
+  409|412) ;;
+  *) printf 'Expected stale If-Match conflict, got HTTP %s: ' "$conflict_status" >&2; cat "$conflict_file" >&2; rm -f "$conflict_file"; exit 1 ;;
+esac
+rm -f "$conflict_file"
 
 printf '%s\n' '[7/8] Локальные операции edge-agent-s3 и bluecash-app mocks'
 for endpoint in 19001 19002; do

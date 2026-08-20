@@ -12,6 +12,8 @@
 6. Настройка активных Fiscal resources и настоящие CASH и CARD продажи через публичный Fiscal API: товарная строка, оплата, фискализация, получение чека и возврат.
 7. Локальный HTTP-контракт mock `edge-agent-s3`: readiness, CASH intent, чтение результата и reconcile.
 8. Локальный HTTP-контракт mock `bluecash-app`: readiness, CARD intent, RRN/authorization и idempotency replay.
+9. Повтор CASH/CARD payment с тем же `Idempotency-Key` возвращает ту же операцию и не создаёт повторную фискализацию.
+10. Устаревший `If-Match` при конкурентном изменении register отклоняется с conflict/precondition response.
 
 SMTP mock принимает обычный SMTP на `127.0.0.1:18025`, хранит письма только в памяти и предоставляет API `http://127.0.0.1:18080/messages`. Тест никогда не читает OTP напрямую из БД.
 

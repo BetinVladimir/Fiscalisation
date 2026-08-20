@@ -1,0 +1,42 @@
+name: BeeFiscalApp E2E
+
+on:
+  workflow_dispatch:
+  pull_request:
+    paths:
+      - 'BeeFiscalApp/**'
+      - 'Makefile'
+      - '.github/workflows/beefiscalapp-e2e.yml'
+
+permissions:
+  contents: read
+
+concurrency:
+  group: beefiscalapp-e2e-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  e2e:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 15
+    defaults:
+      run:
+        working-directory: BeeFiscalApp
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+          cache-dependency-path: BeeFiscalApp/package-lock.json
+      - run: npm ci --no-audit --no-fund
+      - run: npx playwright install --with-deps chromium
+      - run: npm test
+      - run: npx tsc --noEmit
+      - name: Build E2E web application
+        env:
+          EXPO_PUBLIC_APP_ENV: dev
+          EXPO_PUBLIC_REGISTER_ID: 00000000-0000-4000-8000-000000000001
+          EXPO_PUBLIC_FISCAL_API_URL: http://fiscal-admin.test/public/v1
+        run: npm run build:e2e
+      - run: npm run test:e2e

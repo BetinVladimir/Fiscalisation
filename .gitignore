@@ -6,6 +6,9 @@ node_modules/
 .regression-native-ios/
 .ui-e2e-web/
 .ui-e2e-prod-web/
+.playwright-e2e-web/
+playwright-report/
+test-results/
 .npm/
 .expo/
 .expo-shared/

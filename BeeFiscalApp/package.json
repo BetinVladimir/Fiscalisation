@@ -5,6 +5,8 @@
   "main": "node_modules/expo/AppEntry.js",
   "scripts": {
     "test": "node --experimental-strip-types --test src/*.test.ts",
+    "test:e2e": "playwright test",
+    "build:e2e": "expo export --clear --platform web --output-dir .playwright-e2e-web",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -24,6 +26,7 @@
     "react-native-web": "~0.20.0"
   },
   "devDependencies": {
+    "@playwright/test": "^1.62.1",
     "@types/react": "~19.0.10",
     "typescript": "~5.8.3"
   },

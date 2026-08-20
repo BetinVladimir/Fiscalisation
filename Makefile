@@ -1,4 +1,4 @@
-.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test web-build native-bundle android-build ios-build native-regression smart-device-test iot-test compose-check compose-e2e regression full-regression
+.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test iot-test compose-check compose-e2e regression full-regression
 deps:
 	cd minipos/BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
 	cd BeeFiscalApp && npm ci --cache /tmp/beefiscalapp-npm-cache --no-audit --no-fund
@@ -105,6 +105,10 @@ ui-interaction-test:
 	cd BeeFiscalApp && EXPO_PUBLIC_APP_ENV=dev EXPO_PUBLIC_REGISTER_ID=00000000-0000-4000-8000-000000000001 EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 npx expo export --platform web --output-dir .ui-e2e-web
 	cd BeeFiscalApp && EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_FISCAL_AUTH_TOKEN=forbidden-fiscal-admin-static-token EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 npx expo export --clear --platform web --output-dir .ui-e2e-prod-web
 	cd minipos/BeeMiniPOS && npm run test:web-interaction
+
+beefiscalapp-e2e:
+	cd BeeFiscalApp && EXPO_PUBLIC_APP_ENV=dev EXPO_PUBLIC_REGISTER_ID=00000000-0000-4000-8000-000000000001 EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 npm run build:e2e
+	cd BeeFiscalApp && npm run test:e2e
 
 evidence-test:
 	ruby scripts/generate_release_evidence.rb /tmp/beeloy-release-evidence-test
