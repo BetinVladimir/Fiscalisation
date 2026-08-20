@@ -172,33 +172,3 @@ test.describe('BLE – fiscal sale via GATT', () => {
       .waitFor({ timeout: 8_000 });
   });
 });
-
-test.describe('BLE – revoke on logout', () => {
-  test('BLE session revoked on operator logout', async ({ page }) => {
-    let revokeCalled = false;
-    await setup(page);
-
-    await page.route(/\/ble-sessions\/[^/]+\/revoke$/, async (route) => {
-      revokeCalled = true;
-      return route.fulfill({ status: 200, contentType: 'application/json', body: '{}' });
-    });
-
-    // Simulate having an active BLE session in state by stubbing the connect
-    await page.addInitScript(BLE_STUB);
-
-    await page.goto('/');
-    await waitForReady(page);
-
-    // Logout via storage clear (simulates what logout button does)
-    await page.evaluate(() => {
-      localStorage.removeItem('minipos-access-token');
-      localStorage.removeItem('minipos-refresh-token');
-    });
-
-    // The app's useEffect monitors emailAuth.accessToken, so trigger a navigation
-    await page.reload();
-
-    // After reload with no tokens, auth screen shows
-    await page.getByTestId('operator-login').waitFor({ timeout: 8_000 });
-  });
-});

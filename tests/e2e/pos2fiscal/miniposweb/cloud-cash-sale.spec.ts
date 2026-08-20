@@ -64,7 +64,7 @@ test.describe('miniposweb – CLOUD cash sale', () => {
 
     const cashPayment = payments.find((p) => p['type'] === 'CASH');
     expect(cashPayment).toBeDefined();
-    expect(cashPayment!['amount']).toBe('2.50');
+    expect(cashPayment!['amount']).toEqual({ amount: '2.50', currency: 'EUR' });
 
     // receipt_session_id propagated via metadata
     const metadata = checkoutBatchBody!['metadata'] as Record<string, unknown>;

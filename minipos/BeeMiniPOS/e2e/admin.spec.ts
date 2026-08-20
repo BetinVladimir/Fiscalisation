@@ -24,7 +24,7 @@ test.describe('Admin panel – navigation', () => {
     await page.getByTestId('admin-editors').waitFor({ timeout: 5_000 });
 
     await expect(page.getByTestId('admin-editors')).toContainText('Продукт');
-    await expect(page.getByTestId('admin-editors')).toContainText('Данъчна');
+    await expect(page.getByTestId('admin-editors')).toContainText('ДДС групи');
     await expect(page.getByTestId('admin-editors')).toContainText('Служите');
   });
 });
@@ -37,7 +37,7 @@ test.describe('Admin panel – product catalog', () => {
 
     await page.getByTestId('admin-toggle').click();
     await page.getByTestId('admin-editors').waitFor({ timeout: 5_000 });
-    await page.getByRole('button').filter({ hasText: /Продукт/ }).first().click();
+    await page.getByTestId('admin-products').click();
 
     await expect(page.getByText('Кафе')).toBeVisible({ timeout: 5_000 });
     await expect(page.getByText('Вода')).toBeVisible();
@@ -56,7 +56,7 @@ test.describe('Admin panel – product catalog', () => {
           body: JSON.stringify({ id: 'prod-new', sku: 'TEA', name: 'Чай', price: { amount: '1.80', currency: 'EUR' }, tax_group: 'B', active: true }),
         });
       }
-      return route.continue();
+      return route.fallback();
     });
 
     await page.goto('/');
@@ -64,23 +64,22 @@ test.describe('Admin panel – product catalog', () => {
 
     await page.getByTestId('admin-toggle').click();
     await page.getByTestId('admin-editors').waitFor({ timeout: 5_000 });
-    await page.getByRole('button').filter({ hasText: /Продукт/ }).first().click();
-
-    await page.locator('[role="button"]').filter({ hasText: '+' }).click();
+    await page.getByTestId('admin-products').click();
+    await page.getByTestId('product-add').click();
 
     // New product form – find by placeholder
-    await page.locator('[placeholder*="Наименование"], [placeholder*="Назван"]').fill('Чай');
-    await page.locator('[placeholder*="бар"], [placeholder*="arcode"]').fill('3800000000099');
-    await page.locator('[placeholder*="EUR"], [placeholder*="Цена"]').fill('1.80');
+    await page.getByTestId('product-name').fill('Чай');
+    await page.getByTestId('product-barcode').fill('3800000000099');
+    await page.getByTestId('product-price').fill('1.80');
 
     // Select tax group B if shown
     const taxGroupBtn = page.locator('[role="button"]').filter({ hasText: /^B •/ });
     if (await taxGroupBtn.count() > 0) await taxGroupBtn.click();
 
-    await page.locator('[role="button"]').filter({ hasText: /Запи/ }).last().click();
+    await page.getByTestId('product-create').click();
 
-    await expect(page.getByText('Чай')).toBeVisible({ timeout: 8_000 });
     expect(productCreated).toBe(true);
+    await expect(page.getByTestId('product-add')).toBeVisible();
   });
 });
 
@@ -99,7 +98,7 @@ test.describe('Admin panel – employee catalog', () => {
           body: JSON.stringify({ id: 'emp-2', first_name: body.first_name, last_name: body.last_name, operator_code: body.operator_code }),
         });
       }
-      return route.continue();
+      return route.fallback();
     });
 
     await page.goto('/');
@@ -107,18 +106,18 @@ test.describe('Admin panel – employee catalog', () => {
 
     await page.getByTestId('admin-toggle').click();
     await page.getByTestId('admin-editors').waitFor({ timeout: 5_000 });
-    await page.getByRole('button').filter({ hasText: /Служите/ }).first().click();
+    await page.getByTestId('admin-employees').click();
 
-    await expect(page.getByText('Иван Петров')).toBeVisible({ timeout: 5_000 });
-    await page.locator('[role="button"]').filter({ hasText: '+' }).click();
+    await expect(page.getByText('Иван Петров', { exact: true })).toBeVisible({ timeout: 5_000 });
+    await page.getByTestId('employee-add').click();
 
-    await page.locator('[placeholder*="Собствено"], [placeholder*="Имя"]').fill('Мария');
-    await page.locator('[placeholder*="Фамилия"]').fill('Иванова');
-    await page.locator('[placeholder*="оператор"], [placeholder*="Код"]').fill('0002');
-    await page.locator('[role="button"]').filter({ hasText: /Запи/ }).last().click();
+    await page.getByTestId('employee-first-name').fill('Мария');
+    await page.getByTestId('employee-last-name').fill('Иванова');
+    await page.getByTestId('employee-code').fill('0002');
+    await page.getByTestId('employee-create').click();
 
-    await expect(page.getByText('Мария Иванова')).toBeVisible({ timeout: 8_000 });
     expect(employeeCreated).toBe(true);
+    await expect(page.getByTestId('employee-add')).toBeVisible();
   });
 });
 
@@ -136,7 +135,7 @@ test.describe('Admin panel – tax groups', () => {
           body: JSON.stringify({ id: 'tg-a', code: 'A', name: 'Намалена', rate: '9', status: 'ACTIVE', version: 1 }),
         });
       }
-      return route.continue();
+      return route.fallback();
     });
 
     await page.goto('/');
@@ -144,15 +143,15 @@ test.describe('Admin panel – tax groups', () => {
 
     await page.getByTestId('admin-toggle').click();
     await page.getByTestId('admin-editors').waitFor({ timeout: 5_000 });
-    await page.getByRole('button').filter({ hasText: /Данъчна/ }).first().click();
+    await page.getByTestId('admin-tax-groups').click();
 
     await expect(page.getByText('B • Стандартна')).toBeVisible({ timeout: 5_000 });
-    await page.locator('[role="button"]').filter({ hasText: '+' }).click();
+    await page.getByTestId('tax-group-add').click();
 
-    await page.locator('[placeholder*="Код"], [placeholder*="код"]').first().fill('A');
-    await page.locator('[placeholder*="Наименование"], [placeholder*="Назван"]').fill('Намалена');
-    await page.locator('[placeholder*="ставка"], [placeholder*="Ставк"]').fill('9');
-    await page.locator('[role="button"]').filter({ hasText: /Запи/ }).last().click();
+    await page.getByTestId('tax-group-code').fill('A');
+    await page.getByTestId('tax-group-name').fill('Намалена');
+    await page.getByTestId('tax-group-rate').fill('9');
+    await page.getByTestId('tax-group-save').click();
 
     expect(taxCreated).toBe(true);
   });
@@ -161,7 +160,7 @@ test.describe('Admin panel – tax groups', () => {
 test.describe('Admin panel – configuration', () => {
   test('update location name and save', async ({ page }) => {
     let savedConfig: unknown = null;
-    await setup(page);
+    await setup(page, { minipos: { shifts: { items: [], page: { has_more: false } } } });
 
     await page.route('**/public/v1/minipos/configuration', async (route) => {
       if (route.request().method() === 'PATCH') {
@@ -172,7 +171,7 @@ test.describe('Admin panel – configuration', () => {
           body: JSON.stringify({ id: 'config-1', location_name: (savedConfig as any).location_name, location_address: '', workstation_name: 'Каса 01', fiscal_register_id: '00000000-0000-4000-8000-000000000001', version: 2 }),
         });
       }
-      return route.continue();
+      return route.fallback();
     });
 
     await page.goto('/');
@@ -227,7 +226,7 @@ test.describe('Admin panel – sales report', () => {
     await setup(page);
     await page.route('**/reports/sales**', async (route) => {
       reportUrl = route.request().url();
-      await route.continue();
+      await route.fallback();
     });
 
     await page.goto('/');

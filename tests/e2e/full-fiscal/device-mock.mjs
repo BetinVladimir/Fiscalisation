@@ -4,13 +4,19 @@ import crypto from 'node:crypto';
 const profile = process.env.DEVICE_PROFILE || 'edge-agent-s3';
 const port = Number(process.env.HTTP_PORT || 8080);
 const operations = new Map(), idempotency = new Map();
-const json = (res, status, body) => { res.writeHead(status, {'content-type':'application/json'}); res.end(JSON.stringify(body)); };
+const cors = {
+  'access-control-allow-origin': '*',
+  'access-control-allow-methods': 'GET,POST,OPTIONS',
+  'access-control-allow-headers': 'authorization,content-type,idempotency-key',
+};
+const json = (res, status, body) => { res.writeHead(status, {'content-type':'application/json', ...cors}); res.end(JSON.stringify(body)); };
 const read = req => new Promise((resolve, reject) => { let s=''; req.on('data', c => s += c); req.on('end', () => { try { resolve(s ? JSON.parse(s) : {}); } catch(e) { reject(e); } }); });
 const authorized = req => /^Bearer\s+\S+/.test(req.headers.authorization || '');
 
 http.createServer(async (req, res) => {
   const url = new URL(req.url, 'http://localhost');
   const root = '/beeloy/local/v1';
+  if (req.method === 'OPTIONS') { res.writeHead(204, cors); return res.end(); }
   if (url.pathname === `${root}/healthz`) return json(res, 200, {status:'ok', profile});
   if (url.pathname === '/__e2e/operations') return json(res, 200, {items:[...operations.values()]});
   if (!url.pathname.startsWith(root)) return json(res, 404, {code:'NOT_FOUND'});

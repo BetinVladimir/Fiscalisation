@@ -236,11 +236,20 @@ export function resetFiscalSaleState() {
 
 export function makeFiscalSale(overrides: Record<string, unknown> = {}) {
   _saleCounter++;
+  const unp = `${REGISTER_ID}-0001-${String(_saleCounter).padStart(7, '0')}`;
   return {
     sale_id: `sale-p2f-${_saleCounter}`,
     external_id: `ext-p2f-${_saleCounter}`,
     register_id: REGISTER_ID,
     operator_id: '0001',
+    unp,
+    regulatory_identifiers: [{
+      type: 'SALE',
+      scheme: 'BG_UNP_V1',
+      value: unp,
+      country_code: 'BG',
+      profile_version: '2026-08-10.1',
+    }],
     state: 'OPEN',
     version: 1,
     lines: [],
@@ -407,6 +416,6 @@ export async function waitForPOS(page: Page) {
 
 export async function waitForBeeMiniposReady(page: Page) {
   await page.getByTestId('status-transport')
-    .filter({ hasText: /Готово|Смяната е отворена/ })
+    .filter({ hasText: /Готово|Смяната е отворена|Отворената смяна е възстановена/ })
     .waitFor({ timeout: 20_000 });
 }

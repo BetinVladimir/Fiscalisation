@@ -51,7 +51,7 @@ test.describe('Email auth flow', () => {
     await page.getByTestId('onboarding-full-name').fill('Иван Иванов');
     await page.getByTestId('operator-onboarding-create').click();
 
-    await page.getByTestId('status-transport').filter({ hasText: /Готово/ }).waitFor({ timeout: 15_000 });
+    await page.getByTestId('status-transport').filter({ hasText: /Готово|Смяната е отворена|Отворената смяна е възстановена/ }).waitFor({ timeout: 15_000 });
     await expect(page.getByTestId('product-coffee')).toBeVisible();
   });
 

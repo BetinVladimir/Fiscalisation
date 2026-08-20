@@ -38,7 +38,7 @@ test.describe('miniposweb – LOCAL_HTTP card sale (bluecash-app)', () => {
     await expect(page.locator('.total')).toContainText('2.50');
 
     // Enter full amount as card → payment type CARD
-    await page.locator('input[inputMode="decimal"]').fill('2.50');
+    await page.getByRole('spinbutton', { name: 'С карта (остатъкът е в брой)' }).fill('2.50');
     await page.getByRole('button', { name: 'Плащане и фискализация' }).click();
 
     // Cart clears on FISCALIZED
@@ -80,7 +80,7 @@ test.describe('miniposweb – LOCAL_HTTP card sale (bluecash-app)', () => {
     await page.getByRole('button', { name: /Кафе/ }).click();
     await expect(page.locator('.total')).toContainText('2.50');
 
-    await page.locator('input[inputMode="decimal"]').fill('1.00');
+    await page.getByRole('spinbutton', { name: 'С карта (остатъкът е в брой)' }).fill('1.00');
     await page.getByRole('button', { name: 'Плащане и фискализация' }).click();
     await expect(page.getByText('Изберете продукт.')).toBeVisible({ timeout: 20_000 });
 
@@ -94,8 +94,8 @@ test.describe('miniposweb – LOCAL_HTTP card sale (bluecash-app)', () => {
     const cashPay = payments.find((p) => p['type'] === 'CASH');
     expect(cardPay).toBeDefined();
     expect(cashPay).toBeDefined();
-    expect(cardPay!['amount']).toBe('1.00');
-    expect(cashPay!['amount']).toBe('1.50');
+    expect(cardPay!['amount']).toEqual({ amount: '1.00', currency: 'EUR' });
+    expect(cashPay!['amount']).toEqual({ amount: '1.50', currency: 'EUR' });
   });
 
   test('card sale idempotency: same operation returned on duplicate Idempotency-Key', async ({ page }) => {
@@ -120,7 +120,7 @@ test.describe('miniposweb – LOCAL_HTTP card sale (bluecash-app)', () => {
     await waitForPOS(page);
 
     await page.getByRole('button', { name: /Кафе/ }).click();
-    await page.locator('input[inputMode="decimal"]').fill('2.50');
+    await page.getByRole('spinbutton', { name: 'С карта (остатъкът е в брой)' }).fill('2.50');
     await page.getByRole('button', { name: 'Плащане и фискализация' }).click();
     await expect(page.getByText('Изберете продукт.')).toBeVisible({ timeout: 20_000 });
 
@@ -139,7 +139,7 @@ test.describe('miniposweb – LOCAL_HTTP card sale (bluecash-app)', () => {
     await waitForPOS(page);
 
     await page.getByRole('button', { name: /Кафе/ }).click();
-    await page.locator('input[inputMode="decimal"]').fill('2.50');
+    await page.getByRole('spinbutton', { name: 'С карта (остатъкът е в брой)' }).fill('2.50');
     await page.getByRole('button', { name: 'Плащане и фискализация' }).click();
     await expect(page.getByText('Изберете продукт.')).toBeVisible({ timeout: 20_000 });
 

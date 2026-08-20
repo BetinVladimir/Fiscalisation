@@ -3,7 +3,7 @@ services:
     extra_hosts: ["host.docker.internal:host-gateway"]
     environment:
       SMTP_HOST: host.docker.internal
-      SMTP_PORT: "18025"
+      SMTP_PORT: "${E2E_SMTP_PORT:-18025}"
       SMTP_USER: ""
       SMTP_PASSWORD: ""
       SMTP_FROM: e2e-minipos@beeloy.test

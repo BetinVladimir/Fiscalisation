@@ -34,14 +34,11 @@ test.describe('BeeMiniPOS – split tender sale', () => {
     await page.getByTestId('cart-line-water').waitFor({ timeout: 8_000 });
     await expect(page.getByTestId('sale-total')).toContainText('€ 3.50');
 
-    // Open split payment mode
-    await page.getByTestId('payment-split').click();
-
     // Enter CASH portion = 1.00 → CARD = 2.50
     await page.getByTestId('split-cash-amount').fill('1.00');
 
     // Confirm split payment
-    await page.getByTestId('sale-pay').click();
+    await page.getByTestId('payment-split').click();
 
     await page.getByTestId('status-transport')
       .filter({ hasText: /Успешен фискален бон/ })
@@ -60,11 +57,11 @@ test.describe('BeeMiniPOS – split tender sale', () => {
     expect(cashPay).toBeDefined();
     expect(cardPay).toBeDefined();
 
-    expect(cashPay!['amount']).toBe('1.00');
+    expect(cashPay!['amount']).toEqual({ amount: '1.00', currency: 'EUR' });
     if (cashPay!['terminal_policy'] !== undefined)
       expect(cashPay!['terminal_policy']).toBe('NONE');
 
-    expect(cardPay!['amount']).toBe('2.50');
+    expect(cardPay!['amount']).toEqual({ amount: '2.50', currency: 'EUR' });
     expect(cardPay!['terminal_policy']).toBe('AUTO_IF_AVAILABLE');
 
     // Total: 1.00 + 2.50 = 3.50
@@ -86,9 +83,7 @@ test.describe('BeeMiniPOS – split tender sale', () => {
     await page.getByTestId('product-coffee').click();
     await page.getByTestId('cart-line-coffee').waitFor({ timeout: 8_000 });
 
-    // Split mode, cash = full amount = 2.50 → no card remainder
-    await page.getByTestId('payment-split').click();
-    await page.getByTestId('split-cash-amount').fill('2.50');
+    // A full-cash amount is not a split payment and uses the CASH action.
     await page.getByTestId('sale-pay').click();
 
     await page.getByTestId('status-transport')
@@ -102,12 +97,12 @@ test.describe('BeeMiniPOS – split tender sale', () => {
     const cardPay = payments.find((p) => p['type'] === 'CARD');
     if (cardPay) {
       // If the app still emits a CARD entry, it should be 0.00
-      expect(parseFloat(cardPay['amount'] as string)).toBe(0);
+      expect(Number((cardPay['amount'] as Record<string, unknown>)['amount'])).toBe(0);
     } else {
       // Otherwise just CASH
       const cashPay = payments.find((p) => p['type'] === 'CASH');
       expect(cashPay).toBeDefined();
-      expect(cashPay!['amount']).toBe('2.50');
+      expect(cashPay!['amount']).toEqual({ amount: '2.50', currency: 'EUR' });
     }
   });
 
@@ -126,9 +121,8 @@ test.describe('BeeMiniPOS – split tender sale', () => {
 
     await page.getByTestId('product-coffee').click();
     await page.getByTestId('cart-line-coffee').waitFor({ timeout: 8_000 });
-    await page.getByTestId('payment-split').click();
     await page.getByTestId('split-cash-amount').fill('1.00');
-    await page.getByTestId('sale-pay').click();
+    await page.getByTestId('payment-split').click();
 
     await page.getByTestId('status-transport')
       .filter({ hasText: /Успешен фискален бон/ })
@@ -151,9 +145,8 @@ test.describe('BeeMiniPOS – split tender sale', () => {
     await page.getByTestId('product-water').click();
     await page.getByTestId('cart-line-water').waitFor({ timeout: 8_000 });
 
-    await page.getByTestId('payment-split').click();
     await page.getByTestId('split-cash-amount').fill('1.00');
-    await page.getByTestId('sale-pay').click();
+    await page.getByTestId('payment-split').click();
 
     await page.getByTestId('status-transport')
       .filter({ hasText: /Успешен фискален бон/ })

@@ -46,13 +46,13 @@ test.describe('Shift – open', () => {
     await page.goto('/');
 
     await page.getByTestId('status-transport')
-      .filter({ hasText: /Настройте валидна фискална каса/ })
+      .filter({ hasText: /Настройте POS преди първата продажба/ })
       .waitFor({ timeout: 15_000 });
 
     // Attempting shift toggle on invalid register
     await page.getByTestId('shift-toggle').click();
     await page.getByTestId('status-transport')
-      .filter({ hasText: /неуспешно|Настройте/ })
+      .filter({ hasText: /не може да бъде отворена.*настройте POS конфигурацията/i })
       .waitFor({ timeout: 5_000 });
   });
 });
@@ -185,13 +185,13 @@ test.describe('Shift – startup recovery', () => {
 
     await page.route('**/public/v1/minipos/shifts**', async (route) => {
       shiftCallCount++;
-      await route.continue();
+      await route.fallback();
     });
 
     await page.goto('/');
 
     await page.getByTestId('status-transport')
-      .filter({ hasText: /Настройте валидна фискална каса/ })
+      .filter({ hasText: /Настройте POS преди първата продажба/ })
       .waitFor({ timeout: 15_000 });
 
     expect(shiftCallCount).toBe(0);

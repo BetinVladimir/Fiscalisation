@@ -124,16 +124,12 @@ test.describe('Sales – split tender', () => {
     await setup(page);
 
     await page.route('**/sales:open-with-line', async (route) => {
-      await route.continue();
+      await route.fallback();
     });
     await page.route(/\/sales\/[^/]+:finalize$/, async (route) => {
       const body = JSON.parse(route.request().postData() || '{}');
       seenFinalize.push(body);
-      await route.fulfill({
-        status: 202,
-        contentType: 'application/json',
-        body: JSON.stringify({ operation_id: 'fiscal-split-1', type: 'FISCAL_SALE', state: 'FISCALIZED', fiscal_reference: 'FD-SPLIT-1', allowed_actions: [] }),
-      });
+      await route.fallback();
     });
 
     await page.goto('/');
@@ -205,11 +201,7 @@ test.describe('Sales – UNKNOWN reconciliation', () => {
 
     await page.route(/\/sales\/[^/]+:finalize$/, async (route) => {
       finalizeCalls++;
-      await route.fulfill({
-        status: 202,
-        contentType: 'application/json',
-        body: JSON.stringify({ operation_id: `fiscal-${finalizeCalls}`, type: 'FISCAL_SALE', state: 'UNKNOWN', fiscal_reference: null, allowed_actions: ['READ'] }),
-      });
+      await route.fallback();
     });
 
     await page.goto('/');

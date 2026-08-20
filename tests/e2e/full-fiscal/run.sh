@@ -5,6 +5,7 @@ root=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 test_dir="$root/tests/e2e/full-fiscal"
 fiscal_base=${E2E_FISCAL_URL:-http://localhost:18000}
 mini_base=${E2E_MINIPOS_URL:-http://localhost:18001}
+smtp_http_port=${E2E_SMTP_HTTP_PORT:-18080}
 api_version=2026-08-07
 auth_key=${E2E_AUTH_KEY:-full-e2e-auth-signing-key-32-bytes}
 export E2E_CREDENTIAL_KEY=${E2E_CREDENTIAL_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}
@@ -40,7 +41,7 @@ wait_url() {
 otp_after() {
   recipient=$1; minimum_id=$2; i=0
   while [ "$i" -lt 60 ]; do
-    value=$(curl --max-time 3 -fsS "http://localhost:18080/messages?to=$recipient" | jq -r --argjson n "$minimum_id" '[.items[] | select(.id > $n) | .body | capture("(?<code>[0-9]{6})").code] | last // empty')
+    value=$(curl --max-time 3 -fsS "http://localhost:$smtp_http_port/messages?to=$recipient" | jq -r --argjson n "$minimum_id" '[.items[] | select(.id > $n) | .body | capture("(?<code>[0-9]{6})").code] | last // empty')
     [ -n "$value" ] && { printf '%s' "$value"; return; }
     i=$((i+1)); sleep 1
   done
@@ -98,7 +99,7 @@ APP_ENV=e2e AUTH_HMAC_KEY="$auth_key" MINIPOS_HTTP_PORT=18001 MINIPOS_HTTPS_PORT
 mini_caddy=$($mini_compose ps -q caddy)
 docker network connect beeloy-full-e2e-minipos_private "$mini_caddy" 2>/dev/null || true
 wait_url "$mini_base/healthz" MiniPOS
-before=$(curl -fsS http://localhost:18080/messages | jq '.items | length')
+before=$(curl -fsS "http://localhost:$smtp_http_port/messages" | jq '.items | length')
 curl -fsS -X POST "$mini_base/public/v1/minipos/auth/request-code" -H "X-Api-Version: $api_version" -H 'Content-Type: application/json' --data "{\"email\":\"$email\",\"language\":\"ru\"}" >/dev/null
 mini_otp=$(otp_after "$email" "$before")
 auth=$(curl -fsS -X POST "$mini_base/public/v1/minipos/auth/verify-code" -H "X-Api-Version: $api_version" -H 'Content-Type: application/json' --data "{\"email\":\"$email\",\"code\":\"$mini_otp\"}")
@@ -108,7 +109,7 @@ mini_token=$(printf '%s' "$tokens" | jq -er .access_token)
 company_id=$(JWT_VALUE="$mini_token" node -e 'const p=process.env.JWT_VALUE.split(".")[1];process.stdout.write(JSON.parse(Buffer.from(p,"base64url")).tenant_id)')
 
 printf '%s\n' '[4/8] Связывание MiniPOS → Fiscal и проверка ACTIVE tenant'
-before=$(curl -fsS http://localhost:18080/messages | jq '.items | length')
+before=$(curl -fsS "http://localhost:$smtp_http_port/messages" | jq '.items | length')
 enroll_key=$(node -e 'console.log(require("crypto").randomUUID())')
 api POST "$mini_base/public/v1/minipos/fiscal-enrollment" "$mini_token" "$enroll_key" "{\"email\":\"$email\",\"source_company_id\":\"$company_id\",\"legal_name\":\"E2E Company $suffix\",\"tax_country\":\"BG\",\"tax_type\":\"EIK\",\"tax_value\":\"$tax\",\"address\":\"Sofia, E2E 1\"}" >/dev/null
 fiscal_otp=$(otp_after "$email" "$before")
@@ -156,7 +157,11 @@ while [ "$operator_wait" -lt 60 ]; do
   operator_wait=$((operator_wait+1))
   sleep 1
 done
-[ "$operator_ready" = 1 ] || { printf '%s\n' 'Synced Fiscal operator E001 was not projected' >&2; exit 1; }
+if [ "$operator_ready" != 1 ]; then
+  printf '%s\n' 'Synced Fiscal operator E001 was not projected; integration command state:' >&2
+  $fiscal_compose exec -T postgres psql -U fiscal -d fiscal -P pager=off -c "select resource_type,aggregate_source_id,source_version,status,attempts,last_error_code,last_error_detail from integration_commands where tenant_id='$tenant_id' order by created_at" >&2 || true
+  exit 1
+fi
 
 sale_flow() {
   payment=$1; serial=$2

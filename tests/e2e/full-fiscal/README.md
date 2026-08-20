@@ -44,7 +44,7 @@ docker compose -p beeloy-full-e2e-minipos logs -f beeminipos-backend
 
 После диагностики удалите окружение командами с теми же project names и compose-файлами. Стенд использует отдельные project names и не затрагивает обычные dev volumes.
 
-Поддерживаются переменные `E2E_FISCAL_URL`, `E2E_MINIPOS_URL`, `E2E_AUTH_KEY`, `E2E_CREDENTIAL_KEY` (base64 ровно 32 bytes) и `KEEP_E2E`. Значения по умолчанию предназначены только для одноразового CI/dev стенда и не являются production secrets.
+Поддерживаются переменные `E2E_FISCAL_URL`, `E2E_MINIPOS_URL`, `E2E_SMTP_PORT`, `E2E_SMTP_HTTP_PORT`, `E2E_AUTH_KEY`, `E2E_CREDENTIAL_KEY` (base64 ровно 32 bytes) и `KEEP_E2E`. Значения по умолчанию предназначены только для одноразового CI/dev стенда и не являются production secrets.
 
 ## CI
 

@@ -42,7 +42,7 @@ test.describe('BeeMiniPOS – CARD sale', () => {
 
     const cardPay = payments[0];
     expect(cardPay['type']).toBe('CARD');
-    expect(cardPay['amount']).toBe('2.50');
+    expect(cardPay['amount']).toEqual({ amount: '2.50', currency: 'EUR' });
 
     // terminal_policy must be AUTO_IF_AVAILABLE for CARD payments
     expect(cardPay['terminal_policy']).toBe('AUTO_IF_AVAILABLE');

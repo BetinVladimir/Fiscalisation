@@ -74,7 +74,7 @@ test.describe('BeeMiniPOS – CASH sale', () => {
 
     const cashPay = payments[0];
     expect(cashPay['type']).toBe('CASH');
-    expect(cashPay['amount']).toBe('2.50');
+    expect(cashPay['amount']).toEqual({ amount: '2.50', currency: 'EUR' });
 
     // CASH does not use card terminal → no terminal_policy or NONE
     if (cashPay['terminal_policy'] !== undefined)

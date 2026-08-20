@@ -280,14 +280,16 @@ export async function setupFiscalRoutes(page: Page, overrides: FiscalOverrides =
     if (/\/sales\/[^/]+$/.test(path) && method === 'GET')
       return json(route, lastSale);
 
-    if (/\/operations\/[^/:]+$/.test(path) && method === 'GET')
+    if (/\/operations\/[^/:]+$/.test(path) && method === 'GET') {
+      const operationState = overrides.finalizeState ?? 'FISCALIZED';
       return json(route, overrides.operation ?? {
         operation_id: `fiscal-${fiscalSaleCounter}`,
         type: 'FISCAL_SALE',
-        state: 'FISCALIZED',
-        fiscal_reference: `FD-E2E-${fiscalSaleCounter}`,
-        allowed_actions: [],
+        state: operationState,
+        fiscal_reference: operationState === 'FISCALIZED' ? `FD-E2E-${fiscalSaleCounter}` : null,
+        allowed_actions: operationState === 'UNKNOWN' ? ['RECONCILE', 'READ'] : [],
       });
+    }
 
     if (/\/operations\/[^/:]+:reconcile$/.test(path) && method === 'POST') {
       lastSale = { ...lastSale, state: 'COMPLETED', version: Number(lastSale.version) + 1 };
