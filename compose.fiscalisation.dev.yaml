@@ -1,9 +1,21 @@
 services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: "${FISCAL_DB_PASSWORD:-dev-fiscal-writer-password}"
+      FISCAL_RLS_DB_PASSWORD: "${FISCAL_RLS_DB_PASSWORD:-dev-fiscal-rls-password}"
+  emqx:
+    environment:
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: "${EMQX_DASHBOARD_PASSWORD:-dev-only-dashboard-password}"
+      EMQX_AUTHENTICATION__1__SECRET: "${EMQX_JWT_SECRET:-dev-only-emqx-secret}"
+  rabbitmq:
+    environment:
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_DEFAULT_PASS:-dev-only-rabbitmq-password}"
   fiscal-backend:
     environment:
       APP_ENV: dev
       ALLOW_STUB_ADAPTERS: "true"
       AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:-dev-only-fiscal-auth-signing-key-32-bytes}"
+      BLE_SIGNING_KEY: "${BLE_SIGNING_KEY:-dev-only-ble-signing-key-32-bytes}"
       RABBITMQ_URL: "${FISCAL_RABBITMQ_URL:-amqp://fiscal:dev-only-rabbitmq-password@rabbitmq:5672/}"
       SMTP_HOST: "${SMTP_HOST:-smtp-relay.brevo.com}"
       SMTP_PORT: "${SMTP_PORT:-587}"
@@ -14,6 +26,8 @@ services:
       INTEGRATION_SECRET_PEPPER: "${INTEGRATION_SECRET_PEPPER:-dev-only-integration-pepper-32-bytes}"
       INTEGRATION_ENCRYPTION_KEY_BASE64: "${INTEGRATION_ENCRYPTION_KEY_BASE64:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=}"
       EMQX_TOKEN: "${FISCAL_BACKEND_EMQX_TOKEN:-}"
+    volumes:
+      - "${DEVICE_PKI_DIR:-./deploy/device-pki}:/run/beefiscal/device-pki:ro"
   caddy:
     environment:
       FISCAL_SITE: :80

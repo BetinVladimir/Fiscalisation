@@ -60,6 +60,7 @@ class Assembler {
       final = frame[24] === 1,
       digest = frame.slice(25, 57),
       part = frame.slice(57);
+    if (!total || total > MAX) throw new Error("BLE_FRAME_INVALID");
     let state = this.values.get(id);
     if (!state) {
       if (offset !== 0) throw new Error("BLE_FRAME_ORDER");

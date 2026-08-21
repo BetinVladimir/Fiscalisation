@@ -1990,7 +1990,8 @@ func optionalTime(raw string) (time.Time, error) {
 func (h *Handler) authorizeSale(w http.ResponseWriter, r *http.Request, id string) bool {
 	tenant := tenantID(r)
 	if tenant == "" {
-		return true
+		problem(w, 401, "UNAUTHORIZED")
+		return false
 	}
 	_, e := h.svc.GetSaleForTenant(id, tenant)
 	if e != nil {

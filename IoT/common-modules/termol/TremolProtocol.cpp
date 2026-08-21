@@ -72,8 +72,7 @@ uint8_t TremolProtocol::buildData(char* out, unsigned int outSize, ...) {
  */
 size_t TremolProtocol::sendPacket(uint8_t cmd, const char* data) {
     uint8_t dataLen = (data && *data) ? (uint8_t)strlen(data) : 0;
-    // safety clamp
-    if (dataLen > TR_TX_BUF - 7) dataLen = TR_TX_BUF - 7;
+    if (dataLen > TR_TX_BUF - 7) return 0;
 
     // LEN = LEN(1) + NBL(1) + CMD(1) + DATA(n) + 20h
     uint8_t lenByte = (uint8_t)(3 + dataLen + 0x20);

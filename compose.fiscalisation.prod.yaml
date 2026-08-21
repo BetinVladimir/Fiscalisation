@@ -20,6 +20,8 @@ services:
       AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:?required}"
       INTEGRATION_SECRET_PEPPER: "${INTEGRATION_SECRET_PEPPER:?required}"
       INTEGRATION_ENCRYPTION_KEY_BASE64: "${INTEGRATION_ENCRYPTION_KEY_BASE64:?required}"
+      DATABASE_URL: "postgres://fiscal:${FISCAL_DB_PASSWORD:?required}@${FISCAL_DB_HOST:-postgres}:${FISCAL_DB_PORT:-5432}/fiscal?sslmode=require"
+      RLS_DATABASE_URL: "postgres://beefiscal_tenant:${FISCAL_RLS_DB_PASSWORD:?required}@${FISCAL_DB_HOST:-postgres}:${FISCAL_DB_PORT:-5432}/fiscal?sslmode=require"
       RABBITMQ_URL: "${FISCAL_RABBITMQ_URL:?required}"
       SMTP_HOST: "${SMTP_HOST:-smtp-relay.brevo.com}"
       SMTP_USER: "${SMTP_USER:?required}"
@@ -37,7 +39,7 @@ services:
       EMQX_TOKEN: "${EMQX_TOKEN:?required}"
       EMQX_SUB_TOPICS: "tenants/+/devices/+/sync/batches/+,tenants/+/devices/+/status,tenants/+/devices/+/bindings/acks,beefiscal/v1/devices/+/activation"
       DEVICE_CA_CERT_FILE: "/run/beefiscal/device-pki/device-ca.crt"
-      DEVICE_CA_KEY_FILE: "/run/beefiscal/device-pki/device-ca.key"
+      DEVICE_CA_KEY_FILE: "/run/secrets/device_ca_key"
       DEVICE_MQTT_TLS_URI: "${DEVICE_MQTT_TLS_URI:?required}"
       DEVICE_MQTT_WSS_URI: "${DEVICE_MQTT_WSS_URI:?required}"
       LOCAL_FISCAL_TOKEN_ISSUER: "${LOCAL_FISCAL_TOKEN_ISSUER:?required}"
@@ -46,6 +48,10 @@ services:
       SPA_DEPLOYMENT_DESCRIPTOR_URL: "${SPA_DEPLOYMENT_DESCRIPTOR_URL:?required}"
       SPA_DEPLOYMENT_SIGNING_KID: "${SPA_DEPLOYMENT_SIGNING_KID:?required}"
       SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64: "${SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64:?required}"
+    volumes:
+      - "${DEVICE_CA_CERT_PATH:?required}:/run/beefiscal/device-pki/device-ca.crt:ro"
+    secrets:
+      - device_ca_key
     read_only: true
     security_opt: [no-new-privileges:true]
     cap_drop: [ALL]
@@ -53,3 +59,6 @@ services:
     environment:
       FISCAL_SITE: "${FISCAL_SITE:?required}"
     security_opt: [no-new-privileges:true]
+secrets:
+  device_ca_key:
+    file: "${DEVICE_CA_KEY_PATH:?required}"

@@ -146,7 +146,7 @@ func (v *OIDCVerifier) refresh(now time.Time) error {
 		}
 		n, nerr := base64.RawURLEncoding.DecodeString(jwk.N)
 		e, eerr := base64.RawURLEncoding.DecodeString(jwk.E)
-		if nerr != nil || eerr != nil || len(n) < 128 || len(e) == 0 || len(e) > 4 {
+		if nerr != nil || eerr != nil || len(n) < 256 || len(e) == 0 || len(e) > 4 {
 			continue
 		}
 		exponent := 0

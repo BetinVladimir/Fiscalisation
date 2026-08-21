@@ -5,6 +5,7 @@ import (
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
+	"crypto/tls"
 	"encoding/base64"
 	"encoding/hex"
 	"errors"
@@ -104,17 +105,49 @@ func (s *Service) deliverOne(ctx context.Context) error {
 		return e
 	}
 	message := []byte("From: " + s.smtpFrom + "\r\nTo: " + to + "\r\nSubject: " + subject + "\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body)
-	var auth smtp.Auth
-	if s.smtpUser != "" {
-		auth = smtp.PlainAuth("", s.smtpUser, s.smtpPassword, s.smtpHost)
-	}
-	e = smtp.SendMail(s.smtpHost+":"+strconv.Itoa(s.smtpPort), auth, s.smtpFrom, []string{to}, message)
+	addr := s.smtpHost + ":" + strconv.Itoa(s.smtpPort)
+	e = s.sendMailTLS(addr, s.smtpHost, s.smtpUser, s.smtpPassword, s.smtpFrom, to, message)
 	if e != nil {
 		_, _ = s.db.Exec(ctx, `update minipos_email_outbox set status='FAILED',attempts=attempts+1,available_at=now()+least(interval '1 hour',interval '30 seconds'*(attempts+1)),lease_until=null,last_error=$2,updated_at=now() where id=$1`, id, e.Error())
 		return e
 	}
 	_, e = s.db.Exec(ctx, `update minipos_email_outbox set status='SENT',sent_at=now(),lease_until=null,last_error=null,updated_at=now() where id=$1`, id)
 	return e
+}
+
+func (s *Service) sendMailTLS(addr, host, user, password, from, to string, msg []byte) error {
+	conn, err := tls.Dial("tcp", addr, &tls.Config{ServerName: host, MinVersion: tls.VersionTLS12})
+	if err != nil {
+		return err
+	}
+	client, err := smtp.NewClient(conn, host)
+	if err != nil {
+		conn.Close()
+		return err
+	}
+	defer client.Close()
+	if user != "" {
+		if err = client.Auth(smtp.PlainAuth("", user, password, host)); err != nil {
+			return err
+		}
+	}
+	if err = client.Mail(from); err != nil {
+		return err
+	}
+	if err = client.Rcpt(to); err != nil {
+		return err
+	}
+	w, err := client.Data()
+	if err != nil {
+		return err
+	}
+	if _, err = w.Write(msg); err != nil {
+		return err
+	}
+	if err = w.Close(); err != nil {
+		return err
+	}
+	return client.Quit()
 }
 
 func (s *Service) Close() { s.db.Close() }

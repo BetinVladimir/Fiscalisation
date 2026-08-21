@@ -2,7 +2,8 @@ name: beeminipos-${APP_ENV:-dev}
 services:
   postgres:
     image: postgres:16.10
-    environment: {POSTGRES_USER: minipos, POSTGRES_PASSWORD: "${MINIPOS_DB_PASSWORD:-dev-minipos-writer-password}", POSTGRES_DB: minipos, MINIPOS_RLS_DB_PASSWORD: "${MINIPOS_RLS_DB_PASSWORD:-dev-minipos-rls-password}"}
+    restart: unless-stopped
+    environment: {POSTGRES_USER: minipos, POSTGRES_PASSWORD: "${MINIPOS_DB_PASSWORD:-}", POSTGRES_DB: minipos, MINIPOS_RLS_DB_PASSWORD: "${MINIPOS_RLS_DB_PASSWORD:-}"}
     volumes: [minipos_pg:/var/lib/postgresql/data, ./database/minipos:/docker-entrypoint-initdb.d:ro]
     networks: [private]
     healthcheck: {test: [CMD-SHELL, "pg_isready -U minipos -d minipos"], interval: 5s, timeout: 3s, retries: 20}
@@ -12,13 +13,13 @@ services:
     command: [server, /data, --console-address, ":9001"]
     environment:
       MINIO_ROOT_USER: "${DAP_MINIO_ROOT_USER:-minipos}"
-      MINIO_ROOT_PASSWORD: "${DAP_MINIO_ROOT_PASSWORD:-dev-only-minio-password}"
+      MINIO_ROOT_PASSWORD: "${DAP_MINIO_ROOT_PASSWORD:-}"
     volumes: [dap_minio:/data]
     networks: [private]
   beeminipos-backend:
     build: ./minipos/beeminipos-backend
     restart: unless-stopped
-    environment: {APP_ENV: "${APP_ENV:-dev}", HTTP_ADDR: ":8081", API_VERSION: "2026-08-07", DATABASE_URL: "postgres://minipos:${MINIPOS_DB_PASSWORD:-dev-minipos-writer-password}@${MINIPOS_DB_HOST:-postgres}:${MINIPOS_DB_PORT:-5432}/minipos?sslmode=disable", RLS_DATABASE_URL: "postgres://beeminipos_tenant:${MINIPOS_RLS_DB_PASSWORD:-dev-minipos-rls-password}@${MINIPOS_DB_HOST:-postgres}:${MINIPOS_DB_PORT:-5432}/minipos?sslmode=disable", AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:-dev-only-minipos-auth-signing-key-32-bytes}", AUTH_TOKEN_ISSUER: "${AUTH_TOKEN_ISSUER:-beeminipos}", FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:-http://host.docker.internal:8080/public/v1}", FISCAL_AUTH_TOKEN: "${FISCAL_AUTH_TOKEN:-}", FISCAL_OAUTH_TOKEN_URL: "${FISCAL_OAUTH_TOKEN_URL:-}", FISCAL_OAUTH_CLIENT_ID: "${FISCAL_OAUTH_CLIENT_ID:-}", FISCAL_OAUTH_CLIENT_SECRET: "${FISCAL_OAUTH_CLIENT_SECRET:-}", FISCAL_OAUTH_SCOPE: "${FISCAL_OAUTH_SCOPE:-fiscal.base}", FISCAL_OAUTH_AUDIENCE: "${FISCAL_OAUTH_AUDIENCE:-}", LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM: "${LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM:-}", LOCAL_FISCAL_TOKEN_SIGNING_KID: "${LOCAL_FISCAL_TOKEN_SIGNING_KID:-minipos-local-1}", LOCAL_FISCAL_TOKEN_ISSUER: "${LOCAL_FISCAL_TOKEN_ISSUER:-beeminipos}", WEBHOOK_VERIFICATION_KEY: "${WEBHOOK_VERIFICATION_KEY:-dev-only-fiscal-webhook-key}"}
+    environment: {APP_ENV: "${APP_ENV:-dev}", HTTP_ADDR: ":8081", API_VERSION: "2026-08-07", DATABASE_URL: "postgres://minipos:${MINIPOS_DB_PASSWORD:-}@${MINIPOS_DB_HOST:-postgres}:${MINIPOS_DB_PORT:-5432}/minipos?sslmode=disable", RLS_DATABASE_URL: "postgres://beeminipos_tenant:${MINIPOS_RLS_DB_PASSWORD:-}@${MINIPOS_DB_HOST:-postgres}:${MINIPOS_DB_PORT:-5432}/minipos?sslmode=disable", AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:-}", AUTH_TOKEN_ISSUER: "${AUTH_TOKEN_ISSUER:-beeminipos}", FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:-http://host.docker.internal:8080/public/v1}", FISCAL_AUTH_TOKEN: "${FISCAL_AUTH_TOKEN:-}", FISCAL_OAUTH_TOKEN_URL: "${FISCAL_OAUTH_TOKEN_URL:-}", FISCAL_OAUTH_CLIENT_ID: "${FISCAL_OAUTH_CLIENT_ID:-}", FISCAL_OAUTH_CLIENT_SECRET: "${FISCAL_OAUTH_CLIENT_SECRET:-}", FISCAL_OAUTH_SCOPE: "${FISCAL_OAUTH_SCOPE:-fiscal.base}", FISCAL_OAUTH_AUDIENCE: "${FISCAL_OAUTH_AUDIENCE:-}", LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM: "${LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM:-}", LOCAL_FISCAL_TOKEN_SIGNING_KID: "${LOCAL_FISCAL_TOKEN_SIGNING_KID:-minipos-local-1}", LOCAL_FISCAL_TOKEN_ISSUER: "${LOCAL_FISCAL_TOKEN_ISSUER:-beeminipos}", WEBHOOK_VERIFICATION_KEY: "${WEBHOOK_VERIFICATION_KEY:-}"}
     networks: [private]
     depends_on: {postgres: {condition: service_healthy}}
   miniposweb:

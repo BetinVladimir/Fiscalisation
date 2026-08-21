@@ -140,17 +140,19 @@ bool DatecsPrinter::registerSale(const char* name, uint8_t vatGroup,
         return false;
     if (discountType != 0 && (!discountValue || !discountValue[0])) return false;
     char buf[DATECS_MAX_DATA_TX];
+    int n;
     if (unit && unit[0]) {
-        snprintf(buf, sizeof(buf), "%s\t%u\t%s\t%s\t%u\t%s\t%u\t%s\t",
-                 name, (unsigned)vatGroup, price, qty ? qty : "1",
-                 (unsigned)discountType, discountValue ? discountValue : "",
-                 (unsigned)department, unit);
+        n = snprintf(buf, sizeof(buf), "%s\t%u\t%s\t%s\t%u\t%s\t%u\t%s\t",
+                     name, (unsigned)vatGroup, price, qty ? qty : "1",
+                     (unsigned)discountType, discountValue ? discountValue : "",
+                     (unsigned)department, unit);
     } else {
-        snprintf(buf, sizeof(buf), "%s\t%u\t%s\t%s\t%u\t%s\t%u\t",
-                 name, (unsigned)vatGroup, price, qty ? qty : "1",
-                 (unsigned)discountType, discountValue ? discountValue : "",
-                 (unsigned)department);
+        n = snprintf(buf, sizeof(buf), "%s\t%u\t%s\t%s\t%u\t%s\t%u\t",
+                     name, (unsigned)vatGroup, price, qty ? qty : "1",
+                     (unsigned)discountType, discountValue ? discountValue : "",
+                     (unsigned)department);
     }
+    if (n < 0 || n >= (int)sizeof(buf)) return false;
     return _exec(CMD_REGISTER_SALE, buf) && _checkResp();
 }
 
@@ -284,7 +286,7 @@ bool DatecsPrinter::cashOut(const char* amount) {
 
 // ─── Device info ─────────────────────────────────────────────────────────────
 
-bool DatecsPrinter::deviceInfo(char* buf, uint8_t bufLen) {
+bool DatecsPrinter::deviceInfo(char* buf, uint16_t bufLen) {
     // CMD 123 option 1: serial, FM number, headers and tax number.
     if (!buf || bufLen == 0 || !_exec(CMD_DEVICE_INFO, "1\t") || !_checkResp()) return false;
     strncpy(buf, _lastResp.data, bufLen - 1);

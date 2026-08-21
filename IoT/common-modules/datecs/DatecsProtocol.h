@@ -404,7 +404,7 @@ public:
 
     // ── Device info ───────────────────────────────────────────────────────────
     /** Fills buf with raw device info response data. */
-    bool deviceInfo(char* buf, uint8_t bufLen);
+    bool deviceInfo(char* buf, uint16_t bufLen);
 
     // ── Access underlying protocol for custom commands ────────────────────────
     DatecsProtocol& proto() { return _proto; }

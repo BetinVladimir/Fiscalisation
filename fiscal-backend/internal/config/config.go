@@ -26,12 +26,12 @@ func Load() Config {
 	return Config{
 		HTTPAddr: getenv("HTTP_ADDR", ":8080"), AppEnv: getenv("APP_ENV", "dev"), PublicBaseURL: getenv("PUBLIC_BASE_URL", "http://localhost:8080/public/v1"), APIVersion: getenv("API_VERSION", "2026-08-07"),
 		DatabaseURL: os.Getenv("DATABASE_URL"), RLSDatabaseURL: os.Getenv("RLS_DATABASE_URL"), CORSAllowedOrigins: getenv("CORS_ALLOWED_ORIGINS", "*"), RabbitMQURL: os.Getenv("RABBITMQ_URL"), SMTPHost: os.Getenv("SMTP_HOST"), SMTPUser: os.Getenv("SMTP_USER"), SMTPPassword: os.Getenv("SMTP_PASSWORD"), SMTPMailDomain: os.Getenv("SMTP_MAILDOMAIN"), SMTPFrom: os.Getenv("SMTP_FROM"), SMTPPort: port,
-		AuthHMACKey: os.Getenv("AUTH_HMAC_KEY"), OIDCIssuer: os.Getenv("OIDC_ISSUER"), OIDCAudience: os.Getenv("OIDC_AUDIENCE"), OIDCJWKSURL: os.Getenv("OIDC_JWKS_URL"), BLESigningKey: getenv("BLE_SIGNING_KEY", "dev-only-ble-signing-key-32-bytes"),
+		AuthHMACKey: os.Getenv("AUTH_HMAC_KEY"), OIDCIssuer: os.Getenv("OIDC_ISSUER"), OIDCAudience: os.Getenv("OIDC_AUDIENCE"), OIDCJWKSURL: os.Getenv("OIDC_JWKS_URL"), BLESigningKey: os.Getenv("BLE_SIGNING_KEY"),
 		EMQXBroker: os.Getenv("EMQX_BROKER"), EMQXClientID: getenv("EMQX_CLIENT_ID", "beefiscal-backend"), EMQXUsername: os.Getenv("EMQX_USERNAME"), EMQXToken: os.Getenv("EMQX_TOKEN"), EMQXSubTopics: splitCSV(os.Getenv("EMQX_SUB_TOPICS")),
 		DeviceCACertFile: os.Getenv("DEVICE_CA_CERT_FILE"), DeviceCAKeyFile: os.Getenv("DEVICE_CA_KEY_FILE"), DeviceMQTTTLSURI: os.Getenv("DEVICE_MQTT_TLS_URI"), DeviceMQTTWSSURI: os.Getenv("DEVICE_MQTT_WSS_URI"),
 		LocalTokenIssuer: os.Getenv("LOCAL_FISCAL_TOKEN_ISSUER"), LocalTokenSigningKID: os.Getenv("LOCAL_FISCAL_TOKEN_SIGNING_KID"), LocalTokenPublicKeyDERBase64: os.Getenv("LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64"),
 		SPADeploymentDescriptorURL: os.Getenv("SPA_DEPLOYMENT_DESCRIPTOR_URL"), SPADeploymentSigningKID: os.Getenv("SPA_DEPLOYMENT_SIGNING_KID"), SPADeploymentPublicKeyDERBase64: os.Getenv("SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64"),
-		IntegrationSecretPepper: getenv("INTEGRATION_SECRET_PEPPER", "dev-only-integration-pepper-32-bytes"), IntegrationEncryptionKeyBase64: getenv("INTEGRATION_ENCRYPTION_KEY_BASE64", "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY="),
+		IntegrationSecretPepper: os.Getenv("INTEGRATION_SECRET_PEPPER"), IntegrationEncryptionKeyBase64: os.Getenv("INTEGRATION_ENCRYPTION_KEY_BASE64"),
 		AllowStubAdapters: strings.EqualFold(getenv("ALLOW_STUB_ADAPTERS", "true"), "true"), SimulatorCardTerminalAvailable: strings.EqualFold(getenv("SIMULATOR_CARD_TERMINAL_AVAILABLE", "false"), "true"),
 	}
 }
@@ -45,14 +45,17 @@ func (c Config) Validate() error {
 	if c.AppEnv == "prod" && !httpsURL(c.PublicBaseURL) {
 		return errors.New("PUBLIC_BASE_URL must use HTTPS in PROD")
 	}
-	if c.AppEnv == "prod" && c.CORSAllowedOrigins != "*" && !secureOrigins(c.CORSAllowedOrigins) {
-		return errors.New("CORS_ALLOWED_ORIGINS must be * or an explicit HTTPS origin list in PROD")
+	if c.AppEnv == "prod" && (c.CORSAllowedOrigins == "*" || !secureOrigins(c.CORSAllowedOrigins)) {
+		return errors.New("CORS_ALLOWED_ORIGINS must be an explicit HTTPS origin list in PROD")
 	}
 	if c.AppEnv == "prod" && c.DatabaseURL == "" {
 		return errors.New("DATABASE_URL required in PROD")
 	}
 	if c.AppEnv == "prod" && c.RLSDatabaseURL == "" {
 		return errors.New("RLS_DATABASE_URL required in PROD")
+	}
+	if c.AppEnv == "prod" && (strings.Contains(c.DatabaseURL, "sslmode=disable") || strings.Contains(c.RLSDatabaseURL, "sslmode=disable")) {
+		return errors.New("sslmode=disable is not permitted in PROD — use sslmode=require or verify-full")
 	}
 	if c.AppEnv == "prod" && !separateDatabaseUsers(c.DatabaseURL, c.RLSDatabaseURL) {
 		return errors.New("DATABASE_URL and RLS_DATABASE_URL must use separate database users in PROD")

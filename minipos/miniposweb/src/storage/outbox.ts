@@ -14,17 +14,28 @@ export type OutboxRow = {
 };
 const DB = "beeloy-miniposweb",
   STORE = "fiscal-outbox";
+
+let dbPromise: Promise<IDBDatabase> | null = null;
+
 function database(): Promise<IDBDatabase> {
-  return new Promise((resolve, reject) => {
-    const request = indexedDB.open(DB, 1);
-    request.onupgradeneeded = () =>
-      request.result.createObjectStore(STORE, {
-        keyPath: "intent.client_operation_id",
-      });
-    request.onsuccess = () => resolve(request.result);
-    request.onerror = () => reject(request.error);
-  });
+  if (!dbPromise) {
+    dbPromise = new Promise((resolve, reject) => {
+      const request = indexedDB.open(DB, 1);
+      request.onupgradeneeded = () =>
+        request.result.createObjectStore(STORE, {
+          keyPath: "intent.client_operation_id",
+        });
+      request.onsuccess = () => {
+        const db = request.result;
+        db.addEventListener("close", () => { dbPromise = null; });
+        resolve(db);
+      };
+      request.onerror = () => reject(request.error);
+    });
+  }
+  return dbPromise;
 }
+
 export async function putOutbox(row: OutboxRow) {
   // Persist before transport I/O. The same client operation UUID and payload
   // can then survive reload/failover without creating a duplicate side effect.
@@ -35,25 +46,20 @@ export async function putOutbox(row: OutboxRow) {
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
   });
-  db.close();
 }
 export async function getOutbox(id: string): Promise<OutboxRow | undefined> {
   const db = await database();
-  const value = await new Promise<OutboxRow | undefined>((resolve, reject) => {
+  return new Promise<OutboxRow | undefined>((resolve, reject) => {
     const r = db.transaction(STORE).objectStore(STORE).get(id);
     r.onsuccess = () => resolve(r.result);
     r.onerror = () => reject(r.error);
   });
-  db.close();
-  return value;
 }
 export async function listOutbox(): Promise<OutboxRow[]> {
   const db = await database();
-  const value = await new Promise<OutboxRow[]>((resolve, reject) => {
+  return new Promise<OutboxRow[]>((resolve, reject) => {
     const r = db.transaction(STORE).objectStore(STORE).getAll();
     r.onsuccess = () => resolve(r.result);
     r.onerror = () => reject(r.error);
   });
-  db.close();
-  return value;
 }

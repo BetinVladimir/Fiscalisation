@@ -52,6 +52,9 @@ func (l *requestLimiter) middlewareWhen(next http.Handler, applies func(*http.Re
 		entry.count++
 		l.entries[key] = entry
 		allowed := entry.count <= l.limit
+		if allowed && now.Sub(entry.started) >= l.window {
+			delete(l.entries, key)
+		}
 		retry := int(l.window.Seconds())
 		if !allowed {
 			retry = int(entry.started.Add(l.window).Sub(now).Seconds()) + 1

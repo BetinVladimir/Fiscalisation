@@ -32,7 +32,7 @@ func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) ht
 }
 func MiddlewareWithOIDCAndRevocation(secret string, oidc *OIDCVerifier, revoked func(context.Context, string) bool, next http.Handler) http.Handler {
 	if secret == "" && oidc == nil {
-		return next
+		panic("auth: at least one of AUTH_HMAC_KEY or OIDC must be configured")
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		protected := strings.HasPrefix(r.URL.Path, "/public/v1") || strings.HasPrefix(r.URL.Path, "/platform/v1")

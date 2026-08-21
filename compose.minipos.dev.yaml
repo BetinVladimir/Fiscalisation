@@ -1,5 +1,11 @@
 services:
+  postgres:
+    environment:
+      POSTGRES_PASSWORD: "${MINIPOS_DB_PASSWORD:-dev-minipos-writer-password}"
+      MINIPOS_RLS_DB_PASSWORD: "${MINIPOS_RLS_DB_PASSWORD:-dev-minipos-rls-password}"
   dap-minio:
+    environment:
+      MINIO_ROOT_PASSWORD: "${DAP_MINIO_ROOT_PASSWORD:-dev-only-minio-password}"
     ports:
       - "127.0.0.1:${DAP_MINIO_API_PORT:-9000}:9000"
       - "127.0.0.1:${DAP_MINIO_CONSOLE_PORT:-9001}:9001"

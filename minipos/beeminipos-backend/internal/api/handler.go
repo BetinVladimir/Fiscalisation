@@ -1279,9 +1279,6 @@ func claimHasRole(claims auth.Claims, role string) bool {
 func (h *handler) authorizeEmployeeActor(w http.ResponseWriter, r *http.Request, employeeID string) bool {
 	claims, authenticated := auth.ClaimsFrom(r.Context())
 	if !authenticated {
-		if !strings.EqualFold(h.c.AppEnv, "prod") {
-			return true
-		}
 		problem(w, http.StatusUnauthorized, "authenticated operator required")
 		return false
 	}

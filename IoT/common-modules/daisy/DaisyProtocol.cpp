@@ -82,11 +82,11 @@ size_t DaisyProtocol::sendPacket(uint8_t cmd, const char* data, uint8_t dataLen)
 
 bool DaisyProtocol::_writeAll(const uint8_t* data, uint8_t len) {
     if (data == nullptr || len == 0) return false;
-    uint8_t offset = 0;
+    uint16_t offset = 0;
     while (offset < len) {
         size_t written = _serial.write(data + offset, len - offset);
         if (written == 0 || written > (size_t)(len - offset)) return false;
-        offset = (uint8_t)(offset + written);
+        offset = (uint16_t)(offset + written);
     }
     return true;
 }

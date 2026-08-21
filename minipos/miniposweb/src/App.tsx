@@ -83,22 +83,30 @@ export default function App() {
   }, [accessToken]);
   useEffect(() => {
     if (!accessToken) return;
-    const refresh = async () => {
-      const token = localStorage.getItem("minipos-refresh-token");
-      if (!token) return;
-      try {
-        const next = await new EmailAuthClient(backend).refresh(token);
-        localStorage.setItem("minipos-access-token", next.access_token);
-        localStorage.setItem("minipos-refresh-token", next.refresh_token);
-        setAccessToken(next.access_token);
-      } catch {
-        localStorage.removeItem("minipos-access-token");
-        localStorage.removeItem("minipos-refresh-token");
-        setAccessToken("");
-        setSession(undefined);
-      }
+    let timer: number;
+    const scheduleRefresh = (expiresIn?: number) => {
+      window.clearInterval(timer);
+      const delay = expiresIn ? Math.max((expiresIn - 60) * 1000, 30_000) : 12 * 60 * 1000;
+      timer = window.setInterval(() => {
+        void (async () => {
+          const token = localStorage.getItem("minipos-refresh-token");
+          if (!token) return;
+          try {
+            const next = await new EmailAuthClient(backend).refresh(token);
+            localStorage.setItem("minipos-access-token", next.access_token);
+            localStorage.setItem("minipos-refresh-token", next.refresh_token);
+            setAccessToken(next.access_token);
+            scheduleRefresh(next.expires_in);
+          } catch {
+            localStorage.removeItem("minipos-access-token");
+            localStorage.removeItem("minipos-refresh-token");
+            setAccessToken("");
+            setSession(undefined);
+          }
+        })();
+      }, delay);
     };
-    const timer = window.setInterval(() => void refresh(), 12 * 60 * 1000);
+    scheduleRefresh();
     return () => window.clearInterval(timer);
   }, [accessToken, backend]);
   useEffect(() => {
@@ -136,6 +144,7 @@ export default function App() {
       setProducts(refs.items.filter((item) => item.status === "ACTIVE"));
       await Promise.all([cfg ? cachePut("configuration", cfg) : Promise.resolve(), cachePut("products", refs.items)]);
       const shifts = await api.shifts(active.employee.id);
+      if (!shifts.items[0]) throw new Error("NO_OPEN_SHIFT");
       setShift(shifts.items[0]);
       await Promise.all([
         cachePut("operator-session", active),
@@ -225,6 +234,7 @@ export default function App() {
     return issued.access_token;
   }
   async function syncOfflineOrders() {
+    if (!navigator.onLine) return;
     const pending = (await listOutbox()).filter(
       (row) => row.posSync && row.result && !row.posSync.synced_at,
     );
@@ -259,14 +269,14 @@ export default function App() {
     if (!shift) throw new Error("SHIFT_REQUIRED");
     let order = await api.createOrder(shift.id),
       version = order.version;
-    for (const item of items) {
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
       const updated = await api.addLine(
         order.id,
         version,
         {
           line_id: item.item_id,
-          product_id: cart.find((line) => line.product.name === item.name)
-            ?.product.id,
+          product_id: cart[i]?.product.id,
           name: item.name,
           quantity: item.quantity,
           unit_price: item.unit_price,

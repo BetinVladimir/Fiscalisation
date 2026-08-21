@@ -2,7 +2,8 @@ name: beefiscal-${APP_ENV:-dev}
 services:
   postgres:
     image: postgres:16.10
-    environment: {POSTGRES_USER: fiscal, POSTGRES_PASSWORD: "${FISCAL_DB_PASSWORD:-dev-fiscal-writer-password}", POSTGRES_DB: fiscal, FISCAL_RLS_DB_PASSWORD: "${FISCAL_RLS_DB_PASSWORD:-dev-fiscal-rls-password}"}
+    restart: unless-stopped
+    environment: {POSTGRES_USER: fiscal, POSTGRES_PASSWORD: "${FISCAL_DB_PASSWORD:-}", POSTGRES_DB: fiscal, FISCAL_RLS_DB_PASSWORD: "${FISCAL_RLS_DB_PASSWORD:-}"}
     ports: ["127.0.0.1:${FISCAL_POSTGRES_PUBLISH_PORT:-5433}:5432"]
     volumes: [fiscal_pg:/var/lib/postgresql/data, ./database/fiscal:/docker-entrypoint-initdb.d:ro]
     networks: [private]
@@ -23,13 +24,13 @@ services:
       EMQX_HOST: 127.0.0.1
       EMQX_ALLOW_ANONYMOUS: "false"
       EMQX_DASHBOARD__DEFAULT_USERNAME: "${EMQX_DASHBOARD_USERNAME:-admin}"
-      EMQX_DASHBOARD__DEFAULT_PASSWORD: "${EMQX_DASHBOARD_PASSWORD:-dev-only-dashboard-password}"
+      EMQX_DASHBOARD__DEFAULT_PASSWORD: "${EMQX_DASHBOARD_PASSWORD:-}"
       EMQX_AUTHENTICATION__1__ENABLE: "true"
       EMQX_AUTHENTICATION__1__MECHANISM: jwt
       EMQX_AUTHENTICATION__1__USE_JWKS: "false"
       EMQX_AUTHENTICATION__1__FROM: password
       EMQX_AUTHENTICATION__1__ALGORITHM: hmac-based
-      EMQX_AUTHENTICATION__1__SECRET: "${EMQX_JWT_SECRET:-dev-only-emqx-secret}"
+      EMQX_AUTHENTICATION__1__SECRET: "${EMQX_JWT_SECRET:-}"
       EMQX_AUTHENTICATION__1__ACL_CLAIM_NAME: acl
       EMQX_AUTHORIZATION__NO_MATCH: deny
     ports:
@@ -45,7 +46,7 @@ services:
     restart: unless-stopped
     environment:
       RABBITMQ_DEFAULT_USER: "${RABBITMQ_DEFAULT_USER:-fiscal}"
-      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_DEFAULT_PASS:-dev-only-rabbitmq-password}"
+      RABBITMQ_DEFAULT_PASS: "${RABBITMQ_DEFAULT_PASS:-}"
     ports:
       - "127.0.0.1:${RABBITMQ_AMQP_PORT:-5673}:5672"
       - "127.0.0.1:${RABBITMQ_MANAGEMENT_PORT:-15673}:15672"
@@ -54,9 +55,8 @@ services:
   fiscal-backend:
     build: ./fiscal-backend
     restart: unless-stopped
-    environment: {APP_ENV: "${APP_ENV:-dev}", HTTP_ADDR: ":8080", API_VERSION: "2026-08-07", DATABASE_URL: "postgres://fiscal:${FISCAL_DB_PASSWORD:-dev-fiscal-writer-password}@${FISCAL_DB_HOST:-postgres}:${FISCAL_DB_PORT:-5432}/fiscal?sslmode=disable", RLS_DATABASE_URL: "postgres://beefiscal_tenant:${FISCAL_RLS_DB_PASSWORD:-dev-fiscal-rls-password}@${FISCAL_DB_HOST:-postgres}:${FISCAL_DB_PORT:-5432}/fiscal?sslmode=disable", REDIS_URL: "${REDIS_URL:-redis://redis:6379/0}", RABBITMQ_URL: "${FISCAL_RABBITMQ_URL:-amqp://fiscal:dev-only-rabbitmq-password@rabbitmq:5672/}", SMTP_HOST: "${SMTP_HOST:-smtp-relay.brevo.com}", SMTP_USER: "${SMTP_USER:-}", SMTP_PASSWORD: "${SMTP_PASSWORD:-}", SMTP_MAILDOMAIN: "${SMTP_MAILDOMAIN:-mail.beeloy.com}", SMTP_PORT: "${SMTP_PORT:-587}", SMTP_FROM: "${SMTP_FROM:-noreply@beeloy.com}", AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:-}", OIDC_ISSUER: "${OIDC_ISSUER:-}", OIDC_AUDIENCE: "${OIDC_AUDIENCE:-}", OIDC_JWKS_URL: "${OIDC_JWKS_URL:-}", BLE_SIGNING_KEY: "${BLE_SIGNING_KEY:-dev-only-ble-signing-key-32-bytes}", ALLOW_STUB_ADAPTERS: "${ALLOW_STUB_ADAPTERS:-true}", SIMULATOR_CARD_TERMINAL_AVAILABLE: "${SIMULATOR_CARD_TERMINAL_AVAILABLE:-false}", EMQX_BROKER: "${EMQX_BROKER:-tcp://emqx:1883}", EMQX_CLIENT_ID: "${EMQX_CLIENT_ID:-beefiscal-backend}", EMQX_USERNAME: "${EMQX_USERNAME:-fiscal-backend}", EMQX_TOKEN: "${FISCAL_BACKEND_EMQX_TOKEN:-}", EMQX_SUB_TOPICS: "${EMQX_SUB_TOPICS:-tenants/+/devices/+/sync/batches/+,tenants/+/devices/+/status,tenants/+/devices/+/bindings/acks,beefiscal/v1/devices/+/activation}", DEVICE_CA_CERT_FILE: "${DEVICE_CA_CERT_FILE:-}", DEVICE_CA_KEY_FILE: "${DEVICE_CA_KEY_FILE:-}", DEVICE_MQTT_TLS_URI: "${DEVICE_MQTT_TLS_URI:-}", DEVICE_MQTT_WSS_URI: "${DEVICE_MQTT_WSS_URI:-}", LOCAL_FISCAL_TOKEN_ISSUER: "${LOCAL_FISCAL_TOKEN_ISSUER:-beeminipos}", LOCAL_FISCAL_TOKEN_SIGNING_KID: "${LOCAL_FISCAL_TOKEN_SIGNING_KID:-minipos-local-1}", LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64: "${LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64:-}", SPA_DEPLOYMENT_DESCRIPTOR_URL: "${SPA_DEPLOYMENT_DESCRIPTOR_URL:-}", SPA_DEPLOYMENT_SIGNING_KID: "${SPA_DEPLOYMENT_SIGNING_KID:-}", SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64: "${SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64:-}"}
+    environment: {APP_ENV: "${APP_ENV:-dev}", HTTP_ADDR: ":8080", API_VERSION: "2026-08-07", DATABASE_URL: "postgres://fiscal:${FISCAL_DB_PASSWORD:-}@${FISCAL_DB_HOST:-postgres}:${FISCAL_DB_PORT:-5432}/fiscal?sslmode=disable", RLS_DATABASE_URL: "postgres://beefiscal_tenant:${FISCAL_RLS_DB_PASSWORD:-}@${FISCAL_DB_HOST:-postgres}:${FISCAL_DB_PORT:-5432}/fiscal?sslmode=disable", REDIS_URL: "${REDIS_URL:-redis://redis:6379/0}", RABBITMQ_URL: "${FISCAL_RABBITMQ_URL:-}", SMTP_HOST: "${SMTP_HOST:-smtp-relay.brevo.com}", SMTP_USER: "${SMTP_USER:-}", SMTP_PASSWORD: "${SMTP_PASSWORD:-}", SMTP_MAILDOMAIN: "${SMTP_MAILDOMAIN:-mail.beeloy.com}", SMTP_PORT: "${SMTP_PORT:-587}", SMTP_FROM: "${SMTP_FROM:-noreply@beeloy.com}", AUTH_HMAC_KEY: "${AUTH_HMAC_KEY:-}", OIDC_ISSUER: "${OIDC_ISSUER:-}", OIDC_AUDIENCE: "${OIDC_AUDIENCE:-}", OIDC_JWKS_URL: "${OIDC_JWKS_URL:-}", BLE_SIGNING_KEY: "${BLE_SIGNING_KEY:-}", ALLOW_STUB_ADAPTERS: "${ALLOW_STUB_ADAPTERS:-true}", SIMULATOR_CARD_TERMINAL_AVAILABLE: "${SIMULATOR_CARD_TERMINAL_AVAILABLE:-false}", EMQX_BROKER: "${EMQX_BROKER:-tcp://emqx:1883}", EMQX_CLIENT_ID: "${EMQX_CLIENT_ID:-beefiscal-backend}", EMQX_USERNAME: "${EMQX_USERNAME:-fiscal-backend}", EMQX_TOKEN: "${FISCAL_BACKEND_EMQX_TOKEN:-}", EMQX_SUB_TOPICS: "${EMQX_SUB_TOPICS:-tenants/+/devices/+/sync/batches/+,tenants/+/devices/+/status,tenants/+/devices/+/bindings/acks,beefiscal/v1/devices/+/activation}", DEVICE_CA_CERT_FILE: "${DEVICE_CA_CERT_FILE:-}", DEVICE_CA_KEY_FILE: "${DEVICE_CA_KEY_FILE:-}", DEVICE_MQTT_TLS_URI: "${DEVICE_MQTT_TLS_URI:-}", DEVICE_MQTT_WSS_URI: "${DEVICE_MQTT_WSS_URI:-}", LOCAL_FISCAL_TOKEN_ISSUER: "${LOCAL_FISCAL_TOKEN_ISSUER:-beeminipos}", LOCAL_FISCAL_TOKEN_SIGNING_KID: "${LOCAL_FISCAL_TOKEN_SIGNING_KID:-minipos-local-1}", LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64: "${LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64:-}", SPA_DEPLOYMENT_DESCRIPTOR_URL: "${SPA_DEPLOYMENT_DESCRIPTOR_URL:-}", SPA_DEPLOYMENT_SIGNING_KID: "${SPA_DEPLOYMENT_SIGNING_KID:-}", SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64: "${SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64:-}"}
     networks: [private]
-    volumes: ["${DEVICE_PKI_DIR:-./deploy/device-pki}:/run/beefiscal/device-pki:ro"]
     depends_on: {postgres: {condition: service_healthy}, redis: {condition: service_healthy}, emqx: {condition: service_started}, rabbitmq: {condition: service_started}}
   caddy:
     image: caddy:2.10.0

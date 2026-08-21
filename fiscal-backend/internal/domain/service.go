@@ -15,14 +15,14 @@ import (
 	"sort"
 	"strconv"
 	"strings"
-	"sync/atomic"
 	"time"
 )
 
-var seq atomic.Uint64
-
 func newID(prefix string) string {
-	return fmt.Sprintf("%s-%d-%d", prefix, time.Now().UnixNano(), seq.Add(1))
+	b := make([]byte, 16)
+	_, _ = rand.Read(b)
+	return fmt.Sprintf("%s-%08x-%04x-%04x-%04x-%012x",
+		prefix, b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }
 func pad7(n int64) string  { return fmt.Sprintf("%07d", n) }
 func Hash(b []byte) string { v := sha256.Sum256(b); return hex.EncodeToString(v[:]) }
