@@ -4,7 +4,9 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"strings"
 )
@@ -110,6 +112,7 @@ func enforceSuccessResponses(next http.Handler) http.Handler {
 			return
 		}
 		if err := validateOpenAPIRequest(r, strings.TrimPrefix(r.URL.Path, "/public/v1")); err != nil {
+			log.Printf("request contract violation method=%s path=%s error=%v", r.Method, r.URL.Path, err)
 			problem(w, http.StatusBadRequest, "REQUEST_CONTRACT_VIOLATION")
 			return
 		}
@@ -121,6 +124,7 @@ func enforceSuccessResponses(next http.Handler) http.Handler {
 		if captured.status >= 200 && captured.status < 300 {
 			contract, operationFound, statusFound := successContract(r.Method, r.URL.Path, captured.status)
 			valid := operationFound && statusFound
+			var schemaErr error
 			contentType := strings.TrimSpace(strings.Split(captured.header.Get("Content-Type"), ";")[0])
 			if valid && len(contract.Media) == 0 {
 				valid = captured.body.Len() == 0
@@ -128,10 +132,11 @@ func enforceSuccessResponses(next http.Handler) http.Handler {
 				valid = captured.body.Len() > 0 && containsString(contract.Media, contentType)
 				if valid && contentType == "application/json" && !responseSchemaIsBinary(contract.Schema) {
 					var decoded any
-					valid = json.Unmarshal(captured.body.Bytes(), &decoded) == nil && validateResponseSchema(contract.Schema, decoded) == nil
+					if err := json.Unmarshal(captured.body.Bytes(), &decoded); err != nil { schemaErr = err; valid = false } else if err = validateResponseSchema(contract.Schema, decoded); err != nil { schemaErr = err; valid = false }
 				}
 			}
 			if !valid {
+				log.Printf("response contract violation method=%s path=%s status=%d operation_found=%t status_found=%t content_type=%s schema_error=%v body=%s", r.Method, r.URL.Path, captured.status, operationFound, statusFound, contentType, schemaErr, captured.body.String())
 				problem(w, http.StatusInternalServerError, "RESPONSE_CONTRACT_VIOLATION")
 				return
 			}
@@ -199,9 +204,8 @@ func validateOpenAPIRequest(r *http.Request, path string) error {
 	}
 	if contentType == "application/json" {
 		var decoded any
-		if json.Unmarshal(body, &decoded) != nil || validateResponseSchema(contract.Schema, decoded) != nil {
-			return errors.New("request body violates schema")
-		}
+		if err := json.Unmarshal(body, &decoded); err != nil { return fmt.Errorf("request body invalid JSON: %w", err) }
+		if err := validateResponseSchema(contract.Schema, decoded); err != nil { return fmt.Errorf("request body violates schema: %w", err) }
 	}
 	return nil
 }

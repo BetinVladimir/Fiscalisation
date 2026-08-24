@@ -1680,7 +1680,7 @@ components:
         sale_id: {type: string}
         register_id: {type: string}
         type: {type: string, enum: [FISCAL_SALE, SALE_FINALIZE, REVERSAL]}
-        state: {type: string, enum: [FISCALIZED, FAILED, UNKNOWN]}
+        state: {type: string, enum: [RECEIVED, VALIDATED, ROUTED, ACCEPTED_BY_EDGE, EXECUTING, FISCALIZED, FAILED, UNKNOWN, RECONCILING, SYNCED, CANCELLED]}
         fiscal_reference: {type: [string, 'null']}
         original_fiscal_reference: {type: string}
         reason_code: {type: string}

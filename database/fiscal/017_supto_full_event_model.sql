@@ -133,7 +133,7 @@ FOR EACH ROW EXECUTE FUNCTION reject_append_only_mutation();
 -- migration. These triggers provide the required typed dual-write without a
 -- second application transaction and make replay idempotent by event_id.
 CREATE OR REPLACE FUNCTION project_runtime_audit_to_supto_events() RETURNS trigger
-LANGUAGE plpgsql AS $$
+LANGUAGE plpgsql SECURITY DEFINER SET search_path = public, pg_temp AS $$
 DECLARE
   p jsonb := NEW.payload;
   sale_uuid uuid;

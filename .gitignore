@@ -41,3 +41,4 @@ SmartDevices/*/build/
 # OS / IDE
 .DS_Store
 .vscode/
+**/tmp/*

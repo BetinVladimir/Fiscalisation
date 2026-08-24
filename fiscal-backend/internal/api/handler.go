@@ -959,6 +959,7 @@ func (h *Handler) openSaleWithLine(w http.ResponseWriter, r *http.Request) {
 	in.TenantID = tenantID(r)
 	v, err := h.svc.OpenSaleWithFirstLine(in)
 	if err != nil {
+		log.Printf("sale open rejected tenant=%s workstation=%s error=%v", in.TenantID, in.WorkstationID, err)
 		problem(w, 409, "SALE_OPEN_REJECTED")
 		return
 	}

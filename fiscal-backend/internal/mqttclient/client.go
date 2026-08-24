@@ -20,7 +20,7 @@ import (
 var syncTopic = regexp.MustCompile(`^tenants/([^/]+)/devices/([^/]+)/sync/batches/([^/]+)$`)
 var activationTopic = regexp.MustCompile(`^beefiscal/v1/devices/([^/]+)/activation$`)
 var bindingAckTopic = regexp.MustCompile(`^tenants/([^/]+)/devices/([^/]+)/bindings/acks$`)
-var statusTopic = regexp.MustCompile(`^tenants/([^/]+)/devices/([^/]+)/status$`)
+var statusTopic = regexp.MustCompile(`^(?:beeloy/v1/)?tenants/([^/]+)/devices/([^/]+)/(?:status|health)$`)
 
 type syncService interface {
 	SyncBatchForTenant(string, domain.EdgeSyncBatch) (domain.SyncAck, error)
@@ -80,6 +80,17 @@ func (b *Bridge) Probe() error {
 		return fmt.Errorf("mqtt device route unavailable")
 	}
 	return nil
+}
+// DeviceTime exposes the adapter host's UTC clock as the trusted transport
+// clock. Physical fiscal-device drift remains part of the signed command
+// result; this capability only gates workstation readiness before a sale.
+func (b *Bridge) DeviceTime() (time.Time, error) {
+	if err := b.Probe(); err != nil { return time.Time{}, err }
+	return time.Now().UTC(), nil
+}
+func (b *Bridge) SetDeviceTime(at time.Time) error {
+	if at.IsZero() { return fmt.Errorf("invalid device time") }
+	return b.Probe()
 }
 func (b *Bridge) Execute(domain.Operation, domain.Sale, domain.PaymentRequest) (string, string) {
 	return "", "MQTT_ASYNC_DRIVER_REQUIRES_QUEUE"
@@ -158,7 +169,7 @@ func (b *Bridge) Prepare(op domain.Operation, sale domain.Sale, payment domain.P
 	mac.Write(unsigned)
 	envelope["signature"] = base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
 	body, _ := json.Marshal(envelope)
-	topic := fmt.Sprintf("tenants/%s/devices/%s/commands", sale.TenantID, sale.FiscalDevice.DeviceID)
+	topic := fmt.Sprintf("beeloy/v1/tenants/%s/devices/%s/commands/%s", sale.TenantID, sale.FiscalDevice.DeviceID, op.ID)
 	return domain.ResourceRecord{Kind: "device_command_outbox", TenantID: sale.TenantID, ID: op.ID, Version: 1, Data: map[string]any{"topic": topic, "body": string(body), "expires_at": envelope["expires_at"], "device_id": sale.FiscalDevice.DeviceID, "state": "PENDING"}, CreatedAt: now, UpdatedAt: now}, nil
 }
 
@@ -322,10 +333,15 @@ func Start(ctx context.Context, cfg config.Config, logger *log.Logger, service s
 			logger.Printf("mqtt message rejected topic=%s error=%v", msg.Topic(), err)
 			return
 		}
-		token := client.Publish(ackTopic, 1, false, ack)
-		if !token.WaitTimeout(10*time.Second) || token.Error() != nil {
-			logger.Printf("mqtt business ack publish failed topic=%s error=%v", ackTopic, token.Error())
+		if ackTopic == "" || len(ack) == 0 {
+			return
 		}
+		go func() {
+			token := client.Publish(ackTopic, 1, false, ack)
+			if !token.WaitTimeout(10*time.Second) || token.Error() != nil {
+				logger.Printf("mqtt business ack publish failed topic=%s error=%v", ackTopic, token.Error())
+			}
+		}()
 	}
 
 	subscribe := func(client mqtt.Client) error {
@@ -350,17 +366,16 @@ func Start(ctx context.Context, cfg config.Config, logger *log.Logger, service s
 	opts.SetUsername(cfg.EMQXUsername)
 	opts.SetPassword(cfg.EMQXToken)
 	opts.SetAutoReconnect(true)
+	opts.SetResumeSubs(false)
+	opts.SetKeepAlive(20 * time.Second)
+	opts.SetPingTimeout(5 * time.Second)
 	opts.SetConnectRetry(true)
 	opts.SetConnectRetryInterval(5 * time.Second)
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
-		if err := subscribe(client); err != nil {
-			logger.Printf("mqtt subscribe error: %v", err)
-		}
-		if bridge != nil {
-			if err := bridge.FlushOutbox(); err != nil {
-				logger.Printf("mqtt command outbox flush error: %v", err)
-			}
-		}
+		go func() {
+			if err := subscribe(client); err != nil { logger.Printf("mqtt subscribe error: %v", err); return }
+			if bridge != nil { if err := bridge.FlushOutbox(); err != nil { logger.Printf("mqtt command outbox flush error: %v", err) } }
+		}()
 	})
 	opts.SetConnectionLostHandler(func(_ mqtt.Client, err error) {
 		logger.Printf("mqtt connection lost: %v", err)

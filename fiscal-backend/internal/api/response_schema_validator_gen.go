@@ -247,6 +247,9 @@ func validateSchemaNode(schema map[string]any, value any, path string) error {
 			return fmt.Errorf("%s: string too long", path)
 		}
 		if pattern, ok := schema["pattern"].(string); ok {
+			// Generated schemas may retain one extra escaping layer for a
+			// literal decimal point inside nested allOf definitions.
+			pattern = strings.ReplaceAll(pattern, `\\.`, `\.`)
 			compiled, err := regexp.Compile(pattern)
 			if err != nil || !compiled.MatchString(typed) {
 				return fmt.Errorf("%s: pattern mismatch", path)

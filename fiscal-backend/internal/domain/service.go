@@ -705,7 +705,9 @@ func (s *Service) OpenWorkstationSession(workstation, operatorCode, appInstance,
 		return WorkstationSession{}, errors.New("operator unavailable")
 	}
 	now := time.Now().UTC()
-	v := WorkstationSession{SessionID: newID("ws"), TenantID: tenant, WorkstationID: workstation, OperatorID: operatorID, OperatorCode: operatorCode, AppInstanceID: appInstance, ActorSubject: actor, ExpiresAt: now.Add(8 * time.Hour), CreatedAt: now}
+	sessionID, uuidErr := newUUID()
+	if uuidErr != nil { return WorkstationSession{}, uuidErr }
+	v := WorkstationSession{SessionID: sessionID, TenantID: tenant, WorkstationID: workstation, OperatorID: operatorID, OperatorCode: operatorCode, AppInstanceID: appInstance, ActorSubject: actor, ExpiresAt: now.Add(8 * time.Hour), CreatedAt: now}
 	data := asMap(v)
 	data["actor_subject"] = actor
 	err := s.repo.PutResource(ResourceRecord{Kind: "workstation_session", TenantID: tenant, ID: v.SessionID, Version: 1, Data: data, CreatedAt: now, UpdatedAt: now})
@@ -772,7 +774,7 @@ func (s *Service) OpenSaleWithFirstLine(in OpenSaleWithFirstLineRequest) (Sale, 
 	}
 	hasShift := false
 	for _, shift := range s.repo.Shifts(in.TenantID) {
-		if shift.RegisterID == in.WorkstationID && shift.OperatorID == in.OperatorCode && shift.State == "OPEN" {
+		if shift.RegisterID == in.WorkstationID && (shift.OperatorID == in.OperatorCode || shift.OperatorID == session.OperatorID) && shift.State == "OPEN" {
 			hasShift = true
 			break
 		}

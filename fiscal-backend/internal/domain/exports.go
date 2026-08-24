@@ -54,7 +54,7 @@ type exportPeriod struct {
 }
 
 func (s *Service) CreateExport(in ExportRequest, tenant string) (Operation, error) {
-	if tenant == "" || !contains([]string{"SUPTO_18_1", "SUPTO_18_2", "SUPTO_18_3", "SUPTO_18_4", "SUPTO_18_5", "SUPTO_18_9", "KLEN", "FISCAL_MEMORY"}, in.Type) || !contains([]string{"JSON", "CSV", "XLSX"}, in.Format) || in.From.IsZero() || in.To.IsZero() || !in.To.After(in.From) {
+	if tenant == "" || !contains([]string{"SUPTO_18_1", "SUPTO_18_2", "SUPTO_18_3", "SUPTO_18_4", "SUPTO_18_5", "SUPTO_18_6", "SUPTO_18_7", "SUPTO_18_8", "SUPTO_18_9", "KLEN", "FISCAL_MEMORY"}, in.Type) || !contains([]string{"JSON", "CSV", "XLSX"}, in.Format) || in.From.IsZero() || in.To.IsZero() || !in.To.After(in.From) {
 		return Operation{}, errors.New("invalid export request")
 	}
 	rows := make([]exportRow, 0)
@@ -105,7 +105,7 @@ func exportSchemaID(exportType string) string { return "BG_" + exportType + "_V1
 // duplicate or omit a sale. The locked canonical ComplianceExport remains
 // EUR-only and is not widened with undocumented fields.
 func (s *Service) CreatePeriodizedExport(in ExportRequest, tenant string) (Operation, error) {
-	if tenant == "" || !contains([]string{"SUPTO_18_1", "SUPTO_18_2", "SUPTO_18_3", "SUPTO_18_4", "SUPTO_18_5", "SUPTO_18_9", "KLEN", "FISCAL_MEMORY"}, in.Type) || !contains([]string{"JSON", "CSV", "XLSX"}, in.Format) || in.From.IsZero() || in.To.IsZero() || !in.To.After(in.From) {
+	if tenant == "" || !contains([]string{"SUPTO_18_1", "SUPTO_18_2", "SUPTO_18_3", "SUPTO_18_4", "SUPTO_18_5", "SUPTO_18_6", "SUPTO_18_7", "SUPTO_18_8", "SUPTO_18_9", "KLEN", "FISCAL_MEMORY"}, in.Type) || !contains([]string{"JSON", "CSV", "XLSX"}, in.Format) || in.From.IsZero() || in.To.IsZero() || !in.To.After(in.From) {
 		return Operation{}, errors.New("invalid periodized export request")
 	}
 	periods := splitOfficialCurrencyPeriods(in.From, in.To)
@@ -260,17 +260,23 @@ func normativeExportTable(exportType string, rows []exportRow) ([]string, [][]st
 		headers=[]string{"sale_id","external_id","unp","location_id","register_id","operator_id","state","created_at"}
 		for _,r:=range rows{records=append(records,[]string{r.SaleID,r.ExternalID,r.UNP,r.LocationID,r.RegisterID,r.OperatorID,r.State,r.CreatedAt})}
 	case "SUPTO_18_2":
-		headers=[]string{"sale_id","unp","line_id","name","quantity","unit_price_json","discount_json","tax_group"}
-		for _,r:=range rows{for _,line:=range r.Lines{price,_:=json.Marshal(line.UnitPrice);discount,_:=json.Marshal(line.Discount);records=append(records,[]string{r.SaleID,r.UNP,line.LineID,line.Name,line.Quantity,string(price),string(discount),line.TaxGroup})}}
-	case "SUPTO_18_3":
 		headers=[]string{"sale_id","unp","payment_id","payment_type","amount_json","fiscal_reference","created_at"}
 		for _,r:=range rows{for _,payment:=range r.Payments{amount,_:=json.Marshal(payment.Amount);records=append(records,[]string{r.SaleID,r.UNP,payment.PaymentID,payment.Type,string(amount),payment.FiscalReference,payment.CreatedAt.UTC().Format(time.RFC3339Nano)})}}
+	case "SUPTO_18_3":
+		headers=[]string{"sale_id","unp","line_id","name","quantity","unit_price_json","discount_json","tax_group"}
+		for _,r:=range rows{for _,line:=range r.Lines{price,_:=json.Marshal(line.UnitPrice);discount,_:=json.Marshal(line.Discount);records=append(records,[]string{r.SaleID,r.UNP,line.LineID,line.Name,line.Quantity,string(price),string(discount),line.TaxGroup})}}
 	case "SUPTO_18_4":
 		headers=[]string{"sale_id","unp","fiscal_operation_id","receipt_artifact_id","fiscal_device_json","state"}
 		for _,r:=range rows{device,_:=json.Marshal(r.FiscalDevice);records=append(records,[]string{r.SaleID,r.UNP,r.FiscalOperationID,r.ReceiptArtifactID,string(device),r.State})}
 	case "SUPTO_18_5":
 		headers=[]string{"sale_id","unp","operator_id","location_id","register_id","created_at"}
 		for _,r:=range rows{records=append(records,[]string{r.SaleID,r.UNP,r.OperatorID,r.LocationID,r.RegisterID,r.CreatedAt})}
+	case "SUPTO_18_6":
+		headers=[]string{"delivery_id","delivery_date","delivery_time","operator_code","supplier_code","supplier_name","invoice_number","invoice_date","net_amount","discount_amount","vat_amount","gross_amount","payment_type"}
+	case "SUPTO_18_7":
+		headers=[]string{"delivery_id","product_code","product_name","quantity","unit_price","discount_amount","vat_amount","gross_amount"}
+	case "SUPTO_18_8":
+		headers=[]string{"product_code","product_name","opening_quantity","opening_value","debit_quantity","debit_value","credit_quantity","credit_value","closing_quantity","closing_value"}
 	case "SUPTO_18_9":
 		headers=exportCSVHeader();for _,r:=range rows{records=append(records,exportCSVRecord(r))}
 	default:
