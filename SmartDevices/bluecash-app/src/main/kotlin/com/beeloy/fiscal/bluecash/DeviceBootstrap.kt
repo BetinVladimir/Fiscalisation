@@ -98,6 +98,7 @@ class AndroidDeviceIdentity(private val context: Context) : TransactionSigner {
     check(isHardwareBacked()) { "HARDWARE_BACKED_KEY_REQUIRED" }
   }
 
+  @Suppress("DEPRECATION")
   fun isHardwareBacked(): Boolean {
     val privateKey = store.getKey(KEY_ALIAS, null) ?: return false
     val info =
