@@ -815,7 +815,7 @@ on conflict(operation_id) do update set tenant_id=excluded.tenant_id,register_id
 	case "audit":
 		_, err := tx.Exec(`insert into fiscal_runtime_audit(event_id,tenant_id,actor_id,action,object_type,object_id,occurred_at,event_hash,payload)
 values($1::jsonb->>'event_id',$1::jsonb->>'tenant_id',$1::jsonb->>'actor_id',$1::jsonb->>'action',$1::jsonb->>'object_type',$1::jsonb->>'object_id',($1::jsonb->>'occurred_at')::timestamptz,$1::jsonb->>'event_hash',$1::jsonb)
-on conflict(event_id) do update set tenant_id=excluded.tenant_id,actor_id=excluded.actor_id,action=excluded.action,object_type=excluded.object_type,object_id=excluded.object_id,occurred_at=excluded.occurred_at,event_hash=excluded.event_hash,payload=excluded.payload where fiscal_runtime_audit is distinct from excluded`, payload)
+on conflict(event_id) do nothing`, payload)
 		return err
 	case "replays":
 		_, err := tx.Exec(`insert into fiscal_runtime_replays(replay_key,tenant_id,method,path,request_hash,status,pending,payload)

@@ -143,7 +143,8 @@ func (b *Bridge) Prepare(op domain.Operation, sale domain.Sale, payment domain.P
 	if receiptSessionID == "" {
 		receiptSessionID = op.ID
 	}
-	envelope := map[string]any{"operation_id": op.ID, "client_operation_id": clientOperationID, "receipt_session_id": receiptSessionID, "tenant_id": sale.TenantID, "register_id": sale.RegisterID, "device_id": sale.FiscalDevice.DeviceID, "fencing_token": sale.FiscalDevice.BindingVersion, "command_type": commandType, "issued_at": now.Format(time.RFC3339Nano), "expires_at": now.Add(2 * time.Minute).Format(time.RFC3339Nano), "payload": payload, "payload_sha256": fmt.Sprintf("%x", sum)}
+	envelope := map[string]any{"event_id": op.ID, "correlation_id": clientOperationID, "causation_id": op.ID, "operation_id": op.ID, "client_operation_id": clientOperationID, "receipt_session_id": receiptSessionID, "tenant_id": sale.TenantID, "register_id": sale.RegisterID, "device_id": sale.FiscalDevice.DeviceID, "fencing_token": sale.FiscalDevice.BindingVersion, "command_type": commandType, "issued_at": now.Format(time.RFC3339Nano), "expires_at": now.Add(2 * time.Minute).Format(time.RFC3339Nano), "payload": payload, "payload_sha256": fmt.Sprintf("%x", sum)}
+	chainCanonical,_:=json.Marshal(envelope);chainHash:=sha256.Sum256(chainCanonical);envelope["event_hash"]=fmt.Sprintf("%x",chainHash)
 	unsigned, _ := json.Marshal(envelope)
 	signingKey := b.signingKey
 	if b.repo != nil {

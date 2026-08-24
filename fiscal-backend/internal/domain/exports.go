@@ -74,13 +74,14 @@ func (s *Service) CreateExport(in ExportRequest, tenant string) (Operation, erro
 	var err error
 	switch in.Format {
 	case "JSON":
-		artifact, err = json.Marshal(map[string]any{"schema_version": "2026-08-14", "schema_id": exportSchemaID(in.Type), "columns": exportCSVHeader(), "policy_version": "BG-2026-EUR", "official_currency": "EUR", "interval_semantics": "[from,to)", "type": in.Type, "from": in.From, "to": in.To, "rows": rows})
+		headers, records := normativeExportTable(in.Type, rows)
+		artifact, err = json.Marshal(map[string]any{"schema_version": "2026-08-24", "schema_id": exportSchemaID(in.Type), "columns": headers, "policy_version": "BG-N18-APP29", "official_currency": "EUR", "interval_semantics": "[from,to)", "type": in.Type, "from": in.From, "to": in.To, "records": records})
 	case "CSV":
 		media = "text/csv"
-		artifact, err = exportCSV(rows)
+		artifact, err = exportNormativeCSV(in.Type, rows)
 	case "XLSX":
 		media = "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-		artifact, err = exportXLSX(rows)
+		artifact, err = exportNormativeXLSX(in.Type, rows)
 	}
 	if err != nil {
 		return Operation{}, err
@@ -219,41 +220,71 @@ func detailedExportRow(sale Sale, currency string) (exportRow, error) {
 func renderExportArtifact(in ExportRequest, rows []exportRow, currency string, from, to time.Time) ([]byte, string, error) {
 	switch in.Format {
 	case "JSON":
+		headers, records := normativeExportTable(in.Type, rows)
 		artifact, err := json.Marshal(map[string]any{
-			"schema_version": "2026-08-14", "schema_id": exportSchemaID(in.Type), "columns": exportCSVHeader(), "policy_version": "BG-EUR-TRANSITION-2026-01-01",
-			"official_currency": currency, "type": in.Type, "from_inclusive": from.UTC(), "to_exclusive": to.UTC(), "rows": rows,
+			"schema_version": "2026-08-24", "schema_id": exportSchemaID(in.Type), "columns": headers, "policy_version": "BG-N18-APP29",
+			"official_currency": currency, "type": in.Type, "from_inclusive": from.UTC(), "to_exclusive": to.UTC(), "records": records,
 		})
 		return artifact, "application/json", err
 	case "CSV":
-		artifact, err := exportPeriodCSV(rows, currency, from, to)
+		artifact, err := exportPeriodCSV(in.Type, rows, currency, from, to)
 		return artifact, "text/csv", err
 	case "XLSX":
-		artifact, err := exportPeriodXLSX(rows, currency, from, to)
+		artifact, err := exportPeriodXLSX(in.Type, rows, currency, from, to)
 		return artifact, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet", err
 	default:
 		return nil, "", errors.New("invalid export format")
 	}
 }
 
-func exportPeriodCSV(rows []exportRow, currency string, from, to time.Time) ([]byte, error) {
+func exportPeriodCSV(exportType string, rows []exportRow, currency string, from, to time.Time) ([]byte, error) {
 	var b bytes.Buffer
 	w := csv.NewWriter(&b)
-	_ = w.Write(append([]string{"period_official_currency", "period_from_inclusive", "period_to_exclusive"}, exportCSVHeader()...))
+	headers,records:=normativeExportTable(exportType,rows)
+	_ = w.Write(append([]string{"period_official_currency", "period_from_inclusive", "period_to_exclusive"}, headers...))
 	if len(rows) == 0 {
-		_ = w.Write(append([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, make([]string, len(exportCSVHeader()))...))
+		_ = w.Write(append([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, make([]string, len(headers))...))
 	}
-	for _, r := range rows {
-		_ = w.Write(append([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, exportCSVRecord(r)...))
+	for _, record := range records {
+		_ = w.Write(append([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, record...))
 	}
 	w.Flush()
 	return b.Bytes(), w.Error()
 }
 
-func exportPeriodXLSX(rows []exportRow, currency string, from, to time.Time) ([]byte, error) {
-	// The period metadata is represented as a deterministic first record so an
-	// empty period remains independently auditable in spreadsheet tooling.
-	metadata := exportRow{SaleID: "official_currency=" + currency, ExternalID: "from=" + from.UTC().Format(time.RFC3339Nano), UNP: "to=" + to.UTC().Format(time.RFC3339Nano), OfficialCurrency: currency, Total: Money{Amount: "0.00", Currency: currency}, Lines: []SaleLine{}, Payments: []PaymentRecord{}}
-	return exportXLSX(append([]exportRow{metadata}, rows...))
+func normativeExportTable(exportType string, rows []exportRow) ([]string, [][]string) {
+	var headers []string
+	var records [][]string
+	switch exportType {
+	case "SUPTO_18_1":
+		headers=[]string{"sale_id","external_id","unp","location_id","register_id","operator_id","state","created_at"}
+		for _,r:=range rows{records=append(records,[]string{r.SaleID,r.ExternalID,r.UNP,r.LocationID,r.RegisterID,r.OperatorID,r.State,r.CreatedAt})}
+	case "SUPTO_18_2":
+		headers=[]string{"sale_id","unp","line_id","name","quantity","unit_price_json","discount_json","tax_group"}
+		for _,r:=range rows{for _,line:=range r.Lines{price,_:=json.Marshal(line.UnitPrice);discount,_:=json.Marshal(line.Discount);records=append(records,[]string{r.SaleID,r.UNP,line.LineID,line.Name,line.Quantity,string(price),string(discount),line.TaxGroup})}}
+	case "SUPTO_18_3":
+		headers=[]string{"sale_id","unp","payment_id","payment_type","amount_json","fiscal_reference","created_at"}
+		for _,r:=range rows{for _,payment:=range r.Payments{amount,_:=json.Marshal(payment.Amount);records=append(records,[]string{r.SaleID,r.UNP,payment.PaymentID,payment.Type,string(amount),payment.FiscalReference,payment.CreatedAt.UTC().Format(time.RFC3339Nano)})}}
+	case "SUPTO_18_4":
+		headers=[]string{"sale_id","unp","fiscal_operation_id","receipt_artifact_id","fiscal_device_json","state"}
+		for _,r:=range rows{device,_:=json.Marshal(r.FiscalDevice);records=append(records,[]string{r.SaleID,r.UNP,r.FiscalOperationID,r.ReceiptArtifactID,string(device),r.State})}
+	case "SUPTO_18_5":
+		headers=[]string{"sale_id","unp","operator_id","location_id","register_id","created_at"}
+		for _,r:=range rows{records=append(records,[]string{r.SaleID,r.UNP,r.OperatorID,r.LocationID,r.RegisterID,r.CreatedAt})}
+	case "SUPTO_18_9":
+		headers=exportCSVHeader();for _,r:=range rows{records=append(records,exportCSVRecord(r))}
+	default:
+		headers=exportCSVHeader();for _,r:=range rows{records=append(records,exportCSVRecord(r))}
+	}
+	return headers,records
+}
+
+func exportNormativeCSV(exportType string,rows []exportRow)([]byte,error){headers,records:=normativeExportTable(exportType,rows);var b bytes.Buffer;w:=csv.NewWriter(&b);_ = w.Write(headers);for _,record:=range records{_ = w.Write(record)};w.Flush();return b.Bytes(),w.Error()}
+
+func exportNormativeXLSX(exportType string,rows []exportRow)([]byte,error){headers,records:=normativeExportTable(exportType,rows);return exportTableXLSX(headers,records)}
+
+func exportPeriodXLSX(exportType string,rows []exportRow, currency string, from, to time.Time) ([]byte, error) {
+	headers,records:=normativeExportTable(exportType,rows);prefix:=[]string{"period_official_currency","period_from_inclusive","period_to_exclusive"};values:=make([][]string,0,len(records));for _,record:=range records{values=append(values,append([]string{currency,from.UTC().Format(time.RFC3339Nano),to.UTC().Format(time.RFC3339Nano)},record...))};if len(values)==0{values=append(values,append([]string{currency,from.UTC().Format(time.RFC3339Nano),to.UTC().Format(time.RFC3339Nano)},make([]string,len(headers))...))};return exportTableXLSX(append(prefix,headers...),values)
 }
 func exportCSV(rows []exportRow) ([]byte, error) {
 	var b bytes.Buffer
@@ -278,13 +309,14 @@ func exportCSVRecord(r exportRow) []string {
 }
 
 func exportXLSX(rows []exportRow) ([]byte, error) {
+	values:=make([][]string,0,len(rows));for _,r:=range rows{values=append(values,exportCSVRecord(r))};return exportTableXLSX(exportCSVHeader(),values)
+}
+
+func exportTableXLSX(headers []string, values [][]string) ([]byte, error) {
 	var out bytes.Buffer
 	z := zip.NewWriter(&out)
 	files := map[string]string{"[Content_Types].xml": `<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>`, "_rels/.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`, "xl/workbook.xml": `<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Sales" sheetId="1" r:id="rId1"/></sheets></workbook>`, "xl/_rels/workbook.xml.rels": `<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`}
-	values := [][]string{exportCSVHeader()}
-	for _, r := range rows {
-		values = append(values, exportCSVRecord(r))
-	}
+	values = append([][]string{headers}, values...)
 	var sheet strings.Builder
 	sheet.WriteString(`<?xml version="1.0" encoding="UTF-8"?><worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main"><sheetData>`)
 	for i, row := range values {
