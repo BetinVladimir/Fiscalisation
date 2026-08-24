@@ -179,6 +179,9 @@ func newHandler(s *domain.Service, c config.Config, integrationHandler http.Hand
 	m.HandleFunc("/public/v1/edge-sync/batches", h.sync)
 	m.HandleFunc("/public/v1/device-activation-requests/", h.deviceActivationConfirmation)
 	m.HandleFunc("/public/v1/device-activation-requests:lookup", h.deviceActivationLookup)
+	m.HandleFunc("/public/v1/", func(w http.ResponseWriter, _ *http.Request) {
+		problem(w, http.StatusNotFound, "NOT_FOUND")
+	})
 	m.HandleFunc("/device-bootstrap/v1/challenges", h.deviceBootstrapChallenge)
 	m.HandleFunc("/device-bootstrap/v1/activation-requests", h.deviceBootstrapCreate)
 	m.HandleFunc("/device-bootstrap/v1/activation-requests/", h.deviceBootstrapCredential)
@@ -911,6 +914,10 @@ func (h *Handler) version(w http.ResponseWriter, _ *http.Request) {
 }
 func (h *Handler) sales(w http.ResponseWriter, r *http.Request) {
 	if r.Method == http.MethodGet {
+		if mode := strings.TrimSpace(r.URL.Query().Get("mode")); mode != "" {
+			problem(w, 400, "SALE_MODE_NOT_SUPPORTED")
+			return
+		}
 		write(w, 200, map[string]any{"items": h.svc.SalesForTenant(tenantID(r), r.URL.Query().Get("operator_id"), r.URL.Query().Get("register_id"), r.URL.Query().Get("state"))})
 		return
 	}
@@ -1278,7 +1285,9 @@ func (h *Handler) shift(w http.ResponseWriter, r *http.Request) {
 		problem(w, 409, "SHIFT_CLOSE_REJECTED")
 		return
 	}
-	h.saveReplay(w, r, body, 202, v)
+	operationID := strings.TrimSpace(r.Header.Get("Idempotency-Key"))
+	result := map[string]any{"operation_id": operationID, "type": "SHIFT_CLOSE", "state": "SYNCED", "simulated": false, "allowed_actions": []string{}, "created_at": v.ClosedAt, "updated_at": v.UpdatedAt}
+	h.saveReplay(w, r, body, 202, result)
 }
 func (h *Handler) register(w http.ResponseWriter, r *http.Request) {
 	p := strings.Split(strings.Trim(strings.TrimPrefix(r.URL.Path, "/public/v1/registers/"), "/"), "/")
@@ -2004,7 +2013,8 @@ func (h *Handler) authorizeSale(w http.ResponseWriter, r *http.Request, id strin
 func problem(w http.ResponseWriter, status int, code string) {
 	w.Header().Set("Content-Type", "application/problem+json")
 	w.WriteHeader(status)
-	_ = json.NewEncoder(w).Encode(map[string]any{"type": "urn:beefiscal:error:" + strings.ToLower(code), "title": code, "status": status, "code": code, "retryable": false, "trace_id": time.Now().UTC().Format("20060102150405.000000000")})
+	slug := strings.ReplaceAll(strings.ToLower(code), "_", "-")
+	_ = json.NewEncoder(w).Encode(map[string]any{"type": "urn:beefiscal:error:" + slug, "title": code, "status": status, "detail": code, "code": code, "retryable": false, "trace_id": time.Now().UTC().Format("20060102150405.000000000")})
 }
 func version(v string, next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {

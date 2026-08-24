@@ -167,8 +167,26 @@ func (s *Service) externalResourceData(tenant, system, method, kind, source stri
 		data["status"] = map[bool]string{true: "INACTIVE", false: "ACTIVE"}[inactive]
 	case "operator":
 		data["code"] = firstString(payload, "code", "operator_code")
-		data["first_name"] = firstString(payload, "first_name")
-		data["last_name"] = firstString(payload, "last_name")
+		firstName := firstString(payload, "first_name", "firstName")
+		lastName := firstString(payload, "last_name", "lastName")
+		if firstName == "" || lastName == "" {
+			displayName := strings.TrimSpace(firstString(payload, "display_name", "displayName", "name"))
+			parts := strings.Fields(displayName)
+			if firstName == "" && len(parts) > 0 {
+				firstName = parts[0]
+			}
+			if lastName == "" && len(parts) > 1 {
+				lastName = strings.Join(parts[1:], " ")
+			}
+		}
+		if firstName == "" {
+			firstName = "POS"
+		}
+		if lastName == "" {
+			lastName = "Operator"
+		}
+		data["first_name"] = firstName
+		data["last_name"] = lastName
 		data["roles"] = payload["roles"]
 		if data["roles"] == nil {
 			data["roles"] = []any{"CASHIER"}

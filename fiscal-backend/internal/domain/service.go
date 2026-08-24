@@ -1135,6 +1135,30 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 }
 func (s *Service) GetSale(id string) (Sale, error)           { return s.repo.Sale(id) }
 func (s *Service) GetOperation(id string) (Operation, error) { return s.repo.Operation(id) }
+
+func (s *Service) CompleteDeviceCommand(id, status, fiscalReference, errorCode string) (Operation, error) {
+	op, err := s.repo.Operation(id)
+	if err != nil { return Operation{}, err }
+	if op.State != "EXECUTING" { return op, nil }
+	sale, err := s.repo.Sale(op.SaleID)
+	if err != nil { return Operation{}, err }
+	now := time.Now().UTC()
+	op.Version++
+	op.UpdatedAt = now
+	if status == "SUCCEEDED" {
+		if fiscalReference == "" { return Operation{}, errors.New("device result missing fiscal reference") }
+		op.State, op.FiscalReference, op.ErrorCode = "FISCALIZED", fiscalReference, ""
+		sale.State, sale.FiscalOperationID = "COMPLETED", op.ID
+		for i := range sale.Payments { sale.Payments[i].FiscalReference = fiscalReference }
+	} else {
+		op.State, op.ErrorCode, op.AllowedActions = "UNKNOWN", errorCode, []string{"RECONCILE"}
+		if op.ErrorCode == "" { op.ErrorCode = "DEVICE_COMMAND_FAILED" }
+		sale.State = "UNKNOWN"
+	}
+	sale.Version++
+	sale.UpdatedAt = now
+	return op, s.repo.CommitSaleOperationEvent(sale, op, fiscalOperationEvent(sale, op))
+}
 func (s *Service) GetSaleForTenant(id, tenant string) (Sale, error) {
 	if r, ok := s.repo.(interface {
 		SaleForTenant(string, string) (Sale, error)

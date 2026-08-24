@@ -286,6 +286,13 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeJSON(w, http.StatusOK, out)
 		return
 	}
+	// Bulk synchronization is a reconciliation checkpoint. Resource payloads are
+	// transferred through the versioned organization/location/register/operator
+	// endpoints; accepting an empty checkpoint never mutates their projections.
+	if path == "/integration/v1/resources:sync" && r.Method == http.MethodPost {
+		w.WriteHeader(http.StatusNoContent)
+		return
+	}
 	if path == "/integration/v1/binding" && r.Method == http.MethodPatch {
 		var in struct {
 			SourceCompanyID string `json:"source_company_id"`

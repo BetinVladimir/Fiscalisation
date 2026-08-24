@@ -21,6 +21,7 @@ var syncTopic = regexp.MustCompile(`^tenants/([^/]+)/devices/([^/]+)/sync/batche
 var activationTopic = regexp.MustCompile(`^beefiscal/v1/devices/([^/]+)/activation$`)
 var bindingAckTopic = regexp.MustCompile(`^tenants/([^/]+)/devices/([^/]+)/bindings/acks$`)
 var statusTopic = regexp.MustCompile(`^(?:beeloy/v1/)?tenants/([^/]+)/devices/([^/]+)/(?:status|health)$`)
+var commandOutcomeTopic = regexp.MustCompile(`^beeloy/v1/tenants/([^/]+)/devices/([^/]+)/commands/([^/]+)/(ack|result)$`)
 
 type syncService interface {
 	SyncBatchForTenant(string, domain.EdgeSyncBatch) (domain.SyncAck, error)
@@ -35,6 +36,9 @@ type bindingApplyService interface {
 }
 type deviceHealthService interface {
 	UpsertDeviceHealth(string, string, domain.DeviceHealthStatus) (map[string]any, error)
+}
+type commandResultService interface {
+	CompleteDeviceCommand(string, string, string, string) (domain.Operation, error)
 }
 
 type Processor struct {
@@ -154,7 +158,7 @@ func (b *Bridge) Prepare(op domain.Operation, sale domain.Sale, payment domain.P
 	if receiptSessionID == "" {
 		receiptSessionID = op.ID
 	}
-	envelope := map[string]any{"event_id": op.ID, "correlation_id": clientOperationID, "causation_id": op.ID, "operation_id": op.ID, "client_operation_id": clientOperationID, "receipt_session_id": receiptSessionID, "tenant_id": sale.TenantID, "register_id": sale.RegisterID, "device_id": sale.FiscalDevice.DeviceID, "fencing_token": sale.FiscalDevice.BindingVersion, "command_type": commandType, "issued_at": now.Format(time.RFC3339Nano), "expires_at": now.Add(2 * time.Minute).Format(time.RFC3339Nano), "payload": payload, "payload_sha256": fmt.Sprintf("%x", sum)}
+	envelope := map[string]any{"event_id": op.ID, "command_id": op.ID, "correlation_id": clientOperationID, "causation_id": op.ID, "operation_id": op.ID, "client_operation_id": clientOperationID, "receipt_session_id": receiptSessionID, "tenant_id": sale.TenantID, "register_id": sale.RegisterID, "device_id": sale.FiscalDevice.DeviceID, "fencing_token": sale.FiscalDevice.BindingVersion, "command_type": commandType, "issued_at": now.Format(time.RFC3339Nano), "expires_at": now.Add(2 * time.Minute).Format(time.RFC3339Nano), "payload": payload, "payload_sha256": fmt.Sprintf("%x", sum)}
 	chainCanonical,_:=json.Marshal(envelope);chainHash:=sha256.Sum256(chainCanonical);envelope["event_hash"]=fmt.Sprintf("%x",chainHash)
 	unsigned, _ := json.Marshal(envelope)
 	signingKey := b.signingKey
@@ -230,6 +234,22 @@ func NewProcessor(service syncService, signingKey ...string) *Processor {
 }
 
 func (p *Processor) Process(topic string, payload []byte) (string, []byte, error) {
+	if parts := commandOutcomeTopic.FindStringSubmatch(topic); len(parts) == 5 {
+		if parts[4] == "ack" { return "", nil, nil }
+		service, ok := p.service.(commandResultService)
+		if !ok { return "", nil, fmt.Errorf("device command result service unavailable") }
+		var in struct {
+			CommandID string `json:"command_id"`
+			Status string `json:"status"`
+			Result struct { FiscalReference string `json:"fiscal_reference"` } `json:"result"`
+			Error *struct { Code string `json:"code"` } `json:"error"`
+		}
+		if json.Unmarshal(payload, &in) != nil || in.CommandID != parts[3] || in.Status == "" { return "", nil, fmt.Errorf("invalid device command result") }
+		errorCode := ""
+		if in.Error != nil { errorCode = in.Error.Code }
+		if _, err := service.CompleteDeviceCommand(in.CommandID, in.Status, in.Result.FiscalReference, errorCode); err != nil { return "", nil, err }
+		return "", nil, nil
+	}
 	if parts := statusTopic.FindStringSubmatch(topic); len(parts) == 3 {
 		service, ok := p.service.(deviceHealthService)
 		if !ok {

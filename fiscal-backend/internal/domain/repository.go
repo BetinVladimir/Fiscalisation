@@ -76,7 +76,7 @@ type AuditEvent struct {
 	OccurredAt time.Time      `json:"occurred_at"`
 	Before     map[string]any `json:"before"`
 	After      map[string]any `json:"after"`
-	PrevHash   string         `json:"prev_hash,omitempty"`
+	PrevHash   string         `json:"previous_hash,omitempty"`
 	EventHash  string         `json:"event_hash"`
 }
 type Repository interface {
