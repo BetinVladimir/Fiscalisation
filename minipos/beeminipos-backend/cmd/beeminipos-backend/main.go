@@ -57,7 +57,7 @@ func main() {
 		log.Fatal(e)
 	}
 	defer authService.Close()
-	authService.ConfigureSMTP(c.SMTPHost, c.SMTPPort, c.SMTPUser, c.SMTPPassword, c.SMTPFrom)
+	authService.ConfigureSMTP(c.SMTPHost, c.SMTPPort, c.SMTPUser, c.SMTPPassword, c.SMTPFrom, c.SMTPAllowPlaintext)
 	var fiscalClient *fiscalintegration.Client
 	if c.DatabaseURL != "" && c.FiscalSystemToken != "" && c.FiscalCredentialEncryptionKeyBase64 != "" {
 		fiscalClient, e = fiscalintegration.New(c.DatabaseURL, c.FiscalBaseURL, c.FiscalSystemToken, c.FiscalCredentialEncryptionKeyBase64, c.FiscalCredentialKEKID)

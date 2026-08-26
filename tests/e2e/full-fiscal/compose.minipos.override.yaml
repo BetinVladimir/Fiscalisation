@@ -7,6 +7,7 @@ services:
       SMTP_USER: ""
       SMTP_PASSWORD: ""
       SMTP_FROM: e2e-minipos@beeloy.test
+      SMTP_ALLOW_PLAINTEXT: "true"
       FISCAL_PUBLIC_BASE_URL: http://host.docker.internal:18000/public/v1
       FISCAL_SYSTEM_TOKEN: "${E2E_FISCAL_SYSTEM_TOKEN}"
       FISCAL_CREDENTIAL_ENCRYPTION_KEY_BASE64: "${E2E_CREDENTIAL_KEY}"

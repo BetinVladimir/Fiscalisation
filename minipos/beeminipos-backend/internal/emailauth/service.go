@@ -29,6 +29,7 @@ type Service struct {
 	app                                        *domain.Service
 	smtpHost, smtpUser, smtpPassword, smtpFrom string
 	smtpPort                                   int
+	smtpPlaintext                              bool
 }
 
 type Tokens struct {
@@ -65,12 +66,13 @@ func New(ctx context.Context, databaseURL, signingKey, issuer string, app *domai
 	return &Service{db: db, secret: []byte(signingKey), issuer: issuer, app: app}, nil
 }
 
-func (s *Service) ConfigureSMTP(host string, port int, user, password, from string) {
+func (s *Service) ConfigureSMTP(host string, port int, user, password, from string, allowPlaintext bool) {
 	s.smtpHost = host
 	s.smtpPort = port
 	s.smtpUser = user
 	s.smtpPassword = password
 	s.smtpFrom = from
+	s.smtpPlaintext = allowPlaintext
 }
 func (s *Service) RunEmailWorker(ctx context.Context) {
 	ticker := time.NewTicker(time.Second)
@@ -106,7 +108,15 @@ func (s *Service) deliverOne(ctx context.Context) error {
 	}
 	message := []byte("From: " + s.smtpFrom + "\r\nTo: " + to + "\r\nSubject: " + subject + "\r\nContent-Type: text/plain; charset=UTF-8\r\n\r\n" + body)
 	addr := s.smtpHost + ":" + strconv.Itoa(s.smtpPort)
-	e = s.sendMailTLS(addr, s.smtpHost, s.smtpUser, s.smtpPassword, s.smtpFrom, to, message)
+	if s.smtpPlaintext {
+		var auth smtp.Auth
+		if s.smtpUser != "" {
+			auth = smtp.PlainAuth("", s.smtpUser, s.smtpPassword, s.smtpHost)
+		}
+		e = smtp.SendMail(addr, auth, s.smtpFrom, []string{to}, message)
+	} else {
+		e = s.sendMailTLS(addr, s.smtpHost, s.smtpUser, s.smtpPassword, s.smtpFrom, to, message)
+	}
 	if e != nil {
 		_, _ = s.db.Exec(ctx, `update minipos_email_outbox set status='FAILED',attempts=attempts+1,available_at=now()+least(interval '1 hour',interval '30 seconds'*(attempts+1)),lease_until=null,last_error=$2,updated_at=now() where id=$1`, id, e.Error())
 		return e

@@ -13,6 +13,8 @@ services:
       SMTP_USER: ""
       SMTP_PASSWORD: ""
       SMTP_FROM: e2e-fiscal@beeloy.test
+      INTEGRATION_SECRET_PEPPER: full-e2e-integration-pepper-32bx
+      INTEGRATION_ENCRYPTION_KEY_BASE64: MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=
       EMQX_BROKER: ""
       SIMULATOR_CARD_TERMINAL_AVAILABLE: "true"
   caddy:
