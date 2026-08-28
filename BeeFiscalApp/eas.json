@@ -1,0 +1,1 @@
+{"cli":{"version":">= 5.9.3"},"build":{"demo":{"distribution":"internal","channel":"demo","env":{"APP_VARIANT":"demo","EXPO_PUBLIC_FISCAL_API_URL":"https://demo-api.beeloy.org/public/v1"}},"production":{"distribution":"store","channel":"production","env":{"APP_VARIANT":"production","EXPO_PUBLIC_FISCAL_API_URL":"https://api.beeloy.org/public/v1"}}},"submit":{"production":{}}}

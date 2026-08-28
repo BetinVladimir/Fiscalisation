@@ -10,6 +10,7 @@ import {
   View,
 } from "react-native";
 import { usePlatformOidc } from "./src/usePlatformOidc";
+import Constants from "expo-constants";
 type Device = {
   id: string;
   serial: string;
@@ -37,7 +38,10 @@ const base = (
 // Platform Admin owns the inventory before a device is assigned to a tenant.
 // Transitions carry idempotency and optimistic-version guards so concurrent
 // administrators cannot silently overwrite an activation or binding decision.
-export default function App() {
+export default function App() { return <View style={{flex:1}}><AppContent/><DemoBadge/></View>; }
+function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
+const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:"#c62828",borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:"#fff",fontWeight:"900",fontSize:12,letterSpacing:1}});
+function AppContent() {
   const oidc = usePlatformOidc();
   const [items, setItems] = useState<Device[]>([]),
     [selected, setSelected] = useState<Device | null>(null),

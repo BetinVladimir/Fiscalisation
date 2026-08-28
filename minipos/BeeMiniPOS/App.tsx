@@ -48,6 +48,7 @@ import {
   FiscalRegisterResource,
   resolveFiscalDeviceId,
 } from "./src/fiscalDeviceResolution";
+import Constants from "expo-constants";
 configureRandomSource(getRandomBytes);
 
 // BeeMiniPOS is intentionally thin: it owns cart presentation and surrogate
@@ -297,7 +298,10 @@ async function fiscalCloudReachable(path: string): Promise<boolean> {
 
 type ThemePreference = "system" | "light" | "dark";
 const themePreferenceKey = "beeminipos.theme.preference";
-export default function App() {
+export default function App() { return <View style={{flex:1}}><AppContent/><DemoBadge/></View>; }
+function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
+const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:"#c62828",borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:"#fff",fontWeight:"900",fontSize:12,letterSpacing:1}});
+function AppContent() {
   const systemScheme = useColorScheme();
   const [themePreference, setThemePreference] =
     useState<ThemePreference>("system");

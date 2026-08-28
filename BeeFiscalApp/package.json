@@ -15,9 +15,11 @@
   "dependencies": {
     "@expo/metro-runtime": "~5.0.4",
     "expo": "~53.0.0",
+    "expo-constants": "~17.1.8",
     "expo-crypto": "~14.1.5",
     "expo-secure-store": "~14.2.3",
     "expo-status-bar": "~2.0.0",
+    "expo-updates": "~0.28.18",
     "postcss": "8.5.23",
     "react": "19.0.0",
     "react-dom": "19.0.0",

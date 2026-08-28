@@ -18,6 +18,7 @@ import {
   registerResourcePath,
 } from "./src/registerFilter";
 import { useEmailOtpAuth } from "./src/emailOtpAuth";
+import Constants from "expo-constants";
 
 const base = (
   process.env.EXPO_PUBLIC_FISCAL_API_URL || "http://localhost:8080/public/v1"
@@ -69,7 +70,10 @@ const collect = (path: string) =>
 const label = (v: unknown) =>
   typeof v === "string" ? v : typeof v === "number" ? String(v) : "—";
 
-export default function App() {
+export default function App() { return <View style={{flex:1}}><AppContent/><DemoBadge/></View>; }
+function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
+const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:"#c62828",borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:"#fff",fontWeight:"900",fontSize:12,letterSpacing:1}});
+function AppContent() {
   // Token roles are reduced to explicit UI capabilities. The backend remains
   // authoritative; these guards prevent presenting accidental admin paths.
   const oidc = useEmailOtpAuth();
