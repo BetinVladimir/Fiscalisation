@@ -219,4 +219,5 @@ replay=$(curl -fsS -X POST http://localhost:19002/beeloy/local/v1/intents -H 'Au
 [ "$(printf '%s' "$blue" | jq -r .operation_id)" = "$(printf '%s' "$replay" | jq -r .operation_id)" ]
 
 printf '%s\n' '[8/8] Все полные E2E проверки пройдены'
+E2E_CONCURRENCY_URLS="$fiscal_base/healthz,$mini_base/healthz" node "$root/tests/e2e/concurrent-gate.mjs"
 printf 'company_id=%s fiscal_tenant_id=%s email=%s\n' "$company_id" "$tenant_id" "$email"
