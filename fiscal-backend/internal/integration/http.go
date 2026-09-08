@@ -192,7 +192,7 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNoContent)
 		return
 	}
-	if strings.HasPrefix(path, "/platform/v1/external-systems") || strings.HasPrefix(path, "/platform/v1/webhook-deliveries/") || strings.HasPrefix(path, "/platform/v1/enrollment-conflicts") || path == "/platform/v1/integration-metrics" {
+	if strings.HasPrefix(path, "/platform/v1/external-systems") || strings.HasPrefix(path, "/platform/v1/webhook-deliveries/") || strings.HasPrefix(path, "/platform/v1/enrollment-conflicts") || path == "/platform/v1/integration-metrics" || path == "/platform/v1/tenants" {
 		h.platform(w, r, path)
 		return
 	}
@@ -380,6 +380,15 @@ func (h *HTTPHandler) platform(w http.ResponseWriter, r *http.Request, path stri
 		return
 	}
 	base := "/platform/v1/external-systems"
+	if path == "/platform/v1/tenants" && r.Method == http.MethodGet {
+		items, e := h.Service.PlatformTenants(r.Context())
+		if e != nil {
+			writeError(w, e)
+			return
+		}
+		writeJSON(w, http.StatusOK, map[string]any{"items": items})
+		return
+	}
 	if path == "/platform/v1/integration-metrics" && r.Method == http.MethodGet {
 		out, e := h.Service.IntegrationMetrics(r.Context())
 		if e != nil {

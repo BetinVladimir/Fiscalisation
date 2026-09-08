@@ -762,14 +762,7 @@ function AppContent() {
           ) : null}
           <View style={s.toolbar}>
             <Text style={s.section}>{tab}</Text>
-            <TextInput
-              accessibilityLabel="Fiscal register ID"
-              value={register}
-              onChangeText={setRegister}
-              style={s.input}
-              placeholder="Register ID"
-              autoCapitalize="characters"
-            />
+            <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>changeTab("Администриране")}/>
             <Pressable
               accessibilityRole="button"
               accessibilityLabel={`Обнови ${tab}`}
@@ -847,12 +840,7 @@ function AppContent() {
                 </View>
                 {canIssueBleSession ? (
                   <>
-                    <Field
-                      label="Operator ID за BLE"
-                      value={operatorId}
-                      onChangeText={setOperatorId}
-                      testID="ble-operator-id"
-                    />
+                    <ReferencePicker label="Оператор за BLE" items={adminLists.operators} value={operatorId} labelFor={(x)=>`${label(x.operator_code)} ${label(x.first_name)} ${label(x.last_name)}`} onSelect={setOperatorId} onEmpty={()=>changeTab("Администриране")}/>
                     <Field
                       label="Подготвен X25519 client public key"
                       value={blePublicKey}
@@ -895,18 +883,8 @@ function AppContent() {
                         {JSON.stringify(activationRequest, null, 2)}
                       </Text>
                     ) : null}
-                    <Field
-                      label="Търговска точка (location UUID)"
-                      value={activationLocationId}
-                      onChangeText={setActivationLocationId}
-                      testID="bluecash-location-id"
-                    />
-                    <Field
-                      label="Касово място (register UUID)"
-                      value={register}
-                      onChangeText={setRegister}
-                      testID="smart-device-register-id"
-                    />
+                    <ReferencePicker label="Търговска точка" items={adminLists.locations} value={activationLocationId} labelFor={(x)=>label(x.name || x.code)} onSelect={setActivationLocationId} onEmpty={()=>changeTab("Администриране")}/>
+                    <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>changeTab("Администриране")}/>
                     <Action
                       testID="bluecash-activate"
                       label="Потвърди и привържи устройството"
@@ -1215,12 +1193,7 @@ function AppContent() {
                     setLocationId(label(x.location_id));
                   }}
                 />
-                <Field
-                  label="ID на точката"
-                  value={locationId}
-                  onChangeText={setLocationId}
-                  testID="admin-register-location"
-                />
+                <ReferencePicker label="Търговска точка" items={adminLists.locations} value={locationId} labelFor={(x)=>label(x.name || x.code)} onSelect={setLocationId} onEmpty={()=>setMessage("Първо създайте търговска точка в картата по-горе.")}/>
                 <Field
                   label="Код на касата"
                   value={registerCode}
@@ -1645,12 +1618,7 @@ function AppContent() {
                 })()}
               </AdminCard>
               <AdminCard title="Привързване към касата" count={0}>
-                <Field
-                  label="Register ID"
-                  value={register}
-                  onChangeText={setRegister}
-                  testID="admin-binding-register"
-                />
+                <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>setMessage("Първо създайте касово място.")}/>
                 <View style={s.actions}>
                   <Action
                     label="Роля ФУ"
@@ -1665,12 +1633,7 @@ function AppContent() {
                     onPress={() => setBindingRole("OPTIONAL_PAYMENT_TERMINAL")}
                   />
                 </View>
-                <Field
-                  label="Device ID"
-                  value={deviceId}
-                  onChangeText={setDeviceId}
-                  testID="admin-binding-device"
-                />
+                <ReferencePicker label="Устройство" items={adminLists.devices} value={deviceId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setDeviceId} onEmpty={()=>setMessage("Първо създайте устройство.")}/>
                 <Action
                   label="Привържи ФУ"
                   disabled={adminBusy || !isRegisterId(register)}
@@ -1702,24 +1665,9 @@ function AppContent() {
                     />
                   ))}
                 </View>
-                <Field
-                  label="Adapter device ID"
-                  value={adapterDeviceId}
-                  onChangeText={setAdapterDeviceId}
-                  testID="composite-adapter-device"
-                />
-                <Field
-                  label="Fiscal endpoint ID"
-                  value={fiscalEndpointId}
-                  onChangeText={setFiscalEndpointId}
-                  testID="composite-fiscal-device"
-                />
-                <Field
-                  label="Payment endpoint ID (optional)"
-                  value={paymentEndpointId}
-                  onChangeText={setPaymentEndpointId}
-                  testID="composite-payment-device"
-                />
+                <ReferencePicker label="Адаптер" items={adminLists.devices} value={adapterDeviceId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setAdapterDeviceId} onEmpty={()=>setMessage("Първо създайте устройство-адаптер.")}/>
+                <ReferencePicker label="Фискално устройство" items={adminLists.devices.filter((x)=>x.kind === "FISCAL_DEVICE")} value={fiscalEndpointId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setFiscalEndpointId} onEmpty={()=>setMessage("Първо създайте фискално устройство.")}/>
+                <ReferencePicker label="Платежен терминал (незадължително)" items={adminLists.devices.filter((x)=>x.kind === "PAYMENT_TERMINAL")} value={paymentEndpointId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setPaymentEndpointId} required={false}/>
                 <Field
                   label="Expected register version"
                   value={expectedRegisterVersion}
@@ -1871,6 +1819,12 @@ function AdminCard({
       {children}
     </View>
   );
+}
+
+function ReferencePicker({label: title,items,value,labelFor,onSelect,onEmpty,required=true}:{label:string;items:Item[];value:string;labelFor:(item:Item)=>string;onSelect:(id:string)=>void;onEmpty?:()=>void;required?:boolean}) {
+  const [query,setQuery]=useState("");
+  const visible=items.filter((item)=>labelFor(item).toLowerCase().includes(query.trim().toLowerCase()));
+  return <View style={{gap:8,minWidth:220}}><Text style={s.meta}>{title}</Text>{items.length?<><TextInput accessibilityLabel={`Търсене: ${title}`} style={s.input} placeholder={`Търсене: ${title}`} value={query} onChangeText={setQuery}/><View style={s.choices}>{visible.map((item)=><Pressable key={label(item.id)} accessibilityRole="button" accessibilityState={{selected:item.id===value}} style={[s.choice,item.id===value&&s.selected]} onPress={()=>onSelect(label(item.id))}><Text style={s.meta}>{labelFor(item)}</Text></Pressable>)}</View>{!visible.length?<Text style={s.meta}>Няма съвпадения.</Text>:null}</>:<><Text style={s.meta}>{required?"Справочникът е празен.":"Няма налични записи."}</Text>{required&&onEmpty?<Pressable accessibilityRole="button" style={s.secondary} onPress={onEmpty}><Text style={s.probeText}>Попълни справочника</Text></Pressable>:null}</>}</View>;
 }
 
 function Choices({

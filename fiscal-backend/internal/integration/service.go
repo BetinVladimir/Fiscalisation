@@ -380,6 +380,9 @@ func (s *Service) SystemAudit(ctx context.Context, systemID string) ([]map[strin
 func (s *Service) SystemBindings(ctx context.Context, systemID string) ([]map[string]any, error) {
 	return s.queryObjects(ctx, `select jsonb_build_object('id',id,'tenant_id',tenant_id,'source_company_id',source_company_id,'tax_country',tax_country,'tax_type',tax_type,'tax_identifier',tax_normalized_value,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at) from tenant_source_bindings where external_system_id=$1 order by created_at desc limit 500`, systemID)
 }
+func (s *Service) PlatformTenants(ctx context.Context) ([]map[string]any, error) {
+	return s.queryObjects(ctx, `select jsonb_build_object('id',tenant_id,'name',coalesce(source_metadata->>'legal_name',source_metadata->>'name',source_company_id),'source_company_id',source_company_id,'status',status) from tenant_source_bindings where status='ACTIVE' and $1::text is null order by coalesce(source_metadata->>'legal_name',source_metadata->>'name',source_company_id)`, nil)
+}
 func (s *Service) SystemDeliveries(ctx context.Context, systemID string) ([]map[string]any, error) {
 	return s.queryObjects(ctx, `select jsonb_build_object('id',d.id,'event_id',d.event_id,'tenant_id',d.tenant_id,'event_type',d.event_type,'status',d.status,'attempts',d.attempts,'next_attempt_at',d.next_attempt_at,'last_http_status',d.last_http_status,'last_error_code',d.last_error_code,'last_error_detail',d.last_error_detail,'delivered_at',d.delivered_at,'created_at',d.created_at,'attempt_history',coalesce((select jsonb_agg(to_jsonb(a) order by a.attempt_number) from webhook_delivery_attempts a where a.delivery_id=d.id),'[]'::jsonb)) from webhook_deliveries d where d.external_system_id=$1 order by d.created_at desc limit 500`, systemID)
 }

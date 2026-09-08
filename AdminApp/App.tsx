@@ -32,6 +32,7 @@ type ExternalSystem = {
   webhook_events: string[];
   version: number;
 };
+type TenantReference = {id:string;name:string;source_company_id?:string;status:string};
 const base = (
   process.env.EXPO_PUBLIC_PLATFORM_API_URL || "http://localhost:8080"
 ).replace(/\/$/, "");
@@ -48,6 +49,8 @@ function AppContent() {
     [state, setState] = useState(""),
     [serial, setSerial] = useState(""),
     [tenant, setTenant] = useState(""),
+    [tenants, setTenants] = useState<TenantReference[]>([]),
+    [tenantSearch, setTenantSearch] = useState(""),
     [reason, setReason] = useState(""),
     [message, setMessage] = useState("Authenticate with platform identity"),
     [busy, setBusy] = useState(false),
@@ -84,7 +87,8 @@ function AppContent() {
       const q = new URLSearchParams();
       if (state) q.set("state", state);
       if (serial) q.set("serial", serial);
-      const result = await api(`/platform/v1/devices?${q}`);
+      const [result,tenantResult] = await Promise.all([api(`/platform/v1/devices?${q}`),api("/platform/v1/tenants")]);
+      setTenants(tenantResult.items || []);
       setItems(result.items || []);
       setSelected(
         (old) =>
@@ -268,12 +272,7 @@ function AppContent() {
             <Text>
               State: {selected.state} · binding v{selected.binding_version}
             </Text>
-            <TextInput
-              style={s.input}
-              placeholder="Tenant ID"
-              value={tenant}
-              onChangeText={setTenant}
-            />
+            {tenants.length ? <View><TextInput style={s.input} placeholder="Search company" value={tenantSearch} onChangeText={setTenantSearch}/>{tenants.filter(x=>`${x.name} ${x.source_company_id || ""}`.toLowerCase().includes(tenantSearch.toLowerCase())).map(x=><Pressable key={x.id} style={[s.card,tenant===x.id&&s.selected]} onPress={()=>setTenant(x.id)}><Text style={s.serial}>{x.name}</Text>{x.source_company_id?<Text>{x.source_company_id}</Text>:null}</Pressable>)}</View> : <View><Text>No companies are available.</Text><Button label="Open company enrollment" onPress={()=>setSection("integrations")} disabled={busy}/></View>}
             <TextInput
               style={s.input}
               placeholder="Mandatory reason"

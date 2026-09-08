@@ -2,6 +2,7 @@ import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   Image,
+  Linking,
   Platform,
   Pressable,
   SafeAreaView,
@@ -247,6 +248,8 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
 }
 const collect = <T,>(path: string) =>
   collectCursorPages<T>(path, (p) => call(p));
+const collectFiscal = <T,>(path: string) =>
+  collectCursorPages<T>(path, (p) => fiscalCall(p));
 async function fiscalCall<T>(path: string, init: RequestInit = {}): Promise<T> {
   const method = (init.method || "GET").toUpperCase();
   const idempotencyKey =
@@ -297,6 +300,7 @@ async function fiscalCloudReachable(path: string): Promise<boolean> {
 }
 
 type ThemePreference = "system" | "light" | "dark";
+type FiscalRegisterReference = {id:string;code?:string;name?:string;status?:string};
 const themePreferenceKey = "beeminipos.theme.preference";
 export default function App() { return <View style={{flex:1}}><AppContent/><DemoBadge/></View>; }
 function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
@@ -390,6 +394,7 @@ function MiniPosApp({
     [locationAddress, setLocationAddress] = useState(""),
     [workstationName, setWorkstationName] = useState("Каса 01"),
     [configuredRegister, setConfiguredRegister] = useState(registerId),
+    [fiscalRegisters, setFiscalRegisters] = useState<FiscalRegisterReference[]>([]),
     [selectedEmployeeId, setSelectedEmployeeId] = useState(""),
     [operatorEmployee, setOperatorEmployee] = useState<Employee | null>(null),
     [salesReport, setSalesReport] = useState<SalesReport | null>(null);
@@ -546,11 +551,13 @@ function MiniPosApp({
         prodMode && !privileged
           ? Promise.resolve(session ? [session.employee] : [])
           : collect<Employee>("/employees");
-      const [p, groups, e] = await Promise.all([
+      const [p, groups, e, registers] = await Promise.all([
         collect<Product>("/products"),
         collect<TaxGroup>("/tax-groups"),
         employeeRequest,
+        collectFiscal<FiscalRegisterReference>("/registers"),
       ]);
+      setFiscalRegisters(registers.filter((x) => !x.status || x.status === "ACTIVE"));
       setProducts(p.filter((x) => x.active));
       setTaxGroups(groups);
       setPTaxGroup((current) => current || groups.find((group) => group.status === "ACTIVE")?.code || "");
@@ -1486,6 +1493,7 @@ function MiniPosApp({
           employees={employees}
           selectedEmployeeId={selectedEmployee?.id || ""}
           salesReport={salesReport}
+          fiscalRegisters={fiscalRegisters}
           values={{
             pName,
             pPrice,
@@ -1868,6 +1876,13 @@ function LanguageMenu({
   );
 }
 
+function ReferenceChoices({items,value,onChange,emptyLabel,onEmpty}:{items:FiscalRegisterReference[];value:string;onChange:(value:string)=>void;emptyLabel:string;onEmpty:()=>void}) {
+  const [query,setQuery]=useState("");
+  const visible=items.filter((item)=>`${item.code || ""} ${item.name || ""}`.toLowerCase().includes(query.trim().toLowerCase()));
+  if (!items.length) return <View style={s.stackCompact}><Text>{emptyLabel}</Text><Pressable style={s.adminButton} onPress={onEmpty}><Text>Заполнить справочник кассовых мест</Text></Pressable></View>;
+  return <View style={s.stackCompact}><TextInput style={s.search} placeholder="Поиск кассового места" value={query} onChangeText={setQuery}/>{visible.map((item)=><Pressable key={item.id} style={[s.card,item.id===value&&s.selectedCard]} onPress={()=>onChange(item.id)}><Text style={s.payText}>{item.code || item.name || "Кассовое место"}</Text></Pressable>)}{!visible.length?<Text>Совпадений нет.</Text>:null}</View>;
+}
+
 function Admin({
   compact,
   production,
@@ -1876,6 +1891,7 @@ function Admin({
   employees,
   selectedEmployeeId,
   salesReport,
+  fiscalRegisters,
   values,
   setters,
   createProduct,
@@ -2009,11 +2025,12 @@ function Admin({
           value={values.workstationName}
           onChangeText={setters.setWorkstationName}
         />
-        <TextInput
-          style={s.search}
-          placeholder={text.fiscalRegisterId}
+        <ReferenceChoices
+          items={fiscalRegisters}
           value={values.configuredRegister}
-          onChangeText={setters.setConfiguredRegister}
+          onChange={setters.setConfiguredRegister}
+          emptyLabel="Нет доступных кассовых мест."
+          onEmpty={() => void Linking.openURL(process.env.EXPO_PUBLIC_BEEFISCAL_ADMIN_URL || "beefiscal://admin/registers")}
         />
         <Pressable
           testID="config-save"

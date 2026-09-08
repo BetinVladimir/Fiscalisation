@@ -189,6 +189,7 @@ func newHandler(s *domain.Service, c config.Config, integrationHandler http.Hand
 	m.HandleFunc("/platform/v1/devices", h.platformDevices)
 	m.HandleFunc("/platform/v1/devices/", h.platformDevice)
 	if integrationHandler != nil {
+		m.Handle("/platform/v1/tenants", integrationHandler)
 		m.Handle("/platform/v1/external-systems", integrationHandler)
 		m.Handle("/platform/v1/external-systems/", integrationHandler)
 		m.Handle("/platform/v1/webhook-deliveries/", integrationHandler)
