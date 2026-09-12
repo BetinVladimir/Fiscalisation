@@ -42,3 +42,5 @@ SmartDevices/*/build/
 .DS_Store
 .vscode/
 **/tmp/*
+
+login.sh
