@@ -100,7 +100,7 @@ components:
       required: [payment_id, type, amount]
       properties:
         payment_id: {type: string, format: uuid}
-        type: {type: string, enum: [CASH, CARD]}
+        type: {type: string, enum: [CASH, CARD, CHEQUE, VOUCHER, DEFERRED, NHIF, INTERNAL_CONSUMPTION, COUPON]}
         amount: {$ref: '#/components/schemas/Money'}
     FiscalIntent:
       type: object

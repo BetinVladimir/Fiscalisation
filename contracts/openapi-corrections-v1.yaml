@@ -109,7 +109,7 @@ actions:
         name: {type: string, minLength: 1}
         unit: {type: string, default: pcs}
         price: {$ref: '#/components/schemas/Money'}
-        tax_group: {type: string, enum: [A, B, C, D, E, F, G, H]}
+        tax_group: {type: string, enum: [A, B, C, D]}
         status: {type: string, enum: [ACTIVE, INACTIVE], default: ACTIVE}
   - target: $.paths['/minipos/products/{product_id}'].patch.requestBody.content['application/json'].schema
     description: Define the full MiniPOS product replacement without server-owned metadata.

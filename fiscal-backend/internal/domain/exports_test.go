@@ -58,7 +58,14 @@ func TestComplianceExportsJSONCSVAndXLSX(t *testing.T) {
 					}
 				}
 			}
-			for _, evidence := range []string{"0.20", "0.80", "tax_group", "CASH", "lines", "sale_id"} {
+			evidence := []string{"system_sale_id"}
+			if exportType == "SUPTO_18_9" {
+				evidence = []string{"catalog", "PAYMENT_TYPE", "PRODUCT"}
+			}
+			if format == "JSON" {
+				evidence = append(evidence, "0.20", "0.80", "tax_group", "CASH", "lines")
+			}
+			for _, evidence := range evidence {
 				if !bytes.Contains(b, []byte(evidence)) {
 					t.Fatalf("%s export lost detailed sale evidence %q: %s", format, evidence, b)
 				}
@@ -81,6 +88,54 @@ func TestExportRejectsInvalidRangeAndFormat(t *testing.T) {
 	boundary := time.Now().UTC()
 	if _, err := s.CreateExport(ExportRequest{Type: "SUPTO_18_1", From: boundary, To: boundary, Format: "JSON"}, "tenant-1"); err == nil {
 		t.Fatal("zero-width export interval accepted")
+	}
+}
+
+func TestXLSXColumnNameBeyondZ(t *testing.T) {
+	for index, want := range map[int]string{0: "A", 25: "Z", 26: "AA", 27: "AB", 51: "AZ", 52: "BA"} {
+		if got := xlsxColumnName(index); got != want {
+			t.Fatalf("xlsxColumnName(%d) = %q, want %q", index, got, want)
+		}
+	}
+}
+
+func TestAnnex29ExportHeadersAreFieldComplete(t *testing.T) {
+	want := map[string][]string{
+		"SUPTO_18_1": {"unp", "system_sale_id", "location_code", "location_name", "opened_date", "opened_time", "workstation_code", "operator_code", "net_amount", "discount_amount", "vat_amount", "amount_due", "invoice_number", "invoice_date", "completed_date", "completed_time", "customer_code", "customer_name"},
+		"SUPTO_18_2": {"unp", "system_sale_id", "opened_date", "completed_date", "sale_total", "payment_date", "operator_code", "paid_amount", "payment_type", "fiscal_device_number"},
+		"SUPTO_18_3": {"unp", "system_sale_id", "product_code", "product_name", "quantity", "unit_net_price", "discount_amount", "vat_rate", "vat_amount", "gross_amount", "period_from", "period_to"},
+		"SUPTO_18_4": {"unp", "system_sale_id", "product_code", "product_name", "quantity", "unit_net_price", "discount_amount", "vat_rate", "vat_amount", "gross_amount", "completed_date", "completed_time", "reversed_date", "reversed_time", "fiscal_device_number", "operator_code"},
+		"SUPTO_18_5": {"unp", "system_sale_id", "product_code", "product_name", "quantity", "unit_net_price", "discount_amount", "vat_rate", "vat_amount", "gross_amount", "opened_date", "opened_time", "cancelled_date", "cancelled_time", "operator_code"},
+		"SUPTO_18_6": {"record_id", "delivery_date", "delivery_time", "operator_code", "supplier_code", "supplier_name", "invoice_number", "invoice_date", "net_amount", "discount_amount", "vat_amount", "gross_amount", "payment_type"},
+		"SUPTO_18_7": {"record_id", "product_code", "product_name", "quantity", "unit_price", "discount_amount", "vat_amount", "gross_amount"},
+		"SUPTO_18_8": {"product_code", "product_name", "opening_quantity", "opening_value", "debit_quantity", "debit_value", "credit_quantity", "credit_value", "closing_quantity", "closing_value"},
+		"SUPTO_18_9": {"catalog", "code", "name", "configured_at", "changed_at", "deactivated_at", "details"},
+	}
+	for exportType, expected := range want {
+		headers, _ := normativeExportTable(exportType, nil)
+		if fmt.Sprint(headers) != fmt.Sprint(expected) {
+			t.Fatalf("%s headers = %v, want %v", exportType, headers, expected)
+		}
+	}
+}
+
+func TestAnnex29TaxCalculationsCoverAllTaxGroups(t *testing.T) {
+	for _, tc := range []struct{ group, net, vat string }{{"A", "120.00", "0.00"}, {"B", "100.00", "20.00"}, {"C", "100.00", "20.00"}, {"D", "110.09", "9.91"}} {
+		line := SaleLine{LineID: "line", Name: "Item", Quantity: "1.000", UnitPrice: Money{Amount: "120.00", Currency: "EUR"}, TaxGroup: tc.group}
+		net, _, _, vat, gross := exportLineAmounts(line)
+		if net != tc.net || vat != tc.vat || gross != "120.00" {
+			t.Fatalf("group %s: net=%s vat=%s gross=%s", tc.group, net, vat, gross)
+		}
+	}
+}
+
+func TestAnnex29ReversalExportKeepsBothLifecycleTimes(t *testing.T) {
+	completed := "2026-09-11T10:00:00Z"
+	reversed := "2026-09-11T11:30:00Z"
+	row := exportRow{UNP: "DY000001-A001-0000001", SaleID: "sale-1", State: "CANCELLED", FiscalOperationID: "op-sale", CompletedAt: completed, ReversedAt: reversed, OperatorCode: "A001", FiscalDevice: FiscalDeviceSnapshot{FiscalDeviceNumber: "DY000001"}, Lines: []SaleLine{{LineID: "line-1", Name: "Item", Quantity: "1.000", UnitPrice: Money{Amount: "12.00", Currency: "EUR"}, TaxGroup: "B"}}}
+	_, records := normativeExportTable("SUPTO_18_4", []exportRow{row})
+	if len(records) != 1 || records[0][10] != "2026-09-11" || records[0][11] != "10:00:00" || records[0][12] != "2026-09-11" || records[0][13] != "11:30:00" {
+		t.Fatalf("completion/reversal timestamps collapsed: %#v", records)
 	}
 }
 

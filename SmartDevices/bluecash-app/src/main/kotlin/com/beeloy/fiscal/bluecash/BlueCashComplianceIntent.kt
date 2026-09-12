@@ -195,7 +195,7 @@ class BlueCashComplianceIntentExecutor(
     require(sale.lines.isNotEmpty()) { "SALE_EMPTY" }
     val payment = intent["payment"] as? Map<*, *> ?: error("PAYMENT_REQUIRED")
     val type = text(payment, "type")
-    require(type == "CASH" || type == "CARD") { "PAYMENT_TYPE" }
+    require(type in supportedPaymentTypes) { "PAYMENT_TYPE" }
     val amount = money(payment["amount"])
     val total = sale.lines.fold(BigDecimal.ZERO) { sum, line -> sum + net(line.fiscal) }
     require(amount.compareTo(total) == 0) { "PAYMENT_TOTAL_MISMATCH" }
@@ -409,12 +409,15 @@ class BlueCashComplianceIntentExecutor(
   private fun payment(raw: Any?): SalePayment {
     val v = raw as? Map<*, *> ?: error("PAYMENT_REQUIRED")
     val type = text(v, "type")
-    require(type == "CASH" || type == "CARD") { "PAYMENT_TYPE" }
+    require(type in supportedPaymentTypes) { "PAYMENT_TYPE" }
     return SalePayment(text(v, "payment_id"), type, money(v["amount"]).setScale(2).toPlainString())
   }
   private fun net(line: FiscalLine): BigDecimal =
     BigDecimal(line.unitPrice) * BigDecimal(line.quantity) -
       (if (line.discountType == 4) BigDecimal(line.discountValue) else BigDecimal.ZERO)
+
+  private val supportedPaymentTypes =
+    setOf("CASH", "CARD", "CHEQUE", "VOUCHER", "DEFERRED", "NHIF", "INTERNAL_CONSUMPTION", "COUPON")
   private fun reason(value: String) =
     when (value) {
       "OPERATOR_ERROR" -> 0

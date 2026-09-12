@@ -22,6 +22,24 @@ func TestReceiptSagaReservationIsIdempotentAndDigestBound(t *testing.T) {
 		t.Fatal("payload conflict accepted")
 	}
 }
+
+func TestValidateReceiptPlanRejectsUnsupportedPaymentType(t *testing.T) {
+	plan := sagaPlan()
+	plan.Payments[0].Type = "INVALID"
+	if err := ValidateReceiptPlan(plan); err == nil {
+		t.Fatal("unsupported payment type accepted")
+	}
+}
+
+func TestValidateReceiptPlanAcceptsUniversalPaymentCatalog(t *testing.T) {
+	for _, paymentType := range []string{"CASH", "CARD", "CHEQUE", "VOUCHER", "DEFERRED", "NHIF", "INTERNAL_CONSUMPTION", "COUPON"} {
+		plan := sagaPlan()
+		plan.Payments[0].Type = paymentType
+		if err := ValidateReceiptPlan(plan); err != nil {
+			t.Fatalf("%s rejected: %v", paymentType, err)
+		}
+	}
+}
 func TestReceiptSagaHappyAndRecoveryTransitions(t *testing.T) {
 	s := NewMemoryReceiptSagaStore()
 	p := sagaPlan()

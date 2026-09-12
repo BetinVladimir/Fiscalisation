@@ -286,6 +286,7 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 		if event.EventType == "REVERSED" {
 			op.State = "FISCALIZED"
 			sale.State = "CANCELLED"
+			sale.ReversedAt = &finishedAt
 		} else if event.EventType == "FAILED" {
 			sale.State = "COMPLETED"
 		} else {
@@ -320,10 +321,12 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 		switch state {
 		case "FISCALIZED":
 			sale.State = "COMPLETED"
+			sale.CompletedAt = &finishedAt
 			sale.FiscalOperationID = op.ID
 			op.FiscalReference = ref
 		case "COMPENSATED":
 			sale.State = "CANCELLED"
+			sale.CancelledAt = &finishedAt
 			op.State = "COMPENSATED"
 		case "FAILED":
 			sale.State = "OPEN"
@@ -366,7 +369,7 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 	seenPayments := map[string]bool{}
 	for _, payment := range payload.Payments {
 		amount, amountErr := parseFixed(payment.Amount.Amount, 2)
-		if payment.PaymentID == "" || seenPayments[payment.PaymentID] || !validMoney(payment.Amount) || amountErr != nil || amount <= 0 || !contains([]string{"CASH", "CARD"}, payment.Type) {
+		if payment.PaymentID == "" || seenPayments[payment.PaymentID] || !validMoney(payment.Amount) || amountErr != nil || amount <= 0 || !supportedPaymentType(payment.Type) {
 			return Sale{}, Operation{}, "", nil, OutboxItem{}, errors.New("invalid offline payment")
 		}
 		seenPayments[payment.PaymentID] = true
@@ -383,6 +386,7 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 	var artifact []byte
 	if state == "FISCALIZED" && ref != "" {
 		sale.State = "COMPLETED"
+		sale.CompletedAt = &finishedAt
 		artifactID, err = newUUID()
 		if err != nil {
 			return Sale{}, Operation{}, "", nil, OutboxItem{}, err
@@ -391,6 +395,7 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 		artifact, _ = json.Marshal(map[string]any{"sale_id": sale.ID, "operation_id": op.ID, "unp": sale.UNP, "fiscal_reference": ref, "issued_at": finishedAt, "total": Money{Amount: formatFixed(total), Currency: "EUR"}, "fiscal_device": sale.FiscalDevice, "lines": sale.Lines, "payments": sale.Payments})
 	} else if state == "FAILED" {
 		sale.State = "CANCELLED"
+		sale.CancelledAt = &finishedAt
 	}
 	eventType := "fiscal.operation.updated"
 	if state == "FISCALIZED" {
@@ -504,6 +509,7 @@ func (s *Service) materializeOfflineSaleIntent(p EdgePendingCommand, event Devic
 		sale.Lines = next
 	case "FISCAL_SALE_CANCEL":
 		sale.State = "CANCELLED"
+		sale.CancelledAt = &finishedAt
 	}
 	sale.Version = beforeVersion + 1
 	sale.UpdatedAt = finishedAt

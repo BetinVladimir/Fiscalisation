@@ -297,6 +297,7 @@ func (s *Service) reverseForTenant(saleID, reason, originalReference, tenant str
 	// The locked Fiscal Sale contract represents a successfully stornoed sale as
 	// CANCELLED; the REVERSAL operation and webhook retain explicit storno semantics.
 	sale.State = "CANCELLED"
+	sale.ReversedAt = &op.UpdatedAt
 	sale.Version++
 	sale.UpdatedAt = now
 	return op, s.repo.CommitSaleOperationEvent(sale, op, fiscalOperationEvent(sale, op))
@@ -706,7 +707,9 @@ func (s *Service) OpenWorkstationSession(workstation, operatorCode, appInstance,
 	}
 	now := time.Now().UTC()
 	sessionID, uuidErr := newUUID()
-	if uuidErr != nil { return WorkstationSession{}, uuidErr }
+	if uuidErr != nil {
+		return WorkstationSession{}, uuidErr
+	}
 	v := WorkstationSession{SessionID: sessionID, TenantID: tenant, WorkstationID: workstation, OperatorID: operatorID, OperatorCode: operatorCode, AppInstanceID: appInstance, ActorSubject: actor, ExpiresAt: now.Add(8 * time.Hour), CreatedAt: now}
 	data := asMap(v)
 	data["actor_subject"] = actor
@@ -786,7 +789,8 @@ func (s *Service) OpenSaleWithFirstLine(in OpenSaleWithFirstLineRequest) (Sale, 
 	if err != nil || stringField(register.Data, "location_id") == "" {
 		return Sale{}, errors.New("workstation location unavailable")
 	}
-	sale := Sale{ID: newID("sale"), TenantID: in.TenantID, ExternalID: in.ClientSaleSurrogateID, LocationID: stringField(register.Data, "location_id"), RegisterID: in.WorkstationID, OperatorID: in.OperatorCode, State: "OPEN", Version: 1, Lines: []SaleLine{}, Payments: []PaymentRecord{}, FiscalDevice: device, CreatedAt: now, UpdatedAt: now}
+	sale := Sale{ID: newID("sale"), TenantID: in.TenantID, ExternalID: in.ClientSaleSurrogateID, LocationID: stringField(register.Data, "location_id"), RegisterID: in.WorkstationID, OperatorID: in.OperatorCode, RegisterCode: stringField(register.Data, "code"), OperatorCode: in.OperatorCode, State: "OPEN", Version: 1, Lines: []SaleLine{}, Payments: []PaymentRecord{}, FiscalDevice: device, CreatedAt: now, UpdatedAt: now}
+	s.snapshotSaleNomenclature(&sale)
 	return s.repo.OpenSaleWithFirstLine(sale, in.Line, device.FiscalDeviceNumber)
 }
 
@@ -813,8 +817,26 @@ func (s *Service) CreateSale(in CreateSale) (Sale, error) {
 	if in.TenantID == "" {
 		device = FiscalDeviceSnapshot{DeviceID: in.RegisterID, FiscalDeviceNumber: "00000001", FiscalMemoryNumber: "00000001", Vendor: "SIMULATOR", Model: "DEV"}
 	}
-	v := Sale{ID: newID("sale"), TenantID: in.TenantID, ExternalID: in.ExternalID, LocationID: locationID, RegisterID: in.RegisterID, OperatorID: in.OperatorID, State: "DRAFT", Version: 1, Lines: []SaleLine{}, Payments: []PaymentRecord{}, FiscalDevice: device, CreatedAt: now, UpdatedAt: now}
+	v := Sale{ID: newID("sale"), TenantID: in.TenantID, ExternalID: in.ExternalID, LocationID: locationID, RegisterID: in.RegisterID, OperatorID: in.OperatorID, OperatorCode: in.OperatorID, State: "DRAFT", Version: 1, Lines: []SaleLine{}, Payments: []PaymentRecord{}, FiscalDevice: device, CreatedAt: now, UpdatedAt: now}
+	s.snapshotSaleNomenclature(&v)
 	return v, s.repo.PutSale(v)
+}
+
+func (s *Service) snapshotSaleNomenclature(sale *Sale) {
+	if location, err := s.repo.Resource("location", sale.LocationID); err == nil {
+		sale.LocationCode = stringField(location.Data, "code")
+		sale.LocationName = stringField(location.Data, "name")
+	}
+	if register, err := s.repo.Resource("register", sale.RegisterID); err == nil {
+		sale.RegisterCode = stringField(register.Data, "code")
+	}
+	for _, operator := range s.repo.Resources("operator", sale.TenantID) {
+		if operator.ID == sale.OperatorID || stringField(operator.Data, "code") == sale.OperatorID {
+			sale.OperatorCode = stringField(operator.Data, "code")
+			sale.OperatorName = strings.TrimSpace(stringField(operator.Data, "first_name") + " " + stringField(operator.Data, "last_name"))
+			break
+		}
+	}
 }
 func (s *Service) AddLine(id string, line SaleLine) (Sale, error) {
 	v, err := s.repo.Sale(id)
@@ -996,6 +1018,7 @@ func (s *Service) FinalizeSaleForTenant(id string, in SaleFinalizeRequest, tenan
 		op.State = "FISCALIZED"
 		op.FiscalReference = ref
 		sale.State = "COMPLETED"
+		sale.CompletedAt = &op.UpdatedAt
 		sale.FiscalOperationID = op.ID
 	}
 	sale.Version++
@@ -1007,7 +1030,7 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 	if e != nil {
 		return Operation{}, e
 	}
-	if sale.State != "OPEN" || len(sale.Lines) == 0 || p.PaymentID == "" || !validMoney(p.Amount) || !contains([]string{"CASH", "CARD"}, p.Type) {
+	if sale.State != "OPEN" || len(sale.Lines) == 0 || p.PaymentID == "" || !validMoney(p.Amount) || !supportedPaymentType(p.Type) {
 		return Operation{}, errors.New("payment not allowed")
 	}
 	// New SUPTO aggregates are identifiable by their immutable regulatory
@@ -1115,6 +1138,7 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 		if paid+amount == total {
 			op.State = "FISCALIZED"
 			sale.State = "COMPLETED"
+			sale.CompletedAt = &op.UpdatedAt
 			sale.FiscalOperationID = op.ID
 			sale.ReceiptArtifactID, e = newUUID()
 			if e != nil {
@@ -1138,21 +1162,33 @@ func (s *Service) GetOperation(id string) (Operation, error) { return s.repo.Ope
 
 func (s *Service) CompleteDeviceCommand(id, status, fiscalReference, errorCode string) (Operation, error) {
 	op, err := s.repo.Operation(id)
-	if err != nil { return Operation{}, err }
-	if op.State != "EXECUTING" { return op, nil }
+	if err != nil {
+		return Operation{}, err
+	}
+	if op.State != "EXECUTING" {
+		return op, nil
+	}
 	sale, err := s.repo.Sale(op.SaleID)
-	if err != nil { return Operation{}, err }
+	if err != nil {
+		return Operation{}, err
+	}
 	now := time.Now().UTC()
 	op.Version++
 	op.UpdatedAt = now
 	if status == "SUCCEEDED" {
-		if fiscalReference == "" { return Operation{}, errors.New("device result missing fiscal reference") }
+		if fiscalReference == "" {
+			return Operation{}, errors.New("device result missing fiscal reference")
+		}
 		op.State, op.FiscalReference, op.ErrorCode = "FISCALIZED", fiscalReference, ""
 		sale.State, sale.FiscalOperationID = "COMPLETED", op.ID
-		for i := range sale.Payments { sale.Payments[i].FiscalReference = fiscalReference }
+		for i := range sale.Payments {
+			sale.Payments[i].FiscalReference = fiscalReference
+		}
 	} else {
 		op.State, op.ErrorCode, op.AllowedActions = "UNKNOWN", errorCode, []string{"RECONCILE"}
-		if op.ErrorCode == "" { op.ErrorCode = "DEVICE_COMMAND_FAILED" }
+		if op.ErrorCode == "" {
+			op.ErrorCode = "DEVICE_COMMAND_FAILED"
+		}
 		sale.State = "UNKNOWN"
 	}
 	sale.Version++
@@ -1225,6 +1261,7 @@ func (s *Service) cancelSaleForTenant(id, tenant string) (Operation, error) {
 	now := time.Now().UTC()
 	op := Operation{ID: newID("op"), TenantID: v.TenantID, SaleID: v.ID, RegisterID: v.RegisterID, Type: "CANCEL_SALE", State: "CANCELLED", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	v.State, v.UpdatedAt, v.Version = "CANCELLED", now, v.Version+1
+	v.CancelledAt = &now
 	return op, s.repo.CommitSaleOperation(v, op)
 }
 func (s *Service) ReconcileOperation(id string) (Operation, error) {
@@ -1269,7 +1306,33 @@ func (s *Service) receiptForTenant(id, tenant string) (map[string]any, error) {
 	}
 	device := v.FiscalDevice
 	device.BindingVersion = 0 // Internal route-fencing metadata is not part of the public receipt contract.
-	return map[string]any{"sale_id": v.ID, "operation_id": v.FiscalOperationID, "unp": v.UNP, "state": v.State, "fiscal_reference": ref, "issued_at": v.UpdatedAt, "total": Money{Amount: formatFixed(total), Currency: "EUR"}, "artifact_id": v.ReceiptArtifactID, "fiscal_device": device, "fiscal_device_number": v.FiscalDevice.FiscalDeviceNumber, "fiscal_memory_number": v.FiscalDevice.FiscalMemoryNumber, "lines": v.Lines, "payments": v.Payments}, nil
+	merchantName, merchantAddress, merchantEIK, merchantVAT := "", "", "", ""
+	if organizations := s.repo.Resources("organization", v.TenantID); len(organizations) > 0 {
+		merchantName = stringField(organizations[0].Data, "legal_name")
+		merchantAddress = stringField(organizations[0].Data, "correspondence_address")
+		if merchantAddress == "" {
+			merchantAddress = stringField(organizations[0].Data, "address")
+		}
+		merchantEIK = stringField(organizations[0].Data, "eik")
+		merchantVAT = stringField(organizations[0].Data, "vat_number")
+	}
+	locationName, locationAddress, operatorCode, operatorName, registerCode := "", "", v.OperatorID, "", v.RegisterID
+	if location, err := s.repo.Resource("location", v.LocationID); err == nil {
+		locationName, locationAddress = stringField(location.Data, "name"), stringField(location.Data, "address")
+		if merchantAddress == "" {
+			merchantAddress = locationAddress
+		}
+	}
+	if register, err := s.repo.Resource("register", v.RegisterID); err == nil {
+		registerCode = stringField(register.Data, "code")
+	}
+	if operator, err := s.repo.Resource("operator", v.OperatorID); err == nil {
+		operatorCode = stringField(operator.Data, "code")
+		operatorName = strings.TrimSpace(stringField(operator.Data, "first_name") + " " + stringField(operator.Data, "last_name"))
+	}
+	issuedAt := v.UpdatedAt.UTC()
+	qrData := fmt.Sprintf("%s*%s*%s*%s*%s", v.FiscalDevice.FiscalMemoryNumber, ref, issuedAt.Format("2006-01-02"), issuedAt.Format("15:04:05"), formatFixed(total))
+	return map[string]any{"sale_id": v.ID, "operation_id": v.FiscalOperationID, "unp": v.UNP, "state": v.State, "fiscal_reference": ref, "receipt_number": ref, "issued_at": issuedAt, "total": Money{Amount: formatFixed(total), Currency: "EUR"}, "artifact_id": v.ReceiptArtifactID, "fiscal_device": device, "fiscal_device_number": v.FiscalDevice.FiscalDeviceNumber, "fiscal_memory_number": v.FiscalDevice.FiscalMemoryNumber, "merchant_name": merchantName, "merchant_correspondence_address": merchantAddress, "merchant_eik": merchantEIK, "merchant_vat_number": merchantVAT, "location_name": locationName, "location_address": locationAddress, "register_code": registerCode, "operator_code": operatorCode, "operator_name": operatorName, "fiscal_logo": "BG", "document_label": "ФИСКАЛЕН БОН", "qr_code_data": qrData, "lines": v.Lines, "payments": v.Payments}, nil
 }
 func (s *Service) saleForTenantMutation(id, tenant string) (Sale, error) {
 	if tenant == "" {

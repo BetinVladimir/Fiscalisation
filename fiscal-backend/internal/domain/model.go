@@ -37,6 +37,7 @@ type FiscalDeviceSnapshot struct {
 }
 type Sale struct {
 	ID, TenantID, ExternalID, LocationID, RegisterID, OperatorID, UNP, State string
+	LocationCode, LocationName, RegisterCode, OperatorCode, OperatorName     string
 	FiscalOperationID, ReceiptArtifactID                                     string
 	RegulatoryIdentifiers                                                    []RegulatoryIdentifier
 	Version                                                                  int64
@@ -44,6 +45,7 @@ type Sale struct {
 	Payments                                                                 []PaymentRecord
 	FiscalDevice                                                             FiscalDeviceSnapshot
 	CreatedAt, UpdatedAt                                                     time.Time
+	CompletedAt, CancelledAt, ReversedAt                                     *time.Time
 }
 type saleJSON struct {
 	ID                    string                 `json:"sale_id"`
@@ -52,6 +54,11 @@ type saleJSON struct {
 	LocationID            string                 `json:"location_id,omitempty"`
 	RegisterID            string                 `json:"register_id"`
 	OperatorID            string                 `json:"operator_id"`
+	LocationCode          string                 `json:"location_code,omitempty"`
+	LocationName          string                 `json:"location_name,omitempty"`
+	RegisterCode          string                 `json:"register_code,omitempty"`
+	OperatorCode          string                 `json:"operator_code,omitempty"`
+	OperatorName          string                 `json:"operator_name,omitempty"`
 	UNP                   string                 `json:"unp,omitempty"`
 	State                 string                 `json:"state"`
 	Version               int64                  `json:"version"`
@@ -65,6 +72,9 @@ type saleJSON struct {
 	Totals                map[string]Money       `json:"totals"`
 	CreatedAt             time.Time              `json:"created_at"`
 	UpdatedAt             time.Time              `json:"updated_at"`
+	CompletedAt           *time.Time             `json:"completed_at,omitempty"`
+	CancelledAt           *time.Time             `json:"cancelled_at,omitempty"`
+	ReversedAt            *time.Time             `json:"reversed_at,omitempty"`
 }
 
 func (s Sale) MarshalJSON() ([]byte, error) {
@@ -72,7 +82,7 @@ func (s Sale) MarshalJSON() ([]byte, error) {
 	if cents, err := saleTotal(s); err == nil {
 		total.Amount = formatFixed(cents)
 	}
-	return marshal(saleJSON{ID: s.ID, TenantID: s.TenantID, ExternalID: s.ExternalID, LocationID: s.LocationID, RegisterID: s.RegisterID, OperatorID: s.OperatorID, UNP: s.UNP, State: s.State, Version: s.Version, Lines: s.Lines, Payments: s.Payments, FiscalOperationID: s.FiscalOperationID, ReceiptArtifactID: s.ReceiptArtifactID, FiscalDevice: s.FiscalDevice, RegulatoryIdentifiers: s.RegulatoryIdentifiers, AllowedActions: saleActions(s.State), Totals: map[string]Money{"gross": total}, CreatedAt: s.CreatedAt, UpdatedAt: s.UpdatedAt})
+	return marshal(saleJSON{ID: s.ID, TenantID: s.TenantID, ExternalID: s.ExternalID, LocationID: s.LocationID, RegisterID: s.RegisterID, OperatorID: s.OperatorID, LocationCode: s.LocationCode, LocationName: s.LocationName, RegisterCode: s.RegisterCode, OperatorCode: s.OperatorCode, OperatorName: s.OperatorName, UNP: s.UNP, State: s.State, Version: s.Version, Lines: s.Lines, Payments: s.Payments, FiscalOperationID: s.FiscalOperationID, ReceiptArtifactID: s.ReceiptArtifactID, FiscalDevice: s.FiscalDevice, RegulatoryIdentifiers: s.RegulatoryIdentifiers, AllowedActions: saleActions(s.State), Totals: map[string]Money{"gross": total}, CreatedAt: s.CreatedAt, UpdatedAt: s.UpdatedAt, CompletedAt: s.CompletedAt, CancelledAt: s.CancelledAt, ReversedAt: s.ReversedAt})
 }
 func saleActions(state string) []string {
 	switch state {
@@ -93,7 +103,7 @@ func (s *Sale) UnmarshalJSON(b []byte) error {
 	if e := json.Unmarshal(b, &v); e != nil {
 		return e
 	}
-	*s = Sale{ID: v.ID, TenantID: v.TenantID, ExternalID: v.ExternalID, LocationID: v.LocationID, RegisterID: v.RegisterID, OperatorID: v.OperatorID, UNP: v.UNP, State: v.State, Version: v.Version, Lines: v.Lines, Payments: v.Payments, FiscalOperationID: v.FiscalOperationID, ReceiptArtifactID: v.ReceiptArtifactID, FiscalDevice: v.FiscalDevice, RegulatoryIdentifiers: v.RegulatoryIdentifiers, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt}
+	*s = Sale{ID: v.ID, TenantID: v.TenantID, ExternalID: v.ExternalID, LocationID: v.LocationID, RegisterID: v.RegisterID, OperatorID: v.OperatorID, LocationCode: v.LocationCode, LocationName: v.LocationName, RegisterCode: v.RegisterCode, OperatorCode: v.OperatorCode, OperatorName: v.OperatorName, UNP: v.UNP, State: v.State, Version: v.Version, Lines: v.Lines, Payments: v.Payments, FiscalOperationID: v.FiscalOperationID, ReceiptArtifactID: v.ReceiptArtifactID, FiscalDevice: v.FiscalDevice, RegulatoryIdentifiers: v.RegulatoryIdentifiers, CreatedAt: v.CreatedAt, UpdatedAt: v.UpdatedAt, CompletedAt: v.CompletedAt, CancelledAt: v.CancelledAt, ReversedAt: v.ReversedAt}
 	return nil
 }
 

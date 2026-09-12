@@ -164,10 +164,10 @@ if [ "$operator_ready" != 1 ]; then
 fi
 
 sale_flow() {
-  payment=$1; serial=$2
+  payment=$1; serial=$2; tax_group=${3:-B}
   sale=$(api POST "$fiscal_base/public/v1/sales" "$tenant_token" "sale-$serial-$suffix" "{\"external_id\":\"sale-$serial-$suffix\",\"register_id\":\"$register_id\",\"operator_id\":\"E001\"}")
   sale_id=$(printf '%s' "$sale" | jq -er .sale_id)
-  line=$(curl -fsS -X POST "$fiscal_base/public/v1/sales/$sale_id/lines" -H "Authorization: Bearer $tenant_token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: line-$serial-$suffix" -H 'If-Match: 1' -H 'Content-Type: application/json' --data "{\"line_id\":\"line-$serial\",\"name\":\"E2E item\",\"quantity\":\"1.000\",\"unit_price\":{\"amount\":\"2.50\",\"currency\":\"EUR\"},\"tax_group\":\"B\"}")
+  line=$(curl -fsS -X POST "$fiscal_base/public/v1/sales/$sale_id/lines" -H "Authorization: Bearer $tenant_token" -H "X-Api-Version: $api_version" -H "Idempotency-Key: line-$serial-$suffix" -H 'If-Match: 1' -H 'Content-Type: application/json' --data "{\"line_id\":\"line-$serial\",\"name\":\"E2E item group $tax_group\",\"quantity\":\"1.000\",\"unit_price\":{\"amount\":\"2.50\",\"currency\":\"EUR\"},\"tax_group\":\"$tax_group\"}")
   version=$(printf '%s' "$line" | jq -er .version)
   payment_key="payment-$serial-$suffix"
   payment_body="{\"payment_id\":\"payment-$serial\",\"type\":\"$payment\",\"amount\":{\"amount\":\"2.50\",\"currency\":\"EUR\"},\"terminal_policy\":\"REQUIRED\"}"
@@ -188,8 +188,13 @@ sale_flow() {
   reversal=$(api POST "$fiscal_base/public/v1/sales/$sale_id:reverse" "$tenant_token" "reverse-$serial-$suffix" "{\"reason_code\":\"CUSTOMER_RETURN\",\"original_fiscal_reference\":\"$fiscal_reference\"}" "$sale_version")
   printf '%s' "$reversal" | jq -e '.state == "FISCALIZED"' >/dev/null
 }
-sale_flow CASH cash
+sale_flow CASH tax-b B
 sale_flow CARD card
+tax_groups=$(api GET "$fiscal_base/public/v1/tax-groups?effective_at=2026-08-07T00:00:00Z" "$tenant_token" "tax-groups-$suffix")
+printf '%s' "$tax_groups" | jq -e 'map(.code) == ["A","B","C","D"] and map(.rate) == ["0.00","20.00","20.00","9.00"]' >/dev/null
+sale_flow CASH tax-a A
+sale_flow CASH tax-c C
+sale_flow CASH tax-d D
 
 # Optimistic concurrency is checked against the real persistence layer. A
 # stale editor must not overwrite a register updated by another client.

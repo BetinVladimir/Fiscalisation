@@ -3217,7 +3217,7 @@ export interface operations {
                     unit?: string;
                     price: components["schemas"]["Money"];
                     /** @enum {string} */
-                    tax_group: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
+                    tax_group: "A" | "B" | "C" | "D";
                     /**
                      * @default ACTIVE
                      * @enum {string}
@@ -3285,7 +3285,7 @@ export interface operations {
                     unit?: string;
                     price: components["schemas"]["Money"];
                     /** @enum {string} */
-                    tax_group: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
+                    tax_group: "A" | "B" | "C" | "D";
                     /**
                      * @default ACTIVE
                      * @enum {string}

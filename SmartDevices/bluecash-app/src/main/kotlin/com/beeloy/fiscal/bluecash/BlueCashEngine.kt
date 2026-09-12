@@ -262,9 +262,7 @@ class BlueCashCommandProcessor(
         )
       )
       command.lines.forEach { ok(fiscal.execute(49, DatecsPayloads.line(it))) }
-      command.payments.forEach {
-        ok(fiscal.execute(53, DatecsPayloads.payment(if (it.type == "CASH") 0 else 1, it.amount)))
-      }
+      command.payments.forEach { ok(fiscal.execute(53, DatecsPayloads.payment(datecsPaymentMode(it.type), it.amount))) }
       val closed = ok(fiscal.execute(56))
       val ref =
         closed.data.toString(Charsets.UTF_8).split('\t').filter { it.isNotBlank() }.lastOrNull()
@@ -356,9 +354,7 @@ class BlueCashCommandProcessor(
         )
       )
       command.lines.forEach { ok(fiscal.execute(49, DatecsPayloads.line(it))) }
-      command.payments.forEach {
-        ok(fiscal.execute(53, DatecsPayloads.payment(if (it.type == "CASH") 0 else 1, it.amount)))
-      }
+      command.payments.forEach { ok(fiscal.execute(53, DatecsPayloads.payment(datecsPaymentMode(it.type), it.amount))) }
       val closed = ok(fiscal.execute(56))
       val ref =
         closed.data.toString(Charsets.UTF_8).split('\t').filter { it.isNotBlank() }.lastOrNull()
@@ -397,3 +393,14 @@ class BlueCashCommandProcessor(
       p[0] to p.getOrElse(1) { "" }
     }
 }
+
+internal fun datecsPaymentMode(type: String): Int =
+  when (type) {
+    "CASH" -> 0
+    "CARD" -> 1
+    "CHEQUE" -> 2
+    "VOUCHER", "COUPON" -> 3
+    "NHIF" -> 4
+    "DEFERRED", "INTERNAL_CONSUMPTION" -> 5
+    else -> error("PAYMENT_TYPE")
+  }

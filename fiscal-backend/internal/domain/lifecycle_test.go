@@ -62,6 +62,11 @@ func TestReceiptAfterFiscalization(t *testing.T) {
 	if err != nil || receipt["fiscal_reference"] == "" {
 		t.Fatal(receipt, err)
 	}
+	for _, field := range []string{"receipt_number", "issued_at", "merchant_name", "merchant_correspondence_address", "merchant_eik", "merchant_vat_number", "location_name", "location_address", "register_code", "operator_code", "operator_name", "fiscal_logo", "document_label", "qr_code_data", "fiscal_device_number", "fiscal_memory_number"} {
+		if _, ok := receipt[field]; !ok {
+			t.Fatalf("mandatory receipt field %s missing: %#v", field, receipt)
+		}
+	}
 }
 
 func TestReceiptKeepsFiscalDeviceIdentityAfterRegisterRebind(t *testing.T) {
@@ -191,7 +196,7 @@ func TestReversalPersistsReasonAndOriginalFiscalReference(t *testing.T) {
 		t.Fatal("reversal compliance fields were not persisted", persisted, err)
 	}
 	reversedSale, err := r.Sale(sale.ID)
-	if err != nil || reversedSale.State != "CANCELLED" {
+	if err != nil || reversedSale.State != "CANCELLED" || reversedSale.CompletedAt == nil || reversedSale.ReversedAt == nil || reversedSale.ReversedAt.Before(*reversedSale.CompletedAt) {
 		t.Fatal("successful reversal did not use the canonical Fiscal Sale state", reversedSale, err)
 	}
 	if _, err = s.Reverse(sale.ID, "SECOND_REVERSAL"); err == nil {

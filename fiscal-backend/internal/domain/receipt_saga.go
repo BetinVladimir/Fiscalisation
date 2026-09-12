@@ -69,7 +69,7 @@ func ValidateReceiptPlan(v ReceiptFinalizePlan) error {
 	}
 	var total int64
 	for _, p := range v.Payments {
-		if !uuidPattern.MatchString(p.PaymentID) || p.Amount.Currency != "EUR" {
+		if !uuidPattern.MatchString(p.PaymentID) || !supportedPaymentType(p.Type) || p.Amount.Currency != "EUR" {
 			return errors.New("invalid payment plan")
 		}
 		cents, e := receiptMoneyCents(p.Amount.Amount)
@@ -83,6 +83,15 @@ func ValidateReceiptPlan(v ReceiptFinalizePlan) error {
 		return errors.New("payment total mismatch")
 	}
 	return nil
+}
+
+func supportedPaymentType(paymentType string) bool {
+	switch paymentType {
+	case "CASH", "CARD", "CHEQUE", "VOUCHER", "DEFERRED", "NHIF", "INTERNAL_CONSUMPTION", "COUPON":
+		return true
+	default:
+		return false
+	}
 }
 func receiptMoneyCents(v string) (int64, error) {
 	parts := strings.Split(v, ".")

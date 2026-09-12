@@ -26,8 +26,8 @@ func TestProdGuards(t *testing.T) {
 	}
 	x = base
 	x.CORSAllowedOrigins = "*"
-	if e := x.Validate(); e != nil {
-		t.Fatalf("wildcard CORS rejected: %v", e)
+	if x.Validate() == nil {
+		t.Fatal("wildcard CORS accepted")
 	}
 	x = base
 	x.CORSAllowedOrigins = "https://admin.example/path"

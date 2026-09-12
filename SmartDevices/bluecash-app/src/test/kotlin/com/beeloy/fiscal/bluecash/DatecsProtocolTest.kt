@@ -4,6 +4,18 @@ import org.junit.Assert.*
 import org.junit.Test
 
 class DatecsProtocolTest {
+
+  @Test
+  fun `maps the universal Bulgarian payment catalog without treating non-cash as card`() {
+    assertEquals(0, datecsPaymentMode("CASH"))
+    assertEquals(1, datecsPaymentMode("CARD"))
+    assertEquals(2, datecsPaymentMode("CHEQUE"))
+    assertEquals(3, datecsPaymentMode("VOUCHER"))
+    assertEquals(3, datecsPaymentMode("COUPON"))
+    assertEquals(4, datecsPaymentMode("NHIF"))
+    assertEquals(5, datecsPaymentMode("DEFERRED"))
+    assertEquals(5, datecsPaymentMode("INTERNAL_CONSUMPTION"))
+  }
   @Test
   fun `command 43 storno payload follows vendor field order`() {
     val d = DatecsStornoDocument(1, 428, "24-04-19 08:36:27", "02636571", "DT636497-0021-0010001")

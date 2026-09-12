@@ -41,9 +41,14 @@ func DefaultBGPolicyCatalog() PolicyCatalog {
 			OfficialCurrency: "EUR", Profiles: []string{"FISCAL_DEVICE", "SUPTO"},
 			SourceSHA256: "4eb9b863e14f85f1de0d25643000e98829b963bce38ab02473dca98b07a1a3fa",
 		}},
-		// B/20.00 is the reviewed baseline used by the MVP golden sale. Other
-		// A-H mappings must enter through a reviewed policy update, not inference.
-		groups: []TaxGroup{{Code: "B", Rate: "20.00", ValidFrom: from, PolicyVersion: version}},
+		// Наредба N-18, art. 27. The API uses the Latin protocol equivalents of
+		// the Bulgarian groups А/Б/В/Г: A/B/C/D respectively.
+		groups: []TaxGroup{
+			{Code: "A", Rate: "0.00", ValidFrom: from, PolicyVersion: version},
+			{Code: "B", Rate: "20.00", ValidFrom: from, PolicyVersion: version},
+			{Code: "C", Rate: "20.00", ValidFrom: from, PolicyVersion: version},
+			{Code: "D", Rate: "9.00", ValidFrom: from, PolicyVersion: version},
+		},
 	}
 }
 

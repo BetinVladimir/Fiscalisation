@@ -1,9 +1,11 @@
 {
   "schema_version": 1,
-  "profile": "BG_SUPTO_FULL_TARGET",
+  "profile": "BG_SUPTO_UNIVERSAL_RETAIL_2026",
   "features": {
     "inventory": {"in_product_scope": false, "annex_exports": ["18.8"], "status": "NOT_IN_PRODUCT_SCOPE"},
     "supplies": {"in_product_scope": false, "annex_exports": ["18.6", "18.7"], "status": "NOT_IN_PRODUCT_SCOPE"},
-    "electronic_fiscal_receipts": {"in_product_scope": false, "annex_requirements": ["29.24"], "status": "NOT_IN_PRODUCT_SCOPE"}
+    "electronic_fiscal_receipts": {"in_product_scope": true, "annex_requirements": ["29.24"], "status": "SOFTWARE_IMPLEMENTED_HIL_REQUIRED"},
+    "tax_groups": {"in_product_scope": true, "codes": ["A", "B", "C", "D"], "status": "SOFTWARE_IMPLEMENTED_HIL_REQUIRED"},
+    "payment_types": {"in_product_scope": true, "codes": ["CASH", "CARD", "CHEQUE", "VOUCHER", "DEFERRED", "NHIF", "INTERNAL_CONSUMPTION", "COUPON"], "status": "SOFTWARE_IMPLEMENTED_HIL_REQUIRED"}
   }
 }

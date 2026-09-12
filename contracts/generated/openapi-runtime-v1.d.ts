@@ -822,7 +822,7 @@ export interface paths {
         };
         get?: never;
         put?: never;
-        /** @description Executes an explicit ordered set of partial tenders against one Fiscal sale. Each entry is independently CASH or CARD; the ambiguous single-value MIXED tender is intentionally forbidden. The sum must equal the order total and CARD entries require an active terminal. */
+        /** @description Executes an explicit ordered set of partial tenders against one Fiscal sale. Each entry uses one explicit tender from the Bulgarian payment catalog; the ambiguous single-value MIXED tender is intentionally forbidden. The sum must equal the order total and CARD entries require an active terminal. */
         post: operations["checkoutMiniPosOrderBatch"];
         delete?: never;
         options?: never;
@@ -966,7 +966,7 @@ export interface components {
     schemas: {
         MiniPosTaxGroupInput: {
             /** @enum {string} */
-            code: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
+            code: "A" | "B" | "C" | "D";
             name: string;
             rate: string;
             /**
@@ -980,7 +980,7 @@ export interface components {
             id: string;
             tenant_id?: string;
             /** @enum {string} */
-            code: "A" | "B" | "C" | "D" | "E" | "F" | "G" | "H";
+            code: "A" | "B" | "C" | "D";
             name: string;
             rate: string;
             /** @enum {string} */
@@ -1714,7 +1714,7 @@ export interface components {
             /** Format: uuid */
             payment_id: string;
             /** @enum {string} */
-            type: "CASH" | "CARD";
+            type: "CASH" | "CARD" | "CHEQUE" | "VOUCHER" | "DEFERRED" | "NHIF" | "INTERNAL_CONSUMPTION" | "COUPON";
             amount: components["schemas"]["Money"];
             /** @enum {string} */
             terminal_policy?: "REQUIRED" | "AUTO_IF_AVAILABLE" | "NONE";
@@ -1734,7 +1734,7 @@ export interface components {
             /** Format: uuid */
             payment_id: string;
             /** @enum {string} */
-            type: "CASH" | "CARD";
+            type: "CASH" | "CARD" | "CHEQUE" | "VOUCHER" | "DEFERRED" | "NHIF" | "INTERNAL_CONSUMPTION" | "COUPON";
             amount: components["schemas"]["Money"];
             /** @enum {string} */
             terminal_policy?: "REQUIRED" | "AUTO_IF_AVAILABLE" | "NONE";
@@ -1772,7 +1772,7 @@ export interface components {
             /** @enum {string} */
             type: "FISCAL_SALE" | "SALE_FINALIZE" | "REVERSAL";
             /** @enum {string} */
-            state: "FISCALIZED" | "FAILED" | "UNKNOWN";
+            state: "RECEIVED" | "VALIDATED" | "ROUTED" | "ACCEPTED_BY_EDGE" | "EXECUTING" | "FISCALIZED" | "FAILED" | "UNKNOWN" | "RECONCILING" | "SYNCED" | "CANCELLED";
             fiscal_reference?: string | null;
             original_fiscal_reference?: string;
             reason_code?: string;
