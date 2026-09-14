@@ -1,3 +1,0 @@
--- The Beeloy ERP integration identity is intentionally not seeded here. It must
--- be created through the platform external-system provisioning API, which
--- atomically creates its credential and encrypted webhook signing secret.
