@@ -96,7 +96,7 @@ func (s *Service) deliverOne(ctx context.Context) error {
 	}
 	defer tx.Rollback(ctx)
 	var id, to, subject, body string
-	e = tx.QueryRow(ctx, `with picked as (select id from minipos_email_outbox where ((status in ('PENDING','FAILED') and available_at<=now()) or (status='SENDING' and lease_until<now())) order by available_at,id for update skip locked limit 1) update minipos_email_outbox o set status='SENDING',lease_until=now()+interval '2 minutes',updated_at=now() from picked where o.id=picked.id returning o.id::text,o.recipient,o.subject,o.body_text`).Scan(&id, &to, &subject, &body)
+	e = tx.QueryRow(ctx, `with picked as (select id from minipos.minipos_email_outbox where ((status in ('PENDING','FAILED') and available_at<=now()) or (status='SENDING' and lease_until<now())) order by available_at,id for update skip locked limit 1) update minipos.minipos_email_outbox o set status='SENDING',lease_until=now()+interval '2 minutes',updated_at=now() from picked where o.id=picked.id returning o.id::text,o.recipient,o.subject,o.body_text`).Scan(&id, &to, &subject, &body)
 	if errors.Is(e, pgx.ErrNoRows) {
 		return tx.Commit(ctx)
 	}
@@ -118,10 +118,10 @@ func (s *Service) deliverOne(ctx context.Context) error {
 		e = s.sendMailTLS(addr, s.smtpHost, s.smtpUser, s.smtpPassword, s.smtpFrom, to, message)
 	}
 	if e != nil {
-		_, _ = s.db.Exec(ctx, `update minipos_email_outbox set status='FAILED',attempts=attempts+1,available_at=now()+least(interval '1 hour',interval '30 seconds'*(attempts+1)),lease_until=null,last_error=$2,updated_at=now() where id=$1`, id, e.Error())
+		_, _ = s.db.Exec(ctx, `update minipos.minipos_email_outbox set status='FAILED',attempts=attempts+1,available_at=now()+least(interval '1 hour',interval '30 seconds'*(attempts+1)),lease_until=null,last_error=$2,updated_at=now() where id=$1`, id, e.Error())
 		return e
 	}
-	_, e = s.db.Exec(ctx, `update minipos_email_outbox set status='SENT',sent_at=now(),lease_until=null,last_error=null,updated_at=now() where id=$1`, id)
+	_, e = s.db.Exec(ctx, `update minipos.minipos_email_outbox set status='SENT',sent_at=now(),lease_until=null,last_error=null,updated_at=now() where id=$1`, id)
 	return e
 }
 
@@ -198,7 +198,7 @@ func (s *Service) RequestCode(ctx context.Context, email, language string) error
 		return err
 	}
 	var recent int
-	if err = s.db.QueryRow(ctx, `select count(*) from minipos_auth_challenges where email=$1 and created_at>now()-interval '15 minutes'`, email).Scan(&recent); err != nil {
+	if err = s.db.QueryRow(ctx, `select count(*) from minipos.minipos_auth_challenges where email=$1 and created_at>now()-interval '15 minutes'`, email).Scan(&recent); err != nil {
 		return err
 	}
 	if recent >= 3 {
@@ -219,7 +219,7 @@ func (s *Service) RequestCode(ctx context.Context, email, language string) error
 		return err
 	}
 	defer tx.Rollback(ctx)
-	if _, err = tx.Exec(ctx, `insert into minipos_auth_challenges(id,email,code_hash,expires_at) values($1,$2,$3,now()+interval '10 minutes')`, challenge, email, hash); err != nil {
+	if _, err = tx.Exec(ctx, `insert into minipos.minipos_auth_challenges(id,email,code_hash,expires_at) values($1,$2,$3,now()+interval '10 minutes')`, challenge, email, hash); err != nil {
 		return err
 	}
 	subject := "MiniPOS sign-in code"
@@ -227,7 +227,7 @@ func (s *Service) RequestCode(ctx context.Context, email, language string) error
 	if language != "" {
 		body += "\nLanguage: " + language
 	}
-	if _, err = tx.Exec(ctx, `insert into minipos_email_outbox(purpose,recipient,subject,body_text,status) values('MINIPOS_LOGIN_OTP',$1,$2,$3,'PENDING')`, email, subject, body); err != nil {
+	if _, err = tx.Exec(ctx, `insert into minipos.minipos_email_outbox(purpose,recipient,subject,body_text,status) values('MINIPOS_LOGIN_OTP',$1,$2,$3,'PENDING')`, email, subject, body); err != nil {
 		return err
 	}
 	return tx.Commit(ctx)
@@ -239,24 +239,24 @@ func (s *Service) VerifyCode(ctx context.Context, email, code string) (VerifyRes
 		return VerifyResult{}, err
 	}
 	var id, stored string
-	err = s.db.QueryRow(ctx, `select id::text,code_hash from minipos_auth_challenges where email=$1 and consumed_at is null and expires_at>now() and attempts<5 order by created_at desc limit 1`, email).Scan(&id, &stored)
+	err = s.db.QueryRow(ctx, `select id::text,code_hash from minipos.minipos_auth_challenges where email=$1 and consumed_at is null and expires_at>now() and attempts<5 order by created_at desc limit 1`, email).Scan(&id, &stored)
 	if err != nil {
 		return VerifyResult{}, errors.New("invalid or expired code")
 	}
 	if !hmac.Equal([]byte(stored), []byte(digest(id+":"+strings.TrimSpace(code)+":"+string(s.secret)))) {
-		_, _ = s.db.Exec(ctx, `update minipos_auth_challenges set attempts=attempts+1 where id=$1`, id)
+		_, _ = s.db.Exec(ctx, `update minipos.minipos_auth_challenges set attempts=attempts+1 where id=$1`, id)
 		return VerifyResult{}, errors.New("invalid or expired code")
 	}
-	_, _ = s.db.Exec(ctx, `update minipos_auth_challenges set consumed_at=now() where id=$1`, id)
+	_, _ = s.db.Exec(ctx, `update minipos.minipos_auth_challenges set consumed_at=now() where id=$1`, id)
 	var tenant, employee string
 	var roles []string
-	err = s.db.QueryRow(ctx, `select organization_id::text,employee_id::text,roles from minipos_auth_accounts where email=$1`, email).Scan(&tenant, &employee, &roles)
+	err = s.db.QueryRow(ctx, `select organization_id::text,employee_id::text,roles from minipos.minipos_auth_accounts where email=$1`, email).Scan(&tenant, &employee, &roles)
 	if errors.Is(err, pgx.ErrNoRows) {
 		token, tokenErr := randomToken(32)
 		if tokenErr != nil {
 			return VerifyResult{}, tokenErr
 		}
-		_, tokenErr = s.db.Exec(ctx, `insert into minipos_auth_onboarding(token_hash,email,expires_at) values($1,$2,now()+interval '30 minutes')`, digest(token), email)
+		_, tokenErr = s.db.Exec(ctx, `insert into minipos.minipos_auth_onboarding(token_hash,email,expires_at) values($1,$2,now()+interval '30 minutes')`, digest(token), email)
 		return VerifyResult{OnboardingRequired: true, OnboardingToken: token}, tokenErr
 	}
 	if err != nil {
@@ -291,11 +291,11 @@ func (s *Service) Onboard(ctx context.Context, token string, input Onboarding) (
 	}
 	defer tx.Rollback(ctx)
 	var email string
-	if err = tx.QueryRow(ctx, `select email from minipos_auth_onboarding where token_hash=$1 and consumed_at is null and expires_at>now() for update`, digest(token)).Scan(&email); err != nil {
+	if err = tx.QueryRow(ctx, `select email from minipos.minipos_auth_onboarding where token_hash=$1 and consumed_at is null and expires_at>now() for update`, digest(token)).Scan(&email); err != nil {
 		return Tokens{}, errors.New("invalid onboarding token")
 	}
 	var tenant string
-	if err = tx.QueryRow(ctx, `insert into organizations(name,address,tax_identifier,fiscal_external_id,status) values($1,$2,$3,gen_random_uuid(),'ACTIVE') returning id::text`, strings.TrimSpace(input.CompanyName), strings.TrimSpace(input.Address), strings.TrimSpace(input.TaxIdentifier)).Scan(&tenant); err != nil {
+	if err = tx.QueryRow(ctx, `insert into minipos.organizations(name,address,tax_identifier,fiscal_external_id,status) values($1,$2,$3,gen_random_uuid(),'ACTIVE') returning id::text`, strings.TrimSpace(input.CompanyName), strings.TrimSpace(input.Address), strings.TrimSpace(input.TaxIdentifier)).Scan(&tenant); err != nil {
 		return Tokens{}, err
 	}
 	employee, err := s.app.CreateEmployee(domain.Employee{TenantID: tenant, FirstName: first, LastName: last, OperatorCode: "0001", Roles: []string{"ADMIN"}, Status: "ACTIVE"})
@@ -305,10 +305,10 @@ func (s *Service) Onboard(ctx context.Context, token string, input Onboarding) (
 	if _, err = s.app.BindEmployeeIdentity(tenant, employee.ID, employee.ID, s.issuer); err != nil {
 		return Tokens{}, err
 	}
-	if _, err = tx.Exec(ctx, `insert into minipos_auth_accounts(email,organization_id,employee_id,roles) values($1,$2,$3,array['ADMIN'])`, email, tenant, employee.ID); err != nil {
+	if _, err = tx.Exec(ctx, `insert into minipos.minipos_auth_accounts(email,organization_id,employee_id,roles) values($1,$2,$3,array['ADMIN'])`, email, tenant, employee.ID); err != nil {
 		return Tokens{}, err
 	}
-	if _, err = tx.Exec(ctx, `update minipos_auth_onboarding set consumed_at=now() where token_hash=$1`, digest(token)); err != nil {
+	if _, err = tx.Exec(ctx, `update minipos.minipos_auth_onboarding set consumed_at=now() where token_hash=$1`, digest(token)); err != nil {
 		return Tokens{}, err
 	}
 	if err = tx.Commit(ctx); err != nil {
@@ -321,11 +321,11 @@ func (s *Service) Refresh(ctx context.Context, raw string) (Tokens, error) {
 	hash := digest(raw)
 	var email, tenant, employee string
 	var roles []string
-	err := s.db.QueryRow(ctx, `select a.email,a.organization_id::text,a.employee_id::text,a.roles from minipos_auth_refresh_tokens r join minipos_auth_accounts a on a.email=r.email where r.token_hash=$1 and r.revoked_at is null and r.expires_at>now()`, hash).Scan(&email, &tenant, &employee, &roles)
+	err := s.db.QueryRow(ctx, `select a.email,a.organization_id::text,a.employee_id::text,a.roles from minipos.minipos_auth_refresh_tokens r join minipos.minipos_auth_accounts a on a.email=r.email where r.token_hash=$1 and r.revoked_at is null and r.expires_at>now()`, hash).Scan(&email, &tenant, &employee, &roles)
 	if err != nil {
 		return Tokens{}, errors.New("invalid refresh token")
 	}
-	_, _ = s.db.Exec(ctx, `update minipos_auth_refresh_tokens set revoked_at=now() where token_hash=$1`, hash)
+	_, _ = s.db.Exec(ctx, `update minipos.minipos_auth_refresh_tokens set revoked_at=now() where token_hash=$1`, hash)
 	return s.issue(ctx, email, tenant, employee, roles)
 }
 
@@ -339,6 +339,6 @@ func (s *Service) issue(ctx context.Context, email, tenant, employee string, rol
 	if err != nil {
 		return Tokens{}, err
 	}
-	_, err = s.db.Exec(ctx, `insert into minipos_auth_refresh_tokens(token_hash,email,expires_at) values($1,$2,now()+interval '30 days')`, digest(refresh), email)
+	_, err = s.db.Exec(ctx, `insert into minipos.minipos_auth_refresh_tokens(token_hash,email,expires_at) values($1,$2,now()+interval '30 days')`, digest(refresh), email)
 	return Tokens{AccessToken: access, RefreshToken: refresh, ExpiresIn: 900}, err
 }

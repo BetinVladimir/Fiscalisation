@@ -22,7 +22,7 @@ import (
 func testHandler() http.Handler {
 	s := domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true))
 	s.SetBLESigningKey("01234567890123456789012345678901")
-	return NewHandler(s, config.Config{APIVersion: "2026-08-07", AllowStubAdapters: true})
+	return NewHandler(s, config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901", AllowStubAdapters: true})
 }
 
 func TestAuditAnnexFilters(t *testing.T) {
@@ -59,7 +59,7 @@ func TestCountryPolicyAndEffectiveTaxGroups(t *testing.T) {
 	h := testHandler()
 	call := func(path string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(http.MethodGet, path, nil)
-		r.Header.Set("X-Api-Version", "2026-08-07")
+		r.Header.Set("Authorization", "Bearer "+jwt("tenant-a", "ADMIN"))
 		r.Header.Set("X-Api-Version", "2026-08-07")
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)
@@ -312,13 +312,14 @@ func TestOperationListPaginationHasStablePublicAPIOrder(t *testing.T) {
 	repo := domain.NewMemoryRepository()
 	created := time.Date(2026, 8, 9, 12, 0, 0, 0, time.UTC)
 	for _, id := range []string{"op-c", "op-a", "op-b"} {
-		if err := repo.PutOperation(domain.Operation{ID: id, Type: "SALE", State: "FISCALIZED", Version: 1, FiscalReference: "ref-" + id, AllowedActions: []string{}, CreatedAt: created, UpdatedAt: created}); err != nil {
+		if err := repo.PutOperation(domain.Operation{ID: id, TenantID: "tenant-a", Type: "SALE", State: "FISCALIZED", Version: 1, FiscalReference: "ref-" + id, AllowedActions: []string{}, CreatedAt: created, UpdatedAt: created}); err != nil {
 			t.Fatal(err)
 		}
 	}
-	h := NewHandler(domain.NewService(repo, domain.NewSimulator(true)), config.Config{APIVersion: "2026-08-07", AllowStubAdapters: true})
+	h := NewHandler(domain.NewService(repo, domain.NewSimulator(true)), config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901", AllowStubAdapters: true})
 	request := func(path string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(http.MethodGet, path, nil)
+		r.Header.Set("Authorization", "Bearer "+jwt("tenant-a", "ADMIN"))
 		r.Header.Set("X-Api-Version", "2026-08-07")
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)
@@ -355,15 +356,16 @@ func TestShiftListAppliesDocumentedRegisterFilter(t *testing.T) {
 	repo := domain.NewMemoryRepository()
 	registerA := "00000000-0000-4000-8000-0000000000a1"
 	registerB := "00000000-0000-4000-8000-0000000000b1"
-	first, err := repo.OpenShift(registerA, "00000000-0000-4000-8000-0000000000a2", "")
+	first, err := repo.OpenShift(registerA, "00000000-0000-4000-8000-0000000000a2", "tenant-a")
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = repo.OpenShift(registerB, "00000000-0000-4000-8000-0000000000b2", ""); err != nil {
+	if _, err = repo.OpenShift(registerB, "00000000-0000-4000-8000-0000000000b2", "tenant-a"); err != nil {
 		t.Fatal(err)
 	}
-	h := NewHandler(domain.NewService(repo, domain.NewSimulator(true)), config.Config{APIVersion: "2026-08-07", AllowStubAdapters: true})
+	h := NewHandler(domain.NewService(repo, domain.NewSimulator(true)), config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901", AllowStubAdapters: true})
 	r := httptest.NewRequest(http.MethodGet, "/public/v1/shifts?register_id="+registerA+"&limit=1", nil)
+	r.Header.Set("Authorization", "Bearer "+jwt("tenant-a", "ADMIN"))
 	r.Header.Set("X-Api-Version", "2026-08-07")
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
@@ -386,6 +388,7 @@ func TestEdgeSyncAcceptsCanonicalCBOR(t *testing.T) {
 		t.Fatalf("CBOR contract round trip changed batch hash: %#v err=%v computed=%s", roundTrip, err, domain.EdgeBatchHash(roundTrip))
 	}
 	r := httptest.NewRequest(http.MethodPost, "/public/v1/edge-sync/batches", bytes.NewReader(body))
+	r.Header.Set("Authorization", "Bearer "+jwt("tenant-a", "ADMIN"))
 	r.Header.Set("Content-Type", "application/cbor")
 	r.Header.Set("X-Api-Version", "2026-08-07")
 	r.Header.Set("Idempotency-Key", "edge-cbor-sync-001")
@@ -404,6 +407,8 @@ func jwtSubject(tenant, subject string, selected ...string) string {
 		role = selected[0]
 	}
 	head := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256"}`))
+	headerBytes, _ := json.Marshal(map[string]string{"alg": "HS256", "typ": "JWT"})
+	head = base64.RawURLEncoding.EncodeToString(headerBytes)
 	payload, _ := json.Marshal(map[string]any{"sub": subject, "iss": "https://identity.example.test", "tenant_id": tenant, "roles": []string{role}, "scope": "fiscal.base", "exp": time.Now().Add(time.Hour).Unix()})
 	body := base64.RawURLEncoding.EncodeToString(payload)
 	m := hmac.New(sha256.New, []byte("01234567890123456789012345678901"))
@@ -724,7 +729,7 @@ func TestIdempotencySurvivesRepositoryRestart(t *testing.T) {
 	if e != nil {
 		t.Fatal(e)
 	}
-	cfg := config.Config{APIVersion: "2026-08-07"}
+	cfg := config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901"}
 	h := NewHandler(domain.NewService(r, domain.NewSimulator(true)), cfg)
 	w := req(t, h, "POST", "/public/v1/sales", "restart-key-12345", map[string]any{"external_id": "e", "register_id": "r", "operator_id": "A001"})
 	if w.Code != 201 {
@@ -896,6 +901,7 @@ func reqWithHeaders(t *testing.T, h http.Handler, m, p, k string, v any, headers
 		b, _ = json.Marshal(v)
 	}
 	r := httptest.NewRequest(m, p, bytes.NewReader(b))
+	r.Header.Set("Authorization", "Bearer "+jwt("tenant-a", "ADMIN"))
 	r.Header.Set("X-Api-Version", "2026-08-07")
 	if v != nil {
 		r.Header.Set("Content-Type", "application/json")

@@ -9,7 +9,7 @@ import (
 
 func (s *Service) runRetentionBatch(ctx context.Context) (int64, error) {
 	started := s.now()
-	rows, err := s.db.QueryContext(ctx, `select kind,moved from archive_integration_operational_rows(1000)`)
+	rows, err := s.db.QueryContext(ctx, `select kind,moved from fiscal.archive_integration_operational_rows(1000)`)
 	if err != nil {
 		return 0, err
 	}
@@ -29,7 +29,7 @@ func (s *Service) runRetentionBatch(ctx context.Context) (int64, error) {
 		return 0, err
 	}
 	payload, _ := json.Marshal(moved)
-	_, err = s.db.ExecContext(ctx, `insert into integration_retention_runs(started_at,moved) values($1,$2)`, started, payload)
+	_, err = s.db.ExecContext(ctx, `insert into fiscal.integration_retention_runs(started_at,moved) values($1,$2)`, started, payload)
 	return total, err
 }
 

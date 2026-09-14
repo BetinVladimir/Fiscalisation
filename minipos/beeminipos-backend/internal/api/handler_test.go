@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"crypto/hmac"
 	"crypto/sha256"
+	"encoding/base64"
 	"encoding/hex"
 	"encoding/json"
 	"errors"
@@ -18,12 +19,28 @@ import (
 	"time"
 )
 
+const testAuthHMACKey = "01234567890123456789012345678901"
+
+func defaultOperatorToken() string {
+	header := base64.RawURLEncoding.EncodeToString([]byte(`{"alg":"HS256","typ":"JWT"}`))
+	payload := base64.RawURLEncoding.EncodeToString([]byte(`{"sub":"test-admin","tenant_id":"tenant-a","roles":["ADMIN"],"scope":"fiscal.base","exp":4102444800}`))
+	headerBytes, _ := json.Marshal(map[string]string{"alg": "HS256", "typ": "JWT"})
+	payloadBytes, _ := json.Marshal(map[string]any{"sub": "test-admin", "tenant_id": "tenant-a", "roles": []string{"ADMIN"}, "scope": "fiscal.base", "exp": int64(4102444800)})
+	header = base64.RawURLEncoding.EncodeToString(headerBytes)
+	payload = base64.RawURLEncoding.EncodeToString(payloadBytes)
+	unsigned := header + "." + payload
+	mac := hmac.New(sha256.New, []byte(testAuthHMACKey))
+	_, _ = mac.Write([]byte(unsigned))
+	return unsigned + "." + base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
+}
+
 func do(h http.Handler, m, p, k string, v any) *httptest.ResponseRecorder {
 	var b []byte
 	if v != nil {
 		b, _ = json.Marshal(v)
 	}
 	r := httptest.NewRequest(m, p, bytes.NewReader(b))
+	r.Header.Set("Authorization", "Bearer "+defaultOperatorToken())
 	if v != nil {
 		r.Header.Set("Content-Type", "application/json")
 	}
@@ -90,9 +107,10 @@ func TestPublicIdempotencySurvivesRestartAndRejectsMismatch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	h := New(svc, config.Config{APIVersion: "2026-08-07"})
+	h := New(svc, config.Config{APIVersion: "2026-08-07", AuthHMACKey: testAuthHMACKey})
 	doReq := func(handler http.Handler, body string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest("POST", "/public/v1/minipos/products", bytes.NewBufferString(body))
+		r.Header.Set("Authorization", "Bearer "+defaultOperatorToken())
 		r.Header.Set("Content-Type", "application/json")
 		r.Header.Set("X-Api-Version", "2026-08-07")
 		r.Header.Set("Idempotency-Key", "persistent-key-01")
@@ -109,7 +127,7 @@ func TestPublicIdempotencySurvivesRestartAndRejectsMismatch(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	h = New(svc, config.Config{APIVersion: "2026-08-07"})
+	h = New(svc, config.Config{APIVersion: "2026-08-07", AuthHMACKey: testAuthHMACKey})
 	again := doReq(h, body)
 	if again.Code != 201 || again.Header().Get("Idempotency-Replayed") != "true" || again.Body.String() != first.Body.String() {
 		t.Fatal(again.Code, again.Header(), again.Body.String())
@@ -283,13 +301,14 @@ func TestMiniPosGeneratedSuccessResponseMiddlewareFailsClosed(t *testing.T) {
 }
 
 func TestProductListImplementsOpenAPIPagination(t *testing.T) {
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{APIVersion: "2026-08-07"})
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, APIVersion: "2026-08-07"})
 	request := func(method, path, key string, body any) *httptest.ResponseRecorder {
 		var payload []byte
 		if body != nil {
 			payload, _ = json.Marshal(body)
 		}
 		r := httptest.NewRequest(method, path, bytes.NewReader(payload))
+		r.Header.Set("Authorization", "Bearer "+defaultOperatorToken())
 		r.Header.Set("X-Api-Version", "2026-08-07")
 		if body != nil {
 			r.Header.Set("Content-Type", "application/json")
@@ -345,9 +364,10 @@ func TestProductListImplementsOpenAPIPagination(t *testing.T) {
 }
 
 func TestSalesReportRequiresCanonicalHalfOpenPeriod(t *testing.T) {
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{APIVersion: "2026-08-07"})
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, APIVersion: "2026-08-07"})
 	request := func(path string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(http.MethodGet, path, nil)
+		r.Header.Set("Authorization", "Bearer "+defaultOperatorToken())
 		r.Header.Set("X-Api-Version", "2026-08-07")
 		w := httptest.NewRecorder()
 		h.ServeHTTP(w, r)
@@ -447,7 +467,7 @@ func TestMiniPosRequestContractRejectsInvalidUUIDPath(t *testing.T) {
 	}
 }
 func TestEditorsShiftOrder(t *testing.T) {
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{})
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey})
 	e := do(h, "POST", "/api/v1/employees", "", map[string]any{"first_name": "Ada", "last_name": "Lovelace", "operator_code": "A001"})
 	if e.Code != 201 {
 		t.Fatal(e.Code, e.Body.String())
@@ -466,7 +486,7 @@ func TestEditorsShiftOrder(t *testing.T) {
 	}
 }
 func TestShiftRecoveryFiltersByEmployeeRegisterAndState(t *testing.T) {
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{})
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey})
 	create := func(first, code, register string) map[string]any {
 		employeeResponse := do(h, http.MethodPost, "/api/v1/employees", "", map[string]any{"first_name": first, "last_name": "Cashier", "operator_code": code})
 		if employeeResponse.Code != http.StatusCreated {
@@ -499,7 +519,7 @@ func TestShiftRecoveryFiltersByEmployeeRegisterAndState(t *testing.T) {
 	}
 }
 func TestWebhookRejectsInvalidSignature(t *testing.T) {
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{WebhookVerificationKey: "secret"})
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, WebhookVerificationKey: "secret"})
 	w := do(h, "POST", "/api/v1/fiscal-webhooks", "", map[string]any{"aggregate_id": "sale"})
 	if w.Code != 401 {
 		t.Fatal(w.Code, w.Body.String())
@@ -515,7 +535,7 @@ func TestCanonicalWebhookSignatureAndTimestamp(t *testing.T) {
 		m.Write(body)
 		return "t=" + ts + ",kid=active,v1=" + hex.EncodeToString(m.Sum(nil))
 	}
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{APIVersion: "2026-08-07", WebhookVerificationKey: "secret"})
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, APIVersion: "2026-08-07", WebhookVerificationKey: "secret"})
 	request := func(signature string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(http.MethodPost, "/api/v1/fiscal-webhooks", bytes.NewReader(body))
 		r.Header.Set("BeeFiscal-Signature", signature)
@@ -554,11 +574,11 @@ func TestWebhookBindsEventHeaderAndProductionTenant(t *testing.T) {
 		h.ServeHTTP(w, r)
 		return w
 	}
-	dev := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AppEnv: "dev", APIVersion: "2026-08-07", WebhookVerificationKey: "secret"})
+	dev := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, AppEnv: "dev", APIVersion: "2026-08-07", WebhookVerificationKey: "secret"})
 	if w := request(dev, "other-event"); w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), "WEBHOOK_EVENT_ID_MISMATCH") {
 		t.Fatalf("event header mismatch accepted: %d %s", w.Code, w.Body.String())
 	}
-	prod := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AppEnv: "prod", APIVersion: "2026-08-07", WebhookVerificationKey: "secret"})
+	prod := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, AppEnv: "prod", APIVersion: "2026-08-07", WebhookVerificationKey: "secret"})
 	if w := request(prod, "evt-bound"); w.Code != http.StatusForbidden || !strings.Contains(w.Body.String(), "WEBHOOK_TENANT_NOT_CONFIGURED") {
 		t.Fatalf("unconfigured production tenant accepted: %d %s", w.Code, w.Body.String())
 	}
@@ -570,7 +590,7 @@ func TestWebhookOpenAPIRejectsUndocumentedEvidenceFields(t *testing.T) {
 	m := hmac.New(sha256.New, []byte("secret"))
 	m.Write([]byte(ts + "."))
 	m.Write(body)
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{APIVersion: "2026-08-07", WebhookVerificationKey: "secret"})
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, APIVersion: "2026-08-07", WebhookVerificationKey: "secret"})
 	r := httptest.NewRequest(http.MethodPost, "/public/v1/fiscal-webhooks", bytes.NewReader(body))
 	r.Header.Set("X-Api-Version", "2026-08-07")
 	r.Header.Set("Content-Type", "application/json")
@@ -584,8 +604,9 @@ func TestWebhookOpenAPIRejectsUndocumentedEvidenceFields(t *testing.T) {
 }
 
 func TestPublicContractAliasAndOptimisticUpdate(t *testing.T) {
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{APIVersion: "2026-08-07"})
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, APIVersion: "2026-08-07"})
 	r := httptest.NewRequest("POST", "/public/v1/minipos/products", bytes.NewBufferString(`{"sku":"C1","name":"Coffee","price":{"amount":"2.50","currency":"EUR"},"tax_group":"B"}`))
+	r.Header.Set("Authorization", "Bearer "+defaultOperatorToken())
 	r.Header.Set("Content-Type", "application/json")
 	r.Header.Set("X-Api-Version", "2026-08-07")
 	r.Header.Set("Idempotency-Key", "product-create-key")
@@ -599,6 +620,7 @@ func TestPublicContractAliasAndOptimisticUpdate(t *testing.T) {
 		t.Fatal("decode")
 	}
 	r = httptest.NewRequest("PATCH", "/public/v1/minipos/products/"+p.ID, bytes.NewBufferString(`{"sku":"C1","name":"Coffee XL","price":{"amount":"3.00","currency":"EUR"},"tax_group":"B"}`))
+	r.Header.Set("Authorization", "Bearer "+defaultOperatorToken())
 	r.Header.Set("Content-Type", "application/json")
 	r.Header.Set("X-Api-Version", "2026-08-07")
 	r.Header.Set("If-Match", "1")
@@ -617,7 +639,7 @@ func TestPublicContractAliasAndOptimisticUpdate(t *testing.T) {
 }
 
 func TestProductBarcodeRoundTripAndTenantUniqueness(t *testing.T) {
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{})
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey})
 	first := do(h, "POST", "/api/v1/products", "", map[string]any{"sku": "C1", "barcode": "380000000001", "name": "Coffee", "price": map[string]any{"amount": "2.50", "currency": "EUR"}, "tax_group": "B"})
 	if first.Code != http.StatusCreated || !strings.Contains(first.Body.String(), `"barcode":"380000000001"`) {
 		t.Fatalf("barcode contract not preserved: %d %s", first.Code, first.Body.String())
@@ -629,10 +651,11 @@ func TestProductBarcodeRoundTripAndTenantUniqueness(t *testing.T) {
 }
 
 func TestAutonomousConfigurationCreateUpdateAndVersionConflict(t *testing.T) {
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{APIVersion: "2026-08-07"})
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, APIVersion: "2026-08-07"})
 	body := `{"location_name":"Sofia Shop","location_address":"1 Main St","workstation_name":"POS 01","location_id":"00000000-0000-4000-8000-000000000010","fiscal_register_id":"00000000-0000-4000-8000-000000000001","fiscal_adapter_id":"00000000-0000-4000-8000-000000000020","binding_generation":1,"adapter_base_url":"http://192.168.4.1/beeloy/local/v1"}`
 	request := func(key, version, payload string) *httptest.ResponseRecorder {
 		r := httptest.NewRequest(http.MethodPatch, "/public/v1/minipos/configuration", bytes.NewBufferString(payload))
+		r.Header.Set("Authorization", "Bearer "+defaultOperatorToken())
 		r.Header.Set("Content-Type", "application/json")
 		r.Header.Set("X-Api-Version", "2026-08-07")
 		r.Header.Set("Idempotency-Key", key)
@@ -661,6 +684,7 @@ func TestAutonomousConfigurationCreateUpdateAndVersionConflict(t *testing.T) {
 		t.Fatal("stale update accepted", conflict.Code)
 	}
 	r := httptest.NewRequest(http.MethodGet, "/public/v1/minipos/configuration", nil)
+	r.Header.Set("Authorization", "Bearer "+defaultOperatorToken())
 	r.Header.Set("X-Api-Version", "2026-08-07")
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
@@ -670,8 +694,9 @@ func TestAutonomousConfigurationCreateUpdateAndVersionConflict(t *testing.T) {
 }
 
 func TestConfigurationRejectsNonUUIDFiscalRegister(t *testing.T) {
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{APIVersion: "2026-08-07"})
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, APIVersion: "2026-08-07"})
 	r := httptest.NewRequest(http.MethodPatch, "/public/v1/minipos/configuration", bytes.NewBufferString(`{"location_name":"Sofia Shop","location_address":"1 Main St","workstation_name":"POS 01","fiscal_register_id":"FD000001"}`))
+	r.Header.Set("Authorization", "Bearer "+defaultOperatorToken())
 	r.Header.Set("Content-Type", "application/json")
 	r.Header.Set("X-Api-Version", "2026-08-07")
 	r.Header.Set("Idempotency-Key", "configuration-invalid-register")

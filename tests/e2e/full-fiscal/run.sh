@@ -3,6 +3,7 @@ set -eu
 
 root=$(CDPATH= cd -- "$(dirname -- "$0")/../../.." && pwd)
 test_dir="$root/tests/e2e/full-fiscal"
+beeloy_db_root=${BEELOY_DB_ROOT:-$(CDPATH= cd -- "$root/../BeeloyDB" && pwd)}
 fiscal_base=${E2E_FISCAL_URL:-http://localhost:18000}
 mini_base=${E2E_MINIPOS_URL:-http://localhost:18001}
 smtp_http_port=${E2E_SMTP_HTTP_PORT:-18080}
@@ -16,6 +17,23 @@ tax=$(printf '20%07d' $((($$ + $(date +%s)) % 10000000)))
 fiscal_compose="docker compose -p beeloy-full-e2e-fiscal -f $root/compose.fiscalisation.yaml -f $test_dir/compose.fiscal.override.yaml"
 mini_compose="docker compose -p beeloy-full-e2e-minipos -f $root/compose.minipos.yaml -f $test_dir/compose.minipos.override.yaml"
 mock_compose="docker compose -p beeloy-full-e2e-mocks -f $test_dir/compose.yaml"
+
+load_dev_secrets() {
+  if [ -f "$root/.env" ]; then
+    set -a
+    # shellcheck disable=SC1091
+    . "$root/.env"
+    set +a
+  fi
+}
+
+migrate_canonical() {
+  db_user=$1 db_password=$2 db_port=$3 db_name=$4
+  PG_LOGIN="$db_user" PG_PASSWORD="$db_password" PG_HOST=127.0.0.1 PG_PORT="$db_port" PG_DATABASE="$db_name" \
+    npm --prefix "$beeloy_db_root" run migrate -- local >/dev/null
+}
+
+load_dev_secrets
 
 cleanup() {
   cleanup_status=$?
@@ -78,6 +96,9 @@ $mock_compose up -d --build --wait
 
 printf '%s\n' '[2/8] Запуск Fiscal dev stack'
 APP_ENV=e2e AUTH_HMAC_KEY="$auth_key" FISCAL_HTTP_PORT=18000 FISCAL_HTTPS_PORT=18443 FISCAL_POSTGRES_PUBLISH_PORT=15433 REDIS_PORT=16380 RABBITMQ_AMQP_PORT=15674 RABBITMQ_MANAGEMENT_PORT=25674 EMQX_MQTT_PORT=11884 EMQX_WS_PORT=28083 EMQX_WSS_PORT=28084 EMQX_MQTTS_PORT=18884 EMQX_DASHBOARD_PORT=28085 $fiscal_compose up -d postgres redis rabbitmq emqx
+until $fiscal_compose exec -T postgres pg_isready -U fiscal -d fiscal >/dev/null 2>&1; do sleep 1; done
+migrate_canonical fiscal "${FISCAL_DB_PASSWORD:?FISCAL_DB_PASSWORD is required}" 15433 fiscal
+$fiscal_compose exec -T -e FISCAL_RLS_DB_PASSWORD="${FISCAL_RLS_DB_PASSWORD:?FISCAL_RLS_DB_PASSWORD is required}" postgres sh -s < "$root/database/fiscal/004_runtime_login.sh"
 # Docker Compose <2.24 merges multi-network lists and on some Docker Desktop
 # versions attaches only the last network. Explicit connects keep the runner
 # compatible with the repository's currently supported Compose 2.19.
@@ -95,7 +116,11 @@ system=$(api POST "$fiscal_base/platform/v1/external-systems" "$admin_token" "sy
 export E2E_FISCAL_SYSTEM_TOKEN=$(printf '%s' "$system" | jq -er .bootstrap_token)
 
 printf '%s\n' '[3/8] Запуск MiniPOS и регистрация компании по OTP'
-APP_ENV=e2e AUTH_HMAC_KEY="$auth_key" MINIPOS_HTTP_PORT=18001 MINIPOS_HTTPS_PORT=18444 $mini_compose up -d --build
+APP_ENV=e2e AUTH_HMAC_KEY="$auth_key" MINIPOS_HTTP_PORT=18001 MINIPOS_HTTPS_PORT=18444 MINIPOS_POSTGRES_PUBLISH_PORT=15434 $mini_compose up -d postgres
+until $mini_compose exec -T postgres pg_isready -U minipos -d minipos >/dev/null 2>&1; do sleep 1; done
+migrate_canonical minipos "${MINIPOS_DB_PASSWORD:?MINIPOS_DB_PASSWORD is required}" 15434 minipos
+$mini_compose exec -T -e MINIPOS_RLS_DB_PASSWORD="${MINIPOS_RLS_DB_PASSWORD:?MINIPOS_RLS_DB_PASSWORD is required}" postgres sh -s < "$root/database/minipos/004_runtime_login.sh"
+APP_ENV=e2e AUTH_HMAC_KEY="$auth_key" MINIPOS_HTTP_PORT=18001 MINIPOS_HTTPS_PORT=18444 MINIPOS_POSTGRES_PUBLISH_PORT=15434 $mini_compose up -d --build
 mini_caddy=$($mini_compose ps -q caddy)
 docker network connect beeloy-full-e2e-minipos_private "$mini_caddy" 2>/dev/null || true
 wait_url "$mini_base/healthz" MiniPOS

@@ -238,18 +238,18 @@ func (s *Service) CreateSystem(ctx context.Context, actor, requestID, code, name
 	defer tx.Rollback()
 	var out System
 	var rawEvents []byte
-	e = tx.QueryRowContext(ctx, `insert into external_systems(id,code,display_name,status,webhook_url,webhook_events,webhook_signing_secret_ciphertext,created_by,updated_by) values($1,$2,$3,'ACTIVE',$4,$5,$6,$7,$7) returning id::text,code,display_name,status,webhook_url,array_to_json(webhook_events),version,created_at,updated_at`, id, code, name, webhook, events, enc, actor).Scan(&out.ID, &out.Code, &out.DisplayName, &out.Status, &out.WebhookURL, &rawEvents, &out.Version, &out.CreatedAt, &out.UpdatedAt)
+	e = tx.QueryRowContext(ctx, `insert into fiscal.external_systems(id,code,display_name,status,webhook_url,webhook_events,webhook_signing_secret_ciphertext,created_by,updated_by) values($1,$2,$3,'ACTIVE',$4,$5,$6,$7,$7) returning id::text,code,display_name,status,webhook_url,array_to_json(webhook_events),version,created_at,updated_at`, id, code, name, webhook, events, enc, actor).Scan(&out.ID, &out.Code, &out.DisplayName, &out.Status, &out.WebhookURL, &rawEvents, &out.Version, &out.CreatedAt, &out.UpdatedAt)
 	if e != nil {
 		return System{}, "", e
 	}
 	if e = json.Unmarshal(rawEvents, &out.WebhookEvents); e != nil {
 		return System{}, "", e
 	}
-	_, e = tx.ExecContext(ctx, `insert into external_system_credentials(credential_id,external_system_id,secret_hash,key_fingerprint,status,created_by) values($1,$2,$3,$4,'ACTIVE',$5)`, id, id, s.digest(secretToken), hex.EncodeToString(s.digest(secretToken))[:16], actor)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.external_system_credentials(credential_id,external_system_id,secret_hash,key_fingerprint,status,created_by) values($1,$2,$3,$4,'ACTIVE',$5)`, id, id, s.digest(secretToken), hex.EncodeToString(s.digest(secretToken))[:16], actor)
 	if e != nil {
 		return System{}, "", e
 	}
-	_, e = tx.ExecContext(ctx, `insert into external_system_audit_log(external_system_id,action,actor_subject,request_id,after_redacted) values($1,'CREATED',$2,$3,$4)`, id, actor, requestID, mapJSON(out))
+	_, e = tx.ExecContext(ctx, `insert into fiscal.external_system_audit_log(external_system_id,action,actor_subject,request_id,after_redacted) values($1,'CREATED',$2,$3,$4)`, id, actor, requestID, mapJSON(out))
 	if e != nil {
 		return System{}, "", e
 	}
@@ -257,7 +257,7 @@ func (s *Service) CreateSystem(ctx context.Context, actor, requestID, code, name
 }
 func mapJSON(v any) []byte { b, _ := json.Marshal(v); return b }
 func (s *Service) ListSystems(ctx context.Context) ([]System, error) {
-	rows, e := s.db.QueryContext(ctx, `select id::text,code,display_name,status,webhook_url,array_to_json(webhook_events),version,created_at,updated_at from external_systems order by code`)
+	rows, e := s.db.QueryContext(ctx, `select id::text,code,display_name,status,webhook_url,array_to_json(webhook_events),version,created_at,updated_at from fiscal.external_systems order by code`)
 	if e != nil {
 		return nil, e
 	}
@@ -296,7 +296,7 @@ func (s *Service) RotateSystemKey(ctx context.Context, systemID, actor, requestI
 		return "", e
 	}
 	defer tx.Rollback()
-	r, e := tx.ExecContext(ctx, `update external_system_credentials set status='REVOKED',revoked_at=now(),revoked_by=$2,revoke_reason='rotation' where external_system_id=$1 and status='ACTIVE'`, systemID, actor)
+	r, e := tx.ExecContext(ctx, `update fiscal.external_system_credentials set status='REVOKED',revoked_at=now(),revoked_by=$2,revoke_reason='rotation' where external_system_id=$1 and status='ACTIVE'`, systemID, actor)
 	if e != nil {
 		return "", e
 	}
@@ -304,15 +304,15 @@ func (s *Service) RotateSystemKey(ctx context.Context, systemID, actor, requestI
 	if n != 1 {
 		return "", ErrNotFound
 	}
-	_, e = tx.ExecContext(ctx, `insert into external_system_credentials(credential_id,external_system_id,secret_hash,key_fingerprint,status,created_by) values($1,$2,$3,$4,'ACTIVE',$5)`, id, systemID, s.digest(raw), hex.EncodeToString(s.digest(raw))[:16], actor)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.external_system_credentials(credential_id,external_system_id,secret_hash,key_fingerprint,status,created_by) values($1,$2,$3,$4,'ACTIVE',$5)`, id, systemID, s.digest(raw), hex.EncodeToString(s.digest(raw))[:16], actor)
 	if e != nil {
 		return "", e
 	}
-	_, e = tx.ExecContext(ctx, `update external_systems set webhook_signing_secret_ciphertext=$2,version=version+1,updated_at=now(),updated_by=$3 where id=$1`, systemID, signing, actor)
+	_, e = tx.ExecContext(ctx, `update fiscal.external_systems set webhook_signing_secret_ciphertext=$2,version=version+1,updated_at=now(),updated_by=$3 where id=$1`, systemID, signing, actor)
 	if e != nil {
 		return "", e
 	}
-	_, e = tx.ExecContext(ctx, `insert into external_system_audit_log(external_system_id,action,actor_subject,request_id) values($1,'KEY_ROTATED',$2,$3)`, systemID, actor, requestID)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.external_system_audit_log(external_system_id,action,actor_subject,request_id) values($1,'KEY_ROTATED',$2,$3)`, systemID, actor, requestID)
 	if e != nil {
 		return "", e
 	}
@@ -327,7 +327,7 @@ func (s *Service) SetSystemStatus(ctx context.Context, systemID, status, actor, 
 		return e
 	}
 	defer tx.Rollback()
-	r, e := tx.ExecContext(ctx, `update external_systems set status=$2,version=version+1,updated_at=now(),updated_by=$3 where id=$1`, systemID, status, actor)
+	r, e := tx.ExecContext(ctx, `update fiscal.external_systems set status=$2,version=version+1,updated_at=now(),updated_by=$3 where id=$1`, systemID, status, actor)
 	if e != nil {
 		return e
 	}
@@ -335,7 +335,7 @@ func (s *Service) SetSystemStatus(ctx context.Context, systemID, status, actor, 
 	if n != 1 {
 		return ErrNotFound
 	}
-	_, e = tx.ExecContext(ctx, `insert into external_system_audit_log(external_system_id,action,actor_subject,request_id,after_redacted) values($1,$2,$3,$4,jsonb_build_object('status',$2))`, systemID, status, actor, requestID)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.external_system_audit_log(external_system_id,action,actor_subject,request_id,after_redacted) values($1,$2,$3,$4,jsonb_build_object('status',$2))`, systemID, status, actor, requestID)
 	if e != nil {
 		return e
 	}
@@ -351,13 +351,13 @@ func (s *Service) UpdateSystem(ctx context.Context, systemID, actor, requestID, 
 	}
 	defer tx.Rollback()
 	var before []byte
-	e = tx.QueryRowContext(ctx, `select to_jsonb(s) from external_systems s where id=$1 for update`, systemID).Scan(&before)
+	e = tx.QueryRowContext(ctx, `select to_jsonb(s) from fiscal.external_systems s where id=$1 for update`, systemID).Scan(&before)
 	if e != nil {
 		return System{}, e
 	}
 	var out System
 	var rawEvents []byte
-	e = tx.QueryRowContext(ctx, `update external_systems set display_name=$2,webhook_url=$3,webhook_events=$4,version=version+1,updated_at=now(),updated_by=$5 where id=$1 and version=$6 returning id::text,code,display_name,status,webhook_url,array_to_json(webhook_events),version,created_at,updated_at`, systemID, name, webhook, events, actor, expected).Scan(&out.ID, &out.Code, &out.DisplayName, &out.Status, &out.WebhookURL, &rawEvents, &out.Version, &out.CreatedAt, &out.UpdatedAt)
+	e = tx.QueryRowContext(ctx, `update fiscal.external_systems set display_name=$2,webhook_url=$3,webhook_events=$4,version=version+1,updated_at=now(),updated_by=$5 where id=$1 and version=$6 returning id::text,code,display_name,status,webhook_url,array_to_json(webhook_events),version,created_at,updated_at`, systemID, name, webhook, events, actor, expected).Scan(&out.ID, &out.Code, &out.DisplayName, &out.Status, &out.WebhookURL, &rawEvents, &out.Version, &out.CreatedAt, &out.UpdatedAt)
 	if errors.Is(e, sql.ErrNoRows) {
 		return System{}, ErrConflict
 	}
@@ -367,7 +367,7 @@ func (s *Service) UpdateSystem(ctx context.Context, systemID, actor, requestID, 
 	if e = json.Unmarshal(rawEvents, &out.WebhookEvents); e != nil {
 		return System{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into external_system_audit_log(external_system_id,action,actor_subject,request_id,before_redacted,after_redacted) values($1,'UPDATED',$2,$3,$4,$5)`, systemID, actor, requestID, before, mapJSON(out))
+	_, e = tx.ExecContext(ctx, `insert into fiscal.external_system_audit_log(external_system_id,action,actor_subject,request_id,before_redacted,after_redacted) values($1,'UPDATED',$2,$3,$4,$5)`, systemID, actor, requestID, before, mapJSON(out))
 	if e != nil {
 		return System{}, e
 	}
@@ -375,16 +375,16 @@ func (s *Service) UpdateSystem(ctx context.Context, systemID, actor, requestID, 
 }
 
 func (s *Service) SystemAudit(ctx context.Context, systemID string) ([]map[string]any, error) {
-	return s.queryObjects(ctx, `select jsonb_build_object('id',id,'action',action,'actor_subject',actor_subject,'request_id',request_id,'before',before_redacted,'after',after_redacted,'occurred_at',occurred_at) from external_system_audit_log where external_system_id=$1 order by occurred_at desc limit 500`, systemID)
+	return s.queryObjects(ctx, `select jsonb_build_object('id',id,'action',action,'actor_subject',actor_subject,'request_id',request_id,'before',before_redacted,'after',after_redacted,'occurred_at',occurred_at) from fiscal.external_system_audit_log where external_system_id=$1 order by occurred_at desc limit 500`, systemID)
 }
 func (s *Service) SystemBindings(ctx context.Context, systemID string) ([]map[string]any, error) {
-	return s.queryObjects(ctx, `select jsonb_build_object('id',id,'tenant_id',tenant_id,'source_company_id',source_company_id,'tax_country',tax_country,'tax_type',tax_type,'tax_identifier',tax_normalized_value,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at) from tenant_source_bindings where external_system_id=$1 order by created_at desc limit 500`, systemID)
+	return s.queryObjects(ctx, `select jsonb_build_object('id',id,'tenant_id',tenant_id,'source_company_id',source_company_id,'tax_country',tax_country,'tax_type',tax_type,'tax_identifier',tax_normalized_value,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at) from fiscal.tenant_source_bindings where external_system_id=$1 order by created_at desc limit 500`, systemID)
 }
 func (s *Service) PlatformTenants(ctx context.Context) ([]map[string]any, error) {
-	return s.queryObjects(ctx, `select jsonb_build_object('id',tenant_id,'name',coalesce(source_metadata->>'legal_name',source_metadata->>'name',source_company_id),'source_company_id',source_company_id,'status',status) from tenant_source_bindings where status='ACTIVE' and $1::text is null order by coalesce(source_metadata->>'legal_name',source_metadata->>'name',source_company_id)`, nil)
+	return s.queryObjects(ctx, `select jsonb_build_object('id',tenant_id,'name',coalesce(source_metadata->>'legal_name',source_metadata->>'name',source_company_id),'source_company_id',source_company_id,'status',status) from fiscal.tenant_source_bindings where status='ACTIVE' and $1::text is null order by coalesce(source_metadata->>'legal_name',source_metadata->>'name',source_company_id)`, nil)
 }
 func (s *Service) SystemDeliveries(ctx context.Context, systemID string) ([]map[string]any, error) {
-	return s.queryObjects(ctx, `select jsonb_build_object('id',d.id,'event_id',d.event_id,'tenant_id',d.tenant_id,'event_type',d.event_type,'status',d.status,'attempts',d.attempts,'next_attempt_at',d.next_attempt_at,'last_http_status',d.last_http_status,'last_error_code',d.last_error_code,'last_error_detail',d.last_error_detail,'delivered_at',d.delivered_at,'created_at',d.created_at,'attempt_history',coalesce((select jsonb_agg(to_jsonb(a) order by a.attempt_number) from webhook_delivery_attempts a where a.delivery_id=d.id),'[]'::jsonb)) from webhook_deliveries d where d.external_system_id=$1 order by d.created_at desc limit 500`, systemID)
+	return s.queryObjects(ctx, `select jsonb_build_object('id',d.id,'event_id',d.event_id,'tenant_id',d.tenant_id,'event_type',d.event_type,'status',d.status,'attempts',d.attempts,'next_attempt_at',d.next_attempt_at,'last_http_status',d.last_http_status,'last_error_code',d.last_error_code,'last_error_detail',d.last_error_detail,'delivered_at',d.delivered_at,'created_at',d.created_at,'attempt_history',coalesce((select jsonb_agg(to_jsonb(a) order by a.attempt_number) from fiscal.webhook_delivery_attempts a where a.delivery_id=d.id),'[]'::jsonb)) from fiscal.webhook_deliveries d where d.external_system_id=$1 order by d.created_at desc limit 500`, systemID)
 }
 func (s *Service) queryObjects(ctx context.Context, query string, arg any) ([]map[string]any, error) {
 	rows, e := s.db.QueryContext(ctx, query, arg)
@@ -413,14 +413,14 @@ func (s *Service) RequeueDelivery(ctx context.Context, id, actor, requestID stri
 	}
 	defer tx.Rollback()
 	var systemID string
-	e = tx.QueryRowContext(ctx, `update webhook_deliveries set status='RETRY',attempts=0,next_attempt_at=now(),lease_id=null,lease_until=null,updated_at=now() where id=$1 and status='DEAD' returning external_system_id::text`, id).Scan(&systemID)
+	e = tx.QueryRowContext(ctx, `update fiscal.webhook_deliveries set status='RETRY',attempts=0,next_attempt_at=now(),lease_id=null,lease_until=null,updated_at=now() where id=$1 and status='DEAD' returning external_system_id::text`, id).Scan(&systemID)
 	if errors.Is(e, sql.ErrNoRows) {
 		return ErrWebhookDeliveryDead
 	}
 	if e != nil {
 		return e
 	}
-	_, e = tx.ExecContext(ctx, `insert into external_system_audit_log(external_system_id,action,actor_subject,request_id,after_redacted) values($1,'WEBHOOK_REQUEUED',$2,$3,jsonb_build_object('delivery_id',$4))`, systemID, actor, requestID, id)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.external_system_audit_log(external_system_id,action,actor_subject,request_id,after_redacted) values($1,'WEBHOOK_REQUEUED',$2,$3,jsonb_build_object('delivery_id',$4))`, systemID, actor, requestID, id)
 	if e != nil {
 		return e
 	}
@@ -434,19 +434,19 @@ func (s *Service) authenticateSystem(ctx context.Context, raw string) (string, e
 	}
 	var systemID, status string
 	var hash []byte
-	e := s.db.QueryRowContext(ctx, `select c.external_system_id::text,c.secret_hash,s.status from external_system_credentials c join external_systems s on s.id=c.external_system_id where c.credential_id=$1 and c.status='ACTIVE'`, id).Scan(&systemID, &hash, &status)
+	e := s.db.QueryRowContext(ctx, `select c.external_system_id::text,c.secret_hash,s.status from fiscal.external_system_credentials c join fiscal.external_systems s on s.id=c.external_system_id where c.credential_id=$1 and c.status='ACTIVE'`, id).Scan(&systemID, &hash, &status)
 	if e != nil {
 		return "", ErrUnauthorized
 	}
 	if !hmac.Equal(hash, s.digest(raw)) {
-		_, _ = s.db.ExecContext(ctx, `insert into integration_security_events(external_system_id,event_type,detail_redacted) values($1,'SYSTEM_AUTH_FAILED',jsonb_build_object('credential_id',$2))`, systemID, id)
+		_, _ = s.db.ExecContext(ctx, `insert into fiscal.integration_security_events(external_system_id,event_type,detail_redacted) values($1,'SYSTEM_AUTH_FAILED',jsonb_build_object('credential_id',$2))`, systemID, id)
 		return "", ErrUnauthorized
 	}
 	if status != "ACTIVE" {
-		_, _ = s.db.ExecContext(ctx, `insert into integration_security_events(external_system_id,event_type,detail_redacted) values($1,'SYSTEM_SUSPENDED_REJECTED','{}')`, systemID)
+		_, _ = s.db.ExecContext(ctx, `insert into fiscal.integration_security_events(external_system_id,event_type,detail_redacted) values($1,'SYSTEM_SUSPENDED_REJECTED','{}')`, systemID)
 		return "", ErrSystemSuspended
 	}
-	_, _ = s.db.ExecContext(ctx, `update external_system_credentials set last_used_at=now() where credential_id=$1`, id)
+	_, _ = s.db.ExecContext(ctx, `update fiscal.external_system_credentials set last_used_at=now() where credential_id=$1`, id)
 	return systemID, nil
 }
 func (s *Service) StartEnrollment(ctx context.Context, systemToken, idempotency, requestIP string, in EnrollmentRequest) (EnrollmentStart, error) {
@@ -466,7 +466,7 @@ func (s *Service) StartEnrollment(ctx context.Context, systemToken, idempotency,
 		return EnrollmentStart{}, errors.New("missing enrollment fields")
 	}
 	var bySystem, byEmail, byIP, bySource int
-	if e = s.db.QueryRowContext(ctx, `select count(*) filter(where external_system_id=$1),count(*) filter(where normalized_email=$2),count(*) filter(where request_ip_hash=$3),count(*) filter(where external_system_id=$1 and source_company_id=$4) from external_enrollment_challenges where created_at>now()-interval '15 minutes'`, systemID, email, s.digest(requestIP), in.SourceCompanyID).Scan(&bySystem, &byEmail, &byIP, &bySource); e != nil {
+	if e = s.db.QueryRowContext(ctx, `select count(*) filter(where external_system_id=$1),count(*) filter(where normalized_email=$2),count(*) filter(where request_ip_hash=$3),count(*) filter(where external_system_id=$1 and source_company_id=$4) from fiscal.external_enrollment_challenges where created_at>now()-interval '15 minutes'`, systemID, email, s.digest(requestIP), in.SourceCompanyID).Scan(&bySystem, &byEmail, &byIP, &bySource); e != nil {
 		return EnrollmentStart{}, e
 	}
 	if bySystem >= 10 || byEmail >= 10 || byIP >= 10 || bySource >= 10 {
@@ -476,7 +476,7 @@ func (s *Service) StartEnrollment(ctx context.Context, systemToken, idempotency,
 	ph := sha256.Sum256(payload)
 	var existingToken, existingHash []byte
 	var exp time.Time
-	e = s.db.QueryRowContext(ctx, `select response_ciphertext,expires_at,payload_hash from external_enrollment_challenges where external_system_id=$1 and idempotency_key=$2`, systemID, idempotency).Scan(&existingToken, &exp, &existingHash)
+	e = s.db.QueryRowContext(ctx, `select response_ciphertext,expires_at,payload_hash from fiscal.external_enrollment_challenges where external_system_id=$1 and idempotency_key=$2`, systemID, idempotency).Scan(&existingToken, &exp, &existingHash)
 	if e == nil {
 		if !hmac.Equal(existingHash, ph[:]) {
 			return EnrollmentStart{}, ErrConflict
@@ -518,11 +518,11 @@ func (s *Service) StartEnrollment(ctx context.Context, systemToken, idempotency,
 		return EnrollmentStart{}, e
 	}
 	defer tx.Rollback()
-	_, e = tx.ExecContext(ctx, `insert into external_enrollment_challenges(id,external_system_id,source_company_id,normalized_email,tax_country,tax_type,tax_normalized_value,temporary_token_hash,otp_hash,payload_hash,legal_profile,idempotency_key,response_ciphertext,status,expires_at,request_ip_hash) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'PENDING',$14,$15)`, id, systemID, in.SourceCompanyID, email, country, kind, tax, s.digest(temp), s.digest(otp), ph[:], payload, idempotency, ciphertext, out.ExpiresAt, s.digest(requestIP))
+	_, e = tx.ExecContext(ctx, `insert into fiscal.external_enrollment_challenges(id,external_system_id,source_company_id,normalized_email,tax_country,tax_type,tax_normalized_value,temporary_token_hash,otp_hash,payload_hash,legal_profile,idempotency_key,response_ciphertext,status,expires_at,request_ip_hash) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'PENDING',$14,$15)`, id, systemID, in.SourceCompanyID, email, country, kind, tax, s.digest(temp), s.digest(otp), ph[:], payload, idempotency, ciphertext, out.ExpiresAt, s.digest(requestIP))
 	if e != nil {
 		return EnrollmentStart{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into fiscal_email_outbox(purpose,recipient,subject,body_text) values('FISCAL_ENROLLMENT_OTP',$1,'Fiscal verification code',$2)`, email, "Your Fiscal verification code is: "+otp)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.fiscal_email_outbox(purpose,recipient,subject,body_text) values('FISCAL_ENROLLMENT_OTP',$1,'Fiscal verification code',$2)`, email, "Your Fiscal verification code is: "+otp)
 	if e != nil {
 		return EnrollmentStart{}, e
 	}
@@ -543,7 +543,7 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 	var verificationKey sql.NullString
 	var attempts int
 	var expires time.Time
-	e = tx.QueryRowContext(ctx, `select c.external_system_id::text,c.source_company_id,c.tax_country,c.tax_type,c.tax_normalized_value,c.status,c.temporary_token_hash,c.otp_hash,c.legal_profile,c.response_ciphertext,c.attempts,c.expires_at,c.verification_idempotency_key,c.verification_request_hash from external_enrollment_challenges c join external_systems s on s.id=c.external_system_id and s.status='ACTIVE' where c.id=$1 for update`, id).Scan(&systemID, &sourceCompany, &country, &kind, &tax, &status, &tokenHash, &otpHash, &profile, &replay, &attempts, &expires, &verificationKey, &verificationHash)
+	e = tx.QueryRowContext(ctx, `select c.external_system_id::text,c.source_company_id,c.tax_country,c.tax_type,c.tax_normalized_value,c.status,c.temporary_token_hash,c.otp_hash,c.legal_profile,c.response_ciphertext,c.attempts,c.expires_at,c.verification_idempotency_key,c.verification_request_hash from fiscal.external_enrollment_challenges c join fiscal.external_systems s on s.id=c.external_system_id and s.status='ACTIVE' where c.id=$1 for update`, id).Scan(&systemID, &sourceCompany, &country, &kind, &tax, &status, &tokenHash, &otpHash, &profile, &replay, &attempts, &expires, &verificationKey, &verificationHash)
 	if e != nil || !hmac.Equal(tokenHash, s.digest(tempToken)) {
 		return EnrollmentResult{}, ErrUnauthorized
 	}
@@ -565,7 +565,7 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 		return EnrollmentResult{}, ErrEnrollmentLocked
 	}
 	if s.now().After(expires) {
-		_, _ = tx.ExecContext(ctx, `update external_enrollment_challenges set status='EXPIRED' where id=$1 and status='PENDING'`, id)
+		_, _ = tx.ExecContext(ctx, `update fiscal.external_enrollment_challenges set status='EXPIRED' where id=$1 and status='PENDING'`, id)
 		_ = tx.Commit()
 		return EnrollmentResult{}, ErrEnrollmentExpired
 	}
@@ -573,7 +573,7 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 		return EnrollmentResult{}, ErrUnauthorized
 	}
 	if !hmac.Equal(otpHash, s.digest(code)) {
-		_, _ = tx.ExecContext(ctx, `update external_enrollment_challenges set attempts=attempts+1,status=case when attempts+1>=5 then 'LOCKED' else status end where id=$1`, id)
+		_, _ = tx.ExecContext(ctx, `update fiscal.external_enrollment_challenges set attempts=attempts+1,status=case when attempts+1>=5 then 'LOCKED' else status end where id=$1`, id)
 		_ = tx.Commit()
 		if attempts+1 >= 5 {
 			return EnrollmentResult{}, ErrEnrollmentLocked
@@ -585,12 +585,12 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 		return EnrollmentResult{}, e
 	}
 	var duplicate bool
-	e = tx.QueryRowContext(ctx, `select exists(select 1 from tenant_source_bindings where tax_country=$1 and tax_type=$2 and tax_normalized_value=$3 and status='ACTIVE')`, country, kind, tax).Scan(&duplicate)
+	e = tx.QueryRowContext(ctx, `select exists(select 1 from fiscal.tenant_source_bindings where tax_country=$1 and tax_type=$2 and tax_normalized_value=$3 and status='ACTIVE')`, country, kind, tax).Scan(&duplicate)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
 	if duplicate {
-		_, _ = tx.ExecContext(ctx, `update external_enrollment_challenges set status='CONFLICT' where id=$1`, id)
+		_, _ = tx.ExecContext(ctx, `update fiscal.external_enrollment_challenges set status='CONFLICT' where id=$1`, id)
 		_ = tx.Commit()
 		return EnrollmentResult{}, ErrConflict
 	}
@@ -611,7 +611,7 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 		return EnrollmentResult{}, e
 	}
 	scopes := []string{"organization.write", "locations.write", "registers.write", "operators.write", "operations.read"}
-	_, e = tx.ExecContext(ctx, `insert into tenant_source_bindings(id,tenant_id,external_system_id,source_company_id,tax_country,tax_type,tax_normalized_value,source_metadata,status) values($1,$2,$3,$4,$5,$6,$7,$8,'ACTIVE')`, bindingID, tenantID, systemID, sourceCompany, country, kind, tax, profile)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.tenant_source_bindings(id,tenant_id,external_system_id,source_company_id,tax_country,tax_type,tax_normalized_value,source_metadata,status) values($1,$2,$3,$4,$5,$6,$7,$8,'ACTIVE')`, bindingID, tenantID, systemID, sourceCompany, country, kind, tax, profile)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
@@ -627,23 +627,23 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 		"external_source_id": "organization", "external_source_version": int64(1),
 	}
 	organizationRecord := map[string]any{"kind": "organization", "tenant_id": tenantID, "id": tenantID, "version": int64(1), "data": organizationData, "created_at": createdAt, "updated_at": createdAt}
-	_, e = tx.ExecContext(ctx, `insert into fiscal_runtime_resources(kind,id,tenant_id,version,data,created_at,updated_at,payload) values('organization',$1,$1,1,$2::jsonb,$3,$3,$4::jsonb)`, tenantID, string(mapJSON(organizationData)), createdAt, string(mapJSON(organizationRecord)))
+	_, e = tx.ExecContext(ctx, `insert into fiscal.fiscal_runtime_resources(kind,id,tenant_id,version,data,created_at,updated_at,payload) values('organization',$1,$1,1,$2::jsonb,$3,$3,$4::jsonb)`, tenantID, string(mapJSON(organizationData)), createdAt, string(mapJSON(organizationRecord)))
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into fiscal_state_rows(collection,entity_key,payload,updated_at) values('resources','organization:'||$1,$2::jsonb,now())`, tenantID, string(mapJSON(organizationRecord)))
+	_, e = tx.ExecContext(ctx, `insert into fiscal.fiscal_state_rows(collection,entity_key,payload,updated_at) values('resources','organization:'||$1,$2::jsonb,now())`, tenantID, string(mapJSON(organizationRecord)))
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into tenant_integration_credentials(credential_id,binding_id,secret_hash,scopes,status,expires_at) values($1,$2,$3,$4,'ACTIVE',now()+interval '1 year')`, credID, bindingID, s.digest(access), scopes)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.tenant_integration_credentials(credential_id,binding_id,secret_hash,scopes,status,expires_at) values($1,$2,$3,$4,'ACTIVE',now()+interval '1 year')`, credID, bindingID, s.digest(access), scopes)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
 	var enrollmentEmail string
-	if e = tx.QueryRowContext(ctx, `select normalized_email from external_enrollment_challenges where id=$1`, id).Scan(&enrollmentEmail); e != nil {
+	if e = tx.QueryRowContext(ctx, `select normalized_email from fiscal.external_enrollment_challenges where id=$1`, id).Scan(&enrollmentEmail); e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into tenant_user_memberships(tenant_id,normalized_email,roles,status) values($1,$2,array['ADMIN']::text[],'ACTIVE') on conflict(tenant_id,normalized_email) do update set status='ACTIVE',roles=array['ADMIN']::text[],updated_at=now()`, tenantID, enrollmentEmail)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.tenant_user_memberships(tenant_id,normalized_email,roles,status) values($1,$2,array['ADMIN']::text[],'ACTIVE') on conflict(tenant_id,normalized_email) do update set status='ACTIVE',roles=array['ADMIN']::text[],updated_at=now()`, tenantID, enrollmentEmail)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
@@ -652,11 +652,11 @@ func (s *Service) VerifyEnrollment(ctx context.Context, tempToken, code, idempot
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `update external_enrollment_challenges set status='VERIFIED',verified_at=now(),tenant_id=$2,response_ciphertext=$3,verification_idempotency_key=$4,verification_request_hash=$5 where id=$1`, id, tenantID, enc, idempotency, s.digest("verify:"+code))
+	_, e = tx.ExecContext(ctx, `update fiscal.external_enrollment_challenges set status='VERIFIED',verified_at=now(),tenant_id=$2,response_ciphertext=$3,verification_idempotency_key=$4,verification_request_hash=$5 where id=$1`, id, tenantID, enc, idempotency, s.digest("verify:"+code))
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,authenticated_system_id,operation_id,idempotency_key,resource_type,source_entity_id,action,outcome,after_redacted) values($1,$2,$2,$3,$4,'organization',$5,'ENROLLMENT','APPLIED',$6)`, tenantID, systemID, id, idempotency, sourceCompany, profile)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.integration_change_journal(tenant_id,external_system_id,authenticated_system_id,operation_id,idempotency_key,resource_type,source_entity_id,action,outcome,after_redacted) values($1,$2,$2,$3,$4,'organization',$5,'ENROLLMENT','APPLIED',$6)`, tenantID, systemID, id, idempotency, sourceCompany, profile)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
@@ -679,7 +679,7 @@ func (s *Service) StartCredentialRecovery(ctx context.Context, systemToken, idem
 		return EnrollmentStart{}, e
 	}
 	var bindingID, tenantID, sourceCompany string
-	e = s.db.QueryRowContext(ctx, `select b.id::text,b.tenant_id::text,b.source_company_id from tenant_source_bindings b join tenant_user_memberships m on m.tenant_id=b.tenant_id and m.normalized_email=$5 and m.status='ACTIVE' where b.external_system_id=$1 and b.tax_country=$2 and b.tax_type=$3 and b.tax_normalized_value=$4 and b.status='ACTIVE'`, systemID, country, kind, tax, email).Scan(&bindingID, &tenantID, &sourceCompany)
+	e = s.db.QueryRowContext(ctx, `select b.id::text,b.tenant_id::text,b.source_company_id from fiscal.tenant_source_bindings b join fiscal.tenant_user_memberships m on m.tenant_id=b.tenant_id and m.normalized_email=$5 and m.status='ACTIVE' where b.external_system_id=$1 and b.tax_country=$2 and b.tax_type=$3 and b.tax_normalized_value=$4 and b.status='ACTIVE'`, systemID, country, kind, tax, email).Scan(&bindingID, &tenantID, &sourceCompany)
 	unknown := errors.Is(e, sql.ErrNoRows)
 	if e != nil && !unknown {
 		return EnrollmentStart{}, e
@@ -692,7 +692,7 @@ func (s *Service) StartCredentialRecovery(ctx context.Context, systemToken, idem
 	}
 	requestHash := sha256.Sum256(mapJSON(in))
 	var replay, replayHash []byte
-	e = s.db.QueryRowContext(ctx, `select response_ciphertext,payload_hash from external_enrollment_challenges where external_system_id=$1 and idempotency_key=$2`, systemID, idempotency).Scan(&replay, &replayHash)
+	e = s.db.QueryRowContext(ctx, `select response_ciphertext,payload_hash from fiscal.external_enrollment_challenges where external_system_id=$1 and idempotency_key=$2`, systemID, idempotency).Scan(&replay, &replayHash)
 	if e == nil {
 		if !hmac.Equal(replayHash, requestHash[:]) {
 			return EnrollmentStart{}, ErrConflict
@@ -742,12 +742,12 @@ func (s *Service) StartCredentialRecovery(ctx context.Context, systemToken, idem
 		purpose = "UNKNOWN_CREDENTIAL_RECOVERY"
 		storedTenant = nil
 	}
-	_, e = tx.ExecContext(ctx, `insert into external_enrollment_challenges(id,external_system_id,source_company_id,normalized_email,tax_country,tax_type,tax_normalized_value,temporary_token_hash,otp_hash,payload_hash,legal_profile,idempotency_key,response_ciphertext,status,expires_at,purpose,tenant_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'PENDING',$14,$15,$16)`, id, systemID, sourceCompany, email, country, kind, tax, s.digest(temp), s.digest(otp), ph[:], profile, idempotency, enc, out.ExpiresAt, purpose, storedTenant)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.external_enrollment_challenges(id,external_system_id,source_company_id,normalized_email,tax_country,tax_type,tax_normalized_value,temporary_token_hash,otp_hash,payload_hash,legal_profile,idempotency_key,response_ciphertext,status,expires_at,purpose,tenant_id) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,'PENDING',$14,$15,$16)`, id, systemID, sourceCompany, email, country, kind, tax, s.digest(temp), s.digest(otp), ph[:], profile, idempotency, enc, out.ExpiresAt, purpose, storedTenant)
 	if e != nil {
 		return EnrollmentStart{}, e
 	}
 	if !unknown {
-		_, e = tx.ExecContext(ctx, `insert into fiscal_email_outbox(purpose,recipient,subject,body_text) values('FISCAL_CREDENTIAL_RECOVERY_OTP',$1,'Fiscal credential recovery code',$2)`, email, "Your Fiscal credential recovery code is: "+otp)
+		_, e = tx.ExecContext(ctx, `insert into fiscal.fiscal_email_outbox(purpose,recipient,subject,body_text) values('FISCAL_CREDENTIAL_RECOVERY_OTP',$1,'Fiscal credential recovery code',$2)`, email, "Your Fiscal credential recovery code is: "+otp)
 	}
 	if e != nil {
 		return EnrollmentStart{}, e
@@ -770,7 +770,7 @@ func (s *Service) VerifyCredentialRecovery(ctx context.Context, tempToken, code,
 	var verificationKey sql.NullString
 	var attempts int
 	var expires time.Time
-	e = tx.QueryRowContext(ctx, `select c.external_system_id::text,c.source_company_id,c.tenant_id::text,b.id::text,c.status,c.purpose,c.temporary_token_hash,c.otp_hash,c.response_ciphertext,c.attempts,c.expires_at,c.verification_idempotency_key,c.verification_request_hash from external_enrollment_challenges c join tenant_source_bindings b on b.tenant_id=c.tenant_id and b.external_system_id=c.external_system_id where c.id=$1 for update`, id).Scan(&systemID, &sourceCompany, &tenantID, &bindingID, &status, &purpose, &tokenHash, &otpHash, &replay, &attempts, &expires, &verificationKey, &verificationHash)
+	e = tx.QueryRowContext(ctx, `select c.external_system_id::text,c.source_company_id,c.tenant_id::text,b.id::text,c.status,c.purpose,c.temporary_token_hash,c.otp_hash,c.response_ciphertext,c.attempts,c.expires_at,c.verification_idempotency_key,c.verification_request_hash from fiscal.external_enrollment_challenges c join fiscal.tenant_source_bindings b on b.tenant_id=c.tenant_id and b.external_system_id=c.external_system_id where c.id=$1 for update`, id).Scan(&systemID, &sourceCompany, &tenantID, &bindingID, &status, &purpose, &tokenHash, &otpHash, &replay, &attempts, &expires, &verificationKey, &verificationHash)
 	if e != nil || purpose != "CREDENTIAL_RECOVERY" || !hmac.Equal(tokenHash, s.digest(tempToken)) {
 		return EnrollmentResult{}, ErrUnauthorized
 	}
@@ -792,7 +792,7 @@ func (s *Service) VerifyCredentialRecovery(ctx context.Context, tempToken, code,
 		return EnrollmentResult{}, ErrEnrollmentLocked
 	}
 	if s.now().After(expires) {
-		_, _ = tx.ExecContext(ctx, `update external_enrollment_challenges set status='EXPIRED' where id=$1 and status='PENDING'`, id)
+		_, _ = tx.ExecContext(ctx, `update fiscal.external_enrollment_challenges set status='EXPIRED' where id=$1 and status='PENDING'`, id)
 		_ = tx.Commit()
 		return EnrollmentResult{}, ErrEnrollmentExpired
 	}
@@ -800,7 +800,7 @@ func (s *Service) VerifyCredentialRecovery(ctx context.Context, tempToken, code,
 		return EnrollmentResult{}, ErrUnauthorized
 	}
 	if !hmac.Equal(otpHash, s.digest(code)) {
-		_, _ = tx.ExecContext(ctx, `update external_enrollment_challenges set attempts=attempts+1,status=case when attempts+1>=5 then 'LOCKED' else status end where id=$1`, id)
+		_, _ = tx.ExecContext(ctx, `update fiscal.external_enrollment_challenges set attempts=attempts+1,status=case when attempts+1>=5 then 'LOCKED' else status end where id=$1`, id)
 		_ = tx.Commit()
 		if attempts+1 >= 5 {
 			return EnrollmentResult{}, ErrEnrollmentLocked
@@ -816,11 +816,11 @@ func (s *Service) VerifyCredentialRecovery(ctx context.Context, tempToken, code,
 		return EnrollmentResult{}, e
 	}
 	scopes := []string{"organization.write", "locations.write", "registers.write", "operators.write", "operations.read"}
-	_, e = tx.ExecContext(ctx, `update tenant_integration_credentials set status='REVOKED',revoked_at=now() where binding_id=$1 and status='ACTIVE'`, bindingID)
+	_, e = tx.ExecContext(ctx, `update fiscal.tenant_integration_credentials set status='REVOKED',revoked_at=now() where binding_id=$1 and status='ACTIVE'`, bindingID)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into tenant_integration_credentials(credential_id,binding_id,secret_hash,scopes,status,expires_at) values($1,$2,$3,$4,'ACTIVE',now()+interval '1 year')`, credID, bindingID, s.digest(access), scopes)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.tenant_integration_credentials(credential_id,binding_id,secret_hash,scopes,status,expires_at) values($1,$2,$3,$4,'ACTIVE',now()+interval '1 year')`, credID, bindingID, s.digest(access), scopes)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
@@ -829,11 +829,11 @@ func (s *Service) VerifyCredentialRecovery(ctx context.Context, tempToken, code,
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `update external_enrollment_challenges set status='VERIFIED',verified_at=now(),response_ciphertext=$2,verification_idempotency_key=$3,verification_request_hash=$4 where id=$1`, id, enc, idempotency, s.digest("recover-verify:"+code))
+	_, e = tx.ExecContext(ctx, `update fiscal.external_enrollment_challenges set status='VERIFIED',verified_at=now(),response_ciphertext=$2,verification_idempotency_key=$3,verification_request_hash=$4 where id=$1`, id, enc, idempotency, s.digest("recover-verify:"+code))
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,authenticated_system_id,operation_id,idempotency_key,resource_type,source_entity_id,action,outcome,after_redacted) values($1,$2,$2,$3,$4,'credential',$5,'CREDENTIAL_RECOVERY','APPLIED',jsonb_build_object('credential_id',$6))`, tenantID, systemID, id, idempotency, sourceCompany, credID)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.integration_change_journal(tenant_id,external_system_id,authenticated_system_id,operation_id,idempotency_key,resource_type,source_entity_id,action,outcome,after_redacted) values($1,$2,$2,$3,$4,'credential',$5,'CREDENTIAL_RECOVERY','APPLIED',jsonb_build_object('credential_id',$6))`, tenantID, systemID, id, idempotency, sourceCompany, credID)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
@@ -851,12 +851,12 @@ func (s *Service) AuthenticateTenant(ctx context.Context, raw string) (Principal
 	var status string
 	var expires time.Time
 	var rawScopes []byte
-	e := s.db.QueryRowContext(ctx, `select c.credential_id::text,c.binding_id::text,b.tenant_id::text,b.external_system_id::text,b.source_company_id,c.secret_hash,array_to_json(c.scopes),c.status,c.expires_at from tenant_integration_credentials c join tenant_source_bindings b on b.id=c.binding_id where c.credential_id=$1 and b.status='ACTIVE'`, id).Scan(&p.CredentialID, &p.BindingID, &p.TenantID, &p.SystemID, &p.SourceCompanyID, &hash, &rawScopes, &status, &expires)
+	e := s.db.QueryRowContext(ctx, `select c.credential_id::text,c.binding_id::text,b.tenant_id::text,b.external_system_id::text,b.source_company_id,c.secret_hash,array_to_json(c.scopes),c.status,c.expires_at from fiscal.tenant_integration_credentials c join fiscal.tenant_source_bindings b on b.id=c.binding_id where c.credential_id=$1 and b.status='ACTIVE'`, id).Scan(&p.CredentialID, &p.BindingID, &p.TenantID, &p.SystemID, &p.SourceCompanyID, &hash, &rawScopes, &status, &expires)
 	if e != nil || status != "ACTIVE" || s.now().After(expires) {
 		return Principal{}, ErrUnauthorized
 	}
 	if !hmac.Equal(hash, s.digest(raw)) {
-		_, _ = s.db.ExecContext(ctx, `insert into integration_security_events(external_system_id,tenant_id,event_type,detail_redacted) values($1,$2,'TENANT_AUTH_FAILED',jsonb_build_object('credential_id',$3))`, p.SystemID, p.TenantID, id)
+		_, _ = s.db.ExecContext(ctx, `insert into fiscal.integration_security_events(external_system_id,tenant_id,event_type,detail_redacted) values($1,$2,'TENANT_AUTH_FAILED',jsonb_build_object('credential_id',$3))`, p.SystemID, p.TenantID, id)
 		return Principal{}, ErrUnauthorized
 	}
 	if json.Unmarshal(rawScopes, &scopes) != nil {
@@ -866,7 +866,7 @@ func (s *Service) AuthenticateTenant(ctx context.Context, raw string) (Principal
 	for _, v := range scopes {
 		p.Scopes[v] = true
 	}
-	_, _ = s.db.ExecContext(ctx, `update tenant_integration_credentials set last_used_at=now() where credential_id=$1`, id)
+	_, _ = s.db.ExecContext(ctx, `update fiscal.tenant_integration_credentials set last_used_at=now() where credential_id=$1`, id)
 	return p, nil
 }
 
@@ -878,7 +878,7 @@ func (s *Service) AuthenticateTenantRevocation(ctx context.Context, raw, idempot
 	var p Principal
 	var hash []byte
 	var status string
-	e := s.db.QueryRowContext(ctx, `select c.credential_id::text,c.binding_id::text,b.tenant_id::text,b.external_system_id::text,b.source_company_id,c.secret_hash,c.status from tenant_integration_credentials c join tenant_source_bindings b on b.id=c.binding_id where c.credential_id=$1`, id).Scan(&p.CredentialID, &p.BindingID, &p.TenantID, &p.SystemID, &p.SourceCompanyID, &hash, &status)
+	e := s.db.QueryRowContext(ctx, `select c.credential_id::text,c.binding_id::text,b.tenant_id::text,b.external_system_id::text,b.source_company_id,c.secret_hash,c.status from fiscal.tenant_integration_credentials c join fiscal.tenant_source_bindings b on b.id=c.binding_id where c.credential_id=$1`, id).Scan(&p.CredentialID, &p.BindingID, &p.TenantID, &p.SystemID, &p.SourceCompanyID, &hash, &status)
 	if e != nil || !hmac.Equal(hash, s.digest(raw)) {
 		return Principal{}, false, ErrUnauthorized
 	}
@@ -886,7 +886,7 @@ func (s *Service) AuthenticateTenantRevocation(ctx context.Context, raw, idempot
 		return p, false, nil
 	}
 	var replay bool
-	e = s.db.QueryRowContext(ctx, `select exists(select 1 from integration_change_journal where tenant_id=$1 and external_system_id=$2 and idempotency_key=$3 and action='CREDENTIAL_REVOKED' and source_entity_id=$4)`, p.TenantID, p.SystemID, idempotency, p.SourceCompanyID).Scan(&replay)
+	e = s.db.QueryRowContext(ctx, `select exists(select 1 from fiscal.integration_change_journal where tenant_id=$1 and external_system_id=$2 and idempotency_key=$3 and action='CREDENTIAL_REVOKED' and source_entity_id=$4)`, p.TenantID, p.SystemID, idempotency, p.SourceCompanyID).Scan(&replay)
 	if e != nil || !replay {
 		return Principal{}, false, ErrUnauthorized
 	}
@@ -902,7 +902,7 @@ func (s *Service) UpdateSourceCompanyID(ctx context.Context, p Principal, next s
 	}
 	defer tx.Rollback()
 	var priorAfter []byte
-	e = tx.QueryRowContext(ctx, `select after_redacted from integration_change_journal where tenant_id=$1 and external_system_id=$2 and idempotency_key=$3 and action='SOURCE_COMPANY_ID_UPDATED'`, p.TenantID, p.SystemID, idempotency).Scan(&priorAfter)
+	e = tx.QueryRowContext(ctx, `select after_redacted from fiscal.integration_change_journal where tenant_id=$1 and external_system_id=$2 and idempotency_key=$3 and action='SOURCE_COMPANY_ID_UPDATED'`, p.TenantID, p.SystemID, idempotency).Scan(&priorAfter)
 	if e == nil {
 		var v map[string]string
 		if json.Unmarshal(priorAfter, &v) == nil && v["source_company_id"] == next {
@@ -914,11 +914,11 @@ func (s *Service) UpdateSourceCompanyID(ctx context.Context, p Principal, next s
 		return e
 	}
 	var previous string
-	e = tx.QueryRowContext(ctx, `select source_company_id from tenant_source_bindings where id=$1 for update`, p.BindingID).Scan(&previous)
+	e = tx.QueryRowContext(ctx, `select source_company_id from fiscal.tenant_source_bindings where id=$1 for update`, p.BindingID).Scan(&previous)
 	if e != nil {
 		return e
 	}
-	r, e := tx.ExecContext(ctx, `update tenant_source_bindings set source_company_id=$2,version=version+1,updated_at=now() where id=$1 and version=$3`, p.BindingID, next, expected)
+	r, e := tx.ExecContext(ctx, `update fiscal.tenant_source_bindings set source_company_id=$2,version=version+1,updated_at=now() where id=$1 and version=$3`, p.BindingID, next, expected)
 	if e != nil {
 		return e
 	}
@@ -926,7 +926,7 @@ func (s *Service) UpdateSourceCompanyID(ctx context.Context, p Principal, next s
 	if n != 1 {
 		return ErrConflict
 	}
-	_, e = tx.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,authenticated_system_id,idempotency_key,resource_type,source_entity_id,action,outcome,before_redacted,after_redacted,asserted_actor_type,asserted_actor_id,asserted_actor_session_id) values($1,$2,$2,$3,'binding',$4,'SOURCE_COMPANY_ID_UPDATED','APPLIED',jsonb_build_object('source_company_id',$5),jsonb_build_object('source_company_id',$4),$6,$7,$8)`, p.TenantID, p.SystemID, idempotency, next, previous, actorType, actorID, session)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.integration_change_journal(tenant_id,external_system_id,authenticated_system_id,idempotency_key,resource_type,source_entity_id,action,outcome,before_redacted,after_redacted,asserted_actor_type,asserted_actor_id,asserted_actor_session_id) values($1,$2,$2,$3,'binding',$4,'SOURCE_COMPANY_ID_UPDATED','APPLIED',jsonb_build_object('source_company_id',$5),jsonb_build_object('source_company_id',$4),$6,$7,$8)`, p.TenantID, p.SystemID, idempotency, next, previous, actorType, actorID, session)
 	if e != nil {
 		return e
 	}
@@ -943,7 +943,7 @@ func (s *Service) RotateTenantCredential(ctx context.Context, p Principal, idemp
 	}
 	defer tx.Rollback()
 	var replay []byte
-	e = tx.QueryRowContext(ctx, `select response_ciphertext from integration_idempotency_replays where external_system_id=$1 and scope=$2 and idempotency_key=$3 and expires_at>now()`, p.SystemID, "credential-rotate:"+p.BindingID, idempotency).Scan(&replay)
+	e = tx.QueryRowContext(ctx, `select response_ciphertext from fiscal.integration_idempotency_replays where external_system_id=$1 and scope=$2 and idempotency_key=$3 and expires_at>now()`, p.SystemID, "credential-rotate:"+p.BindingID, idempotency).Scan(&replay)
 	if e == nil {
 		plain, de := s.decrypt(replay)
 		if de != nil {
@@ -970,11 +970,11 @@ func (s *Service) RotateTenantCredential(ctx context.Context, p Principal, idemp
 	for v := range p.Scopes {
 		scopes = append(scopes, v)
 	}
-	_, e = tx.ExecContext(ctx, `update tenant_integration_credentials set status='REVOKED',revoked_at=now() where binding_id=$1 and status='ACTIVE'`, p.BindingID)
+	_, e = tx.ExecContext(ctx, `update fiscal.tenant_integration_credentials set status='REVOKED',revoked_at=now() where binding_id=$1 and status='ACTIVE'`, p.BindingID)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into tenant_integration_credentials(credential_id,binding_id,secret_hash,scopes,status,expires_at) values($1,$2,$3,$4,'ACTIVE',now()+interval '1 year')`, credID, p.BindingID, s.digest(raw), scopes)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.tenant_integration_credentials(credential_id,binding_id,secret_hash,scopes,status,expires_at) values($1,$2,$3,$4,'ACTIVE',now()+interval '1 year')`, credID, p.BindingID, s.digest(raw), scopes)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
@@ -984,11 +984,11 @@ func (s *Service) RotateTenantCredential(ctx context.Context, p Principal, idemp
 		return EnrollmentResult{}, e
 	}
 	h := sha256.Sum256([]byte(idempotency))
-	_, e = tx.ExecContext(ctx, `insert into integration_idempotency_replays(external_system_id,scope,idempotency_key,request_hash,response_status,response_ciphertext,expires_at) values($1,$2,$3,$4,200,$5,now()+interval '24 hours')`, p.SystemID, "credential-rotate:"+p.BindingID, idempotency, h[:], enc)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.integration_idempotency_replays(external_system_id,scope,idempotency_key,request_hash,response_status,response_ciphertext,expires_at) values($1,$2,$3,$4,200,$5,now()+interval '24 hours')`, p.SystemID, "credential-rotate:"+p.BindingID, idempotency, h[:], enc)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,authenticated_system_id,idempotency_key,resource_type,source_entity_id,action,outcome,after_redacted) values($1,$2,$2,$3,'credential',$4,'CREDENTIAL_ROTATED','APPLIED',jsonb_build_object('credential_id',$5))`, p.TenantID, p.SystemID, idempotency, p.SourceCompanyID, credID)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.integration_change_journal(tenant_id,external_system_id,authenticated_system_id,idempotency_key,resource_type,source_entity_id,action,outcome,after_redacted) values($1,$2,$2,$3,'credential',$4,'CREDENTIAL_ROTATED','APPLIED',jsonb_build_object('credential_id',$5))`, p.TenantID, p.SystemID, idempotency, p.SourceCompanyID, credID)
 	if e != nil {
 		return EnrollmentResult{}, e
 	}
@@ -1003,7 +1003,7 @@ func (s *Service) RevokeTenantCredential(ctx context.Context, p Principal, idemp
 		return e
 	}
 	defer tx.Rollback()
-	r, e := tx.ExecContext(ctx, `update tenant_integration_credentials set status='REVOKED',revoked_at=now() where credential_id=$1 and status='ACTIVE'`, p.CredentialID)
+	r, e := tx.ExecContext(ctx, `update fiscal.tenant_integration_credentials set status='REVOKED',revoked_at=now() where credential_id=$1 and status='ACTIVE'`, p.CredentialID)
 	if e != nil {
 		return e
 	}
@@ -1011,7 +1011,7 @@ func (s *Service) RevokeTenantCredential(ctx context.Context, p Principal, idemp
 	if n != 1 {
 		return ErrConflict
 	}
-	_, e = tx.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,authenticated_system_id,idempotency_key,resource_type,source_entity_id,action,outcome,asserted_actor_type,asserted_actor_id,asserted_actor_session_id,after_redacted) values($1,$2,$2,$3,'credential',$4,'CREDENTIAL_REVOKED','APPLIED',$5,$6,nullif($7,''),jsonb_build_object('credential_id',$8))`, p.TenantID, p.SystemID, idempotency, p.SourceCompanyID, actorType, actorID, session, p.CredentialID)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.integration_change_journal(tenant_id,external_system_id,authenticated_system_id,idempotency_key,resource_type,source_entity_id,action,outcome,asserted_actor_type,asserted_actor_id,asserted_actor_session_id,after_redacted) values($1,$2,$2,$3,'credential',$4,'CREDENTIAL_REVOKED','APPLIED',$5,$6,nullif($7,''),jsonb_build_object('credential_id',$8))`, p.TenantID, p.SystemID, idempotency, p.SourceCompanyID, actorType, actorID, session, p.CredentialID)
 	if e != nil {
 		return e
 	}
@@ -1019,7 +1019,7 @@ func (s *Service) RevokeTenantCredential(ctx context.Context, p Principal, idemp
 }
 
 func (s *Service) EnrollmentConflicts(ctx context.Context) ([]map[string]any, error) {
-	return s.queryObjects(ctx, `select jsonb_build_object('challenge_id',c.id,'external_system_id',c.external_system_id,'source_company_id',c.source_company_id,'email',c.normalized_email,'tax_country',c.tax_country,'tax_type',c.tax_type,'tax_identifier',c.tax_normalized_value,'created_at',c.created_at,'existing_binding_id',b.id,'existing_tenant_id',b.tenant_id,'existing_source_company_id',b.source_company_id) from external_enrollment_challenges c join tenant_source_bindings b on b.tax_country=c.tax_country and b.tax_type=c.tax_type and b.tax_normalized_value=c.tax_normalized_value and b.status='ACTIVE' where c.status='CONFLICT' and $1::text is null order by c.created_at`, nil)
+	return s.queryObjects(ctx, `select jsonb_build_object('challenge_id',c.id,'external_system_id',c.external_system_id,'source_company_id',c.source_company_id,'email',c.normalized_email,'tax_country',c.tax_country,'tax_type',c.tax_type,'tax_identifier',c.tax_normalized_value,'created_at',c.created_at,'existing_binding_id',b.id,'existing_tenant_id',b.tenant_id,'existing_source_company_id',b.source_company_id) from fiscal.external_enrollment_challenges c join fiscal.tenant_source_bindings b on b.tax_country=c.tax_country and b.tax_type=c.tax_type and b.tax_normalized_value=c.tax_normalized_value and b.status='ACTIVE' where c.status='CONFLICT' and $1::text is null order by c.created_at`, nil)
 }
 func (s *Service) ResolveEnrollmentConflict(ctx context.Context, challengeID, decision, reason, actor, requestID string) error {
 	if (decision != "KEEP_EXISTING" && decision != "REPLACE_EXISTING") || strings.TrimSpace(reason) == "" || requestID == "" {
@@ -1032,7 +1032,7 @@ func (s *Service) ResolveEnrollmentConflict(ctx context.Context, challengeID, de
 	defer tx.Rollback()
 	var bindingID, tenantID, systemID, sourceCompany string
 	var before []byte
-	e = tx.QueryRowContext(ctx, `select b.id::text,b.tenant_id::text,c.external_system_id::text,c.source_company_id,to_jsonb(b) from external_enrollment_challenges c join tenant_source_bindings b on b.tax_country=c.tax_country and b.tax_type=c.tax_type and b.tax_normalized_value=c.tax_normalized_value and b.status='ACTIVE' where c.id=$1 and c.status='CONFLICT' for update of c,b`, challengeID).Scan(&bindingID, &tenantID, &systemID, &sourceCompany, &before)
+	e = tx.QueryRowContext(ctx, `select b.id::text,b.tenant_id::text,c.external_system_id::text,c.source_company_id,to_jsonb(b) from fiscal.external_enrollment_challenges c join fiscal.tenant_source_bindings b on b.tax_country=c.tax_country and b.tax_type=c.tax_type and b.tax_normalized_value=c.tax_normalized_value and b.status='ACTIVE' where c.id=$1 and c.status='CONFLICT' for update of c,b`, challengeID).Scan(&bindingID, &tenantID, &systemID, &sourceCompany, &before)
 	if errors.Is(e, sql.ErrNoRows) {
 		return ErrNotFound
 	}
@@ -1041,21 +1041,21 @@ func (s *Service) ResolveEnrollmentConflict(ctx context.Context, challengeID, de
 	}
 	after := mapJSON(map[string]any{"decision": decision, "reason": reason})
 	if decision == "REPLACE_EXISTING" {
-		_, e = tx.ExecContext(ctx, `update tenant_source_bindings set status='SUSPENDED',version=version+1,updated_at=now() where id=$1`, bindingID)
+		_, e = tx.ExecContext(ctx, `update fiscal.tenant_source_bindings set status='SUSPENDED',version=version+1,updated_at=now() where id=$1`, bindingID)
 		if e == nil {
-			_, e = tx.ExecContext(ctx, `update external_enrollment_challenges set status='PENDING',expires_at=greatest(expires_at,now()+interval '10 minutes') where id=$1`, challengeID)
+			_, e = tx.ExecContext(ctx, `update fiscal.external_enrollment_challenges set status='PENDING',expires_at=greatest(expires_at,now()+interval '10 minutes') where id=$1`, challengeID)
 		}
 	} else {
-		_, e = tx.ExecContext(ctx, `update external_enrollment_challenges set status='CANCELLED' where id=$1`, challengeID)
+		_, e = tx.ExecContext(ctx, `update fiscal.external_enrollment_challenges set status='CANCELLED' where id=$1`, challengeID)
 	}
 	if e != nil {
 		return e
 	}
-	_, e = tx.ExecContext(ctx, `insert into enrollment_conflict_decisions(challenge_id,existing_binding_id,decision,reason,actor_subject,request_id,before_redacted,after_redacted) values($1,$2,$3,$4,$5,$6,$7,$8)`, challengeID, bindingID, decision, reason, actor, requestID, before, after)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.enrollment_conflict_decisions(challenge_id,existing_binding_id,decision,reason,actor_subject,request_id,before_redacted,after_redacted) values($1,$2,$3,$4,$5,$6,$7,$8)`, challengeID, bindingID, decision, reason, actor, requestID, before, after)
 	if e != nil {
 		return e
 	}
-	_, e = tx.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,fiscal_platform_actor_subject,idempotency_key,resource_type,source_entity_id,action,outcome,before_redacted,after_redacted,reason_code) values($1,$2,$3,$4,'binding',$5,'ENROLLMENT_CONFLICT_RESOLVED','APPLIED',$6,$7,$8)`, tenantID, systemID, actor, requestID, sourceCompany, before, after, decision)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.integration_change_journal(tenant_id,external_system_id,fiscal_platform_actor_subject,idempotency_key,resource_type,source_entity_id,action,outcome,before_redacted,after_redacted,reason_code) values($1,$2,$3,$4,'binding',$5,'ENROLLMENT_CONFLICT_RESOLVED','APPLIED',$6,$7,$8)`, tenantID, systemID, actor, requestID, sourceCompany, before, after, decision)
 	if e != nil {
 		return e
 	}
@@ -1088,7 +1088,7 @@ func (s *Service) AcceptResource(ctx context.Context, p Principal, method, resou
 				return AcceptedOperation{}, e
 			}
 			var duplicate bool
-			if e = s.db.QueryRowContext(ctx, `select exists(select 1 from tenant_source_bindings where tax_country=$1 and tax_type=$2 and tax_normalized_value=$3 and tenant_id<>$4 and status='ACTIVE')`, country, kind, tax, p.TenantID).Scan(&duplicate); e != nil {
+			if e = s.db.QueryRowContext(ctx, `select exists(select 1 from fiscal.tenant_source_bindings where tax_country=$1 and tax_type=$2 and tax_normalized_value=$3 and tenant_id<>$4 and status='ACTIVE')`, country, kind, tax, p.TenantID).Scan(&duplicate); e != nil {
 				return AcceptedOperation{}, e
 			}
 			if duplicate {
@@ -1104,7 +1104,7 @@ func (s *Service) AcceptResource(ctx context.Context, p Principal, method, resou
 	defer tx.Rollback()
 	var existing AcceptedOperation
 	var oldHash []byte
-	e = tx.QueryRowContext(ctx, `select id::text,status,created_at,payload_hash from integration_commands where external_system_id=$1 and tenant_id=$2 and idempotency_key=$3`, p.SystemID, p.TenantID, idempotency).Scan(&existing.OperationID, &existing.Status, &existing.AcceptedAt, &oldHash)
+	e = tx.QueryRowContext(ctx, `select id::text,status,created_at,payload_hash from fiscal.integration_commands where external_system_id=$1 and tenant_id=$2 and idempotency_key=$3`, p.SystemID, p.TenantID, idempotency).Scan(&existing.OperationID, &existing.Status, &existing.AcceptedAt, &oldHash)
 	if e == nil {
 		if !hmac.Equal(oldHash, hash[:]) {
 			return AcceptedOperation{}, ErrCommandPayloadConflict
@@ -1116,7 +1116,7 @@ func (s *Service) AcceptResource(ctx context.Context, p Principal, method, resou
 		return AcceptedOperation{}, e
 	}
 	var latest int64
-	e = tx.QueryRowContext(ctx, `select coalesce(max(source_version),0) from integration_commands where tenant_id=$1 and external_system_id=$2 and resource_type=$3 and aggregate_source_id=$4 and status not in ('FAILED','DEAD')`, p.TenantID, p.SystemID, resourceType, sourceID).Scan(&latest)
+	e = tx.QueryRowContext(ctx, `select coalesce(max(source_version),0) from fiscal.integration_commands where tenant_id=$1 and external_system_id=$2 and resource_type=$3 and aggregate_source_id=$4 and status not in ('FAILED','DEAD')`, p.TenantID, p.SystemID, resourceType, sourceID).Scan(&latest)
 	if e != nil {
 		return AcceptedOperation{}, e
 	}
@@ -1128,16 +1128,16 @@ func (s *Service) AcceptResource(ctx context.Context, p Principal, method, resou
 		return AcceptedOperation{}, e
 	}
 	topic := "fiscal.integration." + resourceType
-	_, e = tx.ExecContext(ctx, `insert into integration_commands(id,tenant_id,external_system_id,idempotency_key,http_method,resource_type,aggregate_source_id,source_version,payload,payload_hash,authenticated_system_id,asserted_actor_type,asserted_actor_id,asserted_actor_session_id,status) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$3,$11,$12,nullif($13,''),'ACCEPTED')`, id, p.TenantID, p.SystemID, idempotency, method, resourceType, sourceID, version, payload, hash[:], actorType, actorID, session)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.integration_commands(id,tenant_id,external_system_id,idempotency_key,http_method,resource_type,aggregate_source_id,source_version,payload,payload_hash,authenticated_system_id,asserted_actor_type,asserted_actor_id,asserted_actor_session_id,status) values($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$3,$11,$12,nullif($13,''),'ACCEPTED')`, id, p.TenantID, p.SystemID, idempotency, method, resourceType, sourceID, version, payload, hash[:], actorType, actorID, session)
 	if e != nil {
 		return AcceptedOperation{}, e
 	}
 	event := mapJSON(map[string]any{"command_id": id, "tenant_id": p.TenantID, "external_system_id": p.SystemID, "resource_type": resourceType, "source_entity_id": sourceID, "source_version": version})
-	_, e = tx.ExecContext(ctx, `insert into integration_command_outbox(command_id,topic,payload,status) values($1,$2,$3,'PENDING')`, id, topic, event)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.integration_command_outbox(command_id,topic,payload,status) values($1,$2,$3,'PENDING')`, id, topic, event)
 	if e != nil {
 		return AcceptedOperation{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,authenticated_system_id,asserted_actor_type,asserted_actor_id,asserted_actor_session_id,operation_id,idempotency_key,resource_type,source_entity_id,action,outcome,after_redacted) values($1,$2,$2,$3,$4,nullif($5,''),$6,$7,$8,$9,$10,'ACCEPTED',$11)`, p.TenantID, p.SystemID, actorType, actorID, session, id, idempotency, resourceType, sourceID, method, payload)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.integration_change_journal(tenant_id,external_system_id,authenticated_system_id,asserted_actor_type,asserted_actor_id,asserted_actor_session_id,operation_id,idempotency_key,resource_type,source_entity_id,action,outcome,after_redacted) values($1,$2,$2,$3,$4,nullif($5,''),$6,$7,$8,$9,$10,'ACCEPTED',$11)`, p.TenantID, p.SystemID, actorType, actorID, session, id, idempotency, resourceType, sourceID, method, payload)
 	if e != nil {
 		return AcceptedOperation{}, e
 	}
@@ -1149,7 +1149,7 @@ func (s *Service) Operation(ctx context.Context, p Principal, id string) (map[st
 	var version int64
 	var result []byte
 	var created, updated time.Time
-	e := s.db.QueryRowContext(ctx, `select status,resource_type,aggregate_source_id,source_version,coalesce(result,'{}'),created_at,updated_at from integration_commands where id=$1 and tenant_id=$2 and external_system_id=$3`, id, p.TenantID, p.SystemID).Scan(&status, &resource, &source, &version, &result, &created, &updated)
+	e := s.db.QueryRowContext(ctx, `select status,resource_type,aggregate_source_id,source_version,coalesce(result,'{}'),created_at,updated_at from fiscal.integration_commands where id=$1 and tenant_id=$2 and external_system_id=$3`, id, p.TenantID, p.SystemID).Scan(&status, &resource, &source, &version, &result, &created, &updated)
 	if e == sql.ErrNoRows {
 		return nil, ErrNotFound
 	}
@@ -1161,6 +1161,6 @@ func (s *Service) Operation(ctx context.Context, p Principal, id string) (map[st
 	return map[string]any{"operation_id": id, "status": status, "resource_type": resource, "source_entity_id": source, "source_version": version, "result": parsed, "accepted_at": created, "updated_at": updated}, nil
 }
 func (s *Service) AuditRejectedMutation(ctx context.Context, p Principal, resource, source, idempotency, actorType, actorID string, failure error) {
-	_, _ = s.db.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,authenticated_system_id,asserted_actor_type,asserted_actor_id,idempotency_key,resource_type,source_entity_id,action,outcome,reason_code,after_redacted) values($1,$2,$2,nullif($3,''),nullif($4,''),nullif($5,''),$6,$7,'MUTATION','REJECTED','VALIDATION_REJECTED',jsonb_build_object('error',$8))`, p.TenantID, p.SystemID, actorType, actorID, idempotency, resource, source, failure.Error())
-	_, _ = s.db.ExecContext(ctx, `insert into integration_security_events(external_system_id,tenant_id,event_type,actor_type,actor_id,request_id,detail_redacted) values($1,$2,'MUTATION_REJECTED',nullif($3,''),nullif($4,''),nullif($5,''),jsonb_build_object('resource_type',$6,'source_id',$7))`, p.SystemID, p.TenantID, actorType, actorID, idempotency, resource, source)
+	_, _ = s.db.ExecContext(ctx, `insert into fiscal.integration_change_journal(tenant_id,external_system_id,authenticated_system_id,asserted_actor_type,asserted_actor_id,idempotency_key,resource_type,source_entity_id,action,outcome,reason_code,after_redacted) values($1,$2,$2,nullif($3,''),nullif($4,''),nullif($5,''),$6,$7,'MUTATION','REJECTED','VALIDATION_REJECTED',jsonb_build_object('error',$8))`, p.TenantID, p.SystemID, actorType, actorID, idempotency, resource, source, failure.Error())
+	_, _ = s.db.ExecContext(ctx, `insert into fiscal.integration_security_events(external_system_id,tenant_id,event_type,actor_type,actor_id,request_id,detail_redacted) values($1,$2,'MUTATION_REJECTED',nullif($3,''),nullif($4,''),nullif($5,''),jsonb_build_object('resource_type',$6,'source_id',$7))`, p.SystemID, p.TenantID, actorType, actorID, idempotency, resource, source)
 }

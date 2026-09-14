@@ -39,14 +39,14 @@ func seedAppMembership(t *testing.T, s *Service) (email, instance string, tenant
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = s.db.Exec(`insert into tenant_user_memberships(tenant_id,user_id,normalized_email,roles,status) values($1,$2,$3,array['ADMIN']::text[],'ACTIVE')`, tenantID, userID, email); err != nil {
+	if _, err = s.db.Exec(`insert into fiscal.tenant_user_memberships(tenant_id,user_id,normalized_email,roles,status) values($1,$2,$3,array['ADMIN']::text[],'ACTIVE')`, tenantID, userID, email); err != nil {
 		t.Fatal(err)
 	}
 	t.Cleanup(func() {
-		_, _ = s.db.Exec(`delete from app_issued_tokens where session_id in (select id from app_auth_sessions where normalized_email=$1)`, email)
-		_, _ = s.db.Exec(`delete from app_auth_sessions where normalized_email=$1`, email)
-		_, _ = s.db.Exec(`delete from app_auth_challenges where normalized_email=$1`, email)
-		_, _ = s.db.Exec(`delete from tenant_user_memberships where tenant_id=$1 and normalized_email=$2`, tenantID, email)
+		_, _ = s.db.Exec(`delete from fiscal.app_issued_tokens where session_id in (select id from fiscal.app_auth_sessions where normalized_email=$1)`, email)
+		_, _ = s.db.Exec(`delete from fiscal.app_auth_sessions where normalized_email=$1`, email)
+		_, _ = s.db.Exec(`delete from fiscal.app_auth_challenges where normalized_email=$1`, email)
+		_, _ = s.db.Exec(`delete from fiscal.tenant_user_memberships where tenant_id=$1 and normalized_email=$2`, tenantID, email)
 	})
 	return email, instance, AppTenant{TenantID: tenantID, DisplayName: tenantID, Roles: []string{"ADMIN"}}
 }
@@ -89,7 +89,7 @@ func TestAppTenantSelectionTokenIsConsumedAtomically(t *testing.T) {
 	email, instance, tenant := seedAppMembership(t, s)
 	challengeID, _ := uuid()
 	selection, _ := token("app_tmp", challengeID)
-	if _, err := s.db.Exec(`insert into app_auth_challenges(id,normalized_email,temporary_token_hash,otp_hash,status,expires_at,app_instance_id,verified_at) values($1,$2,$3,$4,'VERIFIED',$5,$6,now())`, challengeID, email, s.digest(selection), s.digest("123456"), time.Now().Add(time.Minute), instance); err != nil {
+	if _, err := s.db.Exec(`insert into fiscal.app_auth_challenges(id,normalized_email,temporary_token_hash,otp_hash,status,expires_at,app_instance_id,verified_at) values($1,$2,$3,$4,'VERIFIED',$5,$6,now())`, challengeID, email, s.digest(selection), s.digest("123456"), time.Now().Add(time.Minute), instance); err != nil {
 		t.Fatal(err)
 	}
 	call := func() (AppSession, error) {
@@ -98,7 +98,7 @@ func TestAppTenantSelectionTokenIsConsumedAtomically(t *testing.T) {
 	_, errs := concurrentResults(call, call)
 	assertOneWinner(t, errs)
 	var active int
-	if err := s.db.QueryRow(`select count(*) from app_auth_sessions where normalized_email=$1 and status='ACTIVE'`, email).Scan(&active); err != nil || active != 1 {
+	if err := s.db.QueryRow(`select count(*) from fiscal.app_auth_sessions where normalized_email=$1 and status='ACTIVE'`, email).Scan(&active); err != nil || active != 1 {
 		t.Fatalf("expected exactly one active session, count=%d err=%v", active, err)
 	}
 }
@@ -119,7 +119,7 @@ func TestAppRefreshRotationIsSingleUseAndAtomic(t *testing.T) {
 		t.Fatal("refresh credential was not rotated")
 	}
 	var active int
-	if err = s.db.QueryRow(`select count(*) from app_auth_sessions where normalized_email=$1 and status='ACTIVE'`, email).Scan(&active); err != nil || active != 1 {
+	if err = s.db.QueryRow(`select count(*) from fiscal.app_auth_sessions where normalized_email=$1 and status='ACTIVE'`, email).Scan(&active); err != nil || active != 1 {
 		t.Fatalf("expected exactly one active rotated session, count=%d err=%v", active, err)
 	}
 
@@ -129,7 +129,7 @@ func TestAppRefreshRotationIsSingleUseAndAtomic(t *testing.T) {
 	if _, err = s.RotateAppSession(context.Background(), current.RefreshToken, instance, ""); err == nil {
 		t.Fatal("rotation unexpectedly succeeded without a signing key")
 	}
-	if err = s.db.QueryRow(`select count(*) from app_auth_sessions where normalized_email=$1 and status='ACTIVE'`, email).Scan(&active); err != nil || active != 1 {
+	if err = s.db.QueryRow(`select count(*) from fiscal.app_auth_sessions where normalized_email=$1 and status='ACTIVE'`, email).Scan(&active); err != nil || active != 1 {
 		t.Fatalf("failed rotation revoked the current session, count=%d err=%v", active, err)
 	}
 }

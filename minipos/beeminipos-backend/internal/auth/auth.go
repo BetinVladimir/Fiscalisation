@@ -32,7 +32,8 @@ func MiddlewareWithRevocation(secret string, revoked func(Claims) bool, next htt
 		panic("auth: AUTH_HMAC_KEY must be configured")
 	}
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if !strings.HasPrefix(r.URL.Path, "/public/v1") || r.URL.Path == "/public/v1/fiscal-webhooks" {
+		protected := strings.HasPrefix(r.URL.Path, "/public/v1") || strings.HasPrefix(r.URL.Path, "/api/v1")
+		if !protected || r.URL.Path == "/public/v1/fiscal-webhooks" || r.URL.Path == "/api/v1/fiscal-webhooks" {
 			next.ServeHTTP(w, r)
 			return
 		}

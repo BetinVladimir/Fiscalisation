@@ -98,7 +98,7 @@ func (s *Service) rabbitSession(ctx context.Context, url string, apply ApplyReso
 			}
 			if e = s.processCommand(ctx, v.CommandID, apply); e != nil {
 				var dead bool
-				_ = s.db.QueryRowContext(ctx, `update integration_commands set status=case when attempts>=5 then 'DEAD' else 'QUEUED' end,processing_started_at=null,last_error_code='WORKER_ERROR',last_error_detail=$2,updated_at=now() where id=$1 returning status='DEAD'`, v.CommandID, e.Error()).Scan(&dead)
+				_ = s.db.QueryRowContext(ctx, `update fiscal.integration_commands set status=case when attempts>=5 then 'DEAD' else 'QUEUED' end,processing_started_at=null,last_error_code='WORKER_ERROR',last_error_detail=$2,updated_at=now() where id=$1 returning status='DEAD'`, v.CommandID, e.Error()).Scan(&dead)
 				if dead {
 					_ = s.finishDeadCommand(ctx, v.CommandID, e)
 					_ = d.Ack(false)
@@ -135,7 +135,7 @@ func (s *Service) rabbitSession(ctx context.Context, url string, apply ApplyReso
 func (s *Service) finishDeadCommand(ctx context.Context, id string, workerErr error) error {
 	var tenant, system, method, resource, source string
 	var version int64
-	e := s.db.QueryRowContext(ctx, `select tenant_id::text,external_system_id::text,http_method,resource_type,aggregate_source_id,source_version from integration_commands where id=$1 and status='DEAD'`, id).Scan(&tenant, &system, &method, &resource, &source, &version)
+	e := s.db.QueryRowContext(ctx, `select tenant_id::text,external_system_id::text,http_method,resource_type,aggregate_source_id,source_version from fiscal.integration_commands where id=$1 and status='DEAD'`, id).Scan(&tenant, &system, &method, &resource, &source, &version)
 	if e != nil {
 		return e
 	}
@@ -159,7 +159,7 @@ func publishConfirmed(ctx context.Context, ch *amqp091.Channel, routing string, 
 }
 func sha256Bytes(v []byte) []byte { h := sha256.Sum256(v); return h[:] }
 func (s *Service) publishCommandBatch(ctx context.Context, ch *amqp091.Channel) error {
-	rows, e := s.db.QueryContext(ctx, `with picked as (select id from integration_command_outbox where ((status in ('PENDING','FAILED') and available_at<=now()) or (status='LEASED' and lease_until<now())) order by available_at,id for update skip locked limit 50) update integration_command_outbox o set status='LEASED',lease_id=gen_random_uuid(),lease_until=now()+interval '30 seconds',updated_at=now() from picked where o.id=picked.id returning o.id::text,o.command_id::text,o.topic,o.payload`)
+	rows, e := s.db.QueryContext(ctx, `with picked as (select id from fiscal.integration_command_outbox where ((status in ('PENDING','FAILED') and available_at<=now()) or (status='LEASED' and lease_until<now())) order by available_at,id for update skip locked limit 50) update fiscal.integration_command_outbox o set status='LEASED',lease_id=fiscal.gen_random_uuid(),lease_until=now()+interval '30 seconds',updated_at=now() from picked where o.id=picked.id returning o.id::text,o.command_id::text,o.topic,o.payload`)
 	if e != nil {
 		return e
 	}
@@ -179,14 +179,14 @@ func (s *Service) publishCommandBatch(ctx context.Context, ch *amqp091.Channel) 
 	for _, v := range items {
 		body := mapJSON(map[string]string{"command_id": v.command})
 		if e = publishConfirmed(ctx, ch, "command."+v.topic, body); e != nil {
-			_, _ = s.db.ExecContext(ctx, `update integration_command_outbox set status='FAILED',attempts=attempts+1,available_at=now()+interval '5 seconds',lease_id=null,lease_until=null,last_error=$2,updated_at=now() where id=$1`, v.id, e.Error())
+			_, _ = s.db.ExecContext(ctx, `update fiscal.integration_command_outbox set status='FAILED',attempts=attempts+1,available_at=now()+interval '5 seconds',lease_id=null,lease_until=null,last_error=$2,updated_at=now() where id=$1`, v.id, e.Error())
 			continue
 		}
-		_, e = s.db.ExecContext(ctx, `update integration_command_outbox set status='PUBLISHED',published_at=now(),lease_id=null,lease_until=null,last_error=null,updated_at=now() where id=$1`, v.id)
+		_, e = s.db.ExecContext(ctx, `update fiscal.integration_command_outbox set status='PUBLISHED',published_at=now(),lease_id=null,lease_until=null,last_error=null,updated_at=now() where id=$1`, v.id)
 		if e != nil {
 			return e
 		}
-		_, _ = s.db.ExecContext(ctx, `update integration_commands set status='QUEUED',updated_at=now() where id=$1 and status='ACCEPTED'`, v.command)
+		_, _ = s.db.ExecContext(ctx, `update fiscal.integration_commands set status='QUEUED',updated_at=now() where id=$1 and status='ACCEPTED'`, v.command)
 	}
 	return rows.Err()
 }
@@ -194,7 +194,7 @@ func (s *Service) processCommand(ctx context.Context, id string, apply ApplyReso
 	var tenant, system, method, resource, source, status string
 	var version int64
 	var payload []byte
-	e := s.db.QueryRowContext(ctx, `update integration_commands set status='PROCESSING',attempts=attempts+1,processing_started_at=now(),updated_at=now() where id=$1 and (status in ('ACCEPTED','QUEUED','FAILED') or (status='PROCESSING' and processing_started_at<now()-interval '2 minutes')) returning tenant_id::text,external_system_id::text,http_method,resource_type,aggregate_source_id,source_version,payload,status`, id).Scan(&tenant, &system, &method, &resource, &source, &version, &payload, &status)
+	e := s.db.QueryRowContext(ctx, `update fiscal.integration_commands set status='PROCESSING',attempts=attempts+1,processing_started_at=now(),updated_at=now() where id=$1 and (status in ('ACCEPTED','QUEUED','FAILED') or (status='PROCESSING' and processing_started_at<now()-interval '2 minutes')) returning tenant_id::text,external_system_id::text,http_method,resource_type,aggregate_source_id,source_version,payload,status`, id).Scan(&tenant, &system, &method, &resource, &source, &version, &payload, &status)
 	if errors.Is(e, sql.ErrNoRows) {
 		return nil
 	}
@@ -202,7 +202,7 @@ func (s *Service) processCommand(ctx context.Context, id string, apply ApplyReso
 		return e
 	}
 	var newer bool
-	e = s.db.QueryRowContext(ctx, `select exists(select 1 from integration_commands where tenant_id=$1 and external_system_id=$2 and resource_type=$3 and aggregate_source_id=$4 and source_version>$5 and status in ('PROCESSING','SUCCEEDED'))`, tenant, system, resource, source, version).Scan(&newer)
+	e = s.db.QueryRowContext(ctx, `select exists(select 1 from fiscal.integration_commands where tenant_id=$1 and external_system_id=$2 and resource_type=$3 and aggregate_source_id=$4 and source_version>$5 and status in ('PROCESSING','SUCCEEDED'))`, tenant, system, resource, source, version).Scan(&newer)
 	if e != nil {
 		return e
 	}
@@ -241,16 +241,16 @@ func (s *Service) finishCommand(ctx context.Context, id, tenant, system, method,
 	if status == "SUCCEEDED" {
 		if projection, ok := result["_projection_record"]; ok {
 			projectionJSON := string(mapJSON(projection))
-			_, e = tx.ExecContext(ctx, `insert into fiscal_state_rows(collection,entity_key,payload,updated_at) values('resources',($1::jsonb->>'kind')||':'||($1::jsonb->>'id'),$1::jsonb,now()) on conflict(collection,entity_key) do update set payload=excluded.payload,updated_at=now() where (fiscal_state_rows.payload->>'version')::bigint<(excluded.payload->>'version')::bigint`, projectionJSON)
+			_, e = tx.ExecContext(ctx, `insert into fiscal.fiscal_state_rows(collection,entity_key,payload,updated_at) values('resources',($1::jsonb->>'kind')||':'||($1::jsonb->>'id'),$1::jsonb,now()) on conflict(collection,entity_key) do update set payload=excluded.payload,updated_at=now() where (fiscal_state_rows.payload->>'version')::bigint<(excluded.payload->>'version')::bigint`, projectionJSON)
 			if e != nil {
 				return e
 			}
-			_, e = tx.ExecContext(ctx, `insert into fiscal_runtime_resources(kind,id,tenant_id,version,data,created_at,updated_at,payload) values($1::jsonb->>'kind',$1::jsonb->>'id',$1::jsonb->>'tenant_id',($1::jsonb->>'version')::bigint,$1::jsonb->'data',($1::jsonb->>'created_at')::timestamptz,($1::jsonb->>'updated_at')::timestamptz,$1::jsonb) on conflict(kind,id) do update set tenant_id=excluded.tenant_id,version=excluded.version,data=excluded.data,updated_at=excluded.updated_at,payload=excluded.payload where fiscal_runtime_resources.version<excluded.version`, projectionJSON)
+			_, e = tx.ExecContext(ctx, `insert into fiscal.fiscal_runtime_resources(kind,id,tenant_id,version,data,created_at,updated_at,payload) values($1::jsonb->>'kind',$1::jsonb->>'id',$1::jsonb->>'tenant_id',($1::jsonb->>'version')::bigint,$1::jsonb->'data',($1::jsonb->>'created_at')::timestamptz,($1::jsonb->>'updated_at')::timestamptz,$1::jsonb) on conflict(kind,id) do update set tenant_id=excluded.tenant_id,version=excluded.version,data=excluded.data,updated_at=excluded.updated_at,payload=excluded.payload where fiscal_runtime_resources.version<excluded.version`, projectionJSON)
 			if e != nil {
 				return e
 			}
 			if resource == "organization" {
-				_, e = tx.ExecContext(ctx, `update tenant_source_bindings set tax_country=$1::jsonb->'data'->>'country',tax_type=$1::jsonb->'data'->>'tax_identifier_type',tax_normalized_value=$1::jsonb->'data'->>'tax_identifier_normalized',version=version+1,updated_at=now() where tenant_id=$1::jsonb->>'tenant_id' and external_system_id=$2 and (tax_country,tax_type,tax_normalized_value) is distinct from (($1::jsonb->'data'->>'country')::char(2),$1::jsonb->'data'->>'tax_identifier_type',$1::jsonb->'data'->>'tax_identifier_normalized')`, projectionJSON, system)
+				_, e = tx.ExecContext(ctx, `update fiscal.tenant_source_bindings set tax_country=$1::jsonb->'data'->>'country',tax_type=$1::jsonb->'data'->>'tax_identifier_type',tax_normalized_value=$1::jsonb->'data'->>'tax_identifier_normalized',version=version+1,updated_at=now() where tenant_id=$1::jsonb->>'tenant_id' and external_system_id=$2 and (tax_country,tax_type,tax_normalized_value) is distinct from (($1::jsonb->'data'->>'country')::char(2),$1::jsonb->'data'->>'tax_identifier_type',$1::jsonb->'data'->>'tax_identifier_normalized')`, projectionJSON, system)
 				if e != nil {
 					return e
 				}
@@ -264,7 +264,7 @@ func (s *Service) finishCommand(ctx context.Context, id, tenant, system, method,
 		}
 		var resourceID string
 		var resourceVersion int64
-		e = tx.QueryRowContext(ctx, `insert into integration_resources(tenant_id,external_system_id,resource_type,source_entity_id,source_version,payload,status) values($1,$2,$3,$4,$5,$6,$7) on conflict(tenant_id,external_system_id,resource_type,source_entity_id) do update set source_version=excluded.source_version,payload=excluded.payload,status=excluded.status,updated_at=now() where integration_resources.source_version<excluded.source_version returning id::text,source_version`, tenant, system, resource, source, version, resultJSON, resourceStatus).Scan(&resourceID, &resourceVersion)
+		e = tx.QueryRowContext(ctx, `insert into fiscal.integration_resources(tenant_id,external_system_id,resource_type,source_entity_id,source_version,payload,status) values($1,$2,$3,$4,$5,$6,$7) on conflict(tenant_id,external_system_id,resource_type,source_entity_id) do update set source_version=excluded.source_version,payload=excluded.payload,status=excluded.status,updated_at=now() where integration_resources.source_version<excluded.source_version returning id::text,source_version`, tenant, system, resource, source, version, resultJSON, resourceStatus).Scan(&resourceID, &resourceVersion)
 		if errors.Is(e, sql.ErrNoRows) {
 			status = "SUPERSEDED"
 			e = nil
@@ -276,7 +276,7 @@ func (s *Service) finishCommand(ctx context.Context, id, tenant, system, method,
 			return e
 		}
 	}
-	_, e = tx.ExecContext(ctx, `update integration_commands set status=$2,result=$3,last_error_code=$4,last_error_detail=$5,processing_started_at=null,updated_at=now() where id=$1`, id, status, resultJSON, code, detail)
+	_, e = tx.ExecContext(ctx, `update fiscal.integration_commands set status=$2,result=$3,last_error_code=$4,last_error_detail=$5,processing_started_at=null,updated_at=now() where id=$1`, id, status, resultJSON, code, detail)
 	if e != nil {
 		return e
 	}
@@ -288,18 +288,18 @@ func (s *Service) finishCommand(ctx context.Context, id, tenant, system, method,
 		return map[string]string{"code": "RESOURCE_APPLY_FAILED", "message": applyErr.Error()}
 	}(), "occurred_at": s.now()})
 	hash := sha256.Sum256(payload)
-	_, e = tx.ExecContext(ctx, `insert into webhook_deliveries(event_id,external_system_id,tenant_id,event_type,payload,payload_hash,status,destination_url,signing_secret_ciphertext,signing_key_id) select $1,$2,$3,'integration.command.updated',$4,$5,'PENDING',webhook_url,webhook_signing_secret_ciphertext,id::text from external_systems where id=$2`, eventID, system, tenant, payload, hash[:])
+	_, e = tx.ExecContext(ctx, `insert into fiscal.webhook_deliveries(event_id,external_system_id,tenant_id,event_type,payload,payload_hash,status,destination_url,signing_secret_ciphertext,signing_key_id) select $1,$2,$3,'integration.command.updated',$4,$5,'PENDING',webhook_url,webhook_signing_secret_ciphertext,id::text from fiscal.external_systems where id=$2`, eventID, system, tenant, payload, hash[:])
 	if e != nil {
 		return e
 	}
-	_, e = tx.ExecContext(ctx, `insert into integration_change_journal(tenant_id,external_system_id,authenticated_system_id,operation_id,resource_type,source_entity_id,action,outcome,after_redacted,reason_code) select tenant_id,external_system_id,authenticated_system_id,id,resource_type,aggregate_source_id,http_method,$2,$3,$4 from integration_commands where id=$1`, id, status, resultJSON, code)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.integration_change_journal(tenant_id,external_system_id,authenticated_system_id,operation_id,resource_type,source_entity_id,action,outcome,after_redacted,reason_code) select tenant_id,external_system_id,authenticated_system_id,id,resource_type,aggregate_source_id,http_method,$2,$3,$4 from fiscal.integration_commands where id=$1`, id, status, resultJSON, code)
 	if e != nil {
 		return e
 	}
 	return tx.Commit()
 }
 func (s *Service) publishWebhookBatch(ctx context.Context, ch *amqp091.Channel) error {
-	rows, e := s.db.QueryContext(ctx, `with picked as (select id from webhook_deliveries where ((status in ('PENDING','RETRY') and next_attempt_at<=now()) or (status in ('LEASED','QUEUED','DELIVERING') and lease_until<now())) and attempts<5 order by next_attempt_at,id for update skip locked limit 50) update webhook_deliveries d set status='LEASED',lease_id=gen_random_uuid(),lease_until=now()+interval '30 seconds',updated_at=now() from picked where d.id=picked.id returning d.id::text`)
+	rows, e := s.db.QueryContext(ctx, `with picked as (select id from fiscal.webhook_deliveries where ((status in ('PENDING','RETRY') and next_attempt_at<=now()) or (status in ('LEASED','QUEUED','DELIVERING') and lease_until<now())) and attempts<5 order by next_attempt_at,id for update skip locked limit 50) update fiscal.webhook_deliveries d set status='LEASED',lease_id=fiscal.gen_random_uuid(),lease_until=now()+interval '30 seconds',updated_at=now() from picked where d.id=picked.id returning d.id::text`)
 	if e != nil {
 		return e
 	}
@@ -315,10 +315,10 @@ func (s *Service) publishWebhookBatch(ctx context.Context, ch *amqp091.Channel) 
 	for _, id := range ids {
 		body := mapJSON(map[string]string{"delivery_id": id})
 		if e = publishConfirmed(ctx, ch, "webhook.deliver", body); e != nil {
-			_, _ = s.db.ExecContext(ctx, `update webhook_deliveries set status='RETRY',lease_id=null,lease_until=null,next_attempt_at=now()+interval '5 seconds',last_error_detail=$2 where id=$1`, id, e.Error())
+			_, _ = s.db.ExecContext(ctx, `update fiscal.webhook_deliveries set status='RETRY',lease_id=null,lease_until=null,next_attempt_at=now()+interval '5 seconds',last_error_detail=$2 where id=$1`, id, e.Error())
 			continue
 		}
-		_, e = s.db.ExecContext(ctx, `update webhook_deliveries set status='QUEUED',lease_id=null,lease_until=null,updated_at=now() where id=$1`, id)
+		_, e = s.db.ExecContext(ctx, `update fiscal.webhook_deliveries set status='QUEUED',lease_id=null,lease_until=null,updated_at=now() where id=$1`, id)
 		if e != nil {
 			return e
 		}
@@ -334,14 +334,14 @@ func (s *Service) sendWebhook(ctx context.Context, id string) error {
 	var eventID, system, url string
 	var payload, encrypted []byte
 	var attempts int
-	e = tx.QueryRowContext(ctx, `select d.event_id::text,d.external_system_id::text,coalesce(d.destination_url,s.webhook_url),d.payload,coalesce(d.signing_secret_ciphertext,s.webhook_signing_secret_ciphertext),d.attempts from webhook_deliveries d join external_systems s on s.id=d.external_system_id where d.id=$1 and d.status='QUEUED' for update`, id).Scan(&eventID, &system, &url, &payload, &encrypted, &attempts)
+	e = tx.QueryRowContext(ctx, `select d.event_id::text,d.external_system_id::text,coalesce(d.destination_url,s.webhook_url),d.payload,coalesce(d.signing_secret_ciphertext,s.webhook_signing_secret_ciphertext),d.attempts from fiscal.webhook_deliveries d join fiscal.external_systems s on s.id=d.external_system_id where d.id=$1 and d.status='QUEUED' for update`, id).Scan(&eventID, &system, &url, &payload, &encrypted, &attempts)
 	if errors.Is(e, sql.ErrNoRows) {
 		return nil
 	}
 	if e != nil {
 		return e
 	}
-	_, e = tx.ExecContext(ctx, `update webhook_deliveries set status='DELIVERING',lease_until=now()+interval '30 seconds',updated_at=now() where id=$1`, id)
+	_, e = tx.ExecContext(ctx, `update fiscal.webhook_deliveries set status='DELIVERING',lease_until=now()+interval '30 seconds',updated_at=now() where id=$1`, id)
 	if e != nil {
 		return e
 	}
@@ -386,11 +386,11 @@ func (s *Service) sendWebhook(ctx context.Context, id string) error {
 			return e
 		}
 		defer tx.Rollback()
-		_, e = tx.ExecContext(ctx, `update webhook_deliveries set status='DELIVERED',attempts=attempts+1,delivered_at=now(),lease_until=null,last_http_status=$2,last_error_code=null,last_error_detail=null,updated_at=now() where id=$1`, id, status)
+		_, e = tx.ExecContext(ctx, `update fiscal.webhook_deliveries set status='DELIVERED',attempts=attempts+1,delivered_at=now(),lease_until=null,last_http_status=$2,last_error_code=null,last_error_detail=null,updated_at=now() where id=$1`, id, status)
 		if e != nil {
 			return e
 		}
-		_, e = tx.ExecContext(ctx, `insert into webhook_delivery_attempts(delivery_id,attempt_number,outcome,destination_url,http_status) values($1,$2,'DELIVERED',$3,$4) on conflict(delivery_id,attempt_number) do nothing`, id, attempts+1, url, status)
+		_, e = tx.ExecContext(ctx, `insert into fiscal.webhook_delivery_attempts(delivery_id,attempt_number,outcome,destination_url,http_status) values($1,$2,'DELIVERED',$3,$4) on conflict(delivery_id,attempt_number) do nothing`, id, attempts+1, url, status)
 		if e != nil {
 			return e
 		}
@@ -408,11 +408,11 @@ func (s *Service) sendWebhook(ctx context.Context, id string) error {
 		return dbErr
 	}
 	defer dbtx.Rollback()
-	_, dbErr = dbtx.ExecContext(ctx, `update webhook_deliveries set status=$2,attempts=$3,next_attempt_at=$4,lease_until=null,last_http_status=$5,last_error_code='DELIVERY_FAILED',last_error_detail=$6,updated_at=now() where id=$1`, id, state, attempts, s.now().Add(next), status, e.Error())
+	_, dbErr = dbtx.ExecContext(ctx, `update fiscal.webhook_deliveries set status=$2,attempts=$3,next_attempt_at=$4,lease_until=null,last_http_status=$5,last_error_code='DELIVERY_FAILED',last_error_detail=$6,updated_at=now() where id=$1`, id, state, attempts, s.now().Add(next), status, e.Error())
 	if dbErr != nil {
 		return dbErr
 	}
-	_, dbErr = dbtx.ExecContext(ctx, `insert into webhook_delivery_attempts(delivery_id,attempt_number,outcome,destination_url,http_status,error_code,error_detail) values($1,$2,'FAILED',$3,$4,'DELIVERY_FAILED',$5) on conflict(delivery_id,attempt_number) do nothing`, id, attempts, url, status, e.Error())
+	_, dbErr = dbtx.ExecContext(ctx, `insert into fiscal.webhook_delivery_attempts(delivery_id,attempt_number,outcome,destination_url,http_status,error_code,error_detail) values($1,$2,'FAILED',$3,$4,'DELIVERY_FAILED',$5) on conflict(delivery_id,attempt_number) do nothing`, id, attempts, url, status, e.Error())
 	if dbErr != nil {
 		return dbErr
 	}

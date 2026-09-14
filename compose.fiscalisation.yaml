@@ -1,11 +1,11 @@
 name: beefiscal-${APP_ENV:-dev}
 services:
   postgres:
-    image: postgres:16.10
+    image: pgvector/pgvector:pg16
     restart: unless-stopped
     environment: {POSTGRES_USER: fiscal, POSTGRES_PASSWORD: "${FISCAL_DB_PASSWORD:-}", POSTGRES_DB: fiscal, FISCAL_RLS_DB_PASSWORD: "${FISCAL_RLS_DB_PASSWORD:-}"}
     ports: ["127.0.0.1:${FISCAL_POSTGRES_PUBLISH_PORT:-5433}:5432"]
-    volumes: [fiscal_pg:/var/lib/postgresql/data, ./database/fiscal:/docker-entrypoint-initdb.d:ro]
+    volumes: [fiscal_pg:/var/lib/postgresql/data]
     networks: [private]
     healthcheck: {test: [CMD-SHELL, "pg_isready -U fiscal -d fiscal"], interval: 5s, timeout: 3s, retries: 20}
   redis:

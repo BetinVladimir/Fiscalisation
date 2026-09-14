@@ -1,10 +1,10 @@
 name: beeminipos-${APP_ENV:-dev}
 services:
   postgres:
-    image: postgres:16.10
+    image: pgvector/pgvector:pg16
     restart: unless-stopped
     environment: {POSTGRES_USER: minipos, POSTGRES_PASSWORD: "${MINIPOS_DB_PASSWORD:-}", POSTGRES_DB: minipos, MINIPOS_RLS_DB_PASSWORD: "${MINIPOS_RLS_DB_PASSWORD:-}"}
-    volumes: [minipos_pg:/var/lib/postgresql/data, ./database/minipos:/docker-entrypoint-initdb.d:ro]
+    volumes: [minipos_pg:/var/lib/postgresql/data]
     networks: [private]
     healthcheck: {test: [CMD-SHELL, "pg_isready -U minipos -d minipos"], interval: 5s, timeout: 3s, retries: 20}
   dap-minio:

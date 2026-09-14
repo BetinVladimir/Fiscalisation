@@ -70,7 +70,7 @@ func TestPostgresRowStoreRestart(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = p.db.Exec(`delete from fiscal_state_rows; delete from fiscal_state_meta; delete from runtime_snapshots where aggregate='fiscal'`); err != nil {
+	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows; delete from fiscal.fiscal_state_meta; delete from fiscal.runtime_snapshots where aggregate='fiscal'`); err != nil {
 		t.Fatal(err)
 	}
 	raw := []byte(`{"sales":{},"operations":{},"devices":{"device-1":{"id":"device-1"}},"shifts":{},"unp":{},"replays":{},"outbox":{"event-1":{"id":"event-1","event":{"event_id":"event-1","event_type":"sale.updated","tenant_id":"tenant-1","resource_id":"sale-1"},"attempts":0,"next_attempt":"2026-08-08T10:00:00Z"}},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -78,7 +78,7 @@ func TestPostgresRowStoreRestart(t *testing.T) {
 		t.Fatal(err)
 	}
 	var count int
-	if err = p.db.QueryRow(`select count(*) from fiscal_state_rows`).Scan(&count); err != nil || count != 2 {
+	if err = p.db.QueryRow(`select count(*) from fiscal.fiscal_state_rows`).Scan(&count); err != nil || count != 2 {
 		t.Fatalf("expected two entity rows, got %d: %v", count, err)
 	}
 	_ = p.Close()
@@ -114,7 +114,7 @@ func TestPostgresVersionedSaveRejectsStaleInstance(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p2.Close()
-	if _, err = p1.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from runtime_snapshots where aggregate='fiscal'`); err != nil {
+	if _, err = p1.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.runtime_snapshots where aggregate='fiscal'`); err != nil {
 		t.Fatal(err)
 	}
 	_, generation1, err := p1.LoadVersioned()
@@ -150,7 +150,7 @@ func TestPostgresDeltaSaveTouchesOnlyExplicitFiscalRows(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from runtime_snapshots where aggregate='fiscal'`); err != nil {
+	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.runtime_snapshots where aggregate='fiscal'`); err != nil {
 		t.Fatal(err)
 	}
 	baseline := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -158,7 +158,7 @@ func TestPostgresDeltaSaveTouchesOnlyExplicitFiscalRows(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	if _, err = p.db.Exec(`insert into fiscal_state_rows(collection,entity_key,payload) values('devices','unmanaged','{"id":"unmanaged"}'::jsonb)`); err != nil {
+	if _, err = p.db.Exec(`insert into fiscal.fiscal_state_rows(collection,entity_key,payload) values('devices','unmanaged','{"id":"unmanaged"}'::jsonb)`); err != nil {
 		t.Fatal(err)
 	}
 	current := []byte(`{"sales":{},"operations":{},"devices":{"managed":{"id":"managed"}},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -166,7 +166,7 @@ func TestPostgresDeltaSaveTouchesOnlyExplicitFiscalRows(t *testing.T) {
 		t.Fatal(err)
 	}
 	var count int
-	if err = p.db.QueryRow(`select count(*) from fiscal_state_rows where collection='devices' and entity_key in('managed','unmanaged')`).Scan(&count); err != nil || count != 2 {
+	if err = p.db.QueryRow(`select count(*) from fiscal.fiscal_state_rows where collection='devices' and entity_key in('managed','unmanaged')`).Scan(&count); err != nil || count != 2 {
 		t.Fatal("delta save scanned/deleted an unrelated Fiscal row", count, err)
 	}
 }
@@ -182,10 +182,10 @@ func TestPostgresMigratesLegacySnapshotAtomically(t *testing.T) {
 	}
 	defer p.Close()
 	raw := []byte(`{"sales":{"legacy-sale":{"sale_id":"legacy-sale","tenant_id":"tenant-migration","external_id":"legacy-external","register_id":"register-1","operator_id":"A001","state":"DRAFT","version":1,"lines":[],"payments":[],"created_at":"2026-08-08T10:00:00Z","updated_at":"2026-08-08T10:00:00Z"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
-	if _, err = p.db.Exec(`delete from fiscal_state_rows; delete from fiscal_state_meta; delete from fiscal_runtime_sales`); err != nil {
+	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows; delete from fiscal.fiscal_state_meta; delete from fiscal.fiscal_runtime_sales`); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = p.db.Exec(`insert into runtime_snapshots(aggregate,payload,version,updated_at) values('fiscal',$1::jsonb,1,now()) on conflict(aggregate) do update set payload=excluded.payload`, string(raw)); err != nil {
+	if _, err = p.db.Exec(`insert into fiscal.runtime_snapshots(aggregate,payload,version,updated_at) values('fiscal',$1::jsonb,1,now()) on conflict(aggregate) do update set payload=excluded.payload`, string(raw)); err != nil {
 		t.Fatal(err)
 	}
 	loaded, err := p.Load()
@@ -193,11 +193,11 @@ func TestPostgresMigratesLegacySnapshotAtomically(t *testing.T) {
 		t.Fatal(err)
 	}
 	var count int
-	if err = p.db.QueryRow(`select count(*) from fiscal_state_rows where collection='sales' and entity_key='legacy-sale'`).Scan(&count); err != nil || count != 1 {
+	if err = p.db.QueryRow(`select count(*) from fiscal.fiscal_state_rows where collection='sales' and entity_key='legacy-sale'`).Scan(&count); err != nil || count != 1 {
 		t.Fatalf("legacy state not migrated: %d %v", count, err)
 	}
 	var tenant string
-	if err = p.db.QueryRow(`select tenant_id from fiscal_runtime_sales where id='legacy-sale'`).Scan(&tenant); err != nil || tenant != "tenant-migration" {
+	if err = p.db.QueryRow(`select tenant_id from fiscal.fiscal_runtime_sales where id='legacy-sale'`).Scan(&tenant); err != nil || tenant != "tenant-migration" {
 		t.Fatalf("legacy state missing authoritative typed projection: tenant=%q err=%v", tenant, err)
 	}
 	var got, want map[string]any
@@ -219,10 +219,10 @@ func TestPostgresEmptyStateDoesNotResurrectLegacySnapshot(t *testing.T) {
 	}
 	defer p.Close()
 	legacy := `{"sales":{"must-not-return":{"id":"must-not-return"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`
-	if _, err = p.db.Exec(`delete from fiscal_state_rows; delete from fiscal_state_meta`); err != nil {
+	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows; delete from fiscal.fiscal_state_meta`); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = p.db.Exec(`insert into runtime_snapshots(aggregate,payload,version,updated_at) values('fiscal',$1::jsonb,1,now()) on conflict(aggregate) do update set payload=excluded.payload`, legacy); err != nil {
+	if _, err = p.db.Exec(`insert into fiscal.runtime_snapshots(aggregate,payload,version,updated_at) values('fiscal',$1::jsonb,1,now()) on conflict(aggregate) do update set payload=excluded.payload`, legacy); err != nil {
 		t.Fatal(err)
 	}
 	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -250,7 +250,7 @@ func TestPostgresDifferentialSavePreservesUntouchedRows(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal_state_rows; delete from fiscal_state_meta`); err != nil {
+	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows; delete from fiscal.fiscal_state_meta`); err != nil {
 		t.Fatal(err)
 	}
 	first := []byte(`{"sales":{},"operations":{},"devices":{"same":{"id":"same"},"changed":{"id":"changed","version":1},"removed":{"id":"removed"}},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -258,10 +258,10 @@ func TestPostgresDifferentialSavePreservesUntouchedRows(t *testing.T) {
 		t.Fatal(err)
 	}
 	var sameBefore, changedBefore time.Time
-	if err = p.db.QueryRow(`select updated_at from fiscal_state_rows where collection='devices' and entity_key='same'`).Scan(&sameBefore); err != nil {
+	if err = p.db.QueryRow(`select updated_at from fiscal.fiscal_state_rows where collection='devices' and entity_key='same'`).Scan(&sameBefore); err != nil {
 		t.Fatal(err)
 	}
-	if err = p.db.QueryRow(`select updated_at from fiscal_state_rows where collection='devices' and entity_key='changed'`).Scan(&changedBefore); err != nil {
+	if err = p.db.QueryRow(`select updated_at from fiscal.fiscal_state_rows where collection='devices' and entity_key='changed'`).Scan(&changedBefore); err != nil {
 		t.Fatal(err)
 	}
 	time.Sleep(10 * time.Millisecond)
@@ -270,10 +270,10 @@ func TestPostgresDifferentialSavePreservesUntouchedRows(t *testing.T) {
 		t.Fatal(err)
 	}
 	var sameAfter, changedAfter time.Time
-	if err = p.db.QueryRow(`select updated_at from fiscal_state_rows where collection='devices' and entity_key='same'`).Scan(&sameAfter); err != nil {
+	if err = p.db.QueryRow(`select updated_at from fiscal.fiscal_state_rows where collection='devices' and entity_key='same'`).Scan(&sameAfter); err != nil {
 		t.Fatal(err)
 	}
-	if err = p.db.QueryRow(`select updated_at from fiscal_state_rows where collection='devices' and entity_key='changed'`).Scan(&changedAfter); err != nil {
+	if err = p.db.QueryRow(`select updated_at from fiscal.fiscal_state_rows where collection='devices' and entity_key='changed'`).Scan(&changedAfter); err != nil {
 		t.Fatal(err)
 	}
 	if !sameAfter.Equal(sameBefore) {
@@ -283,7 +283,7 @@ func TestPostgresDifferentialSavePreservesUntouchedRows(t *testing.T) {
 		t.Fatal("changed row was not updated")
 	}
 	var count int
-	if err = p.db.QueryRow(`select count(*) from fiscal_state_rows where collection='devices' and entity_key in ('removed','added')`).Scan(&count); err != nil || count != 1 {
+	if err = p.db.QueryRow(`select count(*) from fiscal.fiscal_state_rows where collection='devices' and entity_key in ('removed','added')`).Scan(&count); err != nil || count != 1 {
 		t.Fatalf("targeted add/delete failed: %d %v", count, err)
 	}
 }
@@ -298,7 +298,7 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from fiscal_runtime_operations;delete from fiscal_runtime_sales;delete from fiscal_runtime_shifts`); err != nil {
+	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.fiscal_runtime_operations;delete from fiscal.fiscal_runtime_sales;delete from fiscal.fiscal_runtime_shifts`); err != nil {
 		t.Fatal(err)
 	}
 	base := `{"sales":{"sale-typed":{"sale_id":"sale-typed","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":%d,"lines":[],"payments":[],"fiscal_device":{"device_id":"device-typed","serial":"SN-TYPED","fiscal_device_number":"FD-TYPED","fiscal_memory_number":"FM-TYPED","vendor":"Datecs","model":"DP-150 MX","firmware":"2026-EUR"},"created_at":"2026-08-07T10:00:00Z","updated_at":"%s"}},"operations":{},"devices":{},"shifts":{"shift-typed":{"id":"shift-typed","tenant_id":"tenant-a","register_id":"register-a","operator_id":"A001","state":"OPEN","version":1,"opened_at":"2026-08-07T09:00:00Z"}},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{"device:device-typed":{"kind":"device","tenant_id":"tenant-a","id":"device-typed","version":1,"data":{"vendor":"Datecs","serial":"SN-TYPED"},"created_at":"2026-08-07T08:00:00Z","updated_at":"2026-08-07T08:00:00Z"}},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`
@@ -307,11 +307,11 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 	}
 	var tenant, state string
 	var version int64
-	if err = p.db.QueryRow(`select tenant_id,state,version from fiscal_runtime_sales where id='sale-typed'`).Scan(&tenant, &state, &version); err != nil || tenant != "tenant-a" || state != "DRAFT" || version != 1 {
+	if err = p.db.QueryRow(`select tenant_id,state,version from fiscal.fiscal_runtime_sales where id='sale-typed'`).Scan(&tenant, &state, &version); err != nil || tenant != "tenant-a" || state != "DRAFT" || version != 1 {
 		t.Fatal(tenant, state, version, err)
 	}
 	var deviceID, fiscalNumber, memoryNumber string
-	if err = p.db.QueryRow(`select fiscal_device_id,fiscal_device_number,fiscal_memory_number from fiscal_runtime_sales where id='sale-typed'`).Scan(&deviceID, &fiscalNumber, &memoryNumber); err != nil || deviceID != "device-typed" || fiscalNumber != "FD-TYPED" || memoryNumber != "FM-TYPED" {
+	if err = p.db.QueryRow(`select fiscal_device_id,fiscal_device_number,fiscal_memory_number from fiscal.fiscal_runtime_sales where id='sale-typed'`).Scan(&deviceID, &fiscalNumber, &memoryNumber); err != nil || deviceID != "device-typed" || fiscalNumber != "FD-TYPED" || memoryNumber != "FM-TYPED" {
 		t.Fatal("typed fiscal device snapshot missing", deviceID, fiscalNumber, memoryNumber, err)
 	}
 	raw, err := p.LoadTenantEntity("sales", "tenant-a", "sale-typed")
@@ -350,13 +350,13 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 	if err = p.Save([]byte(reassigned)); err == nil {
 		t.Fatal("RLS-bound mutation reassigned an existing sale to another tenant")
 	}
-	if err = p.db.QueryRow(`select tenant_id,version from fiscal_runtime_sales where id='sale-typed'`).Scan(&tenant, &version); err != nil || tenant != "tenant-a" || version != 1 {
+	if err = p.db.QueryRow(`select tenant_id,version from fiscal.fiscal_runtime_sales where id='sale-typed'`).Scan(&tenant, &version); err != nil || tenant != "tenant-a" || version != 1 {
 		t.Fatal("failed cross-tenant mutation was not atomic", tenant, version, err)
 	}
 	if err = p.Save([]byte(fmt.Sprintf(base, 2, "2026-08-07T10:01:00Z"))); err != nil {
 		t.Fatal(err)
 	}
-	if err = p.db.QueryRow(`select version from fiscal_runtime_sales where id='sale-typed'`).Scan(&version); err != nil || version != 2 {
+	if err = p.db.QueryRow(`select version from fiscal.fiscal_runtime_sales where id='sale-typed'`).Scan(&version); err != nil || version != 2 {
 		t.Fatal(version, err)
 	}
 	conflict := []byte(`{"sales":{"sale-typed":{"sale_id":"sale-typed","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":3,"lines":[],"payments":[],"created_at":"2026-08-07T10:00:00Z","updated_at":"2026-08-07T10:02:00Z"},"sale-conflict":{"sale_id":"sale-conflict","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":1,"lines":[],"payments":[],"created_at":"2026-08-07T10:00:00Z","updated_at":"2026-08-07T10:02:00Z"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -364,7 +364,7 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 		t.Fatal("typed uniqueness violation accepted")
 	}
 	var stateCount int
-	if err = p.db.QueryRow(`select count(*) from fiscal_state_rows where collection='sales'`).Scan(&stateCount); err != nil || stateCount != 1 {
+	if err = p.db.QueryRow(`select count(*) from fiscal.fiscal_state_rows where collection='sales'`).Scan(&stateCount); err != nil || stateCount != 1 {
 		t.Fatal("compatibility rows were not rolled back", stateCount, err)
 	}
 	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -372,7 +372,7 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 		t.Fatal(err)
 	}
 	var count int
-	_ = p.db.QueryRow(`select count(*) from fiscal_runtime_sales`).Scan(&count)
+	_ = p.db.QueryRow(`select count(*) from fiscal.fiscal_runtime_sales`).Scan(&count)
 	if count != 0 {
 		t.Fatal("typed delete not applied")
 	}
@@ -388,7 +388,7 @@ func TestPostgresTypedTechnicalAggregatesAreTenantBound(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from fiscal_runtime_outbox;delete from fiscal_runtime_ble_sessions;delete from fiscal_runtime_connectivity_probes;delete from fiscal_runtime_edge_pending;delete from fiscal_runtime_audit;delete from fiscal_runtime_replays;delete from fiscal_runtime_unp_sequences`); err != nil {
+	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.fiscal_runtime_outbox;delete from fiscal.fiscal_runtime_ble_sessions;delete from fiscal.fiscal_runtime_connectivity_probes;delete from fiscal.fiscal_runtime_edge_pending;delete from fiscal.fiscal_runtime_audit;delete from fiscal.fiscal_runtime_replays;delete from fiscal.fiscal_runtime_unp_sequences`); err != nil {
 		t.Fatal(err)
 	}
 	state := `{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{"tenant-tech\nregister-1":7},"replays":{"tenant-tech POST /public/v1/sales replay-key-00001":{"hash":"def","status":201,"body":"e30="}},"outbox":{"outbox-1":{"id":"outbox-1","event":{"event_id":"event-1","event_type":"sale.updated","api_version":"2026-08-07","tenant_id":"tenant-tech","resource_id":"sale-1","resource_version":1,"occurred_at":"2026-08-08T10:00:00Z","data":{}},"attempts":0,"next_attempt":"2026-08-08T10:01:00Z"}},"ble_sessions":{"ble-1":{"session_id":"ble-1","tenant_id":"tenant-tech","location_id":"location-1","register_id":"register-1","operator_id":"A001","app_instance_id":"app-1","actor_subject":"subject-1","device_id":"edge-1","fiscal_device_id":"fiscal-device-1","scopes":["fiscal.execute"],"fencing_token":1,"expires_at":"2026-08-08T18:00:00Z","revoked":false,"nonce":"nonce"}},"sync_acks":{},"connectivity_probes":{"probe-1":{"probe_id":"probe-1","tenant_id":"tenant-tech","register_id":"register-1","state":"SUCCEEDED","observed_at":"2026-08-08T10:00:00Z","hops":{},"recommended_transport":"REST"}},"resources":{},"artifacts":{},"audit":[{"event_id":"audit-1","tenant_id":"tenant-tech","actor_id":"A001","action":"UPSERT","object_type":"sale","object_id":"sale-1","occurred_at":"2026-08-08T10:00:00Z","before":{},"after":{},"event_hash":"abc"}],"edge_pending":{"operation-1":{"operation_id":"operation-1","tenant_id":"tenant-tech","register_id":"register-1","device_id":"edge-1","command_type":"FISCAL_SALE","payload":{},"operation_sequence":1,"unp_sequence":1,"accepted_at":"2026-08-08T10:00:00Z"}}}`
@@ -402,7 +402,7 @@ func TestPostgresTypedTechnicalAggregatesAreTenantBound(t *testing.T) {
 		}
 	}
 	var locationID, edgeID, fiscalDeviceID string
-	if err = p.db.QueryRow(`select location_id,device_id,fiscal_device_id from fiscal_runtime_ble_sessions where id='ble-1'`).Scan(&locationID, &edgeID, &fiscalDeviceID); err != nil || locationID != "location-1" || edgeID != "edge-1" || fiscalDeviceID != "fiscal-device-1" || edgeID == fiscalDeviceID {
+	if err = p.db.QueryRow(`select location_id,device_id,fiscal_device_id from fiscal.fiscal_runtime_ble_sessions where id='ble-1'`).Scan(&locationID, &edgeID, &fiscalDeviceID); err != nil || locationID != "location-1" || edgeID != "edge-1" || fiscalDeviceID != "fiscal-device-1" || edgeID == fiscalDeviceID {
 		t.Fatal("BLE authority identity projection collapsed edge/fiscal device", locationID, edgeID, fiscalDeviceID, err)
 	}
 	for collection, id := range map[string]string{
@@ -443,7 +443,7 @@ func TestPostgresTypedTechnicalAggregatesAreTenantBound(t *testing.T) {
 		t.Fatal(err)
 	}
 	var hidden int
-	if err = tx.QueryRow(`select count(*) from fiscal_runtime_edge_pending`).Scan(&hidden); err != nil || hidden != 0 {
+	if err = tx.QueryRow(`select count(*) from fiscal.fiscal_runtime_edge_pending`).Scan(&hidden); err != nil || hidden != 0 {
 		t.Fatal("RLS exposed foreign technical aggregate", hidden, err)
 	}
 	_ = tx.Rollback()
@@ -452,7 +452,7 @@ func TestPostgresTypedTechnicalAggregatesAreTenantBound(t *testing.T) {
 		t.Fatal("RLS-bound mutation reassigned edge pending command")
 	}
 	var tenant string
-	if err = p.db.QueryRow(`select tenant_id from fiscal_runtime_edge_pending where operation_id='operation-1'`).Scan(&tenant); err != nil || tenant != "tenant-tech" {
+	if err = p.db.QueryRow(`select tenant_id from fiscal.fiscal_runtime_edge_pending where operation_id='operation-1'`).Scan(&tenant); err != nil || tenant != "tenant-tech" {
 		t.Fatal("failed technical mutation was not atomic", tenant, err)
 	}
 	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -471,7 +471,7 @@ func TestPostgresTypedArtifactsAreTenantBound(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from fiscal_runtime_artifacts`); err != nil {
+	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.fiscal_runtime_artifacts`); err != nil {
 		t.Fatal(err)
 	}
 	state := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{"tenant-artifact\nreceipt-1":"aGVsbG8="},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -480,7 +480,7 @@ func TestPostgresTypedArtifactsAreTenantBound(t *testing.T) {
 	}
 	var body []byte
 	var digest string
-	if err = p.db.QueryRow(`select body,sha256 from fiscal_runtime_artifacts where tenant_id='tenant-artifact' and id='receipt-1'`).Scan(&body, &digest); err != nil {
+	if err = p.db.QueryRow(`select body,sha256 from fiscal.fiscal_runtime_artifacts where tenant_id='tenant-artifact' and id='receipt-1'`).Scan(&body, &digest); err != nil {
 		t.Fatal(err)
 	}
 	if string(body) != "hello" || digest != "2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824" {
@@ -509,7 +509,7 @@ func TestPostgresTypedArtifactsAreTenantBound(t *testing.T) {
 		t.Fatal(err)
 	}
 	var hidden int
-	if err = tx.QueryRow(`select count(*) from fiscal_runtime_artifacts`).Scan(&hidden); err != nil || hidden != 0 {
+	if err = tx.QueryRow(`select count(*) from fiscal.fiscal_runtime_artifacts`).Scan(&hidden); err != nil || hidden != 0 {
 		t.Fatal("RLS exposed foreign artifact", hidden, err)
 	}
 	_ = tx.Rollback()
@@ -517,14 +517,14 @@ func TestPostgresTypedArtifactsAreTenantBound(t *testing.T) {
 	if err = p.Save(malformed); err == nil {
 		t.Fatal("malformed artifact was accepted")
 	}
-	if err = p.db.QueryRow(`select body from fiscal_runtime_artifacts where tenant_id='tenant-artifact' and id='receipt-1'`).Scan(&body); err != nil || string(body) != "hello" {
+	if err = p.db.QueryRow(`select body from fiscal.fiscal_runtime_artifacts where tenant_id='tenant-artifact' and id='receipt-1'`).Scan(&body); err != nil || string(body) != "hello" {
 		t.Fatal("failed artifact mutation was not atomic", string(body), err)
 	}
 	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(empty); err != nil {
 		t.Fatal(err)
 	}
-	if err = p.db.QueryRow(`select count(*) from fiscal_runtime_artifacts`).Scan(&hidden); err != nil || hidden != 0 {
+	if err = p.db.QueryRow(`select count(*) from fiscal.fiscal_runtime_artifacts`).Scan(&hidden); err != nil || hidden != 0 {
 		t.Fatal("artifact typed delete failed", hidden, err)
 	}
 }
@@ -539,7 +539,7 @@ func TestPostgresTypedSyncAcksAreTenantBound(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from fiscal_runtime_sync_acks`); err != nil {
+	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.fiscal_runtime_sync_acks`); err != nil {
 		t.Fatal(err)
 	}
 	state := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{"tenant-sync\nedge-1":{"ack_id":"ack-1","edge_id":"edge-1","committed_through_seq":3,"committed_event_hash":"2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824","committed_at":"2026-08-08T10:00:00Z","operation_results":[],"rejected":[],"signature":"sig"}},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -547,7 +547,7 @@ func TestPostgresTypedSyncAcksAreTenantBound(t *testing.T) {
 		t.Fatal(err)
 	}
 	var seq int64
-	if err = p.db.QueryRow(`select committed_through_seq from fiscal_runtime_sync_acks where tenant_id='tenant-sync' and edge_id='edge-1'`).Scan(&seq); err != nil || seq != 3 {
+	if err = p.db.QueryRow(`select committed_through_seq from fiscal.fiscal_runtime_sync_acks where tenant_id='tenant-sync' and edge_id='edge-1'`).Scan(&seq); err != nil || seq != 3 {
 		t.Fatal("sync ack projection missing", seq, err)
 	}
 	raw, readErr := p.LoadTenantEntity("sync_acks", "tenant-sync", "edge-1")
@@ -569,7 +569,7 @@ func TestPostgresTypedSyncAcksAreTenantBound(t *testing.T) {
 		t.Fatal(err)
 	}
 	var hidden int
-	if err = tx.QueryRow(`select count(*) from fiscal_runtime_sync_acks`).Scan(&hidden); err != nil || hidden != 0 {
+	if err = tx.QueryRow(`select count(*) from fiscal.fiscal_runtime_sync_acks`).Scan(&hidden); err != nil || hidden != 0 {
 		t.Fatal("RLS exposed foreign sync acknowledgement", hidden, err)
 	}
 	_ = tx.Rollback()
@@ -589,7 +589,7 @@ func TestFiscalTypedOnlyRestartAndRollback(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal_state_rows;delete from fiscal_state_meta;delete from fiscal_runtime_sales;delete from fiscal_runtime_operations;delete from fiscal_runtime_shifts;delete from fiscal_runtime_resources;delete from fiscal_runtime_outbox;delete from fiscal_runtime_ble_sessions;delete from fiscal_runtime_connectivity_probes;delete from fiscal_runtime_edge_pending;delete from fiscal_runtime_audit;delete from fiscal_runtime_replays;delete from fiscal_runtime_unp_sequences;delete from fiscal_runtime_artifacts;delete from fiscal_runtime_sync_acks`); err != nil {
+	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.fiscal_runtime_sales;delete from fiscal.fiscal_runtime_operations;delete from fiscal.fiscal_runtime_shifts;delete from fiscal.fiscal_runtime_resources;delete from fiscal.fiscal_runtime_outbox;delete from fiscal.fiscal_runtime_ble_sessions;delete from fiscal.fiscal_runtime_connectivity_probes;delete from fiscal.fiscal_runtime_edge_pending;delete from fiscal.fiscal_runtime_audit;delete from fiscal.fiscal_runtime_replays;delete from fiscal.fiscal_runtime_unp_sequences;delete from fiscal.fiscal_runtime_artifacts;delete from fiscal.fiscal_runtime_sync_acks`); err != nil {
 		t.Fatal(err)
 	}
 	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -603,7 +603,7 @@ func TestFiscalTypedOnlyRestartAndRollback(t *testing.T) {
 		t.Fatal(err)
 	}
 	var mode int
-	if err = p.db.QueryRow(`select storage_mode from fiscal_state_meta where singleton=true`).Scan(&mode); err != nil || mode != 2 {
+	if err = p.db.QueryRow(`select storage_mode from fiscal.fiscal_state_meta where singleton=true`).Scan(&mode); err != nil || mode != 2 {
 		t.Fatal("typed-only mode was not activated", mode, err)
 	}
 	v2 := bytes.Replace(v1, []byte(`"version":1`), []byte(`"version":2`), 1)
@@ -618,17 +618,17 @@ func TestFiscalTypedOnlyRestartAndRollback(t *testing.T) {
 		t.Fatal(err)
 	}
 	var compatibilityVersion, typedVersion int
-	if err = p.db.QueryRow(`select (payload->>'version')::int from fiscal_state_rows where collection='sales' and entity_key='typed-only'`).Scan(&compatibilityVersion); err != nil || compatibilityVersion != 1 {
+	if err = p.db.QueryRow(`select (payload->>'version')::int from fiscal.fiscal_state_rows where collection='sales' and entity_key='typed-only'`).Scan(&compatibilityVersion); err != nil || compatibilityVersion != 1 {
 		t.Fatal("typed-only write still mutated compatibility state", compatibilityVersion, err)
 	}
-	if err = p.db.QueryRow(`select (payload->>'version')::int from fiscal_runtime_sales where id='typed-only'`).Scan(&typedVersion); err != nil || typedVersion != 2 {
+	if err = p.db.QueryRow(`select (payload->>'version')::int from fiscal.fiscal_runtime_sales where id='typed-only'`).Scan(&typedVersion); err != nil || typedVersion != 2 {
 		t.Fatal("typed-only projection not updated", typedVersion, err)
 	}
 	var provisioningTenant, provisioningState string
-	if err = p.db.QueryRow(`select tenant_id,data->>'state' from fiscal_runtime_resources where kind='provisioning_session' and id='11111111-1111-4111-8111-111111111111'`).Scan(&provisioningTenant, &provisioningState); err != nil || provisioningTenant != "tenant-typed" || provisioningState != "CREATED" {
+	if err = p.db.QueryRow(`select tenant_id,data->>'state' from fiscal.fiscal_runtime_resources where kind='provisioning_session' and id='11111111-1111-4111-8111-111111111111'`).Scan(&provisioningTenant, &provisioningState); err != nil || provisioningTenant != "tenant-typed" || provisioningState != "CREATED" {
 		t.Fatal("typed-only provisioning session not stored", provisioningTenant, provisioningState, err)
 	}
-	if _, err = p.db.Exec(`update fiscal_state_rows set payload=jsonb_set(payload,'{version}','99'::jsonb) where collection='sales' and entity_key='typed-only'`); err != nil {
+	if _, err = p.db.Exec(`update fiscal.fiscal_state_rows set payload=jsonb_set(payload,'{version}','99'::jsonb) where collection='sales' and entity_key='typed-only'`); err != nil {
 		t.Fatal(err)
 	}
 	loaded, loadedGeneration, err := p.LoadVersioned()

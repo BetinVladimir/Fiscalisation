@@ -48,7 +48,7 @@ func (s *Service) StartAppChallenge(ctx context.Context, email, appInstance, ip 
 		return AppChallenge{}, errors.New("app_instance_id required")
 	}
 	var recent int
-	if e = s.db.QueryRowContext(ctx, `select count(*) from app_auth_challenges where created_at>now()-interval '15 minutes' and (normalized_email=$1 or app_instance_id::text=$2 or request_ip_hash=$3)`, normalized, appInstance, s.digest(ip)).Scan(&recent); e != nil {
+	if e = s.db.QueryRowContext(ctx, `select count(*) from fiscal.app_auth_challenges where created_at>now()-interval '15 minutes' and (normalized_email=$1 or app_instance_id::text=$2 or request_ip_hash=$3)`, normalized, appInstance, s.digest(ip)).Scan(&recent); e != nil {
 		return AppChallenge{}, e
 	}
 	if recent >= 10 {
@@ -65,7 +65,7 @@ func (s *Service) StartAppChallenge(ctx context.Context, email, appInstance, ip 
 	now := s.now()
 	out := AppChallenge{TemporaryToken: temporary, ExpiresAt: now.Add(10 * time.Minute), ResendAfter: now.Add(time.Minute)}
 	var known bool
-	e = s.db.QueryRowContext(ctx, `select exists(select 1 from tenant_user_memberships where normalized_email=$1 and status='ACTIVE')`, normalized).Scan(&known)
+	e = s.db.QueryRowContext(ctx, `select exists(select 1 from fiscal.tenant_user_memberships where normalized_email=$1 and status='ACTIVE')`, normalized).Scan(&known)
 	if e != nil {
 		return out, e
 	}
@@ -83,12 +83,12 @@ func (s *Service) StartAppChallenge(ctx context.Context, email, appInstance, ip 
 		return out, e
 	}
 	defer tx.Rollback()
-	_, e = tx.ExecContext(ctx, `insert into app_auth_challenges(id,normalized_email,temporary_token_hash,otp_hash,status,expires_at,request_ip_hash,app_instance_id) values($1,$2,$3,$4,$5,$6,$7,$8)`, id, normalized, s.digest(temporary), otpHash, status, out.ExpiresAt, s.digest(ip), appInstance)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.app_auth_challenges(id,normalized_email,temporary_token_hash,otp_hash,status,expires_at,request_ip_hash,app_instance_id) values($1,$2,$3,$4,$5,$6,$7,$8)`, id, normalized, s.digest(temporary), otpHash, status, out.ExpiresAt, s.digest(ip), appInstance)
 	if e != nil {
 		return out, e
 	}
 	if known {
-		_, e = tx.ExecContext(ctx, `insert into fiscal_email_outbox(purpose,recipient,subject,body_text) values('BEEFISCAL_APP_OTP',$1,'BeeFiscal sign-in code',$2)`, normalized, "Your BeeFiscal sign-in code is: "+otp)
+		_, e = tx.ExecContext(ctx, `insert into fiscal.fiscal_email_outbox(purpose,recipient,subject,body_text) values('BEEFISCAL_APP_OTP',$1,'BeeFiscal sign-in code',$2)`, normalized, "Your BeeFiscal sign-in code is: "+otp)
 		if e != nil {
 			return out, e
 		}
@@ -112,7 +112,7 @@ type appQuerier interface {
 }
 
 func appTenantsQuery(ctx context.Context, q appQuerier, email string) ([]AppTenant, error) {
-	rows, e := q.QueryContext(ctx, `select m.tenant_id::text,coalesce((b.source_metadata->'company'->>'legal_name'),(b.source_metadata->>'legal_name'),m.tenant_id::text),array_to_json(m.roles) from tenant_user_memberships m left join tenant_source_bindings b on b.tenant_id=m.tenant_id where m.normalized_email=$1 and m.status='ACTIVE' order by 2`, email)
+	rows, e := q.QueryContext(ctx, `select m.tenant_id::text,coalesce((b.source_metadata->'company'->>'legal_name'),(b.source_metadata->>'legal_name'),m.tenant_id::text),array_to_json(m.roles) from fiscal.tenant_user_memberships m left join fiscal.tenant_source_bindings b on b.tenant_id=m.tenant_id where m.normalized_email=$1 and m.status='ACTIVE' order by 2`, email)
 	if e != nil {
 		return nil, e
 	}
@@ -145,12 +145,12 @@ func (s *Service) VerifyAppChallenge(ctx context.Context, temporary, code, appIn
 	var th, oh []byte
 	var attempts int
 	var expires time.Time
-	e = tx.QueryRowContext(ctx, `select normalized_email,status,app_instance_id::text,temporary_token_hash,otp_hash,attempts,expires_at from app_auth_challenges where id=$1 for update`, id).Scan(&email, &status, &instance, &th, &oh, &attempts, &expires)
+	e = tx.QueryRowContext(ctx, `select normalized_email,status,app_instance_id::text,temporary_token_hash,otp_hash,attempts,expires_at from fiscal.app_auth_challenges where id=$1 for update`, id).Scan(&email, &status, &instance, &th, &oh, &attempts, &expires)
 	if e != nil || instance != appInstance || status != "PENDING" || s.now().After(expires) || !hmac.Equal(th, s.digest(temporary)) {
 		return AppVerification{}, ErrUnauthorized
 	}
 	if !hmac.Equal(oh, s.digest(code)) {
-		_, _ = tx.ExecContext(ctx, `update app_auth_challenges set attempts=attempts+1,status=case when attempts+1>=5 then 'LOCKED' else status end where id=$1`, id)
+		_, _ = tx.ExecContext(ctx, `update fiscal.app_auth_challenges set attempts=attempts+1,status=case when attempts+1>=5 then 'LOCKED' else status end where id=$1`, id)
 		_ = tx.Commit()
 		return AppVerification{}, ErrUnauthorized
 	}
@@ -162,7 +162,7 @@ func (s *Service) VerifyAppChallenge(ctx context.Context, temporary, code, appIn
 		return AppVerification{}, ErrUnauthorized
 	}
 	if len(tenants) == 1 {
-		_, e = tx.ExecContext(ctx, `update app_auth_challenges set status='CANCELLED',verified_at=now() where id=$1 and status='PENDING'`, id)
+		_, e = tx.ExecContext(ctx, `update fiscal.app_auth_challenges set status='CANCELLED',verified_at=now() where id=$1 and status='PENDING'`, id)
 		if e != nil {
 			return AppVerification{}, e
 		}
@@ -175,7 +175,7 @@ func (s *Service) VerifyAppChallenge(ctx context.Context, temporary, code, appIn
 		}
 		return AppVerification{Session: &session}, nil
 	}
-	_, e = tx.ExecContext(ctx, `update app_auth_challenges set status='VERIFIED',verified_at=now() where id=$1 and status='PENDING'`, id)
+	_, e = tx.ExecContext(ctx, `update fiscal.app_auth_challenges set status='VERIFIED',verified_at=now() where id=$1 and status='PENDING'`, id)
 	if e != nil {
 		return AppVerification{}, e
 	}
@@ -197,7 +197,7 @@ func (s *Service) SelectAppTenant(ctx context.Context, selection, tenantID, appI
 	var email, status, instance string
 	var hash []byte
 	var expires time.Time
-	e = tx.QueryRowContext(ctx, `select normalized_email,status,app_instance_id::text,temporary_token_hash,expires_at from app_auth_challenges where id=$1 for update`, id).Scan(&email, &status, &instance, &hash, &expires)
+	e = tx.QueryRowContext(ctx, `select normalized_email,status,app_instance_id::text,temporary_token_hash,expires_at from fiscal.app_auth_challenges where id=$1 for update`, id).Scan(&email, &status, &instance, &hash, &expires)
 	if e != nil || status != "VERIFIED" || instance != appInstance || s.now().After(expires) || !hmac.Equal(hash, s.digest(selection)) {
 		return AppSession{}, ErrUnauthorized
 	}
@@ -211,7 +211,7 @@ func (s *Service) SelectAppTenant(ctx context.Context, selection, tenantID, appI
 			if e != nil {
 				return AppSession{}, e
 			}
-			result, e := tx.ExecContext(ctx, `update app_auth_challenges set status='CANCELLED' where id=$1 and status='VERIFIED'`, id)
+			result, e := tx.ExecContext(ctx, `update fiscal.app_auth_challenges set status='CANCELLED' where id=$1 and status='VERIFIED'`, id)
 			if e != nil {
 				return AppSession{}, e
 			}
@@ -260,18 +260,18 @@ func (s *Service) createAppSessionTx(ctx context.Context, tx *sql.Tx, email, ins
 		return AppSession{}, e
 	}
 	var userID string
-	e = tx.QueryRowContext(ctx, `select user_id::text from tenant_user_memberships where tenant_id=$1 and normalized_email=$2 and status='ACTIVE' for key share`, tenant.TenantID, email).Scan(&userID)
+	e = tx.QueryRowContext(ctx, `select user_id::text from fiscal.tenant_user_memberships where tenant_id=$1 and normalized_email=$2 and status='ACTIVE' for key share`, tenant.TenantID, email).Scan(&userID)
 	if e != nil {
 		return AppSession{}, e
 	}
 	now := s.now()
 	expires := now.Add(15 * time.Minute)
 	access := signAppJWT(s.appSigningKey, map[string]any{"sub": userID, "iss": "beefiscal-app", "tenant_id": tenant.TenantID, "roles": tenant.Roles, "scope": "fiscal.base", "jti": jti, "iat": now.Unix(), "exp": expires.Unix()})
-	_, e = tx.ExecContext(ctx, `insert into app_auth_sessions(id,user_id,normalized_email,selected_tenant_id,refresh_token_hash,app_instance_id,status,expires_at) values($1,$2,$3,$4,$5,$6,'ACTIVE',now()+interval '30 days')`, sessionID, userID, email, tenant.TenantID, s.digest(refresh), instance)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.app_auth_sessions(id,user_id,normalized_email,selected_tenant_id,refresh_token_hash,app_instance_id,status,expires_at) values($1,$2,$3,$4,$5,$6,'ACTIVE',now()+interval '30 days')`, sessionID, userID, email, tenant.TenantID, s.digest(refresh), instance)
 	if e != nil {
 		return AppSession{}, e
 	}
-	_, e = tx.ExecContext(ctx, `insert into app_issued_tokens(jti,session_id,tenant_id,issued_at,expires_at,status) values($1,$2,$3,$4,$5,'ACTIVE')`, jti, sessionID, tenant.TenantID, now, expires)
+	_, e = tx.ExecContext(ctx, `insert into fiscal.app_issued_tokens(jti,session_id,tenant_id,issued_at,expires_at,status) values($1,$2,$3,$4,$5,'ACTIVE')`, jti, sessionID, tenant.TenantID, now, expires)
 	if e != nil {
 		return AppSession{}, e
 	}
@@ -290,7 +290,7 @@ func (s *Service) IsAppTokenRevoked(ctx context.Context, jti string) bool {
 		return false
 	}
 	var active bool
-	e := s.db.QueryRowContext(ctx, `select exists(select 1 from app_issued_tokens t join app_auth_sessions s on s.id=t.session_id join tenant_user_memberships m on m.tenant_id=t.tenant_id and m.normalized_email=s.normalized_email where t.jti=$1 and t.status='ACTIVE' and t.expires_at>now() and s.status='ACTIVE' and s.expires_at>now() and m.status='ACTIVE')`, jti).Scan(&active)
+	e := s.db.QueryRowContext(ctx, `select exists(select 1 from fiscal.app_issued_tokens t join fiscal.app_auth_sessions s on s.id=t.session_id join fiscal.tenant_user_memberships m on m.tenant_id=t.tenant_id and m.normalized_email=s.normalized_email where t.jti=$1 and t.status='ACTIVE' and t.expires_at>now() and s.status='ACTIVE' and s.expires_at>now() and m.status='ACTIVE')`, jti).Scan(&active)
 	return e != nil || !active
 }
 
@@ -300,20 +300,20 @@ func (s *Service) AppTenantsForAccess(ctx context.Context, raw string) ([]AppTen
 		return nil, ErrUnauthorized
 	}
 	var email string
-	e = s.db.QueryRowContext(ctx, `select s.normalized_email from app_issued_tokens t join app_auth_sessions s on s.id=t.session_id where t.jti=$1`, claims.JTI).Scan(&email)
+	e = s.db.QueryRowContext(ctx, `select s.normalized_email from fiscal.app_issued_tokens t join fiscal.app_auth_sessions s on s.id=t.session_id where t.jti=$1`, claims.JTI).Scan(&email)
 	if e != nil {
 		return nil, ErrUnauthorized
 	}
 	return s.appTenants(ctx, email)
 }
 func (s *Service) RevokeAppToken(ctx context.Context, jti, reason string) error {
-	_, e := s.db.ExecContext(ctx, `update app_issued_tokens set status='REVOKED',revoked_at=now(),revoke_reason=$2 where jti=$1 and status='ACTIVE'`, jti, reason)
+	_, e := s.db.ExecContext(ctx, `update fiscal.app_issued_tokens set status='REVOKED',revoked_at=now(),revoke_reason=$2 where jti=$1 and status='ACTIVE'`, jti, reason)
 	return e
 }
 
 func (s *Service) appSessionByRefreshTx(ctx context.Context, tx *sql.Tx, raw, instance string) (string, string, string, error) {
 	var sessionID, email, tenant string
-	e := tx.QueryRowContext(ctx, `select id::text,normalized_email,selected_tenant_id::text from app_auth_sessions where refresh_token_hash=$1 and app_instance_id=$2 and status='ACTIVE' and expires_at>now() for update`, s.digest(raw), instance).Scan(&sessionID, &email, &tenant)
+	e := tx.QueryRowContext(ctx, `select id::text,normalized_email,selected_tenant_id::text from fiscal.app_auth_sessions where refresh_token_hash=$1 and app_instance_id=$2 and status='ACTIVE' and expires_at>now() for update`, s.digest(raw), instance).Scan(&sessionID, &email, &tenant)
 	if e != nil {
 		return "", "", "", ErrUnauthorized
 	}
@@ -350,11 +350,11 @@ func (s *Service) RotateAppSession(ctx context.Context, refresh, instance, targe
 	if e != nil {
 		return AppSession{}, e
 	}
-	_, e = tx.ExecContext(ctx, `update app_issued_tokens set status='REVOKED',revoked_at=now(),revoke_reason=$2 where session_id=$1 and status='ACTIVE'`, sessionID, "SESSION_ROTATED")
+	_, e = tx.ExecContext(ctx, `update fiscal.app_issued_tokens set status='REVOKED',revoked_at=now(),revoke_reason=$2 where session_id=$1 and status='ACTIVE'`, sessionID, "SESSION_ROTATED")
 	if e != nil {
 		return AppSession{}, e
 	}
-	_, e = tx.ExecContext(ctx, `update app_auth_sessions set status='REVOKED',revoked_at=now() where id=$1 and status='ACTIVE'`, sessionID)
+	_, e = tx.ExecContext(ctx, `update fiscal.app_auth_sessions set status='REVOKED',revoked_at=now() where id=$1 and status='ACTIVE'`, sessionID)
 	if e != nil {
 		return AppSession{}, e
 	}
@@ -373,11 +373,11 @@ func (s *Service) LogoutAppSession(ctx context.Context, refresh, instance string
 	if e != nil {
 		return e
 	}
-	_, e = tx.ExecContext(ctx, `update app_issued_tokens set status='REVOKED',revoked_at=now(),revoke_reason='LOGOUT' where session_id=$1 and status='ACTIVE'`, sessionID)
+	_, e = tx.ExecContext(ctx, `update fiscal.app_issued_tokens set status='REVOKED',revoked_at=now(),revoke_reason='LOGOUT' where session_id=$1 and status='ACTIVE'`, sessionID)
 	if e != nil {
 		return e
 	}
-	_, e = tx.ExecContext(ctx, `update app_auth_sessions set status='REVOKED',revoked_at=now() where id=$1`, sessionID)
+	_, e = tx.ExecContext(ctx, `update fiscal.app_auth_sessions set status='REVOKED',revoked_at=now() where id=$1`, sessionID)
 	if e != nil {
 		return e
 	}

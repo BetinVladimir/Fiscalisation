@@ -50,7 +50,7 @@ func Open(url string) (*Postgres, error) {
 			return nil, e
 		}
 	}
-	if _, e = db.ExecContext(ctx, `alter table minipos_state_meta add column if not exists sequence bigint not null default 0, add column if not exists storage_mode smallint not null default 1`); e != nil {
+	if _, e = db.ExecContext(ctx, `alter table minipos.minipos_state_meta add column if not exists sequence bigint not null default 0, add column if not exists storage_mode smallint not null default 1`); e != nil {
 		db.Close()
 		return nil, e
 	}
@@ -82,7 +82,7 @@ func OpenWithReader(writeURL, readURL string) (*Postgres, error) {
 	return p, nil
 }
 func (p *Postgres) Load() ([]byte, error) {
-	rows, e := p.db.Query(`select collection,entity_key,payload from minipos_state_rows order by collection,entity_key`)
+	rows, e := p.db.Query(`select collection,entity_key,payload from minipos.minipos_state_rows order by collection,entity_key`)
 	if e != nil {
 		return nil, e
 	}
@@ -99,7 +99,7 @@ func (p *Postgres) Load() ([]byte, error) {
 		return nil, e
 	}
 	var generation int64
-	metaErr := p.db.QueryRow(`select generation from minipos_state_meta where singleton=true`).Scan(&generation)
+	metaErr := p.db.QueryRow(`select generation from minipos.minipos_state_meta where singleton=true`).Scan(&generation)
 	if metaErr != nil && !errors.Is(metaErr, sql.ErrNoRows) {
 		return nil, metaErr
 	}
@@ -107,7 +107,7 @@ func (p *Postgres) Load() ([]byte, error) {
 		return rebuildSnapshot(flat)
 	}
 	var legacy []byte
-	e = p.db.QueryRow(`select payload from runtime_snapshots where aggregate='minipos'`).Scan(&legacy)
+	e = p.db.QueryRow(`select payload from minipos.runtime_snapshots where aggregate='minipos'`).Scan(&legacy)
 	if errors.Is(e, sql.ErrNoRows) {
 		return nil, nil
 	}
@@ -131,7 +131,7 @@ func (p *Postgres) LoadVersioned() ([]byte, int64, error) {
 	defer tx.Rollback()
 	var generation, sequence int64
 	var storageMode int
-	metaErr := tx.QueryRow(`select generation,sequence,storage_mode from minipos_state_meta where singleton=true`).Scan(&generation, &sequence, &storageMode)
+	metaErr := tx.QueryRow(`select generation,sequence,storage_mode from minipos.minipos_state_meta where singleton=true`).Scan(&generation, &sequence, &storageMode)
 	if metaErr != nil && !errors.Is(metaErr, sql.ErrNoRows) {
 		return nil, 0, metaErr
 	}
@@ -145,7 +145,7 @@ func (p *Postgres) LoadVersioned() ([]byte, int64, error) {
 		}
 		return b, generation, nil
 	}
-	rows, e := tx.Query(`select collection,entity_key,payload from minipos_state_rows order by collection,entity_key`)
+	rows, e := tx.Query(`select collection,entity_key,payload from minipos.minipos_state_rows order by collection,entity_key`)
 	if e != nil {
 		return nil, 0, e
 	}
@@ -228,7 +228,7 @@ func (p *Postgres) SaveDeltaVersioned(previous, current []byte, expected int64) 
 	defer tx.Rollback()
 	var actual, persistedSequence int64
 	storageMode := 1
-	e = tx.QueryRow(`select generation,sequence,storage_mode from minipos_state_meta where singleton=true for update`).Scan(&actual, &persistedSequence, &storageMode)
+	e = tx.QueryRow(`select generation,sequence,storage_mode from minipos.minipos_state_meta where singleton=true for update`).Scan(&actual, &persistedSequence, &storageMode)
 	if errors.Is(e, sql.ErrNoRows) {
 		actual, e = 0, nil
 	}
@@ -244,7 +244,7 @@ func (p *Postgres) SaveDeltaVersioned(previous, current []byte, expected int64) 
 	}
 	for _, row := range deletes {
 		if storageMode == 1 {
-			if _, e = tx.Exec(`delete from minipos_state_rows where collection=$1 and entity_key=$2`, row.Collection, row.Key); e != nil {
+			if _, e = tx.Exec(`delete from minipos.minipos_state_rows where collection=$1 and entity_key=$2`, row.Collection, row.Key); e != nil {
 				return 0, e
 			}
 		}
@@ -254,7 +254,7 @@ func (p *Postgres) SaveDeltaVersioned(previous, current []byte, expected int64) 
 	}
 	for _, row := range upserts {
 		if storageMode == 1 {
-			if _, e = tx.Exec(`insert into minipos_state_rows(collection,entity_key,payload,updated_at) values($1,$2,$3::jsonb,now()) on conflict(collection,entity_key) do update set payload=excluded.payload,updated_at=now() where minipos_state_rows.payload is distinct from excluded.payload`, row.Collection, row.Key, string(row.Payload)); e != nil {
+			if _, e = tx.Exec(`insert into minipos.minipos_state_rows(collection,entity_key,payload,updated_at) values($1,$2,$3::jsonb,now()) on conflict(collection,entity_key) do update set payload=excluded.payload,updated_at=now() where minipos_state_rows.payload is distinct from excluded.payload`, row.Collection, row.Key, string(row.Payload)); e != nil {
 				return 0, e
 			}
 		}
@@ -272,7 +272,7 @@ func (p *Postgres) SaveDeltaVersioned(previous, current []byte, expected int64) 
 		}
 	}
 	var generation int64
-	if e = tx.QueryRow(`insert into minipos_state_meta(singleton,generation,sequence,storage_mode,updated_at) values(true,1,$1,$2,now()) on conflict(singleton) do update set generation=minipos_state_meta.generation+1,sequence=excluded.sequence,storage_mode=excluded.storage_mode,updated_at=excluded.updated_at returning generation`, sequence, storageMode).Scan(&generation); e != nil {
+	if e = tx.QueryRow(`insert into minipos.minipos_state_meta(singleton,generation,sequence,storage_mode,updated_at) values(true,1,$1,$2,now()) on conflict(singleton) do update set generation=minipos_state_meta.generation+1,sequence=excluded.sequence,storage_mode=excluded.storage_mode,updated_at=excluded.updated_at returning generation`, sequence, storageMode).Scan(&generation); e != nil {
 		return 0, e
 	}
 	if e = tx.Commit(); e != nil {
@@ -296,18 +296,18 @@ func miniPOSSequence(raw []byte) (int64, error) {
 func loadMiniPOSTypedSnapshot(tx *sql.Tx, sequence int64) ([]byte, error) {
 	rows, err := tx.Query(`
 select collection,entity_key,payload from (
-  select 'products'::text collection,id entity_key,payload from minipos_runtime_products
-  union all select 'tax_groups',id,payload from minipos_runtime_tax_groups
-  union all select 'employees',id,payload from minipos_runtime_employees
-  union all select 'identity_bindings',binding_key,payload from minipos_runtime_identity_bindings
-  union all select 'operator_sessions',session_key,payload from minipos_runtime_operator_sessions
-  union all select 'shifts',id,payload from minipos_runtime_shifts
-  union all select 'orders',id,payload from minipos_runtime_orders
-  union all select 'configurations',organization_id,payload from minipos_runtime_configurations
-  union all select 'api_replays',replay_key,payload from minipos_runtime_api_replays
-  union all select 'webhook_inbox',event_id,payload from minipos_runtime_webhook_inbox
-  union all select 'checkouts',replay_key,payload from minipos_runtime_checkout_results
-  union all select 'checkout_hashes',replay_key,to_jsonb(request_hash) from minipos_runtime_checkout_hashes
+  select 'products'::text collection,id entity_key,payload from minipos.minipos_runtime_products
+  union all select 'tax_groups',id,payload from minipos.minipos_runtime_tax_groups
+  union all select 'employees',id,payload from minipos.minipos_runtime_employees
+  union all select 'identity_bindings',binding_key,payload from minipos.minipos_runtime_identity_bindings
+  union all select 'operator_sessions',session_key,payload from minipos.minipos_runtime_operator_sessions
+  union all select 'shifts',id,payload from minipos.minipos_runtime_shifts
+  union all select 'orders',id,payload from minipos.minipos_runtime_orders
+  union all select 'configurations',organization_id,payload from minipos.minipos_runtime_configurations
+  union all select 'api_replays',replay_key,payload from minipos.minipos_runtime_api_replays
+  union all select 'webhook_inbox',event_id,payload from minipos.minipos_runtime_webhook_inbox
+  union all select 'checkouts',replay_key,payload from minipos.minipos_runtime_checkout_results
+  union all select 'checkout_hashes',replay_key,to_jsonb(request_hash) from minipos.minipos_runtime_checkout_hashes
 ) typed where payload is not null order by collection,entity_key`)
 	if err != nil {
 		return nil, err
@@ -331,19 +331,19 @@ select collection,entity_key,payload from (
 // compatibility entity must have an exact typed payload before mode 2 is set.
 func miniPOSTypedCoverageComplete(tx *sql.Tx) (bool, error) {
 	var missing int
-	err := tx.QueryRow(`select count(*) from minipos_state_rows s where s.collection <> 'sequence' and not (
-  (s.collection='products' and exists(select 1 from minipos_runtime_products t where t.id=s.entity_key and t.payload=s.payload)) or
-  (s.collection='tax_groups' and exists(select 1 from minipos_runtime_tax_groups t where t.id=s.entity_key and t.payload=s.payload)) or
-  (s.collection='employees' and exists(select 1 from minipos_runtime_employees t where t.id=s.entity_key and t.payload=s.payload)) or
-  (s.collection='identity_bindings' and exists(select 1 from minipos_runtime_identity_bindings t where t.binding_key=s.entity_key and t.payload=s.payload)) or
-  (s.collection='operator_sessions' and exists(select 1 from minipos_runtime_operator_sessions t where t.session_key=s.entity_key and t.payload=s.payload)) or
-  (s.collection='shifts' and exists(select 1 from minipos_runtime_shifts t where t.id=s.entity_key and t.payload=s.payload)) or
-  (s.collection='orders' and exists(select 1 from minipos_runtime_orders t where t.id=s.entity_key and t.payload=s.payload)) or
-  (s.collection='configurations' and exists(select 1 from minipos_runtime_configurations t where t.organization_id=s.entity_key and t.payload=s.payload)) or
-  (s.collection='api_replays' and exists(select 1 from minipos_runtime_api_replays t where t.replay_key=s.entity_key and t.payload=s.payload)) or
-  (s.collection='webhook_inbox' and exists(select 1 from minipos_runtime_webhook_inbox t where t.event_id=s.entity_key and t.payload=s.payload)) or
-  (s.collection='checkouts' and exists(select 1 from minipos_runtime_checkout_results t where t.replay_key=s.entity_key and t.payload=s.payload)) or
-  (s.collection='checkout_hashes' and exists(select 1 from minipos_runtime_checkout_hashes t where t.replay_key=s.entity_key and to_jsonb(t.request_hash)=s.payload))
+	err := tx.QueryRow(`select count(*) from minipos.minipos_state_rows s where s.collection <> 'sequence' and not (
+  (s.collection='products' and exists(select 1 from minipos.minipos_runtime_products t where t.id=s.entity_key and t.payload=s.payload)) or
+  (s.collection='tax_groups' and exists(select 1 from minipos.minipos_runtime_tax_groups t where t.id=s.entity_key and t.payload=s.payload)) or
+  (s.collection='employees' and exists(select 1 from minipos.minipos_runtime_employees t where t.id=s.entity_key and t.payload=s.payload)) or
+  (s.collection='identity_bindings' and exists(select 1 from minipos.minipos_runtime_identity_bindings t where t.binding_key=s.entity_key and t.payload=s.payload)) or
+  (s.collection='operator_sessions' and exists(select 1 from minipos.minipos_runtime_operator_sessions t where t.session_key=s.entity_key and t.payload=s.payload)) or
+  (s.collection='shifts' and exists(select 1 from minipos.minipos_runtime_shifts t where t.id=s.entity_key and t.payload=s.payload)) or
+  (s.collection='orders' and exists(select 1 from minipos.minipos_runtime_orders t where t.id=s.entity_key and t.payload=s.payload)) or
+  (s.collection='configurations' and exists(select 1 from minipos.minipos_runtime_configurations t where t.organization_id=s.entity_key and t.payload=s.payload)) or
+  (s.collection='api_replays' and exists(select 1 from minipos.minipos_runtime_api_replays t where t.replay_key=s.entity_key and t.payload=s.payload)) or
+  (s.collection='webhook_inbox' and exists(select 1 from minipos.minipos_runtime_webhook_inbox t where t.event_id=s.entity_key and t.payload=s.payload)) or
+  (s.collection='checkouts' and exists(select 1 from minipos.minipos_runtime_checkout_results t where t.replay_key=s.entity_key and t.payload=s.payload)) or
+  (s.collection='checkout_hashes' and exists(select 1 from minipos.minipos_runtime_checkout_hashes t where t.replay_key=s.entity_key and to_jsonb(t.request_hash)=s.payload))
 )`).Scan(&missing)
 	return missing == 0, err
 }
@@ -365,7 +365,7 @@ func (p *Postgres) saveVersioned(raw []byte, expected *int64) (int64, error) {
 	}
 	defer tx.Rollback()
 	var current int64
-	e = tx.QueryRow(`select generation from minipos_state_meta where singleton=true for update`).Scan(&current)
+	e = tx.QueryRow(`select generation from minipos.minipos_state_meta where singleton=true for update`).Scan(&current)
 	if errors.Is(e, sql.ErrNoRows) {
 		current, e = 0, nil
 	}
@@ -379,7 +379,7 @@ func (p *Postgres) saveVersioned(raw []byte, expected *int64) (int64, error) {
 	for _, row := range rows {
 		desired[stateRowID(row.Collection, row.Key)] = true
 	}
-	existing, e := tx.Query(`select collection,entity_key,payload from minipos_state_rows for update`)
+	existing, e := tx.Query(`select collection,entity_key,payload from minipos.minipos_state_rows for update`)
 	if e != nil {
 		return 0, e
 	}
@@ -402,14 +402,14 @@ func (p *Postgres) saveVersioned(raw []byte, expected *int64) (int64, error) {
 		return 0, e
 	}
 	for _, row := range stale {
-		if _, e = tx.Exec(`delete from minipos_state_rows where collection=$1 and entity_key=$2`, row.Collection, row.Key); e != nil {
+		if _, e = tx.Exec(`delete from minipos.minipos_state_rows where collection=$1 and entity_key=$2`, row.Collection, row.Key); e != nil {
 			return 0, e
 		}
 		if e = deleteTypedProjection(tx, row); e != nil {
 			return 0, e
 		}
 	}
-	stmt, e := tx.Prepare(`insert into minipos_state_rows(collection,entity_key,payload,updated_at) values($1,$2,$3::jsonb,now()) on conflict(collection,entity_key) do update set payload=excluded.payload,updated_at=now() where minipos_state_rows.payload is distinct from excluded.payload`)
+	stmt, e := tx.Prepare(`insert into minipos.minipos_state_rows(collection,entity_key,payload,updated_at) values($1,$2,$3::jsonb,now()) on conflict(collection,entity_key) do update set payload=excluded.payload,updated_at=now() where minipos_state_rows.payload is distinct from excluded.payload`)
 	if e != nil {
 		return 0, e
 	}
@@ -423,7 +423,7 @@ func (p *Postgres) saveVersioned(raw []byte, expected *int64) (int64, error) {
 		}
 	}
 	var generation int64
-	if e = tx.QueryRow(`insert into minipos_state_meta(singleton,generation,updated_at) values(true,1,now()) on conflict(singleton) do update set generation=minipos_state_meta.generation+1,updated_at=excluded.updated_at returning generation`).Scan(&generation); e != nil {
+	if e = tx.QueryRow(`insert into minipos.minipos_state_meta(singleton,generation,updated_at) values(true,1,now()) on conflict(singleton) do update set generation=minipos_state_meta.generation+1,updated_at=excluded.updated_at returning generation`).Scan(&generation); e != nil {
 		return 0, e
 	}
 	if e = tx.Commit(); e != nil {
@@ -456,25 +456,25 @@ func (p *Postgres) LoadTenantEntity(collection, tenant, id string) ([]byte, erro
 	var raw []byte
 	switch collection {
 	case "products":
-		e = tx.QueryRow(`select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'sku',sku,'barcode',barcode,'name',name,'unit',unit,'price',jsonb_build_object('amount',amount::text,'currency',currency),'tax_group',tax_group,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at)) from minipos_runtime_products where id=$1`, id).Scan(&raw)
+		e = tx.QueryRow(`select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'sku',sku,'barcode',barcode,'name',name,'unit',unit,'price',jsonb_build_object('amount',amount::text,'currency',currency),'tax_group',tax_group,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at)) from minipos.minipos_runtime_products where id=$1`, id).Scan(&raw)
 	case "tax_groups":
-		e = tx.QueryRow(`select payload from minipos_runtime_tax_groups where id=$1`, id).Scan(&raw)
+		e = tx.QueryRow(`select payload from minipos.minipos_runtime_tax_groups where id=$1`, id).Scan(&raw)
 	case "employees":
-		e = tx.QueryRow(`select jsonb_build_object('id',id,'tenant_id',organization_id,'first_name',first_name,'last_name',last_name,'operator_code',operator_code,'roles',roles,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at) from minipos_runtime_employees where id=$1`, id).Scan(&raw)
+		e = tx.QueryRow(`select jsonb_build_object('id',id,'tenant_id',organization_id,'first_name',first_name,'last_name',last_name,'operator_code',operator_code,'roles',roles,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at) from minipos.minipos_runtime_employees where id=$1`, id).Scan(&raw)
 	case "shifts":
-		e = tx.QueryRow(`select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'register_id',register_id,'employee_id',employee_id,'state',state,'version',version,'opened_at',opened_at,'closed_at',closed_at,'z_operation_id',z_operation_id,'z_fiscal_reference',z_fiscal_reference,'close_error',close_error,'created_at',created_at,'updated_at',updated_at)) from minipos_runtime_shifts where id=$1`, id).Scan(&raw)
+		e = tx.QueryRow(`select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'register_id',register_id,'employee_id',employee_id,'state',state,'version',version,'opened_at',opened_at,'closed_at',closed_at,'z_operation_id',z_operation_id,'z_fiscal_reference',z_fiscal_reference,'close_error',close_error,'created_at',created_at,'updated_at',updated_at)) from minipos.minipos_runtime_shifts where id=$1`, id).Scan(&raw)
 	case "orders":
-		e = tx.QueryRow(`select jsonb_build_object('id',id,'tenant_id',organization_id,'external_id',external_id,'shift_id',shift_id,'register_id',register_id,'operator_code',operator_code,'state',state,'total',jsonb_build_object('amount',total::text,'currency',currency),'lines',lines,'fiscal_sale_id',coalesce(fiscal_sale_id,''),'fiscal_operation_id',coalesce(fiscal_operation_id,''),'receipt_reference',coalesce(fiscal_reference,''),'reversal_operation_id',coalesce(reversal_operation_id,''),'reversal_fiscal_reference',coalesce(reversal_fiscal_reference,''),'reversal_reason_code',coalesce(reversal_reason_code,''),'fiscal_version',coalesce(fiscal_version,0),'version',version,'created_at',created_at,'updated_at',updated_at) from minipos_runtime_orders where id=$1`, id).Scan(&raw)
+		e = tx.QueryRow(`select jsonb_build_object('id',id,'tenant_id',organization_id,'external_id',external_id,'shift_id',shift_id,'register_id',register_id,'operator_code',operator_code,'state',state,'total',jsonb_build_object('amount',total::text,'currency',currency),'lines',lines,'fiscal_sale_id',coalesce(fiscal_sale_id,''),'fiscal_operation_id',coalesce(fiscal_operation_id,''),'receipt_reference',coalesce(fiscal_reference,''),'reversal_operation_id',coalesce(reversal_operation_id,''),'reversal_fiscal_reference',coalesce(reversal_fiscal_reference,''),'reversal_reason_code',coalesce(reversal_reason_code,''),'fiscal_version',coalesce(fiscal_version,0),'version',version,'created_at',created_at,'updated_at',updated_at) from minipos.minipos_runtime_orders where id=$1`, id).Scan(&raw)
 	case "configurations":
-		e = tx.QueryRow(`select payload from minipos_runtime_configurations where id=$1`, id).Scan(&raw)
+		e = tx.QueryRow(`select payload from minipos.minipos_runtime_configurations where id=$1`, id).Scan(&raw)
 	case "api_replays":
-		e = tx.QueryRow(`select payload from minipos_runtime_api_replays where replay_key=$1`, id).Scan(&raw)
+		e = tx.QueryRow(`select payload from minipos.minipos_runtime_api_replays where replay_key=$1`, id).Scan(&raw)
 	case "webhook_inbox":
-		e = tx.QueryRow(`select payload from minipos_runtime_webhook_inbox where event_id=$1`, id).Scan(&raw)
+		e = tx.QueryRow(`select payload from minipos.minipos_runtime_webhook_inbox where event_id=$1`, id).Scan(&raw)
 	case "checkouts":
-		e = tx.QueryRow(`select payload from minipos_runtime_checkout_results where replay_key=$1`, id).Scan(&raw)
+		e = tx.QueryRow(`select payload from minipos.minipos_runtime_checkout_results where replay_key=$1`, id).Scan(&raw)
 	case "checkout_hashes":
-		e = tx.QueryRow(`select to_json(request_hash) from minipos_runtime_checkout_hashes where replay_key=$1`, id).Scan(&raw)
+		e = tx.QueryRow(`select to_json(request_hash) from minipos.minipos_runtime_checkout_hashes where replay_key=$1`, id).Scan(&raw)
 	default:
 		return nil, errors.New("unsupported typed collection")
 	}
@@ -504,17 +504,17 @@ func (p *Postgres) LoadTenantEntities(collection, tenant string) ([][]byte, erro
 	query := ""
 	switch collection {
 	case "products":
-		query = `select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'sku',sku,'barcode',barcode,'name',name,'unit',unit,'price',jsonb_build_object('amount',amount::text,'currency',currency),'tax_group',tax_group,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at)) from minipos_runtime_products order by name,id`
+		query = `select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'sku',sku,'barcode',barcode,'name',name,'unit',unit,'price',jsonb_build_object('amount',amount::text,'currency',currency),'tax_group',tax_group,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at)) from minipos.minipos_runtime_products order by name,id`
 	case "tax_groups":
-		query = `select payload from minipos_runtime_tax_groups order by code,id`
+		query = `select payload from minipos.minipos_runtime_tax_groups order by code,id`
 	case "employees":
-		query = `select jsonb_build_object('id',id,'tenant_id',organization_id,'first_name',first_name,'last_name',last_name,'operator_code',operator_code,'roles',roles,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at) from minipos_runtime_employees order by last_name,first_name,id`
+		query = `select jsonb_build_object('id',id,'tenant_id',organization_id,'first_name',first_name,'last_name',last_name,'operator_code',operator_code,'roles',roles,'active',active,'status',status,'version',version,'created_at',created_at,'updated_at',updated_at) from minipos.minipos_runtime_employees order by last_name,first_name,id`
 	case "shifts":
-		query = `select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'register_id',register_id,'employee_id',employee_id,'state',state,'version',version,'opened_at',opened_at,'closed_at',closed_at,'z_operation_id',z_operation_id,'z_fiscal_reference',z_fiscal_reference,'close_error',close_error,'created_at',created_at,'updated_at',updated_at)) from minipos_runtime_shifts order by opened_at,id`
+		query = `select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'register_id',register_id,'employee_id',employee_id,'state',state,'version',version,'opened_at',opened_at,'closed_at',closed_at,'z_operation_id',z_operation_id,'z_fiscal_reference',z_fiscal_reference,'close_error',close_error,'created_at',created_at,'updated_at',updated_at)) from minipos.minipos_runtime_shifts order by opened_at,id`
 	case "orders":
-		query = `select jsonb_build_object('id',id,'tenant_id',organization_id,'external_id',external_id,'shift_id',shift_id,'register_id',register_id,'operator_code',operator_code,'state',state,'total',jsonb_build_object('amount',total::text,'currency',currency),'lines',lines,'payments',payments,'fiscal_sale_id',coalesce(fiscal_sale_id,''),'fiscal_operation_id',coalesce(fiscal_operation_id,''),'receipt_reference',coalesce(fiscal_reference,''),'reversal_operation_id',coalesce(reversal_operation_id,''),'reversal_fiscal_reference',coalesce(reversal_fiscal_reference,''),'reversal_reason_code',coalesce(reversal_reason_code,''),'fiscal_version',coalesce(fiscal_version,0),'version',version,'created_at',created_at,'updated_at',updated_at) from minipos_runtime_orders order by created_at,id`
+		query = `select jsonb_build_object('id',id,'tenant_id',organization_id,'external_id',external_id,'shift_id',shift_id,'register_id',register_id,'operator_code',operator_code,'state',state,'total',jsonb_build_object('amount',total::text,'currency',currency),'lines',lines,'payments',payments,'fiscal_sale_id',coalesce(fiscal_sale_id,''),'fiscal_operation_id',coalesce(fiscal_operation_id,''),'receipt_reference',coalesce(fiscal_reference,''),'reversal_operation_id',coalesce(reversal_operation_id,''),'reversal_fiscal_reference',coalesce(reversal_fiscal_reference,''),'reversal_reason_code',coalesce(reversal_reason_code,''),'fiscal_version',coalesce(fiscal_version,0),'version',version,'created_at',created_at,'updated_at',updated_at) from minipos.minipos_runtime_orders order by created_at,id`
 	case "configurations":
-		query = `select payload from minipos_runtime_configurations order by id`
+		query = `select payload from minipos.minipos_runtime_configurations order by id`
 	default:
 		return nil, errors.New("unsupported typed collection")
 	}
@@ -554,7 +554,7 @@ func deleteTypedProjection(tx *sql.Tx, row stateRow) error {
 			if e := json.Unmarshal(row.Payload, &identity); e != nil || identity.ID == "" {
 				return errors.New("typed configuration id required")
 			}
-			_, e := tx.Exec(`delete from minipos_runtime_configurations where id=$1`, identity.ID)
+			_, e := tx.Exec(`delete from minipos.minipos_runtime_configurations where id=$1`, identity.ID)
 			return e
 		})
 	}
@@ -588,46 +588,46 @@ func upsertTypedProjectionAsOrganization(tx *sql.Tx, row stateRow) error {
 	p := string(row.Payload)
 	switch row.Collection {
 	case "products":
-		_, e := tx.Exec(`insert into minipos_runtime_products(id,organization_id,sku,barcode,name,unit,amount,currency,tax_group,active,status,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'sku',nullif($2::jsonb->>'barcode',''),$2::jsonb->>'name',$2::jsonb->>'unit',($2::jsonb->'price'->>'amount')::numeric,$2::jsonb->'price'->>'currency',$2::jsonb->>'tax_group',($2::jsonb->>'active')::boolean,$2::jsonb->>'status',($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,sku=excluded.sku,barcode=excluded.barcode,name=excluded.name,unit=excluded.unit,amount=excluded.amount,currency=excluded.currency,tax_group=excluded.tax_group,active=excluded.active,status=excluded.status,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_products is distinct from excluded`, row.Key, p)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_products(id,organization_id,sku,barcode,name,unit,amount,currency,tax_group,active,status,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'sku',nullif($2::jsonb->>'barcode',''),$2::jsonb->>'name',$2::jsonb->>'unit',($2::jsonb->'price'->>'amount')::numeric,$2::jsonb->'price'->>'currency',$2::jsonb->>'tax_group',($2::jsonb->>'active')::boolean,$2::jsonb->>'status',($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,sku=excluded.sku,barcode=excluded.barcode,name=excluded.name,unit=excluded.unit,amount=excluded.amount,currency=excluded.currency,tax_group=excluded.tax_group,active=excluded.active,status=excluded.status,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_products is distinct from excluded`, row.Key, p)
 		return e
 	case "tax_groups":
-		_, e := tx.Exec(`insert into minipos_runtime_tax_groups(id,organization_id,code,name,rate,status,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'code',$2::jsonb->>'name',($2::jsonb->>'rate')::numeric,$2::jsonb->>'status',($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,code=excluded.code,name=excluded.name,rate=excluded.rate,status=excluded.status,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_tax_groups is distinct from excluded`, row.Key, p)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_tax_groups(id,organization_id,code,name,rate,status,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'code',$2::jsonb->>'name',($2::jsonb->>'rate')::numeric,$2::jsonb->>'status',($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,code=excluded.code,name=excluded.name,rate=excluded.rate,status=excluded.status,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_tax_groups is distinct from excluded`, row.Key, p)
 		return e
 	case "employees":
-		_, e := tx.Exec(`insert into minipos_runtime_employees(id,organization_id,first_name,last_name,operator_code,roles,active,status,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'first_name',$2::jsonb->>'last_name',$2::jsonb->>'operator_code',$2::jsonb->'roles',($2::jsonb->>'active')::boolean,$2::jsonb->>'status',($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,first_name=excluded.first_name,last_name=excluded.last_name,operator_code=excluded.operator_code,roles=excluded.roles,active=excluded.active,status=excluded.status,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_employees is distinct from excluded`, row.Key, p)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_employees(id,organization_id,first_name,last_name,operator_code,roles,active,status,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'first_name',$2::jsonb->>'last_name',$2::jsonb->>'operator_code',$2::jsonb->'roles',($2::jsonb->>'active')::boolean,$2::jsonb->>'status',($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,first_name=excluded.first_name,last_name=excluded.last_name,operator_code=excluded.operator_code,roles=excluded.roles,active=excluded.active,status=excluded.status,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_employees is distinct from excluded`, row.Key, p)
 		return e
 	case "identity_bindings":
-		_, e := tx.Exec(`insert into minipos_runtime_identity_bindings(binding_key,organization_id,employee_id,subject_hash,identity_issuer,bound_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'employee_id',$2::jsonb->>'subject_hash',$2::jsonb->>'identity_issuer',($2::jsonb->>'bound_at')::timestamptz,$2::jsonb) on conflict(binding_key) do update set organization_id=excluded.organization_id,employee_id=excluded.employee_id,subject_hash=excluded.subject_hash,identity_issuer=excluded.identity_issuer,bound_at=excluded.bound_at,payload=excluded.payload where minipos_runtime_identity_bindings is distinct from excluded`, row.Key, p)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_identity_bindings(binding_key,organization_id,employee_id,subject_hash,identity_issuer,bound_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'employee_id',$2::jsonb->>'subject_hash',$2::jsonb->>'identity_issuer',($2::jsonb->>'bound_at')::timestamptz,$2::jsonb) on conflict(binding_key) do update set organization_id=excluded.organization_id,employee_id=excluded.employee_id,subject_hash=excluded.subject_hash,identity_issuer=excluded.identity_issuer,bound_at=excluded.bound_at,payload=excluded.payload where minipos_runtime_identity_bindings is distinct from excluded`, row.Key, p)
 		return e
 	case "operator_sessions":
-		_, e := tx.Exec(`insert into minipos_runtime_operator_sessions(session_key,organization_id,employee_id,app_instance_id,credential_fingerprint,state,first_seen,expires_at,revoked_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'employee_id',$2::jsonb->>'app_instance_id',$2::jsonb->>'token_hash',$2::jsonb->>'state',($2::jsonb->>'first_seen')::timestamptz,($2::jsonb->>'expires_at')::timestamptz,nullif($2::jsonb->>'revoked_at','')::timestamptz,$2::jsonb) on conflict(session_key) do update set organization_id=excluded.organization_id,employee_id=excluded.employee_id,app_instance_id=excluded.app_instance_id,credential_fingerprint=excluded.credential_fingerprint,state=excluded.state,first_seen=excluded.first_seen,expires_at=excluded.expires_at,revoked_at=excluded.revoked_at,payload=excluded.payload where minipos_runtime_operator_sessions is distinct from excluded`, row.Key, p)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_operator_sessions(session_key,organization_id,employee_id,app_instance_id,credential_fingerprint,state,first_seen,expires_at,revoked_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'employee_id',$2::jsonb->>'app_instance_id',$2::jsonb->>'token_hash',$2::jsonb->>'state',($2::jsonb->>'first_seen')::timestamptz,($2::jsonb->>'expires_at')::timestamptz,nullif($2::jsonb->>'revoked_at','')::timestamptz,$2::jsonb) on conflict(session_key) do update set organization_id=excluded.organization_id,employee_id=excluded.employee_id,app_instance_id=excluded.app_instance_id,credential_fingerprint=excluded.credential_fingerprint,state=excluded.state,first_seen=excluded.first_seen,expires_at=excluded.expires_at,revoked_at=excluded.revoked_at,payload=excluded.payload where minipos_runtime_operator_sessions is distinct from excluded`, row.Key, p)
 		return e
 	case "shifts":
-		_, e := tx.Exec(`insert into minipos_runtime_shifts(id,organization_id,register_id,employee_id,state,version,opened_at,closed_at,z_operation_id,z_fiscal_reference,close_error,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'register_id',$2::jsonb->>'employee_id',$2::jsonb->>'state',($2::jsonb->>'version')::bigint,($2::jsonb->>'opened_at')::timestamptz,nullif($2::jsonb->>'closed_at','')::timestamptz,nullif($2::jsonb->>'z_operation_id',''),nullif($2::jsonb->>'z_fiscal_reference',''),nullif($2::jsonb->>'close_error',''),($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,register_id=excluded.register_id,employee_id=excluded.employee_id,state=excluded.state,version=excluded.version,opened_at=excluded.opened_at,closed_at=excluded.closed_at,z_operation_id=excluded.z_operation_id,z_fiscal_reference=excluded.z_fiscal_reference,close_error=excluded.close_error,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_shifts is distinct from excluded`, row.Key, p)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_shifts(id,organization_id,register_id,employee_id,state,version,opened_at,closed_at,z_operation_id,z_fiscal_reference,close_error,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'register_id',$2::jsonb->>'employee_id',$2::jsonb->>'state',($2::jsonb->>'version')::bigint,($2::jsonb->>'opened_at')::timestamptz,nullif($2::jsonb->>'closed_at','')::timestamptz,nullif($2::jsonb->>'z_operation_id',''),nullif($2::jsonb->>'z_fiscal_reference',''),nullif($2::jsonb->>'close_error',''),($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,register_id=excluded.register_id,employee_id=excluded.employee_id,state=excluded.state,version=excluded.version,opened_at=excluded.opened_at,closed_at=excluded.closed_at,z_operation_id=excluded.z_operation_id,z_fiscal_reference=excluded.z_fiscal_reference,close_error=excluded.close_error,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_shifts is distinct from excluded`, row.Key, p)
 		return e
 	case "orders":
-		_, e := tx.Exec(`insert into minipos_runtime_orders(id,organization_id,external_id,shift_id,register_id,operator_code,state,total,currency,lines,payments,fiscal_sale_id,fiscal_operation_id,fiscal_reference,reversal_operation_id,reversal_fiscal_reference,reversal_reason_code,fiscal_version,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'external_id',$2::jsonb->>'shift_id',$2::jsonb->>'register_id',$2::jsonb->>'operator_code',$2::jsonb->>'state',($2::jsonb->'total'->>'amount')::numeric,$2::jsonb->'total'->>'currency',$2::jsonb->'lines',coalesce($2::jsonb->'payments','[]'::jsonb),nullif($2::jsonb->>'fiscal_sale_id',''),nullif($2::jsonb->>'fiscal_operation_id',''),nullif($2::jsonb->>'receipt_reference',''),nullif($2::jsonb->>'reversal_operation_id',''),nullif($2::jsonb->>'reversal_fiscal_reference',''),nullif($2::jsonb->>'reversal_reason_code',''),nullif($2::jsonb->>'fiscal_version','')::bigint,($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,external_id=excluded.external_id,shift_id=excluded.shift_id,register_id=excluded.register_id,operator_code=excluded.operator_code,state=excluded.state,total=excluded.total,currency=excluded.currency,lines=excluded.lines,payments=excluded.payments,fiscal_sale_id=excluded.fiscal_sale_id,fiscal_operation_id=excluded.fiscal_operation_id,fiscal_reference=excluded.fiscal_reference,reversal_operation_id=excluded.reversal_operation_id,reversal_fiscal_reference=excluded.reversal_fiscal_reference,reversal_reason_code=excluded.reversal_reason_code,fiscal_version=excluded.fiscal_version,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_orders is distinct from excluded`, row.Key, p)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_orders(id,organization_id,external_id,shift_id,register_id,operator_code,state,total,currency,lines,payments,fiscal_sale_id,fiscal_operation_id,fiscal_reference,reversal_operation_id,reversal_fiscal_reference,reversal_reason_code,fiscal_version,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'external_id',$2::jsonb->>'shift_id',$2::jsonb->>'register_id',$2::jsonb->>'operator_code',$2::jsonb->>'state',($2::jsonb->'total'->>'amount')::numeric,$2::jsonb->'total'->>'currency',$2::jsonb->'lines',coalesce($2::jsonb->'payments','[]'::jsonb),nullif($2::jsonb->>'fiscal_sale_id',''),nullif($2::jsonb->>'fiscal_operation_id',''),nullif($2::jsonb->>'receipt_reference',''),nullif($2::jsonb->>'reversal_operation_id',''),nullif($2::jsonb->>'reversal_fiscal_reference',''),nullif($2::jsonb->>'reversal_reason_code',''),nullif($2::jsonb->>'fiscal_version','')::bigint,($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,external_id=excluded.external_id,shift_id=excluded.shift_id,register_id=excluded.register_id,operator_code=excluded.operator_code,state=excluded.state,total=excluded.total,currency=excluded.currency,lines=excluded.lines,payments=excluded.payments,fiscal_sale_id=excluded.fiscal_sale_id,fiscal_operation_id=excluded.fiscal_operation_id,fiscal_reference=excluded.fiscal_reference,reversal_operation_id=excluded.reversal_operation_id,reversal_fiscal_reference=excluded.reversal_fiscal_reference,reversal_reason_code=excluded.reversal_reason_code,fiscal_version=excluded.fiscal_version,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_orders is distinct from excluded`, row.Key, p)
 		return e
 	case "configurations":
-		_, e := tx.Exec(`insert into minipos_runtime_configurations(id,organization_id,location_name,location_address,workstation_name,fiscal_register_id,location_id,fiscal_adapter_id,binding_generation,adapter_base_url,ble_advertising_identity,ble_service_uuid,ble_command_uuid,ble_event_uuid,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'location_name',$2::jsonb->>'location_address',$2::jsonb->>'workstation_name',$2::jsonb->>'fiscal_register_id',$2::jsonb->>'location_id',$2::jsonb->>'fiscal_adapter_id',nullif($2::jsonb->>'binding_generation','')::bigint,$2::jsonb->>'adapter_base_url',$2::jsonb->>'ble_advertising_identity',$2::jsonb->>'ble_service_uuid',$2::jsonb->>'ble_command_uuid',$2::jsonb->>'ble_event_uuid',($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,location_name=excluded.location_name,location_address=excluded.location_address,workstation_name=excluded.workstation_name,fiscal_register_id=excluded.fiscal_register_id,location_id=excluded.location_id,fiscal_adapter_id=excluded.fiscal_adapter_id,binding_generation=excluded.binding_generation,adapter_base_url=excluded.adapter_base_url,ble_advertising_identity=excluded.ble_advertising_identity,ble_service_uuid=excluded.ble_service_uuid,ble_command_uuid=excluded.ble_command_uuid,ble_event_uuid=excluded.ble_event_uuid,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_configurations is distinct from excluded`, jsonID(row.Payload), p)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_configurations(id,organization_id,location_name,location_address,workstation_name,fiscal_register_id,location_id,fiscal_adapter_id,binding_generation,adapter_base_url,ble_advertising_identity,ble_service_uuid,ble_command_uuid,ble_event_uuid,version,created_at,updated_at,payload) values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'location_name',$2::jsonb->>'location_address',$2::jsonb->>'workstation_name',$2::jsonb->>'fiscal_register_id',$2::jsonb->>'location_id',$2::jsonb->>'fiscal_adapter_id',nullif($2::jsonb->>'binding_generation','')::bigint,$2::jsonb->>'adapter_base_url',$2::jsonb->>'ble_advertising_identity',$2::jsonb->>'ble_service_uuid',$2::jsonb->>'ble_command_uuid',$2::jsonb->>'ble_event_uuid',($2::jsonb->>'version')::bigint,($2::jsonb->>'created_at')::timestamptz,($2::jsonb->>'updated_at')::timestamptz,$2::jsonb) on conflict(id) do update set organization_id=excluded.organization_id,location_name=excluded.location_name,location_address=excluded.location_address,workstation_name=excluded.workstation_name,fiscal_register_id=excluded.fiscal_register_id,location_id=excluded.location_id,fiscal_adapter_id=excluded.fiscal_adapter_id,binding_generation=excluded.binding_generation,adapter_base_url=excluded.adapter_base_url,ble_advertising_identity=excluded.ble_advertising_identity,ble_service_uuid=excluded.ble_service_uuid,ble_command_uuid=excluded.ble_command_uuid,ble_event_uuid=excluded.ble_event_uuid,version=excluded.version,created_at=excluded.created_at,updated_at=excluded.updated_at,payload=excluded.payload where minipos_runtime_configurations is distinct from excluded`, jsonID(row.Payload), p)
 		return e
 	case "api_replays":
-		_, e := tx.Exec(`insert into minipos_runtime_api_replays(replay_key,organization_id,method,path,request_hash,status,pending,payload)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_api_replays(replay_key,organization_id,method,path,request_hash,status,pending,payload)
 values($1,split_part($1,E'\n',1),split_part($1,E'\n',2),split_part($1,E'\n',3),$2::jsonb->>'hash',($2::jsonb->>'status')::integer,coalesce(($2::jsonb->>'pending')::boolean,false),$2::jsonb)
 on conflict(replay_key) do update set organization_id=excluded.organization_id,method=excluded.method,path=excluded.path,request_hash=excluded.request_hash,status=excluded.status,pending=excluded.pending,payload=excluded.payload where minipos_runtime_api_replays is distinct from excluded`, row.Key, p)
 		return e
 	case "webhook_inbox":
-		_, e := tx.Exec(`insert into minipos_runtime_webhook_inbox(event_id,organization_id,request_hash,received_at,processed_at,error,payload)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_webhook_inbox(event_id,organization_id,request_hash,received_at,processed_at,error,payload)
 values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'hash',($2::jsonb->>'received_at')::timestamptz,nullif($2::jsonb->>'processed_at','')::timestamptz,nullif($2::jsonb->>'error',''),$2::jsonb)
 on conflict(event_id) do update set organization_id=excluded.organization_id,request_hash=excluded.request_hash,received_at=excluded.received_at,processed_at=excluded.processed_at,error=excluded.error,payload=excluded.payload where minipos_runtime_webhook_inbox is distinct from excluded`, row.Key, p)
 		return e
 	case "checkouts":
-		_, e := tx.Exec(`insert into minipos_runtime_checkout_results(replay_key,organization_id,order_id,state,version,fiscal_sale_id,fiscal_operation_id,fiscal_reference,payload)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_checkout_results(replay_key,organization_id,order_id,state,version,fiscal_sale_id,fiscal_operation_id,fiscal_reference,payload)
 values($1,$2::jsonb->>'tenant_id',$2::jsonb->>'id',$2::jsonb->>'state',($2::jsonb->>'version')::bigint,nullif($2::jsonb->>'fiscal_sale_id',''),nullif($2::jsonb->>'fiscal_operation_id',''),nullif($2::jsonb->>'receipt_reference',''),$2::jsonb)
 on conflict(replay_key) do update set organization_id=excluded.organization_id,order_id=excluded.order_id,state=excluded.state,version=excluded.version,fiscal_sale_id=excluded.fiscal_sale_id,fiscal_operation_id=excluded.fiscal_operation_id,fiscal_reference=excluded.fiscal_reference,payload=excluded.payload where minipos_runtime_checkout_results is distinct from excluded`, row.Key, p)
 		return e
 	case "checkout_hashes":
-		_, e := tx.Exec(`insert into minipos_runtime_checkout_hashes(replay_key,organization_id,request_hash)
+		_, e := tx.Exec(`insert into minipos.minipos_runtime_checkout_hashes(replay_key,organization_id,request_hash)
 values($1,split_part($1,':',1),$2::jsonb#>>'{}')
 on conflict(replay_key) do update set organization_id=excluded.organization_id,request_hash=excluded.request_hash where minipos_runtime_checkout_hashes is distinct from excluded`, row.Key, p)
 		return e

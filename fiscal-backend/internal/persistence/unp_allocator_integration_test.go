@@ -21,7 +21,7 @@ func TestPostgresConcurrentUNPAllocatorHasNoDuplicatesOrGaps(t *testing.T) {
 	defer p.Close()
 	const count = 64
 	tenant := "90000000-0000-4000-8000-000000000001"
-	_, _ = p.db.Exec(`delete from unp_allocations where tenant_id=$1`, tenant)
+	_, _ = p.db.Exec(`delete from fiscal.unp_allocations where tenant_id=$1`, tenant)
 	sequences := make(chan int64, count)
 	errors := make(chan error, count)
 	var workers sync.WaitGroup
