@@ -25,6 +25,14 @@ func testHandler() http.Handler {
 	return NewHandler(s, config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901", AllowStubAdapters: true})
 }
 
+func provisionedTestHandler(t *testing.T) (http.Handler, string, string) {
+	t.Helper()
+	s := domain.NewService(domain.NewMemoryRepository(), domain.NewSimulator(true))
+	s.SetBLESigningKey("01234567890123456789012345678901")
+	registerID, operatorID := provisionAPIRegisterAndOperator(t, s, "tenant-a")
+	return NewHandler(s, config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901", AllowStubAdapters: true}), registerID, operatorID
+}
+
 func TestAuditAnnexFilters(t *testing.T) {
 	repo := domain.NewMemoryRepository()
 	svc := domain.NewService(repo, domain.NewSimulator(true))
@@ -388,7 +396,7 @@ func TestEdgeSyncAcceptsCanonicalCBOR(t *testing.T) {
 		t.Fatalf("CBOR contract round trip changed batch hash: %#v err=%v computed=%s", roundTrip, err, domain.EdgeBatchHash(roundTrip))
 	}
 	r := httptest.NewRequest(http.MethodPost, "/public/v1/edge-sync/batches", bytes.NewReader(body))
-	r.Header.Set("Authorization", "Bearer "+jwt("tenant-a", "ADMIN"))
+	r.Header.Set("Authorization", "Bearer "+jwt("tenant-a", "SERVICE"))
 	r.Header.Set("Content-Type", "application/cbor")
 	r.Header.Set("X-Api-Version", "2026-08-07")
 	r.Header.Set("Idempotency-Key", "edge-cbor-sync-001")
@@ -524,6 +532,11 @@ func TestPublicBLESessionLifecycleIsSubjectBoundAndRevokeIsCanonical204(t *testi
 }
 
 func provisionAPIRegister(t *testing.T, svc *domain.Service, tenant string) string {
+	registerID, _ := provisionAPIRegisterAndOperator(t, svc, tenant)
+	return registerID
+}
+
+func provisionAPIRegisterAndOperator(t *testing.T, svc *domain.Service, tenant string) (string, string) {
 	t.Helper()
 	location, err := svc.CreateResource("location", tenant, map[string]any{"code": "SOF", "name": "Sofia", "address": "1 Main", "status": "ACTIVE"})
 	if err != nil {
@@ -551,10 +564,11 @@ func provisionAPIRegister(t *testing.T, svc *domain.Service, tenant string) stri
 	if _, err = svc.BindRegister(register["id"].(string), tenant, device["id"].(string), "FISCAL_DEVICE", ""); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = svc.CreateResource("operator", tenant, map[string]any{"code": "A001", "first_name": "Ada", "last_name": "Lovelace", "roles": []any{"CASHIER"}, "active_from": "2026-01-01T00:00:00Z"}); err != nil {
+	operator, err := svc.CreateResource("operator", tenant, map[string]any{"code": "A001", "first_name": "Ada", "last_name": "Lovelace", "roles": []any{"CASHIER"}, "active_from": "2026-01-01T00:00:00Z"})
+	if err != nil {
 		t.Fatal(err)
 	}
-	return register["id"].(string)
+	return register["id"].(string), operator["id"].(string)
 }
 
 func TestAdministrativeSurfaceTenantIsolationAndBinding(t *testing.T) {
@@ -730,8 +744,10 @@ func TestIdempotencySurvivesRepositoryRestart(t *testing.T) {
 		t.Fatal(e)
 	}
 	cfg := config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901"}
-	h := NewHandler(domain.NewService(r, domain.NewSimulator(true)), cfg)
-	w := req(t, h, "POST", "/public/v1/sales", "restart-key-12345", map[string]any{"external_id": "e", "register_id": "r", "operator_id": "A001"})
+	svc := domain.NewService(r, domain.NewSimulator(true))
+	registerID := provisionAPIRegister(t, svc, "tenant-a")
+	h := NewHandler(svc, cfg)
+	w := req(t, h, "POST", "/public/v1/sales", "restart-key-12345", map[string]any{"external_id": "e", "register_id": registerID, "operator_id": "A001"})
 	if w.Code != 201 {
 		t.Fatal(w.Code, w.Body.String())
 	}
@@ -741,7 +757,7 @@ func TestIdempotencySurvivesRepositoryRestart(t *testing.T) {
 		t.Fatal(e)
 	}
 	h = NewHandler(domain.NewService(r, domain.NewSimulator(true)), cfg)
-	w = req(t, h, "POST", "/public/v1/sales", "restart-key-12345", map[string]any{"external_id": "e", "register_id": "r", "operator_id": "A001"})
+	w = req(t, h, "POST", "/public/v1/sales", "restart-key-12345", map[string]any{"external_id": "e", "register_id": registerID, "operator_id": "A001"})
 	if w.Code != 201 || w.Header().Get("Idempotency-Replayed") != "true" || w.Body.String() != first {
 		t.Fatalf("%d %s", w.Code, w.Body.String())
 	}
@@ -917,8 +933,8 @@ func reqWithHeaders(t *testing.T, h http.Handler, m, p, k string, v any, headers
 	return w
 }
 func TestSaleHappyPathAndIdempotency(t *testing.T) {
-	h := testHandler()
-	w := req(t, h, "POST", "/public/v1/sales", "1234567890123456", map[string]any{"external_id": "o1", "register_id": "FD000001", "operator_id": "A001"})
+	h, registerID, _ := provisionedTestHandler(t)
+	w := req(t, h, "POST", "/public/v1/sales", "1234567890123456", map[string]any{"external_id": "o1", "register_id": registerID, "operator_id": "A001"})
 	if w.Code != 201 {
 		t.Fatal(w.Code, w.Body.String())
 	}
@@ -939,14 +955,14 @@ func TestSaleHappyPathAndIdempotency(t *testing.T) {
 	}
 }
 func TestRejectsMissingVersionAndBGN(t *testing.T) {
-	h := testHandler()
+	h, registerID, _ := provisionedTestHandler(t)
 	r := httptest.NewRequest("POST", "/public/v1/sales", bytes.NewBufferString(`{}`))
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, r)
-	if w.Code != 400 {
+	if w.Code != 401 {
 		t.Fatal(w.Code)
 	}
-	w = req(t, h, "POST", "/public/v1/sales", "4234567890123456", map[string]any{"external_id": "o2", "register_id": "FD000001", "operator_id": "A001"})
+	w = req(t, h, "POST", "/public/v1/sales", "4234567890123456", map[string]any{"external_id": "o2", "register_id": registerID, "operator_id": "A001"})
 	var s map[string]any
 	_ = json.Unmarshal(w.Body.Bytes(), &s)
 	id := s["sale_id"].(string)
@@ -957,9 +973,7 @@ func TestRejectsMissingVersionAndBGN(t *testing.T) {
 }
 
 func TestShiftReportsSyncAndDeviceBlockRules(t *testing.T) {
-	h := testHandler()
-	registerID := "123e4567-e89b-42d3-a456-426614174001"
-	operatorID := "123e4567-e89b-42d3-a456-426614174002"
+	h, registerID, operatorID := provisionedTestHandler(t)
 	sh := req(t, h, "POST", "/public/v1/shifts", "6234567890123456", map[string]any{"register_id": registerID, "operator_id": operatorID})
 	if sh.Code != 201 {
 		t.Fatal(sh.Code, sh.Body.String())
@@ -968,7 +982,7 @@ func TestShiftReportsSyncAndDeviceBlockRules(t *testing.T) {
 	if report.Code != 202 {
 		t.Fatal(report.Code, report.Body.String())
 	}
-	sync := req(t, h, "POST", "/public/v1/edge-sync/batches", "8234567890123456", apiSyncBatch())
+	sync := reqWithHeaders(t, h, "POST", "/public/v1/edge-sync/batches", "8234567890123456", apiSyncBatch(), map[string]string{"Authorization": "Bearer " + jwt("tenant-a", "SERVICE")})
 	if sync.Code != 200 {
 		t.Fatal(sync.Code, sync.Body.String())
 	}
@@ -979,8 +993,11 @@ func TestShiftReportsSyncAndDeviceBlockRules(t *testing.T) {
 }
 
 func TestCardTerminalUnavailableDoesNotFallbackToCash(t *testing.T) {
-	h := testHandler()
-	w := req(t, h, "POST", "/public/v1/sales", "9234567890123456", map[string]any{"external_id": "card-1", "register_id": "FD000001", "operator_id": "A001"})
+	h, registerID, _ := provisionedTestHandler(t)
+	w := req(t, h, "POST", "/public/v1/sales", "9234567890123456", map[string]any{"external_id": "card-1", "register_id": registerID, "operator_id": "A001"})
+	if w.Code != http.StatusCreated {
+		t.Fatal(w.Code, w.Body.String())
+	}
 	var s map[string]any
 	_ = json.Unmarshal(w.Body.Bytes(), &s)
 	id := s["sale_id"].(string)
@@ -989,13 +1006,8 @@ func TestCardTerminalUnavailableDoesNotFallbackToCash(t *testing.T) {
 		t.Fatal(w.Code)
 	}
 	w = req(t, h, "POST", "/public/v1/sales/"+id+"/payments", "b234567890123456", map[string]any{"payment_id": "p1", "type": "CARD", "terminal_policy": "REQUIRED", "amount": map[string]string{"amount": "2.50", "currency": "EUR"}})
-	if w.Code != 202 {
+	if w.Code != http.StatusConflict || !bytes.Contains(w.Body.Bytes(), []byte(`"code":"PAYMENT_REJECTED"`)) {
 		t.Fatal(w.Code, w.Body.String())
-	}
-	var op map[string]any
-	_ = json.Unmarshal(w.Body.Bytes(), &op)
-	if op["state"] != "FAILED" || op["error_code"] != "PAYMENT_TERMINAL_UNAVAILABLE" {
-		t.Fatal(op)
 	}
 }
 

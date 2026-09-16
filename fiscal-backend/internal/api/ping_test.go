@@ -10,7 +10,7 @@ import (
 )
 
 func TestConnectivityPingIsBodylessAndDoesNotRequireBusinessDependencies(t *testing.T) {
-	h := NewHandler(domain.NewService(domain.NewMemoryRepository(), nil), config.Config{APIVersion: "2026-08-07"})
+	h := NewHandler(domain.NewService(domain.NewMemoryRepository(), nil), config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901"})
 	for _, method := range []string{http.MethodHead, http.MethodGet} {
 		r := httptest.NewRequest(method, "/connectivity/ping", nil)
 		w := httptest.NewRecorder()
@@ -25,7 +25,7 @@ func TestConnectivityPingIsBodylessAndDoesNotRequireBusinessDependencies(t *test
 }
 
 func TestConnectivityPingRejectsMutationMethods(t *testing.T) {
-	h := NewHandler(domain.NewService(domain.NewMemoryRepository(), nil), config.Config{APIVersion: "2026-08-07"})
+	h := NewHandler(domain.NewService(domain.NewMemoryRepository(), nil), config.Config{APIVersion: "2026-08-07", AuthHMACKey: "01234567890123456789012345678901"})
 	w := httptest.NewRecorder()
 	h.ServeHTTP(w, httptest.NewRequest(http.MethodPost, "/connectivity/ping", nil))
 	if w.Code != http.StatusMethodNotAllowed {

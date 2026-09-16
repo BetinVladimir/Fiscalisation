@@ -1347,7 +1347,7 @@ components:
         line_id: {type: string, format: uuid}
         product_code: {type: string, maxLength: 64}
         name: {type: string, minLength: 1, maxLength: 160}
-        quantity: {type: string, pattern: '^[0-9]+\\.[0-9]{3}$'}
+        quantity: {type: string, pattern: '^[0-9]+\.[0-9]{3}$'}
         unit_price: {$ref: '#/components/schemas/Money'}
         discount: {$ref: '#/components/schemas/Money'}
         tax_group: {type: string, pattern: '^[A-D]$'}
@@ -1375,7 +1375,7 @@ components:
       additionalProperties: false
       required: [type, from, to, format]
       properties:
-        type: {type: string, enum: [SUPTO_18_1, SUPTO_18_2, SUPTO_18_3, SUPTO_18_4, SUPTO_18_5, SUPTO_18_9, KLEN, FISCAL_MEMORY]}
+        type: {type: string, enum: [SUPTO_18_1, SUPTO_18_2, SUPTO_18_3, SUPTO_18_4, SUPTO_18_5, SUPTO_18_6, SUPTO_18_7, SUPTO_18_8, SUPTO_18_9, KLEN, FISCAL_MEMORY]}
         from: {type: string, format: date-time, description: Inclusive interval start}
         to: {type: string, format: date-time, description: Exclusive interval end; must be later than from}
         register_id: {type: [string, 'null'], format: uuid}
