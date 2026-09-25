@@ -13,6 +13,11 @@ export E2E_CREDENTIAL_KEY=${E2E_CREDENTIAL_KEY:-MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3
 suffix="$(date +%s)-$$"
 email="full-e2e-$suffix@example.test"
 tax=$(printf '20%07d' $((($$ + $(date +%s)) % 10000000)))
+receipt_report=${AUTOSERVICE_FISCAL_SANDBOX_REPORT:-}
+card_operation_id=
+card_sale_id=
+card_fiscal_reference=
+card_receipt_sha256=
 
 fiscal_compose="docker compose -p beeloy-full-e2e-fiscal -f $root/compose.fiscalisation.yaml -f $test_dir/compose.fiscal.override.yaml"
 mini_compose="docker compose -p beeloy-full-e2e-minipos -f $root/compose.minipos.yaml -f $test_dir/compose.minipos.override.yaml"
@@ -209,6 +214,12 @@ sale_flow() {
   receipt=$(api GET "$fiscal_base/public/v1/sales/$sale_id/receipt" "$tenant_token" "receipt-$serial-$suffix")
   printf '%s' "$receipt" | jq -e '.fiscal_reference != null or .regulatory_identifiers != null' >/dev/null
   fiscal_reference=$(printf '%s' "$operation" | jq -er .fiscal_reference)
+  if [ "$payment" = CARD ]; then
+    card_operation_id=$(printf '%s' "$operation" | jq -er .operation_id)
+    card_sale_id=$sale_id
+    card_fiscal_reference=$fiscal_reference
+    card_receipt_sha256=$(printf '%s' "$receipt" | shasum -a 256 | awk '{print $1}')
+  fi
   sale_version=$(api GET "$fiscal_base/public/v1/sales/$sale_id" "$tenant_token" "sale-version-$serial-$suffix" | jq -er .version)
   reversal=$(api POST "$fiscal_base/public/v1/sales/$sale_id:reverse" "$tenant_token" "reverse-$serial-$suffix" "{\"reason_code\":\"CUSTOMER_RETURN\",\"original_fiscal_reference\":\"$fiscal_reference\"}" "$sale_version")
   printf '%s' "$reversal" | jq -e '.state == "FISCALIZED"' >/dev/null
@@ -220,6 +231,23 @@ printf '%s' "$tax_groups" | jq -e 'map(.code) == ["A","B","C","D"] and map(.rate
 sale_flow CASH tax-a A
 sale_flow CASH tax-c C
 sale_flow CASH tax-d D
+
+if [ -n "$receipt_report" ]; then
+  generated_at=$(date -u '+%Y-%m-%dT%H:%M:%SZ')
+  mkdir -p "$(dirname "$receipt_report")"
+  jq -n \
+    --arg generatedAt "$generated_at" \
+    --arg tenantRef "$tenant_id" \
+    --arg companyRef "$company_id" \
+    --arg deviceRef "$device_id" \
+    --arg registerRef "$register_id" \
+    --arg paymentOperationId "$card_operation_id" \
+    --arg saleRef "$card_sale_id" \
+    --arg fiscalReference "$card_fiscal_reference" \
+    --arg receiptSha256 "$card_receipt_sha256" \
+    '{schemaVersion:1,generatedAt:$generatedAt,integration:"Fiscalisation",environment:"DEV_SANDBOX",country:"BGR",tenantRef:$tenantRef,companyRef:$companyRef,terminal:{deviceRef:$deviceRef,registerRef:$registerRef,kind:"SMART_DEVICE",simulated:true},payment:{receiptRef:("payment:"+$paymentOperationId),operationId:$paymentOperationId,saleRef:$saleRef,type:"CARD",state:"FISCALIZED"},fiscal:{receiptRef:("fiscal:"+$fiscalReference),fiscalReference:$fiscalReference,saleRef:$saleRef,state:"FISCALIZED",receiptSha256:$receiptSha256},assertions:{sameSale:true,idempotentReplay:true,receiptRead:true,reversalFiscalized:true,secretsExcluded:true}}' > "$receipt_report"
+  chmod 600 "$receipt_report"
+fi
 
 # Optimistic concurrency is checked against the real persistence layer. A
 # stale editor must not overwrite a register updated by another client.

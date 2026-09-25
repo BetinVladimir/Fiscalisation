@@ -1,16 +1,15 @@
+import { colors as beeloyColors } from './src/ui/tokens';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppText as Text } from './src/ui/app-text';
+import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-view';
+import { AppPressable as Pressable } from './src/ui/app-pressable';
+import { FormField as TextInput } from './src/ui/form-field';
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
-import {
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  Pressable,
-  View,
-} from "react-native";
+import { StyleSheet, View } from "react-native";
 import { usePlatformOidc } from "./src/usePlatformOidc";
 import Constants from "expo-constants";
+import { BeeloyAppProvider } from "./src/ui/provider";
 type Device = {
   id: string;
   serial: string;
@@ -39,9 +38,9 @@ const base = (
 // Platform Admin owns the inventory before a device is assigned to a tenant.
 // Transitions carry idempotency and optimistic-version guards so concurrent
 // administrators cannot silently overwrite an activation or binding decision.
-export default function App() { return <View style={{flex:1}}><AppContent/><DemoBadge/></View>; }
+export default function App() { return <BeeloyAppProvider><View style={{flex:1}}><AppContent/><DemoBadge/></View></BeeloyAppProvider>; }
 function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
-const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:"#c62828",borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:"#fff",fontWeight:"900",fontSize:12,letterSpacing:1}});
+const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:beeloyColors.error,borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:beeloyColors.onPrimary,fontWeight:"900",fontSize:12,letterSpacing:1}});
 function AppContent() {
   const oidc = usePlatformOidc();
   const [items, setItems] = useState<Device[]>([]),
@@ -195,7 +194,7 @@ function AppContent() {
     );
   return (
     <SafeAreaView style={s.root}>
-      <StatusBar style="dark" />
+      <StatusBar style="auto" />
       <View style={s.header}>
         <Text style={s.title}>BeeFiscal Platform Admin</Text>
         <Text>{message}</Text>
@@ -334,9 +333,9 @@ function Button({
   );
 }
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#f4f7f8" },
+  root: { flex: 1, backgroundColor: beeloyColors.background },
   header: { padding: 20, gap: 8 },
-  title: { fontSize: 22, fontWeight: "800", color: "#173843" },
+  title: { fontSize: 22, fontWeight: "800", color: beeloyColors.tertiary },
   filters: {
     paddingHorizontal: 20,
     flexDirection: "row",
@@ -347,37 +346,37 @@ const s = StyleSheet.create({
   list: { width: 340, gap: 10 },
   detail: {
     width: 560,
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
     padding: 20,
     borderRadius: 14,
     gap: 12,
   },
   card: {
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
     padding: 14,
     borderRadius: 12,
     borderWidth: 2,
-    borderColor: "transparent",
+    borderColor: beeloyColors.elevation.level0,
   },
-  selected: { borderColor: "#147d79" },
+  selected: { borderColor: beeloyColors.tertiary },
   serial: { fontSize: 17, fontWeight: "700" },
   input: {
     minWidth: 180,
     borderWidth: 1,
-    borderColor: "#aac0c5",
+    borderColor: beeloyColors.tertiary,
     borderRadius: 8,
     padding: 11,
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
   },
   actions: { flexDirection: "row", gap: 8, flexWrap: "wrap" },
   integrationBody: { padding: 20, gap: 14 },
-  secret: { padding: 12, borderRadius: 10, backgroundColor: "#fff4cc", gap: 8 },
+  secret: { padding: 12, borderRadius: 10, backgroundColor: beeloyColors.warningContainer, gap: 8 },
   button: {
-    backgroundColor: "#147d79",
+    backgroundColor: beeloyColors.tertiary,
     paddingHorizontal: 16,
     paddingVertical: 12,
     borderRadius: 8,
   },
-  buttonText: { color: "white", fontWeight: "700" },
+  buttonText: { color: beeloyColors.onPrimary, fontWeight: "700" },
   disabled: { opacity: 0.4 },
 });

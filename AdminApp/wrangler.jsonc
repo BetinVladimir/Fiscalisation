@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "beeloy-fiscaladmin-web",
+  "compatibility_date": "2026-09-18",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./dist-cloudflare/production",
+    "not_found_handling": "single-page-application"
+  },
+  "env": {
+    "demo": {
+      "name": "beeloy-fiscaladmin-web-demo",
+      "assets": {
+        "directory": "./dist-cloudflare/demo",
+        "not_found_handling": "single-page-application"
+      },
+      "routes": [
+        {
+          "pattern": "demo-fiscal-admin.beeloy.org",
+          "custom_domain": true
+        }
+      ]
+    }
+  },
+  "routes": [
+    {
+      "pattern": "fiscal-admin.beeloy.org",
+      "custom_domain": true
+    }
+  ]
+}

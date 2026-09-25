@@ -1,0 +1,15 @@
+{
+  "app": "beefiscal",
+  "name": "BeeFiscal",
+  "version": "1.0.0",
+  "projectId": "03ae7a12-3fb0-46b8-bc32-45e5bdbf91e1",
+  "owner": "vladimir.betin",
+  "apple": {
+    "production": {
+      "ascAppId": "6814689623"
+    },
+    "demo": {
+      "ascAppId": "6814689855"
+    }
+  }
+}

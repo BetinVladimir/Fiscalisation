@@ -46,6 +46,8 @@ docker compose -p beeloy-full-e2e-minipos logs -f beeminipos-backend
 
 Поддерживаются переменные `E2E_FISCAL_URL`, `E2E_MINIPOS_URL`, `E2E_SMTP_PORT`, `E2E_SMTP_HTTP_PORT`, `E2E_AUTH_KEY`, `E2E_CREDENTIAL_KEY` (base64 ровно 32 bytes) и `KEEP_E2E`. Значения по умолчанию предназначены только для одноразового CI/dev стенда и не являются production secrets.
 
+Для release gate автосервиса передайте `AUTOSERVICE_FISCAL_SANDBOX_REPORT=/absolute/path/report.json`. После успешного CARD flow runner сохранит обезличенный отчёт с `payment:operation` и `fiscal:reference`, общей sale-связью, SHA-256 ответа чека и флагами idempotent replay/reversal. OTP, bearer tokens и исходное содержимое чека в артефакт не попадают.
+
 ## CI
 
 Workflow `.github/workflows/full-fiscal-e2e.yml` запускается вручную и при изменениях E2E/integration кода. Он не выгружает логи или OTP во внешние artifacts. Для диагностики воспроизведите ошибку с `KEEP_E2E=1` на доверенном runner.

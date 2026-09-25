@@ -19,8 +19,6 @@ test('device diagnostics, printer and provisioning use public API with idempoten
 test('BLE session is bound to register, operator, app instance and prepared public key', async ({ page }) => {
   const mutations = await mockFiscalApi(page);
   await openApp(page);
-  await page.getByLabel('Fiscal register ID').fill(REGISTER_ID);
-  await page.getByTestId('ble-operator-id').fill(OPERATOR_ID);
   await page.getByTestId('ble-client-public-key').fill('x25519-public-key');
   await page.getByTestId('ble-session-issue').click();
   await expect(page.getByTestId('ble-session-result')).toContainText('ble-1');
@@ -33,11 +31,9 @@ test('BLE session is bound to register, operator, app instance and prepared publ
 test('SmartDevice activation requires lookup preview and sends tenant-scoped binding fields', async ({ page }) => {
   const mutations = await mockFiscalApi(page);
   await openApp(page);
-  await page.getByLabel('Fiscal register ID').fill(REGISTER_ID);
   await page.getByTestId('smart-device-activation-code').fill('bc1234');
   await page.getByTestId('smart-device-activation-lookup').click();
   await expect(page.getByTestId('smart-device-activation-preview')).toContainText('BC-001');
-  await page.getByTestId('bluecash-location-id').fill(LOCATION_ID);
   await page.getByTestId('bluecash-activate').click();
   await expect(page.getByTestId('bluecash-activation-result')).toContainText('ACTIVE');
   const confirmed = mutations.find(x => x.path === '/device-activation-requests/activation-1:confirm')!;
@@ -47,7 +43,6 @@ test('SmartDevice activation requires lookup preview and sends tenant-scoped bin
 test('UNKNOWN operation is reconciled once and never re-submitted as a fiscal sale', async ({ page }) => {
   const mutations = await mockFiscalApi(page);
   await openApp(page);
-  await page.getByLabel('Fiscal register ID').fill(REGISTER_ID);
   await page.getByTestId('tab-Операции').click();
   await expect(page.getByTestId('operation-unknown')).toBeVisible();
   await page.getByTestId('operation-reconcile-operation-unknown-1').click();
@@ -58,7 +53,6 @@ test('UNKNOWN operation is reconciled once and never re-submitted as a fiscal sa
 test('report command and audit filters reach the API without client-side fabricated results', async ({ page }) => {
   const mutations = await mockFiscalApi(page);
   await openApp(page);
-  await page.getByLabel('Fiscal register ID').fill(REGISTER_ID);
   await page.getByTestId('tab-Отчети').click();
   await page.getByLabel('Създай Z отчет').click();
   await expect.poll(() => mutations.some(x => x.path === `/registers/${REGISTER_ID}/reports` && x.body.type === 'Z')).toBe(true);

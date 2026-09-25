@@ -21,6 +21,7 @@
       "infoPlist": {
         "NSBluetoothAlwaysUsageDescription": "BeeFiscal uses Bluetooth to provision and activate authorized fiscal devices."
       }
-    }
+    },
+    "userInterfaceStyle": "automatic"
   }
 }

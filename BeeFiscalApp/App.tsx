@@ -1,14 +1,13 @@
+import { colors as beeloyColors } from './src/ui/tokens';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppPressable as Pressable } from './src/ui/app-pressable';
+import { AppText as Text } from './src/ui/app-text';
+import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-view';
+import { FormField as TextInput } from './src/ui/form-field';
+import { AuthForm } from './src/ui/auth-form';
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
-import {
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  View,
-} from "react-native";
+import { StyleSheet, View } from "react-native";
 import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
@@ -19,6 +18,7 @@ import {
 } from "./src/registerFilter";
 import { useEmailOtpAuth } from "./src/emailOtpAuth";
 import Constants from "expo-constants";
+import { BeeloyAppProvider } from "./src/ui/provider";
 
 const base = (
   process.env.EXPO_PUBLIC_FISCAL_API_URL || "http://localhost:8080/public/v1"
@@ -70,9 +70,9 @@ const collect = (path: string) =>
 const label = (v: unknown) =>
   typeof v === "string" ? v : typeof v === "number" ? String(v) : "—";
 
-export default function App() { return <View style={{flex:1}}><AppContent/><DemoBadge/></View>; }
+export default function App() { return <BeeloyAppProvider><View style={{flex:1}}><AppContent/><DemoBadge/></View></BeeloyAppProvider>; }
 function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
-const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:"#c62828",borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:"#fff",fontWeight:"900",fontSize:12,letterSpacing:1}});
+const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:beeloyColors.error,borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:beeloyColors.onPrimary,fontWeight:"900",fontSize:12,letterSpacing:1}});
 function AppContent() {
   // Token roles are reduced to explicit UI capabilities. The backend remains
   // authoritative; these guards prevent presenting accidental admin paths.
@@ -223,6 +223,18 @@ function AppContent() {
           throw new Error("ROLE_REPORT_READ_REQUIRED");
         if (next === "Одит" && !canReadAudit)
           throw new Error("ROLE_AUDIT_READ_REQUIRED");
+        if (next !== "Администриране" && adminLists.registers.length === 0) {
+          const [locations, registers, operators] = await Promise.all([
+            collect("/locations"),
+            collect("/registers"),
+            collect("/operators"),
+          ]);
+          setAdminLists(current => ({ ...current, locations, registers, operators }));
+          setLocationId(current => current || label(locations[0]?.id));
+          setActivationLocationId(current => current || label(locations[0]?.id));
+          setRegister(current => current || label(registers[0]?.id));
+          setOperatorId(current => current || label(operators[0]?.id));
+        }
         if (next === "Устройства") {
           const v = await collect("/devices");
           setItems(v);
@@ -306,6 +318,7 @@ function AppContent() {
     },
     [
       register,
+      adminLists.registers.length,
       tab,
       canAdminister,
       canReadAudit,
@@ -681,8 +694,8 @@ function AppContent() {
   if (prodMode && !oidc.accessToken) {
     return (
       <SafeAreaView style={s.root}>
-        <StatusBar style="dark" />
-        <View testID="admin-login" style={s.login}>
+        <StatusBar style="auto" />
+        <AuthForm testID="admin-login" style={s.login}>
           <Text style={s.loginTitle}>BeeFiscal • административен вход</Text>
           <Text style={s.loginText}>
             Вход с код по email. Доступ разрешён только ранее зарегистрированным пользователям Fiscal.
@@ -695,13 +708,13 @@ function AppContent() {
             <TextInput style={s.input} placeholder="Код из email" keyboardType="number-pad" value={oidc.code} onChangeText={oidc.setCode}/>
             <Pressable accessibilityRole="button" disabled={!oidc.ready||oidc.code.length!==6} style={s.loginButton} onPress={() => void oidc.verifyCode()}><Text style={s.loginButtonText}>Подтвердить</Text></Pressable>
           </> : <View style={{gap:8}}><Text style={s.loginText}>Выберите компанию</Text>{oidc.tenants.map(t=><Pressable key={t.tenant_id} style={s.loginButton} onPress={()=>void oidc.selectTenant(t.tenant_id)}><Text style={s.loginButtonText}>{t.display_name}</Text></Pressable>)}</View>}
-        </View>
+        </AuthForm>
       </SafeAreaView>
     );
   }
   return (
     <SafeAreaView style={s.root}>
-      <StatusBar style="dark" />
+      <StatusBar style="auto" />
       <View style={s.header}>
         <View>
           <Text style={s.title}>BeeFiscal</Text>
@@ -1863,66 +1876,66 @@ function Choices({
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#eef3f4" },
+  root: { flex: 1, backgroundColor: beeloyColors.background },
   login: {
     alignSelf: "center",
     width: "90%",
     maxWidth: 540,
     marginTop: 80,
     padding: 28,
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
     borderRadius: 16,
     gap: 18,
   },
-  loginTitle: { fontSize: 24, fontWeight: "900", color: "#102b38" },
-  loginText: { fontSize: 16, color: "#526b76", lineHeight: 23 },
-  loginError: { fontSize: 15, color: "#9a2f24", fontWeight: "700" },
+  loginTitle: { fontSize: 24, fontWeight: "900", color: beeloyColors.tertiary },
+  loginText: { fontSize: 16, color: beeloyColors.tertiary, lineHeight: 23 },
+  loginError: { fontSize: 15, color: beeloyColors.error, fontWeight: "700" },
   loginButton: {
     minHeight: 56,
-    backgroundColor: "#17613a",
+    backgroundColor: beeloyColors.success,
     borderRadius: 10,
     alignItems: "center",
     justifyContent: "center",
   },
-  loginButtonText: { color: "white", fontSize: 17, fontWeight: "800" },
+  loginButtonText: { color: beeloyColors.onPrimary, fontSize: 17, fontWeight: "800" },
   logout: {
     minHeight: 48,
     paddingHorizontal: 14,
-    backgroundColor: "#285266",
+    backgroundColor: beeloyColors.tertiary,
     borderRadius: 9,
     justifyContent: "center",
   },
   header: {
     padding: 20,
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     borderBottomWidth: 1,
-    borderColor: "#d7e0e3",
+    borderColor: beeloyColors.tertiaryContainer,
   },
-  title: { fontSize: 29, fontWeight: "900", color: "#102b38" },
-  sub: { color: "#58717c", marginTop: 3 },
+  title: { fontSize: 29, fontWeight: "900", color: beeloyColors.tertiary },
+  sub: { color: beeloyColors.tertiary, marginTop: 3 },
   ready: {
-    backgroundColor: "#dff3e7",
+    backgroundColor: beeloyColors.successContainer,
     padding: 10,
     borderRadius: 20,
     minHeight: 48,
     justifyContent: "center",
   },
-  offline: { backgroundColor: "#f3d7d7" },
-  readyText: { color: "#17613a", fontWeight: "900" },
+  offline: { backgroundColor: beeloyColors.errorContainer },
+  readyText: { color: beeloyColors.success, fontWeight: "900" },
   body: { flex: 1, flexDirection: "row" },
-  nav: { width: 190, backgroundColor: "#102b38", padding: 12, gap: 6 },
+  nav: { width: 190, backgroundColor: beeloyColors.tertiary, padding: 12, gap: 6 },
   navItem: {
     padding: 14,
     borderRadius: 10,
     minHeight: 48,
     justifyContent: "center",
   },
-  active: { backgroundColor: "#285266" },
-  navText: { color: "#abc0ca", fontWeight: "700" },
-  activeText: { color: "white" },
+  active: { backgroundColor: beeloyColors.tertiary },
+  navText: { color: beeloyColors.tertiary, fontWeight: "700" },
+  activeText: { color: beeloyColors.onPrimary },
   content: { flex: 1, padding: 20 },
   toolbar: {
     flexDirection: "row",
@@ -1930,25 +1943,25 @@ const s = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
   },
-  section: { fontSize: 25, fontWeight: "900", color: "#102b38", flex: 1 },
+  section: { fontSize: 25, fontWeight: "900", color: beeloyColors.tertiary, flex: 1 },
   input: {
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
     borderWidth: 1,
-    borderColor: "#c8d5da",
+    borderColor: beeloyColors.tertiaryContainer,
     padding: 10,
     borderRadius: 9,
     minWidth: 150,
     minHeight: 48,
   },
   secondary: {
-    backgroundColor: "#607884",
+    backgroundColor: beeloyColors.tertiary,
     padding: 11,
     borderRadius: 9,
     minHeight: 48,
     justifyContent: "center",
   },
   card: {
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
     padding: 18,
     borderRadius: 14,
     marginBottom: 12,
@@ -1956,36 +1969,36 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderWidth: 1,
-    borderColor: "#d7e0e3",
+    borderColor: beeloyColors.tertiaryContainer,
   },
-  selected: { borderWidth: 2, borderColor: "#17613a" },
-  device: { fontSize: 18, fontWeight: "800", color: "#163645" },
-  meta: { color: "#607884", marginTop: 5 },
+  selected: { borderWidth: 2, borderColor: beeloyColors.success },
+  device: { fontSize: 18, fontWeight: "800", color: beeloyColors.tertiary },
+  meta: { color: beeloyColors.tertiary, marginTop: 5 },
   state: {
     paddingHorizontal: 11,
     paddingVertical: 8,
     borderRadius: 8,
-    backgroundColor: "#285266",
+    backgroundColor: beeloyColors.tertiary,
   },
-  stateText: { color: "white", fontSize: 11, fontWeight: "900" },
+  stateText: { color: beeloyColors.onPrimary, fontSize: 11, fontWeight: "900" },
   panel: {
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
     borderRadius: 14,
     padding: 20,
     marginBottom: 14,
   },
   panelTitle: { fontSize: 18, fontWeight: "800" },
-  empty: { paddingVertical: 60, textAlign: "center", color: "#78909a" },
+  empty: { paddingVertical: 60, textAlign: "center", color: beeloyColors.tertiary },
   loadingText: {
     padding: 10,
     marginBottom: 10,
-    color: "#425d69",
-    backgroundColor: "#e2edf0",
+    color: beeloyColors.tertiary,
+    backgroundColor: beeloyColors.tertiaryContainer,
     borderRadius: 8,
   },
   actions: { flexDirection: "row", gap: 10, marginTop: 20, flexWrap: "wrap" },
   action: {
-    backgroundColor: "#285266",
+    backgroundColor: beeloyColors.tertiary,
     padding: 14,
     borderRadius: 9,
     minHeight: 48,
@@ -2000,7 +2013,7 @@ const s = StyleSheet.create({
     paddingBottom: 24,
   },
   adminCard: {
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
     borderRadius: 14,
     padding: 18,
     gap: 10,
@@ -2009,9 +2022,9 @@ const s = StyleSheet.create({
     flexBasis: 320,
   },
   adminInput: {
-    backgroundColor: "#f8fbfc",
+    backgroundColor: beeloyColors.background,
     borderWidth: 1,
-    borderColor: "#c8d5da",
+    borderColor: beeloyColors.tertiaryContainer,
     borderRadius: 9,
     paddingHorizontal: 12,
     minHeight: 48,
@@ -2019,29 +2032,29 @@ const s = StyleSheet.create({
   choices: { gap: 8, paddingVertical: 2 },
   choice: {
     borderWidth: 1,
-    borderColor: "#c8d5da",
+    borderColor: beeloyColors.tertiaryContainer,
     borderRadius: 8,
     paddingHorizontal: 10,
     minHeight: 48,
     justifyContent: "center",
   },
-  json: { marginTop: 16, fontFamily: "monospace", color: "#294955" },
+  json: { marginTop: 16, fontFamily: "monospace", color: beeloyColors.tertiary },
   footer: {
     padding: 12,
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
     borderTopWidth: 1,
-    borderColor: "#d7e0e3",
+    borderColor: beeloyColors.tertiaryContainer,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
-  footerText: { color: "#425d69", flex: 1 },
+  footerText: { color: beeloyColors.tertiary, flex: 1 },
   probe: {
-    backgroundColor: "#17613a",
+    backgroundColor: beeloyColors.success,
     padding: 11,
     borderRadius: 9,
     minHeight: 56,
     justifyContent: "center",
   },
-  probeText: { color: "white", fontWeight: "800" },
+  probeText: { color: beeloyColors.onPrimary, fontWeight: "800" },
 });

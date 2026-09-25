@@ -1,4 +1,5 @@
 import { useEffect, useMemo, useState } from "react";
+import Constants from "expo-constants";
 import * as AuthSession from "expo-auth-session";
 import * as WebBrowser from "expo-web-browser";
 WebBrowser.maybeCompleteAuthSession();
@@ -14,7 +15,7 @@ export function usePlatformOidc() {
   const redirectUri = useMemo(
     () =>
       AuthSession.makeRedirectUri({
-        scheme: "beefiscalplatformadmin",
+        scheme: Array.isArray(Constants.expoConfig?.scheme) ? Constants.expoConfig.scheme[0] : Constants.expoConfig?.scheme,
         path: "oauth/callback",
       }),
     [],

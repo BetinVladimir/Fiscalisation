@@ -11,7 +11,7 @@ React Native / Expo приложение — административная п
 - **Протокол:** OIDC + PKCE (`ResponseType.Code` с `code_verifier`)
 - **Scopes:** `openid`, `profile`, `beefiscal.platform`
 - **Env:** `EXPO_PUBLIC_PLATFORM_OIDC_ISSUER`, `EXPO_PUBLIC_PLATFORM_OIDC_CLIENT_ID`
-- **Redirect URI:** `beefiscalplatformadmin://oauth/callback`
+- **Redirect URI:** `beeloy-fiscaladmin-prod://oauth/callback (demo: beeloy-fiscaladmin-demo://oauth/callback)`
 - **Токен:** хранится в памяти (`useState`). Logout — обнуляет токен, refresh token не используется.
 
 До входа — только кнопка "Sign in with OIDC + PKCE". После — весь интерфейс.
@@ -74,3 +74,46 @@ React Native / Expo приложение — административная п
 - PATCH использует `If-Match` заголовок
 - API base URL: `EXPO_PUBLIC_PLATFORM_API_URL` (по умолчанию `http://localhost:8080`)
 - Состояние полностью in-memory, персистентности нет
+
+<!-- deployment-and-store-listing:start -->
+## Deployment and store listing
+
+Canonical deployment and store metadata for **BeeFiscal Admin**. Store links identify the configured product pages; they may remain unavailable publicly while a listing is in draft or internal testing.
+
+| Environment | Web | iOS bundle ID | App Store | Android package | Google Play |
+| --- | --- | --- | --- | --- | --- |
+| Production | [fiscal-admin.beeloy.org](https://fiscal-admin.beeloy.org) | `org.beeloy.fiscaladmin.prod` | [App Store](https://apps.apple.com/app/id6814689414) | `org.beeloy.fiscaladmin.prod` | [Google Play](https://play.google.com/store/apps/details?id=org.beeloy.fiscaladmin.prod) |
+| Demo | [demo-fiscal-admin.beeloy.org](https://demo-fiscal-admin.beeloy.org) | `org.beeloy.fiscaladmin.demo` | [App Store](https://apps.apple.com/app/id6814689882) | `org.beeloy.fiscaladmin.demo` | [Google Play](https://play.google.com/store/apps/details?id=org.beeloy.fiscaladmin.demo) |
+
+### Deployment commands
+
+- Production: `npm run deploy:web`
+- Demo: `npm run deploy:web-demo`
+- Cloudflare configuration: [wrangler.jsonc](./wrangler.jsonc)
+
+### Icons
+
+The icon represents **fiscal administration**, with the small Beeloy bee mark at the lower-right side.
+
+- Application and iOS icon: [store/icon.png](./store/icon.png)
+- Android adaptive foreground: [store/adaptive-icon.png](./store/adaptive-icon.png)
+- App Store artwork, 1024 × 1024: [store/graphics/app-store-icon-1024.png](./store/graphics/app-store-icon-1024.png)
+- Google Play artwork, 512 × 512: [store/graphics/google-play-icon-512.png](./store/graphics/google-play-icon-512.png)
+- Editable vector source: [store/graphics/icon.svg](./store/graphics/icon.svg)
+
+### Store description (en-US)
+
+**Title:** BeeFiscal Admin
+
+**Short description:** Administer BeeFiscal devices and external system integrations.
+
+**Full description:**
+
+> BeeFiscal Admin is an administrative app for authorized BeeFiscal platform operators. View fiscal device inventory and device details, manage tenant assignments and perform supported device lifecycle actions.
+>
+> Review external system integrations, enrollment conflicts and integration health indicators. Access requires a configured organization sign-in provider and platform administrator permissions.
+>
+> An account and access to the corresponding service are required. Features depend on your permissions and the services enabled by your organization.
+
+Source: [store/listing.en-US.json](./store/listing.en-US.json). The same copy is used for production and demo unless a store-specific override is documented later.
+<!-- deployment-and-store-listing:end -->

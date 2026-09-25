@@ -9,6 +9,16 @@ const config = getDefaultConfig(projectRoot);
 // up a stale node_modules directory from the former project location.
 config.resolver.nodeModulesPaths = [path.resolve(projectRoot, "node_modules")];
 config.resolver.disableHierarchicalLookup = true;
+// Include nested dependencies but never search ancestor workspaces.
+config.resolver.resolveRequest = (context, moduleName, platform) => {
+  const localPaths = [];
+  let current = path.dirname(context.originModulePath);
+  while (current === projectRoot || current.startsWith(projectRoot + path.sep)) {
+    localPaths.push(path.join(current, 'node_modules'));
+    current = path.dirname(current);
+  }
+  return context.resolveRequest({ ...context, nodeModulesPaths: [...localPaths, ...config.resolver.nodeModulesPaths] }, moduleName, platform);
+};
 
 // Authentication artwork is shared by BeeMiniPOS and MiniPOS Web from
 // minipos/imgs, which is intentionally outside this Expo package root.

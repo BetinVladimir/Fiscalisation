@@ -1,1 +1,74 @@
-{"cli":{"version":">= 5.9.3"},"build":{"demo":{"distribution":"internal","channel":"demo","env":{"APP_VARIANT":"demo","EXPO_PUBLIC_PLATFORM_API_URL":"https://demo-api.beeloy.org"}},"production":{"distribution":"store","channel":"production","env":{"APP_VARIANT":"production","EXPO_PUBLIC_PLATFORM_API_URL":"https://api.beeloy.org"}}},"submit":{"production":{}}}
+{
+  "cli": {
+    "version": ">=20.3.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "demo": {
+      "distribution": "store",
+      "channel": "demo",
+      "env": {
+        "APP_VARIANT": "demo",
+        "EXPO_PUBLIC_PLATFORM_API_URL": "https://demo-api.beeloy.org",
+        "BEELOY_STORE_BUILD": "1",
+        "EXPO_NO_DOTENV": "1",
+        "EXPO_PUBLIC_E2E_MODE": "false",
+        "EXPO_PUBLIC_E2E_SIMULATOR": "false"
+      },
+      "environment": "preview",
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle",
+        "credentialsSource": "local"
+      },
+      "ios": {
+        "simulator": false,
+        "image": "macos-sequoia-15.6-xcode-26.0"
+      }
+    },
+    "production": {
+      "distribution": "store",
+      "channel": "production",
+      "env": {
+        "APP_VARIANT": "production",
+        "EXPO_PUBLIC_PLATFORM_API_URL": "https://api.beeloy.org",
+        "BEELOY_STORE_BUILD": "1",
+        "EXPO_NO_DOTENV": "1",
+        "EXPO_PUBLIC_E2E_MODE": "false",
+        "EXPO_PUBLIC_E2E_SIMULATOR": "false"
+      },
+      "environment": "production",
+      "autoIncrement": true,
+      "android": {
+        "buildType": "app-bundle",
+        "credentialsSource": "local"
+      },
+      "ios": {
+        "simulator": false,
+        "image": "macos-sequoia-15.6-xcode-26.0"
+      }
+    }
+  },
+  "submit": {
+    "production": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "draft"
+      },
+      "ios": {
+        "appleTeamId": "U6TTUVHSL6",
+        "ascAppId": "6814689414"
+      }
+    },
+    "demo": {
+      "android": {
+        "track": "internal",
+        "releaseStatus": "draft"
+      },
+      "ios": {
+        "appleTeamId": "U6TTUVHSL6",
+        "ascAppId": "6814689882"
+      }
+    }
+  }
+}

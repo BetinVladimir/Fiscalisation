@@ -1,0 +1,11 @@
+{
+  "locale": "en-US",
+  "title": "BeeFiscal Admin",
+  "shortDescription": "Administer BeeFiscal devices and external system integrations.",
+  "fullDescription": "BeeFiscal Admin is an administrative app for authorized BeeFiscal platform operators. View fiscal device inventory and device details, manage tenant assignments and perform supported device lifecycle actions.\n\nReview external system integrations, enrollment conflicts and integration health indicators. Access requires a configured organization sign-in provider and platform administrator permissions.\n\nAn account and access to the corresponding service are required. Features depend on your permissions and the services enabled by your organization.",
+  "status": "copy updated from source 2026-09-23; store submission pending access and required metadata",
+  "privacyPolicyUrl": null,
+  "supportUrl": null,
+  "reviewCredentials": null,
+  "screenshots": []
+}

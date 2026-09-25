@@ -1,19 +1,13 @@
+import { colors as beeloyColors } from './src/ui/tokens';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { AppText as Text } from './src/ui/app-text';
+import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-view';
+import { AppPressable as Pressable } from './src/ui/app-pressable';
+import { FormField as TextInput } from './src/ui/form-field';
+import { AuthForm } from './src/ui/auth-form';
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  Image,
-  Linking,
-  Platform,
-  Pressable,
-  SafeAreaView,
-  ScrollView,
-  StyleSheet,
-  Text,
-  TextInput,
-  useColorScheme,
-  useWindowDimensions,
-  View,
-} from "react-native";
+import { Image, Linking, Platform, StyleSheet, useColorScheme, useWindowDimensions, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Button as PaperButton,
@@ -37,6 +31,7 @@ import {
 import type { NativeBleBootstrapContract } from "./src/nativeBle";
 import { useEmailAuth } from "./src/emailAuth";
 import type { Language } from "./src/emailAuth";
+import { supportedLanguages } from "./src/translations.generated";
 import { useTranslation } from "./src/languageStore";
 import type { Translation } from "./src/languageStore";
 import { fetchWithTimeout } from "./src/http";
@@ -50,6 +45,7 @@ import {
   resolveFiscalDeviceId,
 } from "./src/fiscalDeviceResolution";
 import Constants from "expo-constants";
+import { BeeloyAppProvider } from "./src/ui/provider";
 configureRandomSource(getRandomBytes);
 
 // BeeMiniPOS is intentionally thin: it owns cart presentation and surrogate
@@ -302,9 +298,9 @@ async function fiscalCloudReachable(path: string): Promise<boolean> {
 type ThemePreference = "system" | "light" | "dark";
 type FiscalRegisterReference = {id:string;code?:string;name?:string;status?:string};
 const themePreferenceKey = "beeminipos.theme.preference";
-export default function App() { return <View style={{flex:1}}><AppContent/><DemoBadge/></View>; }
+export default function App() { return <BeeloyAppProvider><View style={{flex:1}}><AppContent/><DemoBadge/></View></BeeloyAppProvider>; }
 function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
-const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:"#c62828",borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:"#fff",fontWeight:"900",fontSize:12,letterSpacing:1}});
+const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:beeloyColors.error,borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:beeloyColors.onPrimary,fontWeight:"900",fontSize:12,letterSpacing:1}});
 function AppContent() {
   const systemScheme = useColorScheme();
   const [themePreference, setThemePreference] =
@@ -317,8 +313,8 @@ function AppContent() {
       ...(dark ? MD3DarkTheme : MD3LightTheme),
       colors: {
         ...(dark ? MD3DarkTheme.colors : MD3LightTheme.colors),
-        primary: dark ? "#9bc9b0" : "#456b59",
-        secondary: dark ? "#b9c9bd" : "#668b78",
+        primary: dark ? beeloyColors.success : beeloyColors.success,
+        secondary: dark ? beeloyColors.success : beeloyColors.success,
       },
     }),
     [dark],
@@ -1343,7 +1339,7 @@ function MiniPosApp({
           resizeMode="cover"
           style={s.authBackground}
         />
-        <View testID="operator-login" style={s.login}>
+        <AuthForm testID="operator-login" style={s.login}>
           <Text style={s.brand}>BeeMiniPOS</Text>
           <Text style={s.loginTitle}>{uiText.signIn}</Text>
           <LanguageMenu
@@ -1355,7 +1351,7 @@ function MiniPosApp({
           {emailAuth.stage === "code" ? <><TextInput style={s.search} keyboardType="number-pad" maxLength={6} placeholder="000000" value={loginCode} onChangeText={setLoginCode}/><Pressable testID="operator-login-verify" accessibilityRole="button" style={s.cash} disabled={emailAuth.busy||loginCode.length!==6} onPress={()=>void emailAuth.verifyCode(loginCode)}><Text style={s.payText}>{uiText.continue}</Text></Pressable></> : null}
           {emailAuth.stage === "onboarding" ? <><Text style={s.loginTitle}>{uiText.companyDetails}</Text><TextInput testID="onboarding-company-name" style={s.search} placeholder={uiText.companyName} value={companyName} onChangeText={setCompanyName}/><TextInput testID="onboarding-address" style={s.search} placeholder={uiText.address} value={companyAddress} onChangeText={setCompanyAddress}/><TextInput testID="onboarding-tax-id" style={s.search} placeholder={uiText.taxIdentifier} value={taxIdentifier} onChangeText={setTaxIdentifier}/><TextInput testID="onboarding-full-name" style={s.search} placeholder={uiText.fullName} value={currentUserName} onChangeText={setCurrentUserName}/><Pressable testID="operator-onboarding-create" accessibilityRole="button" style={s.cash} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName})}><Text style={s.payText}>{uiText.createCompany}</Text></Pressable></> : null}
           {emailAuth.error ? <Text testID="operator-login-error" style={s.loginError}>{emailAuth.error}</Text> : null}
-        </View>
+        </AuthForm>
       </SafeAreaView>
     );
   return (
@@ -1838,9 +1834,11 @@ function LanguageMenu({
 }) {
   const [visible, setVisible] = useState(false);
   const labels: Record<Language, string> = {
-    bg: "Български",
-    ru: "Русский",
-    en: "English",
+    bg: "Български", hr: "Hrvatski", cs: "Čeština", da: "Dansk", nl: "Nederlands",
+    en: "English", et: "Eesti", fi: "Suomi", fr: "Français", de: "Deutsch",
+    el: "Ελληνικά", hu: "Magyar", ga: "Gaeilge", it: "Italiano", lv: "Latviešu",
+    lt: "Lietuvių", mt: "Malti", pl: "Polski", pt: "Português", ro: "Română",
+    sk: "Slovenčina", sl: "Slovenščina", es: "Español", sv: "Svenska", ru: "Русский",
   };
   const choose = (value: Language) => {
     setVisible(false);
@@ -1851,6 +1849,7 @@ function LanguageMenu({
     <PaperMenu
       visible={visible}
       onDismiss={() => setVisible(false)}
+      contentStyle={{ maxHeight: 420, minWidth: 280 }}
       anchor={
         <PaperButton
           testID="language-menu-open"
@@ -1863,7 +1862,7 @@ function LanguageMenu({
         </PaperButton>
       }
     >
-      {(["bg", "ru", "en"] as const).map((value) => (
+      {supportedLanguages.map((value) => (
         <PaperMenu.Item
           key={value}
           testID={`language-${value}`}
@@ -2173,8 +2172,8 @@ function Admin({
 }
 const reconciliationStyles = StyleSheet.create({
   panel: {
-    backgroundColor: "#fff3cd",
-    borderColor: "#9a6b00",
+    backgroundColor: beeloyColors.warningContainer,
+    borderColor: beeloyColors.warning,
     borderWidth: 2,
     padding: 16,
     flexDirection: "row",
@@ -2183,10 +2182,10 @@ const reconciliationStyles = StyleSheet.create({
     gap: 16,
   },
   panelPhone: { flexDirection: "column", alignItems: "stretch", padding: 12 },
-  title: { fontSize: 18, fontWeight: "900", color: "#5f4200" },
-  text: { color: "#5f4200", marginTop: 4 },
+  title: { fontSize: 18, fontWeight: "900", color: beeloyColors.warning },
+  text: { color: beeloyColors.warning, marginTop: 4 },
   button: {
-    backgroundColor: "#7a5500",
+    backgroundColor: beeloyColors.warning,
     paddingHorizontal: 18,
     minHeight: 56,
     borderRadius: 12,
@@ -2198,8 +2197,8 @@ function message(e: unknown) {
   return e instanceof Error ? e.message : String(e);
 }
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: "#f7f1ee" },
-  rootDark: { backgroundColor: "#151a17" },
+  root: { flex: 1, backgroundColor: beeloyColors.background },
+  rootDark: { backgroundColor: beeloyColors.onBackground },
   authRoot: {
     width: "100%",
     minHeight: "100%",
@@ -2218,18 +2217,18 @@ const s = StyleSheet.create({
     maxWidth: 520,
     marginTop: 80,
     padding: 28,
-    backgroundColor: "#fffaf7",
+    backgroundColor: beeloyColors.background,
     borderRadius: 16,
     gap: 18,
   },
-  loginTitle: { fontSize: 24, fontWeight: "800", color: "#17251d" },
+  loginTitle: { fontSize: 24, fontWeight: "800", color: beeloyColors.success },
   loginText: {
     fontSize: 16,
-    color: "#526057",
+    color: beeloyColors.onSurfaceVariant,
     lineHeight: 23,
     marginBottom: 10,
   },
-  loginError: { fontSize: 15, color: "#9a2f24", fontWeight: "700" },
+  loginError: { fontSize: 15, color: beeloyColors.error, fontWeight: "700" },
   languageRow: { flexDirection: "row", gap: 8 },
   top: {
     padding: 18,
@@ -2237,15 +2236,15 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderBottomWidth: 1,
-    borderColor: "#d8d4c7",
+    borderColor: beeloyColors.warningContainer,
   },
   topCompact: { alignItems: "stretch", flexDirection: "column", gap: 12, padding: 12 },
-  topDark: { backgroundColor: "#1f2823", borderColor: "#39483f" },
+  topDark: { backgroundColor: beeloyColors.success, borderColor: beeloyColors.onBackground },
   topIdentity: { flexShrink: 1 },
-  brand: { fontSize: 28, fontWeight: "800", color: "#17251d" },
-  textDark: { color: "#f0f5f1" },
-  caption: { color: "#637067", marginTop: 2, lineHeight: 19 },
-  captionDark: { color: "#bdc9c0" },
+  brand: { fontSize: 28, fontWeight: "800", color: beeloyColors.success },
+  textDark: { color: beeloyColors.background },
+  caption: { color: beeloyColors.onSurfaceVariant, marginTop: 2, lineHeight: 19 },
+  captionDark: { color: beeloyColors.outline },
   topActions: {
     flexDirection: "row",
     gap: 10,
@@ -2255,23 +2254,23 @@ const s = StyleSheet.create({
   topActionsCompact: { width: "100%" },
   themeButtonContent: { minHeight: 48 },
   adminButton: {
-    backgroundColor: "#e8e4d8",
+    backgroundColor: beeloyColors.warningContainer,
     padding: 12,
     borderRadius: 10,
     minHeight: 48,
     justifyContent: "center",
   },
   shift: {
-    backgroundColor: "#9bb0a4",
+    backgroundColor: beeloyColors.outline,
     padding: 12,
     borderRadius: 10,
     minHeight: 48,
     justifyContent: "center",
   },
-  shiftOpen: { backgroundColor: "#c99f91" },
-  shiftText: { color: "white", fontWeight: "700" },
+  shiftOpen: { backgroundColor: beeloyColors.warning },
+  shiftText: { color: beeloyColors.onPrimary, fontWeight: "700" },
   posShell: { flex: 1 },
-  posShellDark: { backgroundColor: "#151a17" },
+  posShellDark: { backgroundColor: beeloyColors.onBackground },
   body: { flex: 1, flexDirection: "row" },
   bodyPhone: { flexDirection: "column" },
   panelPhone: { flex: 1, width: "100%", padding: 12 },
@@ -2280,7 +2279,7 @@ const s = StyleSheet.create({
     paddingHorizontal: 12,
     paddingTop: 10,
     gap: 8,
-    backgroundColor: "#f7f1ee",
+    backgroundColor: beeloyColors.background,
   },
   mobileTab: {
     flex: 1,
@@ -2289,16 +2288,16 @@ const s = StyleSheet.create({
     borderRadius: 12,
     alignItems: "center",
     justifyContent: "center",
-    backgroundColor: "#e8e4d8",
+    backgroundColor: beeloyColors.warningContainer,
   },
-  mobileTabActive: { backgroundColor: "#456b59" },
-  mobileTabText: { color: "#33443b", fontWeight: "800", textAlign: "center" },
-  mobileTabTextActive: { color: "white" },
+  mobileTabActive: { backgroundColor: beeloyColors.success },
+  mobileTabText: { color: beeloyColors.success, fontWeight: "800", textAlign: "center" },
+  mobileTabTextActive: { color: beeloyColors.onPrimary },
   catalog: { flex: 3, padding: 16 },
   search: {
-    backgroundColor: "#fffaf7",
+    backgroundColor: beeloyColors.background,
     borderWidth: 1,
-    borderColor: "#d8d4c7",
+    borderColor: beeloyColors.warningContainer,
     borderRadius: 12,
     padding: 14,
     fontSize: 17,
@@ -2309,34 +2308,34 @@ const s = StyleSheet.create({
   product: {
     width: "47%",
     minHeight: 120,
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
     borderRadius: 14,
     padding: 16,
     borderWidth: 1,
-    borderColor: "#ddd8ca",
+    borderColor: beeloyColors.warningContainer,
     justifyContent: "space-between",
   },
   productPhone: { width: "48%", minHeight: 108, padding: 12 },
   productName: { fontSize: 19, fontWeight: "700" },
-  price: { fontSize: 22, fontWeight: "800", color: "#668b78" },
-  tax: { color: "#777" },
+  price: { fontSize: 22, fontWeight: "800", color: beeloyColors.success },
+  tax: { color: beeloyColors.onSurfaceVariant },
   cart: {
     flex: 2,
-    backgroundColor: "#fff",
+    backgroundColor: beeloyColors.onPrimary,
     borderLeftWidth: 1,
-    borderColor: "#d8d4c7",
+    borderColor: beeloyColors.warningContainer,
     padding: 16,
   },
   cartPhone: { flex: 1, width: "100%", borderLeftWidth: 0, padding: 12 },
   cartTitle: { fontSize: 20, fontWeight: "800", marginBottom: 12 },
   lines: { marginVertical: 12 },
-  empty: { color: "#888", textAlign: "center", marginTop: 40 },
+  empty: { color: beeloyColors.outline, textAlign: "center", marginTop: 40 },
   line: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderColor: "#eee",
+    borderColor: beeloyColors.surfaceVariant,
   },
   lineContent: { flex: 1, paddingRight: 10 },
   lineName: { fontSize: 16 },
@@ -2346,7 +2345,7 @@ const s = StyleSheet.create({
   discountButton: {
     minWidth: 64,
     minHeight: 48,
-    backgroundColor: "#f4dfb4",
+    backgroundColor: beeloyColors.warningContainer,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -2355,14 +2354,14 @@ const s = StyleSheet.create({
     minWidth: 88,
     minHeight: 48,
     borderWidth: 1,
-    borderColor: "#d8d4c7",
+    borderColor: beeloyColors.warningContainer,
     borderRadius: 8,
     paddingHorizontal: 10,
   },
   qtyButton: {
     minWidth: 48,
     minHeight: 48,
-    backgroundColor: "#e8e4d8",
+    backgroundColor: beeloyColors.warningContainer,
     borderRadius: 8,
     alignItems: "center",
     justifyContent: "center",
@@ -2372,16 +2371,16 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 16,
     borderTopWidth: 2,
-    borderColor: "#222",
+    borderColor: beeloyColors.onBackground,
   },
   totalLabel: { fontSize: 18, fontWeight: "800" },
   totalValue: { fontSize: 26, fontWeight: "900" },
   splitRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
   splitInput: {
     flex: 1,
-    backgroundColor: "white",
+    backgroundColor: beeloyColors.surface,
     borderWidth: 1,
-    borderColor: "#d8d4c7",
+    borderColor: beeloyColors.warningContainer,
     borderRadius: 12,
     padding: 12,
     fontSize: 16,
@@ -2389,7 +2388,7 @@ const s = StyleSheet.create({
   },
   split: {
     flex: 2,
-    backgroundColor: "#aa9cbb",
+    backgroundColor: beeloyColors.primary,
     padding: 14,
     borderRadius: 12,
     alignItems: "center",
@@ -2399,7 +2398,7 @@ const s = StyleSheet.create({
   payRow: { flexDirection: "row", gap: 10 },
   cash: {
     flex: 1,
-    backgroundColor: "#8fac9b",
+    backgroundColor: beeloyColors.success,
     padding: 18,
     borderRadius: 12,
     alignItems: "center",
@@ -2408,38 +2407,38 @@ const s = StyleSheet.create({
   },
   card: {
     flex: 1,
-    backgroundColor: "#91aabd",
+    backgroundColor: beeloyColors.tertiary,
     padding: 18,
     borderRadius: 12,
     alignItems: "center",
     minHeight: 56,
     justifyContent: "center",
   },
-  selectedCard: { backgroundColor: "#496b83", borderWidth: 3, borderColor: "#dcebf5" },
-  payText: { color: "white", fontSize: 17, fontWeight: "800" },
+  selectedCard: { backgroundColor: beeloyColors.tertiary, borderWidth: 3, borderColor: beeloyColors.tertiaryContainer },
+  payText: { color: beeloyColors.onPrimary, fontSize: 17, fontWeight: "800" },
   footer: {
     padding: 12,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#68766f",
+    backgroundColor: beeloyColors.onSurfaceVariant,
   },
   dot: {
     width: 10,
     height: 10,
     borderRadius: 5,
-    backgroundColor: "#57dc8b",
+    backgroundColor: beeloyColors.success,
     marginRight: 8,
   },
-  dotBad: { backgroundColor: "#ff765f" },
-  status: { color: "white", fontWeight: "600", flex: 1 },
+  dotBad: { backgroundColor: beeloyColors.error },
+  status: { color: beeloyColors.onPrimary, fontWeight: "600", flex: 1 },
   admin: { padding: 20, gap: 16 },
   adminCompact: { padding: 12 },
   adminTitle: { fontSize: 24, fontWeight: "800" },
   screenHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12 },
-  fab: { width: 52, height: 52, borderRadius: 26, backgroundColor: "#a7c4b5", alignItems: "center", justifyContent: "center" },
-  fabText: { fontSize: 28, color: "#33443b" },
+  fab: { width: 52, height: 52, borderRadius: 26, backgroundColor: beeloyColors.success, alignItems: "center", justifyContent: "center" },
+  fabText: { fontSize: 28, color: beeloyColors.success },
   editor: {
-    backgroundColor: "#fffaf7",
+    backgroundColor: beeloyColors.background,
     padding: 18,
     borderRadius: 14,
     width: "100%",
@@ -2453,13 +2452,13 @@ const s = StyleSheet.create({
     minHeight: 48,
     justifyContent: "center",
     borderWidth: 1,
-    borderColor: "#d8d4c7",
+    borderColor: beeloyColors.warningContainer,
     borderRadius: 10,
   },
   employeeSelected: {
-    borderColor: "#17613a",
+    borderColor: beeloyColors.success,
     borderWidth: 2,
-    backgroundColor: "#e7f4eb",
+    backgroundColor: beeloyColors.successContainer,
   },
   report: { paddingTop: 14, gap: 5 },
 });

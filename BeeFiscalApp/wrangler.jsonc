@@ -1,0 +1,31 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "beefiscal-web",
+  "compatibility_date": "2026-09-25",
+  "workers_dev": true,
+  "assets": {
+    "directory": "./dist-cloudflare/production",
+    "not_found_handling": "single-page-application"
+  },
+  "env": {
+    "demo": {
+      "name": "beefiscal-web-demo",
+      "assets": {
+        "directory": "./dist-cloudflare/demo",
+        "not_found_handling": "single-page-application"
+      },
+      "routes": [
+        {
+          "pattern": "demo-fiscal.beeloy.org",
+          "custom_domain": true
+        }
+      ]
+    }
+  },
+  "routes": [
+    {
+      "pattern": "fiscal.beeloy.org",
+      "custom_domain": true
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "app": "fiscaladmin",
+  "name": "BeeFiscal Admin",
+  "version": "1.0.0",
+  "projectId": "e6c6f7fb-3560-4ed5-ad3b-df44db50b875",
+  "owner": "vladimir.betin",
+  "apple": {
+    "production": {
+      "ascAppId": "6814689414"
+    },
+    "demo": {
+      "ascAppId": "6814689882"
+    }
+  },
+  "publicEnv": {
+    "production": {
+      "EXPO_PUBLIC_PLATFORM_OIDC_ISSUER": "",
+      "EXPO_PUBLIC_PLATFORM_OIDC_CLIENT_ID": ""
+    },
+    "demo": {
+      "EXPO_PUBLIC_PLATFORM_OIDC_ISSUER": "",
+      "EXPO_PUBLIC_PLATFORM_OIDC_CLIENT_ID": ""
+    }
+  }
+}

@@ -1,0 +1,102 @@
+# Node / Expo
+node_modules
+.regression-web
+.regression-native
+.regression-native-android
+.regression-native-ios
+.ui-e2e-web
+.ui-e2e-prod-web
+.playwright-e2e-web
+playwright-report
+test-results
+.npm
+.expo
+.expo-shared
+
+# Go
+bin
+*.test
+coverage.out
+
+# Android
+.gradle
+local.properties
+*.keystore
+android/build
+android/app/build
+
+# iOS generated dependencies / build products
+ios/Pods
+ios/build
+
+# Standalone Android smart-device adapters
+SmartDevices/.gradle
+SmartDevices/build
+SmartDevices/*/build
+
+# Environment files
+.env
+.env.local
+
+# OS / IDE
+.DS_Store
+.vscode
+**/tmp/*
+
+login.sh
+# Store release artifacts / credentials
+**/.store-build
+**/store/credentials.local.json
+**/store/*.p8
+**/store/*service-account*.json
+**/store/*.jks
+**/store/*.keystore
+!**/store/icon.png
+
+# Store builds use Expo CNG; local native projects remain untouched.
+**/node_modules
+**/.expo
+**/dist-cloudflare
+**/.web-build
+**/dist
+**/.env*
+**/.git
+**/store/credentials.local.json
+**/*.p8
+**/*.jks
+**/*.keystore
+/AdminApp/android
+/AdminApp/ios
+!/AdminApp/store/icon.png
+/BeeFiscalApp/android
+/BeeFiscalApp/ios
+!/BeeFiscalApp/store/icon.png
+/minipos/BeeMiniPOS/android
+/minipos/BeeMiniPOS/ios
+!/minipos/BeeMiniPOS/store/icon.png
+
+**/credentials.json
+**/.wrangler
+**/.store-build
+
+# Upload only mobile app source trees, never backend services.
+/*
+!/AdminApp
+!/BeeFiscalApp
+!/minipos
+/minipos/*
+!/minipos/BeeMiniPOS
+!/minipos/imgs
+
+**/node_modules
+**/.store-build
+**/dist-cloudflare
+**/.wrangler
+**/ios
+**/android
+**/.env*
+**/credentials.json
+**/credentials.local.json
+**/*.p8
+**/*.jks
+**/*.keystore

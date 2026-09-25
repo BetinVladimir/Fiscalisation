@@ -51,6 +51,8 @@ const pathOf = (route) => new URL(route.request().url()).pathname;
 async function miniPosJourney(browser, appUrl) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
   page.on("pageerror", error => console.error("[MiniPOS pageerror]", error.message));
+  page.on("requestfailed", request => console.error("[MiniPOS requestfailed]", request.method(), request.url(), request.failure()?.errorText));
+  page.on("response", response => { if (response.status() >= 400) console.error("[MiniPOS response]", response.status(), response.request().method(), response.url()); });
   await page.addInitScript(() => {
     localStorage.setItem("minipos-refresh-token", "ui-e2e-refresh");
   });
@@ -85,6 +87,7 @@ async function miniPosJourney(browser, appUrl) {
   });
   await page.route("http://fiscal-api.test/**", (route) => {
     const path = pathOf(route), method = route.request().method();
+    if (path.endsWith("/registers") && method === "GET") return json(route, { items: [{ id: "00000000-0000-4000-8000-000000000001", code: "R01", name: "Каса 01", status: "ACTIVE" }] });
     if (path.endsWith("/clock-sync") && method === "POST") return json(route, { state: "VERIFIED" });
     if (path.endsWith("/readiness:refresh") && method === "POST") return json(route, { ready: true });
     if (path.endsWith("/sessions") && method === "POST") return json(route, { session_id: "00000000-0000-4000-8000-000000000020", workstation_id: "00000000-0000-4000-8000-000000000001", operator_code: "0001", expires_at: "2099-08-09T12:00:00Z" }, 201);
@@ -208,7 +211,7 @@ async function miniPosProductionLoginFailClosed(browser, appUrl) {
   await page.route("http://minipos-api.test/**", route => { apiCalls += 1; return json(route, { code: "STATIC_TOKEN_MUST_NOT_BE_USED" }, 500); });
   await page.goto(appUrl);
   await page.getByTestId("operator-login").getByText(/Вход с имейл/).waitFor();
-  await page.getByTestId("operator-login-start").click();
+  assert.equal(await page.getByTestId("operator-login-start").isDisabled(), true, "PROD login must stay disabled without a personal email");
   assert.equal(apiCalls, 0, "PROD login must not request OTP without a personal email");
   assert.equal(await page.getByTestId("shift-toggle").count(), 0, "PROD must not expose sales before an authenticated bound operator session");
   assert.equal(apiCalls, 0, "EXPO_PUBLIC static token must be ignored in PROD");
@@ -217,7 +220,12 @@ async function miniPosProductionLoginFailClosed(browser, appUrl) {
 
 async function fiscalJourney(browser, appUrl) {
   const page = await browser.newPage({ viewport: { width: 1440, height: 1100 } });
-  const device = { id: "device-1", name: "DP-150", vendor: "Datecs", model: "DP-150 MX", serial: "DT1", status: "ACTIVE", transport: "EDGE" };
+  const device = { id: "device-1", name: "DP-150", vendor: "Datecs", model: "DP-150 MX", serial: "DT1", kind: "FISCAL_DEVICE", status: "ACTIVE", transport: "EDGE" };
+  const compositeDevices = [
+    { id: "00000000-0000-4000-8000-000000000011", vendor: "Beeloy", model: "Adapter", serial: "AD-1", kind: "ADAPTER", status: "ACTIVE" },
+    { id: "00000000-0000-4000-8000-000000000012", vendor: "Datecs", model: "Fiscal", serial: "FD-1", kind: "FISCAL_DEVICE", status: "ACTIVE" },
+    { id: "00000000-0000-4000-8000-000000000013", vendor: "BlueCash", model: "Terminal", serial: "PT-1", kind: "PAYMENT_TERMINAL", status: "ACTIVE" },
+  ];
   let location = { id: "location-1", code: "SOF", name: "Sofia", address: "Center", version: 1 };
   let reportCreated = false, reconcileCalls = 0, diagnosticsCalls = 0, provisioningCalls = 0, bleSessionCalls = 0, compositeCalls=0, compositeDisableCalls=0;
   const registerFilters = [];
@@ -227,7 +235,7 @@ async function fiscalJourney(browser, appUrl) {
   ];
   await page.route("http://fiscal-admin.test/**", async (route) => {
     const path = pathOf(route), method = route.request().method();
-    if (path.endsWith("/devices")) return json(route, { items: [device] });
+    if (path.endsWith("/devices")) return json(route, { items: [device, ...compositeDevices] });
     if (path.endsWith("/operations")) { registerFilters.push(new URL(route.request().url()).searchParams.get("register_id")); return json(route, { items: operations }); }
     if (path.endsWith("/operations/operation-1/reconcile") && method === "POST") { reconcileCalls += 1; operations = operations.map((operation)=>operation.id === "operation-1" ? { ...operation, state: "RECONCILING", allowed_actions: [] } : operation); return json(route, operations[0], 202); }
     if (/\/registers\/[^/]+\/reports$/.test(path) && method === "POST") { reportCreated = true; return json(route, { id: "report-2", state: "COMPLETED", fiscal_reference: "X-2" }, 201); }
@@ -261,7 +269,6 @@ async function fiscalJourney(browser, appUrl) {
   await page.getByTestId("diagnostics-result").getByText(/redactions_applied/).waitFor();
   await page.getByTestId("device-provision").click();
   await page.getByTestId("provisioning-result").getByText(/provisioning-1/).waitFor();
-  await page.getByTestId("ble-operator-id").fill("operator-1");
   await page.getByTestId("ble-client-public-key").fill("prepared-x25519-public-key");
   await page.getByTestId("ble-session-issue").click();
   await page.getByTestId("ble-session-result").getByText(/ble-1/).waitFor();
@@ -290,9 +297,9 @@ async function fiscalJourney(browser, appUrl) {
   await page.getByTestId("admin-location-save").click();
   await page.getByTestId("admin-location-code").waitFor();
   assert.equal(await page.getByTestId("admin-location-code").inputValue(), "VAR");
-  await page.getByTestId("composite-adapter-device").fill("00000000-0000-4000-8000-000000000011");
-  await page.getByTestId("composite-fiscal-device").fill("00000000-0000-4000-8000-000000000012");
-  await page.getByTestId("composite-payment-device").fill("00000000-0000-4000-8000-000000000013");
+  await page.getByRole("button", { name: "Beeloy Adapter · AD-1", exact: true }).last().click();
+  await page.getByRole("button", { name: "Datecs Fiscal · FD-1", exact: true }).last().click();
+  await page.getByRole("button", { name: "BlueCash Terminal · PT-1", exact: true }).last().click();
   await page.getByTestId("composite-binding-save").click();
   await page.getByTestId("composite-binding-awaiting-adapter").waitFor();
   await page.getByTestId("composite-binding-disable").click();

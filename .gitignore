@@ -44,3 +44,22 @@ SmartDevices/*/build/
 **/tmp/*
 
 login.sh
+# Store release artifacts / credentials
+**/.store-build/
+**/store/credentials.local.json
+**/store/*.p8
+**/store/*service-account*.json
+**/store/*.jks
+**/store/*.keystore
+!**/store/icon.png
+
+**/credentials.json
+**/.wrangler/
+**/.store-build/
+**/store/credentials.local.json
+**/store/*.p8
+**/store/*service-account*.json
+**/store/*.jks
+**/store/*.keystore
+!**/store/icon.png
+**/.cache/**
