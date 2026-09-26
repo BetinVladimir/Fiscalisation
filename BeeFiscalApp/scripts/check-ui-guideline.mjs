@@ -37,8 +37,20 @@ function walk(directory) {
 }
 
 walk(root);
-for (const required of ['src/ui/provider.tsx', 'src/ui/responsive.ts', 'src/ui/tokens.ts']) {
+for (const required of ['src/ui/provider.tsx', 'src/ui/theme.ts', 'src/ui/responsive.ts', 'src/ui/tokens.ts', 'src/ui/app-pressable.tsx']) {
   if (!fs.existsSync(path.join(root, required))) failures.push(`${required}: required UI foundation file is missing`);
+}
+
+
+const providerSource = fs.readFileSync(path.join(root, 'src/ui/provider.tsx'), 'utf8');
+const themeSource = fs.readFileSync(path.join(root, 'src/ui/theme.ts'), 'utf8');
+const pressableSource = fs.readFileSync(path.join(root, 'src/ui/app-pressable.tsx'), 'utf8');
+if (!providerSource.includes('PaperProvider')) failures.push('src/ui/provider.tsx: PaperProvider is required at the app root');
+if (!themeSource.includes('MD3LightTheme') || !themeSource.includes('MD3DarkTheme')) failures.push('src/ui/theme.ts: both standard Paper MD3 light and dark themes are required');
+if (!pressableSource.includes('TouchableRipple') || /import\s*\{[^}]*Pressable[^}]*\}\s*from\s*['"]react-native['"]/.test(pressableSource)) failures.push('src/ui/app-pressable.tsx: use Paper TouchableRipple instead of native Pressable');
+
+if (/colors\s*:/.test(themeSource) || /lightColors|darkColors/.test(themeSource)) {
+  failures.push('src/ui/theme.ts: custom color overrides are forbidden; use the unmodified standard Paper MD3 palettes');
 }
 
 if (failures.length) {
@@ -46,3 +58,4 @@ if (failures.length) {
   process.exit(1);
 }
 console.log('UI guideline static check passed');
+

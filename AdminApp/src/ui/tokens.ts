@@ -1,32 +1,35 @@
+import { MD3DarkTheme, MD3LightTheme } from 'react-native-paper';
+
+/**
+ * Standard React Native Paper MD3 palettes.
+ * Success and warning are compatibility aliases for semantic statuses that
+ * are not part of the Paper MD3 color contract.
+ */
 export const lightColors = {
-  primary: '#17613A', onPrimary: '#FFFFFF', primaryContainer: '#D4E8D9', onPrimaryContainer: '#092113',
-  secondary: '#4F6354', onSecondary: '#FFFFFF', secondaryContainer: '#D2E8D5', onSecondaryContainer: '#0D1F13',
-  tertiary: '#3A656F', onTertiary: '#FFFFFF', tertiaryContainer: '#BEEAF5', onTertiaryContainer: '#001F26',
-  success: '#146C2E', onSuccess: '#FFFFFF', successContainer: '#B7F5C4', onSuccessContainer: '#002108',
-  warning: '#8C4A00', onWarning: '#FFFFFF', warningContainer: '#FFDCC2', onWarningContainer: '#2D1600',
-  error: '#BA1A1A', onError: '#FFFFFF', errorContainer: '#FFDAD6', onErrorContainer: '#410002',
-  background: '#F8FAF8', onBackground: '#191C1A', surface: '#F8FAF8', onSurface: '#191C1A',
-  surfaceVariant: '#DEE5DF', onSurfaceVariant: '#424943', outline: '#727972', outlineVariant: '#C2C9C2',
-  inverseSurface: '#2E312F', inverseOnSurface: '#EFF1EE', inversePrimary: '#A9D1B3',
-  shadow: '#000000', scrim: '#000000', backdrop: 'rgba(25,28,26,0.40)',
-  elevation: { level0: 'transparent', level1: '#F2F5F2', level2: '#EDF1ED', level3: '#E7EDE8', level4: '#E5EBE6', level5: '#E0E7E1' },
+  ...MD3LightTheme.colors,
+  success: MD3LightTheme.colors.tertiary,
+  onSuccess: MD3LightTheme.colors.onTertiary,
+  successContainer: MD3LightTheme.colors.tertiaryContainer,
+  onSuccessContainer: MD3LightTheme.colors.onTertiaryContainer,
+  warning: MD3LightTheme.colors.secondary,
+  onWarning: MD3LightTheme.colors.onSecondary,
+  warningContainer: MD3LightTheme.colors.secondaryContainer,
+  onWarningContainer: MD3LightTheme.colors.onSecondaryContainer,
 } as const;
 
 export const darkColors = {
-  primary: '#9ED5AF', onPrimary: '#003920', primaryContainer: '#0B4F2D', onPrimaryContainer: '#BCECC9',
-  secondary: '#B7CCBB', onSecondary: '#23352A', secondaryContainer: '#394B40', onSecondaryContainer: '#D3E8D7',
-  tertiary: '#A2CED9', onTertiary: '#00363F', tertiaryContainer: '#204D56', onTertiaryContainer: '#BDEAF5',
-  success: '#8ADB9E', onSuccess: '#003914', successContainer: '#0B5224', onSuccessContainer: '#A5F7B7',
-  warning: '#FFB870', onWarning: '#4A2800', warningContainer: '#683C00', onWarningContainer: '#FFDCC2',
-  error: '#FFB4AB', onError: '#690005', errorContainer: '#93000A', onErrorContainer: '#FFDAD6',
-  background: '#101512', onBackground: '#E0E4E0', surface: '#101512', onSurface: '#E0E4E0',
-  surfaceVariant: '#414944', onSurfaceVariant: '#C1C9C2', outline: '#8B938C', outlineVariant: '#414944',
-  inverseSurface: '#E0E4E0', inverseOnSurface: '#2D322E', inversePrimary: '#17613A',
-  shadow: '#000000', scrim: '#000000', backdrop: 'rgba(0,0,0,0.55)',
-  elevation: { level0: 'transparent', level1: '#171D19', level2: '#1B211D', level3: '#1F2621', level4: '#202923', level5: '#242D27' },
+  ...MD3DarkTheme.colors,
+  success: MD3DarkTheme.colors.tertiary,
+  onSuccess: MD3DarkTheme.colors.onTertiary,
+  successContainer: MD3DarkTheme.colors.tertiaryContainer,
+  onSuccessContainer: MD3DarkTheme.colors.onTertiaryContainer,
+  warning: MD3DarkTheme.colors.secondary,
+  onWarning: MD3DarkTheme.colors.onSecondary,
+  warningContainer: MD3DarkTheme.colors.secondaryContainer,
+  onWarningContainer: MD3DarkTheme.colors.onSecondaryContainer,
 } as const;
 
-/** Compatibility alias for static styles. New theme-aware code must use useTheme().colors. */
+/** Compatibility alias for static styles. Theme-aware code uses useTheme().colors. */
 export const colors = lightColors;
 
 export const spacing = { xs: 4, sm: 8, md: 16, lg: 24, xl: 32, xxl: 48 } as const;

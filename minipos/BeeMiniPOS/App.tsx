@@ -308,17 +308,7 @@ function AppContent() {
   const dark =
     themePreference === "dark" ||
     (themePreference === "system" && systemScheme === "dark");
-  const paperTheme = useMemo(
-    () => ({
-      ...(dark ? MD3DarkTheme : MD3LightTheme),
-      colors: {
-        ...(dark ? MD3DarkTheme.colors : MD3LightTheme.colors),
-        primary: dark ? beeloyColors.success : beeloyColors.success,
-        secondary: dark ? beeloyColors.success : beeloyColors.success,
-      },
-    }),
-    [dark],
-  );
+  const paperTheme = useMemo(() => (dark ? MD3DarkTheme : MD3LightTheme), [dark]);
 
   useEffect(() => {
     void AsyncStorage.getItem(themePreferenceKey).then((value) => {
