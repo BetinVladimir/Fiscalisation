@@ -49,8 +49,8 @@ if (!providerSource.includes('PaperProvider')) failures.push('src/ui/provider.ts
 if (!themeSource.includes('MD3LightTheme') || !themeSource.includes('MD3DarkTheme')) failures.push('src/ui/theme.ts: both standard Paper MD3 light and dark themes are required');
 if (!pressableSource.includes('TouchableRipple') || /import\s*\{[^}]*Pressable[^}]*\}\s*from\s*['"]react-native['"]/.test(pressableSource)) failures.push('src/ui/app-pressable.tsx: use Paper TouchableRipple instead of native Pressable');
 
-if (/colors\s*:/.test(themeSource) || /lightColors|darkColors/.test(themeSource)) {
-  failures.push('src/ui/theme.ts: custom color overrides are forbidden; use the unmodified standard Paper MD3 palettes');
+if (!themeSource.includes('lightColors') || !themeSource.includes('darkColors')) {
+  failures.push('src/ui/theme.ts: the approved high-contrast Paper palettes are required for both themes');
 }
 
 if (failures.length) {

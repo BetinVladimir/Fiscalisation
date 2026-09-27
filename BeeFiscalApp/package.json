@@ -36,7 +36,8 @@
     "deploy:web": "npm run build:web:production && wrangler deploy --env=\"\"",
     "deploy:web-demo": "npm run build:web:demo && wrangler deploy --env demo",
     "ui:check": "node scripts/check-ui-guideline.mjs && node scripts/check-contrast.mjs",
-    "ui:contrast": "node scripts/check-contrast.mjs"
+    "ui:contrast": "node scripts/check-contrast.mjs",
+    "e2e:wcag": "node e2e/wcag-aa.mjs"
   },
   "dependencies": {
     "@expo-google-fonts/roboto": "^0.2.3",
@@ -63,7 +64,8 @@
     "@types/react": "~19.1.10",
     "babel-preset-expo": "~54.0.10",
     "typescript": "~5.9.2",
-    "wrangler": "4.131.1"
+    "wrangler": "4.131.1",
+    "@axe-core/playwright": "^4.11.0"
   },
   "overrides": {
     "postcss": "$postcss"

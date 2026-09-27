@@ -7,15 +7,14 @@ import { FormField as TextInput } from './src/ui/form-field';
 import { AuthForm } from './src/ui/auth-form';
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Image, Linking, Platform, StyleSheet, useColorScheme, useWindowDimensions, View } from "react-native";
+import { Image, Linking, Platform, ScrollView as NativeScrollView, StyleSheet, useColorScheme, useWindowDimensions, View } from "react-native";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Button as PaperButton,
-  MD3DarkTheme,
-  MD3LightTheme,
   Menu as PaperMenu,
   PaperProvider,
 } from "react-native-paper";
+import { BeeloyDarkTheme, BeeloyLightTheme } from './src/ui/theme';
 import { WebBleBootstrap, webBluetoothSupported } from "./src/webBle.ts";
 import type { BleSessionPackage } from "./src/webBle.ts";
 import { validateBleDeploymentAuthority } from "./src/bleDeployment.ts";
@@ -308,7 +307,7 @@ function AppContent() {
   const dark =
     themePreference === "dark" ||
     (themePreference === "system" && systemScheme === "dark");
-  const paperTheme = useMemo(() => (dark ? MD3DarkTheme : MD3LightTheme), [dark]);
+  const paperTheme = useMemo(() => (dark ? BeeloyDarkTheme : BeeloyLightTheme), [dark]);
 
   useEffect(() => {
     void AsyncStorage.getItem(themePreferenceKey).then((value) => {
@@ -1823,6 +1822,9 @@ function LanguageMenu({
   onSelect: (value: Language) => void;
 }) {
   const [visible, setVisible] = useState(false);
+  const { width, height } = useWindowDimensions();
+  const menuHeight = Math.max(192, Math.min(420, height - 96));
+  const menuWidth = Math.max(240, Math.min(320, width - 32));
   const labels: Record<Language, string> = {
     bg: "Български", hr: "Hrvatski", cs: "Čeština", da: "Dansk", nl: "Nederlands",
     en: "English", et: "Eesti", fi: "Suomi", fr: "Français", de: "Deutsch",
@@ -1839,7 +1841,7 @@ function LanguageMenu({
     <PaperMenu
       visible={visible}
       onDismiss={() => setVisible(false)}
-      contentStyle={{ maxHeight: 420, minWidth: 280 }}
+      contentStyle={{ maxHeight: menuHeight, width: menuWidth, overflow: "hidden" }}
       anchor={
         <PaperButton
           testID="language-menu-open"
@@ -1852,15 +1854,17 @@ function LanguageMenu({
         </PaperButton>
       }
     >
-      {supportedLanguages.map((value) => (
-        <PaperMenu.Item
-          key={value}
-          testID={`language-${value}`}
-          leadingIcon={language === value ? "check" : "translate"}
-          title={labels[value]}
-          onPress={() => choose(value)}
-        />
-      ))}
+      <NativeScrollView testID="language-menu-scroll" style={{ maxHeight: menuHeight }} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
+        {supportedLanguages.map((value) => (
+          <PaperMenu.Item
+            key={value}
+            testID={`language-${value}`}
+            leadingIcon={language === value ? "check" : "translate"}
+            title={labels[value]}
+            onPress={() => choose(value)}
+          />
+        ))}
+      </NativeScrollView>
     </PaperMenu>
   );
 }

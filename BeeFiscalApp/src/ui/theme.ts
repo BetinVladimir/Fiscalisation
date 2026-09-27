@@ -1,17 +1,15 @@
-import { configureFonts, MD3DarkTheme, MD3LightTheme, type MD3Theme } from 'react-native-paper';
+import { MD3DarkTheme, MD3LightTheme, type MD3Theme } from 'react-native-paper';
+import { darkColors, lightColors } from './tokens';
 
-const fonts = configureFonts({ config: { fontFamily: 'Roboto_400Regular' } });
-
-/** Standard React Native Paper MD3 palette and geometry. */
+/** Calm high-contrast purple palette applied to Paper Material Design 3 roles. */
 export const BeeloyLightTheme: MD3Theme = {
   ...MD3LightTheme,
-  fonts,
+  colors: { ...MD3LightTheme.colors, ...lightColors },
 };
 
 export const BeeloyDarkTheme: MD3Theme = {
   ...MD3DarkTheme,
-  fonts,
+  colors: { ...MD3DarkTheme.colors, ...darkColors },
 };
 
-/** Compatibility export. Providers select the system theme at runtime. */
 export const BeeloyTheme = BeeloyLightTheme;
