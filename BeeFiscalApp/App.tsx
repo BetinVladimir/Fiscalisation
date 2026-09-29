@@ -7,7 +7,7 @@ import { FormField as TextInput } from './src/ui/form-field';
 import { AuthForm } from './src/ui/auth-form';
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { Linking, StyleSheet, View } from "react-native";
 import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
@@ -700,6 +700,7 @@ function AppContent() {
           <Text style={s.loginText}>
             Вход с код по email. Доступ разрешён только ранее зарегистрированным пользователям Fiscal.
           </Text>
+          <Pressable accessibilityRole="link" onPress={()=>void Linking.openURL('https://legal.beeloy.org/bg/privacy')}><Text style={s.loginText}>Политика за поверителност</Text></Pressable>
           {oidc.error ? <Text style={s.loginError}>{oidc.error}</Text> : null}
           {!oidc.temporary ? <>
             <TextInput style={s.input} placeholder="Email" autoCapitalize="none" keyboardType="email-address" value={oidc.email} onChangeText={oidc.setEmail}/>

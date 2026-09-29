@@ -49,6 +49,7 @@ type Onboarding struct {
 	Address       string `json:"address"`
 	TaxIdentifier string `json:"tax_identifier"`
 	FullName      string `json:"full_name"`
+	AcceptedTermsVersion string `json:"accepted_terms_version"`
 }
 
 func New(ctx context.Context, databaseURL, signingKey, issuer string, app *domain.Service) (*Service, error) {
@@ -278,6 +279,9 @@ func splitName(full string) (string, string, error) {
 }
 
 func (s *Service) Onboard(ctx context.Context, token string, input Onboarding) (Tokens, error) {
+	if input.AcceptedTermsVersion != "b2b-2026-09-28" {
+		return Tokens{}, errors.New("current business terms must be accepted")
+	}
 	first, last, err := splitName(input.FullName)
 	if err != nil {
 		return Tokens{}, err
@@ -306,6 +310,9 @@ func (s *Service) Onboard(ctx context.Context, token string, input Onboarding) (
 		return Tokens{}, err
 	}
 	if _, err = tx.Exec(ctx, `insert into minipos.minipos_auth_accounts(email,organization_id,employee_id,roles) values($1,$2,$3,array['ADMIN'])`, email, tenant, employee.ID); err != nil {
+		return Tokens{}, err
+	}
+	if _, err = tx.Exec(ctx, `insert into minipos.minipos_legal_acceptance(organization_id,terms_version,email,source) values($1,$2,$3,'minipos-onboarding')`, tenant, input.AcceptedTermsVersion, email); err != nil {
 		return Tokens{}, err
 	}
 	if _, err = tx.Exec(ctx, `update minipos.minipos_auth_onboarding set consumed_at=now() where token_hash=$1`, digest(token)); err != nil {
