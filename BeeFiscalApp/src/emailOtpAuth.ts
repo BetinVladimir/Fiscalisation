@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import * as Crypto from "expo-crypto";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
+import { useUiPreferences } from './ui/preferences';
 
 type Tenant = { tenant_id: string; display_name: string; roles: string[] };
 type Session = { access_token: string; refresh_token: string; expires_in: number; tenant: Tenant };
@@ -12,12 +13,13 @@ const setStored=async(k:string,v:string)=>{if(Platform.OS==="web"){if(k!==sessio
 const removeStored=async(k:string)=>{if(Platform.OS==="web"){if(k!==sessionKey)globalThis.localStorage?.removeItem(k)}else await SecureStore.deleteItemAsync(k)};
 
 export function useEmailOtpAuth() {
+  const { language } = useUiPreferences();
   const [email,setEmail]=useState(""); const [code,setCode]=useState("");
   const [temporary,setTemporary]=useState(""); const [selection,setSelection]=useState("");
   const [tenants,setTenants]=useState<Tenant[]>([]); const [session,setSession]=useState<Session|null>(null);
   const [error,setError]=useState(""); const [busy,setBusy]=useState(false),[booting,setBooting]=useState(true),[instanceId,setInstanceId]=useState("");
   const call=async(path:string,body:unknown,token="")=>{const r=await fetch(apiRoot+path,{method:"POST",headers:{"Content-Type":"application/json",...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify(body)});const text=await r.text();if(!r.ok)throw new Error(text||`HTTP ${r.status}`);return text?JSON.parse(text):{}};
-  const requestCode=async()=>{setBusy(true);setError("");try{const out=await call("/public/v1/app-auth/challenges",{email,language:"bg",app_instance_id:instanceId});setTemporary(out.temporary_token);setCode("");}catch(e){setError(e instanceof Error?e.message:String(e))}finally{setBusy(false)}};
+  const requestCode=async()=>{setBusy(true);setError("");try{const out=await call("/public/v1/app-auth/challenges",{email,language,app_instance_id:instanceId});setTemporary(out.temporary_token);setCode("");}catch(e){setError(e instanceof Error?e.message:String(e))}finally{setBusy(false)}};
   const keepSession=async(out:Session)=>{setSession(out);await setStored(sessionKey,JSON.stringify({...out,expires_at:Date.now()+out.expires_in*1000}));await loadTenants(out.access_token)};
   const verifyCode=async()=>{setBusy(true);setError("");try{const out=await call("/public/v1/app-auth/challenges:verify",{code,app_instance_id:instanceId},temporary);if(out.session)await keepSession(out.session);else{setSelection(out.tenant_selection_token);setTenants(out.tenants||[])}}catch(e){setError(e instanceof Error?e.message:String(e))}finally{setBusy(false)}};
   const loadTenants=async(accessToken:string)=>{const r=await fetch(apiRoot+"/public/v1/app-auth/tenants",{headers:{Authorization:`Bearer ${accessToken}`}});if(r.ok){const out=await r.json();setTenants(out.items||[])}};

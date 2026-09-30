@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const ignored = new Set(['node_modules', '.git', '.expo', '.store-build', 'dist', 'dist-cloudflare', 'coverage', 'dist-web', '__tests__', 'test', 'scripts']);
+const ignored = new Set(['node_modules', '.git', '.expo', '.store-build', 'dist', 'dist-cloudflare', 'coverage', 'dist-web', 'playwright-report', 'test-results', '__tests__', 'test', 'scripts']);
 const forbiddenNative = new Set(['Alert', 'ActivityIndicator', 'Dimensions', 'Pressable', 'SafeAreaView', 'ScrollView', 'Text', 'TextInput', 'TouchableOpacity']);
 const failures = [];
 
@@ -58,4 +58,3 @@ if (failures.length) {
   process.exit(1);
 }
 console.log('UI guideline static check passed');
-

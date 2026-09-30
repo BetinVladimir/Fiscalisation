@@ -7,6 +7,7 @@
     "test": "node --experimental-strip-types --test src/*.test.ts",
     "test:e2e": "npm run build:e2e && playwright test",
     "test:e2e:auth": "npm run build:e2e:auth && playwright test --config playwright.auth.config.ts",
+    "test:e2e:auth-wcag": "npm run build:e2e:auth && playwright test --config playwright.auth-wcag.config.ts",
     "build:e2e": "EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
     "build:e2e:auth": "EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
     "start": "expo start",
@@ -37,7 +38,7 @@
     "build:web:demo": "node scripts/build-web.mjs demo",
     "deploy:web": "npm run build:web:production && wrangler deploy --env=\"\"",
     "deploy:web-demo": "npm run build:web:demo && wrangler deploy --env demo",
-    "ui:check": "node scripts/check-ui-guideline.mjs && node scripts/check-contrast.mjs",
+    "ui:check": "node scripts/check-ui-guideline.mjs && node scripts/check-contrast.mjs && node scripts/check-auth-copy.mjs",
     "ui:contrast": "node scripts/check-contrast.mjs",
     "e2e:wcag": "node e2e/wcag-aa.mjs"
   },

@@ -1,7 +1,50 @@
 import { expect, test } from '@playwright/test';
-import AxeBuilder from '@axe-core/playwright';
-import { writeFile } from 'node:fs/promises';
 import { mockFiscalApi } from './helpers';
+import { authCopy } from '../src/ui/auth-copy.generated';
+
+for (const locale of ['en', 'bg', 'ru', 'de', 'fr'] as const) {
+  test(`Paper auth locale smoke ${locale} on xs`, async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 800 });
+    await page.goto('/');
+    await page.getByTestId('auth.language.open').click();
+    await page.getByTestId(`auth.language.${locale}`).click();
+    await expect(page.getByText(authCopy[locale].title)).toBeVisible();
+    const login = await page.getByTestId('admin-login').boundingBox();
+    expect(login).not.toBeNull();
+    expect(login!.x).toBeGreaterThanOrEqual(0);
+    expect(login!.x + login!.width).toBeLessThanOrEqual(361);
+    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+  });
+}
+
+test('Paper language menu scrolls through 25 locales and theme/language persist', async ({ page }) => {
+  await page.setViewportSize({ width: 320, height: 720 });
+  await page.emulateMedia({ colorScheme: 'light', reducedMotion: 'reduce' });
+  const challengeBodies: Record<string, unknown>[] = [];
+  await page.route('http://fiscal-admin.test/public/v1/app-auth/challenges', route => {
+    challengeBodies.push(JSON.parse(route.request().postData() ?? '{}') as Record<string, unknown>);
+    return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ temporary_token: 'temporary-1' }) });
+  });
+  await page.goto('/');
+  await page.getByTestId('auth.language.open').click();
+  await expect(page.getByRole('menuitem')).toHaveCount(25);
+  await page.getByTestId('auth.language.ru').click();
+  await expect(page.getByText('BeeFiscal • вход администратора')).toBeVisible();
+  await page.getByTestId('auth.language.open').click();
+  await page.keyboard.press('Escape');
+  await expect(page.getByRole('menuitem')).toHaveCount(0);
+  await page.getByTestId('auth.theme.toggle').click();
+  await page.getByTestId('auth.theme.toggle').click();
+  await expect(page.getByTestId('auth.root')).toHaveCSS('background-color', 'rgb(13, 10, 18)');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+  await page.reload();
+  await expect(page.getByText('BeeFiscal • вход администратора')).toBeVisible();
+  await expect(page.getByTestId('auth.root')).toHaveCSS('background-color', 'rgb(13, 10, 18)');
+  await page.getByTestId('admin-login-email').fill('qa@example.org');
+  await page.getByTestId('admin-login-start').click();
+  await expect(page.getByTestId('admin-login-code')).toBeVisible();
+  expect(challengeBodies[0]?.language).toBe('ru');
+});
 
 test('production Paper auth retains input after errors and selects a company', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 800 });
@@ -52,28 +95,3 @@ test('production Paper auth retains input after errors and selects a company', a
   expect(calls.filter(call => call.path.endsWith('/challenges')).map(call => call.body.email)).toEqual(['qa@example.org', 'qa@example.org']);
   expect(calls.find(call => call.path.endsWith('/tenant-session'))?.body.tenant_id).toBe('company-1');
 });
-
-for (const [size, width, height] of [
-  ['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000],
-] as const) for (const mode of ['light', 'dark'] as const) {
-  test(`production Paper email WCAG AA ${size}/${mode}`, async ({ page }, testInfo) => {
-    await page.setViewportSize({ width, height });
-    await page.emulateMedia({ colorScheme: mode, reducedMotion: 'reduce' });
-    await page.goto('/');
-    const login = page.getByTestId('admin-login');
-    await expect(login).toBeVisible();
-    await expect(page.getByTestId('admin-login-email')).toBeVisible();
-    const box = await login.boundingBox();
-    expect(box).not.toBeNull();
-    expect(box!.x).toBeGreaterThanOrEqual(0);
-    expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
-    if (size === 'md') expect(box!.width).toBeLessThanOrEqual(width * 0.55);
-    if (size === 'lg') expect(box!.width).toBeLessThanOrEqual(width * 0.4);
-    expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
-    const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
-    await page.screenshot({ path: testInfo.outputPath('screen.png'), fullPage: true });
-    await writeFile(testInfo.outputPath('axe.json'), JSON.stringify({ size, width, height, mode, violations: result.violations, incomplete: result.incomplete }, null, 2));
-    expect(result.violations.map(item => item.id), 'Axe violations').toEqual([]);
-    expect(result.incomplete.map(item => item.id), 'Axe incomplete needs manual resolution').toEqual([]);
-  });
-}
