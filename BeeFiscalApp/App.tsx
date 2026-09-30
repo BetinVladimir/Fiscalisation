@@ -5,9 +5,12 @@ import { AppText as Text } from './src/ui/app-text';
 import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-view';
 import { FormField as TextInput } from './src/ui/form-field';
 import { AuthScreen } from './src/screens/AuthScreen';
+import { OperationsScreen } from './src/screens/OperationsScreen';
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
+import { useWindowDimensions } from 'react-native';
+import { Button, Drawer, HelperText, List, Modal, Portal, TextInput as PaperTextInput, useTheme } from 'react-native-paper';
 import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
@@ -74,6 +77,10 @@ export default function App() { return <BeeloyAppProvider><View style={{flex:1}}
 function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
 const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:beeloyColors.error,borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:beeloyColors.onPrimary,fontWeight:"900",fontSize:12,letterSpacing:1}});
 function AppContent() {
+  const { width } = useWindowDimensions();
+  const compact = width < 600;
+  const theme = useTheme();
+  const [navOpen, setNavOpen] = useState(false);
   // Token roles are reduced to explicit UI capabilities. The backend remains
   // authoritative; these guards prevent presenting accidental admin paths.
   const oidc = useEmailOtpAuth();
@@ -695,23 +702,31 @@ function AppContent() {
     return <AuthScreen auth={oidc} />;
   }
   return (
-    <SafeAreaView style={s.root}>
-      <StatusBar style="auto" />
-      <View style={s.header}>
-        <View>
-          <Text style={s.title}>BeeFiscal</Text>
-          <Text style={s.sub}>
+    <SafeAreaView style={[s.root, { backgroundColor: theme.colors.background }]}>
+      <StatusBar style={theme.dark ? 'light' : 'dark'} />
+      <Portal>
+        <Modal visible={compact && navOpen} onDismiss={() => setNavOpen(false)} contentContainerStyle={{ margin: 16, maxHeight: '80%', borderRadius: 16, padding: 12, backgroundColor: theme.colors.surface }}>
+          <ScrollView>
+            <Drawer.Section title="BeeFiscal">
+              {tabs.map(x => <Drawer.Item key={x} testID={`tab-${x}`} label={x} active={tab === x} accessibilityLabel={`Отвори ${x}`} onPress={() => { setNavOpen(false); changeTab(x); }} />)}
+            </Drawer.Section>
+          </ScrollView>
+        </Modal>
+      </Portal>
+      <View style={[s.header, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }, compact && { flexWrap: 'wrap', gap: 8, padding: 12 }]}>
+        <View style={compact ? { minWidth: 0, width: '100%' } : undefined}>
+          <Text style={[s.title, { color: theme.colors.onSurface }]}>BeeFiscal</Text>
+          <Text style={[s.sub, { color: theme.colors.onSurfaceVariant }]}>
             BG • EUR • публичен API • без локално симулирани записи
           </Text>
         </View>
+        {compact ? <Button testID="nav.open" mode="outlined" contentStyle={{ minHeight: 48 }} onPress={() => setNavOpen(true)}>Меню</Button> : null}
         <View
           testID="status-fiscal-device"
-          accessibilityRole="text"
           accessibilityLiveRegion="polite"
-          accessibilityLabel={`Състояние на Fiscal Core: ${core}`}
           style={[s.ready, core.includes("OFFLINE") && s.offline]}
         >
-          <Text style={s.readyText}>{core}</Text>
+          <Text style={s.readyText}>Fiscal Core: {core}</Text>
         </View>
         {prodMode && oidc.tenants.length > 1 ? <View style={s.actions}>{oidc.tenants.map(t=><Pressable key={t.tenant_id} disabled={t.tenant_id===oidc.currentTenant?.tenant_id} style={s.logout} onPress={()=>{setItems([]);setSelected(null);setAdminLists({locations:[],registers:[],operators:[],devices:[]});void oidc.switchTenant(t.tenant_id)}}><Text style={s.readyText}>{t.display_name}</Text></Pressable>)}</View>:null}
         {prodMode ? (
@@ -730,22 +745,12 @@ function AppContent() {
         ) : null}
       </View>
       <View style={s.body}>
-        <View style={s.nav}>
-          {tabs.map((x) => (
-            <Pressable
-              key={x}
-              testID={`tab-${x}`}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: tab === x }}
-              accessibilityLabel={`Отвори ${x}`}
-              style={[s.navItem, tab === x && s.active]}
-              onPress={() => changeTab(x)}
-            >
-              <Text style={[s.navText, tab === x && s.activeText]}>{x}</Text>
-            </Pressable>
-          ))}
-        </View>
-        <ScrollView style={s.content}>
+        {!compact ? <View style={[s.nav, { backgroundColor: theme.colors.surface }]}>
+          <Drawer.Section>
+            {tabs.map(x => <Drawer.Item key={x} testID={`tab-${x}`} label={x} active={tab === x} accessibilityLabel={`Отвори ${x}`} onPress={() => changeTab(x)} />)}
+          </Drawer.Section>
+        </View> : null}
+        <ScrollView style={[s.content, { backgroundColor: theme.colors.background }, compact && { padding: 16 }]}>
           {loading ? (
             <Text
               testID="screen-loading"
@@ -755,19 +760,10 @@ function AppContent() {
               Зареждане от BeeFiscal API…
             </Text>
           ) : null}
-          <View style={s.toolbar}>
-            <Text style={s.section}>{tab}</Text>
+          <View style={[s.toolbar, compact && { flexWrap: 'wrap' }]}>
+            <Text style={[s.section, { color: theme.colors.onBackground }, compact && { flexBasis: '100%' }]}>{tab}</Text>
             <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>changeTab("Администриране")}/>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Обнови ${tab}`}
-              accessibilityState={{ disabled: loading }}
-              disabled={loading}
-              style={s.secondary}
-              onPress={() => refresh()}
-            >
-              <Text style={s.probeText}>{loading ? "…" : "Обнови"}</Text>
-            </Pressable>
+            <Button mode="contained-tonal" contentStyle={{ minHeight: 48 }} accessibilityLabel={`Обнови ${tab}`} disabled={loading} onPress={() => refresh()}>{loading ? "…" : "Обнови"}</Button>
           </View>
           {tab === "Устройства" ? (
             <>
@@ -943,51 +939,7 @@ function AppContent() {
               </View>
             </>
           ) : tab === "Операции" ? (
-            items.map((o) => (
-              <View
-                key={label(o.id)}
-                testID={
-                  String(o.state).includes("UNKNOWN") &&
-                  Array.isArray(o.allowed_actions) &&
-                  o.allowed_actions.includes("RECONCILE")
-                    ? "operation-unknown"
-                    : undefined
-                }
-                accessibilityLabel={`Операция ${label(o.type)}, състояние ${label(o.state)}, УНП ${label(o.unp)}`}
-                style={s.card}
-              >
-                <View>
-                  <Text style={s.device}>
-                    {label(o.type)} • {label(o.state)}
-                  </Text>
-                  <Text style={s.meta}>
-                    {label(o.id)} • УНП {label(o.unp)} • {label(o.created_at)}
-                  </Text>
-                  <Text style={s.meta}>
-                    Разрешени действия:{" "}
-                    {Array.isArray(o.allowed_actions) &&
-                    o.allowed_actions.length > 0
-                      ? o.allowed_actions.join(", ")
-                      : "няма"}
-                  </Text>
-                </View>
-                {canReconcile &&
-                  Array.isArray(o.allowed_actions) &&
-                  o.allowed_actions.includes("RECONCILE") && (
-                    <Pressable
-                      testID={`operation-reconcile-${label(o.id)}`}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Reconcile операция ${label(o.id)}`}
-                      accessibilityState={{ disabled: loading }}
-                      disabled={loading}
-                      style={s.action}
-                      onPress={() => void reconcileOperation(o)}
-                    >
-                      <Text style={s.probeText}>Reconcile</Text>
-                    </Pressable>
-                  )}
-              </View>
-            ))
+            <OperationsScreen operations={items} loading={loading} canReconcile={canReconcile} onReconcile={(operation) => void reconcileOperation(operation)} />
           ) : tab === "Отчети" ? (
             <>
               <View style={s.panel}>
@@ -1729,21 +1681,17 @@ function AppContent() {
       </View>
       <View
         testID="status-transport"
-        accessibilityRole="text"
         accessibilityLiveRegion="polite"
-        accessibilityLabel={`Състояние: ${message}`}
-        style={s.footer}
+        style={[s.footer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }, compact && { flexWrap: 'wrap', gap: 8 }]}
       >
-        <Text style={s.footerText}>{message}</Text>
-        <Pressable
+        <Text style={[s.footerText, { color: theme.colors.onSurface }]}>{message}</Text>
+        <Button
           testID="readiness-probe"
-          accessibilityRole="button"
+          mode="contained"
+          contentStyle={{ minHeight: 48 }}
           accessibilityLabel="Провери cloud, Edge, driver и крайното фискално устройство"
-          style={s.probe}
           onPress={probe}
-        >
-          <Text style={s.probeText}>Сквозен probe</Text>
-        </Pressable>
+        >Сквозен probe</Button>
       </View>
     </SafeAreaView>
   );
@@ -1818,8 +1766,29 @@ function AdminCard({
 
 function ReferencePicker({label: title,items,value,labelFor,onSelect,onEmpty,required=true}:{label:string;items:Item[];value:string;labelFor:(item:Item)=>string;onSelect:(id:string)=>void;onEmpty?:()=>void;required?:boolean}) {
   const [query,setQuery]=useState("");
+  const theme = useTheme();
   const visible=items.filter((item)=>labelFor(item).toLowerCase().includes(query.trim().toLowerCase()));
-  return <View style={{gap:8,minWidth:220}}><Text style={s.meta}>{title}</Text>{items.length?<><TextInput accessibilityLabel={`Търсене: ${title}`} style={s.input} placeholder={`Търсене: ${title}`} value={query} onChangeText={setQuery}/><View style={s.choices}>{visible.map((item)=><Pressable key={label(item.id)} accessibilityRole="button" accessibilityState={{selected:item.id===value}} style={[s.choice,item.id===value&&s.selected]} onPress={()=>onSelect(label(item.id))}><Text style={s.meta}>{labelFor(item)}</Text></Pressable>)}</View>{!visible.length?<Text style={s.meta}>Няма съвпадения.</Text>:null}</>:<><Text style={s.meta}>{required?"Справочникът е празен.":"Няма налични записи."}</Text>{required&&onEmpty?<Pressable accessibilityRole="button" style={s.secondary} onPress={onEmpty}><Text style={s.probeText}>Попълни справочника</Text></Pressable>:null}</>}</View>;
+  return <View style={{ gap: 8, minWidth: 0, width: '100%', maxWidth: 320 }}>
+    {items.length ? <>
+      <PaperTextInput mode="outlined" label={`Търсене: ${title}`} accessibilityLabel={`Търсене: ${title}`} value={query} onChangeText={setQuery} />
+      <View style={{ gap: 4 }}>
+        {visible.map(item => <List.Item
+          key={label(item.id)}
+          title={item.id === value ? `✓ ${labelFor(item)}` : labelFor(item)}
+          titleNumberOfLines={3}
+          accessibilityRole="button"
+          accessibilityLabel={labelFor(item)}
+          accessibilityState={{ selected: item.id === value }}
+          style={{ borderRadius: 8, backgroundColor: item.id === value ? theme.colors.secondaryContainer : theme.colors.surface }}
+          onPress={() => onSelect(label(item.id))}
+        />)}
+      </View>
+      {!visible.length ? <HelperText type="info" visible>Няма съвпадения.</HelperText> : null}
+    </> : <>
+      <HelperText type="info" visible>{required ? 'Справочникът е празен.' : 'Няма налични записи.'}</HelperText>
+      {required && onEmpty ? <Button mode="outlined" contentStyle={{ minHeight: 48 }} onPress={onEmpty}>Попълни справочника</Button> : null}
+    </>}
+  </View>;
 }
 
 function Choices({
@@ -1887,16 +1856,7 @@ const s = StyleSheet.create({
   offline: { backgroundColor: beeloyColors.errorContainer },
   readyText: { color: beeloyColors.success, fontWeight: "900" },
   body: { flex: 1, flexDirection: "row" },
-  nav: { width: 190, backgroundColor: beeloyColors.tertiary, padding: 12, gap: 6 },
-  navItem: {
-    padding: 14,
-    borderRadius: 10,
-    minHeight: 48,
-    justifyContent: "center",
-  },
-  active: { backgroundColor: beeloyColors.tertiary },
-  navText: { color: beeloyColors.tertiary, fontWeight: "700" },
-  activeText: { color: beeloyColors.onPrimary },
+  nav: { width: 190, padding: 12, gap: 6 },
   content: { flex: 1, padding: 20 },
   toolbar: {
     flexDirection: "row",
@@ -1904,23 +1864,7 @@ const s = StyleSheet.create({
     alignItems: "center",
     marginBottom: 16,
   },
-  section: { fontSize: 25, fontWeight: "900", color: beeloyColors.tertiary, flex: 1 },
-  input: {
-    backgroundColor: beeloyColors.surface,
-    borderWidth: 1,
-    borderColor: beeloyColors.tertiaryContainer,
-    padding: 10,
-    borderRadius: 9,
-    minWidth: 150,
-    minHeight: 48,
-  },
-  secondary: {
-    backgroundColor: beeloyColors.tertiary,
-    padding: 11,
-    borderRadius: 9,
-    minHeight: 48,
-    justifyContent: "center",
-  },
+  section: { fontSize: 25, fontWeight: "900", flex: 1 },
   card: {
     backgroundColor: beeloyColors.surface,
     padding: 18,
@@ -2002,20 +1946,11 @@ const s = StyleSheet.create({
   json: { marginTop: 16, fontFamily: "monospace", color: beeloyColors.tertiary },
   footer: {
     padding: 12,
-    backgroundColor: beeloyColors.surface,
     borderTopWidth: 1,
-    borderColor: beeloyColors.tertiaryContainer,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   footerText: { color: beeloyColors.tertiary, flex: 1 },
-  probe: {
-    backgroundColor: beeloyColors.success,
-    padding: 11,
-    borderRadius: 9,
-    minHeight: 56,
-    justifyContent: "center",
-  },
   probeText: { color: beeloyColors.onPrimary, fontWeight: "800" },
 });

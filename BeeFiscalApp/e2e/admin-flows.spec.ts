@@ -50,6 +50,23 @@ test('UNKNOWN operation is reconciled once and never re-submitted as a fiscal sa
   expect(mutations.some(x => /\/sales/.test(x.path))).toBe(false);
 });
 
+for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+  for (const mode of ['light', 'dark'] as const) {
+    test(`Paper operations list fits ${size}/${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.emulateMedia({ colorScheme: mode, reducedMotion: 'reduce' });
+      await mockFiscalApi(page);
+      await openApp(page);
+      if (size === 'xs') await page.getByTestId('nav.open').click();
+      await page.getByTestId('tab-Операции').click();
+      await expect(page.getByTestId('operations.screen')).toBeVisible();
+      await expect(page.getByTestId('operation-unknown')).toContainText('FISCAL_SALE');
+      await expect(page.getByTestId('operation-reconcile-operation-unknown-1')).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+    });
+  }
+}
+
 test('report command and audit filters reach the API without client-side fabricated results', async ({ page }) => {
   const mutations = await mockFiscalApi(page);
   await openApp(page);
