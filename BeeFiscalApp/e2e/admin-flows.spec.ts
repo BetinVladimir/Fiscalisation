@@ -159,6 +159,63 @@ test('report command and audit filters reach the API without client-side fabrica
   expect(auditRequest.method()).toBe('GET');
 });
 
+for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+  for (const mode of ['light', 'dark'] as const) {
+    test(`Paper audit journal fits ${size}/${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.emulateMedia({ colorScheme: mode, reducedMotion: 'reduce' });
+      await mockFiscalApi(page);
+      await openApp(page);
+      if (size === 'xs') await page.getByTestId('nav.open').click();
+      await page.getByTestId('tab-Одит').click();
+      await expect(page.getByTestId('audit-filters')).toBeVisible();
+      await expect(page.getByTestId('audit-event-audit-1')).toContainText('SALE_FINALIZED');
+      await expect(page.getByTestId('audit.details-content.audit-1')).toHaveCount(0);
+      await page.getByTestId('audit.details.audit-1').click();
+      await expect(page.getByTestId('audit.details-content.audit-1')).toContainText('Hash: abc123');
+      await page.getByTestId('audit.details-content.audit-1').scrollIntoViewIfNeeded();
+      const detailsBox = await page.getByTestId('audit.details-content.audit-1').boundingBox();
+      const detailsFooter = await page.getByTestId('status-transport').boundingBox();
+      expect(detailsBox && detailsFooter && detailsBox.y + detailsBox.height <= detailsFooter.y + 1).toBe(true);
+      await page.getByTestId('audit.details.audit-1').click();
+      await expect(page.getByTestId('audit.details-content.audit-1')).toHaveCount(0);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+      const event = page.getByTestId('audit-event-audit-1');
+      await event.scrollIntoViewIfNeeded();
+      const eventBox = await event.boundingBox();
+      const footerBox = await page.getByTestId('status-transport').boundingBox();
+      expect(eventBox && footerBox && eventBox.y + eventBox.height <= footerBox.y + 1).toBe(true);
+    });
+  }
+}
+
+test('audit journal shows empty state without stale device data', async ({ page }) => {
+  await mockFiscalApi(page, { auditEmpty: true });
+  await openApp(page);
+  await page.getByTestId('tab-Одит').click();
+  await expect(page.getByTestId('audit.empty')).toBeVisible();
+  await expect(page.getByText('Datecs counter')).toHaveCount(0);
+});
+
+test('audit API failure shows an error and retry recovers the read-only list', async ({ page }) => {
+  await mockFiscalApi(page);
+  let first = true;
+  await page.route('**/audit-events*', route => {
+    if (first) {
+      first = false;
+      return route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ code: 'UNAVAILABLE' }) });
+    }
+    return route.fallback();
+  });
+  await openApp(page);
+  await page.getByTestId('tab-Одит').click();
+  await expect(page.getByTestId('audit.error')).toBeVisible();
+  await expect(page.getByTestId('audit-event-audit-1')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Опитай отново' }).click();
+  await expect(page.getByTestId('audit-event-audit-1')).toBeVisible();
+  await expect(page.getByTestId('audit.error')).toHaveCount(0);
+});
+
 test('backend failure is fail-closed and exposes CORE OFFLINE instead of stale device controls', async ({ page }) => {
   await mockFiscalApi(page, { devicesStatus: 503 });
   await page.goto('/');

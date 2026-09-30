@@ -7,6 +7,7 @@ import { FormField as TextInput } from './src/ui/form-field';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { OperationsScreen } from './src/screens/OperationsScreen';
 import { ReportsScreen } from './src/screens/ReportsScreen';
+import { AuditScreen, type AuditFilters } from './src/screens/AuditScreen';
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -228,7 +229,7 @@ function AppContent() {
     async (next = tab) => {
       setLoading(true);
       setLoadError('');
-      if (next === 'Отчети') setItems([]);
+      if (next === 'Отчети' || next === 'Одит') setItems([]);
       try {
         if (next === "Администриране" && !canAdminister)
           throw new Error("ROLE_ADMIN_REQUIRED");
@@ -272,6 +273,7 @@ function AppContent() {
           if (auditUnp) params.set("unp", auditUnp);
           if (auditFrom) params.set("from", auditFrom);
           if (auditTo) params.set("to", auditTo);
+          setItems([]);
           setItems(
             await collect(`/audit-events${params.size ? `?${params}` : ""}`),
           );
@@ -961,78 +963,12 @@ function AppContent() {
           ) : tab === "Отчети" ? (
             <ReportsScreen reports={items} loading={loading} canRunReports={canRunReports} registerValid={isRegisterId(register)} loadError={loadError} commandError={reportError} onReport={(type) => void report(type)} onRetry={() => void refresh('Отчети')} />
           ) : tab === "Одит" && canReadAudit ? (
-            <View
-              testID="audit-events"
-              accessibilityLabel="Неизменим одитен журнал"
-            >
-              <View style={s.card} testID="audit-filters">
-                <Text style={s.device}>Филтри на одитния журнал</Text>
-                <Field
-                  label="Оператор/участник"
-                  value={auditActor}
-                  onChangeText={setAuditActor}
-                />
-                <Field
-                  label="Действие"
-                  value={auditAction}
-                  onChangeText={setAuditAction}
-                />
-                <Field
-                  label="Тип обект"
-                  value={auditObjectType}
-                  onChangeText={setAuditObjectType}
-                />
-                <Field
-                  label="Идентификатор на обект"
-                  value={auditObjectId}
-                  onChangeText={setAuditObjectId}
-                />
-                <Field
-                  label="УНП"
-                  value={auditUnp}
-                  onChangeText={setAuditUnp}
-                />
-                <Field
-                  label="От (RFC 3339)"
-                  value={auditFrom}
-                  onChangeText={setAuditFrom}
-                />
-                <Field
-                  label="До (RFC 3339)"
-                  value={auditTo}
-                  onChangeText={setAuditTo}
-                />
-                <Pressable
-                  testID="apply-audit-filters"
-                  style={s.action}
-                  onPress={() => void refresh("Одит")}
-                >
-                  <Text style={s.probeText}>Приложи филтрите</Text>
-                </Pressable>
-              </View>
-              {items.map((event) => (
-                <View
-                  key={label(event.event_id)}
-                  testID={`audit-event-${label(event.event_id)}`}
-                  accessibilityLabel={`Одит ${label(event.action)}, обект ${label(event.object_type)} ${label(event.object_id)}, участник ${label(event.actor_id)}, време ${label(event.occurred_at)}`}
-                  style={s.card}
-                >
-                  <View>
-                    <Text style={s.device}>
-                      {label(event.action)} • {label(event.object_type)}
-                    </Text>
-                    <Text style={s.meta}>
-                      {label(event.object_id)} • участник{" "}
-                      {label(event.actor_id)}
-                    </Text>
-                    <Text style={s.meta}>
-                      {label(event.occurred_at)} • УНП {label(event.unp)}
-                    </Text>
-                    <Text style={s.meta}>Hash: {label(event.event_hash)}</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
+            <AuditScreen events={items} loading={loading} error={loadError}
+              filters={{ actor: auditActor, action: auditAction, objectType: auditObjectType, objectId: auditObjectId, unp: auditUnp, from: auditFrom, to: auditTo }}
+              onChange={(name: keyof AuditFilters, value: string) => {
+                const setters = { actor: setAuditActor, action: setAuditAction, objectType: setAuditObjectType, objectId: setAuditObjectId, unp: setAuditUnp, from: setAuditFrom, to: setAuditTo };
+                setters[name](value);
+              }} onApply={() => void refresh('Одит')} />
           ) : tab === "Администриране" && canAdminister ? (
             <View testID="admin-editors" style={s.adminGrid}>
               <AdminCard
