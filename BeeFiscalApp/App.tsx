@@ -152,6 +152,7 @@ function AppContent() {
     [compositeBinding, setCompositeBinding] = useState<Item | null>(null),
     [diagnostics, setDiagnostics] = useState<Item | null>(null),
     [deviceHealth, setDeviceHealth] = useState<Item | null>(null),
+    [deviceReadiness, setDeviceReadiness] = useState<Item | null>(null),
     [deviceActivity, setDeviceActivity] = useState<Item[]>([]),
     [provisioning, setProvisioning] = useState<Item | null>(null),
     [bleSession, setBleSession] = useState<Item | null>(null),
@@ -185,20 +186,17 @@ function AppContent() {
         document.visibilityState === "hidden"
       )
         return;
-      try {
-        const [health, activity] = await Promise.all([
-          call(`/devices/${encodeURIComponent(label(selected.id))}/health`),
-          call(`/devices/${encodeURIComponent(label(selected.id))}/activity`),
-        ]);
-        if (active) {
-          setDeviceHealth(health);
-          setDeviceActivity(
-            Array.isArray(activity.items) ? (activity.items as Item[]) : [],
-          );
-        }
-      } catch {
-        if (active) setDeviceHealth({ effective_state: "STALE" });
-      }
+      const devicePath = `/devices/${encodeURIComponent(label(selected.id))}`;
+      const [readiness, health, activity] = await Promise.allSettled([
+        call(`${devicePath}/readiness`),
+        call(`${devicePath}/health`),
+        call(`${devicePath}/activity`),
+      ]);
+      if (!active) return;
+      setDeviceReadiness(readiness.status === 'fulfilled' ? readiness.value : { ready: false, state: 'UNAVAILABLE' });
+      setDeviceHealth(health.status === 'fulfilled' ? health.value : { effective_state: 'UNKNOWN' });
+      setDeviceActivity(activity.status === 'fulfilled' && Array.isArray(activity.value.items)
+        ? activity.value.items as Item[] : []);
     };
     void poll();
     const timer = setInterval(() => void poll(), 5000);
@@ -235,6 +233,7 @@ function AppContent() {
       if (next === 'Устройства') {
         setSelected(null);
         setDeviceHealth(null);
+        setDeviceReadiness(null);
         setDeviceActivity([]);
         setDiagnostics(null);
       }
@@ -390,6 +389,7 @@ function AppContent() {
     setItems([]);
     setSelected(null);
     setDeviceHealth(null);
+    setDeviceReadiness(null);
     setDeviceActivity([]);
     setDiagnostics(null);
     setReportError('');
@@ -815,10 +815,10 @@ function AppContent() {
               canDiagnose={canDiagnose} canAdminister={canAdminister} canIssueBleSession={canIssueBleSession}
               lists={adminLists}
               context={{ register, operatorId, blePublicKey, activationCode, activationRequest, activationLocationId }}
-              telemetry={{ transportMetrics, deviceHealth, deviceActivity, fiscalMetrics, diagnostics, provisioning, bleSession, blueCashActivation }}
+              telemetry={{ transportMetrics, deviceHealth, deviceReadiness, deviceActivity, fiscalMetrics, diagnostics, provisioning, bleSession, blueCashActivation }}
               actions={{
                 retry: () => void refresh('Устройства'),
-                selectDevice: device => { setSelected(device); setMessage(`${label(device.name || device.id)} е избрано`); },
+                selectDevice: device => { setSelected(device); setDeviceHealth(null); setDeviceReadiness(null); setDeviceActivity([]); setDiagnostics(null); setMessage(`${label(device.name || device.id)} е избрано`); },
                 openAdministration: () => changeTab('Администриране'),
                 diagnostics: () => void loadDiagnostics(),
                 printerTest: () => void printerTest(),

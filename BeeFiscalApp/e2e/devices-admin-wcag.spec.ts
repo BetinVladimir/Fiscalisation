@@ -5,13 +5,14 @@ import { saveWcagEvidence } from './contrast-evidence';
 
 for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
   for (const mode of ['light', 'dark'] as const) {
-    for (const state of ['devices-populated', 'devices-disconnected', 'devices-empty', 'devices-no-matches', 'devices-error', 'admin-top', 'admin-device-form'] as const) {
+    for (const state of ['devices-populated', 'devices-disconnected', 'devices-unavailable', 'devices-empty', 'devices-no-matches', 'devices-error', 'admin-top', 'admin-device-form'] as const) {
       test(`Paper devices/admin WCAG AA ${state}/${size}/${mode}`, async ({ page }, testInfo) => {
         const errors: string[] = [];
         page.on('pageerror', error => errors.push(error.message));
         await page.setViewportSize({ width, height });
         await page.emulateMedia({ colorScheme: mode, reducedMotion: 'reduce' });
         await mockFiscalApi(page, state === 'devices-disconnected' ? { devicesDisconnected: true }
+          : state === 'devices-unavailable' ? { deviceReady: false }
           : state === 'devices-empty' ? { devicesEmpty: true }
           : state === 'devices-error' ? { devicesStatus: 503 } : {});
         if (state === 'devices-error') {
@@ -32,7 +33,12 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
             await page.getByTestId('devices.search').fill('unknown printer');
             await expect(page.getByTestId('devices.no-matches')).toBeVisible();
           }
-          else await expect(page.getByTestId('device.item.00000000-0000-4000-8000-000000000003')).toBeVisible();
+          else {
+            await expect(page.getByTestId('device.item.00000000-0000-4000-8000-000000000003')).toBeVisible();
+            await expect(page.getByTestId('device-readiness')).toHaveText(
+              state === 'devices-populated' ? 'Готовност: Готово' : 'Готовност: Не е готово',
+            );
+          }
         }
         expect(errors).toEqual([]);
         expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);

@@ -1,20 +1,20 @@
 {
-  "date": "2026-09-30T22:59:48.821Z",
-  "sourceCommit": "9f05d6b0328bd00bfb81d0361e0317751fd32fce",
-  "testSha256": "f973d0917353fd7ef9308b2bd529e9161adde8da4d574783bed4a3aac9bc4578",
+  "date": "2026-09-30T23:08:03.764Z",
+  "sourceCommit": "ed344fb0000a55ca6e5d7bb7199fbc9df638c5a1",
+  "testSha256": "95e7d73ae257e47440e68743599149d7142e8cbf9ace3ba9914ef39db1c05a8c",
   "sourceFilesSha256": {
-    "App.tsx": "94755e1e5cb41cbd11975fc1b0a0856fb8c7adc1f5920c0e8d7af854c70e89c4",
-    "src/screens/DevicesScreen.tsx": "095743de8a37726e178cda02dda494fa2382768e156d3dc87dc72639b32c8974",
+    "App.tsx": "f4e53e10e931633f8911e8fddd233a7c34aee1a68d6453fda5de8994bd85834a",
+    "src/screens/DevicesScreen.tsx": "df20938cb5c8589a80eb7e7b27ffb131e397b4b88653e1726818fa7dca165565",
     "src/components/FiscalControls.tsx": "3e434a6d0ac803c975c58c9da02bd31b5c9323fb3ad8db90b2bfa2131cb3aa7f"
   },
-  "bundle": "AppEntry-ab715efb751b99f1517cfc29ffd71e75.js",
+  "bundle": "AppEntry-3a6dfbaace58da5dac588bd2685ebf0b.js",
   "command": "npm run test:e2e:devices-admin-wcag",
   "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
-  "scans": 42,
+  "scans": 48,
   "totalViolations": 0,
-  "totalIncomplete": 1325,
-  "pixelSupported": 886,
-  "pixelManualReview": 439,
+  "totalIncomplete": 1512,
+  "pixelSupported": 1038,
+  "pixelManualReview": 474,
   "entries": [
     {
       "state": "admin-device-form",
@@ -71,9 +71,9 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 29,
+      "incomplete": 36,
       "pixelSupported": 12,
-      "pixelManualReview": 17,
+      "pixelManualReview": 24,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-xs-light"
     },
     {
@@ -141,9 +141,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 26,
-      "pixelManualReview": 9,
+      "incomplete": 36,
+      "pixelSupported": 28,
+      "pixelManualReview": 8,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-lg-dark"
     },
     {
@@ -151,9 +151,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 26,
-      "pixelManualReview": 9,
+      "incomplete": 36,
+      "pixelSupported": 28,
+      "pixelManualReview": 8,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-lg-light"
     },
     {
@@ -161,9 +161,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 25,
-      "pixelManualReview": 10,
+      "incomplete": 34,
+      "pixelSupported": 26,
+      "pixelManualReview": 8,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-md-dark"
     },
     {
@@ -171,9 +171,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 25,
-      "pixelManualReview": 10,
+      "incomplete": 34,
+      "pixelSupported": 26,
+      "pixelManualReview": 8,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-md-light"
     },
     {
@@ -381,9 +381,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 26,
-      "pixelManualReview": 9,
+      "incomplete": 36,
+      "pixelSupported": 28,
+      "pixelManualReview": 8,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-lg-dark"
     },
     {
@@ -391,9 +391,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 26,
-      "pixelManualReview": 9,
+      "incomplete": 36,
+      "pixelSupported": 28,
+      "pixelManualReview": 8,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-lg-light"
     },
     {
@@ -401,9 +401,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 25,
-      "pixelManualReview": 10,
+      "incomplete": 34,
+      "pixelSupported": 26,
+      "pixelManualReview": 8,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-md-dark"
     },
     {
@@ -411,9 +411,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 25,
-      "pixelManualReview": 10,
+      "incomplete": 34,
+      "pixelSupported": 26,
+      "pixelManualReview": 8,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-md-light"
     },
     {
@@ -435,6 +435,66 @@
       "pixelSupported": 16,
       "pixelManualReview": 4,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-xs-light"
+    },
+    {
+      "state": "devices-unavailable",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 36,
+      "pixelSupported": 28,
+      "pixelManualReview": 8,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-lg-dark"
+    },
+    {
+      "state": "devices-unavailable",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 36,
+      "pixelSupported": 28,
+      "pixelManualReview": 8,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-lg-light"
+    },
+    {
+      "state": "devices-unavailable",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 34,
+      "pixelSupported": 26,
+      "pixelManualReview": 8,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-md-dark"
+    },
+    {
+      "state": "devices-unavailable",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 34,
+      "pixelSupported": 26,
+      "pixelManualReview": 8,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-md-light"
+    },
+    {
+      "state": "devices-unavailable",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 20,
+      "pixelSupported": 16,
+      "pixelManualReview": 4,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-xs-dark"
+    },
+    {
+      "state": "devices-unavailable",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 20,
+      "pixelSupported": 16,
+      "pixelManualReview": 4,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-xs-light"
     }
   ]
 }

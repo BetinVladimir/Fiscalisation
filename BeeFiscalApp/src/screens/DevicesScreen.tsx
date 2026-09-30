@@ -24,6 +24,7 @@ export type DeviceScreenProps = {
   telemetry: {
     transportMetrics: Item | null;
     deviceHealth: Item | null;
+    deviceReadiness: Item | null;
     deviceActivity: Item[];
     fiscalMetrics: Item | null;
     diagnostics: Item | null;
@@ -53,6 +54,7 @@ export type DeviceScreenProps = {
 export function DevicesScreen({ devices, selected, loading, error, canDiagnose, canAdminister, canIssueBleSession, lists, context, telemetry, actions }: DeviceScreenProps) {
   const theme = useTheme();
   const [query, setQuery] = useState('');
+  const registerCode = label(lists.registers.find(item => item.id === context.register)?.code || context.register);
   const visibleDevices = devices.filter(device =>
     [device.name, device.vendor, device.model, device.status, device.state]
       .some(value => label(value).toLowerCase().includes(query.trim().toLowerCase())));
@@ -65,15 +67,20 @@ export function DevicesScreen({ devices, selected, loading, error, canDiagnose, 
     {!error && devices.length ? <TextInput testID="devices.search" mode="outlined" label="Търсене на устройство"
       accessibilityLabel="Търсене на устройство" value={query} onChangeText={setQuery} /> : null}
     {!loading && !error && devices.length > 0 && visibleDevices.length === 0 ? <Text testID="devices.no-matches" variant="bodyMedium">Няма устройства, които съответстват на търсенето.</Text> : null}
-    {visibleDevices.map(device => <List.Item key={label(device.id)} testID={`device.item.${label(device.id)}`}
+    {visibleDevices.map(device => <View key={label(device.id)}><List.Item testID={`device.item.${label(device.id)}`}
       accessibilityRole="button" accessibilityState={{ selected: selected?.id === device.id }}
-      accessibilityLabel={`${label(device.vendor)} ${label(device.model)}, състояние ${label(device.status || device.state)}`}
+      accessibilityLabel={`${label(device.vendor)} ${label(device.model)}, каса ${registerCode}, статус на регистрацията ${label(device.status || device.state)}`}
       style={{ borderRadius: 12, backgroundColor: selected?.id === device.id ? theme.colors.secondaryContainer : theme.colors.surface }}
       title={label(device.name || device.model || device.id)} titleNumberOfLines={2}
-      description={`${label(device.vendor)} • ${label(device.model)} • ${label(device.connection_type || device.transport)}`}
+      description={`${label(device.vendor)} • ${label(device.model)} • ${label(device.connection_type || device.transport)} • ${registerCode}`}
       descriptionNumberOfLines={3}
-      right={() => <Chip compact accessibilityLabel={`Състояние ${label(device.status || device.state)}`}>{label(device.status || device.state)}</Chip>}
-      onPress={() => actions.selectDevice(device)} />)}
+      right={() => <Chip compact accessibilityLabel={`Статус на регистрацията ${label(device.status || device.state)}`}>{label(device.status || device.state)}</Chip>}
+      onPress={() => actions.selectDevice(device)} />
+      {selected?.id === device.id ? <Text testID="device-readiness" variant="bodyMedium" accessibilityLiveRegion="polite"
+        style={{ color: theme.colors.onSurface, paddingHorizontal: 16, paddingVertical: 8 }}>
+        Готовност: {device.status !== 'ACTIVE' ? 'Не е готово' : telemetry.deviceReadiness === null ? 'Проверява се' : telemetry.deviceReadiness.ready === true ? 'Готово' : 'Не е готово'}
+      </Text> : null}
+    </View>)}
     {!error ? <Card mode="outlined" testID="device-control-plane"><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
       <Text variant="titleLarge" accessibilityRole="header">Provisioning, BLE и ограничена диагностика</Text>
       <Text variant="bodyMedium">Transport/cloud и достижимостта на крайното ФУ са отделни групи метрики.</Text>

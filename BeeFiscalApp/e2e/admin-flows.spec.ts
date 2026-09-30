@@ -62,6 +62,22 @@ test('disconnected device displays its real status', async ({ page }) => {
   await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).not.toContainText('READY');
 });
 
+test('active registration does not present an unavailable fiscal device as ready', async ({ page }) => {
+  await mockFiscalApi(page, { deviceReady: false });
+  await openApp(page);
+  await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toContainText('ACTIVE');
+  await expect(page.getByTestId('device-readiness')).toContainText('Не е готово');
+  await expect(page.getByTestId('device-readiness')).not.toContainText('Готово');
+});
+
+test('missing adapter health does not suppress fiscal readiness', async ({ page }) => {
+  await mockFiscalApi(page);
+  await page.route(`**/devices/${DEVICE_ID}/health`, route => route.fulfill({ status: 404, contentType: 'application/json', body: '{"code":"DEVICE_HEALTH_NOT_FOUND"}' }));
+  await openApp(page);
+  await expect(page.getByTestId('device-readiness')).toHaveText('Готовност: Готово');
+  await expect(page.getByTestId('device-realtime-health')).toContainText('UNKNOWN');
+});
+
 test('Paper device search filters records and distinguishes no matches from empty API', async ({ page }) => {
   await mockFiscalApi(page);
   await openApp(page);
@@ -91,16 +107,19 @@ test('register selection reloads operations and reports for the selected registe
 });
 
 test('device list follows backend register bindings when the register changes', async ({ page }) => {
-  await mockFiscalApi(page, { secondRegister: true });
+  await mockFiscalApi(page, { secondRegister: true, secondDeviceReady: false });
   await openApp(page);
   await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeVisible();
+  await expect(page.getByTestId('device-readiness')).toHaveText('Готовност: Готово');
   await expect(page.getByTestId(`device.item.${SECOND_DEVICE_ID}`)).toHaveCount(0);
   await page.getByRole('button', { name: 'R02', exact: true }).first().click();
   await expect(page.getByTestId(`device.item.${SECOND_DEVICE_ID}`)).toBeVisible();
   await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toHaveCount(0);
+  await expect(page.getByTestId('device-readiness')).toHaveText('Готовност: Не е готово');
   await page.getByRole('button', { name: 'R01', exact: true }).first().click();
   await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeVisible();
   await expect(page.getByTestId(`device.item.${SECOND_DEVICE_ID}`)).toHaveCount(0);
+  await expect(page.getByTestId('device-readiness')).toHaveText('Готовност: Готово');
 });
 
 test('device list shows an empty state with unavailable device actions', async ({ page }) => {

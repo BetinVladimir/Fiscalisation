@@ -14,7 +14,7 @@ function json(route: Route, body: unknown, status = 200) {
 
 export type CapturedMutation = { path: string; body: Record<string, unknown>; headers: Record<string, string> };
 
-export async function mockFiscalApi(page: Page, options: { devicesStatus?: number; devicesEmpty?: boolean; devicesDisconnected?: boolean; reportsStatus?: number; reportsEmpty?: boolean; auditStatus?: number; auditEmpty?: boolean; policyStatus?: number; taxGroupsEmpty?: boolean; secondRegister?: boolean } = {}) {
+export async function mockFiscalApi(page: Page, options: { devicesStatus?: number; devicesEmpty?: boolean; devicesDisconnected?: boolean; deviceReady?: boolean; secondDeviceReady?: boolean; reportsStatus?: number; reportsEmpty?: boolean; auditStatus?: number; auditEmpty?: boolean; policyStatus?: number; taxGroupsEmpty?: boolean; secondRegister?: boolean } = {}) {
   const mutations: CapturedMutation[] = [];
   await page.route(`${API}/**`, async route => {
     const request = route.request();
@@ -33,8 +33,10 @@ export async function mockFiscalApi(page: Page, options: { devicesStatus?: numbe
     }
     if (path === `/devices/${DEVICE_ID}/health`) return json(route, { effective_state: 'READY', observed_at: '2026-08-20T10:00:00Z' });
     if (path === `/devices/${DEVICE_ID}/activity`) return json(route, { items: [{ state: 'READY', at: '2026-08-20T10:00:00Z' }] });
+    if (path === `/devices/${DEVICE_ID}/readiness`) return json(route, { ready: options.deviceReady !== false, observed_at: '2026-08-20T10:00:00Z', components: { fiscal_device: options.deviceReady === false ? 'UNAVAILABLE' : 'READY' }, recommended_transport: options.deviceReady === false ? 'BLOCK' : 'REST' });
     if (path === `/devices/${SECOND_DEVICE_ID}/health`) return json(route, { effective_state: 'READY', observed_at: '2026-08-20T10:00:00Z' });
     if (path === `/devices/${SECOND_DEVICE_ID}/activity`) return json(route, { items: [{ state: 'READY', at: '2026-08-20T10:00:00Z' }] });
+    if (path === `/devices/${SECOND_DEVICE_ID}/readiness`) return json(route, { ready: options.secondDeviceReady !== false, observed_at: '2026-08-20T10:00:00Z', components: { fiscal_device: options.secondDeviceReady === false ? 'UNAVAILABLE' : 'READY' }, recommended_transport: options.secondDeviceReady === false ? 'BLOCK' : 'REST' });
     if (path === `/devices/${DEVICE_ID}/capabilities`) return json(route, { printer_test: true, ble: true });
     if (path === `/devices/${DEVICE_ID}/diagnostics`) return json(route, { driver: 'datecs', secrets_redacted: true });
     if (path === `/devices/${DEVICE_ID}/tests/printer` && method === 'POST') return json(route, { id: 'printer-1', state: 'COMPLETED' }, 202);

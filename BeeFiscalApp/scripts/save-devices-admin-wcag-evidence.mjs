@@ -10,7 +10,7 @@ for (const directory of await readdir(root)) {
   const source = join(root, directory);
   let result;
   try { result = JSON.parse(await readFile(join(source, 'axe.json'), 'utf8')); } catch { continue; }
-  if (!['devices-populated', 'devices-disconnected', 'devices-empty', 'devices-no-matches', 'devices-error', 'admin-top', 'admin-device-form'].includes(result.state)) continue;
+  if (!['devices-populated', 'devices-disconnected', 'devices-unavailable', 'devices-empty', 'devices-no-matches', 'devices-error', 'admin-top', 'admin-device-form'].includes(result.state)) continue;
   const state = result.state;
   const folder = join(output, `${state}-${result.size}-${result.mode}`);
   await mkdir(folder, { recursive: true });
@@ -26,13 +26,13 @@ for (const directory of await readdir(root)) {
   });
 }
 entries.sort((a, b) => `${a.state}-${a.size}-${a.mode}`.localeCompare(`${b.state}-${b.size}-${b.mode}`));
-const expectedStates = ['devices-populated', 'devices-disconnected', 'devices-empty', 'devices-no-matches', 'devices-error', 'admin-top', 'admin-device-form'];
+const expectedStates = ['devices-populated', 'devices-disconnected', 'devices-unavailable', 'devices-empty', 'devices-no-matches', 'devices-error', 'admin-top', 'admin-device-form'];
 const expectedSizes = ['xs', 'md', 'lg'];
 const expectedModes = ['light', 'dark'];
 for (const state of expectedStates) for (const size of expectedSizes) for (const mode of expectedModes) {
   if (!entries.some(item => item.state === state && item.size === size && item.mode === mode)) throw new Error(`missing ${state}/${size}/${mode}`);
 }
-if (entries.length !== 42) throw new Error(`expected 42 scans, found ${entries.length}`);
+if (entries.length !== 48) throw new Error(`expected 48 scans, found ${entries.length}`);
 const html = await readFile('.playwright-e2e-web/index.html', 'utf8');
 const bundle = html.match(/AppEntry-[a-f0-9]+\.js/)?.[0];
 if (!bundle) throw new Error('web bundle hash missing');
