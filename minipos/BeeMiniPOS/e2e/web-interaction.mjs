@@ -259,6 +259,9 @@ async function miniPosOnboarding(browser, appUrl) {
   await page.getByPlaceholder("000000").fill("123456");
   await page.getByTestId("operator-login-verify").click();
   await page.getByTestId("onboarding-company-name").waitFor();
+  await page.getByTestId("language-menu-open").click();
+  await page.getByTestId("language-fr").click();
+  await page.getByTestId("onboarding-legal-consent").getByText(/Je suis autorisé/).waitFor();
   const create = page.getByTestId("operator-onboarding-create");
   assert.equal(await create.isDisabled(), true, "onboarding must require all fields and legal consent");
   await page.getByTestId("onboarding-company-name").fill("Test company");

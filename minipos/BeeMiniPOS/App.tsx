@@ -35,6 +35,7 @@ import type { NativeBleBootstrapContract } from "./src/nativeBle";
 import { useEmailAuth } from "./src/emailAuth";
 import type { Language } from "./src/emailAuth";
 import { supportedLanguages } from "./src/translations.generated";
+import { legalTranslations } from "./src/legalTranslations.generated";
 import { useTranslation } from "./src/languageStore";
 import type { Translation } from "./src/languageStore";
 import { fetchWithTimeout } from "./src/http";
@@ -351,6 +352,7 @@ function MiniPosApp({
   const connectivity = useRef(new ConnectivityController());
   const checkoutJournal = useRef(new CheckoutJournal());
   const emailAuth = useEmailAuth(apiBase);
+  const legalText = legalTranslations[emailAuth.language];
   const uiText = useTranslation();
   runtimeUnauthorized = () => void emailAuth.logout();
   const [legalAccepted,setLegalAccepted]=useState(false);
@@ -1364,10 +1366,10 @@ function MiniPosApp({
               position="leading"
               status={legalAccepted ? "checked" : "unchecked"}
               onPress={() => setLegalAccepted(value => !value)}
-              label={emailAuth.language==='bg'?'Упълномощен съм да представлявам фирмата и приемам бизнес условията на Beeloy (28.09.2026). Приемам наличните функции без обещание за неупоменати възможности или непрекъсната работа; законовите права остават в сила.':emailAuth.language==='ru'?'Я уполномочен представлять компанию и принимаю бизнес-условия Beeloy (28.09.2026). Принимаю текущие функции без обещаний неуказанных возможностей или бесперебойной работы; обязательные права сохраняются.':'I am authorised to bind the company and accept the Beeloy Business Terms (28 September 2026). I accept current features without a promise of unstated features or uninterrupted operation; mandatory rights remain unaffected.'}
+              label={legalText.consent}
             />
-            <PaperButton mode="text" icon="open-in-new" onPress={() => void Linking.openURL(`https://legal.beeloy.org/${emailAuth.language}/terms`)}>{emailAuth.language==='bg'?'Прочети бизнес условията':emailAuth.language==='ru'?'Открыть бизнес-условия':'Read Business Terms'}</PaperButton>
-            <PaperButton mode="text" icon="open-in-new" onPress={() => void Linking.openURL(`https://legal.beeloy.org/${emailAuth.language}/privacy`)}>{emailAuth.language==='bg'?'Политика за поверителност':emailAuth.language==='ru'?'Политика конфиденциальности':'Privacy Notice'}</PaperButton>
+            <PaperButton mode="text" icon="open-in-new" onPress={() => void Linking.openURL(`https://legal.beeloy.org/${emailAuth.language}/terms`)}>{legalText.terms}</PaperButton>
+            <PaperButton mode="text" icon="open-in-new" onPress={() => void Linking.openURL(`https://legal.beeloy.org/${emailAuth.language}/privacy`)}>{legalText.privacy}</PaperButton>
             <PaperButton testID="operator-onboarding-create" mode="contained" contentStyle={s.authButtonContent} loading={emailAuth.busy} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName||!legalAccepted} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName,accepted_terms_version:"b2b-2026-09-28"})}>{uiText.createCompany}</PaperButton>
           </> : null}
           {emailAuth.error ? <PaperHelperText testID="operator-login-error" type="error" visible accessibilityLiveRegion="polite">{emailAuth.error}</PaperHelperText> : null}
