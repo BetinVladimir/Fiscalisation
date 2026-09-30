@@ -211,6 +211,17 @@ async function miniPosProductionLoginFailClosed(browser, appUrl) {
   await page.route("http://minipos-api.test/**", route => { apiCalls += 1; return json(route, { code: "STATIC_TOKEN_MUST_NOT_BE_USED" }, 500); });
   await page.goto(appUrl);
   await page.getByTestId("operator-login").getByText(/Вход с имейл/).waitFor();
+  for (const [width, expected] of [[360, 328], [960, 480], [1200, 400]]) {
+    await page.setViewportSize({ width, height: 800 });
+    const bounds = await page.getByTestId("operator-login").boundingBox();
+    assert.ok(bounds && Math.abs(bounds.width - expected) <= 1, `auth width at ${width}px must be ${expected}px`);
+  }
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-dark").click();
+  assert.equal(await page.evaluate(() => localStorage.getItem("beeminipos.theme.preference")), "dark", "auth theme choice must persist");
+  await page.getByTestId("language-menu-open").click();
+  await page.getByTestId("language-ru").click();
+  await page.getByTestId("operator-login").getByText(/Вход/).waitFor();
   assert.equal(await page.getByTestId("operator-login-start").isDisabled(), true, "PROD login must stay disabled without a personal email");
   assert.equal(apiCalls, 0, "PROD login must not request OTP without a personal email");
   assert.equal(await page.getByTestId("shift-toggle").count(), 0, "PROD must not expose sales before an authenticated bound operator session");
