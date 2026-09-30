@@ -40,8 +40,10 @@
     "e2e:wcag": "node e2e/wcag-aa.mjs"
   },
   "dependencies": {
+    "@beeloy/design-tokens": "file:../../../BeeloyBackend/mobile/design-tokens",
     "@expo-google-fonts/roboto": "^0.2.3",
     "@expo/metro-runtime": "~6.1.2",
+    "@expo/vector-icons": "^15.0.3",
     "@noble/ciphers": "2.3.0",
     "@noble/curves": "2.3.0",
     "@noble/hashes": "2.3.0",
@@ -63,8 +65,7 @@
     "react-native-paper": "^5.15.3",
     "react-native-safe-area-context": "~5.6.0",
     "react-native-web": "~0.21.0",
-    "zustand": "^4.5.7",
-    "@beeloy/design-tokens": "file:../../../BeeloyBackend/mobile/design-tokens"
+    "zustand": "^4.5.7"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",

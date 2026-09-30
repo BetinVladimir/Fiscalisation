@@ -12,6 +12,7 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import {
   Button as PaperButton,
   Card as PaperCard,
+  Checkbox as PaperCheckbox,
   HelperText as PaperHelperText,
   Menu as PaperMenu,
   PaperProvider,
@@ -1332,24 +1333,48 @@ function MiniPosApp({
           resizeMode="cover"
           style={s.authBackground}
         />
-        <AuthForm testID="operator-login" style={s.authForm}>
-          <PaperCard mode="elevated" style={s.loginCard}>
-          <PaperCard.Content style={s.loginContent}>
-          <PaperText variant="titleLarge">BeeMiniPOS</PaperText>
-          <PaperText variant="headlineSmall" accessibilityRole="header">{uiText.signIn}</PaperText>
+        <View style={s.authHeader}>
           <ThemeMenu preference={themePreference} text={uiText} onSelect={selectTheme} />
           <LanguageMenu
             language={emailAuth.language}
             label={uiText.language}
             onSelect={(value) => void emailAuth.setLanguage(value)}
           />
+        </View>
+        <NativeScrollView
+          style={s.authScroll}
+          contentContainerStyle={s.authScrollContent}
+          keyboardShouldPersistTaps="handled"
+        >
+        <AuthForm testID="operator-login" style={s.authForm}>
+          <PaperCard mode="elevated" style={s.loginCard}>
+          <PaperCard.Content style={s.loginContent}>
+          <PaperText variant="titleLarge">BeeMiniPOS</PaperText>
+          <PaperText variant="headlineSmall" accessibilityRole="header">{uiText.signIn}</PaperText>
           {emailAuth.stage === "email" ? <><TextInput keyboardType="email-address" autoCapitalize="none" autoComplete="email" placeholder="email@example.com" value={emailAuth.email} onChangeText={emailAuth.setEmail}/><PaperButton testID="operator-login-start" mode="contained" contentStyle={s.authButtonContent} loading={emailAuth.busy} disabled={emailAuth.busy||!emailAuth.email} onPress={()=>void emailAuth.requestCode()}>{uiText.sendCode}</PaperButton></> : null}
           {emailAuth.stage === "code" ? <><TextInput keyboardType="number-pad" maxLength={6} placeholder="000000" value={loginCode} onChangeText={setLoginCode}/><PaperButton testID="operator-login-verify" mode="contained" contentStyle={s.authButtonContent} loading={emailAuth.busy} disabled={emailAuth.busy||loginCode.length!==6} onPress={()=>void emailAuth.verifyCode(loginCode)}>{uiText.continue}</PaperButton></> : null}
-          {emailAuth.stage === "onboarding" ? <><Text style={s.loginTitle}>{uiText.companyDetails}</Text><TextInput testID="onboarding-company-name" style={s.search} placeholder={uiText.companyName} value={companyName} onChangeText={setCompanyName}/><TextInput testID="onboarding-address" style={s.search} placeholder={uiText.address} value={companyAddress} onChangeText={setCompanyAddress}/><TextInput testID="onboarding-tax-id" style={s.search} placeholder={uiText.taxIdentifier} value={taxIdentifier} onChangeText={setTaxIdentifier}/><TextInput testID="onboarding-full-name" style={s.search} placeholder={uiText.fullName} value={currentUserName} onChangeText={setCurrentUserName}/><Pressable testID="onboarding-legal-consent" accessibilityRole="checkbox" accessibilityState={{checked:legalAccepted}} onPress={()=>setLegalAccepted(value=>!value)} style={{paddingVertical:12}}><Text>{legalAccepted?'☑':'☐'} {emailAuth.language==='bg'?'Упълномощен съм да представлявам фирмата и приемам бизнес условията на Beeloy (28.09.2026). Приемам наличните функции без обещание за неупоменати възможности или непрекъсната работа; законовите права остават в сила.':emailAuth.language==='ru'?'Я уполномочен представлять компанию и принимаю бизнес-условия Beeloy (28.09.2026). Принимаю текущие функции без обещаний неуказанных возможностей или бесперебойной работы; обязательные права сохраняются.':'I am authorised to bind the company and accept the Beeloy Business Terms (28 September 2026). I accept current features without a promise of unstated features or uninterrupted operation; mandatory rights remain unaffected.'}</Text></Pressable><Pressable accessibilityRole="link" onPress={()=>void Linking.openURL(`https://legal.beeloy.org/${emailAuth.language}/terms`)}><Text style={{textDecorationLine:'underline'}}>{emailAuth.language==='bg'?'Прочети бизнес условията':emailAuth.language==='ru'?'Открыть бизнес-условия':'Read Business Terms'}</Text></Pressable><Pressable accessibilityRole="link" onPress={()=>void Linking.openURL(`https://legal.beeloy.org/${emailAuth.language}/privacy`)}><Text style={{textDecorationLine:'underline'}}>{emailAuth.language==='bg'?'Политика за поверителност':emailAuth.language==='ru'?'Политика конфиденциальности':'Privacy Notice'}</Text></Pressable><Pressable testID="operator-onboarding-create" accessibilityRole="button" style={s.cash} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName||!legalAccepted} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName,accepted_terms_version:"b2b-2026-09-28"})}><Text style={s.payText}>{uiText.createCompany}</Text></Pressable></> : null}
+          {emailAuth.stage === "onboarding" ? <>
+            <PaperText variant="titleLarge" accessibilityRole="header">{uiText.companyDetails}</PaperText>
+            <TextInput testID="onboarding-company-name" placeholder={uiText.companyName} value={companyName} onChangeText={setCompanyName}/>
+            <TextInput testID="onboarding-address" placeholder={uiText.address} value={companyAddress} onChangeText={setCompanyAddress}/>
+            <TextInput testID="onboarding-tax-id" placeholder={uiText.taxIdentifier} value={taxIdentifier} onChangeText={setTaxIdentifier}/>
+            <TextInput testID="onboarding-full-name" placeholder={uiText.fullName} value={currentUserName} onChangeText={setCurrentUserName}/>
+            <PaperCheckbox.Item
+              testID="onboarding-legal-consent"
+              position="leading"
+              status={legalAccepted ? "checked" : "unchecked"}
+              onPress={() => setLegalAccepted(value => !value)}
+              label={emailAuth.language==='bg'?'Упълномощен съм да представлявам фирмата и приемам бизнес условията на Beeloy (28.09.2026). Приемам наличните функции без обещание за неупоменати възможности или непрекъсната работа; законовите права остават в сила.':emailAuth.language==='ru'?'Я уполномочен представлять компанию и принимаю бизнес-условия Beeloy (28.09.2026). Принимаю текущие функции без обещаний неуказанных возможностей или бесперебойной работы; обязательные права сохраняются.':'I am authorised to bind the company and accept the Beeloy Business Terms (28 September 2026). I accept current features without a promise of unstated features or uninterrupted operation; mandatory rights remain unaffected.'}
+            />
+            <PaperButton mode="text" icon="open-in-new" onPress={() => void Linking.openURL(`https://legal.beeloy.org/${emailAuth.language}/terms`)}>{emailAuth.language==='bg'?'Прочети бизнес условията':emailAuth.language==='ru'?'Открыть бизнес-условия':'Read Business Terms'}</PaperButton>
+            <PaperButton mode="text" icon="open-in-new" onPress={() => void Linking.openURL(`https://legal.beeloy.org/${emailAuth.language}/privacy`)}>{emailAuth.language==='bg'?'Политика за поверителност':emailAuth.language==='ru'?'Политика конфиденциальности':'Privacy Notice'}</PaperButton>
+            <PaperButton testID="operator-onboarding-create" mode="contained" contentStyle={s.authButtonContent} loading={emailAuth.busy} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName||!legalAccepted} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName,accepted_terms_version:"b2b-2026-09-28"})}>{uiText.createCompany}</PaperButton>
+          </> : null}
           {emailAuth.error ? <PaperHelperText testID="operator-login-error" type="error" visible accessibilityLiveRegion="polite">{emailAuth.error}</PaperHelperText> : null}
           </PaperCard.Content>
           </PaperCard>
         </AuthForm>
+        </NativeScrollView>
       </SafeAreaView>
     );
   return (
@@ -1785,6 +1810,7 @@ function ThemeMenu({
 
   return (
     <PaperMenu
+      theme={{ animation: { scale: 0 } }}
       visible={visible}
       onDismiss={() => setVisible(false)}
       anchor={
@@ -1848,6 +1874,7 @@ function LanguageMenu({
 
   return (
     <PaperMenu
+      theme={{ animation: { scale: 0 } }}
       visible={visible}
       onDismiss={() => setVisible(false)}
       contentStyle={{ maxHeight: menuHeight, width: menuWidth, overflow: "hidden" }}
@@ -2206,8 +2233,10 @@ const s = StyleSheet.create({
     width: "100%",
     minHeight: "100%",
     alignItems: "center",
-    overflow: "hidden",
   },
+  authScroll: { flex: 1, width: "100%" },
+  authScrollContent: { alignItems: "center", paddingBottom: 32 },
+  authHeader: { width: "100%", flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end", gap: 8, padding: 16, zIndex: 2 },
   authBackground: {
     ...StyleSheet.absoluteFillObject,
     width: "100%",

@@ -153,6 +153,7 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("admin-toggle").click();
   await page.getByTestId("shift-toggle").click();
   await page.getByTestId("status-transport").getByText(/Смяната е отворена/).waitFor();
+  await page.setViewportSize({ width: 900, height: 800 });
   await page.reload();
   await page.getByTestId("status-transport").getByText(/Отворената смяна е възстановена/).waitFor();
   await page.getByTestId("product-search").fill("380000000001");
@@ -206,17 +207,27 @@ async function miniPosJourney(browser, appUrl) {
 }
 
 async function miniPosProductionLoginFailClosed(browser, appUrl) {
-  const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
+  let page = await browser.newPage({ viewport: { width: 900, height: 700 } });
   let apiCalls = 0;
   await page.route("http://minipos-api.test/**", route => { apiCalls += 1; return json(route, { code: "STATIC_TOKEN_MUST_NOT_BE_USED" }, 500); });
   await page.goto(appUrl);
   await page.getByTestId("operator-login").getByText(/Вход с имейл/).waitFor();
   for (const [width, expected] of [[360, 328], [960, 480], [1200, 400]]) {
     await page.setViewportSize({ width, height: 800 });
+    await page.waitForFunction(expectedWidth => {
+      const form = document.querySelector('[data-testid="operator-login"]');
+      return form && Math.abs(form.getBoundingClientRect().width - expectedWidth) <= 1;
+    }, expected);
     const bounds = await page.getByTestId("operator-login").boundingBox();
     assert.ok(bounds && Math.abs(bounds.width - expected) <= 1, `auth width at ${width}px must be ${expected}px`);
   }
+  await page.close();
+  page = await browser.newPage({ viewport: { width: 900, height: 800 } });
+  await page.route("http://minipos-api.test/**", route => { apiCalls += 1; return json(route, { code: "STATIC_TOKEN_MUST_NOT_BE_USED" }, 500); });
+  await page.goto(appUrl);
+  await page.getByTestId("operator-login").waitFor();
   await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-dark").waitFor({ state: "visible" });
   await page.getByTestId("theme-dark").click();
   assert.equal(await page.evaluate(() => localStorage.getItem("beeminipos.theme.preference")), "dark", "auth theme choice must persist");
   await page.getByTestId("language-menu-open").click();
@@ -226,6 +237,49 @@ async function miniPosProductionLoginFailClosed(browser, appUrl) {
   assert.equal(apiCalls, 0, "PROD login must not request OTP without a personal email");
   assert.equal(await page.getByTestId("shift-toggle").count(), 0, "PROD must not expose sales before an authenticated bound operator session");
   assert.equal(apiCalls, 0, "EXPO_PUBLIC static token must be ignored in PROD");
+  await page.close();
+}
+
+async function miniPosOnboarding(browser, appUrl) {
+  const page = await browser.newPage({ viewport: { width: 360, height: 640 } });
+  let submitted = null;
+  await page.route("http://minipos-api.test/**", route => {
+    const path = pathOf(route);
+    if (path.endsWith("/auth/request-code")) return json(route, {});
+    if (path.endsWith("/auth/verify-code")) return json(route, { onboarding_required: true, onboarding_token: "ui-onboarding-token" });
+    if (path.endsWith("/auth/onboarding")) {
+      submitted = route.request().postDataJSON();
+      return json(route, { detail: "test server rejected onboarding" }, 500);
+    }
+    return json(route, { detail: "unexpected request" }, 404);
+  });
+  await page.goto(appUrl);
+  await page.getByPlaceholder("email@example.com").fill("operator@example.test");
+  await page.getByTestId("operator-login-start").click();
+  await page.getByPlaceholder("000000").fill("123456");
+  await page.getByTestId("operator-login-verify").click();
+  await page.getByTestId("onboarding-company-name").waitFor();
+  const create = page.getByTestId("operator-onboarding-create");
+  assert.equal(await create.isDisabled(), true, "onboarding must require all fields and legal consent");
+  await page.getByTestId("onboarding-company-name").fill("Test company");
+  await page.getByTestId("onboarding-address").fill("Test address");
+  await page.getByTestId("onboarding-tax-id").fill("TEST-123");
+  await page.getByTestId("onboarding-full-name").fill("Test Operator");
+  assert.equal(await create.isDisabled(), true, "onboarding must still require legal consent");
+  await page.getByTestId("onboarding-legal-consent").click();
+  assert.equal(await create.isDisabled(), false, "legal consent must enable valid onboarding");
+  await create.click();
+  await page.getByTestId("operator-login-error").waitFor();
+  assert.deepEqual(submitted, {
+    onboarding_token: "ui-onboarding-token",
+    company_name: "Test company",
+    address: "Test address",
+    tax_identifier: "TEST-123",
+    full_name: "Test Operator",
+    accepted_terms_version: "b2b-2026-09-28",
+  }, "Paper onboarding must preserve the server contract");
+  assert.equal(await page.getByTestId("onboarding-company-name").inputValue(), "Test company", "server error must preserve input");
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false, "xs onboarding must not overflow horizontally");
   await page.close();
 }
 
@@ -337,9 +391,10 @@ const browser = await chromium.launch({ headless: true, executablePath });
 try {
   await miniPosJourney(browser, mini.url);
   await miniPosProductionLoginFailClosed(browser, miniProd.url);
+  await miniPosOnboarding(browser, miniProd.url);
   await fiscalJourney(browser, fiscal.url);
   await fiscalProductionLoginFailClosed(browser, fiscalProd.url);
-console.log("UI interaction E2E OK: MiniPOS sale/UNKNOWN/admin + both PROD OIDC fail-closed + BeeFiscal readiness/provisioning/BLE/diagnostics/audit/reports/admin");
+console.log("UI interaction E2E OK: MiniPOS sale/UNKNOWN/admin/onboarding + both PROD OIDC fail-closed + BeeFiscal readiness/provisioning/BLE/diagnostics/audit/reports/admin");
 } finally {
   await browser.close();
   mini.server.close();
