@@ -318,7 +318,7 @@ async function fiscalJourney(browser, appUrl) {
     if (path.endsWith("/country-policy")) return json(route, { country: "BG", currency: "EUR" });
     if (path.endsWith("/tax-groups")) return json(route, { items: [{ code: "B", rate: "20.00" }] });
     if (path.endsWith("/locations")) return json(route, { items: [location] });
-    if (path.endsWith("/registers")) return json(route, { items: [{ id: "00000000-0000-4000-8000-000000000001", code: "R01", location_id: "location-1", version: 1 }] });
+    if (path.endsWith("/registers")) return json(route, { items: [{ id: "00000000-0000-4000-8000-000000000001", code: "R01", location_id: "location-1", fiscal_device_id: device.id, version: 1 }] });
     if (path.endsWith("/operators")) return json(route, { items: [{ id: "operator-1", code: "0001", first_name: "Ivan", last_name: "Petrov", roles: ["CASHIER"], version: 1 }] });
     if (/\/registers\/[^/]+\/composite-bindings$/.test(path)&&method==="GET")return json(route,{items:[]});
     if (/\/registers\/[^/]+\/composite-bindings$/.test(path)&&method==="POST"){compositeCalls+=1;return json(route,{binding_id:`00000000-0000-4000-8000-00000000010${compositeCalls}`,status:"PENDING",generation:2+compositeCalls,version:1},201)}
@@ -330,7 +330,9 @@ async function fiscalJourney(browser, appUrl) {
   await page.goto(appUrl);
   await page.getByTestId("status-fiscal-device").getByText("CORE READY").waitFor();
   await page.getByTestId("readiness-probe").click();
-  await page.getByTestId("status-transport").getByText(/Cloud READY.*Edge READY.*Driver READY.*ФУ READY/).waitFor();
+  await page.getByTestId("status-transport").getByText(/Cloud READY.*Edge READY.*Driver READY.*ФУ READY/).waitFor({ timeout: 10000 }).catch(async error => {
+    throw new Error(`BeeFiscal readiness probe failed: ${await page.getByTestId("status-transport").innerText()}`, { cause: error });
+  });
   await page.getByTestId("transport-metrics").waitFor();
   await page.getByTestId("fiscal-device-metrics").waitFor();
   await page.getByTestId("device-diagnostics").click();
@@ -355,6 +357,7 @@ async function fiscalJourney(browser, appUrl) {
   await page.getByTestId("tab-Одит").click();
   await page.getByTestId("audit-events").waitFor();
   await page.getByTestId("audit-event-audit-1").getByText(/DEVICE_ACTIVATED.*device/).waitFor();
+  await page.getByTestId("audit.details.audit-1").click();
   await page.getByText(/Hash: a{64}/).waitFor();
   await page.getByTestId("tab-Администриране").click();
   await page.getByTestId("admin-editors").waitFor();
@@ -376,7 +379,7 @@ async function fiscalJourney(browser, appUrl) {
   await page.getByTestId("composite-binding-awaiting-adapter").waitFor();
   assert.deepEqual({compositeCalls,compositeDisableCalls},{compositeCalls:2,compositeDisableCalls:1},"UI must complete create disable and rebind lifecycle");
   await page.getByTestId("tab-Настройки").click();
-  await page.getByText(/"country": "BG"/).waitFor();
+  await page.getByTestId("settings.policy").getByText("Държава: BG").waitFor();
   await page.close();
 }
 

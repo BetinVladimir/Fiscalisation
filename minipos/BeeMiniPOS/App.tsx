@@ -7,18 +7,15 @@ import { FormField as TextInput } from './src/ui/form-field';
 import { AuthForm } from './src/ui/auth-form';
 import { StatusBar } from "expo-status-bar";
 import { useEffect, useMemo, useRef, useState } from "react";
-import { Image, Linking, Platform, ScrollView as NativeScrollView, StyleSheet, useColorScheme, useWindowDimensions, View } from "react-native";
-import AsyncStorage from "@react-native-async-storage/async-storage";
+import { Image, Linking, Platform, ScrollView as NativeScrollView, StyleSheet, useWindowDimensions, View } from "react-native";
 import {
   Button as PaperButton,
   Card as PaperCard,
   Checkbox as PaperCheckbox,
   HelperText as PaperHelperText,
   Menu as PaperMenu,
-  PaperProvider,
   Text as PaperText,
 } from "react-native-paper";
-import { BeeloyDarkTheme, BeeloyLightTheme } from './src/ui/theme';
 import { WebBleBootstrap, webBluetoothSupported } from "./src/webBle.ts";
 import type { BleSessionPackage } from "./src/webBle.ts";
 import { validateBleDeploymentAuthority } from "./src/bleDeployment.ts";
@@ -49,7 +46,7 @@ import {
   resolveFiscalDeviceId,
 } from "./src/fiscalDeviceResolution";
 import Constants from "expo-constants";
-import { BeeloyAppProvider } from "./src/ui/provider";
+import { BeeloyAppProvider, useThemePreference, type ThemePreference } from "./src/ui/provider";
 configureRandomSource(getRandomBytes);
 
 // BeeMiniPOS is intentionally thin: it owns cart presentation and surrogate
@@ -299,42 +296,13 @@ async function fiscalCloudReachable(path: string): Promise<boolean> {
   return pingFiscal(fiscalBase);
 }
 
-type ThemePreference = "system" | "light" | "dark";
 type FiscalRegisterReference = {id:string;code?:string;name?:string;status?:string};
-const themePreferenceKey = "beeminipos.theme.preference";
 export default function App() { return <BeeloyAppProvider><View style={{flex:1}}><AppContent/><DemoBadge/></View></BeeloyAppProvider>; }
 function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
 const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:beeloyColors.error,borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:beeloyColors.onPrimary,fontWeight:"900",fontSize:12,letterSpacing:1}});
 function AppContent() {
-  const systemScheme = useColorScheme();
-  const [themePreference, setThemePreference] =
-    useState<ThemePreference>("system");
-  const dark =
-    themePreference === "dark" ||
-    (themePreference === "system" && systemScheme === "dark");
-  const paperTheme = useMemo(() => (dark ? BeeloyDarkTheme : BeeloyLightTheme), [dark]);
-
-  useEffect(() => {
-    void AsyncStorage.getItem(themePreferenceKey).then((value) => {
-      if (value === "system" || value === "light" || value === "dark")
-        setThemePreference(value);
-    });
-  }, []);
-
-  const selectTheme = (value: ThemePreference) => {
-    setThemePreference(value);
-    void AsyncStorage.setItem(themePreferenceKey, value);
-  };
-
-  return (
-    <PaperProvider theme={paperTheme}>
-      <MiniPosApp
-        dark={dark}
-        themePreference={themePreference}
-        selectTheme={selectTheme}
-      />
-    </PaperProvider>
-  );
+  const { preference: themePreference, dark, selectTheme } = useThemePreference();
+  return <MiniPosApp dark={dark} themePreference={themePreference} selectTheme={selectTheme} />;
 }
 
 function MiniPosApp({
