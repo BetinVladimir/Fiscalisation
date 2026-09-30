@@ -9,6 +9,7 @@ import (
 	"encoding/json"
 	"errors"
 	"strconv"
+	"strings"
 	"time"
 
 	"fiscalisation/fiscal-backend/internal/auth"
@@ -39,7 +40,15 @@ type AppVerification struct {
 }
 
 func (s *Service) SetAppSigningKey(key []byte) { s.appSigningKey = append([]byte(nil), key...) }
-func (s *Service) StartAppChallenge(ctx context.Context, email, appInstance, ip string) (AppChallenge, error) {
+func appOTPEmail(language, code string) (string, string) {
+	copy, ok := appOTPCopies[strings.ToLower(strings.TrimSpace(language))]
+	if !ok {
+		copy = appOTPCopies["en"]
+	}
+	return copy.subject, copy.prefix + code
+}
+
+func (s *Service) StartAppChallenge(ctx context.Context, email, appInstance, ip, language string) (AppChallenge, error) {
 	normalized, e := normalizeEmail(email)
 	if e != nil {
 		return AppChallenge{}, e
@@ -88,7 +97,8 @@ func (s *Service) StartAppChallenge(ctx context.Context, email, appInstance, ip 
 		return out, e
 	}
 	if known {
-		_, e = tx.ExecContext(ctx, `insert into fiscal.fiscal_email_outbox(purpose,recipient,subject,body_text) values('BEEFISCAL_APP_OTP',$1,'BeeFiscal sign-in code',$2)`, normalized, "Your BeeFiscal sign-in code is: "+otp)
+		subject, body := appOTPEmail(language, otp)
+		_, e = tx.ExecContext(ctx, `insert into fiscal.fiscal_email_outbox(purpose,recipient,subject,body_text) values('BEEFISCAL_APP_OTP',$1,$2,$3)`, normalized, subject, body)
 		if e != nil {
 			return out, e
 		}

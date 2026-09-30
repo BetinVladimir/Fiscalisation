@@ -99,7 +99,7 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			writeError(w, e)
 			return
 		}
-		out, e := h.Service.StartAppChallenge(r.Context(), in.Email, in.AppInstanceID, r.RemoteAddr)
+		out, e := h.Service.StartAppChallenge(r.Context(), in.Email, in.AppInstanceID, r.RemoteAddr, in.Language)
 		if e != nil {
 			writeError(w, e)
 			return
