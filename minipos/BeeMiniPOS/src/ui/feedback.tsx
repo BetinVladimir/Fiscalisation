@@ -1,6 +1,6 @@
 import React from 'react';
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type PropsWithChildren } from 'react';
-import { Alert as NativeAlert, View, type AlertButton, type AlertOptions } from 'react-native';
+import { View, type AlertButton, type AlertOptions } from 'react-native';
 import { Button, Dialog, Portal, Snackbar, Text, useTheme } from 'react-native-paper';
 
 type FeedbackKind = 'info' | 'success' | 'error';
@@ -11,6 +11,17 @@ type AlertRequest = { title: string; message?: string; buttons: AlertButton[]; o
 const FeedbackContext = createContext<FeedbackApi | null>(null);
 const feedbackListeners = new Set<(feedback: Feedback) => void>();
 const alertListeners = new Set<(request: AlertRequest) => void>();
+const pendingAlerts: AlertRequest[] = [];
+let activeAlert: AlertRequest | null = null;
+function presentNextAlert() {
+  if (activeAlert || !alertListeners.size) return;
+  activeAlert = pendingAlerts.shift() ?? null;
+  if (activeAlert) alertListeners.forEach(listener => listener(activeAlert!));
+}
+function releaseAlert() {
+  activeAlert = null;
+  queueMicrotask(presentNextAlert);
+}
 
 export function showFeedback(message: string, options: Partial<Omit<Feedback, 'message'>> = {}) {
   const feedback = { message, kind: options.kind || 'info', actionLabel: options.actionLabel, onAction: options.onAction } satisfies Feedback;
@@ -21,9 +32,8 @@ export const AccessibleAlert = {
   alert(title: string, message?: string, buttons?: AlertButton[], options?: AlertOptions) {
     if (buttons?.length) {
       const request = { title, message, buttons, options };
-      if (alertListeners.size) alertListeners.forEach(listener => listener(request));
-      else if (options) NativeAlert.alert(title, message, buttons, options);
-      else NativeAlert.alert(title, message, buttons);
+      pendingAlerts.push(request);
+      presentNextAlert();
       return;
     }
     showFeedback(message ? `${title}: ${message}` : title, { kind: 'error' });
@@ -35,7 +45,7 @@ export function FeedbackProvider({ children }: PropsWithChildren) {
   const [feedback, setFeedback] = useState<Feedback | null>(null);
   const [alert, setAlert] = useState<AlertRequest | null>(null);
   const dismiss = useCallback(() => setFeedback(null), []);
-  const dismissAlert = useCallback(() => setAlert(null), []);
+  const dismissAlert = useCallback(() => { setAlert(null); releaseAlert(); }, []);
   const show = useCallback((message: string, options: Partial<Omit<Feedback, 'message'>> = {}) => {
     setFeedback({ message, kind: options.kind || 'info', actionLabel: options.actionLabel, onAction: options.onAction });
   }, []);
@@ -43,7 +53,12 @@ export function FeedbackProvider({ children }: PropsWithChildren) {
   useEffect(() => {
     feedbackListeners.add(setFeedback);
     alertListeners.add(setAlert);
-    return () => { feedbackListeners.delete(setFeedback); alertListeners.delete(setAlert); };
+    presentNextAlert();
+    return () => {
+      feedbackListeners.delete(setFeedback);
+      alertListeners.delete(setAlert);
+      if (!alertListeners.size && activeAlert) { pendingAlerts.unshift(activeAlert); activeAlert = null; }
+    };
   }, []);
 
   const value = useMemo(() => ({ show, dismiss }), [show, dismiss]);
