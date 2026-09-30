@@ -1294,9 +1294,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-1ix2z5o r-1g94qm0\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr;\">Capability: FISCAL_DEVICE • binding: FISCAL_DEVICE</div>",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Capability: FISCAL_DEVICE • binding: FISCAL_DEVICE</div>",
           "target": [
-            ".r-1ix2z5o.r-1g94qm0.r-fdjqy7:nth-child(5)"
+            ".r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(5)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -1555,8 +1555,8 @@
   ],
   "pixelSummary": {
     "candidates": 61,
-    "supported": 35,
-    "manualReview": 26
+    "supported": 36,
+    "manualReview": 25
   },
   "contrastCandidates": [
     {
@@ -3502,18 +3502,18 @@
       }
     },
     {
-      "target": ".r-1ix2z5o.r-1g94qm0.r-fdjqy7:nth-child(5)",
+      "target": ".r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(5)",
       "text": "Capability: FISCAL_DEVICE • binding: FISCAL_DEVICE",
-      "foreground": "rgb(90, 63, 85)",
+      "foreground": "rgb(212, 205, 217)",
       "fontSize": "14px",
       "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 968,
+        "y": 963,
         "width": 534,
-        "height": 16
+        "height": 20
       },
       "viewport": {
         "x": 0,
@@ -3528,15 +3528,15 @@
       ],
       "background": "rgb(21, 17, 27)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 2.02,
+      "contrastCandidate": 12,
       "pixelEvidence": {
-        "status": "manual-review",
+        "status": "candidate-supported",
         "visibleBackground": "rgb(21, 17, 27)",
-        "pixelRatio": 2.02,
-        "dominantShare": 0.971,
+        "pixelRatio": 12,
+        "dominantShare": 0.95,
         "matchesDomBackground": true,
-        "sampledPixels": 2970,
-        "foregroundPixels": 0,
+        "sampledPixels": 3510,
+        "foregroundPixels": 12,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -3550,7 +3550,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 261.0078125,
-        "y": 994.900390625,
+        "y": 993.900390625,
         "width": 106.546875,
         "height": 14.40234375
       },
@@ -3574,7 +3574,7 @@
         "pixelRatio": 12,
         "dominantShare": 1,
         "matchesDomBackground": true,
-        "sampledPixels": 888,
+        "sampledPixels": 999,
         "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }

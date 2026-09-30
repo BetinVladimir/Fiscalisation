@@ -1,19 +1,19 @@
 {
-  "date": "2026-09-30T21:56:53.893Z",
-  "sourceCommit": "d035950bdcf902dc7d3df427c256d23eeaebeb06",
+  "date": "2026-09-30T22:38:48.511Z",
+  "sourceCommit": "758bccdcc49a443aea2a94b437e7757a37076267",
   "testSha256": "c3b213096f34a442c1937202243976fb621981731f329427756a26d0f91cbc36",
   "sourceFilesSha256": {
-    "App.tsx": "985dab557298dda9f24127068375006ce050d1bc14bf3f38ff750dafb2192235",
-    "src/screens/AuditScreen.tsx": "f797d2fafcb8b03760c4f73c5d6b207e5d6c28abf752262b536f099421533d22"
+    "App.tsx": "77e35a3006684f6a52278c277bd17ea5999f3b076c37932f35975c543f17f4d9",
+    "src/screens/AuditScreen.tsx": "85bf8759b881b92c2c609db3e073e6891d3b3f5cf0da49e55baf7c6a1930b78a"
   },
-  "bundle": "AppEntry-ec14ba34eb9a07ce57557bfed7b8bc1e.js",
+  "bundle": "AppEntry-a74d31a969b6e0f6990867706a291a96.js",
   "command": "npm run test:e2e:audit-wcag",
   "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
   "scans": 24,
   "totalViolations": 0,
-  "totalIncomplete": 834,
-  "pixelSupported": 367,
-  "pixelManualReview": 431,
+  "totalIncomplete": 826,
+  "pixelSupported": 389,
+  "pixelManualReview": 437,
   "entries": [
     {
       "state": "audit-empty",
@@ -21,8 +21,8 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 35,
-      "pixelSupported": 17,
-      "pixelManualReview": 17,
+      "pixelSupported": 19,
+      "pixelManualReview": 16,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-empty-lg-dark"
     },
     {
@@ -31,8 +31,8 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 35,
-      "pixelSupported": 17,
-      "pixelManualReview": 17,
+      "pixelSupported": 19,
+      "pixelManualReview": 16,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-empty-lg-light"
     },
     {
@@ -41,7 +41,7 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 34,
-      "pixelSupported": 16,
+      "pixelSupported": 17,
       "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-empty-md-dark"
     },
@@ -51,7 +51,7 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 34,
-      "pixelSupported": 16,
+      "pixelSupported": 17,
       "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-empty-md-light"
     },
@@ -60,9 +60,9 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 30,
-      "pixelSupported": 11,
-      "pixelManualReview": 18,
+      "incomplete": 29,
+      "pixelSupported": 12,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-empty-xs-dark"
     },
     {
@@ -70,9 +70,9 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 30,
-      "pixelSupported": 11,
-      "pixelManualReview": 18,
+      "incomplete": 29,
+      "pixelSupported": 12,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-empty-xs-light"
     },
     {
@@ -80,9 +80,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 35,
+      "incomplete": 36,
       "pixelSupported": 18,
-      "pixelManualReview": 16,
+      "pixelManualReview": 18,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-error-lg-dark"
     },
     {
@@ -90,9 +90,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 35,
+      "incomplete": 36,
       "pixelSupported": 18,
-      "pixelManualReview": 16,
+      "pixelManualReview": 18,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-error-lg-light"
     },
     {
@@ -101,7 +101,7 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 34,
-      "pixelSupported": 16,
+      "pixelSupported": 17,
       "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-error-md-dark"
     },
@@ -111,7 +111,7 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 34,
-      "pixelSupported": 16,
+      "pixelSupported": 17,
       "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-error-md-light"
     },
@@ -120,9 +120,9 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 30,
-      "pixelSupported": 11,
-      "pixelManualReview": 18,
+      "incomplete": 29,
+      "pixelSupported": 12,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-error-xs-dark"
     },
     {
@@ -130,9 +130,9 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 30,
-      "pixelSupported": 11,
-      "pixelManualReview": 18,
+      "incomplete": 29,
+      "pixelSupported": 12,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-error-xs-light"
     },
     {
@@ -140,9 +140,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 40,
+      "incomplete": 41,
       "pixelSupported": 19,
-      "pixelManualReview": 19,
+      "pixelManualReview": 22,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-expanded-lg-dark"
     },
     {
@@ -150,9 +150,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 40,
+      "incomplete": 41,
       "pixelSupported": 20,
-      "pixelManualReview": 18,
+      "pixelManualReview": 21,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-expanded-lg-light"
     },
     {
@@ -161,8 +161,8 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 37,
-      "pixelSupported": 17,
-      "pixelManualReview": 18,
+      "pixelSupported": 18,
+      "pixelManualReview": 19,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-expanded-md-dark"
     },
     {
@@ -171,8 +171,8 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 37,
-      "pixelSupported": 18,
-      "pixelManualReview": 17,
+      "pixelSupported": 19,
+      "pixelManualReview": 18,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-expanded-md-light"
     },
     {
@@ -181,8 +181,8 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 38,
-      "pixelSupported": 12,
-      "pixelManualReview": 24,
+      "pixelSupported": 13,
+      "pixelManualReview": 25,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-expanded-xs-dark"
     },
     {
@@ -191,8 +191,8 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 38,
-      "pixelSupported": 13,
-      "pixelManualReview": 23,
+      "pixelSupported": 14,
+      "pixelManualReview": 24,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-expanded-xs-light"
     },
     {
@@ -201,8 +201,8 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 37,
-      "pixelSupported": 18,
-      "pixelManualReview": 17,
+      "pixelSupported": 19,
+      "pixelManualReview": 18,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-populated-lg-dark"
     },
     {
@@ -211,8 +211,8 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 37,
-      "pixelSupported": 18,
-      "pixelManualReview": 17,
+      "pixelSupported": 19,
+      "pixelManualReview": 18,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-populated-lg-light"
     },
     {
@@ -220,9 +220,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 36,
-      "pixelSupported": 16,
-      "pixelManualReview": 18,
+      "incomplete": 34,
+      "pixelSupported": 17,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-populated-md-dark"
     },
     {
@@ -230,9 +230,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 36,
-      "pixelSupported": 16,
-      "pixelManualReview": 18,
+      "incomplete": 34,
+      "pixelSupported": 17,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-populated-md-light"
     },
     {
@@ -240,9 +240,9 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 31,
-      "pixelSupported": 11,
-      "pixelManualReview": 18,
+      "incomplete": 29,
+      "pixelSupported": 12,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-populated-xs-dark"
     },
     {
@@ -250,9 +250,9 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 31,
-      "pixelSupported": 11,
-      "pixelManualReview": 18,
+      "incomplete": 29,
+      "pixelSupported": 12,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-populated-xs-light"
     }
   ]

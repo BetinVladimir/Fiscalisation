@@ -1,9 +1,6 @@
 import { colors as beeloyColors } from './src/ui/tokens';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppPressable as Pressable } from './src/ui/app-pressable';
-import { AppText as Text } from './src/ui/app-text';
 import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-view';
-import { FormField as TextInput } from './src/ui/form-field';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { OperationsScreen } from './src/screens/OperationsScreen';
 import { ReportsScreen } from './src/screens/ReportsScreen';
@@ -78,7 +75,7 @@ const label = (v: unknown) =>
   typeof v === "string" ? v : typeof v === "number" ? String(v) : "—";
 
 export default function App() { return <BeeloyAppProvider><View style={{flex:1}}><AppContent/><DemoBadge/></View></BeeloyAppProvider>; }
-function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
+function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><PaperText style={demo.text}>DEMO</PaperText></View>:null}
 const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:beeloyColors.error,borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:beeloyColors.onPrimary,fontWeight:"900",fontSize:12,letterSpacing:1}});
 function AppContent() {
   const { width } = useWindowDimensions();
@@ -745,10 +742,10 @@ function AppContent() {
       </Portal>
       <View style={[s.header, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }, compact && { flexWrap: 'wrap', gap: 8, padding: 12 }]}>
         <View style={compact ? { minWidth: 0, width: '100%' } : undefined}>
-          <Text style={[s.title, { color: theme.colors.onSurface }]}>BeeFiscal</Text>
-          <Text style={[s.sub, { color: theme.colors.onSurfaceVariant }]}>
+          <PaperText style={[s.title, { color: theme.colors.onSurface }]}>BeeFiscal</PaperText>
+          <PaperText style={[s.sub, { color: theme.colors.onSurfaceVariant }]}>
             BG • EUR • публичен API • без локално симулирани записи
-          </Text>
+          </PaperText>
         </View>
         {compact ? <Button testID="nav.open" mode="outlined" contentStyle={{ minHeight: 48 }} onPress={() => setNavOpen(true)}>Меню</Button> : null}
         <View
@@ -756,22 +753,20 @@ function AppContent() {
           accessibilityLiveRegion="polite"
           style={[s.ready, core.includes("OFFLINE") && s.offline]}
         >
-          <Text style={s.readyText}>Fiscal Core: {core}</Text>
+          <PaperText style={s.readyText}>Fiscal Core: {core}</PaperText>
         </View>
-        {prodMode && oidc.tenants.length > 1 ? <View style={s.actions}>{oidc.tenants.map(t=><Pressable key={t.tenant_id} disabled={t.tenant_id===oidc.currentTenant?.tenant_id} style={s.logout} onPress={()=>{setItems([]);setSelected(null);setAdminLists({locations:[],registers:[],operators:[],devices:[]});void oidc.switchTenant(t.tenant_id)}}><Text style={s.readyText}>{t.display_name}</Text></Pressable>)}</View>:null}
+        {prodMode && oidc.tenants.length > 1 ? <View style={s.actions}>{oidc.tenants.map(t=><Button key={t.tenant_id} mode={t.tenant_id===oidc.currentTenant?.tenant_id ? 'contained-tonal' : 'outlined'} contentStyle={{ minHeight: 48 }} disabled={t.tenant_id===oidc.currentTenant?.tenant_id} accessibilityLabel={`Компания ${t.display_name}`} onPress={()=>{setItems([]);setSelected(null);setAdminLists({locations:[],registers:[],operators:[],devices:[]});void oidc.switchTenant(t.tenant_id)}}>{t.display_name}</Button>)}</View>:null}
         {prodMode ? (
-          <Pressable
+          <Button
             testID="admin-logout"
-            accessibilityRole="button"
+            mode="outlined"
+            contentStyle={{ minHeight: 48 }}
             accessibilityLabel="Излез от административния профил"
-            style={s.logout}
             onPress={() => {
               runtimeAuthToken = "";
               void oidc.logout();
             }}
-          >
-            <Text style={s.readyText}>Излез</Text>
-          </Pressable>
+          >Излез</Button>
         ) : null}
       </View>
       <View style={s.body}>
@@ -782,16 +777,16 @@ function AppContent() {
         </View> : null}
         <ScrollView style={[s.content, { backgroundColor: theme.colors.background }, compact && { padding: 16 }]}>
           {loading ? (
-            <Text
+            <PaperText
               testID="screen-loading"
               accessibilityLiveRegion="polite"
-              style={s.loadingText}
+              style={[s.loadingText, { color: theme.colors.onSurfaceVariant, backgroundColor: theme.colors.surfaceVariant }]}
             >
               Зареждане от BeeFiscal API…
-            </Text>
+            </PaperText>
           ) : null}
           <View style={[s.toolbar, compact && { flexWrap: 'wrap' }]}>
-            <Text style={[s.section, { color: theme.colors.onBackground }, compact && { flexBasis: '100%' }]}>{tab}</Text>
+            <PaperText style={[s.section, { color: theme.colors.onBackground }, compact && { flexBasis: '100%' }]}>{tab}</PaperText>
             <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>changeTab("Администриране")}/>
             <Button mode="contained-tonal" contentStyle={{ minHeight: 48 }} accessibilityLabel={`Обнови ${tab}`} disabled={loading} onPress={() => refresh()}>{loading ? "…" : "Обнови"}</Button>
           </View>
@@ -1208,9 +1203,9 @@ function AppContent() {
                     }}
                   />
                 </View>
-                <Text style={s.meta}>
+                <PaperText variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
                   Capability: {deviceKind} • binding: {bindingRole}
-                </Text>
+                </PaperText>
                 <Field
                   label="Производител"
                   value={deviceVendor}
@@ -1280,7 +1275,7 @@ function AppContent() {
                     }}
                   />
                 </View>
-                <Text style={s.meta}>Избран transport: {deviceTransport}</Text>
+                <PaperText variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>Избран transport: {deviceTransport}</PaperText>
                 {deviceTransport === "RS232" ? (
                   <>
                     <Field
@@ -1510,10 +1505,10 @@ function AppContent() {
                     )
                   }
                 />
-                <Text style={s.meta}>
+                <PaperText variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
                   Composite profile — активира се само след apply ACK от
                   адаптера
-                </Text>
+                </PaperText>
                 <View style={s.actions}>
                   {MVP1_DEVICE_PROFILES.map((profile) => (
                     <Action
@@ -1542,18 +1537,19 @@ function AppContent() {
                 />
                 {compositeBinding ? (
                   <>
-                    <Text testID="composite-binding-state" style={s.meta}>
+                    <PaperText testID="composite-binding-state" variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
                       Статус: {label(compositeBinding.status)} • generation{" "}
                       {label(compositeBinding.generation)} • applied generation{" "}
                       {label(compositeBinding.applied_generation || "—")}
-                    </Text>
+                    </PaperText>
                     {compositeBinding.status === "PENDING" ? (
-                      <Text
+                      <PaperText
                         testID="composite-binding-awaiting-adapter"
-                        style={s.meta}
+                        variant="bodyMedium"
+                        style={{ color: theme.colors.onSurfaceVariant }}
                       >
                         Очаква се подписано apply потвърждение от адаптера
-                      </Text>
+                      </PaperText>
                     ) : null}
                     <View style={s.actions}>
                       <Action
@@ -1578,7 +1574,7 @@ function AppContent() {
           tab !== "Одит" &&
           tab !== "Отчети" &&
           tab !== "Администриране" ? (
-            <Text style={s.empty}>Няма записи в API за избрания филтър.</Text>
+            <PaperText variant="bodyMedium" style={{ paddingVertical: 32, textAlign: 'center' }}>Няма записи в API за избрания филтър.</PaperText>
           ) : null}
         </ScrollView>
       </View>
@@ -1587,7 +1583,7 @@ function AppContent() {
         accessibilityLiveRegion="polite"
         style={[s.footer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }, compact && { flexWrap: 'wrap', gap: 8 }]}
       >
-        <Text style={[s.footerText, { color: theme.colors.onSurface }]}>{message}</Text>
+        <PaperText style={[s.footerText, { color: theme.colors.onSurface }]}>{message}</PaperText>
         <Button
           testID="readiness-probe"
           mode="contained"

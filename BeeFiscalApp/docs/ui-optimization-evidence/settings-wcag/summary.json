@@ -1,12 +1,12 @@
 {
-  "date": "2026-09-30T22:04:49.638Z",
-  "sourceCommit": "336114ddb77cd668f9a46061d70e89448e7aea5a",
+  "date": "2026-09-30T22:35:23.711Z",
+  "sourceCommit": "758bccdcc49a443aea2a94b437e7757a37076267",
   "testSha256": "d32373ee26db5316b7ba824dd09f0b83d9943ac345d10aef03ae132cf9803798",
   "sourceFilesSha256": {
-    "App.tsx": "3f75bd449217147f935b7fe6c86ab05f2934350e8af16e1f1b508e3abecebd0b",
+    "App.tsx": "77e35a3006684f6a52278c277bd17ea5999f3b076c37932f35975c543f17f4d9",
     "src/screens/SettingsScreen.tsx": "1a94f730e3fcab2af0b03a34172a506fae1e326aadf57aa28b9966eca9f5abc7"
   },
-  "bundle": "AppEntry-d074ec6a7887be89353789db36a5c936.js",
+  "bundle": "AppEntry-8f91adf683b37e5a475a2558b9cc3548.js",
   "command": "npm run test:e2e:settings-wcag",
   "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
   "scans": 18,

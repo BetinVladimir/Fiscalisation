@@ -7,50 +7,6 @@
   "violations": [],
   "incomplete": [
     {
-      "id": "aria-prohibited-attr",
-      "impact": "serious",
-      "tags": [
-        "cat.aria",
-        "wcag2a",
-        "wcag412",
-        "EN-301-549",
-        "EN-9.4.1.2",
-        "RGAAv4",
-        "RGAA-7.1.1"
-      ],
-      "description": "Ensure ARIA attributes are not prohibited for an element's role",
-      "help": "Elements must only use permitted ARIA attributes",
-      "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/aria-prohibited-attr?application=playwright",
-      "nodes": [
-        {
-          "any": [],
-          "all": [],
-          "none": [
-            {
-              "id": "aria-prohibited-attr",
-              "data": {
-                "role": null,
-                "nodeName": "div",
-                "messageKey": "noRoleSingular",
-                "prohibited": [
-                  "aria-label"
-                ]
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "aria-label attribute is not well supported on a div with no valid role attribute."
-            }
-          ],
-          "impact": "serious",
-          "html": "<div aria-label=\"Неизменим одитен журнал\" class=\"css-g5y9jx\" data-testid=\"audit-events\" style=\"gap: 12px; padding-bottom: 16px;\">",
-          "target": [
-            "div[aria-label=\"Неизменим одитен журнал\"]"
-          ],
-          "failureSummary": "Fix all of the following:\n  aria-label attribute is not well supported on a div with no valid role attribute."
-        }
-      ]
-    },
-    {
       "id": "color-contrast",
       "impact": "serious",
       "tags": [
@@ -69,6 +25,56 @@
       "help": "Elements must meet minimum color contrast ratio thresholds",
       "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
       "nodes": [
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shell.language.open-...\" style=\"direction: ltr; colo...\">",
+          "target": [
+            "div[data-testid=\"shell.language.open-text\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shell.theme.toggle-t...\" style=\"direction: ltr; colo...\">",
+          "target": [
+            "div[data-testid=\"shell.theme.toggle-text\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
         {
           "any": [
             {
@@ -415,7 +421,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
           "target": [
-            "button[aria-label=\"Обнови Одит\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-bplmwz.r-14mg64r[data-testid=\"button-text\"]"
+            "button[aria-label=\"Обнови Одит\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-q4m81j.r-bplmwz[data-testid=\"button-text\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -865,7 +871,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
           "target": [
-            ".r-w7s2jr > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-bplmwz.r-14mg64r[data-testid=\"button-text\"]"
+            ".r-w7s2jr > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-q4m81j.r-bplmwz[data-testid=\"button-text\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -923,11 +929,85 @@
     }
   ],
   "pixelSummary": {
-    "candidates": 34,
+    "candidates": 36,
     "supported": 18,
-    "manualReview": 16
+    "manualReview": 18
   },
   "contrastCandidates": [
+    {
+      "target": "div[data-testid=\"shell.language.open-text\"]",
+      "text": "BG",
+      "foreground": "rgb(210, 193, 240)",
+      "fontSize": "14px",
+      "fontWeight": "500",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 1257,
+        "y": 23,
+        "width": 18.5625,
+        "height": 20
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)"
+      ],
+      "background": "rgb(13, 10, 18)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 11.81,
+      "pixelEvidence": {
+        "status": "candidate-supported",
+        "visibleBackground": "rgb(13, 10, 18)",
+        "pixelRatio": 11.81,
+        "dominantShare": 0.744,
+        "matchesDomBackground": true,
+        "sampledPixels": 624,
+        "foregroundPixels": 45,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
+    {
+      "target": "div[data-testid=\"shell.theme.toggle-text\"]",
+      "text": "Системна",
+      "foreground": "rgb(210, 193, 240)",
+      "fontSize": "14px",
+      "fontWeight": "500",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 1333.5625,
+        "y": 23,
+        "width": 65.4375,
+        "height": 20
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)"
+      ],
+      "background": "rgb(13, 10, 18)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 11.81,
+      "pixelEvidence": {
+        "status": "candidate-supported",
+        "visibleBackground": "rgb(13, 10, 18)",
+        "pixelRatio": 11.81,
+        "dominantShare": 0.77,
+        "matchesDomBackground": true,
+        "sampledPixels": 1846,
+        "foregroundPixels": 158,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
     {
       "target": ".r-axlblu",
       "text": "BeeFiscal",
@@ -938,7 +1018,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 20,
-        "y": 20,
+        "y": 78,
         "width": 380.109375,
         "height": 34
       },
@@ -976,7 +1056,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 20,
-        "y": 57,
+        "y": 115,
         "width": 380.109375,
         "height": 16
       },
@@ -1014,7 +1094,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 1240.6875,
-        "y": 38.5,
+        "y": 96.5,
         "width": 169.3125,
         "height": 16
       },
@@ -1053,7 +1133,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 40,
-        "y": 124,
+        "y": 182,
         "width": 70,
         "height": 20
       },
@@ -1091,7 +1171,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 40,
-        "y": 180,
+        "y": 238,
         "width": 66,
         "height": 20
       },
@@ -1129,7 +1209,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 40,
-        "y": 236,
+        "y": 294,
         "width": 47.296875,
         "height": 20
       },
@@ -1167,7 +1247,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 40,
-        "y": 292,
+        "y": 350,
         "width": 33.59375,
         "height": 20
       },
@@ -1206,7 +1286,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 40,
-        "y": 348,
+        "y": 406,
         "width": 70,
         "height": 20
       },
@@ -1244,7 +1324,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 40,
-        "y": 404,
+        "y": 462,
         "width": 70,
         "height": 20
       },
@@ -1282,7 +1362,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 242,
-        "y": 155,
+        "y": 213,
         "width": 707.96875,
         "height": 29
       },
@@ -1320,7 +1400,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 959.96875,
-        "y": 136,
+        "y": 194,
         "width": 210.21875,
         "height": 19.203125
       },
@@ -1358,7 +1438,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 959.96875,
-        "y": 122,
+        "y": 180,
         "width": 320,
         "height": 48
       },
@@ -1396,7 +1476,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 975.96875,
-        "y": 192,
+        "y": 250,
         "width": 280,
         "height": 19
       },
@@ -1426,7 +1506,7 @@
       }
     },
     {
-      "target": "button[aria-label=\"Обнови Одит\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-bplmwz.r-14mg64r[data-testid=\"button-text\"]",
+      "target": "button[aria-label=\"Обнови Одит\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-q4m81j.r-bplmwz[data-testid=\"button-text\"]",
       "text": "Обнови",
       "foreground": "rgb(235, 223, 243)",
       "fontSize": "14px",
@@ -1435,7 +1515,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 1313.96875,
-        "y": 159.5,
+        "y": 217.5,
         "width": 50.03125,
         "height": 20
       },
@@ -1474,7 +1554,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 257,
+        "y": 315,
         "width": 1114,
         "height": 28
       },
@@ -1513,7 +1593,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 319,
+        "y": 377,
         "width": 181.015625,
         "height": 19.203125
       },
@@ -1552,7 +1632,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 305,
+        "y": 363,
         "width": 1114,
         "height": 48
       },
@@ -1591,7 +1671,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 387,
+        "y": 445,
         "width": 105.859375,
         "height": 19.203125
       },
@@ -1630,7 +1710,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 373,
+        "y": 431,
         "width": 1114,
         "height": 48
       },
@@ -1669,7 +1749,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 455,
+        "y": 513,
         "width": 107.25,
         "height": 19.203125
       },
@@ -1708,7 +1788,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 441,
+        "y": 499,
         "width": 1114,
         "height": 48
       },
@@ -1747,7 +1827,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 523,
+        "y": 581,
         "width": 223.296875,
         "height": 19.203125
       },
@@ -1786,7 +1866,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 509,
+        "y": 567,
         "width": 1114,
         "height": 48
       },
@@ -1825,7 +1905,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 591,
+        "y": 649,
         "width": 65.328125,
         "height": 19.203125
       },
@@ -1864,7 +1944,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 577,
+        "y": 635,
         "width": 1114,
         "height": 48
       },
@@ -1903,7 +1983,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 659,
+        "y": 717,
         "width": 136.640625,
         "height": 19.203125
       },
@@ -1942,7 +2022,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 645,
+        "y": 703,
         "width": 1114,
         "height": 48
       },
@@ -1981,7 +2061,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 727,
+        "y": 785,
         "width": 139.109375,
         "height": 19.203125
       },
@@ -2020,7 +2100,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 713,
+        "y": 771,
         "width": 1114,
         "height": 48
       },
@@ -2059,7 +2139,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 750.328125,
-        "y": 787,
+        "y": 845,
         "width": 129.328125,
         "height": 20
       },
@@ -2099,7 +2179,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 865,
+        "y": 923,
         "width": 1114,
         "height": 28
       },
@@ -2118,18 +2198,18 @@
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
       "contrastCandidate": 10.97,
       "pixelEvidence": {
-        "status": "candidate-supported",
+        "status": "manual-review",
         "visibleBackground": "rgb(21, 17, 27)",
         "pixelRatio": 10.97,
-        "dominantShare": 0.972,
+        "dominantShare": 0.969,
         "matchesDomBackground": true,
         "sampledPixels": 9520,
-        "foregroundPixels": 57,
+        "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": ".r-w7s2jr > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-bplmwz.r-14mg64r[data-testid=\"button-text\"]",
+      "target": ".r-w7s2jr > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-q4m81j.r-bplmwz[data-testid=\"button-text\"]",
       "text": "Опитай отново",
       "foreground": "rgb(210, 193, 240)",
       "fontSize": "14px",
@@ -2138,7 +2218,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 765.1875,
-        "y": 916,
+        "y": 974,
         "width": 99.609375,
         "height": 20
       },
@@ -2157,13 +2237,13 @@
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
       "contrastCandidate": 11.19,
       "pixelEvidence": {
-        "status": "candidate-supported",
+        "status": "manual-review",
         "visibleBackground": "rgb(21, 17, 27)",
         "pixelRatio": 11.19,
-        "dominantShare": 0.839,
+        "dominantShare": 1,
         "matchesDomBackground": true,
         "sampledPixels": 2704,
-        "foregroundPixels": 115,
+        "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },

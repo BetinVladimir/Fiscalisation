@@ -20,6 +20,10 @@ function walk(directory) {
     const source = fs.readFileSync(absolute, 'utf8');
     const withoutComments = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
 
+    if (relative === 'App.tsx' && /(?:AppPressable|AppText|FormField|<Pressable\b|<Text\b|<TextInput\b)/.test(withoutComments)) {
+      failures.push('App.tsx: interactive and text leaves must use actual Paper components');
+    }
+
     if (/Dimensions\.get\s*\(/.test(withoutComments)) failures.push(`${relative}: use useWindowDimensions/useResponsiveLayout instead of Dimensions.get`);
     if (/#[0-9a-f]{3,8}\b/i.test(withoutComments)) failures.push(`${relative}: move hard-coded colors to semantic UI tokens`);
     if (/(?:color|backgroundColor|borderColor|shadowColor)\s*:\s*['\"](?:white|black|red|green|blue|gray|grey|transparent)['\"]/i.test(withoutComments)) failures.push(`${relative}: move named colors to semantic UI tokens`);

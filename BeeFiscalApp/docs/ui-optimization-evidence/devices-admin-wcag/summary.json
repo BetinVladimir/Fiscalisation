@@ -1,18 +1,18 @@
 {
-  "date": "2026-09-30T22:23:48.340Z",
-  "sourceCommit": "ef13005d145c60e42d6e97ad2025bb2baf3f1ecb",
+  "date": "2026-09-30T22:37:04.930Z",
+  "sourceCommit": "758bccdcc49a443aea2a94b437e7757a37076267",
   "testSha256": "c4c08c426ab21946e774e7553c0d4db0eed63d1e2561419f42ef0c01197be77f",
   "sourceFilesSha256": {
-    "App.tsx": "0848c3a2f55ee10de0cc9d418cb2661da59b446486149558b59b50b787d647aa"
+    "App.tsx": "77e35a3006684f6a52278c277bd17ea5999f3b076c37932f35975c543f17f4d9"
   },
-  "bundle": "AppEntry-112908571f1078352ff76a1f18085eaf.js",
+  "bundle": "AppEntry-8f91adf683b37e5a475a2558b9cc3548.js",
   "command": "npm run test:e2e:devices-admin-wcag",
   "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
   "scans": 36,
   "totalViolations": 0,
   "totalIncomplete": 1127,
-  "pixelSupported": 741,
-  "pixelManualReview": 386,
+  "pixelSupported": 744,
+  "pixelManualReview": 383,
   "entries": [
     {
       "state": "admin-device-form",
@@ -20,8 +20,8 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 53,
-      "pixelSupported": 22,
-      "pixelManualReview": 31,
+      "pixelSupported": 23,
+      "pixelManualReview": 30,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-lg-dark"
     },
     {
@@ -80,8 +80,8 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 61,
-      "pixelSupported": 35,
-      "pixelManualReview": 26,
+      "pixelSupported": 36,
+      "pixelManualReview": 25,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-lg-dark"
     },
     {
@@ -90,8 +90,8 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 61,
-      "pixelSupported": 35,
-      "pixelManualReview": 26,
+      "pixelSupported": 36,
+      "pixelManualReview": 25,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-lg-light"
     },
     {

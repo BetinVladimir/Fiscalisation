@@ -1,8 +1,8 @@
 {
-  "date": "2026-09-30T21:18:22.285Z",
-  "sourceCommit": "921f36899a1b4f605772fdb9b2f1e086fe6ea8e9",
+  "date": "2026-09-30T22:31:08.078Z",
+  "sourceCommit": "758bccdcc49a443aea2a94b437e7757a37076267",
   "testSha256": "e09e4b62eacb9a83e6c0ee57d6c8701c90b940d3833ad5b3f0eb5ffd3373bbd5",
-  "bundle": "AppEntry-374251aa15271b9c0b271db9d8596567.js",
+  "bundle": "AppEntry-a1268dd818abac92aa682f729b1bc144.js",
   "command": "npm run test:e2e:auth-wcag",
   "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
   "scans": 24,

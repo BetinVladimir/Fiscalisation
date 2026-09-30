@@ -31,6 +31,56 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shell.language.open-...\" style=\"direction: ltr; colo...\">",
+          "target": [
+            "div[data-testid=\"shell.language.open-text\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
+                "fontSize": "10.5pt (14px)",
+                "fontWeight": "normal",
+                "messageKey": "bgOverlap",
+                "expectedContrastRatio": "4.5:1"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element's background color could not be determined because it is overlapped by another element"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shell.theme.toggle-t...\" style=\"direction: ltr; colo...\">",
+          "target": [
+            "div[data-testid=\"shell.theme.toggle-text\"]"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "contrastRatio": 0,
                 "fontSize": "21.8pt (29px)",
                 "fontWeight": "bold",
                 "messageKey": "bgOverlap",
@@ -171,7 +221,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -654,11 +704,85 @@
     }
   ],
   "pixelSummary": {
-    "candidates": 25,
-    "supported": 16,
-    "manualReview": 9
+    "candidates": 27,
+    "supported": 17,
+    "manualReview": 10
   },
   "contrastCandidates": [
+    {
+      "target": "div[data-testid=\"shell.language.open-text\"]",
+      "text": "BG",
+      "foreground": "rgb(210, 193, 240)",
+      "fontSize": "14px",
+      "fontWeight": "500",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 177,
+        "y": 23,
+        "width": 18.5625,
+        "height": 20
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 360,
+        "height": 800
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)"
+      ],
+      "background": "rgb(13, 10, 18)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 11.81,
+      "pixelEvidence": {
+        "status": "candidate-supported",
+        "visibleBackground": "rgb(13, 10, 18)",
+        "pixelRatio": 11.81,
+        "dominantShare": 0.744,
+        "matchesDomBackground": true,
+        "sampledPixels": 624,
+        "foregroundPixels": 45,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
+    {
+      "target": "div[data-testid=\"shell.theme.toggle-text\"]",
+      "text": "Системна",
+      "foreground": "rgb(210, 193, 240)",
+      "fontSize": "14px",
+      "fontWeight": "500",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 253.5625,
+        "y": 23,
+        "width": 65.4375,
+        "height": 20
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 360,
+        "height": 800
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)"
+      ],
+      "background": "rgb(13, 10, 18)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 11.81,
+      "pixelEvidence": {
+        "status": "candidate-supported",
+        "visibleBackground": "rgb(13, 10, 18)",
+        "pixelRatio": 11.81,
+        "dominantShare": 0.77,
+        "matchesDomBackground": true,
+        "sampledPixels": 1846,
+        "foregroundPixels": 158,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
     {
       "target": ".r-axlblu",
       "text": "BeeFiscal",
@@ -669,7 +793,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 12,
-        "y": 12,
+        "y": 70,
         "width": 336,
         "height": 34
       },
@@ -707,7 +831,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 12,
-        "y": 49,
+        "y": 107,
         "width": 336,
         "height": 32
       },
@@ -745,7 +869,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 37,
-        "y": 104,
+        "y": 162,
         "width": 39.609375,
         "height": 20
       },
@@ -783,7 +907,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 180.0625,
-        "y": 106,
+        "y": 164,
         "width": 157.9375,
         "height": 16
       },
@@ -822,7 +946,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 32,
-        "y": 168,
+        "y": 226,
         "width": 296,
         "height": 29
       },
@@ -851,7 +975,7 @@
       }
     },
     {
-      "target": ".r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
       "text": "Търсене: Касово място",
       "foreground": "rgb(212, 205, 217)",
       "fontSize": "16px",
@@ -860,7 +984,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 32,
-        "y": 229,
+        "y": 287,
         "width": 210.21875,
         "height": 19.203125
       },
@@ -898,7 +1022,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 32,
-        "y": 215,
+        "y": 273,
         "width": 296,
         "height": 48
       },
@@ -936,7 +1060,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 48,
-        "y": 285,
+        "y": 343,
         "width": 256,
         "height": 19
       },
@@ -975,7 +1099,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 56,
-        "y": 342,
+        "y": 400,
         "width": 50.03125,
         "height": 20
       },
@@ -1014,7 +1138,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 48,
-        "y": 408,
+        "y": 466,
         "width": 264,
         "height": 56
       },
@@ -1053,7 +1177,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 48,
-        "y": 476,
+        "y": 534,
         "width": 264,
         "height": 40
       },
@@ -1092,7 +1216,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 75.515625,
-        "y": 542,
+        "y": 600,
         "width": 8.96875,
         "height": 20
       },
@@ -1132,7 +1256,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 147.734375,
-        "y": 542,
+        "y": 600,
         "width": 8.53125,
         "height": 20
       },
@@ -1172,7 +1296,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 216,
-        "y": 542,
+        "y": 600,
         "width": 34.65625,
         "height": 20
       },
@@ -1212,7 +1336,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 72,
-        "y": 598,
+        "y": 656,
         "width": 112.78125,
         "height": 20
       },
@@ -1252,7 +1376,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 32,
-        "y": 660,
+        "y": 718,
         "width": 296,
         "height": 20
       },
@@ -1270,13 +1394,13 @@
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
       "contrastCandidate": 15.74,
       "pixelEvidence": {
-        "status": "candidate-supported",
-        "visibleBackground": "rgb(13, 10, 18)",
-        "pixelRatio": 15.74,
-        "dominantShare": 0.84,
-        "matchesDomBackground": true,
+        "status": "manual-review",
+        "visibleBackground": "rgb(21, 17, 27)",
+        "pixelRatio": 14.92,
+        "dominantShare": 0.486,
+        "matchesDomBackground": false,
         "sampledPixels": 7852,
-        "foregroundPixels": 414,
+        "foregroundPixels": 80,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },

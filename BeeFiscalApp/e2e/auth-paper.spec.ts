@@ -100,6 +100,9 @@ test('production Paper auth retains input after errors and selects a company', a
   await expect(page.getByRole('button', { name: 'Изберете компания Test Fiscal Company' })).toBeVisible();
   await page.getByRole('button', { name: 'Изберете компания Test Fiscal Company' }).click();
   await expect(page.getByTestId('status-fiscal-device')).toBeVisible();
+  await expect(page.getByTestId('admin-logout')).toBeVisible();
+  await page.getByTestId('admin-logout').click();
+  await expect(page.getByTestId('auth.root')).toBeVisible();
   expect(calls.filter(call => call.path.endsWith('/challenges')).map(call => call.body.email)).toEqual(['qa@example.org', 'qa@example.org']);
   expect(calls.find(call => call.path.endsWith('/tenant-session'))?.body.tenant_id).toBe('company-1');
 });

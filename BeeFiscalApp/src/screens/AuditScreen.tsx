@@ -34,8 +34,7 @@ const display = (value: unknown) => typeof value === 'string' || typeof value ==
 function AuditEventCard({ event }: { event: Event }) {
   const [expanded, setExpanded] = useState(false);
   const id = display(event.event_id);
-  return <Card mode="outlined" testID={`audit-event-${id}`}
-    accessibilityLabel={`Одит ${display(event.action)}, обект ${display(event.object_type)} ${display(event.object_id)}, участник ${display(event.actor_id)}, време ${display(event.occurred_at)}`}>
+  return <Card mode="outlined" testID={`audit-event-${id}`}>
     <Card.Content style={{ gap: 6, paddingVertical: 16 }}>
       <Text variant="titleMedium">{display(event.action)} • {display(event.object_type)}</Text>
       <Text variant="bodyMedium">{display(event.occurred_at)}</Text>
@@ -52,7 +51,7 @@ function AuditEventCard({ event }: { event: Event }) {
 }
 
 export function AuditScreen({ events, filters, loading, error, onChange, onApply }: Props) {
-  return <View testID="audit-events" accessibilityLabel="Неизменим одитен журнал" style={{ gap: 12, paddingBottom: 16 }}>
+  return <View testID="audit-events" style={{ gap: 12, paddingBottom: 16 }}>
     <Card mode="outlined" testID="audit-filters"><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
       <Text variant="titleLarge" accessibilityRole="header">Филтри на одитния журнал</Text>
       {fields.map(({ name, label }) => <TextInput

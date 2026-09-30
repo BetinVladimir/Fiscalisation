@@ -1,18 +1,18 @@
 {
-  "date": "2026-09-30T21:37:14.895Z",
-  "sourceCommit": "99b584f5456bac1c7424c160e20091bfdf6c060e",
+  "date": "2026-09-30T22:31:46.841Z",
+  "sourceCommit": "758bccdcc49a443aea2a94b437e7757a37076267",
   "testSha256": "614befa71ebff3100f1b6719d9586f2eec1aa9b7819127359ae0a72d0d3294c9",
   "sourceFilesSha256": {
-    "App.tsx": "165bacff9a4cf123a8cb5026e395fc00d704f4c93717d47f1ab02faca6364f4b",
+    "App.tsx": "77e35a3006684f6a52278c277bd17ea5999f3b076c37932f35975c543f17f4d9",
     "src/screens/OperationsScreen.tsx": "bb76a2aad29d618db02411ccce69e2f4aa3f57e1a4a016f19b865bf137be38c8"
   },
-  "bundle": "AppEntry-e4791ea48db48182505a08dd20af0875.js",
+  "bundle": "AppEntry-8f91adf683b37e5a475a2558b9cc3548.js",
   "command": "npm run test:e2e:operations-wcag",
   "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
   "scans": 6,
   "totalViolations": 0,
-  "totalIncomplete": 124,
-  "pixelSupported": 98,
+  "totalIncomplete": 136,
+  "pixelSupported": 110,
   "pixelManualReview": 26,
   "entries": [
     {
@@ -20,8 +20,8 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 20,
-      "pixelSupported": 18,
+      "incomplete": 22,
+      "pixelSupported": 20,
       "pixelManualReview": 2,
       "evidence": "docs/ui-optimization-evidence/operations-wcag/operations-populated-lg-dark"
     },
@@ -30,8 +30,8 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 20,
-      "pixelSupported": 18,
+      "incomplete": 22,
+      "pixelSupported": 20,
       "pixelManualReview": 2,
       "evidence": "docs/ui-optimization-evidence/operations-wcag/operations-populated-lg-light"
     },
@@ -40,8 +40,8 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 20,
-      "pixelSupported": 18,
+      "incomplete": 22,
+      "pixelSupported": 20,
       "pixelManualReview": 2,
       "evidence": "docs/ui-optimization-evidence/operations-wcag/operations-populated-md-dark"
     },
@@ -50,8 +50,8 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 20,
-      "pixelSupported": 18,
+      "incomplete": 22,
+      "pixelSupported": 20,
       "pixelManualReview": 2,
       "evidence": "docs/ui-optimization-evidence/operations-wcag/operations-populated-md-light"
     },
@@ -60,8 +60,8 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 22,
-      "pixelSupported": 13,
+      "incomplete": 24,
+      "pixelSupported": 15,
       "pixelManualReview": 9,
       "evidence": "docs/ui-optimization-evidence/operations-wcag/operations-populated-xs-dark"
     },
@@ -70,8 +70,8 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 22,
-      "pixelSupported": 13,
+      "incomplete": 24,
+      "pixelSupported": 15,
       "pixelManualReview": 9,
       "evidence": "docs/ui-optimization-evidence/operations-wcag/operations-populated-xs-light"
     }
