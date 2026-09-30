@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { DEVICE_ID, LOCATION_ID, OPERATOR_ID, REGISTER_ID, SECOND_REGISTER_ID, mockFiscalApi, openApp } from './helpers';
+import { DEVICE_ID, LOCATION_ID, OPERATOR_ID, REGISTER_ID, SECOND_DEVICE_ID, SECOND_REGISTER_ID, mockFiscalApi, openApp } from './helpers';
 
 test('device diagnostics, printer and provisioning use public API with idempotency keys', async ({ page }) => {
   const mutations = await mockFiscalApi(page);
@@ -88,6 +88,19 @@ test('register selection reloads operations and reports for the selected registe
   await page.getByTestId('tab-Отчети').click();
   await expect.poll(() => requested.some(url => url.includes(`/reports?register_id=${SECOND_REGISTER_ID}`))).toBe(true);
   await expect(page.getByRole('button', { name: 'Избрано: R02', exact: true })).toBeVisible();
+});
+
+test('device list follows backend register bindings when the register changes', async ({ page }) => {
+  await mockFiscalApi(page, { secondRegister: true });
+  await openApp(page);
+  await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeVisible();
+  await expect(page.getByTestId(`device.item.${SECOND_DEVICE_ID}`)).toHaveCount(0);
+  await page.getByRole('button', { name: 'R02', exact: true }).first().click();
+  await expect(page.getByTestId(`device.item.${SECOND_DEVICE_ID}`)).toBeVisible();
+  await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toHaveCount(0);
+  await page.getByRole('button', { name: 'R01', exact: true }).first().click();
+  await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeVisible();
+  await expect(page.getByTestId(`device.item.${SECOND_DEVICE_ID}`)).toHaveCount(0);
 });
 
 test('device list shows an empty state with unavailable device actions', async ({ page }) => {

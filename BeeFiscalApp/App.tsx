@@ -18,6 +18,7 @@ import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
 import {
+  devicesBoundToRegister,
   isRegisterId,
   registerCollectionPath,
   registerResourcePath,
@@ -245,22 +246,27 @@ function AppContent() {
           throw new Error("ROLE_REPORT_READ_REQUIRED");
         if (next === "Одит" && !canReadAudit)
           throw new Error("ROLE_AUDIT_READ_REQUIRED");
-        if (next !== "Администриране" && adminLists.registers.length === 0) {
+        let registersForContext = adminLists.registers;
+        if (next !== "Администриране" && registersForContext.length === 0) {
           const [locations, registers, operators] = await Promise.all([
             collect("/locations"),
             collect("/registers"),
             collect("/operators"),
           ]);
           setAdminLists(current => ({ ...current, locations, registers, operators }));
+          registersForContext = registers;
           setLocationId(current => current || label(locations[0]?.id));
           setActivationLocationId(current => current || label(locations[0]?.id));
           setRegister(current => current || label(registers[0]?.id));
           setOperatorId(current => current || label(operators[0]?.id));
         }
         if (next === "Устройства") {
-          const v = await collect("/devices");
-          setItems(v);
-          setSelected((x) => x || v[0] || null);
+          const companyDevices = await collect("/devices");
+          const registerId = registerOverride || label(registersForContext[0]?.id);
+          const activeRegister = registersForContext.find(item => item.id === registerId);
+          const scopedDevices = devicesBoundToRegister(companyDevices, activeRegister);
+          setItems(scopedDevices);
+          setSelected(scopedDevices[0] || null);
         }
         if (next === "Операции") {
           const v = await collect(
@@ -768,7 +774,7 @@ function AppContent() {
         >
           <PaperText style={s.readyText}>Fiscal Core: {core}</PaperText>
         </View>
-        {prodMode && oidc.tenants.length > 1 ? <View style={s.actions}>{oidc.tenants.map(t=><Button key={t.tenant_id} mode={t.tenant_id===oidc.currentTenant?.tenant_id ? 'contained-tonal' : 'outlined'} contentStyle={{ minHeight: 48 }} disabled={t.tenant_id===oidc.currentTenant?.tenant_id} accessibilityLabel={`Компания ${t.display_name}`} onPress={()=>{setItems([]);setSelected(null);setAdminLists({locations:[],registers:[],operators:[],devices:[]});void oidc.switchTenant(t.tenant_id)}}>{t.display_name}</Button>)}</View>:null}
+        {prodMode && oidc.tenants.length > 1 ? <View style={s.actions}>{oidc.tenants.map(t=><Button key={t.tenant_id} mode={t.tenant_id===oidc.currentTenant?.tenant_id ? 'contained-tonal' : 'outlined'} contentStyle={{ minHeight: 48 }} disabled={t.tenant_id===oidc.currentTenant?.tenant_id} accessibilityLabel={`Компания ${t.display_name}`} onPress={()=>{setItems([]);setSelected(null);setRegister('');setAdminLists({locations:[],registers:[],operators:[],devices:[]});void oidc.switchTenant(t.tenant_id)}}>{t.display_name}</Button>)}</View>:null}
         {prodMode ? (
           <Button
             testID="admin-logout"

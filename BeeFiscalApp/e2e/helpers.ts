@@ -4,6 +4,7 @@ export const REGISTER_ID = '00000000-0000-4000-8000-000000000001';
 export const SECOND_REGISTER_ID = '00000000-0000-4000-8000-000000000005';
 export const LOCATION_ID = '00000000-0000-4000-8000-000000000002';
 export const DEVICE_ID = '00000000-0000-4000-8000-000000000003';
+export const SECOND_DEVICE_ID = '00000000-0000-4000-8000-000000000006';
 export const OPERATOR_ID = '00000000-0000-4000-8000-000000000004';
 const API = 'http://fiscal-admin.test/public/v1';
 
@@ -25,10 +26,15 @@ export async function mockFiscalApi(page: Page, options: { devicesStatus?: numbe
 
     if (path.startsWith('/devices?') && method === 'GET') {
       if (options.devicesStatus) return json(route, { code: 'UNAVAILABLE' }, options.devicesStatus);
-      return json(route, { items: options.devicesEmpty ? [] : [{ id: DEVICE_ID, name: 'Datecs counter', vendor: 'Datecs', model: 'DP-150 MX', status: options.devicesDisconnected ? 'DISCONNECTED' : 'ACTIVE', transport: 'RS232' }], page: { has_more: false } });
+      return json(route, { items: options.devicesEmpty ? [] : [
+        { id: DEVICE_ID, name: 'Datecs counter', vendor: 'Datecs', model: 'DP-150 MX', status: options.devicesDisconnected ? 'DISCONNECTED' : 'ACTIVE', transport: 'RS232' },
+        ...(options.secondRegister ? [{ id: SECOND_DEVICE_ID, name: 'Daisy counter', vendor: 'Daisy', model: 'Compact S', status: 'ACTIVE', transport: 'RS232' }] : []),
+      ], page: { has_more: false } });
     }
     if (path === `/devices/${DEVICE_ID}/health`) return json(route, { effective_state: 'READY', observed_at: '2026-08-20T10:00:00Z' });
     if (path === `/devices/${DEVICE_ID}/activity`) return json(route, { items: [{ state: 'READY', at: '2026-08-20T10:00:00Z' }] });
+    if (path === `/devices/${SECOND_DEVICE_ID}/health`) return json(route, { effective_state: 'READY', observed_at: '2026-08-20T10:00:00Z' });
+    if (path === `/devices/${SECOND_DEVICE_ID}/activity`) return json(route, { items: [{ state: 'READY', at: '2026-08-20T10:00:00Z' }] });
     if (path === `/devices/${DEVICE_ID}/capabilities`) return json(route, { printer_test: true, ble: true });
     if (path === `/devices/${DEVICE_ID}/diagnostics`) return json(route, { driver: 'datecs', secrets_redacted: true });
     if (path === `/devices/${DEVICE_ID}/tests/printer` && method === 'POST') return json(route, { id: 'printer-1', state: 'COMPLETED' }, 202);
@@ -50,7 +56,7 @@ export async function mockFiscalApi(page: Page, options: { devicesStatus?: numbe
       return json(route, { items: options.auditEmpty ? [] : [{ event_id: 'audit-1', action: 'SALE_FINALIZED', object_type: 'SALE', object_id: 'sale-1', actor_id: OPERATOR_ID, occurred_at: '2026-08-20T10:00:00Z', unp: 'UNP-1', event_hash: 'abc123' }], page: { has_more: false } });
     }
     if (path.startsWith('/locations?')) return json(route, { items: [{ id: LOCATION_ID, code: 'SOF', name: 'Sofia' }], page: { has_more: false } });
-    if (path.startsWith('/registers?')) return json(route, { items: [{ id: REGISTER_ID, code: 'R01', location_id: LOCATION_ID, version: 1 }, ...(options.secondRegister ? [{ id: SECOND_REGISTER_ID, code: 'R02', location_id: LOCATION_ID, version: 1 }] : [])], page: { has_more: false } });
+    if (path.startsWith('/registers?')) return json(route, { items: [{ id: REGISTER_ID, code: 'R01', location_id: LOCATION_ID, fiscal_device_id: DEVICE_ID, status: 'ACTIVE', version: 1 }, ...(options.secondRegister ? [{ id: SECOND_REGISTER_ID, code: 'R02', location_id: LOCATION_ID, fiscal_device_id: SECOND_DEVICE_ID, status: 'ACTIVE', version: 1 }] : [])], page: { has_more: false } });
     if (path.startsWith('/operators?')) return json(route, { items: [{ id: OPERATOR_ID, code: 'A001', first_name: 'Ivan', last_name: 'Ivanov' }], page: { has_more: false } });
     if (path === `/registers/${REGISTER_ID}/composite-bindings`) return json(route, { items: [], page: { has_more: false } });
     if (path === '/country-policy') {

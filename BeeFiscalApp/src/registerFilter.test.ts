@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import {
+  devicesBoundToRegister,
   isRegisterId,
   registerCollectionPath,
   registerResourcePath,
@@ -8,6 +9,13 @@ import {
 
 test("register filter is omitted when no register is configured", () => {
   assert.equal(registerCollectionPath("/operations", ""), "/operations");
+});
+
+test('device context uses only the fiscal and payment device IDs bound to a register', () => {
+  const devices = [{ id: 'fiscal' }, { id: 'payment' }, { id: 'another-register' }];
+  assert.deepEqual(devicesBoundToRegister(devices, { fiscal_device_id: 'fiscal', payment_terminal_id: 'payment' }), devices.slice(0, 2));
+  assert.deepEqual(devicesBoundToRegister(devices, { fiscal_device_id: null, payment_terminal_id: null }), []);
+  assert.deepEqual(devicesBoundToRegister(devices, undefined), []);
 });
 
 test("register filter accepts only an OpenAPI UUID", () => {

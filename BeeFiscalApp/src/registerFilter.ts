@@ -20,3 +20,16 @@ export function registerResourcePath(registerId: string, suffix = ""): string {
   if (!isRegisterId(value)) throw new Error("INVALID_REGISTER_ID");
   return `/registers/${encodeURIComponent(value)}${suffix}`;
 }
+
+export function devicesBoundToRegister<T extends { id?: unknown }>(
+  devices: T[],
+  register: { fiscal_device_id?: unknown; payment_terminal_id?: unknown } | undefined,
+): T[] {
+  if (!register) return [];
+  const boundIds = new Set(
+    [register.fiscal_device_id, register.payment_terminal_id].filter(
+      (id): id is string => typeof id === 'string' && id.length > 0,
+    ),
+  );
+  return devices.filter(device => typeof device.id === 'string' && boundIds.has(device.id));
+}
