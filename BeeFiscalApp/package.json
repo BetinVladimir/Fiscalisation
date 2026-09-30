@@ -6,7 +6,9 @@
   "scripts": {
     "test": "node --experimental-strip-types --test src/*.test.ts",
     "test:e2e": "npm run build:e2e && playwright test",
+    "test:e2e:auth": "npm run build:e2e:auth && playwright test --config playwright.auth.config.ts",
     "build:e2e": "EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
+    "build:e2e:auth": "EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",

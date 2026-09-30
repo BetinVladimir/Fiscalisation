@@ -9,6 +9,7 @@
       "channel": "demo",
       "env": {
         "APP_VARIANT": "demo",
+        "EXPO_PUBLIC_APP_ENV": "prod",
         "EXPO_PUBLIC_FISCAL_API_URL": "https://demo-api.beeloy.org/public/v1",
         "BEELOY_STORE_BUILD": "1",
         "EXPO_NO_DOTENV": "1",
@@ -31,6 +32,7 @@
       "channel": "production",
       "env": {
         "APP_VARIANT": "production",
+        "EXPO_PUBLIC_APP_ENV": "prod",
         "EXPO_PUBLIC_FISCAL_API_URL": "https://api.beeloy.org/public/v1",
         "BEELOY_STORE_BUILD": "1",
         "EXPO_NO_DOTENV": "1",

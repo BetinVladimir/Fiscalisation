@@ -4,10 +4,10 @@ import { AppPressable as Pressable } from './src/ui/app-pressable';
 import { AppText as Text } from './src/ui/app-text';
 import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-view';
 import { FormField as TextInput } from './src/ui/form-field';
-import { AuthForm } from './src/ui/auth-form';
+import { AuthScreen } from './src/screens/AuthScreen';
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useState } from "react";
-import { Linking, StyleSheet, View } from "react-native";
+import { StyleSheet, View } from "react-native";
 import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
@@ -692,26 +692,7 @@ function AppContent() {
     }
   };
   if (prodMode && !oidc.accessToken) {
-    return (
-      <SafeAreaView style={s.root}>
-        <StatusBar style="auto" />
-        <AuthForm testID="admin-login" style={s.login}>
-          <Text style={s.loginTitle}>BeeFiscal • административен вход</Text>
-          <Text style={s.loginText}>
-            Вход с код по email. Доступ разрешён только ранее зарегистрированным пользователям Fiscal.
-          </Text>
-          <Pressable accessibilityRole="link" onPress={()=>void Linking.openURL('https://legal.beeloy.org/bg/privacy')}><Text style={s.loginText}>Политика за поверителност</Text></Pressable>
-          {oidc.error ? <Text style={s.loginError}>{oidc.error}</Text> : null}
-          {!oidc.temporary ? <>
-            <TextInput style={s.input} placeholder="Email" autoCapitalize="none" keyboardType="email-address" value={oidc.email} onChangeText={oidc.setEmail}/>
-            <Pressable testID="admin-login-start" accessibilityRole="button" disabled={!oidc.ready||!oidc.email} style={s.loginButton} onPress={() => void oidc.requestCode()}><Text style={s.loginButtonText}>Получить код</Text></Pressable>
-          </> : oidc.tenants.length === 0 ? <>
-            <TextInput style={s.input} placeholder="Код из email" keyboardType="number-pad" value={oidc.code} onChangeText={oidc.setCode}/>
-            <Pressable accessibilityRole="button" disabled={!oidc.ready||oidc.code.length!==6} style={s.loginButton} onPress={() => void oidc.verifyCode()}><Text style={s.loginButtonText}>Подтвердить</Text></Pressable>
-          </> : <View style={{gap:8}}><Text style={s.loginText}>Выберите компанию</Text>{oidc.tenants.map(t=><Pressable key={t.tenant_id} style={s.loginButton} onPress={()=>void oidc.selectTenant(t.tenant_id)}><Text style={s.loginButtonText}>{t.display_name}</Text></Pressable>)}</View>}
-        </AuthForm>
-      </SafeAreaView>
-    );
+    return <AuthScreen auth={oidc} />;
   }
   return (
     <SafeAreaView style={s.root}>
@@ -1878,27 +1859,6 @@ function Choices({
 
 const s = StyleSheet.create({
   root: { flex: 1, backgroundColor: beeloyColors.background },
-  login: {
-    alignSelf: "center",
-    width: "90%",
-    maxWidth: 540,
-    marginTop: 80,
-    padding: 28,
-    backgroundColor: beeloyColors.surface,
-    borderRadius: 16,
-    gap: 18,
-  },
-  loginTitle: { fontSize: 24, fontWeight: "900", color: beeloyColors.tertiary },
-  loginText: { fontSize: 16, color: beeloyColors.tertiary, lineHeight: 23 },
-  loginError: { fontSize: 15, color: beeloyColors.error, fontWeight: "700" },
-  loginButton: {
-    minHeight: 56,
-    backgroundColor: beeloyColors.success,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loginButtonText: { color: beeloyColors.onPrimary, fontSize: 17, fontWeight: "800" },
   logout: {
     minHeight: 48,
     paddingHorizontal: 14,

@@ -12,7 +12,7 @@ const eas = JSON.parse(readFileSync(resolve('eas.json'), 'utf8'));
 const store = JSON.parse(readFileSync(resolve('store/app.json'), 'utf8'));
 const env = Object.fromEntries(Object.entries(process.env).filter(([key]) => !key.startsWith('EXPO_PUBLIC_')));
 Object.assign(env, eas.build?.[variant]?.env ?? {}, store.publicEnv?.[variant] ?? {}, {
-  CI: '1', NODE_ENV: 'production', EXPO_NO_DOTENV: '1', APP_VARIANT: variant,
+  CI: '1', NODE_ENV: 'production', EXPO_NO_DOTENV: '1', APP_VARIANT: variant, EXPO_PUBLIC_APP_ENV: 'prod',
 });
 const require = createRequire(resolve('package.json'));
 const output = resolve('dist-cloudflare', variant);
