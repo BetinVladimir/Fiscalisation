@@ -1,4 +1,4 @@
-// Generated with local Ollama qwen3.5:9b-mlx.
+// Generated with local Ollama qwen3.5:9b-mlx; selected register labels with translategemma:12b.
 export const translations = {
   "bg": {
     "theme": "Тема",
@@ -98,7 +98,8 @@ export const translations = {
     "shiftOperationFailed": "Операцията със смяната е отказана",
     "configureBeforeShift": "Първо настройте POS конфигурацията",
     "selectEmployeeBeforeShift": "Първо създайте и изберете служител",
-    "invalidRegister": "Изберете валидна фискална каса"
+    "invalidRegister": "Изберете валидна фискална каса",
+    "selected": "Избрано"
   },
   "da": {
     "theme": "Tema",
@@ -198,7 +199,8 @@ export const translations = {
     "shiftOperationFailed": "Skift-operationen blev afvist",
     "configureBeforeShift": "Konfigurer POS'en først",
     "selectEmployeeBeforeShift": "Opret og vælg en medarbejder først",
-    "invalidRegister": "Vælg en gyldig fiskal enhed"
+    "invalidRegister": "Vælg en gyldig fiskal enhed",
+    "selected": "Valgt"
   },
   "hr": {
     "theme": "Tema",
@@ -298,7 +300,8 @@ export const translations = {
     "shiftOperationFailed": "Operacija smjene je odbijena",
     "configureBeforeShift": "Prvo konfigurirajte POS",
     "selectEmployeeBeforeShift": "Prvo stvori i odaberi radnika",
-    "invalidRegister": "Odaberite ispravan fiskalni registar"
+    "invalidRegister": "Odaberite ispravan fiskalni registar",
+    "selected": "Odabrano"
   },
   "cs": {
     "theme": "Téma",
@@ -398,7 +401,8 @@ export const translations = {
     "shiftOperationFailed": "Operace směny byla zamítnuta",
     "configureBeforeShift": "Nejprve konfigurujte POS",
     "selectEmployeeBeforeShift": "Nejprve vytvořte a vyberte zaměstnance",
-    "invalidRegister": "Vyberte platný fiskální registr"
+    "invalidRegister": "Vyberte platný fiskální registr",
+    "selected": "Vybráno"
   },
   "en": {
     "theme": "Theme",
@@ -498,7 +502,8 @@ export const translations = {
     "shiftOperationFailed": "Shift operation was rejected",
     "configureBeforeShift": "Configure the POS first",
     "selectEmployeeBeforeShift": "Create and select an employee first",
-    "invalidRegister": "Select a valid fiscal register"
+    "invalidRegister": "Select a valid fiscal register",
+    "selected": "Selected"
   },
   "nl": {
     "theme": "Thema",
@@ -598,7 +603,8 @@ export const translations = {
     "shiftOperationFailed": "Shift-operatie is afgewezen",
     "configureBeforeShift": "Configureer de POS eerst",
     "selectEmployeeBeforeShift": "Maak en selecteer eerst een medewerker",
-    "invalidRegister": "Selecteer een geldig fiscaal register"
+    "invalidRegister": "Selecteer een geldig fiscaal register",
+    "selected": "Geselecteerd"
   },
   "et": {
     "theme": "Teema",
@@ -698,7 +704,8 @@ export const translations = {
     "shiftOperationFailed": "Vahetuse tegevus lükkas tagasi",
     "configureBeforeShift": "Seadista POS enne vahetust",
     "selectEmployeeBeforeShift": "Loo ja vali töötaja enne vahetust",
-    "invalidRegister": "Vali kehtiv maksumärgistaja"
+    "invalidRegister": "Vali kehtiv maksumärgistaja",
+    "selected": "Valitud"
   },
   "fi": {
     "theme": "Teema",
@@ -798,7 +805,8 @@ export const translations = {
     "shiftOperationFailed": "Vuorotoiminto hylättiin",
     "configureBeforeShift": "Aseta POS ensin",
     "selectEmployeeBeforeShift": "Luo ja valitse työntekijä ensin",
-    "invalidRegister": "Valitse kelvollinen verorekisteri"
+    "invalidRegister": "Valitse kelvollinen verorekisteri",
+    "selected": "Valittu"
   },
   "fr": {
     "theme": "Thème",
@@ -898,7 +906,8 @@ export const translations = {
     "shiftOperationFailed": "L'opération de caisse a été rejetée",
     "configureBeforeShift": "Configurez le POS avant d'ouvrir la caisse",
     "selectEmployeeBeforeShift": "Créez et sélectionnez un employé avant d'ouvrir la caisse",
-    "invalidRegister": "Sélectionnez un registre fiscal valide"
+    "invalidRegister": "Sélectionnez un registre fiscal valide",
+    "selected": "Sélectionné"
   },
   "hu": {
     "theme": "Téma",
@@ -998,7 +1007,8 @@ export const translations = {
     "shiftOperationFailed": "A munkaváltási művelet elutasítva",
     "configureBeforeShift": "Állítsa be először a POS-t",
     "selectEmployeeBeforeShift": "Létrehozzon és válasszon egy munkatársat először",
-    "invalidRegister": "Válasszon érvényes adóregisztrációt"
+    "invalidRegister": "Válasszon érvényes adóregisztrációt",
+    "selected": "Kiválasztva"
   },
   "el": {
     "theme": "Θέμα",
@@ -1098,7 +1108,8 @@ export const translations = {
     "shiftOperationFailed": "Η λειτουργία βάρδιας απορρίφθηκε",
     "configureBeforeShift": "Ρυθμίστε πρώτα το POS",
     "selectEmployeeBeforeShift": "Δημιουργήστε και επιλέξτε πρώτα έναν υπάλληλο",
-    "invalidRegister": "Επιλέξτε έγκυρο μητρώο φορολογικής μονάδας"
+    "invalidRegister": "Επιλέξτε έγκυρο μητρώο φορολογικής μονάδας",
+    "selected": "Επιλεγμένο"
   },
   "de": {
     "theme": "Thema",
@@ -1198,7 +1209,8 @@ export const translations = {
     "shiftOperationFailed": "Schichtoperation wurde abgelehnt",
     "configureBeforeShift": "Konfigurieren Sie zuerst den POS",
     "selectEmployeeBeforeShift": "Erstellen und wählen Sie zuerst einen Mitarbeiter aus",
-    "invalidRegister": "Wählen Sie ein gültiges Fiskalregister aus"
+    "invalidRegister": "Wählen Sie ein gültiges Fiskalregister aus",
+    "selected": "Ausgewählt"
   },
   "it": {
     "theme": "Tema",
@@ -1298,7 +1310,8 @@ export const translations = {
     "shiftOperationFailed": "Operazione di turno rifiutata",
     "configureBeforeShift": "Configura prima il POS",
     "selectEmployeeBeforeShift": "Crea e seleziona prima un dipendente",
-    "invalidRegister": "Seleziona un registro fiscale valido"
+    "invalidRegister": "Seleziona un registro fiscale valido",
+    "selected": "Selezionato"
   },
   "lt": {
     "theme": "Tema",
@@ -1398,7 +1411,8 @@ export const translations = {
     "shiftOperationFailed": "Poslinkio operacija atmesta",
     "configureBeforeShift": "Konfigūruokite POS pirmiausia",
     "selectEmployeeBeforeShift": "Sukurkite ir pasirinkite darbuotoją pirmiausia",
-    "invalidRegister": "Pasirinkite galiojantį mokesčių registrą"
+    "invalidRegister": "Pasirinkite galiojantį mokesčių registrą",
+    "selected": "Pasirinkta"
   },
   "lv": {
     "theme": "Tēma",
@@ -1498,7 +1512,8 @@ export const translations = {
     "shiftOperationFailed": "Maiņas darbība noraidīta",
     "configureBeforeShift": "Vispirms konfigurējiet POS",
     "selectEmployeeBeforeShift": "Vispirms izveidojiet un atlasiet darbinieku",
-    "invalidRegister": "Izvēlieties derīgu fiskālo reģistru"
+    "invalidRegister": "Izvēlieties derīgu fiskālo reģistru",
+    "selected": "Izvēlēts"
   },
   "ga": {
     "theme": "Temá",
@@ -1598,7 +1613,8 @@ export const translations = {
     "shiftOperationFailed": "Díorthaíodh gníomhaíocht shift",
     "configureBeforeShift": "Cumraigh an POS ar dtús",
     "selectEmployeeBeforeShift": "Cruthaigh agus roghnaigh oibreoir ar dtús",
-    "invalidRegister": "Roghnaigh aonad cainníochta bailí"
+    "invalidRegister": "Roghnaigh aonad cainníochta bailí",
+    "selected": "Roghnaithe"
   },
   "pl": {
     "theme": "Motyw",
@@ -1698,7 +1714,8 @@ export const translations = {
     "shiftOperationFailed": "Operacja zmiany została odrzucona",
     "configureBeforeShift": "Najpierw skonfiguruj POS",
     "selectEmployeeBeforeShift": "Najpierw utwórz i wybierz pracownika",
-    "invalidRegister": "Wybierz ważny rejestr fiskalny"
+    "invalidRegister": "Wybierz ważny rejestr fiskalny",
+    "selected": "Wybrane"
   },
   "pt": {
     "theme": "Tema",
@@ -1798,7 +1815,8 @@ export const translations = {
     "shiftOperationFailed": "A operação do turno foi rejeitada",
     "configureBeforeShift": "Configure o POS primeiro",
     "selectEmployeeBeforeShift": "Crie e selecione um funcionário primeiro",
-    "invalidRegister": "Selecione um registo fiscal válido"
+    "invalidRegister": "Selecione um registo fiscal válido",
+    "selected": "Selecionado"
   },
   "ro": {
     "theme": "Tema",
@@ -1898,7 +1916,8 @@ export const translations = {
     "shiftOperationFailed": "Operațiunea de schimb a fost respinsă",
     "configureBeforeShift": "Configurează mai întâi POS-ul",
     "selectEmployeeBeforeShift": "Creează și selectează un angajat mai întâi",
-    "invalidRegister": "Selectează un registru fiscal valid"
+    "invalidRegister": "Selectează un registru fiscal valid",
+    "selected": "Selectat"
   },
   "mt": {
     "theme": "Tema",
@@ -1998,7 +2017,8 @@ export const translations = {
     "shiftOperationFailed": "L-operazzjoni tal-ġirar ġiet irrifjutata",
     "configureBeforeShift": "Konfigura l-POS l-ewwel",
     "selectEmployeeBeforeShift": "Ikkrea u għażliet impjegat l-ewwel",
-    "invalidRegister": "Għażliet registru fiskali validu"
+    "invalidRegister": "Għażliet registru fiskali validu",
+    "selected": "Magħżul"
   },
   "sk": {
     "theme": "Téma",
@@ -2098,7 +2118,8 @@ export const translations = {
     "shiftOperationFailed": "Operácia smeny bola zamietnutá",
     "configureBeforeShift": "Najprv nakonfigurujte POS",
     "selectEmployeeBeforeShift": "Najprv vytvorte a vyberte zamestnanca",
-    "invalidRegister": "Vyberte platnú fiskálnu pokladňu"
+    "invalidRegister": "Vyberte platnú fiskálnu pokladňu",
+    "selected": "Vybraté"
   },
   "sv": {
     "theme": "Tema",
@@ -2198,7 +2219,8 @@ export const translations = {
     "shiftOperationFailed": "Skiftoperationen avvisades",
     "configureBeforeShift": "Konfigurera POS först",
     "selectEmployeeBeforeShift": "Skapa och välj en medarbetare först",
-    "invalidRegister": "Välj ett giltigt fiskalregister"
+    "invalidRegister": "Välj ett giltigt fiskalregister",
+    "selected": "Vald"
   },
   "es": {
     "theme": "Tema",
@@ -2298,7 +2320,8 @@ export const translations = {
     "shiftOperationFailed": "La operación del turno fue rechazada",
     "configureBeforeShift": "Configurar el POS primero",
     "selectEmployeeBeforeShift": "Crear y seleccionar un empleado primero",
-    "invalidRegister": "Seleccionar un registro fiscal válido"
+    "invalidRegister": "Seleccionar un registro fiscal válido",
+    "selected": "Seleccionado"
   },
   "sl": {
     "theme": "Tema",
@@ -2398,7 +2421,8 @@ export const translations = {
     "shiftOperationFailed": "Operacija smene je bila zavrnjena",
     "configureBeforeShift": "Najprej konfigurirajte POS",
     "selectEmployeeBeforeShift": "Najprej ustvarite in izberite sodelavca",
-    "invalidRegister": "Izberite veljaven fiskalni zapis"
+    "invalidRegister": "Izberite veljaven fiskalni zapis",
+    "selected": "Izbrana"
   },
   "ru": {
     "theme": "Тема",
@@ -2498,7 +2522,8 @@ export const translations = {
     "shiftOperationFailed": "Операция со сменой отклонена",
     "configureBeforeShift": "Сначала настройте конфигурацию POS",
     "selectEmployeeBeforeShift": "Сначала создайте и выберите сотрудника",
-    "invalidRegister": "Выберите корректную фискальную кассу"
+    "invalidRegister": "Выберите корректную фискальную кассу",
+    "selected": "Выбрано"
   }
 } as const;
 export const supportedLanguages = ["bg","hr","cs","da","nl","en","et","fi","fr","de","el","hu","ga","it","lv","lt","mt","pl","pt","ro","sk","sl","es","sv","ru"] as const;

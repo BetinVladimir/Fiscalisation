@@ -14,6 +14,7 @@ import {
   Checkbox as PaperCheckbox,
   HelperText as PaperHelperText,
   Menu as PaperMenu,
+  RadioButton as PaperRadioButton,
   Text as PaperText,
   useTheme,
 } from "react-native-paper";
@@ -1402,9 +1403,9 @@ function MiniPosApp({
             label={uiText.language}
             onSelect={(value) => void emailAuth.setLanguage(value)}
           />
-          <Pressable
+          <PaperButton
             testID="shift-toggle"
-            accessibilityRole="button"
+            mode={shift?.allowed_actions?.includes("RECONCILE") ? "contained-tonal" : shift ? "outlined" : "contained"}
             accessibilityLabel={
               shift?.allowed_actions?.includes("RECONCILE")
                 ? uiText.reconcileZ
@@ -1412,57 +1413,49 @@ function MiniPosApp({
                   ? uiText.closeShift
                   : uiText.openShift
             }
-            accessibilityState={{ disabled: busy }}
             disabled={busy}
-            style={[s.shift, shift && s.shiftOpen]}
+            contentStyle={{ minHeight: 48 }}
             onPress={toggleShift}
-          >
-            <Text style={s.shiftText}>
-              {shift?.allowed_actions?.includes("RECONCILE")
-                ? uiText.reconcileZ
-                : shift
-                  ? uiText.closeShift
-                  : uiText.openShift}
-            </Text>
-          </Pressable>
+          >{shift?.allowed_actions?.includes("RECONCILE")
+            ? uiText.reconcileZ
+            : shift
+              ? uiText.closeShift
+              : uiText.openShift}</PaperButton>
         </View>
       </View>
       {pendingOrder ? (
-        <View
+        <PaperCard
           testID="operation-unknown"
+          mode="outlined"
           accessibilityLiveRegion="assertive"
-          style={[
-            reconciliationStyles.panel,
-            isPhone && reconciliationStyles.panelPhone,
-          ]}
+          style={{ backgroundColor: paperTheme.colors.tertiaryContainer, borderColor: paperTheme.colors.tertiary }}
         >
+          <PaperCard.Content style={[reconciliationStyles.panel, isPhone && reconciliationStyles.panelPhone]}>
           <View>
-            <Text style={reconciliationStyles.title}>
+            <PaperText variant="titleMedium" style={{ color: paperTheme.colors.onTertiaryContainer }}>
               {uiText.resultChecking}
-            </Text>
-            <Text style={reconciliationStyles.text}>
+            </PaperText>
+            <PaperText variant="bodyMedium" style={{ color: paperTheme.colors.onTertiaryContainer }}>
               {uiText.doNotRepeatPayment}. {pendingOrder.id} •{" "}
               {pendingOrder.state}
-            </Text>
-            <Text style={reconciliationStyles.text}>
+            </PaperText>
+            <PaperText variant="bodyMedium" style={{ color: paperTheme.colors.onTertiaryContainer }}>
               {uiText.allowedActions}:{" "}
               {pendingOrder.allowed_actions?.join(", ") || uiText.noActions}
-            </Text>
+            </PaperText>
           </View>
           {pendingOrder.allowed_actions?.includes("READ") ? (
-            <Pressable
+            <PaperButton
               testID="reconcile-start"
-              accessibilityRole="button"
+              mode="contained"
               accessibilityLabel={uiText.checkFiscalResult}
-              accessibilityState={{ disabled: busy }}
               disabled={busy}
-              style={reconciliationStyles.button}
+              contentStyle={{ minHeight: 48 }}
               onPress={reconcile}
-            >
-              <Text style={s.payText}>{uiText.checkResult}</Text>
-            </Pressable>
+            >{uiText.checkResult}</PaperButton>
           ) : null}
-        </View>
+          </PaperCard.Content>
+        </PaperCard>
       ) : null}
       {admin ? (
         <Admin
@@ -1508,7 +1501,7 @@ function MiniPosApp({
           loadReport={loadReport}
         />
       ) : (
-        <View style={[s.posShell, dark && s.posShellDark]}>
+        <View style={s.posShell}>
           {isPhone ? (
             <View style={s.mobileTabs} accessibilityRole="tablist">
               <Pressable
@@ -1867,10 +1860,22 @@ function LanguageMenu({
 }
 
 function ReferenceChoices({items,value,onChange,emptyLabel,onEmpty}:{items:FiscalRegisterReference[];value:string;onChange:(value:string)=>void;emptyLabel:string;onEmpty:()=>void}) {
+  const text = useTranslation();
   const [query,setQuery]=useState("");
   const visible=items.filter((item)=>`${item.code || ""} ${item.name || ""}`.toLowerCase().includes(query.trim().toLowerCase()));
-  if (!items.length) return <View style={s.stackCompact}><Text>{emptyLabel}</Text><Pressable style={s.adminButton} onPress={onEmpty}><Text>Заполнить справочник кассовых мест</Text></Pressable></View>;
-  return <View style={s.stackCompact}><TextInput style={s.search} placeholder="Поиск кассового места" value={query} onChangeText={setQuery}/>{visible.map((item)=><Pressable key={item.id} style={[s.card,item.id===value&&s.selectedCard]} onPress={()=>onChange(item.id)}><Text style={s.payText}>{item.code || item.name || "Кассовое место"}</Text></Pressable>)}{!visible.length?<Text>Совпадений нет.</Text>:null}</View>;
+  if (!items.length) return <View style={s.stackCompact}><PaperText variant="bodyMedium">{emptyLabel}</PaperText><PaperButton mode="outlined" onPress={onEmpty}>Заполнить справочник кассовых мест</PaperButton></View>;
+  return <View style={s.stackCompact}>
+    <TextInput placeholder="Поиск кассового места" value={query} onChangeText={setQuery}/>
+    {visible.map((item) => <PaperRadioButton.Item
+      key={item.id}
+      testID={`register-choice-${item.id}`}
+      label={`${item.code || item.name || "Кассовое место"}${item.id === value ? ` • ${text.selected}` : ""}`}
+      value={item.id}
+      status={item.id === value ? "checked" : "unchecked"}
+      onPress={() => onChange(item.id)}
+    />)}
+    {!visible.length ? <PaperText variant="bodyMedium">Совпадений нет.</PaperText> : null}
+  </View>;
 }
 
 function Admin({
@@ -2163,26 +2168,12 @@ function Admin({
 }
 const reconciliationStyles = StyleSheet.create({
   panel: {
-    backgroundColor: beeloyColors.warningContainer,
-    borderColor: beeloyColors.warning,
-    borderWidth: 2,
-    padding: 16,
     flexDirection: "row",
     alignItems: "center",
     justifyContent: "space-between",
     gap: 16,
   },
   panelPhone: { flexDirection: "column", alignItems: "stretch", padding: 12 },
-  title: { fontSize: 18, fontWeight: "900", color: beeloyColors.warning },
-  text: { color: beeloyColors.warning, marginTop: 4 },
-  button: {
-    backgroundColor: beeloyColors.warning,
-    paddingHorizontal: 18,
-    minHeight: 56,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-  },
 });
 function message(e: unknown) {
   return e instanceof Error ? e.message : String(e);
@@ -2240,17 +2231,7 @@ const s = StyleSheet.create({
     minHeight: 48,
     justifyContent: "center",
   },
-  shift: {
-    backgroundColor: beeloyColors.outline,
-    padding: 12,
-    borderRadius: 10,
-    minHeight: 48,
-    justifyContent: "center",
-  },
-  shiftOpen: { backgroundColor: beeloyColors.warning },
-  shiftText: { color: beeloyColors.onPrimary, fontWeight: "700" },
   posShell: { flex: 1 },
-  posShellDark: { backgroundColor: beeloyColors.onBackground },
   body: { flex: 1, flexDirection: "row" },
   bodyPhone: { flexDirection: "column" },
   panelPhone: { flex: 1, width: "100%", padding: 12 },

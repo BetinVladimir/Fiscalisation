@@ -87,7 +87,10 @@ async function miniPosJourney(browser, appUrl) {
   });
   await page.route("http://fiscal-api.test/**", (route) => {
     const path = pathOf(route), method = route.request().method();
-    if (path.endsWith("/registers") && method === "GET") return json(route, { items: [{ id: "00000000-0000-4000-8000-000000000001", code: "R01", name: "Каса 01", status: "ACTIVE" }] });
+    if (path.endsWith("/registers") && method === "GET") return json(route, { items: [
+      { id: "00000000-0000-4000-8000-000000000001", code: "R01", name: "Каса 01", status: "ACTIVE" },
+      { id: "00000000-0000-4000-8000-000000000002", code: "R02", name: "Каса 02", status: "ACTIVE" },
+    ] });
     if (path.endsWith("/clock-sync") && method === "POST") return json(route, { state: "VERIFIED" });
     if (path.endsWith("/readiness:refresh") && method === "POST") return json(route, { ready: true });
     if (path.endsWith("/sessions") && method === "POST") return json(route, { session_id: "00000000-0000-4000-8000-000000000020", workstation_id: "00000000-0000-4000-8000-000000000001", operator_code: "0001", expires_at: "2099-08-09T12:00:00Z" }, 201);
@@ -139,6 +142,9 @@ async function miniPosJourney(browser, appUrl) {
 
   await page.getByTestId("admin-toggle").click();
   await page.getByTestId("config-location-name").fill("Магазин София");
+  await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000002").click();
+  assert.equal(await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000002").getAttribute("aria-label"), "R02 • Избрано", "Paper register selection must expose its checked state in the accessible name");
+  await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000001").click();
   await page.getByTestId("config-save").click();
   await page.getByTestId("status-transport").getByText(/кас[оа]вото място са записани/).waitFor();
   await page.getByTestId("admin-products").click();
