@@ -12,7 +12,7 @@ function json(route: Route, body: unknown, status = 200) {
 
 export type CapturedMutation = { path: string; body: Record<string, unknown>; headers: Record<string, string> };
 
-export async function mockFiscalApi(page: Page, options: { devicesStatus?: number } = {}) {
+export async function mockFiscalApi(page: Page, options: { devicesStatus?: number; reportsStatus?: number; reportsEmpty?: boolean } = {}) {
   const mutations: CapturedMutation[] = [];
   await page.route(`${API}/**`, async route => {
     const request = route.request();
@@ -40,6 +40,8 @@ export async function mockFiscalApi(page: Page, options: { devicesStatus?: numbe
     if (path === '/operations/operation-unknown-1/reconcile' && method === 'POST') return json(route, { operation_id: 'operation-unknown-1', state: 'FISCALIZED' });
     if (path.startsWith('/reports') || path.includes(`/registers/${REGISTER_ID}/reports`)) {
       if (method === 'POST') return json(route, { id: 'report-z-1', state: 'COMPLETED', fiscal_reference: 'Z-REF-1' }, 202);
+      if (options.reportsStatus) return json(route, { code: 'UNAVAILABLE' }, options.reportsStatus);
+      if (options.reportsEmpty) return json(route, { items: [], page: { has_more: false } });
       return json(route, { items: [{ id: 'report-1', type: 'X', state: 'COMPLETED', fiscal_reference: 'X-REF-1' }], page: { has_more: false } });
     }
     if (path.startsWith('/audit-events')) return json(route, { items: [{ event_id: 'audit-1', action: 'SALE_FINALIZED', object_type: 'SALE', object_id: 'sale-1', actor_id: OPERATOR_ID, occurred_at: '2026-08-20T10:00:00Z', unp: 'UNP-1', event_hash: 'abc123' }], page: { has_more: false } });

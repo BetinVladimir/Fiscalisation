@@ -67,6 +67,82 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
   }
 }
 
+for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+  for (const mode of ['light', 'dark'] as const) {
+    test(`Paper reports list fits ${size}/${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.emulateMedia({ colorScheme: mode, reducedMotion: 'reduce' });
+      await mockFiscalApi(page);
+      await openApp(page);
+      if (size === 'xs') await page.getByTestId('nav.open').click();
+      await page.getByTestId('tab-Отчети').click();
+      await expect(page.getByTestId('reports.screen')).toBeVisible();
+      await expect(page.getByTestId('reports.item.report-1')).toContainText('X');
+      await expect(page.getByTestId('reports.create.Z')).toBeEnabled();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+      const report = page.getByTestId('reports.item.report-1');
+      await report.scrollIntoViewIfNeeded();
+      const reportBox = await report.boundingBox();
+      const footerBox = await page.getByTestId('status-transport').boundingBox();
+      expect(reportBox && footerBox && reportBox.y + reportBox.height <= footerBox.y + 1).toBe(true);
+    });
+  }
+}
+
+test('report command stays disabled while request is pending and uses one idempotent POST', async ({ page }) => {
+  await mockFiscalApi(page);
+  let release!: () => void;
+  const pending = new Promise<void>(resolve => { release = resolve; });
+  const posts: Array<{ key?: string; body: unknown }> = [];
+  await page.route('**/registers/*/reports', async route => {
+    if (route.request().method() !== 'POST') return route.fallback();
+    posts.push({ key: route.request().headers()['idempotency-key'], body: JSON.parse(route.request().postData() ?? '{}') });
+    await pending;
+    return route.fulfill({ status: 202, contentType: 'application/json', body: JSON.stringify({ id: 'report-z-1', state: 'COMPLETED', fiscal_reference: 'Z-REF-1' }) });
+  });
+  await openApp(page);
+  await page.getByTestId('tab-Отчети').click();
+  const create = page.getByTestId('reports.create.Z');
+  await create.click();
+  await expect.poll(() => posts.length).toBe(1);
+  await expect(create).toBeDisabled();
+  release();
+  await expect(create).toBeEnabled();
+  expect(posts).toHaveLength(1);
+  expect(posts[0].key).toBeTruthy();
+  expect(posts[0].body).toEqual({ type: 'Z' });
+});
+
+test('reports show a true empty state without stale devices', async ({ page }) => {
+  await mockFiscalApi(page, { reportsEmpty: true });
+  await openApp(page);
+  await page.getByTestId('tab-Отчети').click();
+  await expect(page.getByTestId('reports.empty')).toBeVisible();
+  await expect(page.getByTestId('reports.item.report-1')).toHaveCount(0);
+  await expect(page.getByText('Datecs counter')).toHaveCount(0);
+});
+
+test('reports API error does not display stale records and retry recovers', async ({ page }) => {
+  await mockFiscalApi(page);
+  let first = true;
+  await page.route('**/reports*', route => {
+    if (route.request().method() !== 'GET') return route.fallback();
+    if (first) {
+      first = false;
+      return route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ code: 'UNAVAILABLE' }) });
+    }
+    return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ items: [{ id: 'report-1', type: 'X', state: 'COMPLETED', fiscal_reference: 'X-REF-1' }], page: { has_more: false } }) });
+  });
+  await openApp(page);
+  await page.getByTestId('tab-Отчети').click();
+  await expect(page.getByTestId('reports.error')).toBeVisible();
+  await expect(page.getByTestId('reports.item.report-1')).toHaveCount(0);
+  await expect(page.getByTestId('reports.empty')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Опитай отново' }).click();
+  await expect(page.getByTestId('reports.item.report-1')).toBeVisible();
+  await expect(page.getByTestId('reports.error')).toHaveCount(0);
+});
+
 test('report command and audit filters reach the API without client-side fabricated results', async ({ page }) => {
   const mutations = await mockFiscalApi(page);
   await openApp(page);

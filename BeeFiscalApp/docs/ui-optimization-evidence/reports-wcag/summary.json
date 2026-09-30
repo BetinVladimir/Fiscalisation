@@ -1,0 +1,199 @@
+{
+  "date": "2026-09-30T21:48:39.590Z",
+  "sourceCommit": "a40a2349cfe8884dba7216676ec877e662094aed",
+  "testSha256": "b1dcd7d038b1f348f30f9c738370b49515f7cb2b970525d4441c16cf2d31654a",
+  "sourceFilesSha256": {
+    "App.tsx": "266d886199519cc95ab31e2c6d23fe8e7c0fbd3f9f20d3a65a06cb6824dc7ba6",
+    "src/screens/ReportsScreen.tsx": "ff82917e090a88cd3582ca1e699683ab82ed53acce218d647a63576bad60d04a"
+  },
+  "bundle": "AppEntry-b913df72b01f0fe23cb8802f2a47d9f6.js",
+  "command": "npm run test:e2e:reports-wcag",
+  "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
+  "scans": 18,
+  "totalViolations": 0,
+  "totalIncomplete": 438,
+  "pixelSupported": 360,
+  "pixelManualReview": 78,
+  "entries": [
+    {
+      "state": "reports-empty",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 23,
+      "pixelSupported": 21,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-empty-lg-dark"
+    },
+    {
+      "state": "reports-empty",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 23,
+      "pixelSupported": 21,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-empty-lg-light"
+    },
+    {
+      "state": "reports-empty",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 23,
+      "pixelSupported": 21,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-empty-md-dark"
+    },
+    {
+      "state": "reports-empty",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 23,
+      "pixelSupported": 21,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-empty-md-light"
+    },
+    {
+      "state": "reports-empty",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 25,
+      "pixelSupported": 16,
+      "pixelManualReview": 9,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-empty-xs-dark"
+    },
+    {
+      "state": "reports-empty",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 25,
+      "pixelSupported": 16,
+      "pixelManualReview": 9,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-empty-xs-light"
+    },
+    {
+      "state": "reports-error",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 24,
+      "pixelSupported": 22,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-error-lg-dark"
+    },
+    {
+      "state": "reports-error",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 24,
+      "pixelSupported": 22,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-error-lg-light"
+    },
+    {
+      "state": "reports-error",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 24,
+      "pixelSupported": 22,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-error-md-dark"
+    },
+    {
+      "state": "reports-error",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 24,
+      "pixelSupported": 22,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-error-md-light"
+    },
+    {
+      "state": "reports-error",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 26,
+      "pixelSupported": 17,
+      "pixelManualReview": 9,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-error-xs-dark"
+    },
+    {
+      "state": "reports-error",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 26,
+      "pixelSupported": 17,
+      "pixelManualReview": 9,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-error-xs-light"
+    },
+    {
+      "state": "reports-populated",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 24,
+      "pixelSupported": 22,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-populated-lg-dark"
+    },
+    {
+      "state": "reports-populated",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 24,
+      "pixelSupported": 22,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-populated-lg-light"
+    },
+    {
+      "state": "reports-populated",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 24,
+      "pixelSupported": 22,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-populated-md-dark"
+    },
+    {
+      "state": "reports-populated",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 24,
+      "pixelSupported": 22,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-populated-md-light"
+    },
+    {
+      "state": "reports-populated",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 26,
+      "pixelSupported": 17,
+      "pixelManualReview": 9,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-populated-xs-dark"
+    },
+    {
+      "state": "reports-populated",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 26,
+      "pixelSupported": 17,
+      "pixelManualReview": 9,
+      "evidence": "docs/ui-optimization-evidence/reports-wcag/reports-populated-xs-light"
+    }
+  ]
+}

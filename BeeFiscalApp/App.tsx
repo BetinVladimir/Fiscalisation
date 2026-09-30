@@ -6,8 +6,9 @@ import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-v
 import { FormField as TextInput } from './src/ui/form-field';
 import { AuthScreen } from './src/screens/AuthScreen';
 import { OperationsScreen } from './src/screens/OperationsScreen';
+import { ReportsScreen } from './src/screens/ReportsScreen';
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useWindowDimensions } from 'react-native';
 import { Button, Drawer, HelperText, List, Modal, Portal, TextInput as PaperTextInput, useTheme } from 'react-native-paper';
@@ -81,6 +82,7 @@ function AppContent() {
   const compact = width < 600;
   const theme = useTheme();
   const [navOpen, setNavOpen] = useState(false);
+  const reportPending = useRef(false);
   // Token roles are reduced to explicit UI capabilities. The backend remains
   // authoritative; these guards prevent presenting accidental admin paths.
   const oidc = useEmailOtpAuth();
@@ -167,6 +169,8 @@ function AppContent() {
     [auditTo, setAuditTo] = useState(""),
     [adminBusy, setAdminBusy] = useState(false),
     [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState('');
+  const [reportError, setReportError] = useState('');
   useEffect(() => {
     // Poll telemetry only while a selected device is visible. This avoids
     // background API load and late updates after navigation.
@@ -223,6 +227,8 @@ function AppContent() {
   const refresh = useCallback(
     async (next = tab) => {
       setLoading(true);
+      setLoadError('');
+      if (next === 'Отчети') setItems([]);
       try {
         if (next === "Администриране" && !canAdminister)
           throw new Error("ROLE_ADMIN_REQUIRED");
@@ -318,6 +324,7 @@ function AppContent() {
         setCore("CORE READY");
       } catch (e) {
         setCore("CORE OFFLINE");
+        setLoadError('Данните не могат да се заредят.');
         setMessage(`API отказ: ${e instanceof Error ? e.message : String(e)}`);
       } finally {
         setLoading(false);
@@ -356,6 +363,9 @@ function AppContent() {
   }, [roles.join(","), tab]);
   const changeTab = (next: string) => {
     setTab(next);
+    setItems([]);
+    setLoadError('');
+    setReportError('');
     void refresh(next);
   };
   const probe = async () => {
@@ -574,6 +584,7 @@ function AppContent() {
     }
   };
   const report = async (type: string) => {
+    if (reportPending.current) return;
     if (!canRunReports) {
       setMessage("Командата за отчет изисква роля SUPERVISOR или ADMIN");
       return;
@@ -582,6 +593,9 @@ function AppContent() {
       setMessage("Командата за отчет изисква валиден Fiscal register UUID");
       return;
     }
+    reportPending.current = true;
+    setLoading(true);
+    setReportError('');
     setMessage(`${type} отчет…`);
     try {
       const v = await call(registerResourcePath(register, "/reports"), {
@@ -591,9 +605,13 @@ function AppContent() {
       setMessage(`${type}: ${v.state} • ${v.fiscal_reference || v.id}`);
       await refresh("Отчети");
     } catch (e) {
+      setReportError('Създаването на отчета не успя. Опитайте отново.');
       setMessage(
         `Отчетът е отказан: ${e instanceof Error ? e.message : String(e)}`,
       );
+    } finally {
+      reportPending.current = false;
+      setLoading(false);
     }
   };
   const reconcileOperation = async (operation: Item) => {
@@ -941,54 +959,7 @@ function AppContent() {
           ) : tab === "Операции" ? (
             <OperationsScreen operations={items} loading={loading} canReconcile={canReconcile} onReconcile={(operation) => void reconcileOperation(operation)} />
           ) : tab === "Отчети" ? (
-            <>
-              <View style={s.panel}>
-                <Text style={s.panelTitle}>
-                  Команда към фискалното устройство
-                </Text>
-                <Text style={s.meta}>
-                  UI показва само резултати и артефакти, получени от BeeFiscal
-                  API.
-                </Text>
-                {canRunReports ? (
-                  <View style={s.actions}>
-                    {["X", "Z", "KLEN", "FISCAL_MEMORY"].map((x) => (
-                      <Pressable
-                        key={x}
-                        accessibilityRole="button"
-                        accessibilityLabel={`Създай ${x} отчет`}
-                        accessibilityState={{
-                          disabled: loading || !isRegisterId(register),
-                        }}
-                        disabled={loading || !isRegisterId(register)}
-                        style={s.action}
-                        onPress={() => report(x)}
-                      >
-                        <Text style={s.probeText}>{x}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                ) : (
-                  <Text style={s.meta}>
-                    Преглед само за одитор; създаването на отчет изисква
-                    SUPERVISOR или ADMIN.
-                  </Text>
-                )}
-              </View>
-              {items.map((r) => (
-                <View key={label(r.id)} style={s.card}>
-                  <View>
-                    <Text style={s.device}>
-                      {label(r.type)} • {label(r.state)}
-                    </Text>
-                    <Text style={s.meta}>
-                      {label(r.fiscal_reference || r.id)} •{" "}
-                      {label(r.created_at)}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </>
+            <ReportsScreen reports={items} loading={loading} canRunReports={canRunReports} registerValid={isRegisterId(register)} loadError={loadError} commandError={reportError} onReport={(type) => void report(type)} onRetry={() => void refresh('Отчети')} />
           ) : tab === "Одит" && canReadAudit ? (
             <View
               testID="audit-events"
