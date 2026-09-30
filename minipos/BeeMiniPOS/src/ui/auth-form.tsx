@@ -4,6 +4,8 @@ import { useWindowDimensions, View, type ViewProps } from 'react-native';
 /** Login/onboarding width: full on phones, half on md, one third on lg. */
 export function AuthForm({ style, ...props }: ViewProps) {
   const { width } = useWindowDimensions();
-  const responsiveWidth = width >= 840 ? '33.3333%' : width >= 600 ? '50%' : '100%';
+  const availableWidth = Math.max(0, width - 32);
+  const targetWidth = width >= 1024 ? width / 3 : width >= 600 ? width / 2 : availableWidth;
+  const responsiveWidth = Math.min(availableWidth, Math.max(Math.min(320, availableWidth), Math.min(480, targetWidth)));
   return <View {...props} style={[style, { width: responsiveWidth, maxWidth: responsiveWidth, alignSelf: 'center' }]} />;
 }
