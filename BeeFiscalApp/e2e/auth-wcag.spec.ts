@@ -1,6 +1,6 @@
 import { expect, test, type Page } from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
-import { writeFile } from 'node:fs/promises';
+import { saveWcagEvidence } from './contrast-evidence';
 
 async function enterAuthStage(page: Page, stage: 'otp' | 'company') {
   await page.route('http://fiscal-admin.test/public/v1/app-auth/**', route => {
@@ -39,8 +39,7 @@ for (const [size, width, height] of [
     if (size === 'lg') expect(box!.width).toBeLessThanOrEqual(width * 0.4);
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
     const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
-    await page.screenshot({ path: testInfo.outputPath('screen.png'), fullPage: true });
-    await writeFile(testInfo.outputPath('axe.json'), JSON.stringify({ size, width, height, mode, violations: result.violations, incomplete: result.incomplete }, null, 2));
+    await saveWcagEvidence(page, testInfo, result, { size, width, height, mode, state: 'email' });
     expect(result.violations.map(item => item.id), 'Axe violations').toEqual([]);
     expect(result.incomplete.map(item => item.id), 'Axe incomplete needs manual resolution').toEqual([]);
   });
@@ -59,8 +58,7 @@ for (const [size, width, height] of [
     expect(box!.x + box!.width).toBeLessThanOrEqual(width + 1);
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
     const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
-    await page.screenshot({ path: testInfo.outputPath('screen.png'), fullPage: true });
-    await writeFile(testInfo.outputPath('axe.json'), JSON.stringify({ size, width, height, mode, state: 'language-open', violations: result.violations, incomplete: result.incomplete }, null, 2));
+    await saveWcagEvidence(page, testInfo, result, { size, width, height, mode, state: 'language-open' });
     expect(result.violations.map(item => item.id), 'Axe violations').toEqual([]);
     expect(result.incomplete.map(item => item.id), 'Axe incomplete needs manual resolution').toEqual([]);
   });
@@ -80,8 +78,7 @@ for (const [size, width, height] of [
       if (size === 'lg') expect(box!.width).toBeLessThanOrEqual(width * 0.4);
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
       const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();
-      await page.screenshot({ path: testInfo.outputPath('screen.png'), fullPage: true });
-      await writeFile(testInfo.outputPath('axe.json'), JSON.stringify({ size, width, height, mode, state: stage, violations: result.violations, incomplete: result.incomplete }, null, 2));
+      await saveWcagEvidence(page, testInfo, result, { size, width, height, mode, state: stage });
       expect(result.violations.map(item => item.id), 'Axe violations').toEqual([]);
       expect(result.incomplete.map(item => item.id), 'Axe incomplete needs manual resolution').toEqual([]);
     });

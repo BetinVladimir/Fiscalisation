@@ -19,6 +19,8 @@ for (const directory of await readdir(root)) {
     state, size: result.size, mode: result.mode,
     violations: result.violations.reduce((count, item) => count + item.nodes.length, 0),
     incomplete: result.incomplete.reduce((count, item) => count + item.nodes.length, 0),
+    pixelSupported: result.pixelSummary?.supported ?? 0,
+    pixelManualReview: result.pixelSummary?.manualReview ?? 0,
     evidence: folder,
   });
 }
@@ -43,6 +45,8 @@ const summary = {
   scans: entries.length,
   totalViolations: entries.reduce((count, item) => count + item.violations, 0),
   totalIncomplete: entries.reduce((count, item) => count + item.incomplete, 0),
+  pixelSupported: entries.reduce((count, item) => count + item.pixelSupported, 0),
+  pixelManualReview: entries.reduce((count, item) => count + item.pixelManualReview, 0),
   entries,
 };
 await writeFile(join(output, 'summary.json'), `${JSON.stringify(summary, null, 2)}\n`);

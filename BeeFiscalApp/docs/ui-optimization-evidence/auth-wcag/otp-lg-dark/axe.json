@@ -202,5 +202,276 @@
         }
       ]
     }
+  ],
+  "pixelSummary": {
+    "candidates": 7,
+    "supported": 5,
+    "manualReview": 2
+  },
+  "contrastCandidates": [
+    {
+      "target": "div[data-testid=\"auth.language.open-text\"]",
+      "text": "BG",
+      "foreground": "rgb(210, 193, 240)",
+      "fontSize": "14px",
+      "fontWeight": "500",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 1257,
+        "y": 23,
+        "width": 18.5625,
+        "height": 20
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)"
+      ],
+      "background": "rgb(13, 10, 18)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 11.81,
+      "pixelEvidence": {
+        "status": "candidate-supported",
+        "visibleBackground": "rgb(13, 10, 18)",
+        "pixelRatio": 11.81,
+        "dominantShare": 0.744,
+        "matchesDomBackground": true,
+        "sampledPixels": 624,
+        "foregroundPixels": 45,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
+    {
+      "target": "div[data-testid=\"auth.theme.toggle-text\"]",
+      "text": "Системна",
+      "foreground": "rgb(210, 193, 240)",
+      "fontSize": "14px",
+      "fontWeight": "500",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 1333.5625,
+        "y": 23,
+        "width": 65.4375,
+        "height": 20
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)"
+      ],
+      "background": "rgb(13, 10, 18)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 11.81,
+      "pixelEvidence": {
+        "status": "candidate-supported",
+        "visibleBackground": "rgb(13, 10, 18)",
+        "pixelRatio": 11.81,
+        "dominantShare": 0.77,
+        "matchesDomBackground": true,
+        "sampledPixels": 1846,
+        "foregroundPixels": 158,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
+    {
+      "target": "h1",
+      "text": "BeeFiscal • административен вход",
+      "foreground": "rgb(234, 228, 238)",
+      "fontSize": "24px",
+      "fontWeight": "400",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 506.671875,
+        "y": 390,
+        "width": 426.65625,
+        "height": 32
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)",
+        "rgb(21, 17, 27)"
+      ],
+      "background": "rgb(21, 17, 27)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 14.92,
+      "pixelEvidence": {
+        "status": "candidate-supported",
+        "visibleBackground": "rgb(21, 17, 27)",
+        "pixelRatio": 14.92,
+        "dominantShare": 0.786,
+        "matchesDomBackground": true,
+        "sampledPixels": 4104,
+        "foregroundPixels": 464,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
+    {
+      "target": ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)",
+      "text": "Влезте с код по email. Достъп имат само регистрирани потребители на Fiscal.",
+      "foreground": "rgb(234, 228, 238)",
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 506.671875,
+        "y": 438,
+        "width": 426.65625,
+        "height": 40
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)",
+        "rgb(21, 17, 27)"
+      ],
+      "background": "rgb(21, 17, 27)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 14.92,
+      "pixelEvidence": {
+        "status": "candidate-supported",
+        "visibleBackground": "rgb(21, 17, 27)",
+        "pixelRatio": 14.92,
+        "dominantShare": 0.849,
+        "matchesDomBackground": true,
+        "sampledPixels": 4968,
+        "foregroundPixels": 220,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
+    {
+      "target": ".r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)",
+      "text": "Код от имейл",
+      "foreground": "rgb(212, 205, 217)",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 506.671875,
+        "y": 516,
+        "width": 134.71875,
+        "height": 19.203125
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)",
+        "rgb(21, 17, 27)"
+      ],
+      "background": "rgb(21, 17, 27)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 12,
+      "pixelEvidence": {
+        "status": "manual-review",
+        "visibleBackground": "rgb(13, 10, 18)",
+        "pixelRatio": 12.66,
+        "dominantShare": 0.793,
+        "matchesDomBackground": false,
+        "sampledPixels": 3500,
+        "foregroundPixels": 251,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
+    {
+      "target": "input",
+      "text": "",
+      "foreground": "rgb(234, 228, 238)",
+      "fontSize": "16px",
+      "fontWeight": "400",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 506.671875,
+        "y": 502,
+        "width": 426.65625,
+        "height": 48
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)",
+        "rgb(21, 17, 27)"
+      ],
+      "background": "rgb(21, 17, 27)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 14.92,
+      "pixelEvidence": {
+        "status": "manual-review",
+        "visibleBackground": "rgb(13, 10, 18)",
+        "pixelRatio": 15.74,
+        "dominantShare": 0.845,
+        "matchesDomBackground": false,
+        "sampledPixels": 5832,
+        "foregroundPixels": 0,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
+    {
+      "target": ".r-15a3drq",
+      "text": "Политика за поверителност",
+      "foreground": "rgb(210, 193, 240)",
+      "fontSize": "14px",
+      "fontWeight": "500",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 625.921875,
+        "y": 639,
+        "width": 188.140625,
+        "height": 20
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)",
+        "rgb(21, 17, 27)"
+      ],
+      "background": "rgb(21, 17, 27)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 11.19,
+      "pixelEvidence": {
+        "status": "candidate-supported",
+        "visibleBackground": "rgb(21, 17, 27)",
+        "pixelRatio": 11.19,
+        "dominantShare": 0.767,
+        "matchesDomBackground": true,
+        "sampledPixels": 5044,
+        "foregroundPixels": 470,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    }
   ]
 }
