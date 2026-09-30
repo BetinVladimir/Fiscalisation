@@ -57,7 +57,8 @@
     "react-native-ble-plx": "^3.5.1",
     "react-native-paper": "^5.15.3",
     "react-native-safe-area-context": "~5.6.0",
-    "react-native-web": "~0.21.0"
+    "react-native-web": "~0.21.0",
+    "@beeloy/design-tokens": "file:../../BeeloyBackend/mobile/design-tokens"
   },
   "devDependencies": {
     "@playwright/test": "^1.62.1",
