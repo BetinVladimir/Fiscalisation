@@ -216,6 +216,73 @@ test('audit API failure shows an error and retry recovers the read-only list', a
   await expect(page.getByTestId('audit.error')).toHaveCount(0);
 });
 
+for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+  for (const mode of ['light', 'dark'] as const) {
+    test(`Paper regulatory settings fit ${size}/${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.emulateMedia({ colorScheme: mode, reducedMotion: 'reduce' });
+      await mockFiscalApi(page);
+      await openApp(page);
+      if (size === 'xs') await page.getByTestId('nav.open').click();
+      await page.getByTestId('tab-Настройки').click();
+      await expect(page.getByTestId('settings.policy')).toContainText('Официална валута: EUR');
+      await expect(page.getByTestId('settings.tax-group.B')).toContainText('20.00%');
+      expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+      const group = page.getByTestId('settings.tax-group.B');
+      await group.scrollIntoViewIfNeeded();
+      const groupBox = await group.boundingBox();
+      const footerBox = await page.getByTestId('status-transport').boundingBox();
+      expect(groupBox && footerBox && groupBox.y + groupBox.height <= footerBox.y + 1).toBe(true);
+    });
+  }
+}
+
+test('regulatory settings show an empty tax-group state', async ({ page }) => {
+  await mockFiscalApi(page, { taxGroupsEmpty: true });
+  await openApp(page);
+  await page.getByTestId('tab-Настройки').click();
+  await expect(page.getByTestId('settings.tax-groups')).toContainText('Няма данъчни групи в API.');
+});
+
+test('regulatory policy API failure clears stale policy and retry recovers', async ({ page }) => {
+  await mockFiscalApi(page);
+  let first = true;
+  await page.route('**/country-policy', route => {
+    if (first) {
+      first = false;
+      return route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ code: 'UNAVAILABLE' }) });
+    }
+    return route.fallback();
+  });
+  await openApp(page);
+  await page.getByTestId('tab-Настройки').click();
+  await expect(page.getByTestId('settings.error')).toBeVisible();
+  await expect(page.getByTestId('settings.policy')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Опитай отново' }).click();
+  await expect(page.getByTestId('settings.policy')).toContainText('Официална валута: EUR');
+  await expect(page.getByTestId('settings.error')).toHaveCount(0);
+});
+
+test('operational shell exposes a bounded language list and persisted theme', async ({ page }) => {
+  await page.setViewportSize({ width: 360, height: 800 });
+  await mockFiscalApi(page);
+  await openApp(page);
+  await page.getByTestId('shell.language.open').click();
+  const list = page.getByTestId('shell.language.list');
+  await expect(list).toBeVisible();
+  expect((await list.boundingBox())?.height).toBeLessThanOrEqual(225);
+  await page.getByTestId('shell.language.ru').scrollIntoViewIfNeeded();
+  await page.getByTestId('shell.language.ru').click();
+  await expect(page.getByTestId('shell.language.open')).toContainText('RU');
+  await page.getByTestId('shell.theme.toggle').click();
+  await page.getByTestId('shell.theme.toggle').click();
+  const themeLabel = await page.getByTestId('shell.theme.toggle').getAttribute('aria-label');
+  await page.reload();
+  await expect(page.getByTestId('shell.language.open')).toContainText('RU');
+  await expect(page.getByTestId('shell.theme.toggle')).toHaveAttribute('aria-label', themeLabel ?? '');
+  expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+});
+
 test('backend failure is fail-closed and exposes CORE OFFLINE instead of stale device controls', async ({ page }) => {
   await mockFiscalApi(page, { devicesStatus: 503 });
   await page.goto('/');

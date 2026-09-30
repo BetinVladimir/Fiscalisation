@@ -11,6 +11,7 @@
     "test:e2e:operations-wcag": "npm run build:e2e && playwright test --config playwright.operations-wcag.config.ts",
     "test:e2e:reports-wcag": "npm run build:e2e && playwright test --config playwright.reports-wcag.config.ts",
     "test:e2e:audit-wcag": "npm run build:e2e && playwright test --config playwright.audit-wcag.config.ts",
+    "test:e2e:settings-wcag": "npm run build:e2e && playwright test --config playwright.settings-wcag.config.ts",
     "build:e2e": "EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
     "build:e2e:auth": "EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
     "start": "expo start",

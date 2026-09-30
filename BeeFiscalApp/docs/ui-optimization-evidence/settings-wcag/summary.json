@@ -1,0 +1,199 @@
+{
+  "date": "2026-09-30T22:04:49.638Z",
+  "sourceCommit": "336114ddb77cd668f9a46061d70e89448e7aea5a",
+  "testSha256": "d32373ee26db5316b7ba824dd09f0b83d9943ac345d10aef03ae132cf9803798",
+  "sourceFilesSha256": {
+    "App.tsx": "3f75bd449217147f935b7fe6c86ab05f2934350e8af16e1f1b508e3abecebd0b",
+    "src/screens/SettingsScreen.tsx": "1a94f730e3fcab2af0b03a34172a506fae1e326aadf57aa28b9966eca9f5abc7"
+  },
+  "bundle": "AppEntry-d074ec6a7887be89353789db36a5c936.js",
+  "command": "npm run test:e2e:settings-wcag",
+  "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
+  "scans": 18,
+  "totalViolations": 0,
+  "totalIncomplete": 456,
+  "pixelSupported": 370,
+  "pixelManualReview": 86,
+  "entries": [
+    {
+      "state": "settings-error",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 20,
+      "pixelSupported": 18,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-error-lg-dark"
+    },
+    {
+      "state": "settings-error",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 20,
+      "pixelSupported": 18,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-error-lg-light"
+    },
+    {
+      "state": "settings-error",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 20,
+      "pixelSupported": 18,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-error-md-dark"
+    },
+    {
+      "state": "settings-error",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 20,
+      "pixelSupported": 18,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-error-md-light"
+    },
+    {
+      "state": "settings-error",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 22,
+      "pixelSupported": 13,
+      "pixelManualReview": 9,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-error-xs-dark"
+    },
+    {
+      "state": "settings-error",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 22,
+      "pixelSupported": 13,
+      "pixelManualReview": 9,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-error-xs-light"
+    },
+    {
+      "state": "settings-populated",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 27,
+      "pixelSupported": 25,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-populated-lg-dark"
+    },
+    {
+      "state": "settings-populated",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 27,
+      "pixelSupported": 25,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-populated-lg-light"
+    },
+    {
+      "state": "settings-populated",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 27,
+      "pixelSupported": 25,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-populated-md-dark"
+    },
+    {
+      "state": "settings-populated",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 27,
+      "pixelSupported": 25,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-populated-md-light"
+    },
+    {
+      "state": "settings-populated",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 29,
+      "pixelSupported": 18,
+      "pixelManualReview": 11,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-populated-xs-dark"
+    },
+    {
+      "state": "settings-populated",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 29,
+      "pixelSupported": 18,
+      "pixelManualReview": 11,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-populated-xs-light"
+    },
+    {
+      "state": "settings-tax-empty",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 27,
+      "pixelSupported": 25,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-tax-empty-lg-dark"
+    },
+    {
+      "state": "settings-tax-empty",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 27,
+      "pixelSupported": 25,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-tax-empty-lg-light"
+    },
+    {
+      "state": "settings-tax-empty",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 27,
+      "pixelSupported": 25,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-tax-empty-md-dark"
+    },
+    {
+      "state": "settings-tax-empty",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 27,
+      "pixelSupported": 25,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-tax-empty-md-light"
+    },
+    {
+      "state": "settings-tax-empty",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 29,
+      "pixelSupported": 18,
+      "pixelManualReview": 11,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-tax-empty-xs-dark"
+    },
+    {
+      "state": "settings-tax-empty",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 29,
+      "pixelSupported": 18,
+      "pixelManualReview": 11,
+      "evidence": "docs/ui-optimization-evidence/settings-wcag/settings-tax-empty-xs-light"
+    }
+  ]
+}

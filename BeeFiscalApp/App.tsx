@@ -8,6 +8,8 @@ import { AuthScreen } from './src/screens/AuthScreen';
 import { OperationsScreen } from './src/screens/OperationsScreen';
 import { ReportsScreen } from './src/screens/ReportsScreen';
 import { AuditScreen, type AuditFilters } from './src/screens/AuditScreen';
+import { SettingsScreen } from './src/screens/SettingsScreen';
+import { LanguageThemeControls } from './src/ui/LanguageThemeControls';
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
@@ -230,6 +232,7 @@ function AppContent() {
       setLoading(true);
       setLoadError('');
       if (next === 'Отчети' || next === 'Одит') setItems([]);
+      if (next === 'Настройки') setPolicy(null);
       try {
         if (next === "Администриране" && !canAdminister)
           throw new Error("ROLE_ADMIN_REQUIRED");
@@ -724,6 +727,7 @@ function AppContent() {
   return (
     <SafeAreaView style={[s.root, { backgroundColor: theme.colors.background }]}>
       <StatusBar style={theme.dark ? 'light' : 'dark'} />
+      <LanguageThemeControls testPrefix="shell" />
       <Portal>
         <Modal visible={compact && navOpen} onDismiss={() => setNavOpen(false)} contentContainerStyle={{ margin: 16, maxHeight: '80%', borderRadius: 16, padding: 12, backgroundColor: theme.colors.surface }}>
           <ScrollView>
@@ -1564,19 +1568,7 @@ function AppContent() {
               </AdminCard>
             </View>
           ) : (
-            <View style={s.panel}>
-              <Text style={s.panelTitle}>Ефективна регулаторна политика</Text>
-              <Text style={s.meta}>
-                ID: {label(policy?.policy_id || policy?.id)} • валута{" "}
-                {label(policy?.currency)} • държава{" "}
-                {label(policy?.country_code)}
-              </Text>
-              <Text style={s.json}>
-                {policy
-                  ? JSON.stringify(policy, null, 2)
-                  : "Политиката не е заредена"}
-              </Text>
-            </View>
+            <SettingsScreen policy={policy} loading={loading} error={loadError} onRetry={() => void refresh('Настройки')} />
           )}
           {items.length === 0 &&
           tab !== "Настройки" &&
