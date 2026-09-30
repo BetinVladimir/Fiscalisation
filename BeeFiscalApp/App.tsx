@@ -4,14 +4,16 @@ import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-v
 import { AuthScreen } from './src/screens/AuthScreen';
 import { OperationsScreen } from './src/screens/OperationsScreen';
 import { ReportsScreen } from './src/screens/ReportsScreen';
+import { DevicesScreen } from './src/screens/DevicesScreen';
 import { AuditScreen, type AuditFilters } from './src/screens/AuditScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { LanguageThemeControls } from './src/ui/LanguageThemeControls';
+import { Action, AdminCard, Choices, Field, ReferencePicker } from './src/components/FiscalControls';
 import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useWindowDimensions } from 'react-native';
-import { Button, Card, Chip, Drawer, HelperText, List, Modal, Portal, Text as PaperText, TextInput as PaperTextInput, useTheme } from 'react-native-paper';
+import { Button, Drawer, Modal, Portal, Text as PaperText, useTheme } from 'react-native-paper';
 import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
@@ -791,174 +793,30 @@ function AppContent() {
             <Button mode="contained-tonal" contentStyle={{ minHeight: 48 }} accessibilityLabel={`Обнови ${tab}`} disabled={loading} onPress={() => refresh()}>{loading ? "…" : "Обнови"}</Button>
           </View>
           {tab === "Устройства" ? (
-            <>
-              {!loading && loadError ? <Card mode="outlined" testID="devices.error"><Card.Content style={{ gap: 8 }}>
-                <HelperText type="error" visible accessibilityLiveRegion="polite">{loadError}</HelperText>
-                <Button mode="outlined" contentStyle={{ minHeight: 48 }} onPress={() => void refresh('Устройства')}>Опитай отново</Button>
-              </Card.Content></Card> : null}
-              {!loading && !loadError && items.length === 0 ? <PaperText testID="devices.empty" variant="bodyMedium">Няма устройства за избрания контекст.</PaperText> : null}
-              {items.map((d) => (
-                <List.Item
-                  key={label(d.id)}
-                  testID={`device.item.${label(d.id)}`}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: selected?.id === d.id }}
-                  accessibilityLabel={`${label(d.vendor)} ${label(d.model)}, състояние ${label(d.status || d.state)}`}
-                  style={{ borderRadius: 12, marginBottom: 8, backgroundColor: selected?.id === d.id ? theme.colors.secondaryContainer : theme.colors.surface }}
-                  title={label(d.name || d.model || d.id)}
-                  titleNumberOfLines={2}
-                  description={`${label(d.vendor)} • ${label(d.model)} • ${label(d.connection_type || d.transport)}`}
-                  descriptionNumberOfLines={3}
-                  right={() => <Chip compact accessibilityLabel={`Състояние ${label(d.status || d.state)}`}>{label(d.status || d.state)}</Chip>}
-                  onPress={() => {
-                    setSelected(d);
-                    setMessage(`${label(d.name || d.id)} е избрано`);
-                  }}
-                />
-              ))}
-              {!loadError ? <Card mode="outlined" testID="device-control-plane"><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
-                <PaperText variant="titleLarge" accessibilityRole="header">
-                  Provisioning, BLE и ограничена диагностика
-                </PaperText>
-                <PaperText variant="bodyMedium">
-                  Transport/cloud и достижимостта на крайното ФУ са отделни
-                  групи метрики.
-                </PaperText>
-                <View style={s.actions}>
-                  {canDiagnose ? (
-                    <Action
-                      testID="device-diagnostics"
-                      label="Диагностика"
-                      disabled={loading || !selected}
-                      onPress={() => void loadDiagnostics()}
-                    />
-                  ) : null}
-                  {canDiagnose ? (
-                    <Action
-                      testID="device-printer-test"
-                      label="Тест на принтера"
-                      disabled={loading || !selected}
-                      onPress={() => void printerTest()}
-                    />
-                  ) : null}
-                  {canAdminister ? (
-                    <Action
-                      testID="device-provision"
-                      label="Нова provisioning сесия"
-                      disabled={loading || !selected}
-                      onPress={() => void startProvisioning()}
-                    />
-                  ) : null}
-                </View>
-                {canIssueBleSession ? (
-                  <>
-                    <ReferencePicker label="Оператор за BLE" items={adminLists.operators} value={operatorId} labelFor={(x)=>`${label(x.operator_code)} ${label(x.first_name)} ${label(x.last_name)}`} onSelect={setOperatorId} onEmpty={()=>changeTab("Администриране")}/>
-                    <Field
-                      label="Подготвен X25519 client public key"
-                      value={blePublicKey}
-                      onChangeText={setBlePublicKey}
-                      testID="ble-client-public-key"
-                    />
-                    <Action
-                      testID="ble-session-issue"
-                      label="Издай BLE сесия"
-                      disabled={
-                        loading ||
-                        !isRegisterId(register) ||
-                        !operatorId ||
-                        !blePublicKey.trim()
-                      }
-                      onPress={() => void issueBleSession()}
-                    />
-                  </>
-                ) : null}
-                {canAdminister ? (
-                  <>
-                    <PaperText variant="titleLarge" accessibilityRole="header">Активация на SmartDevice</PaperText>
-                    <Field
-                      label="QR / еднократен кратък код"
-                      value={activationCode}
-                      onChangeText={setActivationCode}
-                      testID="smart-device-activation-code"
-                    />
-                    <Action
-                      testID="smart-device-activation-lookup"
-                      label="Намери чакащото устройство"
-                      disabled={loading || !activationCode.trim()}
-                      onPress={() => void lookupActivation()}
-                    />
-                    {activationRequest ? (
-                      <PaperText
-                        testID="smart-device-activation-preview"
-                        variant="bodySmall"
-                      >
-                        {JSON.stringify(activationRequest, null, 2)}
-                      </PaperText>
-                    ) : null}
-                    <ReferencePicker label="Търговска точка" items={adminLists.locations} value={activationLocationId} labelFor={(x)=>label(x.name || x.code)} onSelect={setActivationLocationId} onEmpty={()=>changeTab("Администриране")}/>
-                    <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>changeTab("Администриране")}/>
-                    <Action
-                      testID="bluecash-activate"
-                      label="Потвърди и привържи устройството"
-                      disabled={
-                        loading ||
-                        !activationRequest ||
-                        !isRegisterId(activationLocationId) ||
-                        !isRegisterId(register)
-                      }
-                      onPress={() => void activateBlueCash()}
-                    />
-                    <Action
-                      testID="smart-device-disconnect"
-                      label="Изключи избраното устройство от компанията"
-                      disabled={loading || !selected}
-                      onPress={() => void disconnectDevice()}
-                    />
-                  </>
-                ) : null}
-                {transportMetrics ? (
-                  <PaperText testID="transport-metrics" variant="bodySmall">
-                    Transport: {JSON.stringify(transportMetrics, null, 2)}
-                  </PaperText>
-                ) : null}
-                {deviceHealth ? (
-                  <PaperText testID="device-realtime-health" variant="bodySmall">
-                    Realtime MQTT→REST: {JSON.stringify(deviceHealth, null, 2)}
-                  </PaperText>
-                ) : null}
-                {deviceActivity.length ? (
-                  <PaperText testID="device-activity-timeline" variant="bodySmall">
-                    Последни преходи:{" "}
-                    {JSON.stringify(deviceActivity.slice(0, 20), null, 2)}
-                  </PaperText>
-                ) : null}
-                {fiscalMetrics ? (
-                  <PaperText testID="fiscal-device-metrics" variant="bodySmall">
-                    Крайно ФУ: {JSON.stringify(fiscalMetrics, null, 2)}
-                  </PaperText>
-                ) : null}
-                {diagnostics ? (
-                  <PaperText testID="diagnostics-result" variant="bodySmall">
-                    {JSON.stringify(diagnostics, null, 2)}
-                  </PaperText>
-                ) : null}
-                {provisioning ? (
-                  <PaperText testID="provisioning-result" variant="bodySmall">
-                    {JSON.stringify(provisioning, null, 2)}
-                  </PaperText>
-                ) : null}
-                {bleSession ? (
-                  <PaperText testID="ble-session-result" variant="bodySmall">
-                    {JSON.stringify(bleSession, null, 2)}
-                  </PaperText>
-                ) : null}
-                {blueCashActivation ? (
-                  <PaperText testID="bluecash-activation-result" variant="bodySmall">
-                    {JSON.stringify(blueCashActivation, null, 2)}
-                  </PaperText>
-                ) : null}
-              </Card.Content></Card> : null}
-            </>
+            <DevicesScreen
+              devices={items} selected={selected} loading={loading} error={loadError}
+              canDiagnose={canDiagnose} canAdminister={canAdminister} canIssueBleSession={canIssueBleSession}
+              lists={adminLists}
+              context={{ register, operatorId, blePublicKey, activationCode, activationRequest, activationLocationId }}
+              telemetry={{ transportMetrics, deviceHealth, deviceActivity, fiscalMetrics, diagnostics, provisioning, bleSession, blueCashActivation }}
+              actions={{
+                retry: () => void refresh('Устройства'),
+                selectDevice: device => { setSelected(device); setMessage(`${label(device.name || device.id)} е избрано`); },
+                openAdministration: () => changeTab('Администриране'),
+                diagnostics: () => void loadDiagnostics(),
+                printerTest: () => void printerTest(),
+                provisioning: () => void startProvisioning(),
+                selectOperator: setOperatorId,
+                changeBlePublicKey: setBlePublicKey,
+                issueBleSession: () => void issueBleSession(),
+                changeActivationCode: setActivationCode,
+                lookupActivation: () => void lookupActivation(),
+                selectActivationLocation: setActivationLocationId,
+                selectRegister: setRegister,
+                confirmActivation: () => void activateBlueCash(),
+                disconnectDevice: () => void disconnectDevice(),
+              }}
+            />
           ) : tab === "Операции" ? (
             <OperationsScreen operations={items} loading={loading} canReconcile={canReconcile} onReconcile={(operation) => void reconcileOperation(operation)} />
           ) : tab === "Отчети" ? (
@@ -1593,125 +1451,6 @@ function AppContent() {
         >Сквозен probe</Button>
       </View>
     </SafeAreaView>
-  );
-}
-
-function Field({
-  label: fieldLabel,
-  value,
-  onChangeText,
-  testID,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (value: string) => void;
-  testID?: string;
-}) {
-  return (
-    <PaperTextInput
-      testID={testID}
-      mode="outlined"
-      label={fieldLabel}
-      accessibilityLabel={fieldLabel}
-      value={value}
-      onChangeText={onChangeText}
-      style={{ width: '100%', minWidth: 0 }}
-    />
-  );
-}
-
-function Action({
-  label: actionLabel,
-  onPress,
-  disabled,
-  testID,
-}: {
-  label: string;
-  onPress: () => void;
-  disabled: boolean;
-  testID: string;
-}) {
-  return <Button testID={testID} mode="contained-tonal" contentStyle={{ minHeight: 48 }}
-    accessibilityLabel={actionLabel} disabled={disabled} onPress={onPress}>{actionLabel}</Button>;
-}
-
-function AdminCard({
-  title,
-  count,
-  children,
-}: {
-  title: string;
-  count: number;
-  children: React.ReactNode;
-}) {
-  return <Card mode="outlined" style={{ flexBasis: 300, flexGrow: 1, minWidth: 0 }}><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
-    <PaperText variant="titleLarge" accessibilityRole="header">{title}</PaperText>
-    <PaperText variant="bodyMedium">Регистрирани: {count}</PaperText>
-    {children}
-  </Card.Content></Card>;
-}
-
-function ReferencePicker({label: title,items,value,labelFor,onSelect,onEmpty,required=true}:{label:string;items:Item[];value:string;labelFor:(item:Item)=>string;onSelect:(id:string)=>void;onEmpty?:()=>void;required?:boolean}) {
-  const [query,setQuery]=useState("");
-  const theme = useTheme();
-  const visible=items.filter((item)=>labelFor(item).toLowerCase().includes(query.trim().toLowerCase()));
-  return <View style={{ gap: 8, minWidth: 0, width: '100%', maxWidth: 320 }}>
-    {items.length ? <>
-      <PaperTextInput mode="outlined" label={`Търсене: ${title}`} accessibilityLabel={`Търсене: ${title}`} value={query} onChangeText={setQuery} />
-      <View style={{ gap: 4 }}>
-        {visible.map(item => <List.Item
-          key={label(item.id)}
-          title={item.id === value ? `✓ ${labelFor(item)}` : labelFor(item)}
-          titleNumberOfLines={3}
-          accessibilityRole="button"
-          accessibilityLabel={labelFor(item)}
-          accessibilityState={{ selected: item.id === value }}
-          style={{ borderRadius: 8, backgroundColor: item.id === value ? theme.colors.secondaryContainer : theme.colors.surface }}
-          onPress={() => onSelect(label(item.id))}
-        />)}
-      </View>
-      {!visible.length ? <HelperText type="info" visible>Няма съвпадения.</HelperText> : null}
-    </> : <>
-      <HelperText type="info" visible>{required ? 'Справочникът е празен.' : 'Няма налични записи.'}</HelperText>
-      {required && onEmpty ? <Button mode="outlined" contentStyle={{ minHeight: 48 }} onPress={onEmpty}>Попълни справочника</Button> : null}
-    </>}
-  </View>;
-}
-
-function Choices({
-  items,
-  selectedId,
-  labelFor,
-  onSelect,
-}: {
-  items: Item[];
-  selectedId: string;
-  labelFor: (item: Item) => string;
-  onSelect: (item: Item) => void;
-}) {
-  if (items.length === 0) {
-    return <PaperText variant="bodyMedium">Все още няма записи.</PaperText>;
-  }
-  return (
-    <ScrollView
-      horizontal
-      accessibilityRole="toolbar"
-      accessibilityLabel="Съществуващи записи"
-      contentContainerStyle={s.choices}
-    >
-      {items.map((item) => (
-        <List.Item
-          key={label(item.id)}
-          title={item.id === selectedId ? `✓ ${labelFor(item)}` : labelFor(item)}
-          titleNumberOfLines={3}
-          accessibilityRole="button"
-          accessibilityLabel={labelFor(item)}
-          accessibilityState={{ selected: item.id === selectedId }}
-          style={{ minWidth: 140, maxWidth: 250 }}
-          onPress={() => onSelect(item)}
-        />
-      ))}
-    </ScrollView>
   );
 }
 

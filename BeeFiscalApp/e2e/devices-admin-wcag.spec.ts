@@ -5,7 +5,7 @@ import { saveWcagEvidence } from './contrast-evidence';
 
 for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
   for (const mode of ['light', 'dark'] as const) {
-    for (const state of ['devices-populated', 'devices-disconnected', 'devices-empty', 'devices-error', 'admin-top', 'admin-device-form'] as const) {
+    for (const state of ['devices-populated', 'devices-disconnected', 'devices-empty', 'devices-no-matches', 'devices-error', 'admin-top', 'admin-device-form'] as const) {
       test(`Paper devices/admin WCAG AA ${state}/${size}/${mode}`, async ({ page }, testInfo) => {
         const errors: string[] = [];
         page.on('pageerror', error => errors.push(error.message));
@@ -28,6 +28,10 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
               await expect(page.getByTestId('admin-device-save')).toBeVisible();
             }
           } else if (state === 'devices-empty') await expect(page.getByTestId('devices.empty')).toBeVisible();
+          else if (state === 'devices-no-matches') {
+            await page.getByTestId('devices.search').fill('unknown printer');
+            await expect(page.getByTestId('devices.no-matches')).toBeVisible();
+          }
           else await expect(page.getByTestId('device.item.00000000-0000-4000-8000-000000000003')).toBeVisible();
         }
         expect(errors).toEqual([]);

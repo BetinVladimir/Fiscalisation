@@ -62,6 +62,18 @@ test('disconnected device displays its real status', async ({ page }) => {
   await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).not.toContainText('READY');
 });
 
+test('Paper device search filters records and distinguishes no matches from empty API', async ({ page }) => {
+  await mockFiscalApi(page);
+  await openApp(page);
+  const search = page.getByTestId('devices.search');
+  await search.fill('unknown printer');
+  await expect(page.getByTestId('devices.no-matches')).toBeVisible();
+  await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toHaveCount(0);
+  await expect(page.getByTestId('devices.empty')).toHaveCount(0);
+  await search.fill('Datecs');
+  await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeVisible();
+});
+
 test('device list shows an empty state with unavailable device actions', async ({ page }) => {
   await mockFiscalApi(page, { devicesEmpty: true });
   await page.goto('/');
