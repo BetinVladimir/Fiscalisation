@@ -121,6 +121,19 @@ async function miniPosJourney(browser, appUrl) {
     console.error("[MiniPOS initial body]", (await page.locator("body").innerText()).slice(0, 2000));
     throw error;
   }
+  const colors = () => page.evaluate(() => ["app-root", "app-header"].map(id => getComputedStyle(document.querySelector(`[data-testid="${id}"]`)).backgroundColor));
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-light").click();
+  const lightColors = await colors();
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-dark").click();
+  await page.waitForFunction(previous => ["app-root", "app-header"].every((id, index) => getComputedStyle(document.querySelector(`[data-testid="${id}"]`)).backgroundColor !== previous[index]), lightColors);
+  const darkColors = await colors();
+  await page.reload();
+  await page.getByTestId("app-header").waitFor();
+  assert.deepEqual(await colors(), darkColors, "selected Paper theme must survive reload for root and header");
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-light").click();
   await page.getByTestId("product-coffee").click();
   await page.getByTestId("status-transport").getByText(/няма .*отворена смяна/).waitFor();
 

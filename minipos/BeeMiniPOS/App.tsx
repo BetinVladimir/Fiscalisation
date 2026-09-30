@@ -15,6 +15,7 @@ import {
   HelperText as PaperHelperText,
   Menu as PaperMenu,
   Text as PaperText,
+  useTheme,
 } from "react-native-paper";
 import { WebBleBootstrap, webBluetoothSupported } from "./src/webBle.ts";
 import type { BleSessionPackage } from "./src/webBle.ts";
@@ -315,6 +316,7 @@ function MiniPosApp({
   selectTheme: (value: ThemePreference) => void;
 }) {
   const { width } = useWindowDimensions();
+  const paperTheme = useTheme();
   const isPhone = width < 720;
   const isCompact = width < 1024;
   const connectivity = useRef(new ConnectivityController());
@@ -1295,7 +1297,7 @@ function MiniPosApp({
   };
   if (!emailAuth.accessToken)
     return (
-      <SafeAreaView style={[s.root, s.authRoot, dark && s.rootDark]}>
+      <SafeAreaView testID="app-root" style={[s.root, s.authRoot, { backgroundColor: paperTheme.colors.background }]}>
         <StatusBar style={dark ? "light" : "dark"} />
         <Image
           accessibilityIgnoresInvertColors
@@ -1348,12 +1350,12 @@ function MiniPosApp({
       </SafeAreaView>
     );
   return (
-    <SafeAreaView style={[s.root, dark && s.rootDark]}>
+    <SafeAreaView testID="app-root" style={[s.root, { backgroundColor: paperTheme.colors.background }]}>
       <StatusBar style={dark ? "light" : "dark"} />
-      <View style={[s.top, isCompact && s.topCompact, dark && s.topDark]}>
+      <View testID="app-header" style={[s.top, isCompact && s.topCompact, { backgroundColor: paperTheme.colors.surface, borderColor: paperTheme.colors.outlineVariant }]}>
         <View style={s.topIdentity}>
-          <Text style={[s.brand, dark && s.textDark]}>BeeMiniPOS</Text>
-          <Text style={[s.caption, dark && s.captionDark]}>
+          <PaperText variant="headlineSmall" style={{ color: paperTheme.colors.onSurface }}>BeeMiniPOS</PaperText>
+          <PaperText variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
             {configuration?.location_name || "1 точка"} •{" "}
             {configuration?.workstation_name || "каса 01"} • {activeRegisterId}{" "}
             •{" "}
@@ -1361,45 +1363,34 @@ function MiniPosApp({
               ? `${selectedEmployee.first_name} ${selectedEmployee.last_name}`
               : "DEV"}{" "}
             • EUR • BLE {bleReady ? "READY" : "OFF"}
-          </Text>
+          </PaperText>
         </View>
         <View style={[s.topActions, isCompact && s.topActionsCompact]}>
           {prodMode ? (
-            <Pressable
+            <PaperButton
               testID="operator-logout"
-              accessibilityRole="button"
+              mode="outlined"
               accessibilityLabel={uiText.logout}
-              accessibilityState={{ disabled: !!shift }}
               disabled={!!shift}
-              style={s.adminButton}
               onPress={() => void logoutOperator()}
-            >
-              <Text>{uiText.logout}</Text>
-            </Pressable>
+            >{uiText.logout}</PaperButton>
           ) : null}
-          <Pressable
+          <PaperButton
             testID="ble-connect"
-            accessibilityRole="button"
+            mode="outlined"
             accessibilityLabel={
               bleReady ? uiText.bleReady : uiText.connectBle
             }
-            accessibilityState={{ disabled: busy || bleReady }}
             disabled={busy || bleReady}
-            style={s.adminButton}
             onPress={connectBle}
-          >
-            <Text>{bleReady ? uiText.bleConnected : uiText.connectBle}</Text>
-          </Pressable>
+          >{bleReady ? uiText.bleConnected : uiText.connectBle}</PaperButton>
           {canManage ? (
-            <Pressable
+            <PaperButton
               testID="admin-toggle"
-              accessibilityRole="button"
+              mode="outlined"
               accessibilityLabel={admin ? uiText.openSales : uiText.openConfiguration}
-              style={s.adminButton}
               onPress={() => setAdmin((v) => !v)}
-            >
-              <Text>{admin ? uiText.sales : uiText.configuration}</Text>
-            </Pressable>
+            >{admin ? uiText.sales : uiText.configuration}</PaperButton>
           ) : null}
           <ThemeMenu
             preference={themePreference}
@@ -2197,8 +2188,7 @@ function message(e: unknown) {
   return e instanceof Error ? e.message : String(e);
 }
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: beeloyColors.background },
-  rootDark: { backgroundColor: beeloyColors.onBackground },
+  root: { flex: 1 },
   authRoot: {
     width: "100%",
     minHeight: "100%",
@@ -2232,15 +2222,9 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     borderBottomWidth: 1,
-    borderColor: beeloyColors.warningContainer,
   },
   topCompact: { alignItems: "stretch", flexDirection: "column", gap: 12, padding: 12 },
-  topDark: { backgroundColor: beeloyColors.success, borderColor: beeloyColors.onBackground },
   topIdentity: { flexShrink: 1 },
-  brand: { fontSize: 28, fontWeight: "800", color: beeloyColors.success },
-  textDark: { color: beeloyColors.background },
-  caption: { color: beeloyColors.onSurfaceVariant, marginTop: 2, lineHeight: 19 },
-  captionDark: { color: beeloyColors.outline },
   topActions: {
     flexDirection: "row",
     gap: 10,
