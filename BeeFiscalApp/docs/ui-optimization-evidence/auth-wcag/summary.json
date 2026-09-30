@@ -1,0 +1,205 @@
+{
+  "date": "2026-09-30T21:13:38.035Z",
+  "sourceCommit": "2692d53a0b7fb7e183e1c65cb287fadae8b39ec9",
+  "testSha256": "0feb76b76e1cc165f5256da5429340bae68e0cefe02f681d78699ca81ebd872f",
+  "bundle": "AppEntry-374251aa15271b9c0b271db9d8596567.js",
+  "command": "npm run test:e2e:auth-wcag",
+  "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
+  "scans": 24,
+  "totalViolations": 0,
+  "totalIncomplete": 276,
+  "entries": [
+    {
+      "state": "company",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/company-lg-dark"
+    },
+    {
+      "state": "company",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/company-lg-light"
+    },
+    {
+      "state": "company",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/company-md-dark"
+    },
+    {
+      "state": "company",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/company-md-light"
+    },
+    {
+      "state": "company",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/company-xs-dark"
+    },
+    {
+      "state": "company",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/company-xs-light"
+    },
+    {
+      "state": "email",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/email-lg-dark"
+    },
+    {
+      "state": "email",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/email-lg-light"
+    },
+    {
+      "state": "email",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/email-md-dark"
+    },
+    {
+      "state": "email",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/email-md-light"
+    },
+    {
+      "state": "email",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/email-xs-dark"
+    },
+    {
+      "state": "email",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/email-xs-light"
+    },
+    {
+      "state": "language-open",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 27,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/language-open-lg-dark"
+    },
+    {
+      "state": "language-open",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 27,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/language-open-lg-light"
+    },
+    {
+      "state": "language-open",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 25,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/language-open-md-dark"
+    },
+    {
+      "state": "language-open",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 25,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/language-open-md-light"
+    },
+    {
+      "state": "language-open",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 23,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/language-open-xs-dark"
+    },
+    {
+      "state": "language-open",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 23,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/language-open-xs-light"
+    },
+    {
+      "state": "otp",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/otp-lg-dark"
+    },
+    {
+      "state": "otp",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/otp-lg-light"
+    },
+    {
+      "state": "otp",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/otp-md-dark"
+    },
+    {
+      "state": "otp",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/otp-md-light"
+    },
+    {
+      "state": "otp",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/otp-xs-dark"
+    },
+    {
+      "state": "otp",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 7,
+      "evidence": "docs/ui-optimization-evidence/auth-wcag/otp-xs-light"
+    }
+  ]
+}
