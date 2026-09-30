@@ -1,5 +1,5 @@
 import { expect, test } from '@playwright/test';
-import { DEVICE_ID, LOCATION_ID, OPERATOR_ID, REGISTER_ID, mockFiscalApi, openApp } from './helpers';
+import { DEVICE_ID, LOCATION_ID, OPERATOR_ID, REGISTER_ID, SECOND_REGISTER_ID, mockFiscalApi, openApp } from './helpers';
 
 test('device diagnostics, printer and provisioning use public API with idempotency keys', async ({ page }) => {
   const mutations = await mockFiscalApi(page);
@@ -72,6 +72,22 @@ test('Paper device search filters records and distinguishes no matches from empt
   await expect(page.getByTestId('devices.empty')).toHaveCount(0);
   await search.fill('Datecs');
   await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeVisible();
+});
+
+test('register selection reloads operations and reports for the selected register', async ({ page }) => {
+  const requested: string[] = [];
+  page.on('request', request => {
+    if (request.method() === 'GET' && /\/(operations|reports)\?/.test(request.url())) requested.push(request.url());
+  });
+  await mockFiscalApi(page, { secondRegister: true });
+  await openApp(page);
+  await page.getByTestId('tab-Операции').click();
+  await expect(page.getByTestId('operations.screen')).toBeVisible();
+  await page.getByRole('button', { name: 'R02', exact: true }).click();
+  await expect.poll(() => requested.some(url => url.includes(`/operations?register_id=${SECOND_REGISTER_ID}`))).toBe(true);
+  await page.getByTestId('tab-Отчети').click();
+  await expect.poll(() => requested.some(url => url.includes(`/reports?register_id=${SECOND_REGISTER_ID}`))).toBe(true);
+  await expect(page.getByRole('button', { name: 'Избрано: R02', exact: true })).toBeVisible();
 });
 
 test('device list shows an empty state with unavailable device actions', async ({ page }) => {

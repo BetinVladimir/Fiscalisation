@@ -41,7 +41,7 @@ export function ReferencePicker({ label: title, items, value, labelFor, onSelect
       <View style={{ gap: 4 }}>
         {visible.map(item => <List.Item key={label(item.id)}
           title={item.id === value ? `✓ ${labelFor(item)}` : labelFor(item)} titleNumberOfLines={3}
-          accessibilityRole="button" accessibilityLabel={labelFor(item)} accessibilityState={{ selected: item.id === value }}
+          accessibilityRole="button" accessibilityLabel={item.id === value ? `Избрано: ${labelFor(item)}` : labelFor(item)} accessibilityState={{ selected: item.id === value }}
           style={{ borderRadius: 8, backgroundColor: item.id === value ? theme.colors.secondaryContainer : theme.colors.surface }}
           onPress={() => onSelect(label(item.id))} />)}
       </View>
@@ -61,7 +61,7 @@ export function Choices({ items, selectedId, labelFor, onSelect }: {
     contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
     {items.map(item => <List.Item key={label(item.id)}
       title={item.id === selectedId ? `✓ ${labelFor(item)}` : labelFor(item)} titleNumberOfLines={3}
-      accessibilityRole="button" accessibilityLabel={labelFor(item)} accessibilityState={{ selected: item.id === selectedId }}
+      accessibilityRole="button" accessibilityLabel={item.id === selectedId ? `Избрано: ${labelFor(item)}` : labelFor(item)} accessibilityState={{ selected: item.id === selectedId }}
       style={{ minWidth: 140, maxWidth: 250 }} onPress={() => onSelect(item)} />)}
   </ScrollView>;
 }

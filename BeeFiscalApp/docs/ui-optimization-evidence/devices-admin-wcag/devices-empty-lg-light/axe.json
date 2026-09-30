@@ -396,7 +396,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-fdjqy7 r-ubezar r-lrvibr\" style=\"-webkit-line-clamp: 3; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">✓ R01</div>",
           "target": [
-            ".css-g5y9jx:nth-child(2) > .css-g5y9jx:nth-child(2) > .r-11f147o.r-11g3r6m[aria-label=\"R01\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np"
+            ".css-g5y9jx:nth-child(2) > .css-g5y9jx:nth-child(2) > .r-11f147o.r-11g3r6m[aria-label=\"Избрано: R01\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -571,7 +571,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-fdjqy7 r-ubezar r-lrvibr\" style=\"-webkit-line-clamp: 3; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">✓ — Ivan Ivanov</div>",
           "target": [
-            "button[aria-label=\"— Ivan Ivanov\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np"
+            "button[aria-label=\"Избрано: — Ivan Ivanov\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -771,7 +771,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-fdjqy7 r-ubezar r-lrvibr\" style=\"-webkit-line-clamp: 3; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">✓ Sofia</div>",
           "target": [
-            "button[aria-label=\"Sofia\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np"
+            "button[aria-label=\"Избрано: Sofia\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -1367,7 +1367,7 @@
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(2) > .css-g5y9jx:nth-child(2) > .r-11f147o.r-11g3r6m[aria-label=\"R01\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np",
+      "target": ".css-g5y9jx:nth-child(2) > .css-g5y9jx:nth-child(2) > .r-11f147o.r-11g3r6m[aria-label=\"Избрано: R01\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np",
       "text": "✓ R01",
       "foreground": "rgb(29, 26, 32)",
       "fontSize": "16px",
@@ -1475,7 +1475,7 @@
         "status": "candidate-supported",
         "visibleBackground": "rgb(247, 245, 249)",
         "pixelRatio": 15.88,
-        "dominantShare": 0.875,
+        "dominantShare": 0.951,
         "matchesDomBackground": true,
         "sampledPixels": 7488,
         "foregroundPixels": 81,
@@ -1492,7 +1492,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 335,
+        "y": 343,
         "width": 1114,
         "height": 28
       },
@@ -1531,7 +1531,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 375,
+        "y": 383,
         "width": 1114,
         "height": 20
       },
@@ -1570,7 +1570,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 509,
+        "y": 497,
         "width": 230.59375,
         "height": 19.203125
       },
@@ -1609,7 +1609,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 495,
+        "y": 483,
         "width": 320,
         "height": 48
       },
@@ -1639,7 +1639,7 @@
       }
     },
     {
-      "target": "button[aria-label=\"— Ivan Ivanov\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np",
+      "target": "button[aria-label=\"Избрано: — Ivan Ivanov\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np",
       "text": "✓ — Ivan Ivanov",
       "foreground": "rgb(29, 26, 32)",
       "fontSize": "16px",
@@ -1648,7 +1648,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 274,
-        "y": 565,
+        "y": 553,
         "width": 280,
         "height": 19
       },
@@ -1688,7 +1688,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 632,
+        "y": 620,
         "width": 293.0625,
         "height": 19.203125
       },
@@ -1727,7 +1727,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 618,
+        "y": 606,
         "width": 1114,
         "height": 48
       },
@@ -1766,7 +1766,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 738,
+        "y": 726,
         "width": 1114,
         "height": 28
       },
@@ -1805,7 +1805,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 800,
+        "y": 788,
         "width": 245.796875,
         "height": 19.203125
       },
@@ -1844,7 +1844,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 786,
+        "y": 774,
         "width": 1114,
         "height": 48
       },
@@ -1883,7 +1883,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 928,
+        "y": 916,
         "width": 231.609375,
         "height": 19.203125
       },
@@ -1903,12 +1903,12 @@
       "contrastCandidate": 9.38,
       "pixelEvidence": {
         "status": "manual-review",
-        "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.881,
-        "matchesDomBackground": true,
+        "visibleBackground": "rgb(247, 245, 249)",
+        "pixelRatio": 8.87,
+        "dominantShare": 0.44,
+        "matchesDomBackground": false,
         "sampledPixels": 5925,
-        "foregroundPixels": 0,
+        "foregroundPixels": 196,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -1922,7 +1922,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 914,
+        "y": 902,
         "width": 320,
         "height": 48
       },
@@ -1944,7 +1944,7 @@
         "status": "manual-review",
         "visibleBackground": "rgb(255, 251, 255)",
         "pixelRatio": 16.79,
-        "dominantShare": 0.693,
+        "dominantShare": 0.49,
         "matchesDomBackground": true,
         "sampledPixels": 4401,
         "foregroundPixels": 0,
@@ -1952,7 +1952,7 @@
       }
     },
     {
-      "target": "button[aria-label=\"Sofia\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np",
+      "target": "button[aria-label=\"Избрано: Sofia\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np",
       "text": "✓ Sofia",
       "foreground": "rgb(29, 26, 32)",
       "fontSize": "16px",
@@ -1961,7 +1961,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 274,
-        "y": 984,
+        "y": 972,
         "width": 280,
         "height": 19
       },
@@ -1984,9 +1984,9 @@
         "status": "manual-review",
         "visibleBackground": "rgb(255, 251, 255)",
         "pixelRatio": 16.79,
-        "dominantShare": 1,
+        "dominantShare": 0.999,
         "matchesDomBackground": false,
-        "sampledPixels": 5434,
+        "sampledPixels": 7150,
         "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }

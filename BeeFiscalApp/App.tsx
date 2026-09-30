@@ -227,7 +227,7 @@ function AppContent() {
     setDeviceTransportParameters(JSON.stringify(parsed));
   };
   const refresh = useCallback(
-    async (next = tab) => {
+    async (next = tab, registerOverride = register) => {
       setLoading(true);
       setLoadError('');
       if (next === 'Устройства' || next === 'Операции' || next === 'Отчети' || next === 'Одит') setItems([]);
@@ -264,12 +264,12 @@ function AppContent() {
         }
         if (next === "Операции") {
           const v = await collect(
-            registerCollectionPath("/operations", register),
+            registerCollectionPath("/operations", registerOverride),
           );
           setItems(v);
         }
         if (next === "Отчети") {
-          const v = await collect(registerCollectionPath("/reports", register));
+          const v = await collect(registerCollectionPath("/reports", registerOverride));
           setItems(v);
         }
         if (next === "Одит") {
@@ -313,7 +313,7 @@ function AppContent() {
           setDeviceId((x) => x || label(lists.devices[0]?.id));
           setOperatorId((x) => x || label(lists.operators[0]?.id));
           setItems([]);
-          const selectedRegister = register || label(lists.registers[0]?.id);
+          const selectedRegister = registerOverride || label(lists.registers[0]?.id);
           if (isRegisterId(selectedRegister)) {
             const history = await call(
               registerResourcePath(selectedRegister, "/composite-bindings"),
@@ -377,6 +377,17 @@ function AppContent() {
     setLoadError('');
     setReportError('');
     void refresh(next);
+  };
+  const selectRegisterContext = (nextRegister: string) => {
+    if (nextRegister === register) return;
+    setRegister(nextRegister);
+    setItems([]);
+    setSelected(null);
+    setDeviceHealth(null);
+    setDeviceActivity([]);
+    setDiagnostics(null);
+    setReportError('');
+    void refresh(tab, nextRegister);
   };
   const probe = async () => {
     if (!isRegisterId(register)) {
@@ -789,7 +800,7 @@ function AppContent() {
           ) : null}
           <View style={[s.toolbar, compact && { flexWrap: 'wrap' }]}>
             <PaperText style={[s.section, { color: theme.colors.onBackground }, compact && { flexBasis: '100%' }]}>{tab}</PaperText>
-            <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>changeTab("Администриране")}/>
+            <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={selectRegisterContext} onEmpty={()=>changeTab("Администриране")}/>
             <Button mode="contained-tonal" contentStyle={{ minHeight: 48 }} accessibilityLabel={`Обнови ${tab}`} disabled={loading} onPress={() => refresh()}>{loading ? "…" : "Обнови"}</Button>
           </View>
           {tab === "Устройства" ? (
@@ -812,7 +823,7 @@ function AppContent() {
                 changeActivationCode: setActivationCode,
                 lookupActivation: () => void lookupActivation(),
                 selectActivationLocation: setActivationLocationId,
-                selectRegister: setRegister,
+                selectRegister: selectRegisterContext,
                 confirmActivation: () => void activateBlueCash(),
                 disconnectDevice: () => void disconnectDevice(),
               }}

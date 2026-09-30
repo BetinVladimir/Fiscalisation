@@ -1,18 +1,20 @@
 {
-  "date": "2026-09-30T22:37:04.930Z",
-  "sourceCommit": "758bccdcc49a443aea2a94b437e7757a37076267",
-  "testSha256": "c4c08c426ab21946e774e7553c0d4db0eed63d1e2561419f42ef0c01197be77f",
+  "date": "2026-09-30T22:54:13.033Z",
+  "sourceCommit": "0ab682d2a8d66ca1816295151ed74e1de040be13",
+  "testSha256": "f973d0917353fd7ef9308b2bd529e9161adde8da4d574783bed4a3aac9bc4578",
   "sourceFilesSha256": {
-    "App.tsx": "77e35a3006684f6a52278c277bd17ea5999f3b076c37932f35975c543f17f4d9"
+    "App.tsx": "a5cf9cea915f482fc4a0a61eba885d61864926243b8a4a37b738ac550df99355",
+    "src/screens/DevicesScreen.tsx": "095743de8a37726e178cda02dda494fa2382768e156d3dc87dc72639b32c8974",
+    "src/components/FiscalControls.tsx": "3e434a6d0ac803c975c58c9da02bd31b5c9323fb3ad8db90b2bfa2131cb3aa7f"
   },
-  "bundle": "AppEntry-8f91adf683b37e5a475a2558b9cc3548.js",
+  "bundle": "AppEntry-7c285d6ae84eb59493771f8840846108.js",
   "command": "npm run test:e2e:devices-admin-wcag",
   "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
-  "scans": 36,
+  "scans": 42,
   "totalViolations": 0,
-  "totalIncomplete": 1127,
-  "pixelSupported": 744,
-  "pixelManualReview": 383,
+  "totalIncomplete": 1318,
+  "pixelSupported": 886,
+  "pixelManualReview": 432,
   "entries": [
     {
       "state": "admin-device-form",
@@ -59,9 +61,9 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 36,
+      "incomplete": 29,
       "pixelSupported": 12,
-      "pixelManualReview": 24,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-xs-dark"
     },
     {
@@ -140,8 +142,8 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 35,
-      "pixelSupported": 25,
-      "pixelManualReview": 10,
+      "pixelSupported": 26,
+      "pixelManualReview": 9,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-lg-dark"
     },
     {
@@ -150,8 +152,8 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 35,
-      "pixelSupported": 25,
-      "pixelManualReview": 10,
+      "pixelSupported": 26,
+      "pixelManualReview": 9,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-lg-light"
     },
     {
@@ -159,9 +161,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 33,
-      "pixelSupported": 27,
-      "pixelManualReview": 6,
+      "incomplete": 35,
+      "pixelSupported": 25,
+      "pixelManualReview": 10,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-md-dark"
     },
     {
@@ -169,9 +171,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 33,
-      "pixelSupported": 27,
-      "pixelManualReview": 6,
+      "incomplete": 35,
+      "pixelSupported": 25,
+      "pixelManualReview": 10,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-md-light"
     },
     {
@@ -179,8 +181,8 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 19,
-      "pixelSupported": 15,
+      "incomplete": 20,
+      "pixelSupported": 16,
       "pixelManualReview": 4,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-xs-dark"
     },
@@ -189,8 +191,8 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 19,
-      "pixelSupported": 15,
+      "incomplete": 20,
+      "pixelSupported": 16,
       "pixelManualReview": 4,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-xs-light"
     },
@@ -240,8 +242,8 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 16,
-      "pixelSupported": 13,
-      "pixelManualReview": 3,
+      "pixelSupported": 14,
+      "pixelManualReview": 2,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-xs-dark"
     },
     {
@@ -250,8 +252,8 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 16,
-      "pixelSupported": 13,
-      "pixelManualReview": 3,
+      "pixelSupported": 14,
+      "pixelManualReview": 2,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-xs-light"
     },
     {
@@ -315,13 +317,73 @@
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-error-xs-light"
     },
     {
+      "state": "devices-no-matches",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 37,
+      "pixelSupported": 26,
+      "pixelManualReview": 11,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-lg-dark"
+    },
+    {
+      "state": "devices-no-matches",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 37,
+      "pixelSupported": 26,
+      "pixelManualReview": 11,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-lg-light"
+    },
+    {
+      "state": "devices-no-matches",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 35,
+      "pixelSupported": 28,
+      "pixelManualReview": 7,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-md-dark"
+    },
+    {
+      "state": "devices-no-matches",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 35,
+      "pixelSupported": 28,
+      "pixelManualReview": 7,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-md-light"
+    },
+    {
+      "state": "devices-no-matches",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 21,
+      "pixelSupported": 16,
+      "pixelManualReview": 5,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-xs-dark"
+    },
+    {
+      "state": "devices-no-matches",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 21,
+      "pixelSupported": 16,
+      "pixelManualReview": 5,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-xs-light"
+    },
+    {
       "state": "devices-populated",
       "size": "lg",
       "mode": "dark",
       "violations": 0,
       "incomplete": 35,
-      "pixelSupported": 25,
-      "pixelManualReview": 10,
+      "pixelSupported": 26,
+      "pixelManualReview": 9,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-lg-dark"
     },
     {
@@ -330,8 +392,8 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 35,
-      "pixelSupported": 25,
-      "pixelManualReview": 10,
+      "pixelSupported": 26,
+      "pixelManualReview": 9,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-lg-light"
     },
     {
@@ -339,9 +401,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 33,
-      "pixelSupported": 27,
-      "pixelManualReview": 6,
+      "incomplete": 35,
+      "pixelSupported": 25,
+      "pixelManualReview": 10,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-md-dark"
     },
     {
@@ -349,9 +411,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 33,
-      "pixelSupported": 27,
-      "pixelManualReview": 6,
+      "incomplete": 35,
+      "pixelSupported": 25,
+      "pixelManualReview": 10,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-md-light"
     },
     {
@@ -359,8 +421,8 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 19,
-      "pixelSupported": 15,
+      "incomplete": 20,
+      "pixelSupported": 16,
       "pixelManualReview": 4,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-xs-dark"
     },
@@ -369,8 +431,8 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 19,
-      "pixelSupported": 15,
+      "incomplete": 20,
+      "pixelSupported": 16,
       "pixelManualReview": 4,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-xs-light"
     }

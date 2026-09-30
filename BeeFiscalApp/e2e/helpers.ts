@@ -1,6 +1,7 @@
 import type { Page, Route } from '@playwright/test';
 
 export const REGISTER_ID = '00000000-0000-4000-8000-000000000001';
+export const SECOND_REGISTER_ID = '00000000-0000-4000-8000-000000000005';
 export const LOCATION_ID = '00000000-0000-4000-8000-000000000002';
 export const DEVICE_ID = '00000000-0000-4000-8000-000000000003';
 export const OPERATOR_ID = '00000000-0000-4000-8000-000000000004';
@@ -12,7 +13,7 @@ function json(route: Route, body: unknown, status = 200) {
 
 export type CapturedMutation = { path: string; body: Record<string, unknown>; headers: Record<string, string> };
 
-export async function mockFiscalApi(page: Page, options: { devicesStatus?: number; devicesEmpty?: boolean; devicesDisconnected?: boolean; reportsStatus?: number; reportsEmpty?: boolean; auditStatus?: number; auditEmpty?: boolean; policyStatus?: number; taxGroupsEmpty?: boolean } = {}) {
+export async function mockFiscalApi(page: Page, options: { devicesStatus?: number; devicesEmpty?: boolean; devicesDisconnected?: boolean; reportsStatus?: number; reportsEmpty?: boolean; auditStatus?: number; auditEmpty?: boolean; policyStatus?: number; taxGroupsEmpty?: boolean; secondRegister?: boolean } = {}) {
   const mutations: CapturedMutation[] = [];
   await page.route(`${API}/**`, async route => {
     const request = route.request();
@@ -49,7 +50,7 @@ export async function mockFiscalApi(page: Page, options: { devicesStatus?: numbe
       return json(route, { items: options.auditEmpty ? [] : [{ event_id: 'audit-1', action: 'SALE_FINALIZED', object_type: 'SALE', object_id: 'sale-1', actor_id: OPERATOR_ID, occurred_at: '2026-08-20T10:00:00Z', unp: 'UNP-1', event_hash: 'abc123' }], page: { has_more: false } });
     }
     if (path.startsWith('/locations?')) return json(route, { items: [{ id: LOCATION_ID, code: 'SOF', name: 'Sofia' }], page: { has_more: false } });
-    if (path.startsWith('/registers?')) return json(route, { items: [{ id: REGISTER_ID, code: 'R01', location_id: LOCATION_ID, version: 1 }], page: { has_more: false } });
+    if (path.startsWith('/registers?')) return json(route, { items: [{ id: REGISTER_ID, code: 'R01', location_id: LOCATION_ID, version: 1 }, ...(options.secondRegister ? [{ id: SECOND_REGISTER_ID, code: 'R02', location_id: LOCATION_ID, version: 1 }] : [])], page: { has_more: false } });
     if (path.startsWith('/operators?')) return json(route, { items: [{ id: OPERATOR_ID, code: 'A001', first_name: 'Ivan', last_name: 'Ivanov' }], page: { has_more: false } });
     if (path === `/registers/${REGISTER_ID}/composite-bindings`) return json(route, { items: [], page: { has_more: false } });
     if (path === '/country-policy') {
