@@ -5,6 +5,12 @@ import { authCopy } from '../src/ui/auth-copy.generated';
 for (const locale of ['en', 'bg', 'ru', 'de', 'fr'] as const) {
   test(`Paper auth locale smoke ${locale} on xs`, async ({ page }) => {
     await page.setViewportSize({ width: 360, height: 800 });
+    await page.addInitScript(() => {
+      window.open = ((url?: string | URL) => {
+        window.localStorage.setItem('auth.lastLegalUrl', String(url));
+        return null;
+      }) as typeof window.open;
+    });
     await page.goto('/');
     await page.getByTestId('auth.language.open').click();
     await page.getByTestId(`auth.language.${locale}`).click();
@@ -14,6 +20,8 @@ for (const locale of ['en', 'bg', 'ru', 'de', 'fr'] as const) {
     expect(login!.x).toBeGreaterThanOrEqual(0);
     expect(login!.x + login!.width).toBeLessThanOrEqual(361);
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+    await page.getByRole('link', { name: authCopy[locale].privacyPolicy }).click();
+    expect(await page.evaluate(() => localStorage.getItem('auth.lastLegalUrl'))).toBe(`https://legal.beeloy.org/${locale}/privacy`);
   });
 }
 

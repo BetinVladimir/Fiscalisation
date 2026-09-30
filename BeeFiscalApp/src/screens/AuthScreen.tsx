@@ -9,6 +9,7 @@ import { ResponsiveScrollView as ScrollView } from '../ui/responsive-scroll-view
 import { LanguageThemeControls } from '../ui/LanguageThemeControls';
 import { useUiPreferences } from '../ui/preferences';
 import { authCopy } from '../ui/auth-copy.generated';
+import { privacyPolicyUrl } from '../ui/legal';
 
 type AuthState = ReturnType<typeof useEmailOtpAuth>;
 
@@ -64,7 +65,7 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
                 ))}
               </>}
 
-              <Button mode="text" accessibilityRole="link" onPress={() => void Linking.openURL('https://legal.beeloy.org/bg/privacy')}>{copy.privacyPolicy}</Button>
+              <Button mode="text" accessibilityRole="link" onPress={() => void Linking.openURL(privacyPolicyUrl(language))}>{copy.privacyPolicy}</Button>
             </Card.Content>
           </Card>
         </AuthForm>
