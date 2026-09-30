@@ -346,7 +346,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".css-g5y9jx:nth-child(2) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
+            ".css-g5y9jx:nth-child(2) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -521,7 +521,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"admin-location-code-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
+            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -571,7 +571,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
+            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -621,7 +621,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
+            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -771,7 +771,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".css-g5y9jx:nth-child(4) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
+            ".css-g5y9jx:nth-child(4) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -846,7 +846,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(2) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
+            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(2) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -996,7 +996,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"admin-operator-code-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
+            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -1046,7 +1046,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
+            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -1096,7 +1096,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
+            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -1321,7 +1321,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(4) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
+            ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(4) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -1396,7 +1396,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".css-g5y9jx:nth-child(3) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)"
+            ".css-g5y9jx:nth-child(3) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -2016,7 +2016,7 @@
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(2) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(2) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Търсене: Касово място",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -2287,7 +2287,7 @@
       }
     },
     {
-      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
+      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Код на точката",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -2365,7 +2365,7 @@
       }
     },
     {
-      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
+      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Име на точката",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -2443,7 +2443,7 @@
       }
     },
     {
-      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
+      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(1) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Адрес",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -2678,7 +2678,7 @@
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(4) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(4) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Търсене: Търговска точка",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -2796,7 +2796,7 @@
       }
     },
     {
-      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(2) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
+      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(2) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Код на касата",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -3031,7 +3031,7 @@
       }
     },
     {
-      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
+      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Код (4 символа)",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -3109,7 +3109,7 @@
       }
     },
     {
-      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
+      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Име",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -3187,7 +3187,7 @@
       }
     },
     {
-      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
+      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(3) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Фамилия",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -3541,7 +3541,7 @@
       }
     },
     {
-      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(4) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
+      "target": ".r-105ug2t.css-g5y9jx[data-testid=\"card-container\"]:nth-child(4) > .r-1wbh5a2.css-g5y9jx[data-testid=\"card\"] > .r-3pj75a.css-g5y9jx > .css-g5y9jx:nth-child(6) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Производител",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -3658,7 +3658,7 @@
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(3) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-fdjqy7:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(3) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Търсене: Касово място",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",

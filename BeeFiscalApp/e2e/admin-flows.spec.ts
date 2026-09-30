@@ -55,6 +55,45 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
   }
 }
 
+test('administration keeps edited location input after API error and retries with the same payload', async ({ page }) => {
+  await mockFiscalApi(page);
+  let attempts = 0;
+  const bodies: Array<Record<string, unknown>> = [];
+  await page.route(`**/locations/${LOCATION_ID}`, route => {
+    if (route.request().method() !== 'PATCH') return route.fallback();
+    attempts += 1;
+    bodies.push(JSON.parse(route.request().postData() ?? '{}'));
+    if (attempts === 1) return route.fulfill({ status: 503, contentType: 'application/json', body: '{"code":"UNAVAILABLE"}' });
+    return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ id: LOCATION_ID, code: 'SOF-NEW', name: 'Sofia', version: 2 }) });
+  });
+  await openApp(page);
+  await page.getByTestId('tab-Администриране').click();
+  const code = page.getByTestId('admin-location-code');
+  await code.fill('SOF-NEW');
+  await page.getByTestId('admin-location-save').click();
+  await expect(page.getByTestId('status-transport')).toContainText('UNAVAILABLE');
+  await expect(code).toHaveValue('SOF-NEW');
+  await page.getByTestId('admin-location-save').click();
+  await expect(page.getByTestId('status-transport')).toContainText('готово');
+  expect(bodies).toHaveLength(2);
+  expect(bodies[0].code).toBe('SOF-NEW');
+  expect(bodies[1].code).toBe('SOF-NEW');
+});
+
+test('administration rejects invalid editable transport JSON before device save', async ({ page }) => {
+  await mockFiscalApi(page);
+  await openApp(page);
+  await page.getByTestId('tab-Администриране').click();
+  const parameters = page.getByTestId('admin-device-transport-parameters');
+  const save = page.getByTestId('admin-device-save');
+  await parameters.fill('{invalid');
+  await expect(page.getByText('Въведете валиден JSON обект.')).toBeVisible();
+  await expect(save).toBeDisabled();
+  await parameters.fill('{"baud":115200}');
+  await expect(save).toBeEnabled();
+  await expect(page.getByText('Разширени транспортни параметри в JSON формат.')).toBeVisible();
+});
+
 test('disconnected device displays its real status', async ({ page }) => {
   await mockFiscalApi(page, { devicesDisconnected: true });
   await openApp(page);

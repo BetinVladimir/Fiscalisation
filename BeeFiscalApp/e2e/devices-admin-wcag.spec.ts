@@ -5,7 +5,7 @@ import { saveWcagEvidence } from './contrast-evidence';
 
 for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
   for (const mode of ['light', 'dark'] as const) {
-    for (const state of ['devices-populated', 'devices-disconnected', 'devices-unavailable', 'devices-empty', 'devices-no-matches', 'devices-error', 'admin-top', 'admin-device-form'] as const) {
+    for (const state of ['devices-populated', 'devices-disconnected', 'devices-unavailable', 'devices-empty', 'devices-no-matches', 'devices-error', 'admin-top', 'admin-device-form', 'admin-invalid-json'] as const) {
       test(`Paper devices/admin WCAG AA ${state}/${size}/${mode}`, async ({ page }, testInfo) => {
         const errors: string[] = [];
         page.on('pageerror', error => errors.push(error.message));
@@ -24,9 +24,14 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
             if (size === 'xs') await page.getByTestId('nav.open').click();
             await page.getByTestId('tab-Администриране').click();
             await expect(page.getByTestId('admin-editors')).toBeVisible();
-            if (state === 'admin-device-form') {
+            if (state === 'admin-device-form' || state === 'admin-invalid-json') {
               await page.getByTestId('admin-device-save').scrollIntoViewIfNeeded();
               await expect(page.getByTestId('admin-device-save')).toBeVisible();
+              if (state === 'admin-invalid-json') {
+                await page.getByTestId('admin-device-transport-parameters').fill('{invalid');
+                await expect(page.getByText('Въведете валиден JSON обект.')).toBeVisible();
+                await expect(page.getByTestId('admin-device-save')).toBeDisabled();
+              }
             }
           } else if (state === 'devices-empty') await expect(page.getByTestId('devices.empty')).toBeVisible();
           else if (state === 'devices-no-matches') {

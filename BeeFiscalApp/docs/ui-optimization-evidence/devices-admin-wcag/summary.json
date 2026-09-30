@@ -1,29 +1,30 @@
 {
-  "date": "2026-09-30T23:08:03.764Z",
-  "sourceCommit": "ed344fb0000a55ca6e5d7bb7199fbc9df638c5a1",
-  "testSha256": "95e7d73ae257e47440e68743599149d7142e8cbf9ace3ba9914ef39db1c05a8c",
+  "date": "2026-09-30T23:23:57.615Z",
+  "sourceCommit": "36ce940353ff19e45923ca6bd53c614beb44286b",
+  "testSha256": "b79c8ed46a7efc4f8de0a4d31057292e8c18147ab10145e7347da20a3ca4f216",
   "sourceFilesSha256": {
-    "App.tsx": "f4e53e10e931633f8911e8fddd233a7c34aee1a68d6453fda5de8994bd85834a",
+    "App.tsx": "2a27926f0aa3eb4ba07d982cc90013373cbe8655f70d8226e421cdaa0ae7be59",
     "src/screens/DevicesScreen.tsx": "df20938cb5c8589a80eb7e7b27ffb131e397b4b88653e1726818fa7dca165565",
+    "src/screens/AdministrationScreen.tsx": "e88d3804f4bd3d769b315d056dff5fc60b680214776d706a4106310d68e813dd",
     "src/components/FiscalControls.tsx": "3e434a6d0ac803c975c58c9da02bd31b5c9323fb3ad8db90b2bfa2131cb3aa7f"
   },
-  "bundle": "AppEntry-3a6dfbaace58da5dac588bd2685ebf0b.js",
+  "bundle": "AppEntry-0ae2cfcbad17412e24838d09751bc1b0.js",
   "command": "npm run test:e2e:devices-admin-wcag",
   "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
-  "scans": 48,
+  "scans": 54,
   "totalViolations": 0,
-  "totalIncomplete": 1512,
-  "pixelSupported": 1038,
-  "pixelManualReview": 474,
+  "totalIncomplete": 1718,
+  "pixelSupported": 1148,
+  "pixelManualReview": 570,
   "entries": [
     {
       "state": "admin-device-form",
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 53,
+      "incomplete": 50,
       "pixelSupported": 23,
-      "pixelManualReview": 30,
+      "pixelManualReview": 27,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-lg-dark"
     },
     {
@@ -31,9 +32,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 53,
+      "incomplete": 50,
       "pixelSupported": 23,
-      "pixelManualReview": 30,
+      "pixelManualReview": 27,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-lg-light"
     },
     {
@@ -41,9 +42,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 37,
-      "pixelSupported": 20,
-      "pixelManualReview": 17,
+      "incomplete": 35,
+      "pixelSupported": 21,
+      "pixelManualReview": 14,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-md-dark"
     },
     {
@@ -51,9 +52,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 37,
-      "pixelSupported": 20,
-      "pixelManualReview": 17,
+      "incomplete": 35,
+      "pixelSupported": 21,
+      "pixelManualReview": 14,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-md-light"
     },
     {
@@ -61,9 +62,9 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 36,
-      "pixelSupported": 12,
-      "pixelManualReview": 24,
+      "incomplete": 34,
+      "pixelSupported": 13,
+      "pixelManualReview": 21,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-xs-dark"
     },
     {
@@ -71,10 +72,70 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 36,
-      "pixelSupported": 12,
-      "pixelManualReview": 24,
+      "incomplete": 34,
+      "pixelSupported": 13,
+      "pixelManualReview": 21,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-xs-light"
+    },
+    {
+      "state": "admin-invalid-json",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 49,
+      "pixelSupported": 22,
+      "pixelManualReview": 27,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-lg-dark"
+    },
+    {
+      "state": "admin-invalid-json",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 49,
+      "pixelSupported": 22,
+      "pixelManualReview": 27,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-lg-light"
+    },
+    {
+      "state": "admin-invalid-json",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 35,
+      "pixelSupported": 19,
+      "pixelManualReview": 16,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-md-dark"
+    },
+    {
+      "state": "admin-invalid-json",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 35,
+      "pixelSupported": 19,
+      "pixelManualReview": 16,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-md-light"
+    },
+    {
+      "state": "admin-invalid-json",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 26,
+      "pixelSupported": 12,
+      "pixelManualReview": 14,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-xs-dark"
+    },
+    {
+      "state": "admin-invalid-json",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 26,
+      "pixelSupported": 12,
+      "pixelManualReview": 14,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-xs-light"
     },
     {
       "state": "admin-top",
