@@ -14,7 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useWindowDimensions } from 'react-native';
-import { Button, Drawer, HelperText, List, Modal, Portal, TextInput as PaperTextInput, useTheme } from 'react-native-paper';
+import { Button, Card, Chip, Drawer, HelperText, List, Modal, Portal, Text as PaperText, TextInput as PaperTextInput, useTheme } from 'react-native-paper';
 import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
@@ -231,7 +231,13 @@ function AppContent() {
     async (next = tab) => {
       setLoading(true);
       setLoadError('');
-      if (next === 'Отчети' || next === 'Одит') setItems([]);
+      if (next === 'Устройства' || next === 'Операции' || next === 'Отчети' || next === 'Одит') setItems([]);
+      if (next === 'Устройства') {
+        setSelected(null);
+        setDeviceHealth(null);
+        setDeviceActivity([]);
+        setDiagnostics(null);
+      }
       if (next === 'Настройки') setPolicy(null);
       try {
         if (next === "Администриране" && !canAdminister)
@@ -791,42 +797,38 @@ function AppContent() {
           </View>
           {tab === "Устройства" ? (
             <>
+              {!loading && loadError ? <Card mode="outlined" testID="devices.error"><Card.Content style={{ gap: 8 }}>
+                <HelperText type="error" visible accessibilityLiveRegion="polite">{loadError}</HelperText>
+                <Button mode="outlined" contentStyle={{ minHeight: 48 }} onPress={() => void refresh('Устройства')}>Опитай отново</Button>
+              </Card.Content></Card> : null}
+              {!loading && !loadError && items.length === 0 ? <PaperText testID="devices.empty" variant="bodyMedium">Няма устройства за избрания контекст.</PaperText> : null}
               {items.map((d) => (
-                <Pressable
+                <List.Item
                   key={label(d.id)}
+                  testID={`device.item.${label(d.id)}`}
                   accessibilityRole="button"
                   accessibilityState={{ selected: selected?.id === d.id }}
                   accessibilityLabel={`${label(d.vendor)} ${label(d.model)}, състояние ${label(d.status || d.state)}`}
-                  style={[s.card, selected?.id === d.id && s.selected]}
+                  style={{ borderRadius: 12, marginBottom: 8, backgroundColor: selected?.id === d.id ? theme.colors.secondaryContainer : theme.colors.surface }}
+                  title={label(d.name || d.model || d.id)}
+                  titleNumberOfLines={2}
+                  description={`${label(d.vendor)} • ${label(d.model)} • ${label(d.connection_type || d.transport)}`}
+                  descriptionNumberOfLines={3}
+                  right={() => <Chip compact accessibilityLabel={`Състояние ${label(d.status || d.state)}`}>{label(d.status || d.state)}</Chip>}
                   onPress={() => {
                     setSelected(d);
                     setMessage(`${label(d.name || d.id)} е избрано`);
                   }}
-                >
-                  <View>
-                    <Text style={s.device}>
-                      {label(d.name || d.model || d.id)}
-                    </Text>
-                    <Text style={s.meta}>
-                      {label(d.vendor)} • {label(d.model)} •{" "}
-                      {label(d.connection_type || d.transport)}
-                    </Text>
-                  </View>
-                  <View style={s.state}>
-                    <Text style={s.stateText}>
-                      {label(d.status || d.state)}
-                    </Text>
-                  </View>
-                </Pressable>
+                />
               ))}
-              <View testID="device-control-plane" style={s.panel}>
-                <Text style={s.panelTitle}>
+              {!loadError ? <Card mode="outlined" testID="device-control-plane"><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
+                <PaperText variant="titleLarge" accessibilityRole="header">
                   Provisioning, BLE и ограничена диагностика
-                </Text>
-                <Text style={s.meta}>
+                </PaperText>
+                <PaperText variant="bodyMedium">
                   Transport/cloud и достижимостта на крайното ФУ са отделни
                   групи метрики.
-                </Text>
+                </PaperText>
                 <View style={s.actions}>
                   {canDiagnose ? (
                     <Action
@@ -877,7 +879,7 @@ function AppContent() {
                 ) : null}
                 {canAdminister ? (
                   <>
-                    <Text style={s.panelTitle}>Активация на SmartDevice</Text>
+                    <PaperText variant="titleLarge" accessibilityRole="header">Активация на SmartDevice</PaperText>
                     <Field
                       label="QR / еднократен кратък код"
                       value={activationCode}
@@ -891,12 +893,12 @@ function AppContent() {
                       onPress={() => void lookupActivation()}
                     />
                     {activationRequest ? (
-                      <Text
+                      <PaperText
                         testID="smart-device-activation-preview"
-                        style={s.json}
+                        variant="bodySmall"
                       >
                         {JSON.stringify(activationRequest, null, 2)}
-                      </Text>
+                      </PaperText>
                     ) : null}
                     <ReferencePicker label="Търговска точка" items={adminLists.locations} value={activationLocationId} labelFor={(x)=>label(x.name || x.code)} onSelect={setActivationLocationId} onEmpty={()=>changeTab("Администриране")}/>
                     <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>changeTab("Администриране")}/>
@@ -920,47 +922,47 @@ function AppContent() {
                   </>
                 ) : null}
                 {transportMetrics ? (
-                  <Text testID="transport-metrics" style={s.json}>
+                  <PaperText testID="transport-metrics" variant="bodySmall">
                     Transport: {JSON.stringify(transportMetrics, null, 2)}
-                  </Text>
+                  </PaperText>
                 ) : null}
                 {deviceHealth ? (
-                  <Text testID="device-realtime-health" style={s.json}>
+                  <PaperText testID="device-realtime-health" variant="bodySmall">
                     Realtime MQTT→REST: {JSON.stringify(deviceHealth, null, 2)}
-                  </Text>
+                  </PaperText>
                 ) : null}
                 {deviceActivity.length ? (
-                  <Text testID="device-activity-timeline" style={s.json}>
+                  <PaperText testID="device-activity-timeline" variant="bodySmall">
                     Последни преходи:{" "}
                     {JSON.stringify(deviceActivity.slice(0, 20), null, 2)}
-                  </Text>
+                  </PaperText>
                 ) : null}
                 {fiscalMetrics ? (
-                  <Text testID="fiscal-device-metrics" style={s.json}>
+                  <PaperText testID="fiscal-device-metrics" variant="bodySmall">
                     Крайно ФУ: {JSON.stringify(fiscalMetrics, null, 2)}
-                  </Text>
+                  </PaperText>
                 ) : null}
                 {diagnostics ? (
-                  <Text testID="diagnostics-result" style={s.json}>
+                  <PaperText testID="diagnostics-result" variant="bodySmall">
                     {JSON.stringify(diagnostics, null, 2)}
-                  </Text>
+                  </PaperText>
                 ) : null}
                 {provisioning ? (
-                  <Text testID="provisioning-result" style={s.json}>
+                  <PaperText testID="provisioning-result" variant="bodySmall">
                     {JSON.stringify(provisioning, null, 2)}
-                  </Text>
+                  </PaperText>
                 ) : null}
                 {bleSession ? (
-                  <Text testID="ble-session-result" style={s.json}>
+                  <PaperText testID="ble-session-result" variant="bodySmall">
                     {JSON.stringify(bleSession, null, 2)}
-                  </Text>
+                  </PaperText>
                 ) : null}
                 {blueCashActivation ? (
-                  <Text testID="bluecash-activation-result" style={s.json}>
+                  <PaperText testID="bluecash-activation-result" variant="bodySmall">
                     {JSON.stringify(blueCashActivation, null, 2)}
-                  </Text>
+                  </PaperText>
                 ) : null}
-              </View>
+              </Card.Content></Card> : null}
             </>
           ) : tab === "Операции" ? (
             <OperationsScreen operations={items} loading={loading} canReconcile={canReconcile} onReconcile={(operation) => void reconcileOperation(operation)} />
@@ -1572,6 +1574,8 @@ function AppContent() {
           )}
           {items.length === 0 &&
           tab !== "Настройки" &&
+          tab !== "Устройства" &&
+          tab !== "Одит" &&
           tab !== "Отчети" &&
           tab !== "Администриране" ? (
             <Text style={s.empty}>Няма записи в API за избрания филтър.</Text>
@@ -1608,13 +1612,14 @@ function Field({
   testID?: string;
 }) {
   return (
-    <TextInput
+    <PaperTextInput
       testID={testID}
+      mode="outlined"
+      label={fieldLabel}
       accessibilityLabel={fieldLabel}
       value={value}
       onChangeText={onChangeText}
-      style={s.adminInput}
-      placeholder={fieldLabel}
+      style={{ width: '100%', minWidth: 0 }}
     />
   );
 }
@@ -1630,19 +1635,8 @@ function Action({
   disabled: boolean;
   testID: string;
 }) {
-  return (
-    <Pressable
-      testID={testID}
-      accessibilityRole="button"
-      accessibilityLabel={actionLabel}
-      accessibilityState={{ disabled }}
-      disabled={disabled}
-      style={[s.action, disabled && s.disabled]}
-      onPress={onPress}
-    >
-      <Text style={s.probeText}>{actionLabel}</Text>
-    </Pressable>
-  );
+  return <Button testID={testID} mode="contained-tonal" contentStyle={{ minHeight: 48 }}
+    accessibilityLabel={actionLabel} disabled={disabled} onPress={onPress}>{actionLabel}</Button>;
 }
 
 function AdminCard({
@@ -1654,13 +1648,11 @@ function AdminCard({
   count: number;
   children: React.ReactNode;
 }) {
-  return (
-    <View style={s.adminCard}>
-      <Text style={s.panelTitle}>{title}</Text>
-      {count > 0 ? <Text style={s.meta}>Регистрирани: {count}</Text> : null}
-      {children}
-    </View>
-  );
+  return <Card mode="outlined" style={{ flexBasis: 300, flexGrow: 1, minWidth: 0 }}><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
+    <PaperText variant="titleLarge" accessibilityRole="header">{title}</PaperText>
+    <PaperText variant="bodyMedium">Регистрирани: {count}</PaperText>
+    {children}
+  </Card.Content></Card>;
 }
 
 function ReferencePicker({label: title,items,value,labelFor,onSelect,onEmpty,required=true}:{label:string;items:Item[];value:string;labelFor:(item:Item)=>string;onSelect:(id:string)=>void;onEmpty?:()=>void;required?:boolean}) {
@@ -1702,24 +1694,26 @@ function Choices({
   onSelect: (item: Item) => void;
 }) {
   if (items.length === 0) {
-    return <Text style={s.meta}>Все още няма записи.</Text>;
+    return <PaperText variant="bodyMedium">Все още няма записи.</PaperText>;
   }
   return (
     <ScrollView
       horizontal
+      accessibilityRole="toolbar"
       accessibilityLabel="Съществуващи записи"
       contentContainerStyle={s.choices}
     >
       {items.map((item) => (
-        <Pressable
+        <List.Item
           key={label(item.id)}
+          title={item.id === selectedId ? `✓ ${labelFor(item)}` : labelFor(item)}
+          titleNumberOfLines={3}
           accessibilityRole="button"
+          accessibilityLabel={labelFor(item)}
           accessibilityState={{ selected: item.id === selectedId }}
-          style={[s.choice, item.id === selectedId && s.selected]}
+          style={{ minWidth: 140, maxWidth: 250 }}
           onPress={() => onSelect(item)}
-        >
-          <Text style={s.meta}>{labelFor(item)}</Text>
-        </Pressable>
+        />
       ))}
     </ScrollView>
   );

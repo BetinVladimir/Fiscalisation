@@ -40,6 +40,73 @@ test('SmartDevice activation requires lookup preview and sends tenant-scoped bin
   expect(confirmed.body).toEqual({ user_code: 'BC1234', location_id: LOCATION_ID, register_id: REGISTER_ID, roles: ['PAYMENT_TERMINAL'] });
 });
 
+for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+  for (const mode of ['light', 'dark'] as const) {
+    test(`Paper device list and actions fit ${size}/${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.emulateMedia({ colorScheme: mode, reducedMotion: 'reduce' });
+      await mockFiscalApi(page);
+      await openApp(page);
+      await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toContainText('Datecs counter');
+      await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toContainText('ACTIVE');
+      await expect(page.getByTestId('device-diagnostics')).toBeEnabled();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+    });
+  }
+}
+
+test('disconnected device displays its real status', async ({ page }) => {
+  await mockFiscalApi(page, { devicesDisconnected: true });
+  await openApp(page);
+  await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toContainText('DISCONNECTED');
+  await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).not.toContainText('READY');
+});
+
+test('device list shows an empty state with unavailable device actions', async ({ page }) => {
+  await mockFiscalApi(page, { devicesEmpty: true });
+  await page.goto('/');
+  await expect(page.getByTestId('devices.empty')).toBeVisible();
+  await expect(page.getByTestId('device-diagnostics')).toBeDisabled();
+});
+
+test('device refresh failure clears stale selection and retry restores API records', async ({ page }) => {
+  await mockFiscalApi(page);
+  await openApp(page);
+  await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeVisible();
+  let first = true;
+  await page.route('**/devices?*', route => {
+    if (first) {
+      first = false;
+      return route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ code: 'UNAVAILABLE' }) });
+    }
+    return route.fallback();
+  });
+  await page.getByRole('button', { name: 'Обнови Устройства' }).click();
+  await expect(page.getByTestId('devices.error')).toBeVisible();
+  await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toHaveCount(0);
+  await expect(page.getByTestId('device-control-plane')).toHaveCount(0);
+  await page.getByRole('button', { name: 'Опитай отново' }).click();
+  await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeVisible();
+  await expect(page.getByTestId('devices.error')).toHaveCount(0);
+});
+
+for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+  for (const mode of ['light', 'dark'] as const) {
+    test(`Paper administration cards fit ${size}/${mode}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.emulateMedia({ colorScheme: mode, reducedMotion: 'reduce' });
+      await mockFiscalApi(page);
+      await openApp(page);
+      if (size === 'xs') await page.getByTestId('nav.open').click();
+      await page.getByTestId('tab-Администриране').click();
+      await expect(page.getByTestId('admin-editors')).toBeVisible();
+      await expect(page.getByTestId('admin-location-code')).toBeVisible();
+      await expect(page.getByTestId('admin-location-save')).toBeVisible();
+      expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+    });
+  }
+}
+
 test('UNKNOWN operation is reconciled once and never re-submitted as a fiscal sale', async ({ page }) => {
   const mutations = await mockFiscalApi(page);
   await openApp(page);
@@ -288,5 +355,6 @@ test('backend failure is fail-closed and exposes CORE OFFLINE instead of stale d
   await page.goto('/');
   await expect(page.getByTestId('status-fiscal-device')).toContainText('CORE OFFLINE');
   await expect(page.getByText(/API отказ/)).toBeVisible();
-  await expect(page.getByTestId('device-diagnostics')).toBeDisabled();
+  await expect(page.getByTestId('devices.error')).toBeVisible();
+  await expect(page.getByTestId('device-control-plane')).toHaveCount(0);
 });

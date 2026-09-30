@@ -1,0 +1,378 @@
+{
+  "date": "2026-09-30T22:23:48.340Z",
+  "sourceCommit": "ef13005d145c60e42d6e97ad2025bb2baf3f1ecb",
+  "testSha256": "c4c08c426ab21946e774e7553c0d4db0eed63d1e2561419f42ef0c01197be77f",
+  "sourceFilesSha256": {
+    "App.tsx": "0848c3a2f55ee10de0cc9d418cb2661da59b446486149558b59b50b787d647aa"
+  },
+  "bundle": "AppEntry-112908571f1078352ff76a1f18085eaf.js",
+  "command": "npm run test:e2e:devices-admin-wcag",
+  "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
+  "scans": 36,
+  "totalViolations": 0,
+  "totalIncomplete": 1127,
+  "pixelSupported": 741,
+  "pixelManualReview": 386,
+  "entries": [
+    {
+      "state": "admin-device-form",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 53,
+      "pixelSupported": 22,
+      "pixelManualReview": 31,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-lg-dark"
+    },
+    {
+      "state": "admin-device-form",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 53,
+      "pixelSupported": 23,
+      "pixelManualReview": 30,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-lg-light"
+    },
+    {
+      "state": "admin-device-form",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 37,
+      "pixelSupported": 20,
+      "pixelManualReview": 17,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-md-dark"
+    },
+    {
+      "state": "admin-device-form",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 37,
+      "pixelSupported": 20,
+      "pixelManualReview": 17,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-md-light"
+    },
+    {
+      "state": "admin-device-form",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 36,
+      "pixelSupported": 12,
+      "pixelManualReview": 24,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-xs-dark"
+    },
+    {
+      "state": "admin-device-form",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 29,
+      "pixelSupported": 12,
+      "pixelManualReview": 17,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-xs-light"
+    },
+    {
+      "state": "admin-top",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 61,
+      "pixelSupported": 35,
+      "pixelManualReview": 26,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-lg-dark"
+    },
+    {
+      "state": "admin-top",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 61,
+      "pixelSupported": 35,
+      "pixelManualReview": 26,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-lg-light"
+    },
+    {
+      "state": "admin-top",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 45,
+      "pixelSupported": 28,
+      "pixelManualReview": 17,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-md-dark"
+    },
+    {
+      "state": "admin-top",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 45,
+      "pixelSupported": 28,
+      "pixelManualReview": 17,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-md-light"
+    },
+    {
+      "state": "admin-top",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 29,
+      "pixelSupported": 15,
+      "pixelManualReview": 14,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-xs-dark"
+    },
+    {
+      "state": "admin-top",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 29,
+      "pixelSupported": 15,
+      "pixelManualReview": 14,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-xs-light"
+    },
+    {
+      "state": "devices-disconnected",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 35,
+      "pixelSupported": 25,
+      "pixelManualReview": 10,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-lg-dark"
+    },
+    {
+      "state": "devices-disconnected",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 35,
+      "pixelSupported": 25,
+      "pixelManualReview": 10,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-lg-light"
+    },
+    {
+      "state": "devices-disconnected",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 33,
+      "pixelSupported": 27,
+      "pixelManualReview": 6,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-md-dark"
+    },
+    {
+      "state": "devices-disconnected",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 33,
+      "pixelSupported": 27,
+      "pixelManualReview": 6,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-md-light"
+    },
+    {
+      "state": "devices-disconnected",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 19,
+      "pixelSupported": 15,
+      "pixelManualReview": 4,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-xs-dark"
+    },
+    {
+      "state": "devices-disconnected",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 19,
+      "pixelSupported": 15,
+      "pixelManualReview": 4,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-xs-light"
+    },
+    {
+      "state": "devices-empty",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 32,
+      "pixelSupported": 21,
+      "pixelManualReview": 11,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-lg-dark"
+    },
+    {
+      "state": "devices-empty",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 32,
+      "pixelSupported": 21,
+      "pixelManualReview": 11,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-lg-light"
+    },
+    {
+      "state": "devices-empty",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 29,
+      "pixelSupported": 21,
+      "pixelManualReview": 8,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-md-dark"
+    },
+    {
+      "state": "devices-empty",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 29,
+      "pixelSupported": 21,
+      "pixelManualReview": 8,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-md-light"
+    },
+    {
+      "state": "devices-empty",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 16,
+      "pixelSupported": 13,
+      "pixelManualReview": 3,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-xs-dark"
+    },
+    {
+      "state": "devices-empty",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 16,
+      "pixelSupported": 13,
+      "pixelManualReview": 3,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-xs-light"
+    },
+    {
+      "state": "devices-error",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 20,
+      "pixelSupported": 18,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-error-lg-dark"
+    },
+    {
+      "state": "devices-error",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 20,
+      "pixelSupported": 18,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-error-lg-light"
+    },
+    {
+      "state": "devices-error",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 20,
+      "pixelSupported": 18,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-error-md-dark"
+    },
+    {
+      "state": "devices-error",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 20,
+      "pixelSupported": 18,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-error-md-light"
+    },
+    {
+      "state": "devices-error",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 15,
+      "pixelSupported": 13,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-error-xs-dark"
+    },
+    {
+      "state": "devices-error",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 15,
+      "pixelSupported": 13,
+      "pixelManualReview": 2,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-error-xs-light"
+    },
+    {
+      "state": "devices-populated",
+      "size": "lg",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 35,
+      "pixelSupported": 25,
+      "pixelManualReview": 10,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-lg-dark"
+    },
+    {
+      "state": "devices-populated",
+      "size": "lg",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 35,
+      "pixelSupported": 25,
+      "pixelManualReview": 10,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-lg-light"
+    },
+    {
+      "state": "devices-populated",
+      "size": "md",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 33,
+      "pixelSupported": 27,
+      "pixelManualReview": 6,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-md-dark"
+    },
+    {
+      "state": "devices-populated",
+      "size": "md",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 33,
+      "pixelSupported": 27,
+      "pixelManualReview": 6,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-md-light"
+    },
+    {
+      "state": "devices-populated",
+      "size": "xs",
+      "mode": "dark",
+      "violations": 0,
+      "incomplete": 19,
+      "pixelSupported": 15,
+      "pixelManualReview": 4,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-xs-dark"
+    },
+    {
+      "state": "devices-populated",
+      "size": "xs",
+      "mode": "light",
+      "violations": 0,
+      "incomplete": 19,
+      "pixelSupported": 15,
+      "pixelManualReview": 4,
+      "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-xs-light"
+    }
+  ]
+}

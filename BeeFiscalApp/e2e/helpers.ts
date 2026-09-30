@@ -12,7 +12,7 @@ function json(route: Route, body: unknown, status = 200) {
 
 export type CapturedMutation = { path: string; body: Record<string, unknown>; headers: Record<string, string> };
 
-export async function mockFiscalApi(page: Page, options: { devicesStatus?: number; reportsStatus?: number; reportsEmpty?: boolean; auditStatus?: number; auditEmpty?: boolean; policyStatus?: number; taxGroupsEmpty?: boolean } = {}) {
+export async function mockFiscalApi(page: Page, options: { devicesStatus?: number; devicesEmpty?: boolean; devicesDisconnected?: boolean; reportsStatus?: number; reportsEmpty?: boolean; auditStatus?: number; auditEmpty?: boolean; policyStatus?: number; taxGroupsEmpty?: boolean } = {}) {
   const mutations: CapturedMutation[] = [];
   await page.route(`${API}/**`, async route => {
     const request = route.request();
@@ -24,7 +24,7 @@ export async function mockFiscalApi(page: Page, options: { devicesStatus?: numbe
 
     if (path.startsWith('/devices?') && method === 'GET') {
       if (options.devicesStatus) return json(route, { code: 'UNAVAILABLE' }, options.devicesStatus);
-      return json(route, { items: [{ id: DEVICE_ID, name: 'Datecs counter', vendor: 'Datecs', model: 'DP-150 MX', status: 'ACTIVE', transport: 'RS232' }], page: { has_more: false } });
+      return json(route, { items: options.devicesEmpty ? [] : [{ id: DEVICE_ID, name: 'Datecs counter', vendor: 'Datecs', model: 'DP-150 MX', status: options.devicesDisconnected ? 'DISCONNECTED' : 'ACTIVE', transport: 'RS232' }], page: { has_more: false } });
     }
     if (path === `/devices/${DEVICE_ID}/health`) return json(route, { effective_state: 'READY', observed_at: '2026-08-20T10:00:00Z' });
     if (path === `/devices/${DEVICE_ID}/activity`) return json(route, { items: [{ state: 'READY', at: '2026-08-20T10:00:00Z' }] });
