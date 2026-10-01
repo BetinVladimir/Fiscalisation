@@ -179,6 +179,19 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("status-transport").getByText(/няма .*отворена смяна/).waitFor();
 
   await page.getByTestId("admin-toggle").click();
+  await page.getByTestId("admin-editors").waitFor();
+  for (const [width, height, size] of [[360, 800, "xs"], [960, 900, "md"], [1440, 1000, "lg"]]) {
+    await page.setViewportSize({ width, height });
+    for (const mode of ["light", "dark"]) {
+      await page.getByTestId("theme-menu-open").click();
+      await page.getByTestId(`theme-${mode}`).click();
+      const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+      recordAxe("management-home", size, mode, result);
+      await page.screenshot({ path: join(screenshots, `management-home-${size}-${mode}.png`), fullPage: true });
+    }
+  }
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-light").click();
   await page.getByTestId("config-location-name").fill("Магазин София");
   await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000002").click();
   assert.equal(await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000002").getAttribute("aria-label"), "R02 • Избрано", "Paper register selection must expose its checked state in the accessible name");

@@ -14,6 +14,7 @@ import {
   Checkbox as PaperCheckbox,
   HelperText as PaperHelperText,
   IconButton as PaperIconButton,
+  List as PaperList,
   Menu as PaperMenu,
   RadioButton as PaperRadioButton,
   SegmentedButtons as PaperSegmentedButtons,
@@ -1874,6 +1875,7 @@ function Admin({
   loadReport,
 }: any) {
   const text = useTranslation();
+  const paperTheme = useTheme();
   const [orders, setOrders] = useState<Order[]>([]),
     [reversalStatus, setReversalStatus] = useState(""),
     [catalogScreen, setCatalogScreen] = useState<"home"|"products"|"product-new"|"tax-groups"|"tax-group-edit"|"employees"|"employee-new">("home"),
@@ -1899,13 +1901,57 @@ function Admin({
     void loadOrders();
   }, []);
   if (catalogScreen !== "home") return <ScrollView contentContainerStyle={[s.admin, compact && s.adminCompact]}>
-    <Pressable testID="admin-catalog-back" style={s.adminButton} onPress={()=>setCatalogScreen("home")}><Text>← {text.back}</Text></Pressable>
-    {catalogScreen === "products" ? <View style={[s.editor, compact && s.editorCompact]}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.products}</Text><Pressable testID="product-add" style={s.fab} onPress={()=>setCatalogScreen("product-new")}><Text style={s.fabText}>+</Text></Pressable></View>{products.map((p:Product)=><View key={p.id} style={s.line}><Text>{p.name}</Text><Text>€ {p.price.amount}</Text></View>)}</View>:null}
-    {catalogScreen === "product-new" ? <View style={s.editor}><Text style={s.adminTitle}>{text.newProduct}</Text><TextInput testID="product-name" style={s.search} placeholder={text.name} value={values.pName} onChangeText={setters.setPName}/><TextInput testID="product-barcode" style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={setters.setPBarcode}/><TextInput testID="product-price" style={s.search} placeholder={text.priceEur} value={values.pPrice} onChangeText={setters.setPPrice}/><Text style={s.cartTitle}>{text.vatGroup}</Text><View style={s.stackCompact}>{taxGroups.filter((group:TaxGroup)=>group.status==="ACTIVE").map((group:TaxGroup)=><Pressable key={group.id} style={[s.card, values.pTaxGroup===group.code && s.selectedCard]} onPress={()=>setters.setPTaxGroup(group.code)}><Text style={s.payText}>{group.code} • {group.name} • {group.rate}%</Text></Pressable>)}</View>{!taxGroups.some((group:TaxGroup)=>group.status==="ACTIVE")?<Pressable style={s.adminButton} onPress={()=>setCatalogScreen("tax-groups")}><Text>{text.configureTaxGroups}</Text></Pressable>:null}<Pressable testID="product-create" style={s.cash} disabled={!values.pTaxGroup} onPress={async()=>{await createProduct();setCatalogScreen("products");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
-    {catalogScreen === "tax-groups" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.taxGroups}</Text><Pressable testID="tax-group-add" style={s.fab} onPress={()=>editTaxGroup()}><Text style={s.fabText}>+</Text></Pressable></View>{taxGroups.map((group:TaxGroup)=><Pressable key={group.id} style={s.line} onPress={()=>editTaxGroup(group)}><Text>{group.code} • {group.name}</Text><Text>{group.rate}% • {group.status === "ACTIVE" ? text.active : text.inactive}</Text></Pressable>)}</View>:null}
-    {catalogScreen === "tax-group-edit" ? <View style={s.editor}><Text style={s.adminTitle}>{editingTaxGroup ? text.editTaxGroup : text.newTaxGroup}</Text><TextInput testID="tax-group-code" style={s.search} placeholder={text.taxCode} maxLength={1} autoCapitalize="characters" value={taxCode} onChangeText={setTaxCode}/><TextInput testID="tax-group-name" style={s.search} placeholder={text.name} value={taxName} onChangeText={setTaxName}/><TextInput testID="tax-group-rate" style={s.search} placeholder={text.taxRate} keyboardType="decimal-pad" value={taxRate} onChangeText={setTaxRate}/><Pressable testID="tax-group-save" style={s.cash} onPress={async()=>{const saved=await saveTaxGroup({...editingTaxGroup,code:taxCode,name:taxName,rate:taxRate,status:editingTaxGroup?.status||"ACTIVE"});if(saved)setCatalogScreen("tax-groups");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
-    {catalogScreen === "employees" ? <View style={s.editor}><View style={s.screenHeading}><Text style={s.adminTitle}>{text.employees}</Text><Pressable testID="employee-add" style={s.fab} onPress={()=>setCatalogScreen("employee-new")}><Text style={s.fabText}>+</Text></Pressable></View>{employees.map((e:Employee)=><View key={e.id} style={s.line}><Text>{e.first_name} {e.last_name}</Text><Text>{e.operator_code}</Text></View>)}</View>:null}
-    {catalogScreen === "employee-new" ? <View style={s.editor}><Text style={s.adminTitle}>{text.newEmployee}</Text><TextInput testID="employee-first-name" style={s.search} placeholder={text.firstName} value={values.eFirst} onChangeText={setters.setEFirst}/><TextInput testID="employee-last-name" style={s.search} placeholder={text.lastName} value={values.eLast} onChangeText={setters.setELast}/><TextInput testID="employee-code" style={s.search} placeholder={text.operatorCode} maxLength={4} value={values.eCode} onChangeText={setters.setECode}/><Pressable testID="employee-create" style={s.cash} onPress={async()=>{await createEmployee();setCatalogScreen("employees");}}><Text style={s.payText}>{text.save}</Text></Pressable></View>:null}
+    <PaperButton testID="admin-catalog-back" mode="text" onPress={() => setCatalogScreen("home")}>← {text.back}</PaperButton>
+    {catalogScreen === "products" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
+      <View style={s.screenHeading}>
+        <PaperText variant="titleLarge" accessibilityRole="header">{text.products}</PaperText>
+        <PaperButton testID="product-add" mode="contained" onPress={() => setCatalogScreen("product-new")}>{text.addProduct}</PaperButton>
+      </View>
+      {products.map((p: Product) => <PaperList.Item key={p.id} title={p.name} description={`€ ${p.price.amount} • ${text.vat} ${p.tax_group}`} />)}
+    </PaperCard.Content></PaperCard> : null}
+    {catalogScreen === "product-new" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
+      <PaperText variant="titleLarge" accessibilityRole="header">{text.newProduct}</PaperText>
+      <TextInput testID="product-name" style={s.search} placeholder={text.name} value={values.pName} onChangeText={setters.setPName}/>
+      <TextInput testID="product-barcode" style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={setters.setPBarcode}/>
+      <TextInput testID="product-price" style={s.search} placeholder={text.priceEur} keyboardType="decimal-pad" value={values.pPrice} onChangeText={setters.setPPrice}/>
+      <PaperText variant="titleMedium">{text.vatGroup}</PaperText>
+      {taxGroups.filter((group: TaxGroup) => group.status === "ACTIVE").map((group: TaxGroup) => <PaperRadioButton.Item
+        key={group.id} label={`${group.code} • ${group.name} • ${group.rate}%${values.pTaxGroup === group.code ? ` • ${text.selected}` : ""}`}
+        value={group.code} status={values.pTaxGroup === group.code ? "checked" : "unchecked"}
+        onPress={() => setters.setPTaxGroup(group.code)}
+      />)}
+      {!taxGroups.some((group: TaxGroup) => group.status === "ACTIVE") ? <PaperButton mode="outlined" onPress={() => setCatalogScreen("tax-groups")}>{text.configureTaxGroups}</PaperButton> : null}
+      <PaperButton testID="product-create" mode="contained" disabled={!values.pTaxGroup} onPress={async () => { await createProduct(); setCatalogScreen("products"); }}>{text.save}</PaperButton>
+    </PaperCard.Content></PaperCard> : null}
+    {catalogScreen === "tax-groups" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
+      <View style={s.screenHeading}>
+        <PaperText variant="titleLarge" accessibilityRole="header">{text.taxGroups}</PaperText>
+        <PaperButton testID="tax-group-add" mode="contained" onPress={() => editTaxGroup()}>{text.newTaxGroup}</PaperButton>
+      </View>
+      {taxGroups.map((group: TaxGroup) => <PaperList.Item key={group.id} title={`${group.code} • ${group.name}`}
+        description={`${group.rate}% • ${group.status === "ACTIVE" ? text.active : text.inactive}`} onPress={() => editTaxGroup(group)} />)}
+    </PaperCard.Content></PaperCard> : null}
+    {catalogScreen === "tax-group-edit" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
+      <PaperText variant="titleLarge" accessibilityRole="header">{editingTaxGroup ? text.editTaxGroup : text.newTaxGroup}</PaperText>
+      <TextInput testID="tax-group-code" style={s.search} placeholder={text.taxCode} maxLength={1} autoCapitalize="characters" value={taxCode} onChangeText={setTaxCode}/>
+      <TextInput testID="tax-group-name" style={s.search} placeholder={text.name} value={taxName} onChangeText={setTaxName}/>
+      <TextInput testID="tax-group-rate" style={s.search} placeholder={text.taxRate} keyboardType="decimal-pad" value={taxRate} onChangeText={setTaxRate}/>
+      <PaperButton testID="tax-group-save" mode="contained" onPress={async () => { const saved = await saveTaxGroup({ ...editingTaxGroup, code: taxCode, name: taxName, rate: taxRate, status: editingTaxGroup?.status || "ACTIVE" }); if (saved) setCatalogScreen("tax-groups"); }}>{text.save}</PaperButton>
+    </PaperCard.Content></PaperCard> : null}
+    {catalogScreen === "employees" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
+      <View style={s.screenHeading}>
+        <PaperText variant="titleLarge" accessibilityRole="header">{text.employees}</PaperText>
+        <PaperButton testID="employee-add" mode="contained" onPress={() => setCatalogScreen("employee-new")}>{text.addEmployee}</PaperButton>
+      </View>
+      {employees.map((e: Employee) => <PaperList.Item key={e.id} title={`${e.first_name} ${e.last_name}`} description={e.operator_code} />)}
+    </PaperCard.Content></PaperCard> : null}
+    {catalogScreen === "employee-new" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
+      <PaperText variant="titleLarge" accessibilityRole="header">{text.newEmployee}</PaperText>
+      <TextInput testID="employee-first-name" style={s.search} placeholder={text.firstName} value={values.eFirst} onChangeText={setters.setEFirst}/>
+      <TextInput testID="employee-last-name" style={s.search} placeholder={text.lastName} value={values.eLast} onChangeText={setters.setELast}/>
+      <TextInput testID="employee-code" style={s.search} placeholder={text.operatorCode} maxLength={4} value={values.eCode} onChangeText={setters.setECode}/>
+      <PaperButton testID="employee-create" mode="contained" onPress={async () => { await createEmployee(); setCatalogScreen("employees"); }}>{text.save}</PaperButton>
+    </PaperCard.Content></PaperCard> : null}
   </ScrollView>;
   const reverse = async (order: Order) => {
     if (!order.allowed_actions?.includes("REVERSE")) {
@@ -1936,23 +1982,25 @@ function Admin({
   };
   return (
     <ScrollView testID="admin-editors" contentContainerStyle={[s.admin, compact && s.adminCompact]}>
-      <Text style={s.adminTitle}>{text.configuration}</Text>
-      <View style={[s.screenHeading, s.stackCompact]}><Pressable testID="admin-products" style={s.card} onPress={()=>setCatalogScreen("products")}><Text style={s.payText}>{text.products} ({products.length})</Text></Pressable><Pressable testID="admin-tax-groups" style={s.card} onPress={()=>setCatalogScreen("tax-groups")}><Text style={s.payText}>{text.taxGroups} ({taxGroups.length})</Text></Pressable><Pressable testID="admin-employees" style={s.card} onPress={()=>setCatalogScreen("employees")}><Text style={s.payText}>{text.employees} ({employees.length})</Text></Pressable></View>
-      <View testID="reversal-editor" style={s.editor}>
-        <Text style={s.cartTitle}>{text.reversal}</Text>
-        <Text>
-          {reversalStatus || text.selectReversal}
-        </Text>
+      <PaperText variant="headlineSmall" accessibilityRole="header">{text.configuration}</PaperText>
+      <View style={[s.screenHeading, s.stackCompact]}>
+        <PaperButton testID="admin-products" mode="outlined" onPress={() => setCatalogScreen("products")}>{text.products} ({products.length})</PaperButton>
+        <PaperButton testID="admin-tax-groups" mode="outlined" onPress={() => setCatalogScreen("tax-groups")}>{text.taxGroups} ({taxGroups.length})</PaperButton>
+        <PaperButton testID="admin-employees" mode="outlined" onPress={() => setCatalogScreen("employees")}>{text.employees} ({employees.length})</PaperButton>
+      </View>
+      <PaperCard testID="reversal-editor" mode="outlined"><PaperCard.Content style={s.managementContent}>
+        <PaperText variant="titleLarge" accessibilityRole="header">{text.reversal}</PaperText>
+        <PaperText variant="bodyMedium">{reversalStatus || text.selectReversal}</PaperText>
         {orders
           .filter(
             (order) =>
               order.state === "COMPLETED" || order.state === "REVERSED",
           )
           .map((order) => (
-            <View key={order.id} style={s.line}>
+            <View key={order.id} style={[s.line, { borderColor: paperTheme.colors.outlineVariant }]}>
               <View>
-                <Text>{order.id}</Text>
-                <Text>
+                <PaperText variant="titleMedium">{order.id}</PaperText>
+                <PaperText variant="bodyMedium">
                   {order.state}
                   {order.receipt_reference
                     ? ` • бон ${order.receipt_reference}`
@@ -1960,24 +2008,21 @@ function Admin({
                   {order.reversal_fiscal_reference
                     ? ` • сторно ${order.reversal_fiscal_reference}`
                     : ""}
-                </Text>
+                </PaperText>
               </View>
               {order.allowed_actions?.includes("REVERSE") ? (
-                <Pressable
+                <PaperButton
                   testID={`reversal-${order.id}`}
-                  accessibilityRole="button"
+                  mode="outlined"
                   accessibilityLabel={`${text.reverseSale} ${order.id}`}
-                  style={s.card}
                   onPress={() => void reverse(order)}
-                >
-                  <Text style={s.payText}>{text.returnSale}</Text>
-                </Pressable>
+                >{text.returnSale}</PaperButton>
               ) : null}
             </View>
           ))}
-      </View>
-      <View style={s.editor}>
-        <Text style={s.cartTitle}>{text.locationWorkstation}</Text>
+      </PaperCard.Content></PaperCard>
+      <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
+        <PaperText variant="titleLarge" accessibilityRole="header">{text.locationWorkstation}</PaperText>
         <TextInput
           testID="config-location-name"
           accessibilityLabel={text.locationName}
@@ -2005,142 +2050,35 @@ function Admin({
           emptyLabel="Нет доступных кассовых мест."
           onEmpty={() => void Linking.openURL(process.env.EXPO_PUBLIC_BEEFISCAL_ADMIN_URL || "beefiscal://admin/registers")}
         />
-        <Pressable
+        <PaperButton
           testID="config-save"
-          accessibilityRole="button"
+          mode="contained"
           accessibilityLabel={text.saveConfiguration}
-          style={s.cash}
           onPress={saveConfiguration}
-        >
-          <Text style={s.payText}>{text.saveConfiguration}</Text>
-        </Pressable>
-      </View>
-      {false && <>
-      <View style={s.editor}>
-        <Text style={s.cartTitle}>{text.product} ({products.length})</Text>
-        <TextInput
-          testID="product-name"
-          accessibilityLabel={text.name}
-          style={s.search}
-          placeholder={text.name}
-          value={values.pName}
-          onChangeText={setters.setPName}
-        />
-        <TextInput
-          testID="product-barcode"
-          accessibilityLabel={text.barcode}
-          style={s.search}
-          placeholder={text.optionalBarcode}
-          value={values.pBarcode}
-          onChangeText={setters.setPBarcode}
-        />
-        <TextInput
-          testID="product-price"
-          accessibilityLabel={text.priceEur}
-          style={s.search}
-          placeholder={text.priceEur}
-          keyboardType="decimal-pad"
-          value={values.pPrice}
-          onChangeText={setters.setPPrice}
-        />
-        <Pressable
-          testID="product-create"
-          accessibilityRole="button"
-          accessibilityLabel={text.addProduct}
-          style={s.cash}
-          onPress={createProduct}
-        >
-          <Text style={s.payText}>{text.addProduct}</Text>
-        </Pressable>
-      </View>
-      <View style={s.editor}>
-        <Text style={s.cartTitle}>{text.employee} ({employees.length})</Text>
-        {production ? (
-          <Text style={s.loginText}>
-            Активният оператор идва от личната email сесия; изборът на друг
-            служител е забранен.
-          </Text>
-        ) : null}
-        <View style={s.employeeList}>
-          {employees.map((employee: Employee) => (
-            <Pressable
-              key={employee.id}
-              disabled={production}
-              accessibilityState={{ disabled: production }}
-              style={[
-                s.employee,
-                selectedEmployeeId === employee.id && s.employeeSelected,
-              ]}
-              onPress={() => setters.setSelectedEmployeeId(employee.id)}
-            >
-              <Text>
-                {employee.first_name} {employee.last_name} •{" "}
-                {employee.operator_code}
-              </Text>
-            </Pressable>
-          ))}
-        </View>
-        <TextInput
-          testID="employee-first-name"
-          accessibilityLabel={text.firstName}
-          style={s.search}
-          placeholder={text.firstName}
-          value={values.eFirst}
-          onChangeText={setters.setEFirst}
-        />
-        <TextInput
-          testID="employee-last-name"
-          accessibilityLabel={text.lastName}
-          style={s.search}
-          placeholder={text.lastName}
-          value={values.eLast}
-          onChangeText={setters.setELast}
-        />
-        <TextInput
-          testID="employee-code"
-          accessibilityLabel={text.operatorCode}
-          style={s.search}
-          maxLength={4}
-          placeholder={text.code4}
-          value={values.eCode}
-          onChangeText={setters.setECode}
-        />
-        <Pressable
-          testID="employee-create"
-          accessibilityRole="button"
-          accessibilityLabel={text.addEmployee}
-          style={s.card}
-          onPress={createEmployee}
-        >
-          <Text style={s.payText}>{text.addEmployee}</Text>
-        </Pressable>
-      </View>
-      </>}
-      <View style={s.editor}>
-        <Text style={s.cartTitle}>{text.salesReport}</Text>
-        <Pressable
+        >{text.saveConfiguration}</PaperButton>
+      </PaperCard.Content></PaperCard>
+      <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
+        <PaperText variant="titleLarge" accessibilityRole="header">{text.salesReport}</PaperText>
+        <PaperButton
           testID="sales-report-load"
-          accessibilityRole="button"
+          mode="outlined"
           accessibilityLabel={text.refreshReport}
-          style={s.card}
           onPress={loadReport}
-        >
-          <Text style={s.payText}>{text.refreshReport}</Text>
-        </Pressable>
+        >{text.refreshReport}</PaperButton>
         {salesReport && (
           <View testID="sales-report-result" style={s.report}>
-            <Text style={s.totalValue}>€ {salesReport.gross.amount}</Text>
-            <Text>
+            <PaperText variant="headlineSmall">€ {salesReport.gross.amount}</PaperText>
+            <PaperText variant="bodyMedium">
               {salesReport.from} — {salesReport.to}
-            </Text>
+            </PaperText>
             {salesReport.payments.map((payment: any) => (
-              <Text key={payment.type}>
+              <PaperText key={payment.type} variant="bodyMedium">
                 {payment.type}: € {payment.amount.amount}
-              </Text>
+              </PaperText>
             ))}
           </View>
         )}
-      </View>
+      </PaperCard.Content></PaperCard>
     </ScrollView>
   );
 }
@@ -2176,15 +2114,6 @@ const s = StyleSheet.create({
   loginCard: { borderRadius: 16 },
   loginContent: { padding: 24, gap: 16 },
   authButtonContent: { minHeight: 56 },
-  loginTitle: { fontSize: 24, fontWeight: "800", color: beeloyColors.success },
-  loginText: {
-    fontSize: 16,
-    color: beeloyColors.onSurfaceVariant,
-    lineHeight: 23,
-    marginBottom: 10,
-  },
-  loginError: { fontSize: 15, color: beeloyColors.error, fontWeight: "700" },
-  languageRow: { flexDirection: "row", gap: 8 },
   top: {
     padding: 18,
     flexDirection: "row",
@@ -2202,13 +2131,6 @@ const s = StyleSheet.create({
   },
   topActionsCompact: { width: "100%" },
   themeButtonContent: { minHeight: 48 },
-  adminButton: {
-    backgroundColor: beeloyColors.warningContainer,
-    padding: 12,
-    borderRadius: 10,
-    minHeight: 48,
-    justifyContent: "center",
-  },
   posShell: { flex: 1 },
   body: { flex: 1, flexDirection: "row" },
   bodyPhone: { flexDirection: "column" },
@@ -2219,15 +2141,10 @@ const s = StyleSheet.create({
   },
   catalog: { flex: 3, padding: 16 },
   search: {
-    backgroundColor: beeloyColors.background,
-    borderWidth: 1,
-    borderColor: beeloyColors.warningContainer,
-    borderRadius: 12,
-    padding: 14,
-    fontSize: 17,
     marginBottom: 14,
     minHeight: 48,
   },
+  managementContent: { padding: 16, gap: 12 },
   grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
   product: {
     width: "47%",
@@ -2242,7 +2159,6 @@ const s = StyleSheet.create({
   cartPhone: { flex: 1, width: "100%", borderLeftWidth: 0 },
   cartContent: { flexGrow: 1, padding: 16 },
   cartContentPhone: { padding: 12 },
-  cartTitle: { fontSize: 20, fontWeight: "800", marginBottom: 12 },
   lines: { flexGrow: 1, marginVertical: 12 },
   empty: { textAlign: "center", marginTop: 40 },
   line: {
@@ -2250,7 +2166,6 @@ const s = StyleSheet.create({
     justifyContent: "space-between",
     paddingVertical: 12,
     borderBottomWidth: 1,
-    borderColor: beeloyColors.surfaceVariant,
   },
   lineContent: { flex: 1, paddingRight: 10 },
   quantity: { flexDirection: "row", gap: 8, marginTop: 8 },
@@ -2262,30 +2177,9 @@ const s = StyleSheet.create({
     paddingHorizontal: 16,
     borderTopWidth: 2,
   },
-  totalValue: { fontSize: 26, fontWeight: "900" },
   splitRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
   splitRowPhone: { flexDirection: "column" },
   payRow: { flexDirection: "row", gap: 10 },
-  cash: {
-    flex: 1,
-    backgroundColor: beeloyColors.success,
-    padding: 18,
-    borderRadius: 12,
-    alignItems: "center",
-    minHeight: 56,
-    justifyContent: "center",
-  },
-  card: {
-    flex: 1,
-    backgroundColor: beeloyColors.tertiary,
-    padding: 18,
-    borderRadius: 12,
-    alignItems: "center",
-    minHeight: 56,
-    justifyContent: "center",
-  },
-  selectedCard: { backgroundColor: beeloyColors.tertiary, borderWidth: 3, borderColor: beeloyColors.tertiaryContainer },
-  payText: { color: beeloyColors.onPrimary, fontSize: 17, fontWeight: "800" },
   footer: {
     padding: 12,
     flexDirection: "row",
@@ -2302,32 +2196,7 @@ const s = StyleSheet.create({
   status: { flex: 1 },
   admin: { padding: 20, gap: 16 },
   adminCompact: { padding: 12 },
-  adminTitle: { fontSize: 24, fontWeight: "800" },
   screenHeading: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", gap: 12 },
-  fab: { width: 52, height: 52, borderRadius: 26, backgroundColor: beeloyColors.success, alignItems: "center", justifyContent: "center" },
-  fabText: { fontSize: 28, color: beeloyColors.success },
-  editor: {
-    backgroundColor: beeloyColors.background,
-    padding: 18,
-    borderRadius: 14,
-    width: "100%",
-    maxWidth: "100%",
-  },
-  editorCompact: { width: "100%", padding: 14 },
   stackCompact: { flexDirection: "column", alignItems: "stretch", width: "100%" },
-  employeeList: { gap: 8, marginBottom: 14 },
-  employee: {
-    padding: 12,
-    minHeight: 48,
-    justifyContent: "center",
-    borderWidth: 1,
-    borderColor: beeloyColors.warningContainer,
-    borderRadius: 10,
-  },
-  employeeSelected: {
-    borderColor: beeloyColors.success,
-    borderWidth: 2,
-    backgroundColor: beeloyColors.successContainer,
-  },
   report: { paddingTop: 14, gap: 5 },
 });
