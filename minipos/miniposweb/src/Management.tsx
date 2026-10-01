@@ -27,10 +27,13 @@ export function Management({kind,products,employees,api,onProducts,onEmployees}:
       <Text variant="titleLarge" accessibilityRole="header">{kind==="products"?"Товары":"Сотрудники"}</Text>
       {!adding ? <Button mode="contained" onPress={openForm} testID="management-add">Добавить</Button> : null}
     </View>
-    {!adding ? <div className="entity-list">{kind==="products"
-      ? products.map(p=><List.Item key={p.id} title={p.name} description={`${p.price.amount} EUR`}/>)
-      : employees.map(e=><List.Item key={e.id} title={`${e.first_name} ${e.last_name}`} description={e.operator_code}/>)
-    }</div> : null}
+    {!adding ? <View testID="management-list" style={{gap:4}}>
+      {(kind==="products" ? products : employees).length === 0
+        ? <Text variant="bodyMedium">{kind==="products" ? "Товары пока не добавлены" : "Сотрудники пока не добавлены"}</Text>
+        : kind==="products"
+          ? products.map(p=><List.Item key={p.id} title={p.name} description={`${p.price.amount} EUR`}/>)
+          : employees.map(e=><List.Item key={e.id} title={`${e.first_name} ${e.last_name}`} description={e.operator_code}/>)}
+    </View> : null}
     {adding ? <View style={{gap:12}}>
       <Text variant="titleMedium" accessibilityRole="header">{kind==="products"?"Новый товар":"Новый сотрудник"}</Text>
       {kind==="products" ? <>

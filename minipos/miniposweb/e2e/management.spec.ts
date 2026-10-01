@@ -80,8 +80,8 @@ test.describe('Management – Employees', () => {
     await page.getByRole('button', { name: 'Сотрудники' }).click();
 
     await expect(page.getByRole('heading', { name: 'Сотрудники' })).toBeVisible();
-    await expect(page.locator('.entity-list').getByText('Иван Иванов')).toBeVisible();
-    await expect(page.locator('.entity-list').getByText('Мария Петрова')).toBeVisible();
+    await expect(page.getByTestId('management-list').getByText('Иван Иванов')).toBeVisible();
+    await expect(page.getByTestId('management-list').getByText('Мария Петрова')).toBeVisible();
   });
 
   test('add new employee', async ({ page }) => {
@@ -113,7 +113,7 @@ test.describe('Management – Employees', () => {
     await page.getByRole('button', { name: 'Добавить', exact: true }).click();
     await page.getByRole('button', { name: 'Отмена' }).click();
 
-    await expect(page.locator('.entity-list').getByText('Иван Иванов')).toBeVisible();
+    await expect(page.getByTestId('management-list').getByText('Иван Иванов')).toBeVisible();
   });
 });
 

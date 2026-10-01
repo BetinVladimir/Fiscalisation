@@ -14,12 +14,17 @@ main {
   max-width: 1100px;
   margin: auto;
   padding: 20px;
+  min-width: 0;
 }
 header {
   display: flex;
-  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px;
   align-items: center;
 }
+header > div:first-child { flex: 1 1 100%; min-width: 0; }
+header h1 { margin: 0; }
+header button { margin: 0; }
 section {
   background: var(--beeloy-surface);
   color: var(--beeloy-on-surface);
@@ -97,8 +102,6 @@ html[data-theme="dark"] .auth-shell::before { opacity: 0.16; }
 .auth-heading,.list-heading { display:flex; justify-content:space-between; align-items:center; gap:16px; }
 select { padding:10px; border:1px solid var(--beeloy-outline); border-radius:10px; background:var(--beeloy-surface); }
 .fab { border-radius:999px; width:52px; padding:0; font-size:28px; }
-.entity-list { display:grid; gap:10px; }
-.entity-list article { display:flex; justify-content:space-between; padding:16px; border-radius:12px; background:var(--beeloy-surface-variant); }
 pre {
   white-space: pre-wrap;
   background: var(--beeloy-surface-variant);
