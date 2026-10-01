@@ -166,7 +166,6 @@ async function miniPosJourney(browser, appUrl) {
       }
     }
   }
-  await writeFile(join(root, "docs", "ui-optimization-axe-catalog.json"), `${JSON.stringify({ fixture: ".ui-e2e-web", scans: axeReports }, null, 2)}\n`);
   await page.getByTestId("theme-menu-open").click();
   await page.getByTestId("theme-light").click();
   await page.setViewportSize({ width: 360, height: 800 });
@@ -219,6 +218,28 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("product-search").getAttribute("value").then((value)=>assert.equal(value,""));
   await page.getByTestId("quantity-inc-coffee").click();
   await page.getByTestId("sale-total").getByText("€ 5.00").waitFor();
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.getByTestId("mobile-view-cart").click();
+  for (const mode of ["light", "dark"]) {
+    await page.getByTestId("theme-menu-open").click();
+    await page.getByTestId(`theme-${mode}`).click();
+    await page.getByTestId("cart-line-coffee").waitFor();
+    const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+    recordAxe("cart-populated", "xs", mode, result);
+    await page.getByTestId("quantity-inc-coffee").scrollIntoViewIfNeeded();
+    const quantityTarget = await page.getByTestId("quantity-inc-coffee").boundingBox();
+    assert.ok(quantityTarget && quantityTarget.width >= 48 && quantityTarget.height >= 48, `xs ${mode} quantity control must have a 48px target: ${JSON.stringify(quantityTarget)}`);
+    await page.screenshot({ path: join(screenshots, `cart-populated-xs-${mode}.png`), fullPage: true });
+    await page.getByTestId("payment-split").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: join(screenshots, `cart-payment-xs-${mode}.png`), fullPage: true });
+    await page.getByTestId("sale-pay").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: join(screenshots, `cart-actions-xs-${mode}.png`), fullPage: true });
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, `xs ${mode} cart must not overflow horizontally`);
+  }
+  await writeFile(join(root, "docs", "ui-optimization-axe-catalog.json"), `${JSON.stringify({ fixture: ".ui-e2e-web", scans: axeReports }, null, 2)}\n`);
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-light").click();
+  await page.setViewportSize({ width: 900, height: 800 });
   await page.getByTestId("quantity-dec-coffee").click();
   await page.getByTestId("sale-pay").click();
   await page.getByTestId("status-transport").getByText(/Успешен фискален бон/).waitFor();

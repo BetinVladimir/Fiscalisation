@@ -13,6 +13,7 @@ import {
   Card as PaperCard,
   Checkbox as PaperCheckbox,
   HelperText as PaperHelperText,
+  IconButton as PaperIconButton,
   Menu as PaperMenu,
   RadioButton as PaperRadioButton,
   SegmentedButtons as PaperSegmentedButtons,
@@ -1556,63 +1557,68 @@ function MiniPosApp({
                 ))}
             </ScrollView>
           </View> : null}
-          {(!isPhone || mobilePosView === "cart") ? <View style={[s.cart, isPhone && s.cartPhone]}>
-            <Text style={s.cartTitle}>{uiText.currentSale}</Text>
+          {(!isPhone || mobilePosView === "cart") ? <NativeScrollView
+            testID="cart-scroll"
+            style={[s.cart, isPhone && s.cartPhone, { backgroundColor: paperTheme.colors.surface, borderColor: paperTheme.colors.outlineVariant }]}
+            contentContainerStyle={[s.cartContent, isPhone && s.cartContentPhone]}
+            keyboardShouldPersistTaps="handled"
+          >
+            <PaperText variant="titleLarge" style={{ marginBottom: 12 }}>{uiText.currentSale}</PaperText>
             {saleProjection ? (
               <View
                 testID="sale-regulatory-identity"
                 accessibilityLiveRegion="polite"
               >
-                <Text>
+                <PaperText variant="bodyMedium">
                   УНП:{" "}
                   {saleProjection.regulatory_identifiers[0]?.value ||
                     saleProjection.unp}
-                </Text>
-                <Text>{uiText.registerState}: {saleProjection.register_id}</Text>
-                <Text>{uiText.state}: {saleProjection.state}</Text>
+                </PaperText>
+                {!isPhone ? <PaperText variant="bodyMedium">{uiText.registerState}: {saleProjection.register_id}</PaperText> : null}
+                <PaperText variant="bodyMedium">{uiText.state}: {saleProjection.state}</PaperText>
               </View>
             ) : null}
-            <ScrollView style={s.lines}>
+            <View style={s.lines}>
               {cart.length === 0 ? (
-                <Text style={s.empty}>{uiText.touchProduct}</Text>
+                <PaperText variant="bodyMedium" style={[s.empty, { color: paperTheme.colors.onSurfaceVariant }]}>{uiText.touchProduct}</PaperText>
               ) : (
                 cart.map((x) => (
                   <View
                     testID={`cart-line-${x.product.id}`}
-                    style={s.line}
+                    style={[s.line, { borderColor: paperTheme.colors.outlineVariant }]}
                     key={x.product.id}
                   >
                     <View style={s.lineContent}>
-                      <Text style={s.lineName}>
+                      <PaperText variant="bodyLarge">
                         {x.quantity} × {x.product.name}
-                      </Text>
+                      </PaperText>
                       <View style={s.quantity}>
-                        <Pressable
+                        <PaperIconButton
                           testID={`quantity-dec-${x.product.id}`}
-                          accessibilityRole="button"
                           accessibilityLabel={`${uiText.decrease} ${x.product.name}`}
-                          style={s.qtyButton}
+                          icon={() => <PaperText variant="titleLarge">−</PaperText>}
+                          mode="outlined"
+                          size={24}
+                          style={{ width: 52, height: 52, margin: 0 }}
                           onPress={() => changeQuantity(x.product.id, -1)}
-                        >
-                          <Text>−</Text>
-                        </Pressable>
-                        <Pressable
+                        />
+                        <PaperIconButton
                           testID={`quantity-inc-${x.product.id}`}
-                          accessibilityRole="button"
                           accessibilityLabel={`${uiText.increase} ${x.product.name}`}
-                          style={s.qtyButton}
+                          icon={() => <PaperText variant="titleLarge">+</PaperText>}
+                          mode="outlined"
+                          size={24}
+                          style={{ width: 52, height: 52, margin: 0 }}
                           onPress={() => changeQuantity(x.product.id, 1)}
-                        >
-                          <Text>+</Text>
-                        </Pressable>
+                        />
                       </View>
                       {canManage ? (
                         <View style={s.discountRow}>
-                          <Pressable
+                          <PaperButton
                             testID={`discount-percent-${x.product.id}`}
-                            accessibilityRole="button"
+                            mode="outlined"
                             accessibilityLabel={`${uiText.discount10} ${x.product.name}`}
-                            style={s.discountButton}
+                            contentStyle={{ minHeight: 48 }}
                             onPress={() =>
                               setLineDiscount(
                                 x.product.id,
@@ -1621,13 +1627,11 @@ function MiniPosApp({
                                   0.1,
                               )
                             }
-                          >
-                            <Text>−10%</Text>
-                          </Pressable>
+                          >−10%</PaperButton>
                           <TextInput
                             testID={`discount-amount-${x.product.id}`}
                             accessibilityLabel={`${uiText.discountEur} ${x.product.name}`}
-                            style={s.discountInput}
+                            style={{ minWidth: 88, flex: 1, backgroundColor: paperTheme.colors.surface }}
                             keyboardType="decimal-pad"
                             value={x.discountAmount ?? "0.00"}
                             onChangeText={(value) =>
@@ -1637,24 +1641,24 @@ function MiniPosApp({
                         </View>
                       ) : null}
                     </View>
-                    <Text style={s.linePrice}>
+                    <PaperText variant="titleMedium">
                       €{" "}
                       {(
                         Number(x.product.price.amount) * x.quantity -
                         Number(x.discountAmount || "0")
                       ).toFixed(2)}
-                    </Text>
+                    </PaperText>
                   </View>
                 ))
               )}
-            </ScrollView>
-            <View style={s.total}>
-              <Text style={s.totalLabel}>{uiText.total}</Text>
-              <Text testID="sale-total" style={s.totalValue}>
-                € {total.toFixed(2)}
-              </Text>
             </View>
-            <View style={s.splitRow}>
+            <View style={[s.total, { borderColor: paperTheme.colors.outlineVariant }]}>
+              <PaperText variant="titleMedium">{uiText.total}</PaperText>
+              <PaperText testID="sale-total" variant="headlineSmall">
+                € {total.toFixed(2)}
+              </PaperText>
+            </View>
+            <View style={[s.splitRow, isPhone && s.splitRowPhone]}>
               <TextInput
                 testID="split-cash-amount"
                 accessibilityLabel={uiText.splitCashAmount}
@@ -1662,51 +1666,39 @@ function MiniPosApp({
                 onChangeText={setSplitCash}
                 placeholder={uiText.cashEur}
                 keyboardType="decimal-pad"
-                style={s.splitInput}
+                style={[isPhone ? { width: "100%" } : { flex: 1 }, { backgroundColor: paperTheme.colors.surface }]}
               />
-              <Pressable
+              <PaperButton
                 testID="payment-split"
-                accessibilityRole="button"
+                mode="contained-tonal"
                 accessibilityLabel={uiText.splitPayment}
-                accessibilityState={{
-                  disabled: busy || !cart.length || !!pendingOrder,
-                }}
                 disabled={busy || !cart.length || !!pendingOrder}
-                style={s.split}
+                style={isPhone ? { width: "100%" } : { flex: 1 }}
+                contentStyle={{ minHeight: 56 }}
                 onPress={() => checkout("SPLIT")}
-              >
-                <Text style={s.payText}>{uiText.cashCard}</Text>
-              </Pressable>
+              >{uiText.cashCard}</PaperButton>
             </View>
             <View style={s.payRow}>
-              <Pressable
+              <PaperButton
                 testID="sale-pay"
-                accessibilityRole="button"
+                mode="contained"
                 accessibilityLabel={uiText.cashPayment}
-                accessibilityState={{
-                  disabled: busy || !cart.length || !!pendingOrder,
-                }}
                 disabled={busy || !cart.length || !!pendingOrder}
-                style={s.cash}
+                style={{ flex: 1 }}
+                contentStyle={{ minHeight: 56 }}
                 onPress={() => checkout("CASH")}
-              >
-                <Text style={s.payText}>{uiText.cash}</Text>
-              </Pressable>
-              <Pressable
+              >{uiText.cash}</PaperButton>
+              <PaperButton
                 testID="payment-card"
-                accessibilityRole="button"
+                mode="outlined"
                 accessibilityLabel={uiText.cardPayment}
-                accessibilityState={{
-                  disabled: busy || !cart.length || !!pendingOrder,
-                }}
                 disabled={busy || !cart.length || !!pendingOrder}
-                style={s.card}
+                style={{ flex: 1 }}
+                contentStyle={{ minHeight: 56 }}
                 onPress={() => checkout("CARD")}
-              >
-                <Text style={s.payText}>{uiText.card}</Text>
-              </Pressable>
+              >{uiText.card}</PaperButton>
             </View>
-          </View> : null}
+          </NativeScrollView> : null}
           </View>
         </View>
       )}
@@ -2242,15 +2234,14 @@ const s = StyleSheet.create({
   productContent: { flex: 1, justifyContent: "space-between", gap: 4 },
   cart: {
     flex: 2,
-    backgroundColor: beeloyColors.onPrimary,
     borderLeftWidth: 1,
-    borderColor: beeloyColors.warningContainer,
-    padding: 16,
   },
-  cartPhone: { flex: 1, width: "100%", borderLeftWidth: 0, padding: 12 },
+  cartPhone: { flex: 1, width: "100%", borderLeftWidth: 0 },
+  cartContent: { flexGrow: 1, padding: 16 },
+  cartContentPhone: { padding: 12 },
   cartTitle: { fontSize: 20, fontWeight: "800", marginBottom: 12 },
-  lines: { marginVertical: 12 },
-  empty: { color: beeloyColors.outline, textAlign: "center", marginTop: 40 },
+  lines: { flexGrow: 1, marginVertical: 12 },
+  empty: { textAlign: "center", marginTop: 40 },
   line: {
     flexDirection: "row",
     justifyContent: "space-between",
@@ -2259,63 +2250,17 @@ const s = StyleSheet.create({
     borderColor: beeloyColors.surfaceVariant,
   },
   lineContent: { flex: 1, paddingRight: 10 },
-  lineName: { fontSize: 16 },
-  linePrice: { fontSize: 16, fontWeight: "700" },
   quantity: { flexDirection: "row", gap: 8, marginTop: 8 },
   discountRow: { flexDirection: "row", gap: 8, marginTop: 8 },
-  discountButton: {
-    minWidth: 64,
-    minHeight: 48,
-    backgroundColor: beeloyColors.warningContainer,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  discountInput: {
-    minWidth: 88,
-    minHeight: 48,
-    borderWidth: 1,
-    borderColor: beeloyColors.warningContainer,
-    borderRadius: 8,
-    paddingHorizontal: 10,
-  },
-  qtyButton: {
-    minWidth: 48,
-    minHeight: 48,
-    backgroundColor: beeloyColors.warningContainer,
-    borderRadius: 8,
-    alignItems: "center",
-    justifyContent: "center",
-  },
   total: {
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 16,
     borderTopWidth: 2,
-    borderColor: beeloyColors.onBackground,
   },
-  totalLabel: { fontSize: 18, fontWeight: "800" },
   totalValue: { fontSize: 26, fontWeight: "900" },
   splitRow: { flexDirection: "row", gap: 10, marginBottom: 10 },
-  splitInput: {
-    flex: 1,
-    backgroundColor: beeloyColors.surface,
-    borderWidth: 1,
-    borderColor: beeloyColors.warningContainer,
-    borderRadius: 12,
-    padding: 12,
-    fontSize: 16,
-    minHeight: 56,
-  },
-  split: {
-    flex: 2,
-    backgroundColor: beeloyColors.primary,
-    padding: 14,
-    borderRadius: 12,
-    alignItems: "center",
-    minHeight: 56,
-    justifyContent: "center",
-  },
+  splitRowPhone: { flexDirection: "column" },
   payRow: { flexDirection: "row", gap: 10 },
   cash: {
     flex: 1,

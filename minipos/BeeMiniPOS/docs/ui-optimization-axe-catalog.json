@@ -171,31 +171,31 @@
             },
             {
               "target": [
-                ".r-adyw6z"
+                ".r-xyw6el.r-16y2uox.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-adyw6z r-1vr29t4 r-6gpygo\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(29, 26, 32); direction: ltr;\">Текуща продажба</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; margin-bottom: 12px;\">Текуща продажба</div>"
             },
             {
               "target": [
-                ".r-1l1008k"
+                ".r-2o02ov"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1l1008k r-2o02ov r-q4m81j\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr;\">Докоснете продукт</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-2o02ov r-q4m81j\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Докоснете продукт</div>"
             },
             {
               "target": [
-                ".r-1i10wst"
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-1i10wst r-1vr29t4\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(29, 26, 32); direction: ltr;\">ОБЩО</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
             },
             {
               "target": [
-                ".r-yy2aun"
+                "div[data-testid=\"sale-total\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-yy2aun r-ovu0ai\" data-testid=\"sale-total\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(29, 26, 32); direction: ltr;\">€ 0.00</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
-                ".r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
+                ".r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
             },
@@ -385,31 +385,31 @@
             },
             {
               "target": [
-                ".r-adyw6z"
+                ".r-xyw6el.r-16y2uox.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-adyw6z r-1vr29t4 r-6gpygo\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(234, 228, 238); direction: ltr;\">Текуща продажба</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; margin-bottom: 12px;\">Текуща продажба</div>"
             },
             {
               "target": [
-                ".r-1l1008k"
+                ".r-2o02ov"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1l1008k r-2o02ov r-q4m81j\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr;\">Докоснете продукт</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-2o02ov r-q4m81j\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Докоснете продукт</div>"
             },
             {
               "target": [
-                ".r-1i10wst"
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-1i10wst r-1vr29t4\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(234, 228, 238); direction: ltr;\">ОБЩО</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
             },
             {
               "target": [
-                ".r-yy2aun"
+                "div[data-testid=\"sale-total\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-yy2aun r-ovu0ai\" data-testid=\"sale-total\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(234, 228, 238); direction: ltr;\">€ 0.00</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
-                ".r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
+                ".r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
             },
@@ -513,27 +513,27 @@
             },
             {
               "target": [
-                ".r-adyw6z"
+                ".r-nsbfu8.r-16y2uox.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-adyw6z r-1vr29t4 r-6gpygo\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(29, 26, 32); direction: ltr;\">Текуща продажба</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; margin-bottom: 12px;\">Текуща продажба</div>"
             },
             {
               "target": [
-                ".r-1l1008k"
+                ".r-2o02ov"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1l1008k r-2o02ov r-q4m81j\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr;\">Докоснете продукт</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-2o02ov r-q4m81j\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Докоснете продукт</div>"
             },
             {
               "target": [
-                ".r-1i10wst"
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-1i10wst r-1vr29t4\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(29, 26, 32); direction: ltr;\">ОБЩО</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
             },
             {
               "target": [
-                ".r-yy2aun"
+                "div[data-testid=\"sale-total\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-yy2aun r-ovu0ai\" data-testid=\"sale-total\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(29, 26, 32); direction: ltr;\">€ 0.00</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
@@ -641,27 +641,27 @@
             },
             {
               "target": [
-                ".r-adyw6z"
+                ".r-nsbfu8.r-16y2uox.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-adyw6z r-1vr29t4 r-6gpygo\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(234, 228, 238); direction: ltr;\">Текуща продажба</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; margin-bottom: 12px;\">Текуща продажба</div>"
             },
             {
               "target": [
-                ".r-1l1008k"
+                ".r-2o02ov"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1l1008k r-2o02ov r-q4m81j\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr;\">Докоснете продукт</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-2o02ov r-q4m81j\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Докоснете продукт</div>"
             },
             {
               "target": [
-                ".r-1i10wst"
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-1i10wst r-1vr29t4\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(234, 228, 238); direction: ltr;\">ОБЩО</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
             },
             {
               "target": [
-                ".r-yy2aun"
+                "div[data-testid=\"sale-total\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-yy2aun r-ovu0ai\" data-testid=\"sale-total\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(234, 228, 238); direction: ltr;\">€ 0.00</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
@@ -769,27 +769,27 @@
             },
             {
               "target": [
-                ".r-adyw6z"
+                ".r-nsbfu8.r-16y2uox.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-adyw6z r-1vr29t4 r-6gpygo\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(29, 26, 32); direction: ltr;\">Текуща продажба</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; margin-bottom: 12px;\">Текуща продажба</div>"
             },
             {
               "target": [
-                ".r-1l1008k"
+                ".r-2o02ov"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1l1008k r-2o02ov r-q4m81j\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr;\">Докоснете продукт</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-2o02ov r-q4m81j\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Докоснете продукт</div>"
             },
             {
               "target": [
-                ".r-1i10wst"
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-1i10wst r-1vr29t4\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(29, 26, 32); direction: ltr;\">ОБЩО</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
             },
             {
               "target": [
-                ".r-yy2aun"
+                "div[data-testid=\"sale-total\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-yy2aun r-ovu0ai\" data-testid=\"sale-total\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(29, 26, 32); direction: ltr;\">€ 0.00</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
@@ -897,27 +897,27 @@
             },
             {
               "target": [
-                ".r-adyw6z"
+                ".r-nsbfu8.r-16y2uox.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-adyw6z r-1vr29t4 r-6gpygo\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(234, 228, 238); direction: ltr;\">Текуща продажба</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; margin-bottom: 12px;\">Текуща продажба</div>"
             },
             {
               "target": [
-                ".r-1l1008k"
+                ".r-2o02ov"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1l1008k r-2o02ov r-q4m81j\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr;\">Докоснете продукт</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-2o02ov r-q4m81j\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Докоснете продукт</div>"
             },
             {
               "target": [
-                ".r-1i10wst"
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-1i10wst r-1vr29t4\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(234, 228, 238); direction: ltr;\">ОБЩО</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
             },
             {
               "target": [
-                ".r-yy2aun"
+                "div[data-testid=\"sale-total\"]"
               ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-yy2aun r-ovu0ai\" data-testid=\"sale-total\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; color: rgb(234, 228, 238); direction: ltr;\">€ 0.00</div>"
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
@@ -936,6 +936,334 @@
                 ".r-13awgt0.r-fdjqy7.css-146c3p1"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "cart-populated",
+      "viewport": "xs",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"mobile-view-catalog-label\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-lrvibr\" data-testid=\"mobile-view-catalog-label\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"mobile-view-cart-label\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-lrvibr\" data-testid=\"mobile-view-cart-label\" style=\"direction: ltr; font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px; color: rgb(37, 30, 45);\">"
+            },
+            {
+              "target": [
+                ".r-xyw6el.r-16y2uox.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; margin-bottom: 12px;\">Текуща продажба</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-regulatory-identity\"] > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">УНП: AB123456-0001-0000001</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-regulatory-identity\"] > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Състояние: OPEN</div>"
+            },
+            {
+              "target": [
+                ".r-1qfoi16 > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0.15px; font-weight: 400; line-height: 24px; font-size: 16px;\">2 × Кафе</div>"
+            },
+            {
+              "target": [
+                "button[aria-label=\"Намали Кафе\"] > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">−</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"discount-percent-coffee-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"discount-percent-cof...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(2) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"discount-amount-coff...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[aria-label=\"Отстъпка в евро за Кафе\"]"
+              ],
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за К...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"discount-amount-coff...\" value=\"0.00\" ...>"
+            },
+            {
+              "target": [
+                ".r-1mmae3n > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">€ 5.00</div>"
+            },
+            {
+              "target": [
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-total\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 5.00</div>"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(1) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"В брой EUR\"]"
+              ],
+              "html": "<input placeholder=\"В брой EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Сума в брой при разд...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"split-cash-amount\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"payment-split-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"payment-split-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Продажбата е отворена • УНП AB123456-0001-0000001</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "cart-populated",
+      "viewport": "xs",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"mobile-view-catalog-label\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"mobile-view-catalog-...\" style=\"direction: ltr; font...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"mobile-view-cart-label\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-lrvibr\" data-testid=\"mobile-view-cart-label\" ...>"
+            },
+            {
+              "target": [
+                ".r-xyw6el.r-16y2uox.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; margin-bottom: 12px;\">Текуща продажба</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-regulatory-identity\"] > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">УНП: AB123456-0001-0000001</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-regulatory-identity\"] > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Състояние: OPEN</div>"
+            },
+            {
+              "target": [
+                ".r-1qfoi16 > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0.15px; font-weight: 400; line-height: 24px; font-size: 16px;\">2 × Кафе</div>"
+            },
+            {
+              "target": [
+                "button[aria-label=\"Намали Кафе\"] > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">−</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"discount-percent-coffee-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"discount-percent-cof...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(2) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"discount-amount-coff...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[aria-label=\"Отстъпка в евро за Кафе\"]"
+              ],
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за К...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"discount-amount-coff...\" value=\"0.00\" ...>"
+            },
+            {
+              "target": [
+                ".r-1mmae3n > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">€ 5.00</div>"
+            },
+            {
+              "target": [
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-total\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 5.00</div>"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(1) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"В брой EUR\"]"
+              ],
+              "html": "<input placeholder=\"В брой EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Сума в брой при разд...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"split-cash-amount\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"payment-split-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"payment-split-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-pay-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"sale-pay-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"payment-card-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"payment-card-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Продажбата е отворена • УНП AB123456-0001-0000001</div>"
             }
           ]
         }
