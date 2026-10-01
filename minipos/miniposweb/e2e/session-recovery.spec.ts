@@ -29,7 +29,8 @@ test('session recovery offers localized retry, theme, language and logout', asyn
   await expect(page.getByTestId('auth-email')).toBeVisible();
 });
 
-test('session recovery: xs/md/lg × light/dark WCAG matrix', async ({ page }) => {
+test('session loading and error: xs/md/lg × light/dark WCAG matrix', async ({ page }) => {
+  test.setTimeout(120_000);
   await setup(page, { minipos: { session: 503 } });
   const evidenceDir = join(process.cwd(), 'docs', 'ui-screenshots');
   await mkdir(evidenceDir, { recursive: true });
@@ -38,16 +39,32 @@ test('session recovery: xs/md/lg × light/dark WCAG matrix', async ({ page }) =>
     await page.setViewportSize({ width, height });
     for (const theme of ['light', 'dark'] as const) {
       await page.addInitScript(value => localStorage.setItem('minipos-web-theme', value), theme);
+      let release: (() => void) | undefined;
+      const pattern = '**/public/v1/minipos/operator-session**';
+      await page.route(pattern, async route => {
+        await new Promise<void>(resolve => { release = resolve; });
+        await route.fulfill({ status: 503, contentType: 'application/json', body: JSON.stringify({ code: 'UNAVAILABLE' }) });
+      });
       await page.goto('/');
+      await expect.poll(() => Boolean(release)).toBe(true);
+      await expect(page.getByTestId('session-status')).toHaveText(translations.bg.loading);
+      await expect(page.getByTestId('session-retry')).toBeDisabled();
+      await scan('loading');
+      release?.();
       await expect(page.getByTestId('session-status')).toHaveText(translations.bg.sessionUnavailable);
+      await scan('error');
+      await page.unroute(pattern);
+
+      async function scan(state: string) {
       await expect(page.locator('html')).toHaveAttribute('data-theme', theme);
       await expect(page.getByTestId('session-language-open')).toBeVisible();
       await expect(page.getByTestId('session-theme-open')).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${size}/${theme}: overflow`).toBe(true);
       const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
-      const screenshot = await page.screenshot({ path: join(evidenceDir, `session-recovery-${size}-${theme}.png`), fullPage: true });
-      scans.push({ screen: 'session-recovery', viewport: size, theme, violations: result.violations, incomplete: result.incomplete,
+      const screenshot = await page.screenshot({ path: join(evidenceDir, `session-recovery-${state}-${size}-${theme}.png`), fullPage: true });
+      scans.push({ screen: `session-recovery-${state}`, viewport: size, theme, violations: result.violations, incomplete: result.incomplete,
         contrastCandidates: await collectContrastCandidates(page, result, screenshot) });
+      }
     }
   }
   await writeFile(join(process.cwd(), 'docs', 'ui-optimization-session-recovery-axe.json'), `${JSON.stringify({ scans }, null, 2)}\n`);

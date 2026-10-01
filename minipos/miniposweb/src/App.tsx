@@ -520,7 +520,8 @@ export default function App() {
     <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
     <PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="session" />
     <PaperText variant="bodyMedium" accessibilityLiveRegion="polite" testID="session-status">{message === "OFFLINE_REFERENCE" ? t.offlineReference : message === "CLOUD_PREPARE_UNAVAILABLE" ? t.cloudPrepareUnavailable : message ? t.sessionUnavailable : t.loading}</PaperText>
-    <PaperButton mode="contained" loading={busy} disabled={busy} onPress={()=>void login()} testID="session-retry">{t.retry}</PaperButton>
+    {busy ? <ActivityIndicator accessibilityLabel={t.loading} testID="session-loading-indicator" /> : null}
+    <PaperButton mode="contained" disabled={busy} onPress={()=>void login()} testID="session-retry">{t.retry}</PaperButton>
     <PaperButton mode="outlined" onPress={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}} testID="session-logout">{t.logout}</PaperButton>
   </Card.Content></Card></main>;
   return (
