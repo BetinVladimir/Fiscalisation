@@ -46,6 +46,20 @@ test.describe('Management – Products', () => {
     await expect(page.getByText('Кафе')).toBeVisible();
     await expect(page.getByText('Новый товар')).not.toBeVisible();
   });
+
+  test('failed product save keeps entered values and shows Paper error', async ({ page }) => {
+    await setup(page, { minipos: { createProduct: 500 } });
+    await page.goto('/');
+    await waitForPOS(page);
+    await page.getByRole('button', { name: 'Товари' }).click();
+    await page.getByTestId('management-add').click();
+    await page.getByTestId('management-product-name').fill('Чай');
+    await page.getByTestId('management-product-price').fill('1.50');
+    await page.getByTestId('management-save').click();
+    await expect(page.getByTestId('management-error')).toBeVisible();
+    await expect(page.getByTestId('management-product-name')).toHaveValue('Чай');
+    await expect(page.getByTestId('management-product-price')).toHaveValue('1.50');
+  });
 });
 
 test.describe('Management – Employees', () => {
@@ -65,9 +79,9 @@ test.describe('Management – Employees', () => {
 
     await page.getByRole('button', { name: 'Сотрудники' }).click();
 
-    await expect(page.getByText('Сотрудники')).toBeVisible();
-    await expect(page.getByText('Иван Иванов')).toBeVisible();
-    await expect(page.getByText('Мария Петрова')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Сотрудники' })).toBeVisible();
+    await expect(page.locator('.entity-list').getByText('Иван Иванов')).toBeVisible();
+    await expect(page.locator('.entity-list').getByText('Мария Петрова')).toBeVisible();
   });
 
   test('add new employee', async ({ page }) => {
@@ -99,7 +113,7 @@ test.describe('Management – Employees', () => {
     await page.getByRole('button', { name: 'Добавить', exact: true }).click();
     await page.getByRole('button', { name: 'Отмена' }).click();
 
-    await expect(page.getByText('Иван Иванов')).toBeVisible();
+    await expect(page.locator('.entity-list').getByText('Иван Иванов')).toBeVisible();
   });
 });
 

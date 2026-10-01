@@ -37,7 +37,7 @@ test.describe('Checkout – CLOUD route (fiscal-route-health → checkout-batch)
     await page.getByRole('button', { name: /Кафе/ }).click();
 
     // Set card amount to 1.00, cash remainder = 1.50
-    await page.locator('input[inputMode="decimal"]').fill('1.00');
+    await page.getByRole('spinbutton', { name: 'С карта (остатъкът е в брой)' }).fill('1.00');
     await page.getByRole('button', { name: 'Плащане и фискализация' }).click();
 
     await expect(page.getByText('Изберете продукт.')).toBeVisible({ timeout: 10_000 });
@@ -59,14 +59,22 @@ test.describe('Checkout – CLOUD route (fiscal-route-health → checkout-batch)
     await expect(page.locator('pre')).toContainText('REV-001', { timeout: 5_000 });
   });
 
-  test('checkout failure shows error message', async ({ page }) => {
+  test('cloud submit 500 stays uncertain without a second transport attempt', async ({ page }) => {
     await setup(page, { minipos: { checkoutBatch: 500 } });
+    let localSubmissions = 0;
+    await page.route('http://localhost:19001/**/intents', async route => {
+      localSubmissions += 1;
+      await route.continue();
+    });
     await page.goto('/');
     await waitForPOS(page);
 
     await page.getByRole('button', { name: /Кафе/ }).click();
+    const cloudFailure = page.waitForResponse(response => response.url().includes('/checkout-batch') && response.status() === 500);
     await page.getByRole('button', { name: 'Плащане и фискализация' }).click();
-
+    await cloudFailure;
+    await expect.poll(async () => (await page.locator('.error').isVisible()) || (await page.getByText('Изберете продукт.').isVisible())).toBe(true);
+    expect(localSubmissions, 'an uncertain cloud submission must not be repeated through the device').toBe(0);
     await expect(page.locator('.error')).toBeVisible({ timeout: 8_000 });
     // Cart not cleared on failure
     await expect(page.locator('.total')).toContainText('2.50');

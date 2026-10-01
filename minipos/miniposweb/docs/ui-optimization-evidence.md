@@ -17,4 +17,6 @@ Status: **IN PROGRESS** (2026-10-01). Scope is the complete MiniPOS Web plan in 
 
 ## Open gates
 
+After correcting three ambiguous E2E selectors and the default device lookup fixture (404 when no prior operation exists), the complete suite reached **41 passed, 1 failed of 42** with two workers. The sole remaining failure is a safety regression: cloud `/checkout-batch` HTTP 500 causes one local `/intents` submission, although the original cloud outcome is uncertain. See `docs/fiscal-route-uncertainty.md` and the red E2E assertion. This is not an Axe or Paper defect; the production routing change and its recovery policy require separate authorization before the full gate can pass.
+
 Management, sale and offline screens still contain native DOM controls and mixed copy; Paper migration, 25-locale coverage and the full screen/state manifest remain open. The 30 Axe `incomplete` contrast nodes need measured manual review. Keyboard, 200% text, native assistive technology, published runtime and Cloudflare deployment are unverified. `Dockerfile` still installs a file dependency on the sibling `BeeloyBackend/mobile/design-tokens` without copying that directory into its build context; Docker build is unverified. Do not mark MiniPOS Web or the 11-app goal DONE from this auth result.
