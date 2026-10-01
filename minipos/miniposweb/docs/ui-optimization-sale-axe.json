@@ -1894,7 +1894,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1944,7 +1944,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2019,7 +2019,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-card-amount-lab...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2210,7 +2210,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Количество",
           "foreground": "rgb(72, 67, 77)",
@@ -2234,7 +2234,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Отстъпка в евро за",
           "foreground": "rgb(72, 67, 77)",
@@ -2270,7 +2270,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "С карта (остатъкът е в брой)",
           "foreground": "rgb(72, 67, 77)",
@@ -3715,8 +3715,8 @@
           "status": "manual-review",
           "text": "Кафе",
           "foreground": "rgb(235, 223, 243)",
-          "pixelBackground": "rgb(78, 67, 85)",
-          "contrastCandidate": 7.26,
+          "pixelBackground": "rgb(68, 58, 76)",
+          "contrastCandidate": 8.38,
           "dominantShare": 0.655,
           "fontSize": "14px",
           "fontWeight": "500",
@@ -4201,7 +4201,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -4251,7 +4251,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -4326,7 +4326,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-card-amount-lab...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -4517,7 +4517,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Количество",
           "foreground": "rgb(212, 205, 217)",
@@ -4541,7 +4541,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Отстъпка в евро за",
           "foreground": "rgb(212, 205, 217)",
@@ -4577,7 +4577,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "С карта (остатъкът е в брой)",
           "foreground": "rgb(212, 205, 217)",
@@ -6508,7 +6508,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -6558,7 +6558,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -6633,7 +6633,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-card-amount-lab...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -6824,7 +6824,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Количество",
           "foreground": "rgb(72, 67, 77)",
@@ -6848,7 +6848,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Отстъпка в евро за",
           "foreground": "rgb(72, 67, 77)",
@@ -6884,7 +6884,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "С карта (остатъкът е в брой)",
           "foreground": "rgb(72, 67, 77)",
@@ -8815,7 +8815,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -8865,7 +8865,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -8940,7 +8940,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-card-amount-lab...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -9131,7 +9131,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Количество",
           "foreground": "rgb(212, 205, 217)",
@@ -9155,7 +9155,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Отстъпка в евро за",
           "foreground": "rgb(212, 205, 217)",
@@ -9191,7 +9191,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "С карта (остатъкът е в брой)",
           "foreground": "rgb(212, 205, 217)",
@@ -11122,7 +11122,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -11172,7 +11172,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -11247,7 +11247,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-card-amount-lab...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -11438,7 +11438,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Количество",
           "foreground": "rgb(72, 67, 77)",
@@ -11462,7 +11462,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Отстъпка в евро за",
           "foreground": "rgb(72, 67, 77)",
@@ -11498,7 +11498,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "С карта (остатъкът е в брой)",
           "foreground": "rgb(72, 67, 77)",
@@ -13139,31 +13139,6 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "9.0pt (12px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px;\">Иван Иванов · Онлайн</div>",
-              "target": [
-                "header > div:nth-child(1) > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(2)"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
                     "fontSize": "10.5pt (14px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -13454,7 +13429,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -13504,7 +13479,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -13579,7 +13554,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-card-amount-lab...\" style=\"font-weight: 400; di...\">",
               "target": [
-                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
+                ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -13637,18 +13612,6 @@
         }
       ],
       "contrastCandidates": [
-        {
-          "target": "header > div:nth-child(1) > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(2)",
-          "status": "manual-review",
-          "text": "Иван Иванов · Онлайн",
-          "foreground": "rgb(234, 228, 238)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 14.92,
-          "dominantShare": 0.961,
-          "fontSize": "12px",
-          "fontWeight": "400",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
         {
           "target": "div[data-testid=\"app-settings-text\"]",
           "status": "manual-review",
@@ -13782,7 +13745,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Количество",
           "foreground": "rgb(212, 205, 217)",
@@ -13806,7 +13769,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "Отстъпка в евро за",
           "foreground": "rgb(212, 205, 217)",
@@ -13842,7 +13805,7 @@
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
-          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)",
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
           "status": "manual-review",
           "text": "С карта (остатъкът е в брой)",
           "foreground": "rgb(212, 205, 217)",

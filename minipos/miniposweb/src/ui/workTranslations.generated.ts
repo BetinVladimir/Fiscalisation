@@ -44,7 +44,16 @@ export const translations = {
     "register": "Регистър",
     "generation": "Поколение",
     "localUrl": "Локален URL",
-    "loadFailed": "Списъкът не може да се зареди"
+    "loadFailed": "Списъкът не може да се зареди",
+    "outboxTitle": "Офлайн операции",
+    "outboxEmpty": "Все още няма запазени операции.",
+    "outboxAwaiting": "Очаква се фискален резултат",
+    "outboxUncertain": "Резултатът е неясен — проверете преди повторение",
+    "outboxFailed": "Фискалната операция е неуспешна",
+    "outboxPendingSync": "Фискализирано локално — очаква синхронизация",
+    "outboxSynced": "Синхронизирано със сървъра",
+    "outboxFiscalized": "Фискализирано",
+    "outboxRefresh": "Обнови списъка"
   },
   "hr": {
     "sales": "Prodaja",
@@ -88,7 +97,16 @@ export const translations = {
     "register": "Kasa",
     "generation": "Generacija",
     "localUrl": "Lokalna URL adresa",
-    "loadFailed": "Neuspjelo učitavanje popisa"
+    "loadFailed": "Neuspjelo učitavanje popisa",
+    "outboxTitle": "Izvanmrežne operacije",
+    "outboxEmpty": "Još nema spremljenih operacija.",
+    "outboxAwaiting": "Čeka se rezultat fiskalizacije",
+    "outboxUncertain": "Rezultat je neizvjestan — provjerite prije ponavljanja",
+    "outboxFailed": "Fiskalizacija nije uspjela",
+    "outboxPendingSync": "Fiskalizirano lokalno — čeka se sinkronizacija",
+    "outboxSynced": "Sinkronizirano s poslužiteljem",
+    "outboxFiscalized": "Fiskalizirano",
+    "outboxRefresh": "Osvježi popis"
   },
   "cs": {
     "sales": "Prodej",
@@ -132,7 +150,16 @@ export const translations = {
     "register": "Pokladna",
     "generation": "Generace",
     "localUrl": "Lokální URL",
-    "loadFailed": "Nelze načíst seznam"
+    "loadFailed": "Nelze načíst seznam",
+    "outboxTitle": "Ofisní operace",
+    "outboxEmpty": "Zatím žádné uložené operace.",
+    "outboxAwaiting": "Čekání na daňový výsledek",
+    "outboxUncertain": "Výsledek nejistý – zkontrolujte před opakováním",
+    "outboxFailed": "Daňová operace selhala",
+    "outboxPendingSync": "Daňová evidence lokálně – čeká se na synchronizaci",
+    "outboxSynced": "Synchronizováno se serverem",
+    "outboxFiscalized": "Daňově evidováno",
+    "outboxRefresh": "Obnovit seznam"
   },
   "da": {
     "sales": "Salg",
@@ -176,7 +203,16 @@ export const translations = {
     "register": "Kasseapparat",
     "generation": "Generering",
     "localUrl": "Lokal URL",
-    "loadFailed": "Kunne ikke indlæse listen"
+    "loadFailed": "Kunne ikke indlæse listen",
+    "outboxTitle": "Offline-operationer",
+    "outboxEmpty": "Ingen lagrede operationer endnu.",
+    "outboxAwaiting": "Venter på skattemæssig resultat",
+    "outboxUncertain": "Resultat usikkert – tjek før gentagelse",
+    "outboxFailed": "Skattemæssig operation mislykkedes",
+    "outboxPendingSync": "Lokalt registreret – venter på synkronisering",
+    "outboxSynced": "Synkroniseret med serveren",
+    "outboxFiscalized": "Registreret skattemæssigt",
+    "outboxRefresh": "Opdater liste"
   },
   "nl": {
     "sales": "Verkoop",
@@ -220,7 +256,16 @@ export const translations = {
     "register": "Kassa",
     "generation": "Generatie",
     "localUrl": "Lokale URL",
-    "loadFailed": "Lijst niet geladen"
+    "loadFailed": "Lijst niet geladen",
+    "outboxTitle": "Offline-acties",
+    "outboxEmpty": "Nog geen opgeslagen acties.",
+    "outboxAwaiting": "Wachten op fiscaal resultaat",
+    "outboxUncertain": "Onzeker resultaat — controleer alvorens te herhalen",
+    "outboxFailed": "Fiscale actie mislukt",
+    "outboxPendingSync": "Lokaal gefiscaliseerd — wachten op synchronisatie",
+    "outboxSynced": "Gesynchroniseerd met de server",
+    "outboxFiscalized": "Gefiscaliseerd",
+    "outboxRefresh": "Lijst vernieuwen"
   },
   "en": {
     "sales": "Sales",
@@ -264,7 +309,16 @@ export const translations = {
     "register": "Register",
     "generation": "Generation",
     "localUrl": "Local URL",
-    "loadFailed": "Could not load the list"
+    "loadFailed": "Could not load the list",
+    "outboxTitle": "Offline operations",
+    "outboxEmpty": "No saved operations yet.",
+    "outboxAwaiting": "Awaiting fiscal result",
+    "outboxUncertain": "Result uncertain — check before repeating",
+    "outboxFailed": "Fiscal operation failed",
+    "outboxPendingSync": "Fiscalized locally — waiting to sync",
+    "outboxSynced": "Synced with the server",
+    "outboxFiscalized": "Fiscalized",
+    "outboxRefresh": "Refresh list"
   },
   "et": {
     "sales": "Müügid",
@@ -308,7 +362,16 @@ export const translations = {
     "register": "Kassaregister",
     "generation": "Generatsioon",
     "localUrl": "Kohalik URL",
-    "loadFailed": "Nimekirja laadimine ebaõnnestus"
+    "loadFailed": "Nimekirja laadimine ebaõnnestus",
+    "outboxTitle": "Majanduslikud tegevused",
+    "outboxEmpty": "Salvestatud tegevusi veel pole.",
+    "outboxAwaiting": "Ootame majanduslikku tulemust",
+    "outboxUncertain": "Tulemus ebatäpne – kinnita enne uuesti kasutamist",
+    "outboxFailed": "Majanduslik tegevus ebaõnnestus",
+    "outboxPendingSync": "Majandustatud kohalikus režiimis – ootame sünkroniseerimist",
+    "outboxSynced": "Sünkroniseeritud serveriga",
+    "outboxFiscalized": "Majandustatud",
+    "outboxRefresh": "Värskenda loend"
   },
   "fi": {
     "sales": "Myynnit",
@@ -352,7 +415,16 @@ export const translations = {
     "register": "Kassa",
     "generation": "Generaatio",
     "localUrl": "Paikallinen URL",
-    "loadFailed": "Listan lataaminen epäonnistui"
+    "loadFailed": "Listan lataaminen epäonnistui",
+    "outboxTitle": "Offline-toiminta",
+    "outboxEmpty": "Ei tallennettuja toimintoja vielä.",
+    "outboxAwaiting": "Odotetaan verotustulosta",
+    "outboxUncertain": "Tulos epävarma — tarkista ennen toistamista",
+    "outboxFailed": "Verotustoiminto epäonnistui",
+    "outboxPendingSync": "Verotettu paikallisesti – odotetaan synkronointia",
+    "outboxSynced": "Synkronoitu palvelimen kanssa",
+    "outboxFiscalized": "Verotettu",
+    "outboxRefresh": "Päivitä lista"
   },
   "fr": {
     "sales": "Ventes",
@@ -396,7 +468,16 @@ export const translations = {
     "register": "Caisse",
     "generation": "Génération",
     "localUrl": "URL locale",
-    "loadFailed": "Impossible de charger la liste"
+    "loadFailed": "Impossible de charger la liste",
+    "outboxTitle": "Opérations hors ligne",
+    "outboxEmpty": "Aucune opération enregistrée.",
+    "outboxAwaiting": "En attente du résultat fiscal",
+    "outboxUncertain": "Résultat incertain — vérifiez avant de répéter",
+    "outboxFailed": "Échec de l'opération fiscale",
+    "outboxPendingSync": "Fiscalisé localement — en attente de synchronisation",
+    "outboxSynced": "Synchronisé avec le serveur",
+    "outboxFiscalized": "Fiscalisé",
+    "outboxRefresh": "Actualiser la liste"
   },
   "de": {
     "sales": "Verkäufe",
@@ -440,7 +521,16 @@ export const translations = {
     "register": "Kasse",
     "generation": "Generation",
     "localUrl": "Lokale URL",
-    "loadFailed": "Liste konnte nicht geladen werden"
+    "loadFailed": "Liste konnte nicht geladen werden",
+    "outboxTitle": "Offline-Vorgänge",
+    "outboxEmpty": "Noch keine gespeicherten Vorgänge.",
+    "outboxAwaiting": "Warten auf das Fiskalisierungsergebnis",
+    "outboxUncertain": "Ergebnis unklar — vor Wiederholung prüfen",
+    "outboxFailed": "Fiskalisierung fehlgeschlagen",
+    "outboxPendingSync": "Lokal fiskalisiert — Synchronisierung ausstehend",
+    "outboxSynced": "Mit dem Server synchronisiert",
+    "outboxFiscalized": "Fiskalisiert",
+    "outboxRefresh": "Liste aktualisieren"
   },
   "el": {
     "sales": "Πωλήσεις",
@@ -484,7 +574,16 @@ export const translations = {
     "register": "Ταμείο",
     "generation": "Γεννήτρια",
     "localUrl": "Τοπική διεύθυνση URL",
-    "loadFailed": "Αδυναμία φόρτωσης του πίνακα"
+    "loadFailed": "Αδυναμία φόρτωσης του πίνακα",
+    "outboxTitle": "Απομακρυσμένες λειτουργίες",
+    "outboxEmpty": "Δεν υπάρχουν αποθηκευμένες λειτουργίες.",
+    "outboxAwaiting": "Περιμένεται φορολογικό αποτέλεσμα",
+    "outboxUncertain": "Ανέβασμα αβεβαιό — ελέγξτε πριν επαναλάβετε",
+    "outboxFailed": "Η φορολογική λειτουργία απέτυχε",
+    "outboxPendingSync": "Φορολογικά τοπικά — αναμονή συγχρονισμού",
+    "outboxSynced": "Συγχρονισμένο με τον διακομιστή",
+    "outboxFiscalized": "Φορολογημένο",
+    "outboxRefresh": "Ανανέωση λίστας"
   },
   "hu": {
     "sales": "Eladások",
@@ -528,7 +627,16 @@ export const translations = {
     "register": "Pénztár",
     "generation": "Generáció",
     "localUrl": "Helyi URL",
-    "loadFailed": "A lista betöltése nem sikerült"
+    "loadFailed": "A lista betöltése nem sikerült",
+    "outboxTitle": "Offline műveletek",
+    "outboxEmpty": "Még nincs mentett művelet.",
+    "outboxAwaiting": "Adózási eredmény várása",
+    "outboxUncertain": "Eredmény bizonytalan – ellenőrizze ismétlés előtt",
+    "outboxFailed": "Az adózási művelet sikertelen",
+    "outboxPendingSync": "Helyileg adózva – szinkronizáció várása",
+    "outboxSynced": "Szinkronizálva a szerverrel",
+    "outboxFiscalized": "Adózva",
+    "outboxRefresh": "Lista frissítése"
   },
   "ga": {
     "sales": "Sálais",
@@ -572,7 +680,16 @@ export const translations = {
     "register": "Ainmneoir airgeadais",
     "generation": "Gineadh",
     "localUrl": "URL áitiúil",
-    "loadFailed": "Níor lódáil an liosta"
+    "loadFailed": "Níor lódáil an liosta",
+    "outboxTitle": "Oibríochtaí as líne",
+    "outboxEmpty": "Níl aon oibríochtaí sábháilte fós.",
+    "outboxAwaiting": "Ag fanacht le toradh airgeadais",
+    "outboxUncertain": "Is é an toradh neamhshuim — seiceáil sula n-athdhéanann tú",
+    "outboxFailed": "D'fhéilead ar oibríocht airgeadais",
+    "outboxPendingSync": "Fiscalaithe go háitiúil — ag fanacht le síneadh",
+    "outboxSynced": "Sínithe leis an gserver",
+    "outboxFiscalized": "Fiscalaithe",
+    "outboxRefresh": "Athnuaigh an liosta"
   },
   "it": {
     "sales": "Vendite",
@@ -616,7 +733,16 @@ export const translations = {
     "register": "Registrazione",
     "generation": "Generazione",
     "localUrl": "URL locale",
-    "loadFailed": "Impossibile caricare l'elenco"
+    "loadFailed": "Impossibile caricare l'elenco",
+    "outboxTitle": "Operazioni offline",
+    "outboxEmpty": "Nessuna operazione salvata.",
+    "outboxAwaiting": "In attesa del risultato fiscale",
+    "outboxUncertain": "Risultato incerto — verifica prima di ripetere",
+    "outboxFailed": "Operazione fiscale fallita",
+    "outboxPendingSync": "Fiscalizzato localmente — in attesa di sincronizzazione",
+    "outboxSynced": "Sincronizzato con il server",
+    "outboxFiscalized": "Fiscalizzato",
+    "outboxRefresh": "Aggiorna elenco"
   },
   "lv": {
     "sales": "Pārdoti preces",
@@ -660,7 +786,16 @@ export const translations = {
     "register": "Kase",
     "generation": "Ģenerēšana",
     "localUrl": "Lokālā URL",
-    "loadFailed": "Sarakstu nevarēja ielādēt"
+    "loadFailed": "Sarakstu nevarēja ielādēt",
+    "outboxTitle": "Pārdošanas darbības",
+    "outboxEmpty": "Joprojām nav saglabātu darbību.",
+    "outboxAwaiting": "Gaidīts fiskālais rezultāts",
+    "outboxUncertain": "Rezultāts nenoteikts — pirms atkārtošanas pārbaudiet",
+    "outboxFailed": "Fiskālā operācija neizdevās",
+    "outboxPendingSync": "Fiskalizēts lokāli — gaidīts sinhronizēšana",
+    "outboxSynced": "Sinhronizēts ar serveri",
+    "outboxFiscalized": "Fiskalizēts",
+    "outboxRefresh": "Atjaunot sarakstu"
   },
   "lt": {
     "sales": "Pardavimai",
@@ -704,7 +839,16 @@ export const translations = {
     "register": "Registras",
     "generation": "Generavimas",
     "localUrl": "Vietinis URL",
-    "loadFailed": "Nepavyko įkelti sąrašo"
+    "loadFailed": "Nepavyko įkelti sąrašo",
+    "outboxTitle": "Nėra ryšio su internetu",
+    "outboxEmpty": "Dar nėra išsaugotų operacijų.",
+    "outboxAwaiting": "Laukiama fiskalinio rezultato",
+    "outboxUncertain": "Rezultatas neaiškus – patikrinkite prieš kartojant",
+    "outboxFailed": "Fiskalinė operacija nepavyko",
+    "outboxPendingSync": "Fiskalizavima lokaliai – laukiama sinchronizacijos",
+    "outboxSynced": "Sinchronizuota su serveriu",
+    "outboxFiscalized": "Fiskalizavimas atliktas",
+    "outboxRefresh": "Atnaujinti sąrašą"
   },
   "mt": {
     "sales": "Bajjiet",
@@ -748,7 +892,16 @@ export const translations = {
     "register": "Reġistru",
     "generation": "Generazzjoni",
     "localUrl": "URL Lokali",
-    "loadFailed": "Ma kienx tista' tiġi kkunsidrata l-lista"
+    "loadFailed": "Ma kienx tista' tiġi kkunsidrata l-lista",
+    "outboxTitle": "Operazzjonijiet offline",
+    "outboxEmpty": "Mhux hemm operazzjonijiet salvati għalissa.",
+    "outboxAwaiting": "Jistenna riżultat fiskali",
+    "outboxUncertain": "Riżultat mhux ċert — iċċekkja qabel ma tirrepeti",
+    "outboxFailed": "Operazzjoni fiskali falliet",
+    "outboxPendingSync": "Fiskalizzat lokalkament — qed jistenna biex jiġi ssinkronizzat",
+    "outboxSynced": "Ssinkronizzat mal-server",
+    "outboxFiscalized": "Fiskalizzat",
+    "outboxRefresh": "Iffreska l-lista"
   },
   "pl": {
     "sales": "Sprzedaż",
@@ -792,7 +945,16 @@ export const translations = {
     "register": "Kasa",
     "generation": "Generowanie",
     "localUrl": "Lokalny URL",
-    "loadFailed": "Nie udało się załadować listy"
+    "loadFailed": "Nie udało się załadować listy",
+    "outboxTitle": "Operacje offline",
+    "outboxEmpty": "Brak zapisanych operacji.",
+    "outboxAwaiting": "Oczekiwanie na wynik fiskalny",
+    "outboxUncertain": "Wynik niepewny — sprawdź przed ponownym wykonaniem",
+    "outboxFailed": "Operacja fiskalna nie powiodła się",
+    "outboxPendingSync": "Sfiskalizowane lokalnie — oczekiwanie na synchronizację",
+    "outboxSynced": "Zasynchronizowano z serwerem",
+    "outboxFiscalized": "Sfiskalizowane",
+    "outboxRefresh": "Odśwież listę"
   },
   "pt": {
     "sales": "Vendas",
@@ -836,7 +998,16 @@ export const translations = {
     "register": "Caixa",
     "generation": "Geração",
     "localUrl": "URL Local",
-    "loadFailed": "Não foi possível carregar a lista"
+    "loadFailed": "Não foi possível carregar a lista",
+    "outboxTitle": "Operações offline",
+    "outboxEmpty": "Nenhuma operação salva ainda.",
+    "outboxAwaiting": "Aguardando resultado fiscal",
+    "outboxUncertain": "Resultado incerto — verifique antes de repetir",
+    "outboxFailed": "Operação fiscal falhou",
+    "outboxPendingSync": "Fiscalizado localmente — aguardando sincronização",
+    "outboxSynced": "Sincronizado com o servidor",
+    "outboxFiscalized": "Fiscalizado",
+    "outboxRefresh": "Atualizar lista"
   },
   "ro": {
     "sales": "Vânzări",
@@ -880,7 +1051,16 @@ export const translations = {
     "register": "Casă de marfă",
     "generation": "Generare",
     "localUrl": "URL local",
-    "loadFailed": "Nu s-a putut încărca lista"
+    "loadFailed": "Nu s-a putut încărca lista",
+    "outboxTitle": "Operații offline",
+    "outboxEmpty": "Nicio operație salvată încă.",
+    "outboxAwaiting": "Așteptarea rezultatului fiscal",
+    "outboxUncertain": "Rezultat incert — verificați înainte de a repeta",
+    "outboxFailed": "Operația fiscală a eșuat",
+    "outboxPendingSync": "Fiscalizat local — se așteaptă sincronizarea",
+    "outboxSynced": "Sincronizat cu serverul",
+    "outboxFiscalized": "Fiscalizat",
+    "outboxRefresh": "Reîmprospătare listă"
   },
   "sk": {
     "sales": "Predaje",
@@ -924,7 +1104,16 @@ export const translations = {
     "register": "Pokladna",
     "generation": "Generácia",
     "localUrl": "Lokálna URL",
-    "loadFailed": "Nepodarilo sa načítať zoznam"
+    "loadFailed": "Nepodarilo sa načítať zoznam",
+    "outboxTitle": "Offline operácie",
+    "outboxEmpty": "Zatiaľ žiadne uložené operácie.",
+    "outboxAwaiting": "Čaká sa na daňový výsledok",
+    "outboxUncertain": "Výsledok neistý – skontrolujte pred opakovaním",
+    "outboxFailed": "Daňová operácia zlyhala",
+    "outboxPendingSync": "Daňovo spracované lokálne – čaká sa na synchronizáciu",
+    "outboxSynced": "Synchronizované so serverom",
+    "outboxFiscalized": "Daňovo spracované",
+    "outboxRefresh": "Obnoviť zoznam"
   },
   "sl": {
     "sales": "Prodaja",
@@ -968,7 +1157,16 @@ export const translations = {
     "register": "Blagajna",
     "generation": "Generacija",
     "localUrl": "Lokalna URL",
-    "loadFailed": "Seznam ni bil mogoče naložiti"
+    "loadFailed": "Seznam ni bil mogoče naložiti",
+    "outboxTitle": "Odložene operacije",
+    "outboxEmpty": "Še ni shranjenih operacij.",
+    "outboxAwaiting": "Čakanje na fiskalni izvid",
+    "outboxUncertain": "Nezanesljiv izvid – preverite pred ponovnim poskusom",
+    "outboxFailed": "Fiskalna operacija je spodletela",
+    "outboxPendingSync": "Fiskalizirano lokalno – čakanje na sinhronizacijo",
+    "outboxSynced": "Sinhronizirano s strežnikom",
+    "outboxFiscalized": "Fiskalizirano",
+    "outboxRefresh": "Osveži seznam"
   },
   "es": {
     "sales": "Ventas",
@@ -1012,7 +1210,16 @@ export const translations = {
     "register": "Caja registradora",
     "generation": "Generación",
     "localUrl": "URL local",
-    "loadFailed": "No se pudo cargar la lista"
+    "loadFailed": "No se pudo cargar la lista",
+    "outboxTitle": "Operaciones sin conexión",
+    "outboxEmpty": "Aún no hay operaciones guardadas.",
+    "outboxAwaiting": "Esperando resultado fiscal",
+    "outboxUncertain": "Resultado incierto — verifique antes de repetir",
+    "outboxFailed": "Operación fiscal fallida",
+    "outboxPendingSync": "Fiscalizado localmente — esperando sincronización",
+    "outboxSynced": "Sincronizado con el servidor",
+    "outboxFiscalized": "Fiscalizado",
+    "outboxRefresh": "Actualizar lista"
   },
   "sv": {
     "sales": "Försäljning",
@@ -1056,7 +1263,16 @@ export const translations = {
     "register": "Kassa",
     "generation": "Generering",
     "localUrl": "Lokal URL",
-    "loadFailed": "Kunde inte ladda listan"
+    "loadFailed": "Kunde inte ladda listan",
+    "outboxTitle": "Offline-operationer",
+    "outboxEmpty": "Inga sparade operationer än.",
+    "outboxAwaiting": "Väntar på skatteresultat",
+    "outboxUncertain": "Resultat osäkert – kontrollera innan du upprepar",
+    "outboxFailed": "Skatteoperation misslyckades",
+    "outboxPendingSync": "Skattelokaliserad – väntar på synkronisering",
+    "outboxSynced": "Synkroniserad med servern",
+    "outboxFiscalized": "Skattelokaliserad",
+    "outboxRefresh": "Uppdatera lista"
   },
   "ru": {
     "sales": "Продажи",
@@ -1100,6 +1316,15 @@ export const translations = {
     "register": "Касса",
     "generation": "Поколение",
     "localUrl": "Локальный URL",
-    "loadFailed": "Не удалось загрузить список"
+    "loadFailed": "Не удалось загрузить список",
+    "outboxTitle": "Офлайн-операции",
+    "outboxEmpty": "Сохранённых операций пока нет.",
+    "outboxAwaiting": "Ожидается фискальный результат",
+    "outboxUncertain": "Результат неизвестен — проверьте перед повтором",
+    "outboxFailed": "Фискальная операция завершилась ошибкой",
+    "outboxPendingSync": "Фискализировано локально — ожидает синхронизации",
+    "outboxSynced": "Синхронизировано с сервером",
+    "outboxFiscalized": "Фискализировано",
+    "outboxRefresh": "Обновить список"
   }
 } as const;

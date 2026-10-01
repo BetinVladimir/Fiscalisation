@@ -16,6 +16,7 @@ test('all 25 languages update sale and navigation without fallback keys', async 
     await expect(page.getByTestId('app-sales')).toContainText(t.sales);
     await expect(page.getByTestId('app-products')).toContainText(t.products);
     await expect(page.getByTestId('app-employees')).toContainText(t.employees);
+    await expect(page.getByTestId('app-outbox')).toContainText(t.outboxTitle);
     await expect(page.getByTestId('sale-payment').getByRole('heading', { name: t.currentSale })).toBeVisible();
     await expect(page.getByTestId('sale-checkout')).toContainText(t.checkoutFiscal);
     await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `overflow in ${language}`).toBe(true);

@@ -14,7 +14,7 @@ import {
 import { RouteController, type FiscalRoute } from "./fiscal/routeController";
 import { WebBleRoute } from "./fiscal/webBleRoute";
 import { cacheGet, cachePut } from "./storage/referenceCache";
-import { getOutbox, listOutbox, putOutbox } from "./storage/outbox";
+import { getOutbox, listOutbox, putOutbox, type OutboxRow } from "./storage/outbox";
 import type {
   FiscalIntent,
   FiscalOperation,
@@ -27,6 +27,7 @@ import { Management } from "./Management";
 import { ActivityIndicator, Button as PaperButton, Card, HelperText, Surface, Text as PaperText, useTheme } from "react-native-paper";
 import { PreferenceControls, readLanguage, type Language } from "./ui/PreferenceControls";
 import { PaymentPanel, ProductGrid, type CartLine } from "./SalePanels";
+import { OutboxPanel } from "./OutboxPanel";
 import { translations as workTranslations } from "./ui/workTranslations.generated";
 
 const appInstance =
@@ -63,7 +64,10 @@ export default function App() {
   const [configuration, setConfiguration] = useState<PosConfiguration>();
   const [products, setProducts] = useState<Product[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [view, setView] = useState<"sale" | "products" | "employees">("sale");
+  const [view, setView] = useState<"sale" | "products" | "employees" | "outbox">("sale");
+  const [outboxRows, setOutboxRows] = useState<OutboxRow[]>([]);
+  const [outboxLoading, setOutboxLoading] = useState(false);
+  const [outboxError, setOutboxError] = useState(false);
   const [managementLoading, setManagementLoading] = useState(false);
   const [managementError, setManagementError] = useState("");
   const managementRequest = useRef(0);
@@ -204,6 +208,19 @@ export default function App() {
       if (request === managementRequest.current) setManagementError(error instanceof Error ? error.message : String(error));
     } finally {
       if (request === managementRequest.current) setManagementLoading(false);
+    }
+  }
+  async function openOutbox() {
+    managementRequest.current++;
+    setView("outbox");
+    setOutboxLoading(true);
+    setOutboxError(false);
+    try {
+      setOutboxRows(await listOutbox());
+    } catch {
+      setOutboxError(true);
+    } finally {
+      setOutboxLoading(false);
     }
   }
   async function openShift() {
@@ -520,6 +537,7 @@ export default function App() {
           <PaperButton mode={view === "sale" ? "contained-tonal" : "outlined"} onPress={() => { managementRequest.current++; setView("sale"); }} testID="app-sales">{t.sales}</PaperButton>
           <PaperButton mode={view === "products" ? "contained-tonal" : "outlined"} onPress={() => void openManagement("products")} testID="app-products">{t.products}</PaperButton>
           <PaperButton mode={view === "employees" ? "contained-tonal" : "outlined"} onPress={() => void openManagement("employees")} testID="app-employees">{t.employees}</PaperButton>
+          <PaperButton mode={view === "outbox" ? "contained-tonal" : "outlined"} onPress={() => void openOutbox()} testID="app-outbox">{t.outboxTitle}</PaperButton>
           <PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="app" />
         </header>
       </Surface>
@@ -529,7 +547,7 @@ export default function App() {
         <PaperButton mode="outlined" disabled={busy || !shift} onPress={printer}>{t.printerTest}</PaperButton>
         {result ? <PaperText variant="bodySmall" selectable style={{ fontFamily: "monospace" }} testID="sale-result">{JSON.stringify(result, null, 2)}</PaperText> : null}
       </Card.Content></Card>}
-      {view !== "sale" ? managementLoading ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-loading"><Card.Content style={{ gap: 12 }}>
+      {view === "outbox" ? <OutboxPanel rows={outboxRows} loading={outboxLoading} error={outboxError} language={language} onRefresh={() => void openOutbox()} /> : view !== "sale" ? managementLoading ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-loading"><Card.Content style={{ gap: 12 }}>
         <ActivityIndicator accessibilityLabel={t.loading} /><PaperText variant="bodyMedium">{t.loading}</PaperText>
       </Card.Content></Card> : managementError ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-load-error"><Card.Content style={{ gap: 12 }}>
         <HelperText type="error" visible>{t.loadFailed}</HelperText>

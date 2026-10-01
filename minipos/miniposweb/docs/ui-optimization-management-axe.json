@@ -550,31 +550,6 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-sales-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"app-sales-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"app-employees-text\"]"
@@ -635,18 +610,6 @@
         }
       ],
       "contrastCandidates": [
-        {
-          "target": "div[data-testid=\"app-sales-text\"]",
-          "status": "manual-review",
-          "text": "Продажби",
-          "foreground": "rgb(73, 49, 122)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 10.23,
-          "dominantShare": 0.658,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
         {
           "target": "div[data-testid=\"app-employees-text\"]",
           "status": "manual-review",

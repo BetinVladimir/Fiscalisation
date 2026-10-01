@@ -22,6 +22,10 @@ const english = {
   cloudPrepareUnavailable: 'Cloud preparation is unavailable; processing locally and syncing after recovery',
   adapter: 'Adapter', register: 'Register', generation: 'Generation', localUrl: 'Local URL',
   loadFailed: 'Could not load the list',
+  outboxTitle: 'Offline operations', outboxEmpty: 'No saved operations yet.',
+  outboxAwaiting: 'Awaiting fiscal result', outboxUncertain: 'Result uncertain — check before repeating',
+  outboxFailed: 'Fiscal operation failed', outboxPendingSync: 'Fiscalized locally — waiting to sync',
+  outboxSynced: 'Synced with the server', outboxFiscalized: 'Fiscalized', outboxRefresh: 'Refresh list',
 };
 const editorial = {
   bg: {
@@ -36,6 +40,10 @@ const editorial = {
     cloudPrepareUnavailable: 'Cloud подготовката е недостъпна; изпълнява се локално и ще се съгласува след възстановяване',
     adapter: 'Адаптер', register: 'Регистър', generation: 'Поколение', localUrl: 'Локален URL',
     loadFailed: 'Списъкът не може да се зареди',
+    outboxTitle: 'Офлайн операции', outboxEmpty: 'Все още няма запазени операции.',
+    outboxAwaiting: 'Очаква се фискален резултат', outboxUncertain: 'Резултатът е неясен — проверете преди повторение',
+    outboxFailed: 'Фискалната операция е неуспешна', outboxPendingSync: 'Фискализирано локално — очаква синхронизация',
+    outboxSynced: 'Синхронизирано със сървъра', outboxFiscalized: 'Фискализирано', outboxRefresh: 'Обнови списъка',
   },
   ru: {
     settings: 'Настройки', diagnostics: 'Диагностика', printerTest: 'Проверка принтера',
@@ -49,6 +57,10 @@ const editorial = {
     cloudPrepareUnavailable: 'Облачная подготовка недоступна. Операция выполняется локально и синхронизируется после восстановления связи.',
     adapter: 'Адаптер', register: 'Касса', generation: 'Поколение', localUrl: 'Локальный URL',
     loadFailed: 'Не удалось загрузить список',
+    outboxTitle: 'Офлайн-операции', outboxEmpty: 'Сохранённых операций пока нет.',
+    outboxAwaiting: 'Ожидается фискальный результат', outboxUncertain: 'Результат неизвестен — проверьте перед повтором',
+    outboxFailed: 'Фискальная операция завершилась ошибкой', outboxPendingSync: 'Фискализировано локально — ожидает синхронизации',
+    outboxSynced: 'Синхронизировано с сервером', outboxFiscalized: 'Фискализировано', outboxRefresh: 'Обновить список',
   },
 };
 const languageNames = {

@@ -7,7 +7,7 @@ describe('MiniPOS Web working translations', () => {
     expect(supportedLanguages).toEqual(authLanguages);
     expect(supportedLanguages).toHaveLength(25);
     const keys = Object.keys(translations.en);
-    expect(keys).toHaveLength(42);
+    expect(keys).toHaveLength(51);
     for (const language of supportedLanguages) {
       expect(Object.keys(translations[language])).toEqual(keys);
       for (const key of keys) {

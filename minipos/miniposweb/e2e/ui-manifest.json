@@ -150,14 +150,14 @@
     {
       "id": "offline/outbox",
       "source": "src/App.tsx",
-      "entryAction": "Fail cloud preparation, complete local submit, then recover connectivity",
+      "entryAction": "Select Offline operations from the work header; refresh after local submit or connectivity recovery",
       "role": "operator",
-      "fixture": "e2e/offline.spec.ts",
+      "fixture": "e2e/outbox.spec.ts:seedOutbox",
       "expectedScreenTestId": "offline-outbox",
-      "states": ["cloud-unavailable", "pending-sync", "UNKNOWN", "recovered"],
-      "status": "open",
-      "evidence": ["e2e/offline.spec.ts"],
-      "openGates": ["visible-outbox-screen-or-explicit-alias", "wcag-matrix", "manual-contrast", "native-screen-reader"]
+      "states": ["empty", "awaiting-result", "pending-sync", "UNKNOWN", "synced", "load-error"],
+      "status": "partial",
+      "evidence": ["e2e/offline.spec.ts", "e2e/outbox.spec.ts", "docs/ui-optimization-outbox-axe.json"],
+      "openGates": ["load-error-wcag", "real-offline-recovery-e2e", "manual-contrast", "keyboard-200-percent", "native-screen-reader"]
     },
     {
       "id": "settings/diagnostics",
