@@ -26,6 +26,7 @@ const english = {
   outboxAwaiting: 'Awaiting fiscal result', outboxUncertain: 'Result uncertain — check before repeating',
   outboxFailed: 'Fiscal operation failed', outboxPendingSync: 'Fiscalized locally — waiting to sync',
   outboxSynced: 'Synced with the server', outboxFiscalized: 'Fiscalized', outboxRefresh: 'Refresh list',
+  sessionUnavailable: 'Could not restore the session. Try again or sign in.',
 };
 const editorial = {
   bg: {
@@ -44,6 +45,7 @@ const editorial = {
     outboxAwaiting: 'Очаква се фискален резултат', outboxUncertain: 'Резултатът е неясен — проверете преди повторение',
     outboxFailed: 'Фискалната операция е неуспешна', outboxPendingSync: 'Фискализирано локално — очаква синхронизация',
     outboxSynced: 'Синхронизирано със сървъра', outboxFiscalized: 'Фискализирано', outboxRefresh: 'Обнови списъка',
+    sessionUnavailable: 'Сесията не може да се възстанови. Опитайте отново или влезте.',
   },
   ru: {
     settings: 'Настройки', diagnostics: 'Диагностика', printerTest: 'Проверка принтера',
@@ -61,6 +63,7 @@ const editorial = {
     outboxAwaiting: 'Ожидается фискальный результат', outboxUncertain: 'Результат неизвестен — проверьте перед повтором',
     outboxFailed: 'Фискальная операция завершилась ошибкой', outboxPendingSync: 'Фискализировано локально — ожидает синхронизации',
     outboxSynced: 'Синхронизировано с сервером', outboxFiscalized: 'Фискализировано', outboxRefresh: 'Обновить список',
+    sessionUnavailable: 'Не удалось восстановить сеанс. Повторите попытку или войдите снова.',
   },
 };
 const languageNames = {

@@ -210,6 +210,31 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"app-products-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "16.5pt (22px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -383,6 +408,18 @@
         }
       ],
       "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(233, 225, 240)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.674,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
         {
           "target": ".css-view-g5y9jx:nth-child(1) > h1",
           "status": "manual-review",
@@ -3209,6 +3246,31 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"app-products-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "16.5pt (22px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -3382,6 +3444,18 @@
         }
       ],
       "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(68, 58, 76)",
+          "contrastCandidate": 8.38,
+          "dominantShare": 0.694,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
         {
           "target": ".css-view-g5y9jx:nth-child(1) > h1",
           "status": "manual-review",
@@ -4184,6 +4258,31 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"app-products-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "16.5pt (22px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -4357,6 +4456,18 @@
         }
       ],
       "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(233, 225, 240)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.694,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
         {
           "target": ".css-view-g5y9jx:nth-child(1) > h1",
           "status": "manual-review",
@@ -4616,6 +4727,31 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"app-employees-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "16.5pt (22px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -4839,6 +4975,18 @@
         }
       ],
       "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(233, 225, 240)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.68,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
         {
           "target": ".css-view-g5y9jx:nth-child(1) > h1",
           "status": "manual-review",
@@ -5122,6 +5270,31 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"app-products-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "16.5pt (22px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -5295,6 +5468,18 @@
         }
       ],
       "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(68, 58, 76)",
+          "contrastCandidate": 8.38,
+          "dominantShare": 0.694,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
         {
           "target": ".css-view-g5y9jx:nth-child(1) > h1",
           "status": "manual-review",

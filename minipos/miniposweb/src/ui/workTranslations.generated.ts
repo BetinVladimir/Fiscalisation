@@ -53,7 +53,8 @@ export const translations = {
     "outboxPendingSync": "Фискализирано локално — очаква синхронизация",
     "outboxSynced": "Синхронизирано със сървъра",
     "outboxFiscalized": "Фискализирано",
-    "outboxRefresh": "Обнови списъка"
+    "outboxRefresh": "Обнови списъка",
+    "sessionUnavailable": "Сесията не може да се възстанови. Опитайте отново или влезте."
   },
   "hr": {
     "sales": "Prodaja",
@@ -106,7 +107,8 @@ export const translations = {
     "outboxPendingSync": "Fiskalizirano lokalno — čeka se sinkronizacija",
     "outboxSynced": "Sinkronizirano s poslužiteljem",
     "outboxFiscalized": "Fiskalizirano",
-    "outboxRefresh": "Osvježi popis"
+    "outboxRefresh": "Osvježi popis",
+    "sessionUnavailable": "Nije moguće obnoviti sesiju. Pokušajte ponovno ili se prijavite."
   },
   "cs": {
     "sales": "Prodej",
@@ -159,7 +161,8 @@ export const translations = {
     "outboxPendingSync": "Daňová evidence lokálně – čeká se na synchronizaci",
     "outboxSynced": "Synchronizováno se serverem",
     "outboxFiscalized": "Daňově evidováno",
-    "outboxRefresh": "Obnovit seznam"
+    "outboxRefresh": "Obnovit seznam",
+    "sessionUnavailable": "Nelze obnovit relaci. Zkuste to znovu nebo se přihlaste."
   },
   "da": {
     "sales": "Salg",
@@ -212,7 +215,8 @@ export const translations = {
     "outboxPendingSync": "Lokalt registreret – venter på synkronisering",
     "outboxSynced": "Synkroniseret med serveren",
     "outboxFiscalized": "Registreret skattemæssigt",
-    "outboxRefresh": "Opdater liste"
+    "outboxRefresh": "Opdater liste",
+    "sessionUnavailable": "Kunne ikke genoprette sessionen. Prøv igen eller log ind."
   },
   "nl": {
     "sales": "Verkoop",
@@ -265,7 +269,8 @@ export const translations = {
     "outboxPendingSync": "Lokaal gefiscaliseerd — wachten op synchronisatie",
     "outboxSynced": "Gesynchroniseerd met de server",
     "outboxFiscalized": "Gefiscaliseerd",
-    "outboxRefresh": "Lijst vernieuwen"
+    "outboxRefresh": "Lijst vernieuwen",
+    "sessionUnavailable": "Sessie niet hersteld. Probeer opnieuw of meld u aan."
   },
   "en": {
     "sales": "Sales",
@@ -318,7 +323,8 @@ export const translations = {
     "outboxPendingSync": "Fiscalized locally — waiting to sync",
     "outboxSynced": "Synced with the server",
     "outboxFiscalized": "Fiscalized",
-    "outboxRefresh": "Refresh list"
+    "outboxRefresh": "Refresh list",
+    "sessionUnavailable": "Could not restore the session. Try again or sign in."
   },
   "et": {
     "sales": "Müügid",
@@ -371,7 +377,8 @@ export const translations = {
     "outboxPendingSync": "Majandustatud kohalikus režiimis – ootame sünkroniseerimist",
     "outboxSynced": "Sünkroniseeritud serveriga",
     "outboxFiscalized": "Majandustatud",
-    "outboxRefresh": "Värskenda loend"
+    "outboxRefresh": "Värskenda loend",
+    "sessionUnavailable": "Seanssi taastamine ebaõnnestus. Proovi uuesti või sisse logi."
   },
   "fi": {
     "sales": "Myynnit",
@@ -424,7 +431,8 @@ export const translations = {
     "outboxPendingSync": "Verotettu paikallisesti – odotetaan synkronointia",
     "outboxSynced": "Synkronoitu palvelimen kanssa",
     "outboxFiscalized": "Verotettu",
-    "outboxRefresh": "Päivitä lista"
+    "outboxRefresh": "Päivitä lista",
+    "sessionUnavailable": "Istuntoa ei voitu palauttaa. Yritä uudelleen tai kirjaudu sisään."
   },
   "fr": {
     "sales": "Ventes",
@@ -477,7 +485,8 @@ export const translations = {
     "outboxPendingSync": "Fiscalisé localement — en attente de synchronisation",
     "outboxSynced": "Synchronisé avec le serveur",
     "outboxFiscalized": "Fiscalisé",
-    "outboxRefresh": "Actualiser la liste"
+    "outboxRefresh": "Actualiser la liste",
+    "sessionUnavailable": "Impossible de restaurer la session. Réessayez ou connectez-vous."
   },
   "de": {
     "sales": "Verkäufe",
@@ -530,7 +539,8 @@ export const translations = {
     "outboxPendingSync": "Lokal fiskalisiert — Synchronisierung ausstehend",
     "outboxSynced": "Mit dem Server synchronisiert",
     "outboxFiscalized": "Fiskalisiert",
-    "outboxRefresh": "Liste aktualisieren"
+    "outboxRefresh": "Liste aktualisieren",
+    "sessionUnavailable": "Sitzung konnte nicht wiederhergestellt werden. Bitte erneut versuchen oder anmelden."
   },
   "el": {
     "sales": "Πωλήσεις",
@@ -583,7 +593,8 @@ export const translations = {
     "outboxPendingSync": "Φορολογικά τοπικά — αναμονή συγχρονισμού",
     "outboxSynced": "Συγχρονισμένο με τον διακομιστή",
     "outboxFiscalized": "Φορολογημένο",
-    "outboxRefresh": "Ανανέωση λίστας"
+    "outboxRefresh": "Ανανέωση λίστας",
+    "sessionUnavailable": "Δεν ήταν δυνατή η αποκατάσταση της συνεδρίας. Δοκιμάστε ξανά ή συνδεθείτε."
   },
   "hu": {
     "sales": "Eladások",
@@ -636,7 +647,8 @@ export const translations = {
     "outboxPendingSync": "Helyileg adózva – szinkronizáció várása",
     "outboxSynced": "Szinkronizálva a szerverrel",
     "outboxFiscalized": "Adózva",
-    "outboxRefresh": "Lista frissítése"
+    "outboxRefresh": "Lista frissítése",
+    "sessionUnavailable": "A munkamenet helyreállítása nem sikerült. Próbálja újra vagy jelentkezzen be."
   },
   "ga": {
     "sales": "Sálais",
@@ -689,7 +701,8 @@ export const translations = {
     "outboxPendingSync": "Fiscalaithe go háitiúil — ag fanacht le síneadh",
     "outboxSynced": "Sínithe leis an gserver",
     "outboxFiscalized": "Fiscalaithe",
-    "outboxRefresh": "Athnuaigh an liosta"
+    "outboxRefresh": "Athnuaigh an liosta",
+    "sessionUnavailable": "Níor éirigh le cur ar ais an seisiún. Déan iarracht eile nó logáil isteach."
   },
   "it": {
     "sales": "Vendite",
@@ -742,7 +755,8 @@ export const translations = {
     "outboxPendingSync": "Fiscalizzato localmente — in attesa di sincronizzazione",
     "outboxSynced": "Sincronizzato con il server",
     "outboxFiscalized": "Fiscalizzato",
-    "outboxRefresh": "Aggiorna elenco"
+    "outboxRefresh": "Aggiorna elenco",
+    "sessionUnavailable": "Non è stato possibile ripristinare la sessione. Riprova o effettua l'accesso."
   },
   "lv": {
     "sales": "Pārdoti preces",
@@ -795,7 +809,8 @@ export const translations = {
     "outboxPendingSync": "Fiskalizēts lokāli — gaidīts sinhronizēšana",
     "outboxSynced": "Sinhronizēts ar serveri",
     "outboxFiscalized": "Fiskalizēts",
-    "outboxRefresh": "Atjaunot sarakstu"
+    "outboxRefresh": "Atjaunot sarakstu",
+    "sessionUnavailable": "Sesiju nevarēja atjaunot. Mēģiniet vēlreiz vai piesakieties."
   },
   "lt": {
     "sales": "Pardavimai",
@@ -848,7 +863,8 @@ export const translations = {
     "outboxPendingSync": "Fiskalizavima lokaliai – laukiama sinchronizacijos",
     "outboxSynced": "Sinchronizuota su serveriu",
     "outboxFiscalized": "Fiskalizavimas atliktas",
-    "outboxRefresh": "Atnaujinti sąrašą"
+    "outboxRefresh": "Atnaujinti sąrašą",
+    "sessionUnavailable": "Sesijos atkūrimas nepavyko. Bandykite dar kartą arba prisijunkite."
   },
   "mt": {
     "sales": "Bajjiet",
@@ -901,7 +917,8 @@ export const translations = {
     "outboxPendingSync": "Fiskalizzat lokalkament — qed jistenna biex jiġi ssinkronizzat",
     "outboxSynced": "Ssinkronizzat mal-server",
     "outboxFiscalized": "Fiskalizzat",
-    "outboxRefresh": "Iffreska l-lista"
+    "outboxRefresh": "Iffreska l-lista",
+    "sessionUnavailable": "Ma kienx tista' tiġbor is-sessjoni. Ipprova mill-ġdid jew iddaħħal l-akkont tiegħek."
   },
   "pl": {
     "sales": "Sprzedaż",
@@ -954,7 +971,8 @@ export const translations = {
     "outboxPendingSync": "Sfiskalizowane lokalnie — oczekiwanie na synchronizację",
     "outboxSynced": "Zasynchronizowano z serwerem",
     "outboxFiscalized": "Sfiskalizowane",
-    "outboxRefresh": "Odśwież listę"
+    "outboxRefresh": "Odśwież listę",
+    "sessionUnavailable": "Nie można przywrócić sesji. Spróbuj ponownie lub zaloguj się."
   },
   "pt": {
     "sales": "Vendas",
@@ -1007,7 +1025,8 @@ export const translations = {
     "outboxPendingSync": "Fiscalizado localmente — aguardando sincronização",
     "outboxSynced": "Sincronizado com o servidor",
     "outboxFiscalized": "Fiscalizado",
-    "outboxRefresh": "Atualizar lista"
+    "outboxRefresh": "Atualizar lista",
+    "sessionUnavailable": "Não foi possível restaurar a sessão. Tente novamente ou faça login."
   },
   "ro": {
     "sales": "Vânzări",
@@ -1060,7 +1079,8 @@ export const translations = {
     "outboxPendingSync": "Fiscalizat local — se așteaptă sincronizarea",
     "outboxSynced": "Sincronizat cu serverul",
     "outboxFiscalized": "Fiscalizat",
-    "outboxRefresh": "Reîmprospătare listă"
+    "outboxRefresh": "Reîmprospătare listă",
+    "sessionUnavailable": "Nu s-a putut restaura sesiunea. Reîncercați sau autentificați-vă."
   },
   "sk": {
     "sales": "Predaje",
@@ -1113,7 +1133,8 @@ export const translations = {
     "outboxPendingSync": "Daňovo spracované lokálne – čaká sa na synchronizáciu",
     "outboxSynced": "Synchronizované so serverom",
     "outboxFiscalized": "Daňovo spracované",
-    "outboxRefresh": "Obnoviť zoznam"
+    "outboxRefresh": "Obnoviť zoznam",
+    "sessionUnavailable": "Nedá sa obnoviť relácia. Skúste to znova alebo sa prihláste."
   },
   "sl": {
     "sales": "Prodaja",
@@ -1166,7 +1187,8 @@ export const translations = {
     "outboxPendingSync": "Fiskalizirano lokalno – čakanje na sinhronizacijo",
     "outboxSynced": "Sinhronizirano s strežnikom",
     "outboxFiscalized": "Fiskalizirano",
-    "outboxRefresh": "Osveži seznam"
+    "outboxRefresh": "Osveži seznam",
+    "sessionUnavailable": "Sesija ni bila obnovljena. Poskusite znova ali se prijavite."
   },
   "es": {
     "sales": "Ventas",
@@ -1219,7 +1241,8 @@ export const translations = {
     "outboxPendingSync": "Fiscalizado localmente — esperando sincronización",
     "outboxSynced": "Sincronizado con el servidor",
     "outboxFiscalized": "Fiscalizado",
-    "outboxRefresh": "Actualizar lista"
+    "outboxRefresh": "Actualizar lista",
+    "sessionUnavailable": "No se pudo restaurar la sesión. Intente de nuevo o inicie sesión."
   },
   "sv": {
     "sales": "Försäljning",
@@ -1272,7 +1295,8 @@ export const translations = {
     "outboxPendingSync": "Skattelokaliserad – väntar på synkronisering",
     "outboxSynced": "Synkroniserad med servern",
     "outboxFiscalized": "Skattelokaliserad",
-    "outboxRefresh": "Uppdatera lista"
+    "outboxRefresh": "Uppdatera lista",
+    "sessionUnavailable": "Kunde inte återställa sessionen. Försök igen eller logga in."
   },
   "ru": {
     "sales": "Продажи",
@@ -1325,6 +1349,7 @@ export const translations = {
     "outboxPendingSync": "Фискализировано локально — ожидает синхронизации",
     "outboxSynced": "Синхронизировано с сервером",
     "outboxFiscalized": "Фискализировано",
-    "outboxRefresh": "Обновить список"
+    "outboxRefresh": "Обновить список",
+    "sessionUnavailable": "Не удалось восстановить сеанс. Повторите попытку или войдите снова."
   }
 } as const;

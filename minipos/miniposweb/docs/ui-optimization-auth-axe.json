@@ -8235,7 +8235,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.485,
+          "dominantShare": 0.489,
           "fontSize": "24px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -8259,7 +8259,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(13, 10, 18)",
           "contrastCandidate": 15.74,
-          "dominantShare": 0.611,
+          "dominantShare": 0.62,
           "fontSize": "16px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."

@@ -11,7 +11,7 @@
     "translations:sync-auth": "node scripts/sync-auth-translations.mjs",
     "translations:sync-work": "node scripts/sync-work-translations.mjs",
     "test:e2e": "playwright test",
-    "e2e:wcag": "playwright test e2e/auth-wcag.spec.ts e2e/management-wcag.spec.ts e2e/sale-wcag.spec.ts e2e/outbox.spec.ts",
+    "e2e:wcag": "playwright test e2e/auth-wcag.spec.ts e2e/management-wcag.spec.ts e2e/sale-wcag.spec.ts e2e/outbox.spec.ts e2e/session-recovery.spec.ts",
     "ui:manifest": "node scripts/check-ui-manifest.mjs --structure-only",
     "ui:check": "node scripts/check-ui-manifest.mjs"
   },

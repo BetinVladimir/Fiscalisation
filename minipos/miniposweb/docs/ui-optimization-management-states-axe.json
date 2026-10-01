@@ -136,6 +136,31 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"app-products-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -184,6 +209,18 @@
         }
       ],
       "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(221, 213, 228)",
+          "contrastCandidate": 11.3,
+          "dominantShare": 0.674,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
         {
           "target": ".r-fontSize-1enofrn",
           "status": "manual-review",

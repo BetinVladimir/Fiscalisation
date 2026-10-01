@@ -32,7 +32,8 @@
     "outboxPendingSync": "Fiscalized locally — waiting to sync",
     "outboxSynced": "Synced with the server",
     "outboxFiscalized": "Fiscalized",
-    "outboxRefresh": "Refresh list"
+    "outboxRefresh": "Refresh list",
+    "sessionUnavailable": "Could not restore the session. Try again or sign in."
   },
   "bg": {
     "settings": "Настройки",
@@ -67,7 +68,8 @@
     "outboxPendingSync": "Фискализирано локално — очаква синхронизация",
     "outboxSynced": "Синхронизирано със сървъра",
     "outboxFiscalized": "Фискализирано",
-    "outboxRefresh": "Обнови списъка"
+    "outboxRefresh": "Обнови списъка",
+    "sessionUnavailable": "Сесията не може да се възстанови. Опитайте отново или влезте."
   },
   "ru": {
     "settings": "Настройки",
@@ -102,7 +104,8 @@
     "outboxPendingSync": "Фискализировано локально — ожидает синхронизации",
     "outboxSynced": "Синхронизировано с сервером",
     "outboxFiscalized": "Фискализировано",
-    "outboxRefresh": "Обновить список"
+    "outboxRefresh": "Обновить список",
+    "sessionUnavailable": "Не удалось восстановить сеанс. Повторите попытку или войдите снова."
   },
   "hr": {
     "settings": "Postavke",
@@ -137,7 +140,8 @@
     "outboxPendingSync": "Fiskalizirano lokalno — čeka se sinkronizacija",
     "outboxSynced": "Sinkronizirano s poslužiteljem",
     "outboxFiscalized": "Fiskalizirano",
-    "outboxRefresh": "Osvježi popis"
+    "outboxRefresh": "Osvježi popis",
+    "sessionUnavailable": "Nije moguće obnoviti sesiju. Pokušajte ponovno ili se prijavite."
   },
   "cs": {
     "settings": "Nastavení",
@@ -172,7 +176,8 @@
     "outboxPendingSync": "Daňová evidence lokálně – čeká se na synchronizaci",
     "outboxSynced": "Synchronizováno se serverem",
     "outboxFiscalized": "Daňově evidováno",
-    "outboxRefresh": "Obnovit seznam"
+    "outboxRefresh": "Obnovit seznam",
+    "sessionUnavailable": "Nelze obnovit relaci. Zkuste to znovu nebo se přihlaste."
   },
   "da": {
     "settings": "Indstillinger",
@@ -207,7 +212,8 @@
     "outboxPendingSync": "Lokalt registreret – venter på synkronisering",
     "outboxSynced": "Synkroniseret med serveren",
     "outboxFiscalized": "Registreret skattemæssigt",
-    "outboxRefresh": "Opdater liste"
+    "outboxRefresh": "Opdater liste",
+    "sessionUnavailable": "Kunne ikke genoprette sessionen. Prøv igen eller log ind."
   },
   "nl": {
     "settings": "Instellingen",
@@ -242,7 +248,8 @@
     "outboxPendingSync": "Lokaal gefiscaliseerd — wachten op synchronisatie",
     "outboxSynced": "Gesynchroniseerd met de server",
     "outboxFiscalized": "Gefiscaliseerd",
-    "outboxRefresh": "Lijst vernieuwen"
+    "outboxRefresh": "Lijst vernieuwen",
+    "sessionUnavailable": "Sessie niet hersteld. Probeer opnieuw of meld u aan."
   },
   "et": {
     "settings": "Seadistused",
@@ -277,7 +284,8 @@
     "outboxPendingSync": "Majandustatud kohalikus režiimis – ootame sünkroniseerimist",
     "outboxSynced": "Sünkroniseeritud serveriga",
     "outboxFiscalized": "Majandustatud",
-    "outboxRefresh": "Värskenda loend"
+    "outboxRefresh": "Värskenda loend",
+    "sessionUnavailable": "Seanssi taastamine ebaõnnestus. Proovi uuesti või sisse logi."
   },
   "fi": {
     "settings": "Asetukset",
@@ -312,7 +320,8 @@
     "outboxPendingSync": "Verotettu paikallisesti – odotetaan synkronointia",
     "outboxSynced": "Synkronoitu palvelimen kanssa",
     "outboxFiscalized": "Verotettu",
-    "outboxRefresh": "Päivitä lista"
+    "outboxRefresh": "Päivitä lista",
+    "sessionUnavailable": "Istuntoa ei voitu palauttaa. Yritä uudelleen tai kirjaudu sisään."
   },
   "fr": {
     "settings": "Paramètres",
@@ -347,7 +356,8 @@
     "outboxPendingSync": "Fiscalisé localement — en attente de synchronisation",
     "outboxSynced": "Synchronisé avec le serveur",
     "outboxFiscalized": "Fiscalisé",
-    "outboxRefresh": "Actualiser la liste"
+    "outboxRefresh": "Actualiser la liste",
+    "sessionUnavailable": "Impossible de restaurer la session. Réessayez ou connectez-vous."
   },
   "de": {
     "settings": "Einstellungen",
@@ -382,7 +392,8 @@
     "outboxPendingSync": "Lokal fiskalisiert — Synchronisierung ausstehend",
     "outboxSynced": "Mit dem Server synchronisiert",
     "outboxFiscalized": "Fiskalisiert",
-    "outboxRefresh": "Liste aktualisieren"
+    "outboxRefresh": "Liste aktualisieren",
+    "sessionUnavailable": "Sitzung konnte nicht wiederhergestellt werden. Bitte erneut versuchen oder anmelden."
   },
   "el": {
     "settings": "Ρυθμίσεις",
@@ -417,7 +428,8 @@
     "outboxPendingSync": "Φορολογικά τοπικά — αναμονή συγχρονισμού",
     "outboxSynced": "Συγχρονισμένο με τον διακομιστή",
     "outboxFiscalized": "Φορολογημένο",
-    "outboxRefresh": "Ανανέωση λίστας"
+    "outboxRefresh": "Ανανέωση λίστας",
+    "sessionUnavailable": "Δεν ήταν δυνατή η αποκατάσταση της συνεδρίας. Δοκιμάστε ξανά ή συνδεθείτε."
   },
   "hu": {
     "settings": "Beállítások",
@@ -452,7 +464,8 @@
     "outboxPendingSync": "Helyileg adózva – szinkronizáció várása",
     "outboxSynced": "Szinkronizálva a szerverrel",
     "outboxFiscalized": "Adózva",
-    "outboxRefresh": "Lista frissítése"
+    "outboxRefresh": "Lista frissítése",
+    "sessionUnavailable": "A munkamenet helyreállítása nem sikerült. Próbálja újra vagy jelentkezzen be."
   },
   "ga": {
     "settings": "Socairteacha",
@@ -487,7 +500,8 @@
     "outboxPendingSync": "Fiscalaithe go háitiúil — ag fanacht le síneadh",
     "outboxSynced": "Sínithe leis an gserver",
     "outboxFiscalized": "Fiscalaithe",
-    "outboxRefresh": "Athnuaigh an liosta"
+    "outboxRefresh": "Athnuaigh an liosta",
+    "sessionUnavailable": "Níor éirigh le cur ar ais an seisiún. Déan iarracht eile nó logáil isteach."
   },
   "it": {
     "settings": "Impostazioni",
@@ -522,7 +536,8 @@
     "outboxPendingSync": "Fiscalizzato localmente — in attesa di sincronizzazione",
     "outboxSynced": "Sincronizzato con il server",
     "outboxFiscalized": "Fiscalizzato",
-    "outboxRefresh": "Aggiorna elenco"
+    "outboxRefresh": "Aggiorna elenco",
+    "sessionUnavailable": "Non è stato possibile ripristinare la sessione. Riprova o effettua l'accesso."
   },
   "lv": {
     "settings": "Iestatījumi",
@@ -557,7 +572,8 @@
     "outboxPendingSync": "Fiskalizēts lokāli — gaidīts sinhronizēšana",
     "outboxSynced": "Sinhronizēts ar serveri",
     "outboxFiscalized": "Fiskalizēts",
-    "outboxRefresh": "Atjaunot sarakstu"
+    "outboxRefresh": "Atjaunot sarakstu",
+    "sessionUnavailable": "Sesiju nevarēja atjaunot. Mēģiniet vēlreiz vai piesakieties."
   },
   "lt": {
     "settings": "Nustatymai",
@@ -592,7 +608,8 @@
     "outboxPendingSync": "Fiskalizavima lokaliai – laukiama sinchronizacijos",
     "outboxSynced": "Sinchronizuota su serveriu",
     "outboxFiscalized": "Fiskalizavimas atliktas",
-    "outboxRefresh": "Atnaujinti sąrašą"
+    "outboxRefresh": "Atnaujinti sąrašą",
+    "sessionUnavailable": "Sesijos atkūrimas nepavyko. Bandykite dar kartą arba prisijunkite."
   },
   "mt": {
     "settings": "Impostazzjonijiet",
@@ -627,7 +644,8 @@
     "outboxPendingSync": "Fiskalizzat lokalkament — qed jistenna biex jiġi ssinkronizzat",
     "outboxSynced": "Ssinkronizzat mal-server",
     "outboxFiscalized": "Fiskalizzat",
-    "outboxRefresh": "Iffreska l-lista"
+    "outboxRefresh": "Iffreska l-lista",
+    "sessionUnavailable": "Ma kienx tista' tiġbor is-sessjoni. Ipprova mill-ġdid jew iddaħħal l-akkont tiegħek."
   },
   "pl": {
     "settings": "Ustawienia",
@@ -662,7 +680,8 @@
     "outboxPendingSync": "Sfiskalizowane lokalnie — oczekiwanie na synchronizację",
     "outboxSynced": "Zasynchronizowano z serwerem",
     "outboxFiscalized": "Sfiskalizowane",
-    "outboxRefresh": "Odśwież listę"
+    "outboxRefresh": "Odśwież listę",
+    "sessionUnavailable": "Nie można przywrócić sesji. Spróbuj ponownie lub zaloguj się."
   },
   "pt": {
     "settings": "Configurações",
@@ -697,7 +716,8 @@
     "outboxPendingSync": "Fiscalizado localmente — aguardando sincronização",
     "outboxSynced": "Sincronizado com o servidor",
     "outboxFiscalized": "Fiscalizado",
-    "outboxRefresh": "Atualizar lista"
+    "outboxRefresh": "Atualizar lista",
+    "sessionUnavailable": "Não foi possível restaurar a sessão. Tente novamente ou faça login."
   },
   "ro": {
     "settings": "Setări",
@@ -732,7 +752,8 @@
     "outboxPendingSync": "Fiscalizat local — se așteaptă sincronizarea",
     "outboxSynced": "Sincronizat cu serverul",
     "outboxFiscalized": "Fiscalizat",
-    "outboxRefresh": "Reîmprospătare listă"
+    "outboxRefresh": "Reîmprospătare listă",
+    "sessionUnavailable": "Nu s-a putut restaura sesiunea. Reîncercați sau autentificați-vă."
   },
   "sk": {
     "settings": "Nastavenia",
@@ -767,7 +788,8 @@
     "outboxPendingSync": "Daňovo spracované lokálne – čaká sa na synchronizáciu",
     "outboxSynced": "Synchronizované so serverom",
     "outboxFiscalized": "Daňovo spracované",
-    "outboxRefresh": "Obnoviť zoznam"
+    "outboxRefresh": "Obnoviť zoznam",
+    "sessionUnavailable": "Nedá sa obnoviť relácia. Skúste to znova alebo sa prihláste."
   },
   "sl": {
     "settings": "Nastavitve",
@@ -802,7 +824,8 @@
     "outboxPendingSync": "Fiskalizirano lokalno – čakanje na sinhronizacijo",
     "outboxSynced": "Sinhronizirano s strežnikom",
     "outboxFiscalized": "Fiskalizirano",
-    "outboxRefresh": "Osveži seznam"
+    "outboxRefresh": "Osveži seznam",
+    "sessionUnavailable": "Sesija ni bila obnovljena. Poskusite znova ali se prijavite."
   },
   "es": {
     "settings": "Configuración",
@@ -837,7 +860,8 @@
     "outboxPendingSync": "Fiscalizado localmente — esperando sincronización",
     "outboxSynced": "Sincronizado con el servidor",
     "outboxFiscalized": "Fiscalizado",
-    "outboxRefresh": "Actualizar lista"
+    "outboxRefresh": "Actualizar lista",
+    "sessionUnavailable": "No se pudo restaurar la sesión. Intente de nuevo o inicie sesión."
   },
   "sv": {
     "settings": "Inställningar",
@@ -872,6 +896,7 @@
     "outboxPendingSync": "Skattelokaliserad – väntar på synkronisering",
     "outboxSynced": "Synkroniserad med servern",
     "outboxFiscalized": "Skattelokaliserad",
-    "outboxRefresh": "Uppdatera lista"
+    "outboxRefresh": "Uppdatera lista",
+    "sessionUnavailable": "Kunde inte återställa sessionen. Försök igen eller logga in."
   }
 }

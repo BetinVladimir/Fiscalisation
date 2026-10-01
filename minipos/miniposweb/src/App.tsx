@@ -516,11 +516,12 @@ export default function App() {
     }
   }
   if (!accessToken) return <AuthFlow backend={backend} onAuthenticated={(tokens)=>setAccessToken(tokens.access_token)} />;
-  if (!session) return <main><Card mode="outlined"><Card.Content style={{ gap: 12 }}>
+  if (!session) return <main><Card mode="outlined" testID="session-recovery" style={{ width: "100%", maxWidth: 480, alignSelf: "center", marginTop: 40 }}><Card.Content style={{ gap: 12 }}>
     <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
-    <PaperText variant="bodyMedium">{message === "OFFLINE_REFERENCE" ? t.offlineReference : message === "CLOUD_PREPARE_UNAVAILABLE" ? t.cloudPrepareUnavailable : message || t.loading}</PaperText>
-    <PaperButton mode="contained" loading={busy} disabled={busy} onPress={()=>void login()}>{t.retry}</PaperButton>
-    <PaperButton mode="outlined" onPress={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}}>{t.logout}</PaperButton>
+    <PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="session" />
+    <PaperText variant="bodyMedium" accessibilityLiveRegion="polite" testID="session-status">{message === "OFFLINE_REFERENCE" ? t.offlineReference : message === "CLOUD_PREPARE_UNAVAILABLE" ? t.cloudPrepareUnavailable : message ? t.sessionUnavailable : t.loading}</PaperText>
+    <PaperButton mode="contained" loading={busy} disabled={busy} onPress={()=>void login()} testID="session-retry">{t.retry}</PaperButton>
+    <PaperButton mode="outlined" onPress={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}} testID="session-logout">{t.logout}</PaperButton>
   </Card.Content></Card></main>;
   return (
     <main>

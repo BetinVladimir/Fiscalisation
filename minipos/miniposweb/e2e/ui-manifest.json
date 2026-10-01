@@ -44,12 +44,12 @@
       "source": "src/App.tsx",
       "entryAction": "Store a token and mock session GET 401",
       "role": "operator",
-      "fixture": "e2e/shift.spec.ts:session expired",
+      "fixture": "e2e/session-recovery.spec.ts:session HTTP 503",
       "expectedScreenTestId": "session-recovery",
       "states": ["loading", "error", "retry", "logout"],
-      "status": "open",
-      "evidence": ["e2e/shift.spec.ts"],
-      "openGates": ["screen-test-id", "wcag-matrix", "manual-contrast", "native-screen-reader"]
+      "status": "partial",
+      "evidence": ["e2e/shift.spec.ts", "e2e/session-recovery.spec.ts", "docs/ui-optimization-session-recovery-axe.json"],
+      "openGates": ["loading-wcag", "manual-contrast", "keyboard-200-percent", "native-screen-reader"]
     },
     {
       "id": "shift/open",
