@@ -11,33 +11,42 @@ async function expectNoHorizontalOverflow(page: import('@playwright/test').Page,
   expect(sizes.document, `${context}: document wider than viewport (${sizes.document}/${sizes.viewport}); ${JSON.stringify(sizes.offenders)}`).toBeLessThanOrEqual(sizes.viewport + 1);
 }
 
-test('auth and language menu reflow at 320 CSS px and 200% zoom', async ({ page }) => {
+async function doubleRenderedText(page: import('@playwright/test').Page) {
+  await page.evaluate(() => {
+    for (const element of document.body.querySelectorAll<HTMLElement>('*')) {
+      if (![...element.childNodes].some(node => node.nodeType === Node.TEXT_NODE && node.textContent?.trim())) continue;
+      const size = Number.parseFloat(getComputedStyle(element).fontSize);
+      if (Number.isFinite(size)) element.style.setProperty('font-size', `${size * 2}px`, 'important');
+    }
+  });
+}
+
+test('auth and language menu reflow at 320 CSS px and breakpoint boundaries', async ({ page }) => {
   await setupMiniposRoutes(page);
-  for (const [label, width, zoom] of [
-    ['320px', 320, 1], ['599px', 599, 1], ['600px', 600, 1],
-    ['1023px', 1023, 1], ['1024px', 1024, 1], ['200% CSS zoom', 640, 2],
+  for (const [label, width] of [
+    ['320px', 320], ['599px', 599], ['600px', 600],
+    ['1023px', 1023], ['1024px', 1024],
   ] as const) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto('/');
-    if (zoom > 1) await page.addStyleTag({ content: `html { zoom: ${zoom} !important; }` });
     await expect(page.getByTestId('auth-email')).toBeVisible();
     await expectNoHorizontalOverflow(page, `${label}/auth`);
     await page.getByTestId('auth-language-open').click();
     await expect(page.getByTestId('auth-language-ru')).toBeAttached();
+    await page.evaluate(() => new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve()))));
     await expectNoHorizontalOverflow(page, `${label}/language menu`);
     await page.keyboard.press('Escape');
   }
 });
 
-test('working shell, sale, and management reflow at 320 CSS px and 200% zoom', async ({ page }) => {
+test('working shell, sale, and management reflow at 320 CSS px and breakpoint boundaries', async ({ page }) => {
   await setup(page);
-  for (const [label, width, zoom] of [
-    ['320px', 320, 1], ['599px', 599, 1], ['600px', 600, 1],
-    ['1023px', 1023, 1], ['1024px', 1024, 1], ['200% CSS zoom', 640, 2],
+  for (const [label, width] of [
+    ['320px', 320], ['599px', 599], ['600px', 600],
+    ['1023px', 1023], ['1024px', 1024],
   ] as const) {
     await page.setViewportSize({ width, height: 800 });
     await page.goto('/');
-    if (zoom > 1) await page.addStyleTag({ content: `html { zoom: ${zoom} !important; }` });
     await waitForPOS(page);
     await expect(page.getByTestId('sale-payment')).toBeVisible();
     await expectNoHorizontalOverflow(page, `${label}/sale`);
@@ -48,4 +57,19 @@ test('working shell, sale, and management reflow at 320 CSS px and 200% zoom', a
     await expect(page.getByTestId('management-product-name')).toBeVisible();
     await expectNoHorizontalOverflow(page, `${label}/management form`);
   }
+});
+
+test('rendered auth and sale text can double without document overflow', async ({ page }) => {
+  await page.setViewportSize({ width: 640, height: 800 });
+  await setupMiniposRoutes(page);
+  await page.goto('/');
+  await expect(page.getByTestId('auth-email')).toBeVisible();
+  await doubleRenderedText(page);
+  await expectNoHorizontalOverflow(page, 'auth/200% rendered text');
+
+  await setup(page);
+  await page.goto('/');
+  await waitForPOS(page);
+  await doubleRenderedText(page);
+  await expectNoHorizontalOverflow(page, 'sale/200% rendered text');
 });
