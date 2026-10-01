@@ -157,7 +157,7 @@
       "states": ["empty", "loading", "awaiting-result", "pending-sync", "UNKNOWN", "failed", "fiscalized", "synced", "load-error"],
       "status": "partial",
       "evidence": ["e2e/offline.spec.ts", "e2e/outbox.spec.ts", "docs/ui-optimization-outbox-axe.json"],
-      "openGates": ["loading-wcag", "real-offline-recovery-e2e", "manual-contrast", "full-keyboard-and-200-percent", "native-screen-reader"]
+      "openGates": ["loading-wcag", "physical-device-and-network-recovery", "manual-contrast", "full-keyboard-and-200-percent", "native-screen-reader"]
     },
     {
       "id": "settings/diagnostics",
