@@ -24,10 +24,10 @@ import type {
 import "./styles.css";
 import { AuthFlow } from "./AuthFlow";
 import { Management } from "./Management";
-import { Button as PaperButton, Surface, Text as PaperText, useTheme } from "react-native-paper";
+import { Button as PaperButton, Card, HelperText, Surface, Text as PaperText, useTheme } from "react-native-paper";
 import { PreferenceControls, readLanguage, type Language } from "./ui/PreferenceControls";
+import { PaymentPanel, ProductGrid, type CartLine } from "./SalePanels";
 
-type CartLine = { product: Product; quantity: number; discount: number };
 const appInstance =
   localStorage.getItem("app-instance-id") ?? crypto.randomUUID();
 localStorage.setItem("app-instance-id", appInstance);
@@ -475,7 +475,12 @@ export default function App() {
     }
   }
   if (!accessToken) return <AuthFlow backend={backend} onAuthenticated={(tokens)=>setAccessToken(tokens.access_token)} />;
-  if (!session) return <main><section><h1>Bee MiniPOS Web</h1><p>{message || "Зареждане…"}</p><button onClick={()=>void login()} disabled={busy}>Повтори</button><button className="secondary" onClick={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}}>Изход</button></section></main>;
+  if (!session) return <main><Card mode="outlined"><Card.Content style={{ gap: 12 }}>
+    <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
+    <PaperText variant="bodyMedium">{message || "Зареждане…"}</PaperText>
+    <PaperButton mode="contained" loading={busy} disabled={busy} onPress={()=>void login()}>Повтори</PaperButton>
+    <PaperButton mode="outlined" onPress={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}}>Изход</PaperButton>
+  </Card.Content></Card></main>;
   return (
     <main>
       <Surface elevation={1} style={{ padding: 12, borderRadius: 12, backgroundColor: paperTheme.colors.surface }}>
@@ -494,125 +499,24 @@ export default function App() {
           <PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="app" />
         </header>
       </Surface>
-      {settings && (
-        <section>
-          <h2>Диагностика</h2>
-          <p>
-            Adapter: {configuration?.fiscal_adapter_id}
-            <br />
-            Register: {configuration?.fiscal_register_id}
-            <br />
-            Generation: {configuration?.binding_generation}
-            <br />
-            Local URL: {configuration?.adapter_base_url}
-          </p>
-          <button disabled={busy || !shift} onClick={printer}>
-            Тест на принтера
-          </button>
-          {result && <pre>{JSON.stringify(result, null, 2)}</pre>}
-        </section>
-      )}
+      {settings && <Card mode="outlined" style={{ marginTop: 16 }} testID="sale-diagnostics"><Card.Content style={{ gap: 12 }}>
+        <PaperText variant="titleLarge" accessibilityRole="header">Диагностика</PaperText>
+        <PaperText variant="bodyMedium">Adapter: {configuration?.fiscal_adapter_id}{"\n"}Register: {configuration?.fiscal_register_id}{"\n"}Generation: {configuration?.binding_generation}{"\n"}Local URL: {configuration?.adapter_base_url}</PaperText>
+        <PaperButton mode="outlined" disabled={busy || !shift} onPress={printer}>Тест на принтера</PaperButton>
+        {result ? <PaperText variant="bodySmall" selectable style={{ fontFamily: "monospace" }} testID="sale-result">{JSON.stringify(result, null, 2)}</PaperText> : null}
+      </Card.Content></Card>}
       {view !== "sale" ? <Management kind={view} products={products} employees={employees} api={api} onProducts={setProducts} onEmployees={setEmployees} /> : !shift ? (
-        <section>
-          <h2>Касова смяна</h2>
-          <button disabled={busy || !configuration} onClick={openShift}>
-            Отвори смяна
-          </button>
-        </section>
+        <Card mode="outlined" style={{ marginTop: 16 }} testID="shift-open"><Card.Content style={{ gap: 12 }}>
+          <PaperText variant="titleLarge" accessibilityRole="header">Касова смяна</PaperText>
+          <PaperButton mode="contained" loading={busy} disabled={busy || !configuration} onPress={openShift}>Отвори смяна</PaperButton>
+        </Card.Content></Card>
       ) : (
         <>
-          <section>
-            <h2>Продукти</h2>
-            <div className="products">
-              {products.map((product) => (
-                <button
-                  className="product"
-                  key={product.id}
-                  onClick={() => add(product)}
-                >
-                  <strong>{product.name}</strong>
-                  <span>{product.price.amount} EUR</span>
-                </button>
-              ))}
-            </div>
-          </section>
-          <section>
-            <h2>Текуща продажба</h2>
-            {cart.length === 0 ? (
-              <p>Изберете продукт.</p>
-            ) : (
-              cart.map((line) => (
-                <div className="cart" key={line.product.id}>
-                  <strong>{line.product.name}</strong>
-                  <label>
-                    Количество
-                    <input
-                      inputMode="numeric"
-                      type="number"
-                      min="1"
-                      value={line.quantity}
-                      onChange={(event) =>
-                        update(
-                          line.product.id,
-                          "quantity",
-                          Number(event.target.value),
-                        )
-                      }
-                    />
-                  </label>
-                  <label>
-                    Отстъпка EUR
-                    <input
-                      inputMode="decimal"
-                      type="number"
-                      min="0"
-                      step="0.01"
-                      value={line.discount}
-                      onChange={(event) =>
-                        update(
-                          line.product.id,
-                          "discount",
-                          Number(event.target.value),
-                        )
-                      }
-                    />
-                  </label>
-                </div>
-              ))
-            )}
-            <div className="total">Общо: {total.toFixed(2)} EUR</div>
-            <label>
-              С карта (остатъкът е в брой)
-              <input
-                inputMode="decimal"
-                type="number"
-                min="0"
-                max={total}
-                step="0.01"
-                value={cardAmount}
-                onChange={(event) => setCardAmount(Number(event.target.value))}
-              />
-            </label>
-            <button
-              className="checkout"
-              disabled={busy || !cart.length || total <= 0}
-              onClick={checkout}
-            >
-              Плащане и фискализация
-            </button>
-            {lastOrderId && (
-              <button
-                className="secondary"
-                disabled={busy}
-                onClick={reverseLastOrder}
-              >
-                Сторно на последната продажба
-              </button>
-            )}
-          </section>
+          <ProductGrid products={products} onAdd={add} />
+          <PaymentPanel cart={cart} total={total} cardAmount={cardAmount} busy={busy} lastOrderId={lastOrderId} onUpdate={update} onCardAmount={setCardAmount} onCheckout={checkout} onReverse={reverseLastOrder} />
         </>
       )}
-      {message && <p className="error">{message}</p>}
+      {message ? <div className="error"><HelperText type="error" visible testID="sale-message">{message}</HelperText></div> : null}
     </main>
   );
 }

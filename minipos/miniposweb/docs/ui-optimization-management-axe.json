@@ -135,6 +135,31 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "16.5pt (22px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
