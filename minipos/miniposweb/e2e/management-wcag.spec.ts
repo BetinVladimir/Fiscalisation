@@ -3,6 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { mkdir, writeFile } from 'node:fs/promises';
 import { join } from 'node:path';
 import { setup, waitForPOS } from './helpers';
+import { collectContrastCandidates } from './contrast-candidates';
 
 test('management lists and forms: xs/md/lg × light/dark WCAG matrix', async ({ page }) => {
   test.setTimeout(180_000);
@@ -52,7 +53,7 @@ test('management loading and load-error: xs/md/lg × light/dark', async ({ page 
   test.setTimeout(180_000);
   const evidenceDir = join(process.cwd(), 'docs', 'ui-screenshots');
   await mkdir(evidenceDir, { recursive: true });
-  const scans: { screen: string; viewport: string; theme: string; violations: unknown[]; incomplete: unknown[] }[] = [];
+  const scans: { screen: string; viewport: string; theme: string; violations: unknown[]; incomplete: unknown[]; contrastCandidates: unknown[] }[] = [];
   await setup(page);
   for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
     await page.setViewportSize({ width, height });
@@ -79,8 +80,9 @@ test('management loading and load-error: xs/md/lg × light/dark', async ({ page 
         await expect(page.locator('html')).toHaveAttribute('data-theme', mode);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${screen}/${size}/${mode}: horizontal overflow`).toBe(true);
         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
-        scans.push({ screen, viewport: size, theme: mode, violations: result.violations, incomplete: result.incomplete });
-        await page.screenshot({ path: join(evidenceDir, `${screen}-${size}-${mode}.png`), fullPage: true });
+        const screenshot = await page.screenshot({ path: join(evidenceDir, `${screen}-${size}-${mode}.png`), fullPage: true });
+        const contrastCandidates = await collectContrastCandidates(page, result, screenshot);
+        scans.push({ screen, viewport: size, theme: mode, violations: result.violations, incomplete: result.incomplete, contrastCandidates });
       }
     }
   }
