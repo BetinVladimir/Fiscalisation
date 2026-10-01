@@ -1,8 +1,6 @@
 import { colors as beeloyColors } from './src/ui/tokens';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppText as Text } from './src/ui/app-text';
 import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-view';
-import { AppPressable as Pressable } from './src/ui/app-pressable';
 import { FormField as TextInput } from './src/ui/form-field';
 import { AuthForm } from './src/ui/auth-form';
 import { StatusBar } from "expo-status-bar";
@@ -17,6 +15,7 @@ import {
   List as PaperList,
   Menu as PaperMenu,
   SegmentedButtons as PaperSegmentedButtons,
+  Surface as PaperSurface,
   Text as PaperText,
   useTheme,
 } from "react-native-paper";
@@ -302,8 +301,14 @@ async function fiscalCloudReachable(path: string): Promise<boolean> {
 
 type FiscalRegisterReference = {id:string;code?:string;name?:string;status?:string};
 export default function App() { return <BeeloyAppProvider><View style={{flex:1}}><AppContent/><DemoBadge/></View></BeeloyAppProvider>; }
-function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
-const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:beeloyColors.error,borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:beeloyColors.onPrimary,fontWeight:"900",fontSize:12,letterSpacing:1}});
+function DemoBadge(){
+  const theme = useTheme();
+  if (!Constants.expoConfig?.extra?.isDemo) return null;
+  return <PaperSurface pointerEvents="none" elevation={1} style={[demo.badge, { backgroundColor: theme.colors.errorContainer }]}>
+    <PaperText variant="labelSmall" style={{ color: theme.colors.onErrorContainer, fontWeight: "700" }}>DEMO</PaperText>
+  </PaperSurface>;
+}
+const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,borderRadius:5,paddingHorizontal:9,paddingVertical:4}});
 function AppContent() {
   const { preference: themePreference, dark, selectTheme } = useThemePreference();
   return <MiniPosApp dark={dark} themePreference={themePreference} selectTheme={selectTheme} />;
