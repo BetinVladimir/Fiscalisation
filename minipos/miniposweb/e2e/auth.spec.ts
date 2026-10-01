@@ -51,22 +51,37 @@ test.describe('Auth flow', () => {
     await expect(page.getByText('Кафе')).toBeVisible({ timeout: 8_000 });
   });
 
-  test('language switch: Bulgarian → Russian → English', async ({ page }) => {
+  test('Paper language menu switches Bulgarian → Russian → English and keeps the choice', async ({ page }) => {
     await page.goto('/');
     await expect(page.getByText('Вход в BeeMiniPOS')).toBeVisible();
 
     // Switch to Russian
-    await page.getByLabel('Language').selectOption('ru');
+    await page.getByTestId('auth-language-open').click();
+    await page.getByTestId('auth-language-ru').click();
     await expect(page.getByRole('button', { name: 'Отправить код' })).toBeVisible();
 
     // Switch to English
-    await page.getByLabel('Language').selectOption('en');
+    await page.getByTestId('auth-language-open').click();
+    await page.getByTestId('auth-language-en').click();
     await expect(page.getByText('Sign in to BeeMiniPOS')).toBeVisible();
     await expect(page.getByRole('button', { name: 'Send code' })).toBeVisible();
 
     // Back to Bulgarian
-    await page.getByLabel('Language').selectOption('bg');
+    await page.reload();
+    await expect(page.getByTestId('auth-language-open')).toContainText('English');
+    await page.getByTestId('auth-language-open').click();
+    await page.getByTestId('auth-language-bg').click();
     await expect(page.getByRole('button', { name: 'Изпрати код' })).toBeVisible();
+  });
+
+  test('theme menu applies and persists Paper dark theme', async ({ page }) => {
+    await page.goto('/');
+    await page.getByTestId('auth-theme-open').click();
+    await page.getByTestId('auth-theme-dark').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await page.reload();
+    await expect(page.getByTestId('auth-theme-open')).toContainText('Тъмна');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
   });
 
   test('wrong OTP shows error', async ({ page }) => {
@@ -80,7 +95,7 @@ test.describe('Auth flow', () => {
     await page.getByLabel('Еднократен код').fill('000000');
     await page.getByRole('button', { name: 'Продължи' }).click();
 
-    await expect(page.locator('.error')).toBeVisible();
+    await expect(page.getByTestId('auth-error')).toBeVisible();
   });
 
   test('request-code failure shows error', async ({ page }) => {
@@ -90,7 +105,7 @@ test.describe('Auth flow', () => {
     await page.getByLabel('Имейл').fill('bad@example.com');
     await page.getByRole('button', { name: 'Изпрати код' }).click();
 
-    await expect(page.locator('.error')).toBeVisible();
+    await expect(page.getByTestId('auth-error')).toBeVisible();
   });
 
   test('continue button disabled until 6-digit code entered', async ({ page }) => {
