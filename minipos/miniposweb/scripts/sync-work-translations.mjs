@@ -21,6 +21,7 @@ const english = {
   offlineReference: 'Offline reference data: a new shift cannot be opened without the backend',
   cloudPrepareUnavailable: 'Cloud preparation is unavailable; processing locally and syncing after recovery',
   adapter: 'Adapter', register: 'Register', generation: 'Generation', localUrl: 'Local URL',
+  loadFailed: 'Could not load the list',
 };
 const editorial = {
   bg: {
@@ -34,6 +35,7 @@ const editorial = {
     offlineReference: 'Офлайн справочници: нова смяна не може да се отвори без backend',
     cloudPrepareUnavailable: 'Cloud подготовката е недостъпна; изпълнява се локално и ще се съгласува след възстановяване',
     adapter: 'Адаптер', register: 'Регистър', generation: 'Поколение', localUrl: 'Локален URL',
+    loadFailed: 'Списъкът не може да се зареди',
   },
   ru: {
     settings: 'Настройки', diagnostics: 'Диагностика', printerTest: 'Проверка принтера',
@@ -46,6 +48,7 @@ const editorial = {
     offlineReference: 'Локальные справочники доступны без сети. Новую смену нельзя открыть без сервера.',
     cloudPrepareUnavailable: 'Облачная подготовка недоступна. Операция выполняется локально и синхронизируется после восстановления связи.',
     adapter: 'Адаптер', register: 'Касса', generation: 'Поколение', localUrl: 'Локальный URL',
+    loadFailed: 'Не удалось загрузить список',
   },
 };
 const languageNames = {
@@ -71,8 +74,10 @@ extras.ru = editorial.ru;
 const keys = Object.keys(english);
 
 for (const language of languages) {
-  if (Object.keys(extras[language] || {}).length === keys.length && keys.every(key => typeof extras[language][key] === 'string' && extras[language][key].trim())) continue;
-  const prompt = `Translate these user-facing point-of-sale UI strings from English into ${languageNames[language]} (${language}). Return ONLY a JSON object with exactly the same keys and translated string values. Use natural, concise product UI wording. Preserve EUR, URL, and the technical term backend. Do not leave English text as a fallback.\n${JSON.stringify(english)}`;
+  const missingKeys = keys.filter(key => typeof extras[language]?.[key] !== 'string' || !extras[language][key].trim());
+  if (!missingKeys.length) continue;
+  const missingEnglish = Object.fromEntries(missingKeys.map(key => [key, english[key]]));
+  const prompt = `Translate these user-facing point-of-sale UI strings from English into ${languageNames[language]} (${language}). Return ONLY a JSON object with exactly the same keys and translated string values. Use natural, concise product UI wording. Preserve EUR, URL, and the technical term backend. Do not leave English text as a fallback.\n${JSON.stringify(missingEnglish)}`;
   let translated;
   for (let attempt = 1; attempt <= 3; attempt++) {
     const response = await fetch('http://127.0.0.1:11434/api/generate', {
@@ -83,16 +88,16 @@ for (const language of languages) {
     const data = await response.json();
     try {
       const candidate = JSON.parse(data.response);
-      if (Object.keys(candidate).length !== keys.length || !keys.every(key => typeof candidate[key] === 'string' && candidate[key].trim())) throw new Error('missing or extra keys');
+      if (Object.keys(candidate).length !== missingKeys.length || !missingKeys.every(key => typeof candidate[key] === 'string' && candidate[key].trim())) throw new Error('missing or extra keys');
       translated = candidate;
       break;
     } catch (error) {
       if (attempt === 3) throw new Error(`Invalid Ollama JSON for ${language}: ${error}`);
     }
   }
-  extras[language] = translated;
+  extras[language] = { ...extras[language], ...translated };
   await writeFile(extrasPath, `${JSON.stringify(extras, null, 2)}\n`);
-  console.log(`Translated ${language}: ${keys.length} strings`);
+  console.log(`Translated ${language}: ${missingKeys.length} strings`);
 }
 
 const merged = Object.fromEntries(languages.map(language => {

@@ -22,7 +22,8 @@
     "adapter": "Adapter",
     "register": "Register",
     "generation": "Generation",
-    "localUrl": "Local URL"
+    "localUrl": "Local URL",
+    "loadFailed": "Could not load the list"
   },
   "bg": {
     "settings": "Настройки",
@@ -47,7 +48,8 @@
     "adapter": "Адаптер",
     "register": "Регистър",
     "generation": "Поколение",
-    "localUrl": "Локален URL"
+    "localUrl": "Локален URL",
+    "loadFailed": "Списъкът не може да се зареди"
   },
   "ru": {
     "settings": "Настройки",
@@ -72,7 +74,8 @@
     "adapter": "Адаптер",
     "register": "Касса",
     "generation": "Поколение",
-    "localUrl": "Локальный URL"
+    "localUrl": "Локальный URL",
+    "loadFailed": "Не удалось загрузить список"
   },
   "hr": {
     "settings": "Postavke",
@@ -97,7 +100,8 @@
     "adapter": "Adapter",
     "register": "Kasa",
     "generation": "Generacija",
-    "localUrl": "Lokalna URL adresa"
+    "localUrl": "Lokalna URL adresa",
+    "loadFailed": "Neuspjelo učitavanje popisa"
   },
   "cs": {
     "settings": "Nastavení",
@@ -122,7 +126,8 @@
     "adapter": "Adaptér",
     "register": "Pokladna",
     "generation": "Generace",
-    "localUrl": "Lokální URL"
+    "localUrl": "Lokální URL",
+    "loadFailed": "Nelze načíst seznam"
   },
   "da": {
     "settings": "Indstillinger",
@@ -147,7 +152,8 @@
     "adapter": "Adapter",
     "register": "Kasseapparat",
     "generation": "Generering",
-    "localUrl": "Lokal URL"
+    "localUrl": "Lokal URL",
+    "loadFailed": "Kunne ikke indlæse listen"
   },
   "nl": {
     "settings": "Instellingen",
@@ -172,7 +178,8 @@
     "adapter": "Adapter",
     "register": "Kassa",
     "generation": "Generatie",
-    "localUrl": "Lokale URL"
+    "localUrl": "Lokale URL",
+    "loadFailed": "Lijst niet geladen"
   },
   "et": {
     "settings": "Seadistused",
@@ -197,7 +204,8 @@
     "adapter": "Adapter",
     "register": "Kassaregister",
     "generation": "Generatsioon",
-    "localUrl": "Kohalik URL"
+    "localUrl": "Kohalik URL",
+    "loadFailed": "Nimekirja laadimine ebaõnnestus"
   },
   "fi": {
     "settings": "Asetukset",
@@ -222,7 +230,8 @@
     "adapter": "Adapterti",
     "register": "Kassa",
     "generation": "Generaatio",
-    "localUrl": "Paikallinen URL"
+    "localUrl": "Paikallinen URL",
+    "loadFailed": "Listan lataaminen epäonnistui"
   },
   "fr": {
     "settings": "Paramètres",
@@ -247,7 +256,8 @@
     "adapter": "Adaptateur",
     "register": "Caisse",
     "generation": "Génération",
-    "localUrl": "URL locale"
+    "localUrl": "URL locale",
+    "loadFailed": "Impossible de charger la liste"
   },
   "de": {
     "settings": "Einstellungen",
@@ -272,7 +282,8 @@
     "adapter": "Adapter",
     "register": "Kasse",
     "generation": "Generation",
-    "localUrl": "Lokale URL"
+    "localUrl": "Lokale URL",
+    "loadFailed": "Liste konnte nicht geladen werden"
   },
   "el": {
     "settings": "Ρυθμίσεις",
@@ -297,7 +308,8 @@
     "adapter": "Διασυνδετήρας",
     "register": "Ταμείο",
     "generation": "Γεννήτρια",
-    "localUrl": "Τοπική διεύθυνση URL"
+    "localUrl": "Τοπική διεύθυνση URL",
+    "loadFailed": "Αδυναμία φόρτωσης του πίνακα"
   },
   "hu": {
     "settings": "Beállítások",
@@ -322,7 +334,8 @@
     "adapter": "Adapter",
     "register": "Pénztár",
     "generation": "Generáció",
-    "localUrl": "Helyi URL"
+    "localUrl": "Helyi URL",
+    "loadFailed": "A lista betöltése nem sikerült"
   },
   "ga": {
     "settings": "Socairteacha",
@@ -347,7 +360,8 @@
     "adapter": "Adapadóir",
     "register": "Ainmneoir airgeadais",
     "generation": "Gineadh",
-    "localUrl": "URL áitiúil"
+    "localUrl": "URL áitiúil",
+    "loadFailed": "Níor lódáil an liosta"
   },
   "it": {
     "settings": "Impostazioni",
@@ -372,7 +386,8 @@
     "adapter": "Adattatore",
     "register": "Registrazione",
     "generation": "Generazione",
-    "localUrl": "URL locale"
+    "localUrl": "URL locale",
+    "loadFailed": "Impossibile caricare l'elenco"
   },
   "lv": {
     "settings": "Iestatījumi",
@@ -397,7 +412,8 @@
     "adapter": "Adapteris",
     "register": "Kase",
     "generation": "Ģenerēšana",
-    "localUrl": "Lokālā URL"
+    "localUrl": "Lokālā URL",
+    "loadFailed": "Sarakstu nevarēja ielādēt"
   },
   "lt": {
     "settings": "Nustatymai",
@@ -422,7 +438,8 @@
     "adapter": "Adapteris",
     "register": "Registras",
     "generation": "Generavimas",
-    "localUrl": "Vietinis URL"
+    "localUrl": "Vietinis URL",
+    "loadFailed": "Nepavyko įkelti sąrašo"
   },
   "mt": {
     "settings": "Impostazzjonijiet",
@@ -447,7 +464,8 @@
     "adapter": "Adapter",
     "register": "Reġistru",
     "generation": "Generazzjoni",
-    "localUrl": "URL Lokali"
+    "localUrl": "URL Lokali",
+    "loadFailed": "Ma kienx tista' tiġi kkunsidrata l-lista"
   },
   "pl": {
     "settings": "Ustawienia",
@@ -472,7 +490,8 @@
     "adapter": "Adapter",
     "register": "Kasa",
     "generation": "Generowanie",
-    "localUrl": "Lokalny URL"
+    "localUrl": "Lokalny URL",
+    "loadFailed": "Nie udało się załadować listy"
   },
   "pt": {
     "settings": "Configurações",
@@ -497,7 +516,8 @@
     "adapter": "Adaptador",
     "register": "Caixa",
     "generation": "Geração",
-    "localUrl": "URL Local"
+    "localUrl": "URL Local",
+    "loadFailed": "Não foi possível carregar a lista"
   },
   "ro": {
     "settings": "Setări",
@@ -522,7 +542,8 @@
     "adapter": "Adapter",
     "register": "Casă de marfă",
     "generation": "Generare",
-    "localUrl": "URL local"
+    "localUrl": "URL local",
+    "loadFailed": "Nu s-a putut încărca lista"
   },
   "sk": {
     "settings": "Nastavenia",
@@ -547,7 +568,8 @@
     "adapter": "Adaptér",
     "register": "Pokladna",
     "generation": "Generácia",
-    "localUrl": "Lokálna URL"
+    "localUrl": "Lokálna URL",
+    "loadFailed": "Nepodarilo sa načítať zoznam"
   },
   "sl": {
     "settings": "Nastavitve",
@@ -572,7 +594,8 @@
     "adapter": "Adapter",
     "register": "Blagajna",
     "generation": "Generacija",
-    "localUrl": "Lokalna URL"
+    "localUrl": "Lokalna URL",
+    "loadFailed": "Seznam ni bil mogoče naložiti"
   },
   "es": {
     "settings": "Configuración",
@@ -597,7 +620,8 @@
     "adapter": "Adaptador",
     "register": "Caja registradora",
     "generation": "Generación",
-    "localUrl": "URL local"
+    "localUrl": "URL local",
+    "loadFailed": "No se pudo cargar la lista"
   },
   "sv": {
     "settings": "Inställningar",
@@ -622,6 +646,7 @@
     "adapter": "Adapter",
     "register": "Kassa",
     "generation": "Generering",
-    "localUrl": "Lokal URL"
+    "localUrl": "Lokal URL",
+    "loadFailed": "Kunde inte ladda listan"
   }
 }

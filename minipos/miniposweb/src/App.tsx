@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { buildIntent } from "./fiscal/intentBuilder";
 import {
   ApiError,
@@ -24,7 +24,7 @@ import type {
 import "./styles.css";
 import { AuthFlow } from "./AuthFlow";
 import { Management } from "./Management";
-import { Button as PaperButton, Card, HelperText, Surface, Text as PaperText, useTheme } from "react-native-paper";
+import { ActivityIndicator, Button as PaperButton, Card, HelperText, Surface, Text as PaperText, useTheme } from "react-native-paper";
 import { PreferenceControls, readLanguage, type Language } from "./ui/PreferenceControls";
 import { PaymentPanel, ProductGrid, type CartLine } from "./SalePanels";
 import { translations as workTranslations } from "./ui/workTranslations.generated";
@@ -64,6 +64,9 @@ export default function App() {
   const [products, setProducts] = useState<Product[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
   const [view, setView] = useState<"sale" | "products" | "employees">("sale");
+  const [managementLoading, setManagementLoading] = useState(false);
+  const [managementError, setManagementError] = useState("");
+  const managementRequest = useRef(0);
   const [shift, setShift] = useState<Shift>();
   const [cart, setCart] = useState<CartLine[]>([]);
   const [cardAmount, setCardAmount] = useState(0);
@@ -182,6 +185,25 @@ export default function App() {
       } else setMessage(error instanceof Error ? error.message : String(error));
     } finally {
       setBusy(false);
+    }
+  }
+  async function openManagement(kind: "products" | "employees") {
+    const request = ++managementRequest.current;
+    setView(kind);
+    setManagementError("");
+    setManagementLoading(true);
+    try {
+      if (kind === "products") {
+        const response = await api.products();
+        if (request === managementRequest.current) setProducts(response.items);
+      } else {
+        const response = await api.employees();
+        if (request === managementRequest.current) setEmployees(response.items);
+      }
+    } catch (error) {
+      if (request === managementRequest.current) setManagementError(error instanceof Error ? error.message : String(error));
+    } finally {
+      if (request === managementRequest.current) setManagementLoading(false);
     }
   }
   async function openShift() {
@@ -495,9 +517,9 @@ export default function App() {
             </PaperText>
           </div>
           <PaperButton mode={settings ? "contained-tonal" : "outlined"} onPress={() => setSettings(!settings)} testID="app-settings">{t.settings}</PaperButton>
-          <PaperButton mode={view === "sale" ? "contained-tonal" : "outlined"} onPress={() => setView("sale")} testID="app-sales">{t.sales}</PaperButton>
-          <PaperButton mode={view === "products" ? "contained-tonal" : "outlined"} onPress={async () => { setView("products"); const result=await api.products(); setProducts(result.items); }} testID="app-products">{t.products}</PaperButton>
-          <PaperButton mode={view === "employees" ? "contained-tonal" : "outlined"} onPress={async () => { setView("employees"); const result=await api.employees(); setEmployees(result.items); }} testID="app-employees">{t.employees}</PaperButton>
+          <PaperButton mode={view === "sale" ? "contained-tonal" : "outlined"} onPress={() => { managementRequest.current++; setView("sale"); }} testID="app-sales">{t.sales}</PaperButton>
+          <PaperButton mode={view === "products" ? "contained-tonal" : "outlined"} onPress={() => void openManagement("products")} testID="app-products">{t.products}</PaperButton>
+          <PaperButton mode={view === "employees" ? "contained-tonal" : "outlined"} onPress={() => void openManagement("employees")} testID="app-employees">{t.employees}</PaperButton>
           <PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="app" />
         </header>
       </Surface>
@@ -507,7 +529,12 @@ export default function App() {
         <PaperButton mode="outlined" disabled={busy || !shift} onPress={printer}>{t.printerTest}</PaperButton>
         {result ? <PaperText variant="bodySmall" selectable style={{ fontFamily: "monospace" }} testID="sale-result">{JSON.stringify(result, null, 2)}</PaperText> : null}
       </Card.Content></Card>}
-      {view !== "sale" ? <Management kind={view} products={products} employees={employees} api={api} onProducts={setProducts} onEmployees={setEmployees} language={language} /> : !shift ? (
+      {view !== "sale" ? managementLoading ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-loading"><Card.Content style={{ gap: 12 }}>
+        <ActivityIndicator accessibilityLabel={t.loading} /><PaperText variant="bodyMedium">{t.loading}</PaperText>
+      </Card.Content></Card> : managementError ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-load-error"><Card.Content style={{ gap: 12 }}>
+        <HelperText type="error" visible>{t.loadFailed}</HelperText>
+        <PaperButton mode="contained" onPress={() => void openManagement(view)} testID="management-retry">{t.retry}</PaperButton>
+      </Card.Content></Card> : <Management kind={view} products={products} employees={employees} api={api} onProducts={setProducts} onEmployees={setEmployees} language={language} /> : !shift ? (
         <Card mode="outlined" style={{ marginTop: 16 }} testID="shift-open"><Card.Content style={{ gap: 12 }}>
           <PaperText variant="titleLarge" accessibilityRole="header">{t.shiftTitle}</PaperText>
           <PaperButton mode="contained" loading={busy} disabled={busy || !configuration} onPress={openShift}>{t.openShift}</PaperButton>

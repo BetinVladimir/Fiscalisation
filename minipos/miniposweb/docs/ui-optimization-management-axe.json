@@ -2308,6 +2308,31 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"app-products-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "16.5pt (22px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",

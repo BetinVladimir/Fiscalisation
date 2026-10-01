@@ -43,7 +43,8 @@ export const translations = {
     "adapter": "Адаптер",
     "register": "Регистър",
     "generation": "Поколение",
-    "localUrl": "Локален URL"
+    "localUrl": "Локален URL",
+    "loadFailed": "Списъкът не може да се зареди"
   },
   "hr": {
     "sales": "Prodaja",
@@ -86,7 +87,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Kasa",
     "generation": "Generacija",
-    "localUrl": "Lokalna URL adresa"
+    "localUrl": "Lokalna URL adresa",
+    "loadFailed": "Neuspjelo učitavanje popisa"
   },
   "cs": {
     "sales": "Prodej",
@@ -129,7 +131,8 @@ export const translations = {
     "adapter": "Adaptér",
     "register": "Pokladna",
     "generation": "Generace",
-    "localUrl": "Lokální URL"
+    "localUrl": "Lokální URL",
+    "loadFailed": "Nelze načíst seznam"
   },
   "da": {
     "sales": "Salg",
@@ -172,7 +175,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Kasseapparat",
     "generation": "Generering",
-    "localUrl": "Lokal URL"
+    "localUrl": "Lokal URL",
+    "loadFailed": "Kunne ikke indlæse listen"
   },
   "nl": {
     "sales": "Verkoop",
@@ -215,7 +219,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Kassa",
     "generation": "Generatie",
-    "localUrl": "Lokale URL"
+    "localUrl": "Lokale URL",
+    "loadFailed": "Lijst niet geladen"
   },
   "en": {
     "sales": "Sales",
@@ -258,7 +263,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Register",
     "generation": "Generation",
-    "localUrl": "Local URL"
+    "localUrl": "Local URL",
+    "loadFailed": "Could not load the list"
   },
   "et": {
     "sales": "Müügid",
@@ -301,7 +307,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Kassaregister",
     "generation": "Generatsioon",
-    "localUrl": "Kohalik URL"
+    "localUrl": "Kohalik URL",
+    "loadFailed": "Nimekirja laadimine ebaõnnestus"
   },
   "fi": {
     "sales": "Myynnit",
@@ -344,7 +351,8 @@ export const translations = {
     "adapter": "Adapterti",
     "register": "Kassa",
     "generation": "Generaatio",
-    "localUrl": "Paikallinen URL"
+    "localUrl": "Paikallinen URL",
+    "loadFailed": "Listan lataaminen epäonnistui"
   },
   "fr": {
     "sales": "Ventes",
@@ -387,7 +395,8 @@ export const translations = {
     "adapter": "Adaptateur",
     "register": "Caisse",
     "generation": "Génération",
-    "localUrl": "URL locale"
+    "localUrl": "URL locale",
+    "loadFailed": "Impossible de charger la liste"
   },
   "de": {
     "sales": "Verkäufe",
@@ -430,7 +439,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Kasse",
     "generation": "Generation",
-    "localUrl": "Lokale URL"
+    "localUrl": "Lokale URL",
+    "loadFailed": "Liste konnte nicht geladen werden"
   },
   "el": {
     "sales": "Πωλήσεις",
@@ -473,7 +483,8 @@ export const translations = {
     "adapter": "Διασυνδετήρας",
     "register": "Ταμείο",
     "generation": "Γεννήτρια",
-    "localUrl": "Τοπική διεύθυνση URL"
+    "localUrl": "Τοπική διεύθυνση URL",
+    "loadFailed": "Αδυναμία φόρτωσης του πίνακα"
   },
   "hu": {
     "sales": "Eladások",
@@ -516,7 +527,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Pénztár",
     "generation": "Generáció",
-    "localUrl": "Helyi URL"
+    "localUrl": "Helyi URL",
+    "loadFailed": "A lista betöltése nem sikerült"
   },
   "ga": {
     "sales": "Sálais",
@@ -559,7 +571,8 @@ export const translations = {
     "adapter": "Adapadóir",
     "register": "Ainmneoir airgeadais",
     "generation": "Gineadh",
-    "localUrl": "URL áitiúil"
+    "localUrl": "URL áitiúil",
+    "loadFailed": "Níor lódáil an liosta"
   },
   "it": {
     "sales": "Vendite",
@@ -602,7 +615,8 @@ export const translations = {
     "adapter": "Adattatore",
     "register": "Registrazione",
     "generation": "Generazione",
-    "localUrl": "URL locale"
+    "localUrl": "URL locale",
+    "loadFailed": "Impossibile caricare l'elenco"
   },
   "lv": {
     "sales": "Pārdoti preces",
@@ -645,7 +659,8 @@ export const translations = {
     "adapter": "Adapteris",
     "register": "Kase",
     "generation": "Ģenerēšana",
-    "localUrl": "Lokālā URL"
+    "localUrl": "Lokālā URL",
+    "loadFailed": "Sarakstu nevarēja ielādēt"
   },
   "lt": {
     "sales": "Pardavimai",
@@ -688,7 +703,8 @@ export const translations = {
     "adapter": "Adapteris",
     "register": "Registras",
     "generation": "Generavimas",
-    "localUrl": "Vietinis URL"
+    "localUrl": "Vietinis URL",
+    "loadFailed": "Nepavyko įkelti sąrašo"
   },
   "mt": {
     "sales": "Bajjiet",
@@ -731,7 +747,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Reġistru",
     "generation": "Generazzjoni",
-    "localUrl": "URL Lokali"
+    "localUrl": "URL Lokali",
+    "loadFailed": "Ma kienx tista' tiġi kkunsidrata l-lista"
   },
   "pl": {
     "sales": "Sprzedaż",
@@ -774,7 +791,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Kasa",
     "generation": "Generowanie",
-    "localUrl": "Lokalny URL"
+    "localUrl": "Lokalny URL",
+    "loadFailed": "Nie udało się załadować listy"
   },
   "pt": {
     "sales": "Vendas",
@@ -817,7 +835,8 @@ export const translations = {
     "adapter": "Adaptador",
     "register": "Caixa",
     "generation": "Geração",
-    "localUrl": "URL Local"
+    "localUrl": "URL Local",
+    "loadFailed": "Não foi possível carregar a lista"
   },
   "ro": {
     "sales": "Vânzări",
@@ -860,7 +879,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Casă de marfă",
     "generation": "Generare",
-    "localUrl": "URL local"
+    "localUrl": "URL local",
+    "loadFailed": "Nu s-a putut încărca lista"
   },
   "sk": {
     "sales": "Predaje",
@@ -903,7 +923,8 @@ export const translations = {
     "adapter": "Adaptér",
     "register": "Pokladna",
     "generation": "Generácia",
-    "localUrl": "Lokálna URL"
+    "localUrl": "Lokálna URL",
+    "loadFailed": "Nepodarilo sa načítať zoznam"
   },
   "sl": {
     "sales": "Prodaja",
@@ -946,7 +967,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Blagajna",
     "generation": "Generacija",
-    "localUrl": "Lokalna URL"
+    "localUrl": "Lokalna URL",
+    "loadFailed": "Seznam ni bil mogoče naložiti"
   },
   "es": {
     "sales": "Ventas",
@@ -989,7 +1011,8 @@ export const translations = {
     "adapter": "Adaptador",
     "register": "Caja registradora",
     "generation": "Generación",
-    "localUrl": "URL local"
+    "localUrl": "URL local",
+    "loadFailed": "No se pudo cargar la lista"
   },
   "sv": {
     "sales": "Försäljning",
@@ -1032,7 +1055,8 @@ export const translations = {
     "adapter": "Adapter",
     "register": "Kassa",
     "generation": "Generering",
-    "localUrl": "Lokal URL"
+    "localUrl": "Lokal URL",
+    "loadFailed": "Kunde inte ladda listan"
   },
   "ru": {
     "sales": "Продажи",
@@ -1075,6 +1099,7 @@ export const translations = {
     "adapter": "Адаптер",
     "register": "Касса",
     "generation": "Поколение",
-    "localUrl": "Локальный URL"
+    "localUrl": "Локальный URL",
+    "loadFailed": "Не удалось загрузить список"
   }
 } as const;

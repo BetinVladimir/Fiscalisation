@@ -10,7 +10,10 @@
     "test": "vitest run",
     "translations:sync-auth": "node scripts/sync-auth-translations.mjs",
     "translations:sync-work": "node scripts/sync-work-translations.mjs",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "e2e:wcag": "playwright test e2e/auth-wcag.spec.ts e2e/management-wcag.spec.ts e2e/sale-wcag.spec.ts",
+    "ui:manifest": "node scripts/check-ui-manifest.mjs --structure-only",
+    "ui:check": "node scripts/check-ui-manifest.mjs"
   },
   "dependencies": {
     "@beeloy/design-tokens": "file:../../../BeeloyBackend/mobile/design-tokens",

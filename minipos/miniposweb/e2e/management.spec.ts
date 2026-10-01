@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { setup, waitForPOS } from './helpers';
+import { PRODUCTS, setup, waitForPOS } from './helpers';
 
 test.describe('Management – Products', () => {
   test('products list shows active products', async ({ page }) => {
@@ -59,6 +59,28 @@ test.describe('Management – Products', () => {
     await expect(page.getByTestId('management-error')).toBeVisible();
     await expect(page.getByTestId('management-product-name')).toHaveValue('Чай');
     await expect(page.getByTestId('management-product-price')).toHaveValue('1.50');
+  });
+
+  test('list load error shows Paper retry and does not show stale products', async ({ page }) => {
+    await setup(page);
+    await page.goto('/');
+    await waitForPOS(page);
+    let requests = 0;
+    await page.route('**/public/v1/minipos/products**', async route => {
+      requests++;
+      await route.fulfill({
+        status: requests === 1 ? 500 : 200,
+        contentType: 'application/json',
+        body: JSON.stringify(requests === 1 ? { code: 'TEMPORARY_FAILURE' } : { items: PRODUCTS }),
+      });
+    });
+    await page.getByTestId('app-products').click();
+    await expect(page.getByTestId('management-load-error')).toBeVisible();
+    await expect(page.getByTestId('management-list')).not.toBeVisible();
+    await expect(page.getByTestId('management-retry')).toBeVisible();
+    await page.getByTestId('management-retry').click();
+    await expect(page.getByTestId('management-list').getByText('Кафе')).toBeVisible();
+    expect(requests).toBe(2);
   });
 });
 
