@@ -11,6 +11,8 @@ const ids = {
   unknown: '00000000-0000-4000-8000-000000000002',
   pending: '00000000-0000-4000-8000-000000000003',
   synced: '00000000-0000-4000-8000-000000000004',
+  failed: '00000000-0000-4000-8000-000000000005',
+  fiscalized: '00000000-0000-4000-8000-000000000006',
 };
 
 async function seedOutbox(page: import('@playwright/test').Page) {
@@ -32,6 +34,8 @@ async function seedOutbox(page: import('@playwright/test').Page) {
       { id: ids.unknown, result: { state: 'UNKNOWN' } },
       { id: ids.pending, result: { state: 'FISCALIZED' }, posSync: { ...sync, external_id: 'ext-003' } },
       { id: ids.synced, result: { state: 'FISCALIZED' }, posSync: { ...sync, external_id: 'ext-004', synced_at: now } },
+      { id: ids.failed, result: { state: 'FAILED' } },
+      { id: ids.fiscalized, result: { state: 'FISCALIZED' } },
     ];
     await new Promise<void>((resolve, reject) => {
       const tx = db.transaction('fiscal-outbox', 'readwrite');
@@ -44,7 +48,7 @@ async function seedOutbox(page: import('@playwright/test').Page) {
           items: [{ item_id: 'line-001', name: 'Кафе', quantity: '1.000', unit_price: { amount: '2.50', currency: 'EUR' }, tax_group: 'B' }],
           payments: [{ payment_id: 'cash-001', type: 'CASH', amount: { amount: '2.50', currency: 'EUR' } }],
           metadata: {}, canonical_payload: {}, payload_sha256: 'e2e-fixture',
-        }, result: record.result && { operation_id: record.id, state: record.result.state, certainty: record.result.state === 'UNKNOWN' ? 'UNKNOWN' : 'PROVEN_SUCCESS', updated_at: now }, posSync: record.posSync,
+        }, result: record.result && { operation_id: record.id, state: record.result.state, certainty: record.result.state === 'UNKNOWN' ? 'UNKNOWN' : record.result.state === 'FAILED' ? 'PROVEN_FAILURE' : 'PROVEN_SUCCESS', updated_at: now }, posSync: record.posSync,
         createdAt: now, updatedAt: now,
       });
       tx.oncomplete = () => resolve();
@@ -71,6 +75,44 @@ async function clearOutbox(page: import('@playwright/test').Page) {
   });
 }
 
+async function failOutboxReads(page: import('@playwright/test').Page) {
+  await page.evaluate(() => {
+    const original = IDBDatabase.prototype.transaction;
+    Object.defineProperty(IDBDatabase.prototype, 'transaction', {
+      configurable: true,
+      value: function (this: IDBDatabase, storeNames: string | string[], mode?: IDBTransactionMode) {
+        if (storeNames === 'fiscal-outbox' && (!mode || mode === 'readonly')) throw new DOMException('E2E IndexedDB read failure', 'UnknownError');
+        return original.call(this, storeNames, mode);
+      },
+    });
+  });
+}
+
+async function tabTo(page: import('@playwright/test').Page, testId: string) {
+  for (let step = 0; step < 30; step++) {
+    await page.keyboard.press('Tab');
+    if (await page.getByTestId(testId).evaluate(element => element === document.activeElement || element.contains(document.activeElement))) return;
+  }
+  throw new Error(`Keyboard Tab could not reach ${testId}`);
+}
+
+test('keyboard reaches the offline queue, refresh and language menu', async ({ page }) => {
+  await setup(page);
+  await page.goto('/');
+  await waitForPOS(page);
+  await tabTo(page, 'app-outbox');
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('offline-outbox-empty')).toBeVisible();
+  await tabTo(page, 'offline-outbox-refresh');
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('offline-outbox-empty')).toBeVisible();
+  await tabTo(page, 'app-language-open');
+  await page.keyboard.press('Enter');
+  await expect(page.getByTestId('app-language-ru')).toBeAttached();
+  await page.keyboard.press('Escape');
+  await expect(page.getByTestId('app-language-open')).toBeFocused();
+});
+
 test('read-only offline queue shows empty, pending, uncertain and synced states', async ({ page }) => {
   await setup(page, { minipos: { importOfflineOrder: 503 } });
   await page.goto('/');
@@ -84,14 +126,24 @@ test('read-only offline queue shows empty, pending, uncertain and synced states'
     [ids.unknown, translations.bg.outboxUncertain],
     [ids.pending, translations.bg.outboxPendingSync],
     [ids.synced, translations.bg.outboxSynced],
+    [ids.failed, translations.bg.outboxFailed],
+    [ids.fiscalized, translations.bg.outboxFiscalized],
   ] as const) await expect(page.getByTestId(`offline-outbox-status-${id}`)).toHaveText(label);
   await page.getByTestId('app-language-open').click();
   await page.getByTestId('app-language-ru').scrollIntoViewIfNeeded();
   await page.getByTestId('app-language-ru').click();
   await expect(page.getByTestId(`offline-outbox-status-${ids.unknown}`)).toHaveText(translations.ru.outboxUncertain);
+  await failOutboxReads(page);
+  await page.getByTestId('offline-outbox-refresh').click();
+  await expect(page.getByTestId('offline-outbox-error')).toHaveText(translations.ru.loadFailed);
+  await expect(page.getByTestId(`offline-outbox-row-${ids.unknown}`)).toHaveCount(0);
+  await page.reload();
+  await waitForPOS(page);
+  await page.getByTestId('app-outbox').click();
+  await expect(page.getByTestId(`offline-outbox-row-${ids.unknown}`)).toBeVisible();
 });
 
-test('offline queue: empty and populated xs/md/lg × light/dark WCAG matrix', async ({ page }) => {
+test('offline queue: empty, populated and load-error xs/md/lg × light/dark WCAG matrix', async ({ page }) => {
   test.setTimeout(120_000);
   await setup(page, { minipos: { importOfflineOrder: 503 } });
   const evidenceDir = join(process.cwd(), 'docs', 'ui-screenshots');
@@ -111,6 +163,10 @@ test('offline queue: empty and populated xs/md/lg × light/dark WCAG matrix', as
       await page.getByTestId('offline-outbox-refresh').click();
       await expect(page.getByTestId(`offline-outbox-row-${ids.pending}`)).toBeVisible();
       await scan('populated');
+      await failOutboxReads(page);
+      await page.getByTestId('offline-outbox-refresh').click();
+      await expect(page.getByTestId('offline-outbox-error')).toBeVisible();
+      await scan('load-error');
 
       async function scan(state: string) {
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${state}/${size}/${theme}: overflow`).toBe(true);

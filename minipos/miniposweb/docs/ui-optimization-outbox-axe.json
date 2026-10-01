@@ -515,6 +515,106 @@
                 ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(6) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
         }
@@ -648,6 +748,196 @@
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
           "dominantShare": 0.643,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискалната операция е неуспешна",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.849,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000005",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.642,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискализирано",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.855,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000006",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.641,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
+      ]
+    },
+    {
+      "screen": "outbox-load-error",
+      "viewport": "xs",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "16.5pt (22px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Офлайн операции</h1>",
+              "target": [
+                ".r-paddingInline-3pj75a > h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"offline-outbox-refre...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"offline-outbox-refresh-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-error\" style=\"font-family: Roboto,...\">",
+              "target": [
+                ".r-fontSize-1enofrn"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": ".r-paddingInline-3pj75a > h1",
+          "status": "manual-review",
+          "text": "Офлайн операции",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.809,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"offline-outbox-refresh-text\"]",
+          "status": "manual-review",
+          "text": "Обнови списъка",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(244, 239, 247)",
+          "contrastCandidate": 9.25,
+          "dominantShare": 0.686,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-fontSize-1enofrn",
+          "status": "manual-review",
+          "text": "Списъкът не може да се зареди",
+          "foreground": "rgb(159, 45, 45)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 7.1,
+          "dominantShare": 0.892,
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1132,6 +1422,106 @@
                 ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(6) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
         }
@@ -1268,6 +1658,196 @@
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискалната операция е неуспешна",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.849,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000005",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.642,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискализирано",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.855,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000006",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.641,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
+      ]
+    },
+    {
+      "screen": "outbox-load-error",
+      "viewport": "xs",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "16.5pt (22px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Офлайн операции</h1>",
+              "target": [
+                ".r-paddingInline-3pj75a > h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"offline-outbox-refre...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"offline-outbox-refresh-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-error\" style=\"font-family: Roboto,...\">",
+              "target": [
+                ".r-fontSize-1enofrn"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": ".r-paddingInline-3pj75a > h1",
+          "status": "manual-review",
+          "text": "Офлайн операции",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.809,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"offline-outbox-refresh-text\"]",
+          "status": "manual-review",
+          "text": "Обнови списъка",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(31, 27, 39)",
+          "contrastCandidate": 10.15,
+          "dominantShare": 0.686,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-fontSize-1enofrn",
+          "status": "manual-review",
+          "text": "Списъкът не може да се зареди",
+          "foreground": "rgb(255, 180, 171)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 10.97,
+          "dominantShare": 0.894,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -1749,6 +2329,106 @@
                 ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(6) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
         }
@@ -1882,6 +2562,196 @@
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
           "dominantShare": 0.887,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискалната операция е неуспешна",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.905,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000005",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.886,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискализирано",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.954,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000006",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.886,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
+      ]
+    },
+    {
+      "screen": "outbox-load-error",
+      "viewport": "md",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "16.5pt (22px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Офлайн операции</h1>",
+              "target": [
+                ".r-paddingInline-3pj75a > h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"offline-outbox-refre...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"offline-outbox-refresh-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-error\" style=\"font-family: Roboto,...\">",
+              "target": [
+                ".r-fontSize-1enofrn"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": ".r-paddingInline-3pj75a > h1",
+          "status": "manual-review",
+          "text": "Офлайн операции",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.935,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"offline-outbox-refresh-text\"]",
+          "status": "manual-review",
+          "text": "Обнови списъка",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(244, 239, 247)",
+          "contrastCandidate": 9.25,
+          "dominantShare": 0.686,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-fontSize-1enofrn",
+          "status": "manual-review",
+          "text": "Списъкът не може да се зареди",
+          "foreground": "rgb(159, 45, 45)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 7.1,
+          "dominantShare": 0.963,
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2366,6 +3236,106 @@
                 ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(6) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
         }
@@ -2499,6 +3469,196 @@
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
           "dominantShare": 0.887,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискалната операция е неуспешна",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.905,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000005",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.886,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискализирано",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.954,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000006",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.886,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
+      ]
+    },
+    {
+      "screen": "outbox-load-error",
+      "viewport": "md",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "16.5pt (22px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Офлайн операции</h1>",
+              "target": [
+                ".r-paddingInline-3pj75a > h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"offline-outbox-refre...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"offline-outbox-refresh-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-error\" style=\"font-family: Roboto,...\">",
+              "target": [
+                ".r-fontSize-1enofrn"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": ".r-paddingInline-3pj75a > h1",
+          "status": "manual-review",
+          "text": "Офлайн операции",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.935,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"offline-outbox-refresh-text\"]",
+          "status": "manual-review",
+          "text": "Обнови списъка",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(31, 27, 39)",
+          "contrastCandidate": 10.15,
+          "dominantShare": 0.686,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-fontSize-1enofrn",
+          "status": "manual-review",
+          "text": "Списъкът не може да се зареди",
+          "foreground": "rgb(255, 180, 171)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 10.97,
+          "dominantShare": 0.964,
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2983,6 +4143,106 @@
                 ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(6) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
         }
@@ -3116,6 +4376,196 @@
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
           "dominantShare": 0.903,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискалната операция е неуспешна",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.919,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000005",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.902,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискализирано",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.961,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000006",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.902,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
+      ]
+    },
+    {
+      "screen": "outbox-load-error",
+      "viewport": "lg",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "16.5pt (22px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Офлайн операции</h1>",
+              "target": [
+                ".r-paddingInline-3pj75a > h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"offline-outbox-refre...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"offline-outbox-refresh-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-error\" style=\"font-family: Roboto,...\">",
+              "target": [
+                ".r-fontSize-1enofrn"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": ".r-paddingInline-3pj75a > h1",
+          "status": "manual-review",
+          "text": "Офлайн операции",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.944,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"offline-outbox-refresh-text\"]",
+          "status": "manual-review",
+          "text": "Обнови списъка",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(244, 239, 247)",
+          "contrastCandidate": 9.25,
+          "dominantShare": 0.686,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-fontSize-1enofrn",
+          "status": "manual-review",
+          "text": "Списъкът не може да се зареди",
+          "foreground": "rgb(159, 45, 45)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 7.1,
+          "dominantShare": 0.968,
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -3600,6 +5050,106 @@
                 ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(6) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-statu...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7 r-userSelect-1xnzce8\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; flex-shrink: 1;\">",
+              "target": [
+                ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
         }
@@ -3733,6 +5283,196 @@
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
           "dominantShare": 0.903,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискалната операция е неуспешна",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.919,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(7) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000005",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.902,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(1)",
+          "status": "manual-review",
+          "text": "Фискализирано",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.961,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-pointerEvents-105ug2t.css-view-g5y9jx:nth-child(8) > .r-flexShrink-1wbh5a2.css-view-g5y9jx > .r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-userSelect-1xnzce8.r-textAlign-fdjqy7.css-text-146c3p1",
+          "status": "manual-review",
+          "text": "00000000-0000-4000-8000-000000000006",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.902,
+          "fontSize": "12px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
+      ]
+    },
+    {
+      "screen": "outbox-load-error",
+      "viewport": "lg",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "16.5pt (22px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Офлайн операции</h1>",
+              "target": [
+                ".r-paddingInline-3pj75a > h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"offline-outbox-refre...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"offline-outbox-refresh-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"offline-outbox-error\" style=\"font-family: Roboto,...\">",
+              "target": [
+                ".r-fontSize-1enofrn"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": ".r-paddingInline-3pj75a > h1",
+          "status": "manual-review",
+          "text": "Офлайн операции",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.944,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"offline-outbox-refresh-text\"]",
+          "status": "manual-review",
+          "text": "Обнови списъка",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(31, 27, 39)",
+          "contrastCandidate": 10.15,
+          "dominantShare": 0.686,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".r-fontSize-1enofrn",
+          "status": "manual-review",
+          "text": "Списъкът не може да се зареди",
+          "foreground": "rgb(255, 180, 171)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 10.97,
+          "dominantShare": 0.969,
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
