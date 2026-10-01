@@ -1511,7 +1511,7 @@ function MiniPosApp({
                 onValueChange={setMobilePosView}
                 buttons={[
                   { value: "catalog", label: uiText.products, accessibilityLabel: mobilePosView === "catalog" ? `${uiText.products} • ${uiText.selected}` : uiText.products, testID: "mobile-view-catalog" },
-                  { value: "cart", label: uiText.currentSale, accessibilityLabel: `${uiText.currentSale} (${cart.length}) • € ${total.toFixed(2)}${mobilePosView === "cart" ? ` • ${uiText.selected}` : ""}`, testID: "mobile-view-cart" },
+                  { value: "cart", label: uiText.cart, accessibilityLabel: `${uiText.currentSale} (${cart.length}) • € ${total.toFixed(2)}${mobilePosView === "cart" ? ` • ${uiText.selected}` : ""}`, testID: "mobile-view-cart" },
                 ]}
               />
             </View>
@@ -1557,12 +1557,15 @@ function MiniPosApp({
                 ))}
             </ScrollView>
           </View> : null}
-          {(!isPhone || mobilePosView === "cart") ? <NativeScrollView
-            testID="cart-scroll"
+          {(!isPhone || mobilePosView === "cart") ? <View
             style={[s.cart, isPhone && s.cartPhone, { backgroundColor: paperTheme.colors.surface, borderColor: paperTheme.colors.outlineVariant }]}
-            contentContainerStyle={[s.cartContent, isPhone && s.cartContentPhone]}
-            keyboardShouldPersistTaps="handled"
           >
+            <NativeScrollView
+              testID="cart-scroll"
+              style={{ flex: 1 }}
+              contentContainerStyle={[s.cartContent, isPhone && s.cartContentPhone]}
+              keyboardShouldPersistTaps="handled"
+            >
             <PaperText variant="titleLarge" style={{ marginBottom: 12 }}>{uiText.currentSale}</PaperText>
             {saleProjection ? (
               <View
@@ -1652,15 +1655,10 @@ function MiniPosApp({
                 ))
               )}
             </View>
-            <View style={[s.total, { borderColor: paperTheme.colors.outlineVariant }]}>
-              <PaperText variant="titleMedium">{uiText.total}</PaperText>
-              <PaperText testID="sale-total" variant="headlineSmall">
-                € {total.toFixed(2)}
-              </PaperText>
-            </View>
             <View style={[s.splitRow, isPhone && s.splitRowPhone]}>
               <TextInput
                 testID="split-cash-amount"
+                label={uiText.cashEur}
                 accessibilityLabel={uiText.splitCashAmount}
                 value={splitCash}
                 onChangeText={setSplitCash}
@@ -1698,7 +1696,12 @@ function MiniPosApp({
                 onPress={() => checkout("CARD")}
               >{uiText.card}</PaperButton>
             </View>
-          </NativeScrollView> : null}
+            </NativeScrollView>
+            <View testID="cart-sticky-total" style={[s.total, { borderColor: paperTheme.colors.outlineVariant, backgroundColor: paperTheme.colors.surface }]}>
+              <PaperText variant="titleMedium">{uiText.total}</PaperText>
+              <PaperText testID="sale-total" variant="headlineSmall">€ {total.toFixed(2)}</PaperText>
+            </View>
+          </View> : null}
           </View>
         </View>
       )}
@@ -2256,6 +2259,7 @@ const s = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-between",
     paddingVertical: 16,
+    paddingHorizontal: 16,
     borderTopWidth: 2,
   },
   totalValue: { fontSize: 26, fontWeight: "900" },

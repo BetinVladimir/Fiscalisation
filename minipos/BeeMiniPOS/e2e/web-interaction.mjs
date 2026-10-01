@@ -226,6 +226,7 @@ async function miniPosJourney(browser, appUrl) {
     await page.getByTestId("cart-line-coffee").waitFor();
     const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
     recordAxe("cart-populated", "xs", mode, result);
+    const totalBeforeScroll = await page.getByTestId("cart-sticky-total").boundingBox();
     await page.getByTestId("quantity-inc-coffee").scrollIntoViewIfNeeded();
     const quantityTarget = await page.getByTestId("quantity-inc-coffee").boundingBox();
     assert.ok(quantityTarget && quantityTarget.width >= 48 && quantityTarget.height >= 48, `xs ${mode} quantity control must have a 48px target: ${JSON.stringify(quantityTarget)}`);
@@ -234,11 +235,18 @@ async function miniPosJourney(browser, appUrl) {
     await page.screenshot({ path: join(screenshots, `cart-payment-xs-${mode}.png`), fullPage: true });
     await page.getByTestId("sale-pay").scrollIntoViewIfNeeded();
     await page.screenshot({ path: join(screenshots, `cart-actions-xs-${mode}.png`), fullPage: true });
+    const totalAfterScroll = await page.getByTestId("cart-sticky-total").boundingBox();
+    const footer = await page.getByTestId("status-transport").boundingBox();
+    assert.ok(totalBeforeScroll && totalAfterScroll && footer && Math.abs(totalBeforeScroll.y - totalAfterScroll.y) <= 1 && totalAfterScroll.y + totalAfterScroll.height <= footer.y + 1, `xs ${mode} total must remain fixed above status while cart scrolls`);
     assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, `xs ${mode} cart must not overflow horizontally`);
   }
   await writeFile(join(root, "docs", "ui-optimization-axe-catalog.json"), `${JSON.stringify({ fixture: ".ui-e2e-web", scans: axeReports }, null, 2)}\n`);
   await page.getByTestId("theme-menu-open").click();
   await page.getByTestId("theme-light").click();
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.getByTestId("sale-pay").scrollIntoViewIfNeeded();
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, "320px cart must not overflow horizontally");
+  await page.screenshot({ path: join(screenshots, "cart-actions-320-light.png"), fullPage: true });
   await page.setViewportSize({ width: 900, height: 800 });
   await page.getByTestId("quantity-dec-coffee").click();
   await page.getByTestId("sale-pay").click();

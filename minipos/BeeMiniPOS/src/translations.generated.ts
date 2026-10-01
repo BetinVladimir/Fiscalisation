@@ -1,4 +1,4 @@
-// Generated with local Ollama qwen3.5:9b-mlx; selected register labels with translategemma:12b.
+// Generated with local Ollama qwen3.5:9b-mlx; selected/cart labels with translategemma:12b and reviewed corrections.
 export const translations = {
   "bg": {
     "theme": "Тема",
@@ -99,7 +99,8 @@ export const translations = {
     "configureBeforeShift": "Първо настройте POS конфигурацията",
     "selectEmployeeBeforeShift": "Първо създайте и изберете служител",
     "invalidRegister": "Изберете валидна фискална каса",
-    "selected": "Избрано"
+    "selected": "Избрано",
+    "cart": "Кошница"
   },
   "da": {
     "theme": "Tema",
@@ -200,7 +201,8 @@ export const translations = {
     "configureBeforeShift": "Konfigurer POS'en først",
     "selectEmployeeBeforeShift": "Opret og vælg en medarbejder først",
     "invalidRegister": "Vælg en gyldig fiskal enhed",
-    "selected": "Valgt"
+    "selected": "Valgt",
+    "cart": "Indkøbskurv"
   },
   "hr": {
     "theme": "Tema",
@@ -301,7 +303,8 @@ export const translations = {
     "configureBeforeShift": "Prvo konfigurirajte POS",
     "selectEmployeeBeforeShift": "Prvo stvori i odaberi radnika",
     "invalidRegister": "Odaberite ispravan fiskalni registar",
-    "selected": "Odabrano"
+    "selected": "Odabrano",
+    "cart": "Košarica"
   },
   "cs": {
     "theme": "Téma",
@@ -402,7 +405,8 @@ export const translations = {
     "configureBeforeShift": "Nejprve konfigurujte POS",
     "selectEmployeeBeforeShift": "Nejprve vytvořte a vyberte zaměstnance",
     "invalidRegister": "Vyberte platný fiskální registr",
-    "selected": "Vybráno"
+    "selected": "Vybráno",
+    "cart": "Košík"
   },
   "en": {
     "theme": "Theme",
@@ -503,7 +507,8 @@ export const translations = {
     "configureBeforeShift": "Configure the POS first",
     "selectEmployeeBeforeShift": "Create and select an employee first",
     "invalidRegister": "Select a valid fiscal register",
-    "selected": "Selected"
+    "selected": "Selected",
+    "cart": "Cart"
   },
   "nl": {
     "theme": "Thema",
@@ -604,7 +609,8 @@ export const translations = {
     "configureBeforeShift": "Configureer de POS eerst",
     "selectEmployeeBeforeShift": "Maak en selecteer eerst een medewerker",
     "invalidRegister": "Selecteer een geldig fiscaal register",
-    "selected": "Geselecteerd"
+    "selected": "Geselecteerd",
+    "cart": "Winkelwagen"
   },
   "et": {
     "theme": "Teema",
@@ -705,7 +711,8 @@ export const translations = {
     "configureBeforeShift": "Seadista POS enne vahetust",
     "selectEmployeeBeforeShift": "Loo ja vali töötaja enne vahetust",
     "invalidRegister": "Vali kehtiv maksumärgistaja",
-    "selected": "Valitud"
+    "selected": "Valitud",
+    "cart": "Ostukorv"
   },
   "fi": {
     "theme": "Teema",
@@ -806,7 +813,8 @@ export const translations = {
     "configureBeforeShift": "Aseta POS ensin",
     "selectEmployeeBeforeShift": "Luo ja valitse työntekijä ensin",
     "invalidRegister": "Valitse kelvollinen verorekisteri",
-    "selected": "Valittu"
+    "selected": "Valittu",
+    "cart": "Ostoskori"
   },
   "fr": {
     "theme": "Thème",
@@ -907,7 +915,8 @@ export const translations = {
     "configureBeforeShift": "Configurez le POS avant d'ouvrir la caisse",
     "selectEmployeeBeforeShift": "Créez et sélectionnez un employé avant d'ouvrir la caisse",
     "invalidRegister": "Sélectionnez un registre fiscal valide",
-    "selected": "Sélectionné"
+    "selected": "Sélectionné",
+    "cart": "Panier"
   },
   "hu": {
     "theme": "Téma",
@@ -1008,7 +1017,8 @@ export const translations = {
     "configureBeforeShift": "Állítsa be először a POS-t",
     "selectEmployeeBeforeShift": "Létrehozzon és válasszon egy munkatársat először",
     "invalidRegister": "Válasszon érvényes adóregisztrációt",
-    "selected": "Kiválasztva"
+    "selected": "Kiválasztva",
+    "cart": "Kosár"
   },
   "el": {
     "theme": "Θέμα",
@@ -1109,7 +1119,8 @@ export const translations = {
     "configureBeforeShift": "Ρυθμίστε πρώτα το POS",
     "selectEmployeeBeforeShift": "Δημιουργήστε και επιλέξτε πρώτα έναν υπάλληλο",
     "invalidRegister": "Επιλέξτε έγκυρο μητρώο φορολογικής μονάδας",
-    "selected": "Επιλεγμένο"
+    "selected": "Επιλεγμένο",
+    "cart": "Καλάθι"
   },
   "de": {
     "theme": "Thema",
@@ -1210,7 +1221,8 @@ export const translations = {
     "configureBeforeShift": "Konfigurieren Sie zuerst den POS",
     "selectEmployeeBeforeShift": "Erstellen und wählen Sie zuerst einen Mitarbeiter aus",
     "invalidRegister": "Wählen Sie ein gültiges Fiskalregister aus",
-    "selected": "Ausgewählt"
+    "selected": "Ausgewählt",
+    "cart": "Warenkorb"
   },
   "it": {
     "theme": "Tema",
@@ -1311,7 +1323,8 @@ export const translations = {
     "configureBeforeShift": "Configura prima il POS",
     "selectEmployeeBeforeShift": "Crea e seleziona prima un dipendente",
     "invalidRegister": "Seleziona un registro fiscale valido",
-    "selected": "Selezionato"
+    "selected": "Selezionato",
+    "cart": "Carrello"
   },
   "lt": {
     "theme": "Tema",
@@ -1412,7 +1425,8 @@ export const translations = {
     "configureBeforeShift": "Konfigūruokite POS pirmiausia",
     "selectEmployeeBeforeShift": "Sukurkite ir pasirinkite darbuotoją pirmiausia",
     "invalidRegister": "Pasirinkite galiojantį mokesčių registrą",
-    "selected": "Pasirinkta"
+    "selected": "Pasirinkta",
+    "cart": "Krepšelis"
   },
   "lv": {
     "theme": "Tēma",
@@ -1513,7 +1527,8 @@ export const translations = {
     "configureBeforeShift": "Vispirms konfigurējiet POS",
     "selectEmployeeBeforeShift": "Vispirms izveidojiet un atlasiet darbinieku",
     "invalidRegister": "Izvēlieties derīgu fiskālo reģistru",
-    "selected": "Izvēlēts"
+    "selected": "Izvēlēts",
+    "cart": "Groziņš"
   },
   "ga": {
     "theme": "Temá",
@@ -1614,7 +1629,8 @@ export const translations = {
     "configureBeforeShift": "Cumraigh an POS ar dtús",
     "selectEmployeeBeforeShift": "Cruthaigh agus roghnaigh oibreoir ar dtús",
     "invalidRegister": "Roghnaigh aonad cainníochta bailí",
-    "selected": "Roghnaithe"
+    "selected": "Roghnaithe",
+    "cart": "Ciseán"
   },
   "pl": {
     "theme": "Motyw",
@@ -1715,7 +1731,8 @@ export const translations = {
     "configureBeforeShift": "Najpierw skonfiguruj POS",
     "selectEmployeeBeforeShift": "Najpierw utwórz i wybierz pracownika",
     "invalidRegister": "Wybierz ważny rejestr fiskalny",
-    "selected": "Wybrane"
+    "selected": "Wybrane",
+    "cart": "Koszyk"
   },
   "pt": {
     "theme": "Tema",
@@ -1816,7 +1833,8 @@ export const translations = {
     "configureBeforeShift": "Configure o POS primeiro",
     "selectEmployeeBeforeShift": "Crie e selecione um funcionário primeiro",
     "invalidRegister": "Selecione um registo fiscal válido",
-    "selected": "Selecionado"
+    "selected": "Selecionado",
+    "cart": "Carrinho"
   },
   "ro": {
     "theme": "Tema",
@@ -1917,7 +1935,8 @@ export const translations = {
     "configureBeforeShift": "Configurează mai întâi POS-ul",
     "selectEmployeeBeforeShift": "Creează și selectează un angajat mai întâi",
     "invalidRegister": "Selectează un registru fiscal valid",
-    "selected": "Selectat"
+    "selected": "Selectat",
+    "cart": "Coș"
   },
   "mt": {
     "theme": "Tema",
@@ -2018,7 +2037,8 @@ export const translations = {
     "configureBeforeShift": "Konfigura l-POS l-ewwel",
     "selectEmployeeBeforeShift": "Ikkrea u għażliet impjegat l-ewwel",
     "invalidRegister": "Għażliet registru fiskali validu",
-    "selected": "Magħżul"
+    "selected": "Magħżul",
+    "cart": "Qoffa"
   },
   "sk": {
     "theme": "Téma",
@@ -2119,7 +2139,8 @@ export const translations = {
     "configureBeforeShift": "Najprv nakonfigurujte POS",
     "selectEmployeeBeforeShift": "Najprv vytvorte a vyberte zamestnanca",
     "invalidRegister": "Vyberte platnú fiskálnu pokladňu",
-    "selected": "Vybraté"
+    "selected": "Vybraté",
+    "cart": "Košík"
   },
   "sv": {
     "theme": "Tema",
@@ -2220,7 +2241,8 @@ export const translations = {
     "configureBeforeShift": "Konfigurera POS först",
     "selectEmployeeBeforeShift": "Skapa och välj en medarbetare först",
     "invalidRegister": "Välj ett giltigt fiskalregister",
-    "selected": "Vald"
+    "selected": "Vald",
+    "cart": "Varukorg"
   },
   "es": {
     "theme": "Tema",
@@ -2321,7 +2343,8 @@ export const translations = {
     "configureBeforeShift": "Configurar el POS primero",
     "selectEmployeeBeforeShift": "Crear y seleccionar un empleado primero",
     "invalidRegister": "Seleccionar un registro fiscal válido",
-    "selected": "Seleccionado"
+    "selected": "Seleccionado",
+    "cart": "Carrito"
   },
   "sl": {
     "theme": "Tema",
@@ -2422,7 +2445,8 @@ export const translations = {
     "configureBeforeShift": "Najprej konfigurirajte POS",
     "selectEmployeeBeforeShift": "Najprej ustvarite in izberite sodelavca",
     "invalidRegister": "Izberite veljaven fiskalni zapis",
-    "selected": "Izbrana"
+    "selected": "Izbrana",
+    "cart": "Košarica"
   },
   "ru": {
     "theme": "Тема",
@@ -2523,7 +2547,8 @@ export const translations = {
     "configureBeforeShift": "Сначала настройте конфигурацию POS",
     "selectEmployeeBeforeShift": "Сначала создайте и выберите сотрудника",
     "invalidRegister": "Выберите корректную фискальную кассу",
-    "selected": "Выбрано"
+    "selected": "Выбрано",
+    "cart": "Корзина"
   }
 } as const;
 export const supportedLanguages = ["bg","hr","cs","da","nl","en","et","fi","fr","de","el","hu","ga","it","lv","lt","mt","pl","pt","ro","sk","sl","es","sv","ru"] as const;

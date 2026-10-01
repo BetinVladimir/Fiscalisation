@@ -183,18 +183,6 @@
             },
             {
               "target": [
-                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
-            },
-            {
-              "target": [
-                "div[data-testid=\"sale-total\"]"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
-            },
-            {
-              "target": [
                 ".r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
@@ -204,6 +192,18 @@
                 "input"
               ],
               "html": "<input placeholder=\"В брой EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Сума в брой при разд...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"split-cash-amount\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-total\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
@@ -397,18 +397,6 @@
             },
             {
               "target": [
-                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
-            },
-            {
-              "target": [
-                "div[data-testid=\"sale-total\"]"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
-            },
-            {
-              "target": [
                 ".r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
@@ -418,6 +406,18 @@
                 "input"
               ],
               "html": "<input placeholder=\"В брой EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Сума в брой при разд...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"split-cash-amount\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-total\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
@@ -495,19 +495,19 @@
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Кафе</div>"
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; color: rgb(73, 49, 122);\">€ 2.50</div>"
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(3)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px;\">ДДС B</div>"
             },
@@ -525,18 +525,6 @@
             },
             {
               "target": [
-                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
-            },
-            {
-              "target": [
-                "div[data-testid=\"sale-total\"]"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
-            },
-            {
-              "target": [
                 ".r-15d164r > .css-g5y9jx:nth-child(1) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
@@ -546,6 +534,18 @@
                 "input[placeholder=\"В брой EUR\"]"
               ],
               "html": "<input placeholder=\"В брой EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Сума в брой при разд...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"split-cash-amount\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-total\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
@@ -623,19 +623,19 @@
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Кафе</div>"
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; color: rgb(210, 193, 240);\">€ 2.50</div>"
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(3)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px;\">ДДС B</div>"
             },
@@ -653,18 +653,6 @@
             },
             {
               "target": [
-                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
-            },
-            {
-              "target": [
-                "div[data-testid=\"sale-total\"]"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
-            },
-            {
-              "target": [
                 ".r-15d164r > .css-g5y9jx:nth-child(1) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
@@ -674,6 +662,18 @@
                 "input[placeholder=\"В брой EUR\"]"
               ],
               "html": "<input placeholder=\"В брой EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Сума в брой при разд...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"split-cash-amount\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-total\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
@@ -751,19 +751,19 @@
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Кафе</div>"
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; color: rgb(73, 49, 122);\">€ 2.50</div>"
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(3)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px;\">ДДС B</div>"
             },
@@ -781,18 +781,6 @@
             },
             {
               "target": [
-                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
-            },
-            {
-              "target": [
-                "div[data-testid=\"sale-total\"]"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
-            },
-            {
-              "target": [
                 ".r-15d164r > .css-g5y9jx:nth-child(1) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
@@ -802,6 +790,18 @@
                 "input[placeholder=\"В брой EUR\"]"
               ],
               "html": "<input placeholder=\"В брой EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Сума в брой при разд...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"split-cash-amount\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-total\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
@@ -879,19 +879,19 @@
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Кафе</div>"
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px; color: rgb(210, 193, 240);\">€ 2.50</div>"
             },
             {
               "target": [
-                ".r-3pj75a > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(3)"
+                ".r-9aw3ui > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px;\">ДДС B</div>"
             },
@@ -909,18 +909,6 @@
             },
             {
               "target": [
-                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
-            },
-            {
-              "target": [
-                "div[data-testid=\"sale-total\"]"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
-            },
-            {
-              "target": [
                 ".r-15d164r > .css-g5y9jx:nth-child(1) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
@@ -930,6 +918,18 @@
                 "input[placeholder=\"В брой EUR\"]"
               ],
               "html": "<input placeholder=\"В брой EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Сума в брой при разд...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"split-cash-amount\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-total\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 0.00</div>"
             },
             {
               "target": [
@@ -1061,18 +1061,6 @@
             },
             {
               "target": [
-                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
-            },
-            {
-              "target": [
-                "div[data-testid=\"sale-total\"]"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 5.00</div>"
-            },
-            {
-              "target": [
                 ".css-g5y9jx:nth-child(1) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
@@ -1088,6 +1076,30 @@
                 "div[data-testid=\"payment-split-text\"]"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"payment-split-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-pay-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"sale-pay-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"payment-card-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"payment-card-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-total\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 5.00</div>"
             },
             {
               "target": [
@@ -1219,18 +1231,6 @@
             },
             {
               "target": [
-                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
-            },
-            {
-              "target": [
-                "div[data-testid=\"sale-total\"]"
-              ],
-              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 5.00</div>"
-            },
-            {
-              "target": [
                 ".css-g5y9jx:nth-child(1) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-1udbk01.r-3s2u2q.r-1iln25a:nth-child(3)"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"split-cash-amount-la...\" style=\"font-weight: 400; di...\">"
@@ -1258,6 +1258,18 @@
                 "div[data-testid=\"payment-card-text\"]"
               ],
               "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"payment-card-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-1jxfwug > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ОБЩО</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"sale-total\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"sale-total\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">€ 5.00</div>"
             },
             {
               "target": [
