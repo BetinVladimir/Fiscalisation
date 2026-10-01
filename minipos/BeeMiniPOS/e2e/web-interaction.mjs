@@ -181,16 +181,21 @@ async function miniPosJourney(browser, appUrl) {
 
   await page.getByTestId("admin-toggle").click();
   await page.getByTestId("admin-editors").waitFor();
-  for (const [width, height, size] of [[360, 800, "xs"], [960, 900, "md"], [1440, 1000, "lg"]]) {
-    await page.setViewportSize({ width, height });
-    for (const mode of ["light", "dark"]) {
-      await page.getByTestId("theme-menu-open").click();
-      await page.getByTestId(`theme-${mode}`).click();
-      const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
-      recordAxe("management-home", size, mode, result);
-      await page.screenshot({ path: join(screenshots, `management-home-${size}-${mode}.png`), fullPage: true });
+  const scanManagement = async (screen, expectedTestId) => {
+    await page.getByTestId(expectedTestId).waitFor();
+    for (const [width, height, size] of [[360, 800, "xs"], [960, 900, "md"], [1440, 1000, "lg"]]) {
+      await page.setViewportSize({ width, height });
+      for (const mode of ["light", "dark"]) {
+        await page.getByTestId("theme-menu-open").click();
+        await page.getByTestId(`theme-${mode}`).click();
+        await page.getByTestId(expectedTestId).waitFor();
+        const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+        recordAxe(screen, size, mode, result);
+        await page.screenshot({ path: join(screenshots, `${screen}-${size}-${mode}.png`), fullPage: true });
+      }
     }
-  }
+  };
+  await scanManagement("management-home", "admin-editors");
   await page.getByTestId("theme-menu-open").click();
   await page.getByTestId("theme-light").click();
   await page.getByTestId("config-location-name").fill("Магазин София");
@@ -200,7 +205,9 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("config-save").click();
   await page.getByTestId("status-transport").getByText(/кас[оа]вото място са записани/).waitFor();
   await page.getByTestId("admin-products").click();
+  await scanManagement("management-products", "product-add");
   await page.getByTestId("product-add").click();
+  await scanManagement("management-product-new", "product-name");
   await page.getByTestId("product-name").fill("Чай");
   await page.getByTestId("product-barcode").fill("380000000002");
   await page.getByTestId("product-price").fill("3.20");
@@ -208,8 +215,15 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByText("Продукти").waitFor();
   await page.getByText("Чай").waitFor();
   await page.getByTestId("admin-catalog-back").click();
+  await page.getByTestId("admin-tax-groups").click();
+  await scanManagement("management-tax-groups", "tax-group-add");
+  await page.getByTestId("tax-group-add").click();
+  await scanManagement("management-tax-group-new", "tax-group-code");
+  await page.getByTestId("admin-catalog-back").click();
   await page.getByTestId("admin-employees").click();
+  await scanManagement("management-employees", "employee-add");
   await page.getByTestId("employee-add").click();
+  await scanManagement("management-employee-new", "employee-first-name");
   await page.getByTestId("employee-first-name").fill("Мария");
   await page.getByTestId("employee-last-name").fill("Иванова");
   await page.getByTestId("employee-code").fill("0002");

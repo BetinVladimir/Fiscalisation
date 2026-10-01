@@ -1878,6 +1878,3678 @@
       ]
     },
     {
+      "screen": "management-products",
+      "viewport": "xs",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-products",
+      "viewport": "xs",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-products",
+      "viewport": "md",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-products",
+      "viewport": "md",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-products",
+      "viewport": "lg",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-products",
+      "viewport": "lg",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-product-new",
+      "viewport": "xs",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов продукт</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-name-label-i...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-barcode-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-barcode-labe...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Баркод\"]"
+              ],
+              "html": "<input placeholder=\"Баркод\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Баркод\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-barcode\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-price-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-price-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Цена EUR\"]"
+              ],
+              "html": "<input placeholder=\"Цена EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Цена EUR\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-price\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(5)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ДДС група</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"button-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-product-new",
+      "viewport": "xs",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов продукт</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-name-label-i...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-barcode-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-barcode-labe...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Баркод\"]"
+              ],
+              "html": "<input placeholder=\"Баркод\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Баркод\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-barcode\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-price-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-price-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Цена EUR\"]"
+              ],
+              "html": "<input placeholder=\"Цена EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Цена EUR\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-price\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(5)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ДДС група</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"button-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-product-new",
+      "viewport": "md",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов продукт</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-name-label-i...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-barcode-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-barcode-labe...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Баркод\"]"
+              ],
+              "html": "<input placeholder=\"Баркод\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Баркод\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-barcode\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-price-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-price-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Цена EUR\"]"
+              ],
+              "html": "<input placeholder=\"Цена EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Цена EUR\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-price\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(5)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ДДС група</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"button-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-product-new",
+      "viewport": "md",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов продукт</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-name-label-i...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-barcode-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-barcode-labe...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Баркод\"]"
+              ],
+              "html": "<input placeholder=\"Баркод\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Баркод\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-barcode\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-price-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-price-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Цена EUR\"]"
+              ],
+              "html": "<input placeholder=\"Цена EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Цена EUR\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-price\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(5)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ДДС група</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"button-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-product-new",
+      "viewport": "lg",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов продукт</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-name-label-i...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-barcode-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-barcode-labe...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Баркод\"]"
+              ],
+              "html": "<input placeholder=\"Баркод\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Баркод\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-barcode\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-price-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-price-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Цена EUR\"]"
+              ],
+              "html": "<input placeholder=\"Цена EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Цена EUR\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-price\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(5)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ДДС група</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"button-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-product-new",
+      "viewport": "lg",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов продукт</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-name-label-i...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-barcode-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-barcode-labe...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Баркод\"]"
+              ],
+              "html": "<input placeholder=\"Баркод\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Баркод\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-barcode\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-price-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"product-price-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Цена EUR\"]"
+              ],
+              "html": "<input placeholder=\"Цена EUR\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Цена EUR\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"product-price\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(5)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_500Medium; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">ДДС група</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"button-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"product-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"product-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-groups",
+      "viewport": "xs",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">ДДС групи</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-ubezar"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">B • Стандартна</div>"
+            },
+            {
+              "target": [
+                ".r-8akbws"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-fdjqy7 r-1b43r93 r-lrvibr\" style=\"-webkit-line-clamp: 2; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(72, 67, 77);\">20.00% • активна</div>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-groups",
+      "viewport": "xs",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">ДДС групи</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-ubezar"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(234, 228, 238);\">B • Стандартна</div>"
+            },
+            {
+              "target": [
+                ".r-8akbws"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-fdjqy7 r-1b43r93 r-lrvibr\" style=\"-webkit-line-clamp: 2; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(212, 205, 217);\">20.00% • активна</div>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-groups",
+      "viewport": "md",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">ДДС групи</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-ubezar"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">B • Стандартна</div>"
+            },
+            {
+              "target": [
+                ".r-8akbws"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-fdjqy7 r-1b43r93 r-lrvibr\" style=\"-webkit-line-clamp: 2; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(72, 67, 77);\">20.00% • активна</div>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-groups",
+      "viewport": "md",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">ДДС групи</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-ubezar"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(234, 228, 238);\">B • Стандартна</div>"
+            },
+            {
+              "target": [
+                ".r-8akbws"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-fdjqy7 r-1b43r93 r-lrvibr\" style=\"-webkit-line-clamp: 2; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(212, 205, 217);\">20.00% • активна</div>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-groups",
+      "viewport": "lg",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">ДДС групи</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-ubezar"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">B • Стандартна</div>"
+            },
+            {
+              "target": [
+                ".r-8akbws"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-fdjqy7 r-1b43r93 r-lrvibr\" style=\"-webkit-line-clamp: 2; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(72, 67, 77);\">20.00% • активна</div>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-groups",
+      "viewport": "lg",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">ДДС групи</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-ubezar"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(234, 228, 238);\">B • Стандартна</div>"
+            },
+            {
+              "target": [
+                ".r-8akbws"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-fdjqy7 r-1b43r93 r-lrvibr\" style=\"-webkit-line-clamp: 2; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(212, 205, 217);\">20.00% • активна</div>"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-group-new",
+      "viewport": "xs",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нова ДДС група</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-code-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код A–H\"]"
+              ],
+              "html": "<input placeholder=\"Код A–H\" maxlength=\"1\" autocapitalize=\"characters\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код A–H\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-name-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-rate-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-rate-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Ставка ДДС, %\"]"
+              ],
+              "html": "<input placeholder=\"Ставка ДДС, %\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Ставка ДДС, %\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-rate\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-save-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-save-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-group-new",
+      "viewport": "xs",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нова ДДС група</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-code-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код A–H\"]"
+              ],
+              "html": "<input placeholder=\"Код A–H\" maxlength=\"1\" autocapitalize=\"characters\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код A–H\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-name-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-rate-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-rate-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Ставка ДДС, %\"]"
+              ],
+              "html": "<input placeholder=\"Ставка ДДС, %\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Ставка ДДС, %\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-rate\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-save-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-save-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-group-new",
+      "viewport": "md",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нова ДДС група</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-code-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код A–H\"]"
+              ],
+              "html": "<input placeholder=\"Код A–H\" maxlength=\"1\" autocapitalize=\"characters\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код A–H\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-name-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-rate-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-rate-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Ставка ДДС, %\"]"
+              ],
+              "html": "<input placeholder=\"Ставка ДДС, %\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Ставка ДДС, %\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-rate\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-save-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-save-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-group-new",
+      "viewport": "md",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нова ДДС група</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-code-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код A–H\"]"
+              ],
+              "html": "<input placeholder=\"Код A–H\" maxlength=\"1\" autocapitalize=\"characters\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код A–H\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-name-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-rate-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-rate-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Ставка ДДС, %\"]"
+              ],
+              "html": "<input placeholder=\"Ставка ДДС, %\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Ставка ДДС, %\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-rate\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-save-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-save-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-group-new",
+      "viewport": "lg",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нова ДДС група</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-code-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код A–H\"]"
+              ],
+              "html": "<input placeholder=\"Код A–H\" maxlength=\"1\" autocapitalize=\"characters\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код A–H\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-name-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-rate-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-rate-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Ставка ДДС, %\"]"
+              ],
+              "html": "<input placeholder=\"Ставка ДДС, %\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Ставка ДДС, %\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-rate\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-save-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-save-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-tax-group-new",
+      "viewport": "lg",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нова ДДС група</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-code-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код A–H\"]"
+              ],
+              "html": "<input placeholder=\"Код A–H\" maxlength=\"1\" autocapitalize=\"characters\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код A–H\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-name-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-name-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-rate-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"tax-group-rate-label...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Ставка ДДС, %\"]"
+              ],
+              "html": "<input placeholder=\"Ставка ДДС, %\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Ставка ДДС, %\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"tax-group-rate\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"tax-group-save-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"tax-group-save-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employees",
+      "viewport": "xs",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employees",
+      "viewport": "xs",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employees",
+      "viewport": "md",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employees",
+      "viewport": "md",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employees",
+      "viewport": "lg",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employees",
+      "viewport": "lg",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-qklmqi > .r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-add-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-add-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-fdjqy7.r-13awgt0.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employee-new",
+      "viewport": "xs",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов служител</h1>"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(2) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-first-name-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-first-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(3) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-last-name-l...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Фамилия\"]"
+              ],
+              "html": "<input placeholder=\"Фамилия\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Фамилия\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-last-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-code-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код на оператор\"]"
+              ],
+              "html": "<input placeholder=\"Код на оператор\" maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employee-new",
+      "viewport": "xs",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов служител</h1>"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(2) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-first-name-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-first-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(3) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-last-name-l...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Фамилия\"]"
+              ],
+              "html": "<input placeholder=\"Фамилия\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Фамилия\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-last-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-code-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код на оператор\"]"
+              ],
+              "html": "<input placeholder=\"Код на оператор\" maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employee-new",
+      "viewport": "md",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов служител</h1>"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(2) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-first-name-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-first-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(3) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-last-name-l...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Фамилия\"]"
+              ],
+              "html": "<input placeholder=\"Фамилия\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Фамилия\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-last-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-code-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код на оператор\"]"
+              ],
+              "html": "<input placeholder=\"Код на оператор\" maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employee-new",
+      "viewport": "md",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов служител</h1>"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(2) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-first-name-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-first-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(3) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-last-name-l...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Фамилия\"]"
+              ],
+              "html": "<input placeholder=\"Фамилия\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Фамилия\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-last-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-code-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код на оператор\"]"
+              ],
+              "html": "<input placeholder=\"Код на оператор\" maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employee-new",
+      "viewport": "lg",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(29, 26, 32);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(72, 67, 77);\">Магазин София • Каса 01 • 00000000-0000-4000-8000-000000000001 • Иван Петров • EUR • BLE OFF</div>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов служител</h1>"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(2) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-first-name-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-first-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(3) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-last-name-l...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Фамилия\"]"
+              ],
+              "html": "<input placeholder=\"Фамилия\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Фамилия\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-last-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-code-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код на оператор\"]"
+              ],
+              "html": "<input placeholder=\"Код на оператор\" maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(72, 67, 77);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "screen": "management-employee-new",
+      "viewport": "lg",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "nodes": [
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(1)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px; color: rgb(234, 228, 238);\">BeeMiniPOS</div>"
+            },
+            {
+              "target": [
+                ".r-1wbh5a2.css-g5y9jx > .r-fdjqy7.css-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px; color: rgb(212, 205, 217);\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"ble-connect-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"ble-connect-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"admin-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"theme-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"language-menu-open-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"language-menu-open-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"shift-toggle-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"shift-toggle-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-15a3drq"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"admin-catalog-back-t...\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                "h1"
+              ],
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Нов служител</h1>"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(2) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-first-name-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Име\"]"
+              ],
+              "html": "<input placeholder=\"Име\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-first-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                ".css-g5y9jx:nth-child(3) > .css-g5y9jx > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-fdjqy7.r-1udbk01.r-3s2u2q:nth-child(3)"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-last-name-l...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Фамилия\"]"
+              ],
+              "html": "<input placeholder=\"Фамилия\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Фамилия\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-last-name\" value=\"\" style=\"--placeholderTextCol...\">"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-code-label-inactive\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"employee-code-label-...\" style=\"font-weight: 400; di...\">"
+            },
+            {
+              "target": [
+                "input[placeholder=\"Код на оператор\"]"
+              ],
+              "html": "<input placeholder=\"Код на оператор\" maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"employee-code\" value=\"\" ...>"
+            },
+            {
+              "target": [
+                "div[data-testid=\"employee-create-text\"]"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"employee-create-text\" style=\"direction: ltr; colo...\">"
+            },
+            {
+              "target": [
+                ".r-13awgt0.r-fdjqy7.css-146c3p1"
+              ],
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(212, 205, 217);\">Състояние: Готово • отворете смяна</div>"
+            }
+          ]
+        }
+      ]
+    },
+    {
       "screen": "cart-populated",
       "viewport": "xs",
       "theme": "light",
