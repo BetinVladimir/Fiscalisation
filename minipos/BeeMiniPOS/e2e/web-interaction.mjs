@@ -134,6 +134,7 @@ async function miniPosJourney(browser, appUrl) {
     const findings = items => items.map(item => ({ id: item.id, impact: item.impact, nodes: item.nodes.map(node => ({ target: node.target, html: node.html })) }));
     axeReports.push({ screen, viewport: size, theme: mode, violations: findings(result.violations), incomplete: findings(result.incomplete) });
     console.log(`[MiniPOS Axe] ${screen} ${size}/${mode}: ${result.violations.length} violations, ${result.incomplete.length} incomplete`);
+    if (result.violations.length) console.error(JSON.stringify(findings(result.violations), null, 2));
     assert.equal(result.violations.length, 0, `${screen} ${size}/${mode}: ${result.violations.map(item => item.id).join(", ")}`);
   };
   await page.getByTestId("theme-menu-open").click();
@@ -194,7 +195,7 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("theme-light").click();
   await page.getByTestId("config-location-name").fill("Магазин София");
   await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000002").click();
-  assert.equal(await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000002").getAttribute("aria-label"), "R02 • Избрано", "Paper register selection must expose its checked state in the accessible name");
+  await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000002").getByText("R02 • Избрано").waitFor();
   await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000001").click();
   await page.getByTestId("config-save").click();
   await page.getByTestId("status-transport").getByText(/кас[оа]вото място са записани/).waitFor();

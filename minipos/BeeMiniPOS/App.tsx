@@ -16,7 +16,6 @@ import {
   IconButton as PaperIconButton,
   List as PaperList,
   Menu as PaperMenu,
-  RadioButton as PaperRadioButton,
   SegmentedButtons as PaperSegmentedButtons,
   Text as PaperText,
   useTheme,
@@ -1845,14 +1844,13 @@ function ReferenceChoices({items,value,onChange,emptyLabel,onEmpty}:{items:Fisca
   if (!items.length) return <View style={s.stackCompact}><PaperText variant="bodyMedium">{emptyLabel}</PaperText><PaperButton mode="outlined" onPress={onEmpty}>Заполнить справочник кассовых мест</PaperButton></View>;
   return <View style={s.stackCompact}>
     <TextInput placeholder="Поиск кассового места" value={query} onChangeText={setQuery}/>
-    {visible.map((item) => <PaperRadioButton.Item
+    {visible.map((item) => <PaperButton
       key={item.id}
       testID={`register-choice-${item.id}`}
-      label={`${item.code || item.name || "Кассовое место"}${item.id === value ? ` • ${text.selected}` : ""}`}
-      value={item.id}
-      status={item.id === value ? "checked" : "unchecked"}
+      mode={item.id === value ? "contained-tonal" : "outlined"}
+      accessibilityState={{ selected: item.id === value }}
       onPress={() => onChange(item.id)}
-    />)}
+    >{`${item.code || item.name || "Кассовое место"}${item.id === value ? ` • ${text.selected}` : ""}`}</PaperButton>)}
     {!visible.length ? <PaperText variant="bodyMedium">Совпадений нет.</PaperText> : null}
   </View>;
 }
@@ -1915,11 +1913,11 @@ function Admin({
       <TextInput testID="product-barcode" style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={setters.setPBarcode}/>
       <TextInput testID="product-price" style={s.search} placeholder={text.priceEur} keyboardType="decimal-pad" value={values.pPrice} onChangeText={setters.setPPrice}/>
       <PaperText variant="titleMedium">{text.vatGroup}</PaperText>
-      {taxGroups.filter((group: TaxGroup) => group.status === "ACTIVE").map((group: TaxGroup) => <PaperRadioButton.Item
-        key={group.id} label={`${group.code} • ${group.name} • ${group.rate}%${values.pTaxGroup === group.code ? ` • ${text.selected}` : ""}`}
-        value={group.code} status={values.pTaxGroup === group.code ? "checked" : "unchecked"}
+      {taxGroups.filter((group: TaxGroup) => group.status === "ACTIVE").map((group: TaxGroup) => <PaperButton
+        key={group.id} mode={values.pTaxGroup === group.code ? "contained-tonal" : "outlined"}
+        accessibilityState={{ selected: values.pTaxGroup === group.code }}
         onPress={() => setters.setPTaxGroup(group.code)}
-      />)}
+      >{`${group.code} • ${group.name} • ${group.rate}%${values.pTaxGroup === group.code ? ` • ${text.selected}` : ""}`}</PaperButton>)}
       {!taxGroups.some((group: TaxGroup) => group.status === "ACTIVE") ? <PaperButton mode="outlined" onPress={() => setCatalogScreen("tax-groups")}>{text.configureTaxGroups}</PaperButton> : null}
       <PaperButton testID="product-create" mode="contained" disabled={!values.pTaxGroup} onPress={async () => { await createProduct(); setCatalogScreen("products"); }}>{text.save}</PaperButton>
     </PaperCard.Content></PaperCard> : null}
