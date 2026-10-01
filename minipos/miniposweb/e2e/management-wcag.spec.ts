@@ -20,10 +20,10 @@ test('management lists and forms: xs/md/lg × light/dark WCAG matrix', async ({ 
       await waitForPOS(page);
       await expect(page.locator('html')).toHaveAttribute('data-theme', mode);
       for (const [screen, nav, title] of [
-        ['products', 'Товари', 'Товары'],
-        ['employees', 'Сотрудники', 'Сотрудники'],
+        ['products', 'app-products', 'Продукти'],
+        ['employees', 'app-employees', 'Служители'],
       ] as const) {
-        await page.getByRole('button', { name: nav }).click();
+        await page.getByTestId(nav).click();
         await expect(page.getByRole('heading', { name: title })).toBeVisible();
         await expect(page.getByTestId('management-list')).toBeVisible();
         await scan(`${screen}-list`);

@@ -498,7 +498,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -523,7 +523,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -548,7 +548,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -573,9 +573,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -902,7 +902,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -927,7 +927,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -952,7 +952,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -977,9 +977,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1131,9 +1131,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-settings-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(2) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-settings-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1208,7 +1208,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1406,7 +1406,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -1431,7 +1431,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -1456,7 +1456,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -1481,9 +1481,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2089,7 +2089,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -2114,7 +2114,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -2139,7 +2139,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -2164,9 +2164,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2493,7 +2493,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -2518,7 +2518,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -2543,7 +2543,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -2568,9 +2568,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2722,9 +2722,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-settings-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(2) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-settings-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2799,7 +2799,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2997,7 +2997,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -3022,7 +3022,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -3047,7 +3047,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -3072,9 +3072,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -3680,7 +3680,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -3705,7 +3705,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -3730,7 +3730,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -3755,9 +3755,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -4084,7 +4084,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -4109,7 +4109,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -4134,7 +4134,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -4159,9 +4159,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -4313,9 +4313,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-settings-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(2) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-settings-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -4390,7 +4390,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -4588,7 +4588,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -4613,7 +4613,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -4638,7 +4638,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -4663,9 +4663,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -5271,7 +5271,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -5296,7 +5296,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -5321,7 +5321,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -5346,9 +5346,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -5675,7 +5675,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -5700,7 +5700,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -5725,7 +5725,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -5750,9 +5750,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -5904,9 +5904,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-settings-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(2) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-settings-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -5981,7 +5981,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -6179,7 +6179,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -6204,7 +6204,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -6229,7 +6229,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -6254,9 +6254,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -6862,7 +6862,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -6887,7 +6887,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -6912,7 +6912,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -6937,9 +6937,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -7266,7 +7266,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -7291,7 +7291,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -7316,7 +7316,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -7341,9 +7341,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -7482,6 +7482,31 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
+                    "fontSize": "9.0pt (12px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.4px; font-weight: 400; line-height: 16px; font-size: 12px;\">Иван Иванов · Онлайн</div>",
+              "target": [
+                "header > div:nth-child(1) > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]:nth-child(2)"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
                     "fontSize": "10.5pt (14px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -7495,9 +7520,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-settings-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(2) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-settings-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -7572,7 +7597,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -7770,7 +7795,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -7795,7 +7820,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -7820,7 +7845,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -7845,9 +7870,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -8453,7 +8478,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -8478,7 +8503,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -8503,7 +8528,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -8528,9 +8553,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -8857,7 +8882,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -8882,7 +8907,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -8907,7 +8932,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)"
               ],
@@ -8932,9 +8957,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -9086,9 +9111,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-settings-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(2) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-settings-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -9163,7 +9188,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a.r-paddingBlock-w7s2jr.css-view-g5y9jx > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -9361,7 +9386,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-quantity-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -9386,7 +9411,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"1\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"numeric\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Количество\" class=\"css-textinput-11aywt...\" data-testid=\"sale-quantity-prod-0...\" value=\"1\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[inputmode=\"numeric\"]"
               ],
@@ -9411,7 +9436,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-o...\" data-testid=\"sale-discount-prod-0...\" style=\"font-weight: 400; di...\">",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textOverflow-1udbk01.r-whiteSpace-3s2u2q.r-wordWrap-1iln25a:nth-child(3)"
               ],
@@ -9436,9 +9461,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка EUR\" class=\"css-textinput-11aywt...\" data-testid=\"text-input-outlined\" value=\"0\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" inputmode=\"decimal\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Отстъпка в евро за\" class=\"css-textinput-11aywt...\" data-testid=\"sale-discount-prod-0...\" value=\"0\" ...>",
               "target": [
-                "input[aria-label=\"Отстъпка EUR\"]"
+                "input[aria-label=\"Отстъпка в евро за\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },

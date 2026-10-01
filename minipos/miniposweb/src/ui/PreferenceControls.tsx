@@ -32,7 +32,7 @@ export function PreferenceControls({ language, onLanguageChange, testIdPrefix }:
     setLanguageOpen(false);
     try { localStorage.setItem("minipos-language", value); } catch { /* private browsing */ }
   };
-  return <View style={{ flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end", gap: 8 }}>
+  return <View style={{ width: "100%", minWidth: 0, flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end", gap: 8 }}>
     <Menu visible={themeOpen} onDismiss={() => setThemeOpen(false)} theme={{ animation: { scale: 0 } }} contentStyle={{ maxHeight: 224 }} anchor={<Button mode="outlined" onPress={() => setThemeOpen(true)} testID={`${testIdPrefix}-theme-open`}>{t.theme}: {preference === "system" ? t.systemTheme : preference === "dark" ? t.darkTheme : t.lightTheme}</Button>}>
       <View accessibilityRole="menu">
         {(["system", "light", "dark"] as const).map(value => <Menu.Item key={value} testID={`${testIdPrefix}-theme-${value}`} title={`${value === "system" ? t.systemTheme : value === "dark" ? t.darkTheme : t.lightTheme}${preference === value ? " ✓" : ""}`} onPress={() => { setPreference(value); setThemeOpen(false); }}/>) }

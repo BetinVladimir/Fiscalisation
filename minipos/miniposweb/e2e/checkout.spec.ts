@@ -48,7 +48,7 @@ test.describe('Checkout – CLOUD route (fiscal-route-health → checkout-batch)
     await page.goto('/');
     await waitForPOS(page);
     await page.getByRole('button', { name: /Кафе/ }).click();
-    await page.getByLabel('Отстъпка EUR').fill('abc');
+    await page.getByTestId('sale-discount-prod-001').fill('abc');
     await page.getByTestId('sale-card-amount').fill('invalid');
     await expect(page.getByTestId('sale-total')).toContainText('2.50 EUR');
     await expect(page.getByTestId('sale-checkout')).toBeEnabled();

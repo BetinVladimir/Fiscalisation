@@ -71,7 +71,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-maxWidth-dnmrzs.r-textOverflow-1udbk01[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
@@ -150,7 +150,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-maxWidth-dnmrzs.r-textOverflow-1udbk01[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
@@ -229,7 +229,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-maxWidth-dnmrzs.r-textOverflow-1udbk01[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
@@ -308,7 +308,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-maxWidth-dnmrzs.r-textOverflow-1udbk01[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
@@ -387,7 +387,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-maxWidth-dnmrzs.r-textOverflow-1udbk01[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
@@ -466,7 +466,7 @@
               "impact": "serious",
               "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-paddingInline-3pj75a > .r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-maxWidth-dnmrzs.r-textOverflow-1udbk01[data-testid=\"button-text\"]"
+                "div[data-testid=\"button-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }

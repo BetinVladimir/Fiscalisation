@@ -7,9 +7,9 @@ test.describe('Management – Products', () => {
     await page.goto('/');
     await waitForPOS(page);
 
-    await page.getByRole('button', { name: 'Товари' }).click();
+    await page.getByTestId('app-products').click();
 
-    await expect(page.getByText('Товары')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Продукти' })).toBeVisible();
     await expect(page.getByText('Кафе')).toBeVisible();
     await expect(page.getByText('Вода')).toBeVisible();
   });
@@ -19,14 +19,14 @@ test.describe('Management – Products', () => {
     await page.goto('/');
     await waitForPOS(page);
 
-    await page.getByRole('button', { name: 'Товари' }).click();
-    await page.getByRole('button', { name: 'Добавить', exact: true }).click();
+    await page.getByTestId('app-products').click();
+    await page.getByTestId('management-add').click();
 
-    await expect(page.getByText('Новый товар')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Нов продукт' })).toBeVisible();
 
-    await page.getByLabel('Название').fill('Чай');
-    await page.getByLabel('Цена EUR').fill('1.50');
-    await page.getByRole('button', { name: 'Сохранить' }).click();
+    await page.getByTestId('management-product-name').fill('Чай');
+    await page.getByTestId('management-product-price').fill('1.50');
+    await page.getByTestId('management-save').click();
 
     // After save, the form closes and the new product appears
     await expect(page.getByText('Нов продукт')).toBeVisible({ timeout: 5_000 });
@@ -37,21 +37,21 @@ test.describe('Management – Products', () => {
     await page.goto('/');
     await waitForPOS(page);
 
-    await page.getByRole('button', { name: 'Товари' }).click();
-    await page.getByRole('button', { name: 'Добавить', exact: true }).click();
+    await page.getByTestId('app-products').click();
+    await page.getByTestId('management-add').click();
 
-    await expect(page.getByText('Новый товар')).toBeVisible();
-    await page.getByRole('button', { name: 'Отмена' }).click();
+    await expect(page.getByRole('heading', { name: 'Нов продукт' })).toBeVisible();
+    await page.getByTestId('management-cancel').click();
 
     await expect(page.getByText('Кафе')).toBeVisible();
-    await expect(page.getByText('Новый товар')).not.toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Нов продукт' })).not.toBeVisible();
   });
 
   test('failed product save keeps entered values and shows Paper error', async ({ page }) => {
     await setup(page, { minipos: { createProduct: 500 } });
     await page.goto('/');
     await waitForPOS(page);
-    await page.getByRole('button', { name: 'Товари' }).click();
+    await page.getByTestId('app-products').click();
     await page.getByTestId('management-add').click();
     await page.getByTestId('management-product-name').fill('Чай');
     await page.getByTestId('management-product-price').fill('1.50');
@@ -77,9 +77,9 @@ test.describe('Management – Employees', () => {
     await page.goto('/');
     await waitForPOS(page);
 
-    await page.getByRole('button', { name: 'Сотрудники' }).click();
+    await page.getByTestId('app-employees').click();
 
-    await expect(page.getByRole('heading', { name: 'Сотрудники' })).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Служители' })).toBeVisible();
     await expect(page.getByTestId('management-list').getByText('Иван Иванов')).toBeVisible();
     await expect(page.getByTestId('management-list').getByText('Мария Петрова')).toBeVisible();
   });
@@ -89,15 +89,15 @@ test.describe('Management – Employees', () => {
     await page.goto('/');
     await waitForPOS(page);
 
-    await page.getByRole('button', { name: 'Сотрудники' }).click();
-    await page.getByRole('button', { name: 'Добавить', exact: true }).click();
+    await page.getByTestId('app-employees').click();
+    await page.getByTestId('management-add').click();
 
-    await expect(page.getByText('Новый сотрудник')).toBeVisible();
+    await expect(page.getByRole('heading', { name: 'Нов служител' })).toBeVisible();
 
-    await page.getByLabel('Имя').fill('Петър');
-    await page.getByLabel('Фамилия').fill('Петров');
-    await page.getByLabel('Код оператора').fill('003');
-    await page.getByRole('button', { name: 'Сохранить' }).click();
+    await page.getByTestId('management-employee-first').fill('Петър');
+    await page.getByTestId('management-employee-last').fill('Петров');
+    await page.getByTestId('management-employee-code').fill('003');
+    await page.getByTestId('management-save').click();
 
     await expect(page.getByText('Петър Петров')).toBeVisible({ timeout: 5_000 });
   });
@@ -109,9 +109,9 @@ test.describe('Management – Employees', () => {
     await page.goto('/');
     await waitForPOS(page);
 
-    await page.getByRole('button', { name: 'Сотрудники' }).click();
-    await page.getByRole('button', { name: 'Добавить', exact: true }).click();
-    await page.getByRole('button', { name: 'Отмена' }).click();
+    await page.getByTestId('app-employees').click();
+    await page.getByTestId('management-add').click();
+    await page.getByTestId('management-cancel').click();
 
     await expect(page.getByTestId('management-list').getByText('Иван Иванов')).toBeVisible();
   });
@@ -140,10 +140,10 @@ test.describe('Navigation', () => {
     await page.goto('/');
     await waitForPOS(page);
 
-    await page.getByRole('button', { name: 'Товари' }).click();
-    await expect(page.getByText('Товары')).toBeVisible();
+    await page.getByTestId('app-products').click();
+    await expect(page.getByRole('heading', { name: 'Продукти' })).toBeVisible();
 
-    await page.getByRole('button', { name: 'Продажби' }).click();
+    await page.getByTestId('app-sales').click();
     await expect(page.getByText(/Текуща продажба/)).toBeVisible();
   });
 });

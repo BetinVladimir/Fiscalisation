@@ -27,6 +27,7 @@ import { Management } from "./Management";
 import { Button as PaperButton, Card, HelperText, Surface, Text as PaperText, useTheme } from "react-native-paper";
 import { PreferenceControls, readLanguage, type Language } from "./ui/PreferenceControls";
 import { PaymentPanel, ProductGrid, type CartLine } from "./SalePanels";
+import { translations as workTranslations } from "./ui/workTranslations.generated";
 
 const appInstance =
   localStorage.getItem("app-instance-id") ?? crypto.randomUUID();
@@ -51,6 +52,7 @@ const money = (value: number) => ({
 export default function App() {
   const paperTheme = useTheme();
   const [language, setLanguage] = useState<Language>(readLanguage);
+  const t = workTranslations[language];
   const [backend, setBackend] = useState(
     localStorage.getItem("minipos-backend") ?? "/public/v1/minipos",
   );
@@ -175,7 +177,7 @@ export default function App() {
           setSession(cachedSession.value);
         if (cachedShift?.value.state === "OPEN") setShift(cachedShift.value);
         setMessage(
-          "Offline справочници: нова смяна не може да се отвори без backend",
+          "OFFLINE_REFERENCE",
         );
       } else setMessage(error instanceof Error ? error.message : String(error));
     } finally {
@@ -334,7 +336,7 @@ export default function App() {
       } catch (error) {
         if (error instanceof ApiError && error.status < 500) throw error;
         setMessage(
-          "Cloud подготовката е недостъпна; изпълнява се локално и ще се съгласува след възстановяване",
+          "CLOUD_PREPARE_UNAVAILABLE",
         );
       }
       const surrogateId = order?.external_id ?? crypto.randomUUID();
@@ -477,9 +479,9 @@ export default function App() {
   if (!accessToken) return <AuthFlow backend={backend} onAuthenticated={(tokens)=>setAccessToken(tokens.access_token)} />;
   if (!session) return <main><Card mode="outlined"><Card.Content style={{ gap: 12 }}>
     <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
-    <PaperText variant="bodyMedium">{message || "Зареждане…"}</PaperText>
-    <PaperButton mode="contained" loading={busy} disabled={busy} onPress={()=>void login()}>Повтори</PaperButton>
-    <PaperButton mode="outlined" onPress={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}}>Изход</PaperButton>
+    <PaperText variant="bodyMedium">{message === "OFFLINE_REFERENCE" ? t.offlineReference : message === "CLOUD_PREPARE_UNAVAILABLE" ? t.cloudPrepareUnavailable : message || t.loading}</PaperText>
+    <PaperButton mode="contained" loading={busy} disabled={busy} onPress={()=>void login()}>{t.retry}</PaperButton>
+    <PaperButton mode="outlined" onPress={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}}>{t.logout}</PaperButton>
   </Card.Content></Card></main>;
   return (
     <main>
@@ -489,34 +491,34 @@ export default function App() {
             <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
             <PaperText variant="bodySmall">
               {session.employee.first_name} {session.employee.last_name} ·{" "}
-              {navigator.onLine ? "online" : "offline"}
+              {navigator.onLine ? t.online : t.offline}
             </PaperText>
           </div>
-          <PaperButton mode={settings ? "contained-tonal" : "outlined"} onPress={() => setSettings(!settings)}>Настройки</PaperButton>
-          <PaperButton mode={view === "sale" ? "contained-tonal" : "outlined"} onPress={() => setView("sale")}>Продажби</PaperButton>
-          <PaperButton mode={view === "products" ? "contained-tonal" : "outlined"} onPress={async () => { setView("products"); const result=await api.products(); setProducts(result.items); }}>Товари</PaperButton>
-          <PaperButton mode={view === "employees" ? "contained-tonal" : "outlined"} onPress={async () => { setView("employees"); const result=await api.employees(); setEmployees(result.items); }}>Сотрудники</PaperButton>
+          <PaperButton mode={settings ? "contained-tonal" : "outlined"} onPress={() => setSettings(!settings)} testID="app-settings">{t.settings}</PaperButton>
+          <PaperButton mode={view === "sale" ? "contained-tonal" : "outlined"} onPress={() => setView("sale")} testID="app-sales">{t.sales}</PaperButton>
+          <PaperButton mode={view === "products" ? "contained-tonal" : "outlined"} onPress={async () => { setView("products"); const result=await api.products(); setProducts(result.items); }} testID="app-products">{t.products}</PaperButton>
+          <PaperButton mode={view === "employees" ? "contained-tonal" : "outlined"} onPress={async () => { setView("employees"); const result=await api.employees(); setEmployees(result.items); }} testID="app-employees">{t.employees}</PaperButton>
           <PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="app" />
         </header>
       </Surface>
       {settings && <Card mode="outlined" style={{ marginTop: 16 }} testID="sale-diagnostics"><Card.Content style={{ gap: 12 }}>
-        <PaperText variant="titleLarge" accessibilityRole="header">Диагностика</PaperText>
-        <PaperText variant="bodyMedium">Adapter: {configuration?.fiscal_adapter_id}{"\n"}Register: {configuration?.fiscal_register_id}{"\n"}Generation: {configuration?.binding_generation}{"\n"}Local URL: {configuration?.adapter_base_url}</PaperText>
-        <PaperButton mode="outlined" disabled={busy || !shift} onPress={printer}>Тест на принтера</PaperButton>
+        <PaperText variant="titleLarge" accessibilityRole="header">{t.diagnostics}</PaperText>
+        <PaperText variant="bodyMedium">{t.adapter}: {configuration?.fiscal_adapter_id}{"\n"}{t.register}: {configuration?.fiscal_register_id}{"\n"}{t.generation}: {configuration?.binding_generation}{"\n"}{t.localUrl}: {configuration?.adapter_base_url}</PaperText>
+        <PaperButton mode="outlined" disabled={busy || !shift} onPress={printer}>{t.printerTest}</PaperButton>
         {result ? <PaperText variant="bodySmall" selectable style={{ fontFamily: "monospace" }} testID="sale-result">{JSON.stringify(result, null, 2)}</PaperText> : null}
       </Card.Content></Card>}
-      {view !== "sale" ? <Management kind={view} products={products} employees={employees} api={api} onProducts={setProducts} onEmployees={setEmployees} /> : !shift ? (
+      {view !== "sale" ? <Management kind={view} products={products} employees={employees} api={api} onProducts={setProducts} onEmployees={setEmployees} language={language} /> : !shift ? (
         <Card mode="outlined" style={{ marginTop: 16 }} testID="shift-open"><Card.Content style={{ gap: 12 }}>
-          <PaperText variant="titleLarge" accessibilityRole="header">Касова смяна</PaperText>
-          <PaperButton mode="contained" loading={busy} disabled={busy || !configuration} onPress={openShift}>Отвори смяна</PaperButton>
+          <PaperText variant="titleLarge" accessibilityRole="header">{t.shiftTitle}</PaperText>
+          <PaperButton mode="contained" loading={busy} disabled={busy || !configuration} onPress={openShift}>{t.openShift}</PaperButton>
         </Card.Content></Card>
       ) : (
         <>
-          <ProductGrid products={products} onAdd={add} />
-          <PaymentPanel cart={cart} total={total} cardAmount={cardAmount} busy={busy} lastOrderId={lastOrderId} onUpdate={update} onCardAmount={setCardAmount} onCheckout={checkout} onReverse={reverseLastOrder} />
+          <ProductGrid products={products} onAdd={add} language={language} />
+          <PaymentPanel cart={cart} total={total} cardAmount={cardAmount} busy={busy} lastOrderId={lastOrderId} language={language} onUpdate={update} onCardAmount={setCardAmount} onCheckout={checkout} onReverse={reverseLastOrder} />
         </>
       )}
-      {message ? <div className="error"><HelperText type="error" visible testID="sale-message">{message}</HelperText></div> : null}
+      {message ? <div className="error"><HelperText type="error" visible testID="sale-message">{message === "OFFLINE_REFERENCE" ? t.offlineReference : message === "CLOUD_PREPARE_UNAVAILABLE" ? t.cloudPrepareUnavailable : message}</HelperText></div> : null}
     </main>
   );
 }

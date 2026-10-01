@@ -44,9 +44,34 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-settings-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-settings-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"app-products-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -69,7 +94,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -148,9 +173,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-products-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -173,7 +198,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -198,7 +223,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Новый товар</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов продукт</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -248,9 +273,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Название\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Название\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -377,9 +402,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -402,7 +427,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -481,9 +506,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -506,7 +531,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -531,7 +556,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Новый сотрудник</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов служител</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -581,9 +606,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Имя\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Имя\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -681,7 +706,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код оператора\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[maxlength=\"4\"]"
               ],
@@ -760,9 +785,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-products-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -785,7 +810,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -864,9 +889,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-products-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -889,7 +914,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -914,7 +939,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Новый товар</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов продукт</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -964,9 +989,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Название\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Название\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1093,9 +1118,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1118,7 +1143,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -1197,9 +1222,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1222,7 +1247,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -1247,7 +1272,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов служител</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -1297,9 +1322,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Имя\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Имя\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1397,7 +1422,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код оператора\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[maxlength=\"4\"]"
               ],
@@ -1476,9 +1501,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-products-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1501,7 +1526,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -1580,9 +1605,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-products-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1605,7 +1630,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -1630,7 +1655,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Новый товар</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов продукт</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -1680,9 +1705,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Название\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Название\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1809,9 +1834,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1834,7 +1859,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -1913,9 +1938,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -1938,7 +1963,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -1963,7 +1988,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Новый сотрудник</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов служител</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -2013,9 +2038,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Имя\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Имя\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2113,7 +2138,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код оператора\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[maxlength=\"4\"]"
               ],
@@ -2192,9 +2217,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-products-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2217,7 +2242,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -2283,31 +2308,6 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
                     "fontSize": "16.5pt (22px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -2321,7 +2321,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -2346,7 +2346,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Новый товар</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов продукт</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -2396,9 +2396,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Название\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Название\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2525,9 +2525,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2550,7 +2550,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -2629,9 +2629,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2654,7 +2654,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -2679,7 +2679,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов служител</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -2729,9 +2729,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Имя\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Имя\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2829,7 +2829,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код оператора\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[maxlength=\"4\"]"
               ],
@@ -2908,9 +2908,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-products-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -2933,7 +2933,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -3012,9 +3012,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-products-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -3037,7 +3037,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -3062,7 +3062,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Новый товар</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов продукт</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -3112,9 +3112,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Название\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Название\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -3241,9 +3241,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -3266,7 +3266,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -3345,9 +3345,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -3370,7 +3370,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -3395,7 +3395,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Новый сотрудник</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов служител</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -3445,9 +3445,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Имя\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Имя\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -3545,7 +3545,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код оператора\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[maxlength=\"4\"]"
               ],
@@ -3624,9 +3624,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-products-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -3649,7 +3649,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -3728,9 +3728,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(4) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-products-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -3753,7 +3753,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Товары</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Продукти</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -3778,7 +3778,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Новый товар</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов продукт</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -3828,9 +3828,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Название\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-product-n...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Название\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -3957,9 +3957,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > button[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -3982,7 +3982,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -4061,9 +4061,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-employees-text\" style=\"direction: ltr; colo...\">",
               "target": [
-                ".r-borderStyle-1phboty.r-minWidth-1q8sk3r[data-testid=\"button-container\"]:nth-child(5) > .r-touchAction-1otgn73.r-cursor-1loqt21[data-testid=\"button\"] > .r-alignItems-1awozwy.r-flexDirection-18u37iz.r-justifyContent-1777fci > .r-textAlign-q4m81j.r-marginBlock-bplmwz[data-testid=\"button-text\"]"
+                "div[data-testid=\"app-employees-text\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -4086,7 +4086,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Сотрудники</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Служители</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(1) > h1"
               ],
@@ -4111,7 +4111,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, \"Helvetica Neue\", Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.15px; font-weight: 500; line-height: 24px; font-size: 16px;\">Нов служител</h1>",
               "target": [
                 ".css-view-g5y9jx:nth-child(2) > h1"
               ],
@@ -4161,9 +4161,9 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Имя\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Име\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
-                "input[aria-label=\"Имя\"]"
+                "input[aria-label=\"Име\"]"
               ],
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             },
@@ -4261,7 +4261,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код оператора\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
+              "html": "<input maxlength=\"4\" autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Код на оператор\" class=\"css-textinput-11aywt...\" data-testid=\"management-employee-...\" value=\"\" style=\"--placeholderTextCol...\">",
               "target": [
                 "input[maxlength=\"4\"]"
               ],
