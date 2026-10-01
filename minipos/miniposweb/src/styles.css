@@ -22,7 +22,7 @@ header {
   gap: 8px;
   align-items: center;
 }
-header > div:first-child { flex: 1 1 100%; min-width: 0; }
+header > div:first-child { display: flex; flex-direction: column; flex: 1 1 100%; min-width: 0; }
 header h1 { margin: 0; }
 header button { margin: 0; }
 section {

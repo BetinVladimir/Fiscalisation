@@ -118,6 +118,23 @@ test.describe('Management – Employees', () => {
 });
 
 test.describe('Navigation', () => {
+  test('working header switches Paper language and theme after login', async ({ page }) => {
+    await setup(page);
+    await page.goto('/');
+    await waitForPOS(page);
+    await page.getByTestId('app-language-open').click();
+    await page.getByTestId('app-language-ru').scrollIntoViewIfNeeded();
+    await page.getByTestId('app-language-ru').click();
+    await expect(page.getByTestId('app-language-open')).toContainText('Русский');
+    await page.getByTestId('app-theme-open').click();
+    await page.getByTestId('app-theme-dark').click();
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+    await page.reload();
+    await waitForPOS(page);
+    await expect(page.getByTestId('app-language-open')).toContainText('Русский');
+    await expect(page.locator('html')).toHaveAttribute('data-theme', 'dark');
+  });
+
   test('back to sale view from management', async ({ page }) => {
     await setup(page);
     await page.goto('/');

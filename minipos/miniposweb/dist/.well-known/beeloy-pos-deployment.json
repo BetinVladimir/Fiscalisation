@@ -2,7 +2,7 @@
   "schema_version": 1,
   "application_id": "com.beeloy.miniposweb",
   "version": "0.1.0",
-  "build_id": "sha256:c447a893312b461257b8d43efd94a6dbf0fa1749077b7bc3beca64947c301b52",
+  "build_id": "sha256:ec245214b224410426108ba6234b4e1b79e6c12eb04abd4cb63e803a8801fd69",
   "created_at": "1970-01-01T00:00:00.000Z",
   "minimum_adapter_api": "2026-08-14",
   "entrypoint": "index.html",
@@ -14,27 +14,27 @@
       "media_type": "application/octet-stream"
     },
     {
-      "path": "assets/index-B8nqXpES.css",
-      "size": 8795,
-      "sha256": "8d72d5bd437164a1a63fda9ce52abb989759a0abd04953dd202e2abaab602b76",
-      "media_type": "text/css"
+      "path": "assets/index-DR_tplNm.js",
+      "size": 601347,
+      "sha256": "fa5f157567b22888dafdbceb49038630ed2d5848c1e64371874c07a15813f6a7",
+      "media_type": "text/javascript"
     },
     {
-      "path": "assets/index-CAwxTX4w.js",
-      "size": 600787,
-      "sha256": "d11cba2176299e58473b1aafd2a0a8fef6f1593e6738d312ac0e8a106f364629",
-      "media_type": "text/javascript"
+      "path": "assets/index-iHhZ3wXq.css",
+      "size": 8830,
+      "sha256": "5b458857e9599621cf00b29ddca94ce53f7c37e22f1a622084d193faefa17697",
+      "media_type": "text/css"
     },
     {
       "path": "index.html",
       "size": 597,
-      "sha256": "c4554c7253bacfa9f08562abb77a88ee902db54ed18e7155a9d370de78a771c4",
+      "sha256": "e67c845f631d10f4600f2a2ed572ac47f788cdff78167a9a69ca5d9273c0999e",
       "media_type": "text/html"
     }
   ],
   "signature": {
     "kid": "minipos-dev-ephemeral",
     "alg": "Ed25519",
-    "value": "yRD3ngllAZlPNewleAcEzeqz96TxHq3XjwPlcJKCuJlCbieQe82NT-Iaz0tjvQN8zBX_NSx7-khZ17sBwZpcAA"
+    "value": "bxPYn_BjmalXqPfQaM-GAKZQWNPi9bnl3gGkHCsLL6HfJU9i0VU283-Un33ajk0fs6hfWyO5FH1xJkZ1_wuaBw"
   }
 }

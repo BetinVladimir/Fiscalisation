@@ -24,6 +24,8 @@ import type {
 import "./styles.css";
 import { AuthFlow } from "./AuthFlow";
 import { Management } from "./Management";
+import { Button as PaperButton, Surface, Text as PaperText, useTheme } from "react-native-paper";
+import { PreferenceControls, readLanguage, type Language } from "./ui/PreferenceControls";
 
 type CartLine = { product: Product; quantity: number; discount: number };
 const appInstance =
@@ -47,6 +49,8 @@ const money = (value: number) => ({
 });
 
 export default function App() {
+  const paperTheme = useTheme();
+  const [language, setLanguage] = useState<Language>(readLanguage);
   const [backend, setBackend] = useState(
     localStorage.getItem("minipos-backend") ?? "/public/v1/minipos",
   );
@@ -474,21 +478,22 @@ export default function App() {
   if (!session) return <main><section><h1>Bee MiniPOS Web</h1><p>{message || "Зареждане…"}</p><button onClick={()=>void login()} disabled={busy}>Повтори</button><button className="secondary" onClick={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}}>Изход</button></section></main>;
   return (
     <main>
-      <header>
-        <div>
-          <h1>Bee MiniPOS Web</h1>
-          <small>
-            {session.employee.first_name} {session.employee.last_name} ·{" "}
-            {navigator.onLine ? "online" : "offline"}
-          </small>
-        </div>
-        <button className="secondary" onClick={() => setSettings(!settings)}>
-          Настройки
-        </button>
-        <button className="secondary" onClick={() => setView("sale")}>Продажби</button>
-        <button className="secondary" onClick={async () => { setView("products"); const result=await api.products(); setProducts(result.items); }}>Товари</button>
-        <button className="secondary" onClick={async () => { setView("employees"); const result=await api.employees(); setEmployees(result.items); }}>Сотрудники</button>
-      </header>
+      <Surface elevation={1} style={{ padding: 12, borderRadius: 12, backgroundColor: paperTheme.colors.surface }}>
+        <header>
+          <div>
+            <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
+            <PaperText variant="bodySmall">
+              {session.employee.first_name} {session.employee.last_name} ·{" "}
+              {navigator.onLine ? "online" : "offline"}
+            </PaperText>
+          </div>
+          <PaperButton mode={settings ? "contained-tonal" : "outlined"} onPress={() => setSettings(!settings)}>Настройки</PaperButton>
+          <PaperButton mode={view === "sale" ? "contained-tonal" : "outlined"} onPress={() => setView("sale")}>Продажби</PaperButton>
+          <PaperButton mode={view === "products" ? "contained-tonal" : "outlined"} onPress={async () => { setView("products"); const result=await api.products(); setProducts(result.items); }}>Товари</PaperButton>
+          <PaperButton mode={view === "employees" ? "contained-tonal" : "outlined"} onPress={async () => { setView("employees"); const result=await api.employees(); setEmployees(result.items); }}>Сотрудники</PaperButton>
+          <PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="app" />
+        </header>
+      </Surface>
       {settings && (
         <section>
           <h2>Диагностика</h2>
