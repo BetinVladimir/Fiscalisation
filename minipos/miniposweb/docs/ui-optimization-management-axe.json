@@ -127,6 +127,56 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-settings-text\"]",
+          "status": "manual-review",
+          "text": "Настройки",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.668,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(221, 213, 228)",
+          "contrastCandidate": 11.3,
+          "dominantShare": 0.674,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(255, 255, 255)",
+          "pixelBackground": "rgb(73, 49, 122)",
+          "contrastCandidate": 10.48,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -356,6 +406,104 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(233, 225, 240)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.674,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов продукт",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.913,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.976,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Цена EUR",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.752,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[inputmode=\"decimal\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.958,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -383,6 +531,31 @@
           "help": "Elements must meet minimum color contrast ratio thresholds",
           "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
           "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-sales-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"app-sales-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
             {
               "any": [
                 {
@@ -459,6 +632,56 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-sales-text\"]",
+          "status": "manual-review",
+          "text": "Продажби",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.658,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(221, 213, 228)",
+          "contrastCandidate": 11.3,
+          "dominantShare": 0.693,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(255, 255, 255)",
+          "pixelBackground": "rgb(73, 49, 122)",
+          "contrastCandidate": 10.48,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -739,6 +962,128 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(233, 225, 240)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.693,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов служител",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.903,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.976,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Фамилия",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.735,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Фамилия\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.957,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Код на оператор",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.728,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[maxlength=\"4\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.934,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -842,6 +1187,44 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(78, 67, 85)",
+          "contrastCandidate": 7.26,
+          "dominantShare": 0.674,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(36, 21, 63)",
+          "pixelBackground": "rgb(210, 193, 240)",
+          "contrastCandidate": 10.07,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -1072,6 +1455,104 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(68, 58, 76)",
+          "contrastCandidate": 8.38,
+          "dominantShare": 0.674,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов продукт",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.913,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.976,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Цена EUR",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.752,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[inputmode=\"decimal\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.958,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -1175,6 +1656,44 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(78, 67, 85)",
+          "contrastCandidate": 7.26,
+          "dominantShare": 0.693,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(36, 21, 63)",
+          "pixelBackground": "rgb(210, 193, 240)",
+          "contrastCandidate": 10.07,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -1455,6 +1974,128 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(68, 58, 76)",
+          "contrastCandidate": 8.38,
+          "dominantShare": 0.693,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов служител",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.903,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.976,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Фамилия",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.735,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Фамилия\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.957,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Код на оператор",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.728,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[maxlength=\"4\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.934,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -1558,6 +2199,44 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(221, 213, 228)",
+          "contrastCandidate": 11.3,
+          "dominantShare": 0.694,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(255, 255, 255)",
+          "pixelBackground": "rgb(73, 49, 122)",
+          "contrastCandidate": 10.48,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -1788,6 +2467,104 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(233, 225, 240)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.694,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов продукт",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.97,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.992,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Цена EUR",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.752,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[inputmode=\"decimal\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.986,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -1891,6 +2668,44 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(221, 213, 228)",
+          "contrastCandidate": 11.3,
+          "dominantShare": 0.68,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(255, 255, 255)",
+          "pixelBackground": "rgb(73, 49, 122)",
+          "contrastCandidate": 10.48,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -2171,6 +2986,128 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(233, 225, 240)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.68,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов служител",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.967,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.992,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Фамилия",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.735,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Фамилия\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.985,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Код на оператор",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.728,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[maxlength=\"4\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.978,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -2274,6 +3211,44 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(78, 67, 85)",
+          "contrastCandidate": 7.26,
+          "dominantShare": 0.694,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(36, 21, 63)",
+          "pixelBackground": "rgb(210, 193, 240)",
+          "contrastCandidate": 10.07,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -2504,6 +3479,104 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(68, 58, 76)",
+          "contrastCandidate": 8.38,
+          "dominantShare": 0.694,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов продукт",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.97,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.992,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Цена EUR",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.752,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[inputmode=\"decimal\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.986,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -2607,6 +3680,44 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(78, 67, 85)",
+          "contrastCandidate": 7.26,
+          "dominantShare": 0.68,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(36, 21, 63)",
+          "pixelBackground": "rgb(210, 193, 240)",
+          "contrastCandidate": 10.07,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -2887,6 +3998,128 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(68, 58, 76)",
+          "contrastCandidate": 8.38,
+          "dominantShare": 0.68,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов служител",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.967,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.992,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Фамилия",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.735,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Фамилия\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.985,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Код на оператор",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.728,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[maxlength=\"4\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.978,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -2990,6 +4223,44 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(221, 213, 228)",
+          "contrastCandidate": 11.3,
+          "dominantShare": 0.694,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(255, 255, 255)",
+          "pixelBackground": "rgb(73, 49, 122)",
+          "contrastCandidate": 10.48,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -3220,6 +4491,104 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(233, 225, 240)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.694,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов продукт",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.974,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.993,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Цена EUR",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.752,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[inputmode=\"decimal\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.988,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -3323,6 +4692,44 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(221, 213, 228)",
+          "contrastCandidate": 11.3,
+          "dominantShare": 0.68,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(255, 255, 255)",
+          "pixelBackground": "rgb(73, 49, 122)",
+          "contrastCandidate": 10.48,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -3603,6 +5010,128 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(37, 30, 45)",
+          "pixelBackground": "rgb(233, 225, 240)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.68,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов служител",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.971,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.993,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Фамилия",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.735,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Фамилия\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.987,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Код на оператор",
+          "foreground": "rgb(72, 67, 77)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 8.87,
+          "dominantShare": 0.728,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[maxlength=\"4\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(247, 245, 249)",
+          "contrastCandidate": 15.88,
+          "dominantShare": 0.981,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -3706,6 +5235,44 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(78, 67, 85)",
+          "contrastCandidate": 7.26,
+          "dominantShare": 0.694,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(36, 21, 63)",
+          "pixelBackground": "rgb(210, 193, 240)",
+          "contrastCandidate": 10.07,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -3936,6 +5503,104 @@
             }
           ]
         }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-products-text\"]",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(68, 58, 76)",
+          "contrastCandidate": 8.38,
+          "dominantShare": 0.694,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Продукти",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.693,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов продукт",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.974,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.993,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Цена EUR",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.752,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[inputmode=\"decimal\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.988,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
       ]
     },
     {
@@ -4039,6 +5704,44 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(78, 67, 85)",
+          "contrastCandidate": 7.26,
+          "dominantShare": 0.68,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-add-text\"]",
+          "status": "manual-review",
+          "text": "Добави",
+          "foreground": "rgb(36, 21, 63)",
+          "pixelBackground": "rgb(210, 193, 240)",
+          "contrastCandidate": 10.07,
+          "dominantShare": 0.656,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     },
@@ -4318,6 +6021,128 @@
               "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
             }
           ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "div[data-testid=\"app-employees-text\"]",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(235, 223, 243)",
+          "pixelBackground": "rgb(68, 58, 76)",
+          "contrastCandidate": 8.38,
+          "dominantShare": 0.68,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(1) > h1",
+          "status": "manual-review",
+          "text": "Служители",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.698,
+          "fontSize": "22px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > h1",
+          "status": "manual-review",
+          "text": "Нов служител",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.971,
+          "fontSize": "16px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(2) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Име",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.781,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Име\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.993,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(3) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Фамилия",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.735,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[aria-label=\"Фамилия\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.987,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": ".css-view-g5y9jx:nth-child(4) > .r-paddingBottom-1mdbw0j.r-flexGrow-16y2uox.css-view-g5y9jx > .r-zIndex-1g40b8q.r-top-ipm5af.r-bottom-1p0dtai > .r-top-ipm5af.r-bottom-1p0dtai.r-left-1d2f490 > .css-view-g5y9jx > .r-textAlign-fdjqy7.r-textOverflow-1udbk01.r-whiteSpace-3s2u2q:nth-child(3)",
+          "status": "manual-review",
+          "text": "Код на оператор",
+          "foreground": "rgb(212, 205, 217)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 12.66,
+          "dominantShare": 0.728,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "input[maxlength=\"4\"]",
+          "status": "manual-review",
+          "text": "",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(13, 10, 18)",
+          "contrastCandidate": 15.74,
+          "dominantShare": 0.981,
+          "fontSize": "16px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"management-cancel-text\"]",
+          "status": "manual-review",
+          "text": "Отказ",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.667,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         }
       ]
     }

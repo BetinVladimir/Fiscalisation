@@ -9,7 +9,7 @@ test('management lists and forms: xs/md/lg × light/dark WCAG matrix', async ({ 
   test.setTimeout(180_000);
   const evidenceDir = join(process.cwd(), 'docs', 'ui-screenshots');
   await mkdir(evidenceDir, { recursive: true });
-  const scans: { screen: string; viewport: string; theme: string; violations: unknown[]; incomplete: unknown[] }[] = [];
+  const scans: { screen: string; viewport: string; theme: string; violations: unknown[]; incomplete: unknown[]; contrastCandidates: unknown[] }[] = [];
   await setup(page, { minipos: { employees: { items: [
     { id: 'emp-001', first_name: 'Иван', last_name: 'Иванов', operator_code: '001', roles: ['OPERATOR'] },
   ] } } });
@@ -38,8 +38,9 @@ test('management lists and forms: xs/md/lg × light/dark WCAG matrix', async ({ 
         const overflows = await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1);
         expect(overflows, `${screen}/${size}/${mode}: horizontal overflow`).toBe(false);
         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
-        scans.push({ screen, viewport: size, theme: mode, violations: result.violations, incomplete: result.incomplete });
-        await page.screenshot({ path: join(evidenceDir, `management-${screen}-${size}-${mode}.png`), fullPage: true });
+        const screenshot = await page.screenshot({ path: join(evidenceDir, `management-${screen}-${size}-${mode}.png`), fullPage: true });
+        const contrastCandidates = await collectContrastCandidates(page, result, screenshot);
+        scans.push({ screen, viewport: size, theme: mode, violations: result.violations, incomplete: result.incomplete, contrastCandidates });
       }
     }
   }
