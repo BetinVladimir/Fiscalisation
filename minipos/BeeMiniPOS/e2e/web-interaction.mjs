@@ -1,9 +1,10 @@
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { readFile, readdir, stat } from "node:fs/promises";
+import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
 import { chromium } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 const root = new URL("../", import.meta.url).pathname;
 const fiscalRoot = new URL("../../../BeeFiscalApp/", import.meta.url).pathname;
@@ -49,7 +50,8 @@ const json = (route, body, status = 200) => route.fulfill({ status, contentType:
 const pathOf = (route) => new URL(route.request().url()).pathname;
 
 async function miniPosJourney(browser, appUrl) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  const page = await context.newPage();
   page.on("pageerror", error => console.error("[MiniPOS pageerror]", error.message));
   page.on("requestfailed", request => console.error("[MiniPOS requestfailed]", request.method(), request.url(), request.failure()?.errorText));
   page.on("response", response => { if (response.status() >= 400) console.error("[MiniPOS response]", response.status(), response.request().method(), response.url()); });
@@ -125,6 +127,15 @@ async function miniPosJourney(browser, appUrl) {
     throw error;
   }
   const colors = () => page.evaluate(() => ["app-root", "app-header"].map(id => getComputedStyle(document.querySelector(`[data-testid="${id}"]`)).backgroundColor));
+  const axeReports = [];
+  const screenshots = join(root, "docs", "ui-screenshots");
+  await mkdir(screenshots, { recursive: true });
+  const recordAxe = (screen, size, mode, result) => {
+    const findings = items => items.map(item => ({ id: item.id, impact: item.impact, nodes: item.nodes.map(node => ({ target: node.target, html: node.html })) }));
+    axeReports.push({ screen, viewport: size, theme: mode, violations: findings(result.violations), incomplete: findings(result.incomplete) });
+    console.log(`[MiniPOS Axe] ${screen} ${size}/${mode}: ${result.violations.length} violations, ${result.incomplete.length} incomplete`);
+    assert.equal(result.violations.length, 0, `${screen} ${size}/${mode}: ${result.violations.map(item => item.id).join(", ")}`);
+  };
   await page.getByTestId("theme-menu-open").click();
   await page.getByTestId("theme-light").click();
   const lightColors = await colors();
@@ -137,6 +148,34 @@ async function miniPosJourney(browser, appUrl) {
   assert.deepEqual(await colors(), darkColors, "selected Paper theme must survive reload for root and header");
   await page.getByTestId("theme-menu-open").click();
   await page.getByTestId("theme-light").click();
+  for (const [width, height, size] of [[360, 800, "xs"], [960, 900, "md"], [1440, 1000, "lg"]]) {
+    await page.setViewportSize({ width, height });
+    for (const mode of ["light", "dark"]) {
+      await page.getByTestId("theme-menu-open").click();
+      await page.getByTestId(`theme-${mode}`).click();
+      await page.getByTestId("product-coffee").waitFor();
+      const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+      recordAxe("catalog", size, mode, result);
+      await page.screenshot({ path: join(screenshots, `catalog-${size}-${mode}.png`), fullPage: true });
+      if (size === "xs") {
+        await page.getByTestId("mobile-view-cart").click();
+        const cartResult = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+        recordAxe("cart", size, mode, cartResult);
+        await page.screenshot({ path: join(screenshots, `cart-${size}-${mode}.png`), fullPage: true });
+        await page.getByTestId("mobile-view-catalog").click();
+      }
+    }
+  }
+  await writeFile(join(root, "docs", "ui-optimization-axe-catalog.json"), `${JSON.stringify({ fixture: ".ui-e2e-web", scans: axeReports }, null, 2)}\n`);
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-light").click();
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.getByTestId("mobile-view-cart").click();
+  assert.equal(await page.getByTestId("product-coffee").count(), 0, "xs cart segment must switch away from catalog");
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, "xs Paper segments must not overflow horizontally");
+  await page.getByTestId("mobile-view-catalog").click();
+  await page.getByTestId("product-coffee").waitFor();
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.getByTestId("product-coffee").click();
   await page.getByTestId("status-transport").getByText(/няма .*отворена смяна/).waitFor();
 
@@ -222,7 +261,7 @@ async function miniPosJourney(browser, appUrl) {
   await page.reload();
   await page.getByTestId("status-transport").getByText(/Настройте POS преди първата продажба/).waitFor();
   assert.equal(shiftRecoveryCalls, recoveryCallsBeforeMissingConfiguration, "missing register configuration must not recover a shift across every register");
-  await page.close();
+  await context.close();
 }
 
 async function miniPosProductionLoginFailClosed(browser, appUrl) {

@@ -15,6 +15,7 @@ import {
   HelperText as PaperHelperText,
   Menu as PaperMenu,
   RadioButton as PaperRadioButton,
+  SegmentedButtons as PaperSegmentedButtons,
   Text as PaperText,
   useTheme,
 } from "react-native-paper";
@@ -1503,27 +1504,15 @@ function MiniPosApp({
       ) : (
         <View style={s.posShell}>
           {isPhone ? (
-            <View style={s.mobileTabs} accessibilityRole="tablist">
-              <Pressable
-                testID="mobile-view-catalog"
-                accessibilityRole="tab"
-                accessibilityState={{ selected: mobilePosView === "catalog" }}
-                style={[s.mobileTab, mobilePosView === "catalog" && s.mobileTabActive]}
-                onPress={() => setMobilePosView("catalog")}
-              >
-                <Text style={[s.mobileTabText, mobilePosView === "catalog" && s.mobileTabTextActive]}>{uiText.products}</Text>
-              </Pressable>
-              <Pressable
-                testID="mobile-view-cart"
-                accessibilityRole="tab"
-                accessibilityState={{ selected: mobilePosView === "cart" }}
-                style={[s.mobileTab, mobilePosView === "cart" && s.mobileTabActive]}
-                onPress={() => setMobilePosView("cart")}
-              >
-                <Text style={[s.mobileTabText, mobilePosView === "cart" && s.mobileTabTextActive]}>
-                  {uiText.currentSale} ({cart.length}) • € {total.toFixed(2)}
-                </Text>
-              </Pressable>
+            <View style={[s.mobileTabs, { backgroundColor: paperTheme.colors.background }]}>
+              <PaperSegmentedButtons
+                value={mobilePosView}
+                onValueChange={setMobilePosView}
+                buttons={[
+                  { value: "catalog", label: uiText.products, accessibilityLabel: mobilePosView === "catalog" ? `${uiText.products} • ${uiText.selected}` : uiText.products, testID: "mobile-view-catalog" },
+                  { value: "cart", label: uiText.currentSale, accessibilityLabel: `${uiText.currentSale} (${cart.length}) • € ${total.toFixed(2)}${mobilePosView === "cart" ? ` • ${uiText.selected}` : ""}`, testID: "mobile-view-cart" },
+                ]}
+              />
             </View>
           ) : null}
           <View style={[s.body, isPhone && s.bodyPhone]}>
@@ -1536,7 +1525,7 @@ function MiniPosApp({
               onSubmitEditing={submitProductLookup}
               returnKeyType="done"
               placeholder={uiText.searchBarcode}
-              style={s.search}
+              style={{ marginBottom: 14, backgroundColor: paperTheme.colors.surface }}
             />
             <ScrollView contentContainerStyle={s.grid}>
               {products
@@ -1549,20 +1538,21 @@ function MiniPosApp({
                   );
                 })
                 .map((p) => (
-                  <Pressable
+                  <PaperCard
                     testID={`product-${p.id}`}
-                    accessibilityRole="button"
-                    accessibilityLabel={`${uiText.add} ${p.name}`}
+                    mode="outlined"
                     key={p.id}
                     style={[s.product, isPhone && s.productPhone]}
                     onPress={() => add(p)}
                   >
-                    <Text style={s.productName}>{p.name}</Text>
-                    <Text style={s.price}>
+                    <PaperCard.Content style={s.productContent}>
+                    <PaperText variant="titleMedium">{p.name}</PaperText>
+                    <PaperText variant="titleLarge" style={{ color: paperTheme.colors.primary }}>
                       € {Number(p.price.amount).toFixed(2)}
-                    </Text>
-                    <Text style={s.tax}>{uiText.vat} {p.tax_group}</Text>
-                  </Pressable>
+                    </PaperText>
+                    <PaperText variant="bodySmall">{uiText.vat} {p.tax_group}</PaperText>
+                    </PaperCard.Content>
+                  </PaperCard>
                 ))}
             </ScrollView>
           </View> : null}
@@ -1722,10 +1712,8 @@ function MiniPosApp({
       )}
       <View
         testID="status-transport"
-        accessibilityRole="text"
         accessibilityLiveRegion="polite"
-        accessibilityLabel={`${uiText.statusLabel}: ${status}`}
-        style={s.footer}
+        style={[s.footer, { backgroundColor: paperTheme.colors.surfaceVariant }]}
       >
         <View
           style={[
@@ -1736,7 +1724,7 @@ function MiniPosApp({
               s.dotBad,
           ]}
         />
-        <Text style={s.status}>{status}</Text>
+        <PaperText variant="bodyMedium" style={[s.status, { color: paperTheme.colors.onSurfaceVariant }]}>{uiText.statusLabel}: {status}</PaperText>
       </View>
     </SafeAreaView>
   );
@@ -1771,7 +1759,6 @@ function ThemeMenu({
         <PaperButton
           testID="theme-menu-open"
           mode="contained-tonal"
-          icon="theme-light-dark"
           contentStyle={s.themeButtonContent}
           onPress={() => setVisible(true)}
         >
@@ -1781,20 +1768,17 @@ function ThemeMenu({
     >
       <PaperMenu.Item
         testID="theme-system"
-        leadingIcon={preference === "system" ? "check" : "cellphone-cog"}
-        title={text.systemTheme}
+        title={`${text.systemTheme}${preference === "system" ? ` • ${text.selected}` : ""}`}
         onPress={() => choose("system")}
       />
       <PaperMenu.Item
         testID="theme-light"
-        leadingIcon={preference === "light" ? "check" : "white-balance-sunny"}
-        title={text.lightTheme}
+        title={`${text.lightTheme}${preference === "light" ? ` • ${text.selected}` : ""}`}
         onPress={() => choose("light")}
       />
       <PaperMenu.Item
         testID="theme-dark"
-        leadingIcon={preference === "dark" ? "check" : "weather-night"}
-        title={text.darkTheme}
+        title={`${text.darkTheme}${preference === "dark" ? ` • ${text.selected}` : ""}`}
         onPress={() => choose("dark")}
       />
     </PaperMenu>
@@ -1810,6 +1794,7 @@ function LanguageMenu({
   label: string;
   onSelect: (value: Language) => void;
 }) {
+  const text = useTranslation();
   const [visible, setVisible] = useState(false);
   const { width, height } = useWindowDimensions();
   const menuHeight = Math.max(192, Math.min(420, height - 96));
@@ -1836,7 +1821,6 @@ function LanguageMenu({
         <PaperButton
           testID="language-menu-open"
           mode="contained-tonal"
-          icon="translate"
           contentStyle={s.themeButtonContent}
           onPress={() => setVisible(true)}
         >
@@ -1849,8 +1833,7 @@ function LanguageMenu({
           <PaperMenu.Item
             key={value}
             testID={`language-${value}`}
-            leadingIcon={language === value ? "check" : "translate"}
-            title={labels[value]}
+            title={`${labels[value]}${language === value ? ` • ${text.selected}` : ""}`}
             onPress={() => choose(value)}
           />
         ))}
@@ -2236,24 +2219,9 @@ const s = StyleSheet.create({
   bodyPhone: { flexDirection: "column" },
   panelPhone: { flex: 1, width: "100%", padding: 12 },
   mobileTabs: {
-    flexDirection: "row",
     paddingHorizontal: 12,
     paddingTop: 10,
-    gap: 8,
-    backgroundColor: beeloyColors.background,
   },
-  mobileTab: {
-    flex: 1,
-    minHeight: 48,
-    paddingHorizontal: 10,
-    borderRadius: 12,
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: beeloyColors.warningContainer,
-  },
-  mobileTabActive: { backgroundColor: beeloyColors.success },
-  mobileTabText: { color: beeloyColors.success, fontWeight: "800", textAlign: "center" },
-  mobileTabTextActive: { color: beeloyColors.onPrimary },
   catalog: { flex: 3, padding: 16 },
   search: {
     backgroundColor: beeloyColors.background,
@@ -2269,17 +2237,9 @@ const s = StyleSheet.create({
   product: {
     width: "47%",
     minHeight: 120,
-    backgroundColor: beeloyColors.surface,
-    borderRadius: 14,
-    padding: 16,
-    borderWidth: 1,
-    borderColor: beeloyColors.warningContainer,
-    justifyContent: "space-between",
   },
-  productPhone: { width: "48%", minHeight: 108, padding: 12 },
-  productName: { fontSize: 19, fontWeight: "700" },
-  price: { fontSize: 22, fontWeight: "800", color: beeloyColors.success },
-  tax: { color: beeloyColors.onSurfaceVariant },
+  productPhone: { width: "48%", minHeight: 108 },
+  productContent: { flex: 1, justifyContent: "space-between", gap: 4 },
   cart: {
     flex: 2,
     backgroundColor: beeloyColors.onPrimary,
@@ -2381,7 +2341,6 @@ const s = StyleSheet.create({
     padding: 12,
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: beeloyColors.onSurfaceVariant,
   },
   dot: {
     width: 10,
@@ -2391,7 +2350,7 @@ const s = StyleSheet.create({
     marginRight: 8,
   },
   dotBad: { backgroundColor: beeloyColors.error },
-  status: { color: beeloyColors.onPrimary, fontWeight: "600", flex: 1 },
+  status: { flex: 1 },
   admin: { padding: 20, gap: 16 },
   adminCompact: { padding: 12 },
   adminTitle: { fontSize: 24, fontWeight: "800" },
