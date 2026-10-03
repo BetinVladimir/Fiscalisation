@@ -1,0 +1,15 @@
+{
+  "status": "IN_PROGRESS",
+  "productionCommit": "e9c051a",
+  "testSha256": "28be0a415472e5b18faa7c6a172957380aa9eb29b586710066ad824339da49dc",
+  "test": "6 xs360x800/md960x900/lg1440x1000 light/dark contexts; visible solid nontransparent frame>=1; target>=48; within viewport; Enter reference/Choices, Space navigation; form reset from CHANGED to SOF; no API mutations",
+  "result": "6 dedicated PASS; all68 functional PASS; types PASS",
+  "initialFailure": "Test expected unselected SOF but existing admin initialization selected it; missing second-register mock composite endpoint. Initial run intentionally interrupted, retained partial log; test/fixture corrected without production change.",
+  "open": [
+    "AA incomplete adjudication",
+    "Frame/focus numerical contrast",
+    "Alert runtime evidence",
+    "Native/manual/200%/all25",
+    "Full11 criteria"
+  ]
+}

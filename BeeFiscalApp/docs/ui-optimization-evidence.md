@@ -140,3 +140,8 @@ Details usescontrolled genuinePaperList.Accordion,same localexpanded/onPress/lab
 ### Persistent action frames on Paper lists
 
 Device/reference/choice/language rows and Drawer navigation now have permanent theme-outline frames; actual Paper alert Buttons use outlined mode/minimum48. Handlers unchanged. TypeScript/ui PASS; full62 functional E2E PASS, with six xs/md/lg light/dark device frame and Enter assertions and shell language frame/selection checks. Reference/Choices/navigation/alert require dedicated runtime evidence; latest strict WCAG evidence predates these source edits. Nontext/focus contrast, native/manual,200%,all25 and full criteria remain open. Evidence list-affordance.
+
+
+### Navigation/reference/Choices browser affordance
+
+Six xs/md/lg light/dark dedicated tests PASS: permanent frame/48 target/viewport bounds, Enter register and form choice, Space navigation, no API mutations. All68 functional E2E and TypeScript PASS. Production e9c051a unchanged; second-register test API composite endpoint added, selected initialization reflected in test. Initial interrupted fixture failure retained. Evidence navigation-affordance. Alert runtime, numerical frame/focus contrast, strictAA/native/manual/200%/all25/full criteria remain open.

@@ -60,7 +60,7 @@ export async function mockFiscalApi(page: Page, options: { devicesStatus?: numbe
     if (path.startsWith('/locations?')) return json(route, { items: [{ id: LOCATION_ID, code: 'SOF', name: 'Sofia' }], page: { has_more: false } });
     if (path.startsWith('/registers?')) return json(route, { items: [{ id: REGISTER_ID, code: 'R01', location_id: LOCATION_ID, fiscal_device_id: DEVICE_ID, status: 'ACTIVE', version: 1 }, ...(options.secondRegister ? [{ id: SECOND_REGISTER_ID, code: 'R02', location_id: LOCATION_ID, fiscal_device_id: SECOND_DEVICE_ID, status: 'ACTIVE', version: 1 }] : [])], page: { has_more: false } });
     if (path.startsWith('/operators?')) return json(route, { items: [{ id: OPERATOR_ID, code: 'A001', first_name: 'Ivan', last_name: 'Ivanov' }], page: { has_more: false } });
-    if (path === `/registers/${REGISTER_ID}/composite-bindings`) return json(route, { items: [], page: { has_more: false } });
+    if (path === `/registers/${REGISTER_ID}/composite-bindings` || path === `/registers/${SECOND_REGISTER_ID}/composite-bindings`) return json(route, { items: [], page: { has_more: false } });
     if (path === '/country-policy') {
       if (options.policyStatus) return json(route, { code: 'UNAVAILABLE' }, options.policyStatus);
       return json(route, { country: 'BG', version: '2026-08-07', valid_from: '2026-08-07T00:00:00Z', valid_to: null, official_currency: 'EUR', profiles: ['BG_FISCAL'], source_sha256: 'abc123' });
