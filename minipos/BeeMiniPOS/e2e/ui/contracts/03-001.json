@@ -159,5 +159,30 @@
       "e2e/menu-keyboard.spec.ts": "ce61463fbf5fd23275874f17b26435a6877faff71f726e3719234b3d094d2d6e"
     },
     "evidence": "docs/ui-optimization-evidence/menu-tab-navigation"
+  },
+  "partialPreferencesPersistenceVerification": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Real web UI preference selection, real browser storage and150 reloads, no storage seed/mock. All25 locales in6 xs/md/lg light/dark contexts; choose opposite theme from system scheme.",
+    "final": "6 tests PASS in51.5s. Every reload translated email accessible name retained, root computed theme bg retained, reopened language/theme selected checked true/focus on selected leaf, exactlyone checked language and background inert cleared afterEscape. TypeScript PASS. Production source unchanged.",
+    "counts": {
+      "contexts": 6,
+      "localesPerContext": 25,
+      "reloads": 150,
+      "languageReopenChecks": 150,
+      "themeReopenChecks": 150
+    },
+    "open": [
+      "Other app dictionaries/copy/states",
+      "Native persistence/screens readers/manual/truezoom",
+      "Login contrast incomplete/fullAA/all11 criteria"
+    ],
+    "hashes": {
+      "App.tsx": "d33ad01ecb7b74b127c0545e70db76cc11dc03d5669a285970d25c42e4faf2af",
+      "src/languageStore.ts": "2eebaabc039aeddba4ac048f59193522db5527607ed333646b73785733bec2fe",
+      "src/ui/provider.tsx": "d53edd0ee2be16b9483a1753c55f303bb0e87186586b86a9ccad4a3c184d06ce",
+      "e2e/preferences-persistence.spec.ts": "1bd079e303422690d52caf2c4e14517b12d6f5cb639d5f30eb0bcf0aafee2866"
+    },
+    "evidence": "docs/ui-optimization-evidence/preferences-persistence"
   }
 }

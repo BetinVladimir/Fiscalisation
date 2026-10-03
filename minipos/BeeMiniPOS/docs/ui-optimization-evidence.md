@@ -122,3 +122,8 @@ Expanded strict test diagnostics to every incomplete target/text Range rectangle
 ## BeeMiniPOS modal menu Tab/roving — 2026-10-04
 
 03-001 IN_PROGRESS. Baseline6FAIL:25 language tab-stops. Genuine Paper menu now one current item Tab-stop with arrows updating it; Tab/ShiftTab cycle current item and actual Paper close action while background inert; close label existing25-locale back translation. Native unchanged.35 regression PASS plus enhanced6 both-menu keyboard cases PASS xs/md/lg light/dark. Types/UI/export PASS. Strict18scans0VI;12menu scans0incomplete;6login scans36 incomplete nodes, strict6FAIL retained. Evidence docs/ui-optimization-evidence/menu-tab-navigation. Login/native/manual/truezoom/screen readers/full11 criteria remain OPEN.
+
+
+## BeeMiniPOS actual preference persistence — 2026-10-04
+
+03-001 IN_PROGRESS. New preferences-persistence E2E uses actual UI/storage/reload, no storage seed/mock.6contexts xs/md/lg light/dark PASS51.5s with all25locale selections and150 reloads; translated email accessible name and opposite-to-system chosen theme bg retained;150language+150theme reopened checked/focus-on-selected assertions and background inert cleanup. TypeScript PASS; production source unchanged. Evidence docs/ui-optimization-evidence/preferences-persistence. This verifies web preferences only; native/copy/allstates/manual/truezoom/login incomplete/fullAA/all11 remain OPEN.
