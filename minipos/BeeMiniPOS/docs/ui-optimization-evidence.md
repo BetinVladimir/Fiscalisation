@@ -87,3 +87,8 @@ Two genuine Paper outlined Buttons now have link role/min56/wrapping and own web
 ## BeeMiniPOS framed language/theme choices — 2026-10-04
 
 03-001 IN_PROGRESS: genuine Paper Menu remains; choices now genuine framed Paper List.Item/min48/full wrapping titles. Six baseline missing-frame failures. Selected regression29 PASS, enhanced menu6 PASS:150 language selections on xs/md/lg starting light/dark with CSS200 labels, frames/min48/no clipping/Enter and actual translated email accessible name;18 theme selections. Types/UI checker/export PASS. Evidence docs/ui-optimization-evidence/menu-action-affordance; screenshots finish in dark after theme sequence, xs inspected. Strict AA/numeric contrast, arrow/Escape/Tab/focus return, persistence/native/truezoom/allpages/full11 criteria OPEN.
+
+
+## BeeMiniPOS menu keyboard — 2026-10-04
+
+03-001 IN_PROGRESS. Baseline6 ArrowDown failures; own scoped web key handler supports arrows wrap/HomeEnd/focus+nearest scroll on genuine Paper menuitems, with listener cleanup. Paper initial focus/Escape/return preserved and tested. Selected35 E2E PASS; enhanced6 both-menu keyboard cases PASS xs/md/lg light/dark. Types/UI/export PASS. Evidence docs/ui-optimization-evidence/menu-keyboard. Tab/roving/expanded-selected semantics, numeric contrast/strict AA/native/manual/full11 criteria remain OPEN.

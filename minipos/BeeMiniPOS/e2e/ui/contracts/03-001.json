@@ -64,5 +64,23 @@
       "e2e/menu-affordance.spec.ts": "b8daf87cee3b8b62a71dce31930801570b2e87a54381a360f445f6972b1c3ce0"
     },
     "evidence": "docs/ui-optimization-evidence/menu-action-affordance"
+  },
+  "partialMenuKeyboardVerification": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Own web keyboard effect on genuine Paper menuitems, active menu only; arrows wrap/Home/End focus and scrollIntoView nearest. Cleanup removes listener. Native unchanged. Paper manages initial focus/Escape/trigger return.",
+    "baseline": "6 FAIL ArrowDown leaves first item focused",
+    "final": "35 selected regression tests PASS; enhanced6 keyboard tests PASS xs/md/lg light/dark both language and theme; arrows/HomeEnd/Escape/return. Types/UI/export PASS.",
+    "open": [
+      "Roving tab/Tab/ShiftTab containment",
+      "Expanded/selected ARIA semantics",
+      "Numeric contrast/strict AA",
+      "Native/manual/realzoom/full11 criteria"
+    ],
+    "hashes": {
+      "App.tsx": "15f14a9331586d9a6d23e34188f6b2b2484b2b0e04be9c81aa67a8c57534e509",
+      "e2e/menu-keyboard.spec.ts": "30d134a84986f6d4b5384eef91e464222245ba85f20becfdee0800e04272a547"
+    },
+    "evidence": "docs/ui-optimization-evidence/menu-keyboard"
   }
 }

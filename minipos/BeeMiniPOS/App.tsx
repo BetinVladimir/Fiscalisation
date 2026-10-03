@@ -1758,6 +1758,26 @@ function PaperLegalLink({ testID, label, url }: { testID: string; label: string;
   </View>;
 }
 
+function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme") {
+  useEffect(() => {
+    if (!visible || Platform.OS !== "web") return;
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+      const items = Array.from(document.querySelectorAll<HTMLElement>(`[role="menuitem"][data-testid^="${prefix}-"]`))
+        .filter(item => item.getClientRects().length > 0);
+      const current = items.findIndex(item => item === document.activeElement || item.contains(document.activeElement));
+      if (current < 0 || !items.length) return;
+      event.preventDefault();
+      const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1
+        : (current + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+      items[next].focus();
+      items[next].scrollIntoView({ block: "nearest", inline: "nearest" });
+    };
+    document.addEventListener("keydown", onKeyDown);
+    return () => document.removeEventListener("keydown", onKeyDown);
+  }, [visible, prefix]);
+}
+
 function PaperMenuChoice({ testID, title, onPress }: { testID: string; title: string; onPress: () => void }) {
   const theme = useTheme();
   return <PaperList.Item testID={testID} title={title} titleNumberOfLines={0}
@@ -1776,6 +1796,7 @@ function ThemeMenu({
   onSelect: (value: ThemePreference) => void;
 }) {
   const [visible, setVisible] = useState(false);
+  usePaperMenuKeyboard(visible, "theme");
   const labels: Record<ThemePreference, string> = {
     system: text.systemTheme,
     light: text.lightTheme,
@@ -1832,6 +1853,7 @@ function LanguageMenu({
 }) {
   const text = useTranslation();
   const [visible, setVisible] = useState(false);
+  usePaperMenuKeyboard(visible, "language");
   const { width, height } = useWindowDimensions();
   const menuHeight = Math.max(192, Math.min(420, height - 96));
   const menuWidth = Math.max(240, Math.min(320, width - 32));
