@@ -1758,6 +1758,14 @@ function PaperLegalLink({ testID, label, url }: { testID: string; label: string;
   </View>;
 }
 
+function PaperMenuChoice({ testID, title, onPress }: { testID: string; title: string; onPress: () => void }) {
+  const theme = useTheme();
+  return <PaperList.Item testID={testID} title={title} titleNumberOfLines={0}
+    accessibilityRole="menuitem" accessibilityLabel={title}
+    style={{ minHeight: 48, minWidth: 0, margin: 4, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: theme.roundness }}
+    onPress={onPress} />;
+}
+
 function ThemeMenu({
   preference,
   text,
@@ -1794,17 +1802,17 @@ function ThemeMenu({
         </PaperButton>
       }
     >
-      <PaperMenu.Item
+      <PaperMenuChoice
         testID="theme-system"
         title={`${text.systemTheme}${preference === "system" ? ` • ${text.selected}` : ""}`}
         onPress={() => choose("system")}
       />
-      <PaperMenu.Item
+      <PaperMenuChoice
         testID="theme-light"
         title={`${text.lightTheme}${preference === "light" ? ` • ${text.selected}` : ""}`}
         onPress={() => choose("light")}
       />
-      <PaperMenu.Item
+      <PaperMenuChoice
         testID="theme-dark"
         title={`${text.darkTheme}${preference === "dark" ? ` • ${text.selected}` : ""}`}
         onPress={() => choose("dark")}
@@ -1858,7 +1866,7 @@ function LanguageMenu({
     >
       <NativeScrollView testID="language-menu-scroll" style={{ maxHeight: menuHeight }} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
         {supportedLanguages.map((value) => (
-          <PaperMenu.Item
+          <PaperMenuChoice
             key={value}
             testID={`language-${value}`}
             title={`${labels[value]}${language === value ? ` • ${text.selected}` : ""}`}

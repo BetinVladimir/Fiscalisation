@@ -82,3 +82,8 @@ Two genuine Paper outlined Buttons now have link role/min56/wrapping and own web
 ## BeeMiniPOS admin action affordance — 2026-10-03
 
 03-001/03-007/03-008 IN_PROGRESS: outlined back button, framed genuine Paper tax-group List.Item with button role/status in name/min48/wrapping; shared dialog secondary actions outlined, primary min48. Baseline6 missing-frame failures, final23 selected E2E PASS (6 admin xs/md/lg light/dark frame/min48/Enter editor/prefill/Enter return +17 auth/legal/field regressions). TypeScript/UI checker/web export PASS; xs light screenshot inspected. Test uses fake ADMIN operator-session rather than bypassing production permissions. Evidence docs/ui-optimization-evidence/admin-action-affordance. Shared dialog runtime, all states/locales/actions, numeric contrast/strict AA/native/manual/fullcriteria remain OPEN.
+
+
+## BeeMiniPOS framed language/theme choices — 2026-10-04
+
+03-001 IN_PROGRESS: genuine Paper Menu remains; choices now genuine framed Paper List.Item/min48/full wrapping titles. Six baseline missing-frame failures. Selected regression29 PASS, enhanced menu6 PASS:150 language selections on xs/md/lg starting light/dark with CSS200 labels, frames/min48/no clipping/Enter and actual translated email accessible name;18 theme selections. Types/UI checker/export PASS. Evidence docs/ui-optimization-evidence/menu-action-affordance; screenshots finish in dark after theme sequence, xs inspected. Strict AA/numeric contrast, arrow/Escape/Tab/focus return, persistence/native/truezoom/allpages/full11 criteria OPEN.
