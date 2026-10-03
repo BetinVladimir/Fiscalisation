@@ -8,7 +8,13 @@ for(const [size,width,height] of [['xs',360,800],['md',960,900],['lg',1440,1000]
   for(const state of ['login','language-menu','theme-menu']){
    if(state!=='login')await page.getByTestId(`${state}-open`).click();
    const result=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa']).analyze();
-   scans.push({state,violations:result.violations,incomplete:result.incomplete});
+   const layout=await page.getByTestId('app-root').evaluate(el=>{
+     const ancestors=[];let node:HTMLElement|null=el as HTMLElement;
+     while(node){const r=node.getBoundingClientRect(),s=getComputedStyle(node);ancestors.push({tag:node.tagName,testid:node.dataset.testid,width:r.width,height:r.height,position:s.position,zIndex:s.zIndex,background:s.backgroundColor,flex:s.flex});node=node.parentElement;}
+     const text=document.querySelector<HTMLElement>('[data-testid="operator-login-email.label"]')!,r=text.getBoundingClientRect();
+     return {ancestors,stack:document.elementsFromPoint(r.x+r.width/2,r.y+r.height/2).map(n=>({tag:n.tagName,testid:n.getAttribute('data-testid'),role:n.getAttribute('role'),html:n.outerHTML.slice(0,300)}))};
+   });
+   scans.push({state,violations:result.violations,incomplete:result.incomplete,layout});
    if(state!=='login'){await page.keyboard.press('Escape');await expect(page.getByTestId(state==='language-menu'?'language-menu-scroll':'theme-system')).not.toBeVisible();}
   }
   await writeFile(testInfo.outputPath('axe-report.json'),JSON.stringify({size,theme,scans},null,2));

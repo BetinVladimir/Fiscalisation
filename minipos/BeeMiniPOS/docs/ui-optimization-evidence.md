@@ -102,3 +102,8 @@ Two genuine Paper outlined Buttons now have link role/min56/wrapping and own web
 ## BeeMiniPOS strict auth/menu Axe and parent roles — 2026-10-04
 
 03-001 IN_PROGRESS. Added strict WCAG2/2.1 A+AA Playwright test saving violations AND incomplete. Baseline18 scans had12 aria-required-parent findings/168 nodes; structural theme View/language ScrollView menu roles fixed, Paper leaves unchanged. Current18 scans0 automatic violations but18 color-contrast incomplete/108 nodes: strict6 FAIL/INCOMPLETE, not AA PASS. Functional35 PASS/types/UI/export PASS. Full compressed baseline/current retained in docs/ui-optimization-evidence/auth-menu-strict-aa. Contrast incomplete resolution/Tab/roving/native/manual/allpages/full11 remain OPEN.
+
+
+## BeeMiniPOS auth contrast diagnosis — 2026-10-04
+
+Strict findings messageKey bgOverlap for6 auth text nodes per scan. Removing decorative image experimentally did not change18 scans0VI/108 incomplete nodes, so source experiment reverted. Browser diagnostic xs/light label hit test showed actual label topmost and all root ancestors360x800; no collapsed root at this point. Strict test now saves layout/hit-stack evidence. docs/ui-optimization-evidence/auth-contrast-diagnostic retains experiment and diagnostic reports. Root cause and contrast adjudication OPEN; no AA PASS or production contrast fix claimed.

@@ -1,0 +1,10 @@
+{
+  "status": "IN_PROGRESS",
+  "scope": "Investigated current auth incomplete bgOverlap; removed decorative image experimentally, then reverted because all18 scans still0VI/18incomplete108nodes. Diagnostic xs light label hit-test topmost actual label, all root ancestors360x800; no collapsed root in this case. Test now saves ancestor dimensions and hit stack.",
+  "result": "Strict AA remains FAIL/INCOMPLETE; root cause not proven. No waiver/no claimed contrast repair.",
+  "open": [
+    "Identify Axe background-overlap cause at all text sample points",
+    "Actual foreground/background contrast adjudication",
+    "All11 original completion requirements"
+  ]
+}
