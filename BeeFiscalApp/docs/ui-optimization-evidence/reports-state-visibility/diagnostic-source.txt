@@ -1,0 +1,16 @@
+import {test,expect} from '@playwright/test';
+import {writeFile} from 'node:fs/promises';
+import {resolve} from 'node:path';
+import {mockFiscalApi,openApp} from './helpers';
+for(const mode of ['light','dark'] as const)test(`Diagnostic actual empty report stack xs/${mode}`,async({page},info)=>{
+ await page.setViewportSize({width:360,height:800});await page.emulateMedia({colorScheme:mode,reducedMotion:'reduce'});await mockFiscalApi(page,{reportsEmpty:true});await openApp(page);await page.getByTestId('nav.open').click();await page.getByTestId('tab-Отчети').click();await expect(page.getByTestId('reports.empty')).toBeVisible();
+ await page.addScriptTag({path:resolve('node_modules/axe-core/axe.min.js')});
+ const diagnostic=await page.evaluate(async()=>{
+  const engine=(window as any).axe;const captured:any[]=[];
+  engine.configure({checks:[{id:'diagnostic-report-check',evaluate:(node:HTMLElement)=>{
+   const stacks=engine.commons.dom.getTextElementStack(node).map((stack:HTMLElement[])=>stack.map(el=>({html:el.outerHTML.slice(0,400),same:el===node,ancestor:el.contains(node),rect:el.getBoundingClientRect().toJSON(),overflow:getComputedStyle(el).overflow})));
+   captured.push({target:node.outerHTML,rect:node.getBoundingClientRect().toJSON(),stacks});return true;
+  }}],rules:[{id:'diagnostic-report-rule',selector:'[data-testid="reports.empty"]',any:['diagnostic-report-check'],enabled:true,tags:['diagnostic']}]});
+  await engine.run(document,{runOnly:{type:'rule',values:['diagnostic-report-rule']}});return captured;
+ });await writeFile(info.outputPath('report-stack.json'),JSON.stringify(diagnostic,null,2));await page.screenshot({path:info.outputPath('report.png')});expect(diagnostic).toHaveLength(1);
+});

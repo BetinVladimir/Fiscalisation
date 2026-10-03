@@ -192,5 +192,21 @@
       "App.tsx": "6d10e1ba1da65c084b1f10bf555fda3921fad9fa67c40877dc30f3b6620dc6a5"
     },
     "evidence": "docs/ui-optimization-evidence/scroll-content-padding"
+  },
+  "partialVisibleStateAndIconVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Reports strict scan now scrolls actual target state into view and asserts entire target fits operational scroll viewport. Genuine Paper audit icon supplemental test checks >=3:1 composited graphic contrast, aria-hidden ancestor, expanded semantics and actual Enter toggle/focus xs/md/lg light/dark.",
+    "diagnostic": "Previous empty report target was y746..766, below viewport bottom727; visibility assertion alone did not prove viewport intersection. Real Axe stack shows target itself on top. After scrolling target fits, top headings/labels are outside viewport and flagged partially obscured.",
+    "checks": "18strictreports:0VI/6incomplete12nodes,12PASS6xsFAIL retained, previous16PASS2emptyFAIL.8 diagnostic/icon testsPASS;6icon reports min8.86894808172468.94defaultfunctionalPASS/typesPASS. Supplemental color check not full AA proof; all native/manual criteria OPEN.",
+    "open": [
+      "Review off-scroll text background geometry without rule exclusion",
+      "Audit6nonBmp strict needsReview remains despite supplemental checks",
+      "Auth6aria/native/manual/all11fullcriteria"
+    ],
+    "hashes": {
+      "e2e/reports-wcag.spec.ts": "3c07d2b89b962e9e86f73158d719d8c8ac2ab4507148c4076c43c23cf5502c30",
+      "e2e/audit-icon-contrast.spec.ts": "b6683d9bec749da266b0491c55c60d82b23634121f39d0a81419539d45b4db81"
+    },
+    "evidence": "docs/ui-optimization-evidence/reports-state-visibility"
   }
 }

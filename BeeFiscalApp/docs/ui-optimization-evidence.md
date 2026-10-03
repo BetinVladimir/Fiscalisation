@@ -217,3 +217,8 @@ Closed shared Paper Dialog portals unmounted; actual Axe stack proved decorative
 ## BeeFiscal operational scroll gutters and remaining diagnostics — 2026-10-04
 
 02-001 IN_PROGRESS. Moved vertical content padding from ScrollView viewport to its content container; removed duplicate outer horizontal padding, retained shared responsive gutter. Types/demoexport/88functionalPASS. Strictreports18:16PASS2xs empty-message INCOMPLETE,0VI/2nodes; change does not resolve Axe obscuration. Actual DOM diagnostic shows emptytext within viewport even after scrollIntoViewIfNeeded and audit icon already has aria-hidden ancestor, but graphical PUA icon still needs review. Temporarydiagnostic source/log/fullDOM/screenshot retained outside runnable suite, not AAproof. Evidence docs/ui-optimization-evidence/scroll-content-padding. All8operational/authARIA/native/manual/full11criteria remainOPEN.
+
+
+## BeeFiscal report viewport checks and actual Paper icon contrast — 2026-10-04
+
+02-001/017 IN_PROGRESS. Actual Axe virtualstack identifies emptyreport y746..766 below viewportbottom727; prior toBeVisible was insufficient. Strict reports now scroll actualstate and assert entire target within viewport.18scans0VI/6incomplete12nodes:12PASS6xsFAIL, now offscroll headings/labels need review. Both before/current evidence retained; no rule excluded. Supplemental6Papericon testsPASS xs/md/lg light/dark, actualEnter toggle/focus/expanded/hidden decorative semantics and min compositedgraphiccontrast8.86894808172468.94defaultfunctional/typesPASS. Icon nonBmp strict6needsReview remains, supplemental result not fullAAproof. Evidence docs/ui-optimization-evidence/reports-state-visibility. AuthARIA/native/manual/full11criteriaOPEN.

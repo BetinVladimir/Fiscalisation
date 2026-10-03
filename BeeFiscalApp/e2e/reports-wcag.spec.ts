@@ -16,7 +16,16 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       if (size === 'xs') await page.getByTestId('nav.open').click();
       await page.getByTestId('tab-Отчети').click();
       await expect(page.getByTestId('reports.screen')).toBeVisible();
-      await expect(page.getByTestId(state === 'populated' ? 'reports.item.report-1' : state === 'empty' ? 'reports.empty' : 'reports.error')).toBeVisible();
+      const stateContent = page.getByTestId(state === 'populated' ? 'reports.item.report-1' : state === 'empty' ? 'reports.empty' : 'reports.error');
+      await stateContent.scrollIntoViewIfNeeded();
+      await expect(stateContent).toBeVisible();
+      const visibleBounds = await stateContent.evaluate(node => {
+        const rect = node.getBoundingClientRect();
+        const scroll = document.querySelector('[data-testid="operational.content"]')!.getBoundingClientRect();
+        return { top: rect.top, bottom: rect.bottom, scrollTop: scroll.top, scrollBottom: scroll.bottom };
+      });
+      expect(visibleBounds.top).toBeGreaterThanOrEqual(visibleBounds.scrollTop - 1);
+      expect(visibleBounds.bottom).toBeLessThanOrEqual(visibleBounds.scrollBottom + 1);
       expect(errors).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
       const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21a', 'wcag21aa', 'wcag22aa']).analyze();

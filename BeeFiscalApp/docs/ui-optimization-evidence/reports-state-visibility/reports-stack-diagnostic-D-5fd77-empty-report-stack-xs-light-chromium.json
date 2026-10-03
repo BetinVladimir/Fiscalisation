@@ -1,0 +1,227 @@
+[
+  {
+    "target": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"reports.empty\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Няма отчети за избрания филтър.</div>",
+    "rect": {
+      "x": 16,
+      "y": 746,
+      "width": 328,
+      "height": 20,
+      "top": 746,
+      "right": 344,
+      "bottom": 766,
+      "left": 16
+    },
+    "stacks": [
+      [
+        {
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"reports.empty\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Няма отчети за избрания филтър.</div>",
+          "same": true,
+          "ancestor": true,
+          "rect": {
+            "x": 16,
+            "y": 746,
+            "width": 328,
+            "height": 20,
+            "top": 746,
+            "right": 344,
+            "bottom": 766,
+            "left": 16
+          },
+          "overflow": "visible"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" data-testid=\"reports.screen\" style=\"gap: 12px; padding-bottom: 16px;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgb(255, 251, 255);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 12px; padding-top: 16px; ",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 16,
+            "y": 476,
+            "width": 328,
+            "height": 306,
+            "top": 476,
+            "right": 344,
+            "bottom": 782,
+            "left": 16
+          },
+          "overflow": "visible"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding: 16px;\"><div class=\"css-g5y9jx r-1awozwy r-18u37iz r-uaa2di r-1ifxtd0\" style=\"flex-wrap: wrap;\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0 r-1wbh5a2 r-h1js2l r-ovu0ai r-dnmrzs\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; direction: ltr; color: rgb(29, 26, 32); flex-basis: 100%;\">От",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 0,
+            "y": 210,
+            "width": 360,
+            "height": 588,
+            "top": 210,
+            "right": 360,
+            "bottom": 798,
+            "left": 0
+          },
+          "overflow": "visible"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-13awgt0\" data-testid=\"operational.content\" style=\"background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding: 16px;\"><div class=\"css-g5y9jx r-1awozwy r-18u37iz r-uaa2di r-1ifxtd0\" style=\"flex-wrap: wrap;\"><div dir=\"auto\" class=\"css-146c",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 0,
+            "y": 210,
+            "width": 360,
+            "height": 517,
+            "top": 210,
+            "right": 360,
+            "bottom": 727,
+            "left": 0
+          },
+          "overflow": "hidden auto"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-18u37iz\"><div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-13awgt0\" data-testid=\"operational.content\" style=\"background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding: 16px;\"><div class=\"css-g5y9jx r-1awozwy r-18u37iz r-uaa2di r-1ifxtd0\" style=\"flex-",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 0,
+            "y": 210,
+            "width": 360,
+            "height": 517,
+            "top": 210,
+            "right": 360,
+            "bottom": 727,
+            "left": 0
+          },
+          "overflow": "visible"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"shell.language.open-container\" style=\"background-col",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 360,
+            "height": 800,
+            "top": 0,
+            "right": 360,
+            "bottom": 800,
+            "left": 0
+          },
+          "overflow": "visible"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"shell.",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 360,
+            "height": 800,
+            "top": 0,
+            "right": 360,
+            "bottom": 800,
+            "left": 0
+          },
+          "overflow": "visible"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phb",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 360,
+            "height": 800,
+            "top": 0,
+            "right": 360,
+            "bottom": 800,
+            "left": 0
+          },
+          "overflow": "visible"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 360,
+            "height": 800,
+            "top": 0,
+            "right": 360,
+            "bottom": 800,
+            "left": 0
+          },
+          "overflow": "visible"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap;",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 360,
+            "height": 800,
+            "top": 0,
+            "right": 360,
+            "bottom": 800,
+            "left": 0
+          },
+          "overflow": "visible"
+        },
+        {
+          "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"f",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 360,
+            "height": 800,
+            "top": 0,
+            "right": 360,
+            "bottom": 800,
+            "left": 0
+          },
+          "overflow": "visible"
+        },
+        {
+          "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 ",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 360,
+            "height": 800,
+            "top": 0,
+            "right": 360,
+            "bottom": 800,
+            "left": 0
+          },
+          "overflow": "hidden"
+        },
+        {
+          "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeFiscal</title>\n    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->\n",
+          "same": false,
+          "ancestor": true,
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 360,
+            "height": 800,
+            "top": 0,
+            "right": 360,
+            "bottom": 800,
+            "left": 0
+          },
+          "overflow": "visible"
+        }
+      ]
+    ]
+  }
+]
