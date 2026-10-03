@@ -1,0 +1,31 @@
+{
+  "ticket": "02-016",
+  "status": "IN_PROGRESS",
+  "partialEmptyPortalCardVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Closed Feedback/Confirm Paper Dialog portals unmounted; genuine Auth and language-panel Paper Card remain, mode contained + theme border/background on container instead of full-area decorative outlined layer. No standard Axe rules disabled.",
+    "baseline": "24 scans0VI/30incomplete270nodes; portal-only24 scans0VI/30incomplete228nodes. Direct Axe stack captures proved card-outline absolute z2 above heading/input.",
+    "final": {
+      "scans": 24,
+      "violations": 0,
+      "incomplete": 17,
+      "nodes": 97,
+      "color-contrast": 91,
+      "aria-valid-attr-value": 6
+    },
+    "testResult": "Strict24tests13PASS11FAIL/incomplete;14auth functionalPASS;2 separate diagnostic capturesPASS (not AA). Types/UI/exportPASS.",
+    "nextEvidence": "Remaining OTP stack puts transient Paper ripple span above input; investigate animation state/reduced motion and scan stability. Language menu still aria-valid-attr-value needsReview plus contrast incomplete.",
+    "open": [
+      "Resolve97 remaining incomplete nodes",
+      "Active dialog/native/manual/other operational screens/all11 fullcriteria"
+    ],
+    "hashes": {
+      "src/ui/feedback.tsx": "db1bd0dee39e24118609f01dc41dd45b273c857806350e1031b05401e9823dcc",
+      "src/ui/confirm-dialog.tsx": "dc3eb606347e135d3a8b5599038ac4bff8a56871dd7235448e3841685d9208d4",
+      "src/screens/AuthScreen.tsx": "ca1ccacb6d4fce8c42bce816a0874c87bb5d443ba3fc11b0d36cf3a89e2c8fdd",
+      "src/ui/LanguageThemeControls.tsx": "2d0aee37a5e6a0ee8a57c894225cd41642c07cf6d5d7e7f264bdda3cad5d21fa",
+      "e2e/contrast-stack-diagnostic.spec.ts": "501926861262f244f40f42d19e79fd8c9b0272e39817bedc3875c261e81c9cd4"
+    },
+    "evidence": "docs/ui-optimization-evidence/empty-dialog-portal"
+  }
+}

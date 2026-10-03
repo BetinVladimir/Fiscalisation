@@ -182,3 +182,8 @@ Six baseline keyboard cases fail missing aria-expanded. Own web-trigger compatib
 ### All25 language menu CSS200
 
 Six xs/md/lg light/dark scenarios PASS,150 actual locale selections. Canonical source literal read without native runtime/eval.150 doubled labelmetrics/textcontrast +300frame comparisons, labels no clip/item48/bounded225/focused item within scrollviewport, keyboard select/return/real preferences persisted. Pageerrors/API mutations/horizontaloverflow0. Productiondc902b6 unchanged; tests/typecheckPASS. Evidence language-all25-text200. This proves menu names/selection only, not fullapp translations/fullAA/native/manual/realzoom; existing6ARIA+138contrast strictincomplete remainopen.
+
+
+## BeeFiscal Portal/Card overlay fix — 2026-10-04
+
+Closed shared Paper Dialog portals unmounted; actual Axe stack proved decorative card-outline above content, so genuine Auth/language Card uses contained mode with theme border/background on container. Baseline24scans0VI/270incomplete nodes; portal-only228; current0VI/97nodes (91color/6aria),13strictPASS11FAIL.14auth functionalPASS,2diagnostic capturesPASS (not AA),types/UI/exportPASS. Remaining OTP virtual stack: transient Paper ripple above input; investigate motion/stability. Evidence docs/ui-optimization-evidence/empty-dialog-portal.02-001/007/008/016/020 IN_PROGRESS; remainingstates/native/manual/all11 fullcriteria OPEN.

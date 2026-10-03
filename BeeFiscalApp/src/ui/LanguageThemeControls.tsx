@@ -78,7 +78,7 @@ export function LanguageThemeControls({ testPrefix = 'auth' }: { testPrefix?: st
       <Button testID={`${testPrefix}.language.open`} mode="outlined" contentStyle={{ minHeight: 48 }} accessibilityLabel={`${copy.language}: ${language.toUpperCase()}`} accessibilityState={{ expanded: languageOpen }} onPress={() => setLanguageOpen(open => !open)}>{language.toUpperCase()}</Button>
       <Button testID={`${testPrefix}.theme.toggle`} mode="outlined" contentStyle={{ minHeight: 48 }} accessibilityLabel={`${copy.theme}: ${modeLabel}`} onPress={() => setThemeMode(nextMode)}>{modeLabel}</Button>
     </View>
-    {languageOpen ? <Card mode="outlined" style={{ width: '100%', maxWidth: 320, alignSelf: 'flex-end' }}>
+    {languageOpen ? <Card mode="contained" style={{ borderWidth: 1, borderColor: theme.colors.outline, backgroundColor: theme.colors.surface, width: '100%', maxWidth: 320, alignSelf: 'flex-end' }}>
       <View ref={menuRef}><ScrollView nativeID={`${testPrefix}-language-menu`} testID={`${testPrefix}.language.list`} accessibilityRole="menu" style={{ height: 224 }} keyboardShouldPersistTaps="handled">
         {languageOptions.map(([code, name]) => <List.Item
           key={code}

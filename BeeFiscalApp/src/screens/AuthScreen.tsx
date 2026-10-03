@@ -27,7 +27,7 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
       <LanguageThemeControls />
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingVertical: 16 }} keyboardShouldPersistTaps="handled">
         <AuthForm testID="admin-login" style={{ gap: 12 }}>
-          <Card mode="outlined">
+          <Card mode="contained" style={{ borderWidth: 1, borderColor: theme.colors.outline, backgroundColor: theme.colors.surface }}>
             <Card.Content style={{ gap: 16, paddingVertical: 24 }}>
               <Text variant="headlineSmall" accessibilityRole="header">{copy.title}</Text>
               <Text variant="bodyMedium">{copy.description}</Text>
