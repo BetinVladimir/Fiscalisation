@@ -1,19 +1,19 @@
 {
-  "date": "2026-09-30T22:38:48.511Z",
-  "sourceCommit": "758bccdcc49a443aea2a94b437e7757a37076267",
+  "date": "2026-10-03T19:31:37.123Z",
+  "sourceCommit": "74270a2a87da6e352a7753a18fb44783e91d3868",
   "testSha256": "c3b213096f34a442c1937202243976fb621981731f329427756a26d0f91cbc36",
   "sourceFilesSha256": {
-    "App.tsx": "77e35a3006684f6a52278c277bd17ea5999f3b076c37932f35975c543f17f4d9",
-    "src/screens/AuditScreen.tsx": "85bf8759b881b92c2c609db3e073e6891d3b3f5cf0da49e55baf7c6a1930b78a"
+    "App.tsx": "2a27926f0aa3eb4ba07d982cc90013373cbe8655f70d8226e421cdaa0ae7be59",
+    "src/screens/AuditScreen.tsx": "c2470a3a7ca2d91bb0c308a7a48ccc720199619299657d007c84a49cc8b5e9c4"
   },
-  "bundle": "AppEntry-a74d31a969b6e0f6990867706a291a96.js",
+  "bundle": "AppEntry-c04c1c76e3e02e2bfcb35ad2a9cc7c46.js",
   "command": "npm run test:e2e:audit-wcag",
   "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
   "scans": 24,
   "totalViolations": 0,
   "totalIncomplete": 826,
-  "pixelSupported": 389,
-  "pixelManualReview": 437,
+  "pixelSupported": 386,
+  "pixelManualReview": 440,
   "entries": [
     {
       "state": "audit-empty",
@@ -140,9 +140,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 41,
+      "incomplete": 42,
       "pixelSupported": 19,
-      "pixelManualReview": 22,
+      "pixelManualReview": 23,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-expanded-lg-dark"
     },
     {
@@ -150,9 +150,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 41,
-      "pixelSupported": 20,
-      "pixelManualReview": 21,
+      "incomplete": 42,
+      "pixelSupported": 18,
+      "pixelManualReview": 24,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-expanded-lg-light"
     },
     {
@@ -161,8 +161,8 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 37,
-      "pixelSupported": 18,
-      "pixelManualReview": 19,
+      "pixelSupported": 19,
+      "pixelManualReview": 18,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-expanded-md-dark"
     },
     {
@@ -171,8 +171,8 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 37,
-      "pixelSupported": 19,
-      "pixelManualReview": 18,
+      "pixelSupported": 18,
+      "pixelManualReview": 19,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-expanded-md-light"
     },
     {
@@ -191,8 +191,8 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 38,
-      "pixelSupported": 14,
-      "pixelManualReview": 24,
+      "pixelSupported": 13,
+      "pixelManualReview": 25,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-expanded-xs-light"
     },
     {
@@ -200,9 +200,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 37,
+      "incomplete": 36,
       "pixelSupported": 19,
-      "pixelManualReview": 18,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-populated-lg-dark"
     },
     {
@@ -210,9 +210,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 37,
+      "incomplete": 36,
       "pixelSupported": 19,
-      "pixelManualReview": 18,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/audit-wcag/audit-populated-lg-light"
     },
     {

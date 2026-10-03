@@ -306,31 +306,6 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-fdjqy7 r-ubezar r-lrvibr\" style=\"-webkit-line-clamp: 3; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(234, 228, 238);\">✓ R01</div>",
-          "target": [
-            ".r-8akbws"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
                 "fontSize": "16.5pt (22px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
@@ -781,7 +756,7 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "10.5pt (14px)",
+                "fontSize": "12.0pt (16px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
                 "expectedContrastRatio": "4.5:1"
@@ -794,11 +769,32 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"audit.details.audit-...\" style=\"direction: ltr; colo...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(210, 193, 240);\">Скрий подробности</div>",
           "target": [
-            ".r-15a3drq"
+            ".r-1qhn6m8.r-13awgt0.r-1777fci > .r-ubezar.r-lrvibr.r-fdjqy7"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+        },
+        {
+          "any": [
+            {
+              "id": "color-contrast",
+              "data": {
+                "messageKey": "nonBmp"
+              },
+              "relatedNodes": [],
+              "impact": "serious",
+              "message": "Element content contains only non-text characters"
+            }
+          ],
+          "all": [],
+          "none": [],
+          "impact": "serious",
+          "html": "<div dir=\"auto\" role=\"img\" tabindex=\"-1\" class=\"css-146c3p1 r-1niwhzg r-lrvibr r-633pao\" style=\"font-size: 24px; color: rgb(212, 205, 217); transform: scaleX(1); line-height: 24px; font-family: material-community; font-weight: normal; font-style: normal;\">󰅃</div>",
+          "target": [
+            ".r-1niwhzg"
+          ],
+          "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
         },
         {
           "any": [
@@ -955,8 +951,8 @@
   ],
   "pixelSummary": {
     "candidates": 37,
-    "supported": 18,
-    "manualReview": 19
+    "supported": 19,
+    "manualReview": 18
   },
   "contrastCandidates": [
     {
@@ -1378,45 +1374,6 @@
       }
     },
     {
-      "target": ".r-8akbws",
-      "text": "✓ R01",
-      "foreground": "rgb(234, 228, 238)",
-      "fontSize": "16px",
-      "fontWeight": "400",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 495.96875,
-        "y": 8,
-        "width": 280,
-        "height": 19
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 960,
-        "height": 900
-      },
-      "backgroundLayers": [
-        "rgb(13, 10, 18)",
-        "rgb(13, 10, 18)",
-        "rgb(68, 58, 76)"
-      ],
-      "background": "rgb(68, 58, 76)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 8.61,
-      "pixelEvidence": {
-        "status": "manual-review",
-        "visibleBackground": "rgb(13, 10, 18)",
-        "pixelRatio": 15.74,
-        "dominantShare": 0.991,
-        "matchesDomBackground": false,
-        "sampledPixels": 7125,
-        "foregroundPixels": 0,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
       "target": "h1",
       "text": "Филтри на одитния журнал",
       "foreground": "rgb(234, 228, 238)",
@@ -1426,7 +1383,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 73,
+        "y": 45,
         "width": 634,
         "height": 28
       },
@@ -1448,7 +1405,7 @@
         "status": "manual-review",
         "visibleBackground": "rgb(21, 17, 27)",
         "pixelRatio": 14.92,
-        "dominantShare": 0.869,
+        "dominantShare": 0.529,
         "matchesDomBackground": true,
         "sampledPixels": 5440,
         "foregroundPixels": 0,
@@ -1465,7 +1422,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 135,
+        "y": 107,
         "width": 181.015625,
         "height": 19.203125
       },
@@ -1484,13 +1441,13 @@
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
       "contrastCandidate": 12,
       "pixelEvidence": {
-        "status": "manual-review",
+        "status": "candidate-supported",
         "visibleBackground": "rgb(21, 17, 27)",
         "pixelRatio": 12,
-        "dominantShare": 0.763,
+        "dominantShare": 0.819,
         "matchesDomBackground": true,
         "sampledPixels": 4675,
-        "foregroundPixels": 0,
+        "foregroundPixels": 111,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -1504,7 +1461,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 121,
+        "y": 93,
         "width": 634,
         "height": 48
       },
@@ -1526,7 +1483,7 @@
         "status": "manual-review",
         "visibleBackground": "rgb(21, 17, 27)",
         "pixelRatio": 14.92,
-        "dominantShare": 0.6,
+        "dominantShare": 0.823,
         "matchesDomBackground": true,
         "sampledPixels": 8640,
         "foregroundPixels": 0,
@@ -1543,7 +1500,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 203,
+        "y": 175,
         "width": 105.859375,
         "height": 19.203125
       },
@@ -1582,7 +1539,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 189,
+        "y": 161,
         "width": 634,
         "height": 48
       },
@@ -1621,7 +1578,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 271,
+        "y": 243,
         "width": 107.25,
         "height": 19.203125
       },
@@ -1660,7 +1617,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 257,
+        "y": 229,
         "width": 634,
         "height": 48
       },
@@ -1699,7 +1656,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 339,
+        "y": 311,
         "width": 223.296875,
         "height": 19.203125
       },
@@ -1738,7 +1695,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 325,
+        "y": 297,
         "width": 634,
         "height": 48
       },
@@ -1777,7 +1734,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 407,
+        "y": 379,
         "width": 65.328125,
         "height": 19.203125
       },
@@ -1816,7 +1773,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 393,
+        "y": 365,
         "width": 634,
         "height": 48
       },
@@ -1855,7 +1812,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 475,
+        "y": 447,
         "width": 136.640625,
         "height": 19.203125
       },
@@ -1894,7 +1851,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 461,
+        "y": 433,
         "width": 634,
         "height": 48
       },
@@ -1933,7 +1890,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 543,
+        "y": 515,
         "width": 139.109375,
         "height": 19.203125
       },
@@ -1972,7 +1929,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 529,
+        "y": 501,
         "width": 634,
         "height": 48
       },
@@ -2011,7 +1968,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 510.328125,
-        "y": 603,
+        "y": 575,
         "width": 129.328125,
         "height": 20
       },
@@ -2051,7 +2008,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 681,
+        "y": 653,
         "width": 634,
         "height": 24
       },
@@ -2090,7 +2047,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 711,
+        "y": 683,
         "width": 634,
         "height": 20
       },
@@ -2120,18 +2077,18 @@
       }
     },
     {
-      "target": ".r-15a3drq",
+      "target": ".r-1qhn6m8.r-13awgt0.r-1777fci > .r-ubezar.r-lrvibr.r-fdjqy7",
       "text": "Скрий подробности",
       "foreground": "rgb(210, 193, 240)",
-      "fontSize": "14px",
-      "fontWeight": "500",
+      "fontSize": "16px",
+      "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 509,
-        "y": 746,
-        "width": 132,
-        "height": 20
+        "x": 275,
+        "y": 732.5,
+        "width": 560,
+        "height": 19
       },
       "viewport": {
         "x": 0,
@@ -2143,19 +2100,61 @@
         "rgb(13, 10, 18)",
         "rgb(13, 10, 18)",
         "rgb(21, 17, 27)",
+        "rgb(13, 10, 18)",
         "rgba(210, 193, 240, 0.06)"
       ],
-      "background": "rgb(32, 28, 40)",
+      "background": "rgb(25, 21, 31)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 10.04,
+      "contrastCandidate": 10.81,
       "pixelEvidence": {
         "status": "manual-review",
-        "visibleBackground": "rgb(31, 27, 39)",
-        "pixelRatio": 10.15,
-        "dominantShare": 0.752,
+        "visibleBackground": "rgb(24, 20, 30)",
+        "pixelRatio": 10.91,
+        "dominantShare": 0.931,
         "matchesDomBackground": false,
-        "sampledPixels": 3588,
-        "foregroundPixels": 363,
+        "sampledPixels": 3396,
+        "foregroundPixels": 91,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
+    {
+      "target": ".r-1niwhzg",
+      "text": "󰅃",
+      "foreground": "rgb(212, 205, 217)",
+      "fontSize": "24px",
+      "fontWeight": "400",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 843,
+        "y": 730,
+        "width": 24,
+        "height": 24
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 960,
+        "height": 900
+      },
+      "backgroundLayers": [
+        "rgb(13, 10, 18)",
+        "rgb(13, 10, 18)",
+        "rgb(21, 17, 27)",
+        "rgb(13, 10, 18)",
+        "rgba(210, 193, 240, 0.06)"
+      ],
+      "background": "rgb(25, 21, 31)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 11.58,
+      "pixelEvidence": {
+        "status": "manual-review",
+        "visibleBackground": "rgb(24, 20, 30)",
+        "pixelRatio": 11.69,
+        "dominantShare": 0.931,
+        "matchesDomBackground": false,
+        "sampledPixels": 900,
+        "foregroundPixels": 32,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -2169,7 +2168,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 781,
+        "y": 775,
         "width": 634,
         "height": 20
       },
@@ -2191,7 +2190,7 @@
         "status": "candidate-supported",
         "visibleBackground": "rgb(21, 17, 27)",
         "pixelRatio": 14.92,
-        "dominantShare": 0.97,
+        "dominantShare": 0.818,
         "matchesDomBackground": true,
         "sampledPixels": 4160,
         "foregroundPixels": 29,
@@ -2208,7 +2207,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 805,
+        "y": 799,
         "width": 634,
         "height": 20
       },
@@ -2247,7 +2246,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 829,
+        "y": 823,
         "width": 634,
         "height": 20
       },
@@ -2269,7 +2268,7 @@
         "status": "manual-review",
         "visibleBackground": "rgb(21, 17, 27)",
         "pixelRatio": 14.92,
-        "dominantShare": 0.939,
+        "dominantShare": 0.971,
         "matchesDomBackground": true,
         "sampledPixels": 4160,
         "foregroundPixels": 0,
@@ -2286,7 +2285,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 853,
+        "y": 847,
         "width": 634,
         "height": 16
       },
@@ -2308,10 +2307,10 @@
         "status": "candidate-supported",
         "visibleBackground": "rgb(21, 17, 27)",
         "pixelRatio": 14.92,
-        "dominantShare": 0.839,
+        "dominantShare": 0.848,
         "matchesDomBackground": true,
         "sampledPixels": 3520,
-        "foregroundPixels": 16,
+        "foregroundPixels": 3,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },

@@ -894,31 +894,6 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"audit.details.audit-...\" style=\"direction: ltr; colo...\">",
-          "target": [
-            ".r-15a3drq"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "10.5pt (14px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Одит: данните са обновени от BeeFiscal API</div>",
           "target": [
             ".r-5kkj8d > .r-13awgt0.r-fdjqy7.css-146c3p1"
@@ -954,9 +929,9 @@
     }
   ],
   "pixelSummary": {
-    "candidates": 37,
+    "candidates": 36,
     "supported": 19,
-    "manualReview": 18
+    "manualReview": 17
   },
   "contrastCandidates": [
     {
@@ -2269,45 +2244,6 @@
         "matchesDomBackground": true,
         "sampledPixels": 7280,
         "foregroundPixels": 10,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": ".r-15a3drq",
-      "text": "Покажи подробности",
-      "foreground": "rgb(73, 49, 122)",
-      "fontSize": "14px",
-      "fontWeight": "500",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 743.0625,
-        "y": 988,
-        "width": 143.859375,
-        "height": 20
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)"
-      ],
-      "background": "rgb(255, 251, 255)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 10.23,
-      "pixelEvidence": {
-        "status": "manual-review",
-        "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 10.23,
-        "dominantShare": 1,
-        "matchesDomBackground": true,
-        "sampledPixels": 2220,
-        "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },

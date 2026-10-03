@@ -221,7 +221,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -346,7 +346,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"audit.filter.actor-l...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".css-g5y9jx:nth-child(2) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(2) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -396,7 +396,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"audit.filter.action-...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".css-g5y9jx:nth-child(3) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(3) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -446,7 +446,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"audit.filter.objectT...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -496,7 +496,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"audit.filter.objectI...\" style=\"font-weight: 400; di...\">",
           "target": [
-            ".css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -1025,7 +1025,7 @@
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Търсене: Касово място",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -1218,7 +1218,7 @@
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(2) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(2) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Оператор/участник",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -1296,7 +1296,7 @@
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(3) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(3) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Действие",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -1374,7 +1374,7 @@
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(4) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Тип обект",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",
@@ -1452,7 +1452,7 @@
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-633pao > .r-ipm5af.r-633pao.r-1p0dtai > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(5) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
       "text": "Идентификатор на обект",
       "foreground": "rgb(72, 67, 77)",
       "fontSize": "16px",

@@ -50,6 +50,9 @@ function AuditEventCard({ event }: { event: Event }) {
       <View ref={accordionRef}>
       <List.Accordion testID={`audit.details.${id}`} expanded={expanded}
         title={expanded ? 'Скрий подробности' : 'Покажи подробности'} titleNumberOfLines={0}
+        right={({ isExpanded }) => <View aria-hidden accessibilityElementsHidden importantForAccessibility="no-hide-descendants">
+          <List.Icon icon={isExpanded ? 'chevron-up' : 'chevron-down'} color={theme.colors.onSurfaceVariant} />
+        </View>}
         style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline }}
         onPress={() => setExpanded(value => !value)}>
       <View testID={`audit.details-content.${id}`} style={{ gap: 4 }}>
