@@ -147,3 +147,8 @@ Device/reference/choice/language rows and Drawer navigation now have permanent t
 Six xs/md/lg light/dark dedicated tests PASS: permanent frame/48 target/viewport bounds, Enter register and form choice, Space navigation, no API mutations. All68 functional E2E and TypeScript PASS. Production e9c051a unchanged; second-register test API composite endpoint added, selected initialization reflected in test. Initial interrupted fixture failure retained. Evidence navigation-affordance. Alert runtime, numerical frame/focus contrast, strictAA/native/manual/200%/all25/full criteria remain open.
 
 Current devices/admin strict audit on unchanged production source e9c051a: 54 scans, 0 violations, 1718 incomplete nodes. Strict command exit1, AA remains INCOMPLETE; 9 states/3 sizes/2 themes only. Screens/full axe JSON retained in devices-admin-wcag.
+
+
+### Frame and keyboard focus contrast (supplemental)
+
+7 dedicated tests PASS including negative frame control. Six xs/md/lg light/dark contexts x reference/Choices/Drawer:36 frame comparisons min4.959729578789477;18 focus comparisons min3.1109458559692036. Computed sRGB/RGBA backgrounds, reject unsupported layers, settled opaque animation; Chromium auto outline visible/width-positive. Keyboard-only menu opening Enter, selection Enter and navigation Space, bounds/48/no mutations retained. This is supplemental numerical evidence, not pixel/occlusion/manual/native adjudication or full AA. Existing1718 strict incomplete nodes remain open. Evidence frame-focus-contrast.
