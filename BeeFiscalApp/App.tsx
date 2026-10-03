@@ -797,7 +797,8 @@ function AppContent() {
             {tabs.map(x => <List.Item key={x} testID={`tab-${x}`} title={x} titleNumberOfLines={0} titleStyle={{ color: tab === x ? theme.colors.onSecondaryContainer : theme.colors.onSurface }} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 12, marginVertical: 4, backgroundColor: tab === x ? theme.colors.secondaryContainer : theme.colors.surface }} accessibilityRole="button" accessibilityState={{ selected: tab === x }} accessibilityLabel={`Отвори ${x}`} onPress={() => changeTab(x)} />)}
           </Drawer.Section>
         </ScrollView> : null}
-        <ScrollView style={[s.content, { backgroundColor: theme.colors.background }, compact && { padding: 16 }]}>
+        <ScrollView testID="operational.content" style={[s.content, { backgroundColor: theme.colors.background }]}
+          contentContainerStyle={{ paddingVertical: compact ? 16 : 20 }}>
           {loading ? (
             <PaperText
               testID="screen-loading"
@@ -976,7 +977,7 @@ const s = StyleSheet.create({
   readyText: { color: beeloyColors.success, fontWeight: "900" },
   body: { flex: 1, flexDirection: "row" },
   nav: { width: 190, flexBasis: 190, flexGrow: 0, flexShrink: 0, padding: 12, gap: 6 },
-  content: { flex: 1, padding: 20 },
+  content: { flex: 1 },
   toolbar: {
     flexWrap: 'wrap',
     flexDirection: "row",

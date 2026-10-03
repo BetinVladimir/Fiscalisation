@@ -212,3 +212,8 @@ Closed shared Paper Dialog portals unmounted; actual Axe stack proved decorative
 ## BeeFiscal remaining operational Paper Card borders — 2026-10-04
 
 02-001/017 IN_PROGRESS. Operations/Reports/Audit/Settings genuine Paper Cards use theme outline border/background on host; button fills/frames and handlers retained. Before66 strict scans0VI/66incomplete608nodes. Current66scans0VI/8incomplete8nodes: operations6 andsettings18 fullyPASS; reports16PASS2xs empty-message partially-obscured needsReview; audit18PASS6expanded decorative PUA nonBmp needsReview. Strict58PASS8FAIL retained without waivers. Full88 defaultfunctional/types/UI/demoexportPASS. Both baseline/current fullraw, representativexs screenshots, source hashes/logs stored in docs/ui-optimization-evidence/operational-card-borders. Remaining8incomplete/authARIA/native/manual/realzoom/all11 criteriaOPEN.
+
+
+## BeeFiscal operational scroll gutters and remaining diagnostics — 2026-10-04
+
+02-001 IN_PROGRESS. Moved vertical content padding from ScrollView viewport to its content container; removed duplicate outer horizontal padding, retained shared responsive gutter. Types/demoexport/88functionalPASS. Strictreports18:16PASS2xs empty-message INCOMPLETE,0VI/2nodes; change does not resolve Axe obscuration. Actual DOM diagnostic shows emptytext within viewport even after scrollIntoViewIfNeeded and audit icon already has aria-hidden ancestor, but graphical PUA icon still needs review. Temporarydiagnostic source/log/fullDOM/screenshot retained outside runnable suite, not AAproof. Evidence docs/ui-optimization-evidence/scroll-content-padding. All8operational/authARIA/native/manual/full11criteria remainOPEN.

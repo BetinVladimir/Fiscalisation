@@ -1,0 +1,15 @@
+import { test, expect } from '@playwright/test';
+import { writeFile } from 'node:fs/promises';
+import AxeBuilder from '@axe-core/playwright';
+import { mockFiscalApi, openApp } from './helpers';
+
+test('capture current audit icon and reports scroll ancestors', async ({page},info)=>{
+ await page.setViewportSize({width:360,height:800});await page.emulateMedia({colorScheme:'light',reducedMotion:'reduce'});
+ await mockFiscalApi(page,{reportsEmpty:true});await openApp(page);await page.getByTestId('nav.open').click();await page.getByTestId('tab-Одит').click();await page.getByTestId('audit.details.audit-1').click();
+ const audit=await new AxeBuilder({page}).withTags(['wcag2aa']).analyze();
+ const ancestors=await page.locator('[role="img"]').evaluateAll(nodes=>nodes.map(node=>{const chain=[];for(let p:Element|null=node;p;p=p.parentElement){const s=getComputedStyle(p);chain.push({html:p.outerHTML.slice(0,450),aria:p.getAttribute('aria-hidden'),color:s.color,display:s.display,visibility:s.visibility});if(chain.length>8)break;}return chain}));
+ await page.getByTestId('nav.open').click();await page.getByTestId('tab-Отчети').click();await expect(page.getByTestId('reports.empty')).toBeVisible();
+ const bounds=()=>page.getByTestId('reports.empty').evaluate(node=>{const chain=[];for(let p:Element|null=node;p;p=p.parentElement){const s=getComputedStyle(p),r=p.getBoundingClientRect();chain.push({html:p.outerHTML.slice(0,250),x:r.x,y:r.y,width:r.width,height:r.height,client:p.clientHeight,scroll:p.scrollHeight,scrollTop:p.scrollTop,overflow:s.overflow,padding:s.padding});}return chain});
+ const before=await bounds();await page.getByTestId('reports.empty').scrollIntoViewIfNeeded();const after=await bounds();const reports=await new AxeBuilder({page}).withTags(['wcag2aa']).analyze();
+ await writeFile(info.outputPath('remaining-diagnostic.json'),JSON.stringify({audit:{violations:audit.violations,incomplete:audit.incomplete},ancestors,before,after,reports:{violations:reports.violations,incomplete:reports.incomplete}},null,2));await page.screenshot({path:info.outputPath('reports-after-scroll.png')});
+});

@@ -1,0 +1,522 @@
+{
+  "audit": {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "messageKey": "nonBmp"
+                },
+                "relatedNodes": [],
+                "impact": "serious",
+                "message": "Element content contains only non-text characters"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<div dir=\"auto\" role=\"img\" tabindex=\"-1\" class=\"css-146c3p1 r-1niwhzg r-lrvibr r-633pao\" style=\"font-size: 24px; color: rgb(72, 67, 77); transform: scaleX(1); line-height: 24px; font-family: material-community; font-weight: normal; font-style: normal;\">󰅃</div>",
+            "target": [
+              ".r-1niwhzg"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element content contains only non-text characters"
+          }
+        ]
+      }
+    ]
+  },
+  "ancestors": [
+    [
+      {
+        "html": "<div dir=\"auto\" role=\"img\" tabindex=\"-1\" class=\"css-146c3p1 r-1niwhzg r-lrvibr r-633pao\" style=\"font-size: 24px; color: rgb(72, 67, 77); transform: scaleX(1); line-height: 24px; font-family: material-community; font-weight: normal; font-style: normal;\">󰅃</div>",
+        "aria": null,
+        "color": "rgb(72, 67, 77)",
+        "display": "block",
+        "visibility": "visible"
+      },
+      {
+        "html": "<div class=\"css-g5y9jx r-1awozwy r-1777fci r-12vffkv\"><div dir=\"auto\" role=\"img\" tabindex=\"-1\" class=\"css-146c3p1 r-1niwhzg r-lrvibr r-633pao\" style=\"font-size: 24px; color: rgb(72, 67, 77); transform: scaleX(1); line-height: 24px; font-family: material-community; font-weight: normal; font-style: normal;\">󰅃</div></div>",
+        "aria": null,
+        "color": "rgb(0, 0, 0)",
+        "display": "flex",
+        "visibility": "visible"
+      },
+      {
+        "html": "<div aria-hidden=\"true\" class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1awozwy r-1777fci r-12vffkv\"><div dir=\"auto\" role=\"img\" tabindex=\"-1\" class=\"css-146c3p1 r-1niwhzg r-lrvibr r-633pao\" style=\"font-size: 24px; color: rgb(72, 67, 77); transform: scaleX(1); line-height: 24px; font-family: material-community; font-weight: normal; font-style: normal;\">󰅃</div></div></div>",
+        "aria": "true",
+        "color": "rgb(0, 0, 0)",
+        "display": "flex",
+        "visibility": "visible"
+      },
+      {
+        "html": "<div class=\"css-g5y9jx r-ws14 r-1m04atk\"><div aria-hidden=\"true\" class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1awozwy r-1777fci r-12vffkv\"><div dir=\"auto\" role=\"img\" tabindex=\"-1\" class=\"css-146c3p1 r-1niwhzg r-lrvibr r-633pao\" style=\"font-size: 24px; color: rgb(72, 67, 77); transform: scaleX(1); line-height: 24px; font-family: material-community; font-weight: normal; font-style: normal;\">󰅃</div></div></div></div>",
+        "aria": null,
+        "color": "rgb(0, 0, 0)",
+        "display": "flex",
+        "visibility": "visible"
+      },
+      {
+        "html": "<div class=\"css-g5y9jx r-18u37iz r-ws14 r-633pao\"><div class=\"css-g5y9jx r-1qhn6m8 r-13awgt0 r-1777fci\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(73, 49, 122);\">Скрий подробности</div></div><div class=\"css-g5y9jx r-ws14 r-1m04atk\"><div aria-hidden=\"true\" class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1awozwy r-1777fci r-12vff",
+        "aria": null,
+        "color": "rgb(0, 0, 0)",
+        "display": "flex",
+        "visibility": "visible"
+      },
+      {
+        "html": "<button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x r-11f147o r-11g3r6m\" data-testid=\"audit.details.audit-1\" type=\"button\" style=\"min-height: 48px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgba(73, 49, 122, 0.06);\" aria-expanded=\"true\"><div class=\"css-g5y9jx r-18u37iz r-ws14 r-633pao\"><div class=\"css-g5y9jx r-1qhn6m8 r-13awgt0 r-1777fci\"><div dir=\"auto\" class=\"css-146c",
+        "aria": null,
+        "color": "rgb(0, 0, 0)",
+        "display": "flex",
+        "visibility": "visible"
+      },
+      {
+        "html": "<div class=\"css-g5y9jx\" style=\"background-color: rgb(247, 245, 249);\"><button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x r-11f147o r-11g3r6m\" data-testid=\"audit.details.audit-1\" type=\"button\" style=\"min-height: 48px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgba(73, 49, 122, 0.06);\" aria-expanded=\"true\"><div class=\"css-g5y9jx r-18u37iz r-ws14 r-633pao\"><div class=\"css",
+        "aria": null,
+        "color": "rgb(0, 0, 0)",
+        "display": "flex",
+        "visibility": "visible"
+      },
+      {
+        "html": "<div class=\"css-g5y9jx\"><div class=\"css-g5y9jx\" style=\"background-color: rgb(247, 245, 249);\"><button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x r-11f147o r-11g3r6m\" data-testid=\"audit.details.audit-1\" type=\"button\" style=\"min-height: 48px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgba(73, 49, 122, 0.06);\" aria-expanded=\"true\"><div class=\"css-g5y9jx r-18u37iz r-ws14 r",
+        "aria": null,
+        "color": "rgb(0, 0, 0)",
+        "display": "flex",
+        "visibility": "visible"
+      },
+      {
+        "html": "<div class=\"css-g5y9jx\"><div class=\"css-g5y9jx\"><div class=\"css-g5y9jx\" style=\"background-color: rgb(247, 245, 249);\"><button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x r-11f147o r-11g3r6m\" data-testid=\"audit.details.audit-1\" type=\"button\" style=\"min-height: 48px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgba(73, 49, 122, 0.06);\" aria-expanded=\"true\"><div class=\"css-g",
+        "aria": null,
+        "color": "rgb(0, 0, 0)",
+        "display": "flex",
+        "visibility": "visible"
+      }
+    ]
+  ],
+  "before": [
+    {
+      "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"reports.empty\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Няма отчети за избр",
+      "x": 32,
+      "y": 675,
+      "width": 296,
+      "height": 20,
+      "client": 20,
+      "scroll": 20,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx\" data-testid=\"reports.screen\" style=\"gap: 12px; padding-bottom: 16px;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116); background-c",
+      "x": 32,
+      "y": 405,
+      "width": 296,
+      "height": 306,
+      "client": 306,
+      "scroll": 306,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px 0px 16px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding-right: 16px; padding-left: 16px;\"><div class=\"css-g5y9jx r-1awozwy r-18u37iz r-uaa2di r-1ifxtd0\" style=\"flex-wrap: wrap;\"><div dir=\"auto\" class=\"css-146c3p1 r-",
+      "x": 16,
+      "y": 155,
+      "width": 328,
+      "height": 556,
+      "client": 556,
+      "scroll": 556,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px 16px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 16px;\"><div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padd",
+      "x": 0,
+      "y": 210,
+      "width": 360,
+      "height": 517,
+      "client": 517,
+      "scroll": 588,
+      "scrollTop": 71,
+      "overflow": "hidden auto",
+      "padding": "16px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-13awgt0 r-18u37iz\"><div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 16px;\"><div class=\"css-g5y9jx\" style=\"width: 100%;",
+      "x": 0,
+      "y": 210,
+      "width": 360,
+      "height": 517,
+      "client": 517,
+      "scroll": 517,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div clas",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: ",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"p",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249)",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "hidden",
+      "padding": "0px"
+    },
+    {
+      "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <tit",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    }
+  ],
+  "after": [
+    {
+      "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"reports.empty\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Няма отчети за избр",
+      "x": 32,
+      "y": 675,
+      "width": 296,
+      "height": 20,
+      "client": 20,
+      "scroll": 20,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx\" data-testid=\"reports.screen\" style=\"gap: 12px; padding-bottom: 16px;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116); background-c",
+      "x": 32,
+      "y": 405,
+      "width": 296,
+      "height": 306,
+      "client": 306,
+      "scroll": 306,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px 0px 16px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding-right: 16px; padding-left: 16px;\"><div class=\"css-g5y9jx r-1awozwy r-18u37iz r-uaa2di r-1ifxtd0\" style=\"flex-wrap: wrap;\"><div dir=\"auto\" class=\"css-146c3p1 r-",
+      "x": 16,
+      "y": 155,
+      "width": 328,
+      "height": 556,
+      "client": 556,
+      "scroll": 556,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px 16px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 16px;\"><div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padd",
+      "x": 0,
+      "y": 210,
+      "width": 360,
+      "height": 517,
+      "client": 517,
+      "scroll": 588,
+      "scrollTop": 71,
+      "overflow": "hidden auto",
+      "padding": "16px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-13awgt0 r-18u37iz\"><div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 16px;\"><div class=\"css-g5y9jx\" style=\"width: 100%;",
+      "x": 0,
+      "y": 210,
+      "width": 360,
+      "height": 517,
+      "client": 517,
+      "scroll": 517,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div clas",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: ",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"p",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 0px;",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0\" style=\"background-color: rgb(247, 245, 249)",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    },
+    {
+      "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "hidden",
+      "padding": "0px"
+    },
+    {
+      "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <tit",
+      "x": 0,
+      "y": 0,
+      "width": 360,
+      "height": 800,
+      "client": 800,
+      "scroll": 800,
+      "scrollTop": 0,
+      "overflow": "visible",
+      "padding": "0px"
+    }
+  ],
+  "reports": {
+    "violations": [],
+    "incomplete": [
+      {
+        "id": "color-contrast",
+        "impact": "serious",
+        "tags": [
+          "cat.color",
+          "wcag2aa",
+          "wcag143",
+          "TTv5",
+          "TT13.c",
+          "EN-301-549",
+          "EN-9.1.4.3",
+          "ACT",
+          "RGAAv4",
+          "RGAA-3.2.1"
+        ],
+        "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+        "help": "Elements must meet minimum color contrast ratio thresholds",
+        "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+        "nodes": [
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "18.8pt (25px)",
+                  "fontWeight": "bold",
+                  "messageKey": "elmPartiallyObscured",
+                  "expectedContrastRatio": "3:1"
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 16px;\">",
+                    "target": [
+                      ".r-150rngu"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it's partially obscured by another element"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0 r-1wbh5a2 r-h1js2l r-ovu0ai r-dnmrzs\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; direction: ltr; color: rgb(29, 26, 32); flex-basis: 100%;\">Отчети</div>",
+            "target": [
+              ".r-h1js2l"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+          },
+          {
+            "any": [
+              {
+                "id": "color-contrast",
+                "data": {
+                  "contrastRatio": 0,
+                  "fontSize": "10.5pt (14px)",
+                  "fontWeight": "normal",
+                  "messageKey": "elmPartiallyObscured",
+                  "expectedContrastRatio": "4.5:1"
+                },
+                "relatedNodes": [
+                  {
+                    "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-13awgt0\" style=\"background-color: rgb(247, 245, 249); padding: 16px;\">",
+                    "target": [
+                      ".r-150rngu"
+                    ]
+                  }
+                ],
+                "impact": "serious",
+                "message": "Element's background color could not be determined because it's partially obscured by another element"
+              }
+            ],
+            "all": [],
+            "none": [],
+            "impact": "serious",
+            "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"reference.search.Касово място.label\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Търсене: Касово място</div>",
+            "target": [
+              ".r-uaa2di > .css-g5y9jx:nth-child(2) > .css-g5y9jx:nth-child(1) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
+            ],
+            "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it's partially obscured by another element"
+          }
+        ]
+      }
+    ]
+  }
+}
