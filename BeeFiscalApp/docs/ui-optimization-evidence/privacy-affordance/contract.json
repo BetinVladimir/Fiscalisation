@@ -1,0 +1,11 @@
+{
+  "source": "src/screens/AuthScreen.tsx",
+  "sourceSha256": "793819abfb73210e977bb035df73fa4ba5d210b01324255d90e49f97807c60d7",
+  "case": "Privacy policy text PaperButton lacked frame/underline;outlined actualPaperButton minHeight48,labelwrap;linkrole/legalURL(language)/handler unchanged",
+  "baseline": "7authPASS;newframeassert5FAIL/2PASS beforepatch",
+  "verified": "8authPASS;EN/BG/RU/DE/FR xs frame+height+samelegalURL;6 xs/md/lg lightdark system-themeframes;actualthemebackground differs;nohorizontaloverflow. Typecheck/ui:check PASS. FakeOTP/API andwindowopen only;no liveauth/fiscalwrites.",
+  "open": [
+    "Nontext framecontrast/focus/200%/all25privacybrowser/native/manual/fullAA",
+    "OtherBeeFiscal/app11criteria"
+  ]
+}

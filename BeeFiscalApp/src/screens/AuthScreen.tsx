@@ -1,5 +1,5 @@
 import React from 'react';
-import { Linking } from 'react-native';
+import { Linking, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
 import { Button, Card, HelperText, Text, TextInput, useTheme } from 'react-native-paper';
@@ -17,6 +17,7 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
   const theme = useTheme();
   const { language } = useUiPreferences();
   const copy = authCopy[language];
+  const linkLabelStyle = Platform.OS === 'web' ? { whiteSpace: 'normal', overflowWrap: 'anywhere', flexShrink: 1 } as const : { flexShrink: 1 };
   const stage = !auth.temporary ? 'email' : auth.tenants.length === 0 ? 'otp' : 'company';
 
   return (
@@ -65,7 +66,7 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
                 ))}
               </>}
 
-              <Button mode="text" accessibilityRole="link" onPress={() => void Linking.openURL(privacyPolicyUrl(language))}>{copy.privacyPolicy}</Button>
+              <Button testID="auth.privacy" mode="outlined" contentStyle={{ minHeight: 48 }} labelStyle={linkLabelStyle} accessibilityRole="link" onPress={() => void Linking.openURL(privacyPolicyUrl(language))}>{copy.privacyPolicy}</Button>
             </Card.Content>
           </Card>
         </AuthForm>

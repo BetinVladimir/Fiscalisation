@@ -20,7 +20,10 @@ for (const locale of ['en', 'bg', 'ru', 'de', 'fr'] as const) {
     expect(login!.x).toBeGreaterThanOrEqual(0);
     expect(login!.x + login!.width).toBeLessThanOrEqual(361);
     expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
-    await page.getByRole('link', { name: authCopy[locale].privacyPolicy }).click();
+    const privacy = page.getByRole('link', { name: authCopy[locale].privacyPolicy });
+    expect(await privacy.locator('..').evaluate(node => parseFloat(getComputedStyle(node).borderTopWidth))).toBeGreaterThanOrEqual(1);
+    expect((await privacy.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+    await privacy.click();
     expect(await page.evaluate(() => localStorage.getItem('auth.lastLegalUrl'))).toBe(`https://legal.beeloy.org/${locale}/privacy`);
   });
 }
@@ -105,4 +108,17 @@ test('production Paper auth retains input after errors and selects a company', a
   await expect(page.getByTestId('auth.root')).toBeVisible();
   expect(calls.filter(call => call.path.endsWith('/challenges')).map(call => call.body.email)).toEqual(['qa@example.org', 'qa@example.org']);
   expect(calls.find(call => call.path.endsWith('/tenant-session'))?.body.tenant_id).toBe('company-1');
+});
+
+
+test('Privacy Paper action keeps a visible frame on xs md lg in both system themes', async ({ page }) => {
+  let lightBackground='';
+  for(const theme of ['light','dark'] as const)for(const width of [360,960,1440]){
+    await page.emulateMedia({colorScheme:theme});await page.setViewportSize({width,height:width===360?800:width===1440?1000:900});await page.goto('/');
+    const action=page.getByTestId('auth.privacy');await expect(action).toBeVisible();await expect(action).toHaveRole('link');
+    const frame=await action.locator('..').evaluate(node=>{const s=getComputedStyle(node);return {width:parseFloat(s.borderTopWidth),style:s.borderTopStyle,color:s.borderTopColor};});
+    expect(frame.width).toBeGreaterThanOrEqual(1);expect(frame.style).toBe('solid');expect(frame.color).not.toBe('rgba(0, 0, 0, 0)');expect((await action.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+    const background=await page.getByTestId('auth.root').evaluate(node=>getComputedStyle(node).backgroundColor);if(theme==='light')lightBackground=background;else expect(background).not.toBe(lightBackground);
+    expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);
+  }
 });
