@@ -1457,9 +1457,9 @@
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 40,
+        "x": 41,
         "y": 182,
-        "width": 70,
+        "width": 68,
         "height": 20
       },
       "viewport": {
@@ -1479,9 +1479,9 @@
         "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
         "pixelRatio": 9.38,
-        "dominantShare": 0.797,
+        "dominantShare": 0.791,
         "matchesDomBackground": true,
-        "sampledPixels": 1976,
+        "sampledPixels": 1924,
         "foregroundPixels": 126,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
@@ -1495,7 +1495,7 @@
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 40,
+        "x": 41,
         "y": 238,
         "width": 66,
         "height": 20
@@ -1533,7 +1533,7 @@
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 40,
+        "x": 41,
         "y": 294,
         "width": 47.296875,
         "height": 20
@@ -1571,7 +1571,7 @@
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 40,
+        "x": 41,
         "y": 350,
         "width": 33.59375,
         "height": 20
@@ -1609,9 +1609,9 @@
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 40,
+        "x": 41,
         "y": 406,
-        "width": 70,
+        "width": 68,
         "height": 20
       },
       "viewport": {
@@ -1632,9 +1632,9 @@
         "status": "candidate-supported",
         "visibleBackground": "rgb(233, 225, 240)",
         "pixelRatio": 12.66,
-        "dominantShare": 0.807,
+        "dominantShare": 0.801,
         "matchesDomBackground": true,
-        "sampledPixels": 1976,
+        "sampledPixels": 1924,
         "foregroundPixels": 127,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
@@ -1648,9 +1648,9 @@
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 40,
+        "x": 41,
         "y": 462,
-        "width": 70,
+        "width": 68,
         "height": 20
       },
       "viewport": {
@@ -1670,9 +1670,9 @@
         "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
         "pixelRatio": 9.38,
-        "dominantShare": 0.802,
+        "dominantShare": 0.797,
         "matchesDomBackground": true,
-        "sampledPixels": 1976,
+        "sampledPixels": 1924,
         "foregroundPixels": 143,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
@@ -2626,7 +2626,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 862,
-        "y": 20,
+        "y": 22,
         "width": 225.0625,
         "height": 20
       },
@@ -2666,7 +2666,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 1145.0625,
-        "y": 20,
+        "y": 22,
         "width": 183.703125,
         "height": 20
       },
@@ -2706,7 +2706,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 862,
-        "y": 78,
+        "y": 80,
         "width": 143.359375,
         "height": 20
       },
@@ -2746,7 +2746,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 838,
-        "y": 146,
+        "y": 148,
         "width": 167.796875,
         "height": 19.203125
       },
@@ -2768,10 +2768,10 @@
         "status": "manual-review",
         "visibleBackground": "rgb(247, 245, 249)",
         "pixelRatio": 8.87,
-        "dominantShare": 0.433,
+        "dominantShare": 0.506,
         "matchesDomBackground": false,
         "sampledPixels": 4325,
-        "foregroundPixels": 273,
+        "foregroundPixels": 281,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -2785,7 +2785,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 838,
-        "y": 132,
+        "y": 134,
         "width": 320,
         "height": 48
       },
@@ -2805,10 +2805,10 @@
       "contrastCandidate": 16.79,
       "pixelEvidence": {
         "status": "manual-review",
-        "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 16.79,
-        "dominantShare": 0.454,
-        "matchesDomBackground": true,
+        "visibleBackground": "rgb(247, 245, 249)",
+        "pixelRatio": 15.88,
+        "dominantShare": 0.459,
+        "matchesDomBackground": false,
         "sampledPixels": 4401,
         "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
@@ -2823,9 +2823,9 @@
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 854,
-        "y": 202,
-        "width": 280,
+        "x": 855,
+        "y": 205,
+        "width": 278,
         "height": 19
       },
       "viewport": {
@@ -2849,7 +2849,7 @@
         "pixelRatio": 16.79,
         "dominantShare": 0.872,
         "matchesDomBackground": true,
-        "sampledPixels": 7150,
+        "sampledPixels": 7100,
         "foregroundPixels": 244,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
@@ -2864,7 +2864,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 838,
-        "y": 247,
+        "y": 251,
         "width": 320,
         "height": 28
       },
@@ -2903,7 +2903,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 922.859375,
-        "y": 298,
+        "y": 302,
         "width": 150.265625,
         "height": 20
       },
@@ -2942,7 +2942,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 838,
-        "y": 345,
+        "y": 349,
         "width": 320,
         "height": 28
       },
@@ -2981,7 +2981,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 840.98046875,
-        "y": 383.900390625,
+        "y": 387.900390625,
         "width": 161.1328125,
         "height": 14.40234375
       },
@@ -3020,7 +3020,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 838,
-        "y": 393,
+        "y": 397,
         "width": 534,
         "height": 48
       },
@@ -3059,7 +3059,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 1012.609375,
-        "y": 467,
+        "y": 471,
         "width": 184.765625,
         "height": 20
       },

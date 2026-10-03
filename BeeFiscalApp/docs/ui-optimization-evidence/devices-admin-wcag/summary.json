@@ -1,21 +1,21 @@
 {
-  "date": "2026-09-30T23:23:57.615Z",
-  "sourceCommit": "36ce940353ff19e45923ca6bd53c614beb44286b",
+  "date": "2026-10-03T19:41:56.384Z",
+  "sourceCommit": "5e67a5d89a68d7637d282ad80a67f32a52e00000",
   "testSha256": "b79c8ed46a7efc4f8de0a4d31057292e8c18147ab10145e7347da20a3ca4f216",
   "sourceFilesSha256": {
-    "App.tsx": "2a27926f0aa3eb4ba07d982cc90013373cbe8655f70d8226e421cdaa0ae7be59",
-    "src/screens/DevicesScreen.tsx": "df20938cb5c8589a80eb7e7b27ffb131e397b4b88653e1726818fa7dca165565",
+    "App.tsx": "4c3f744b83afbab3c13cc708c08fb1a2cf390394f347a6764b6c7150eb0a9bd0",
+    "src/screens/DevicesScreen.tsx": "ef275985428b36d0ddc03cdd29e5b95c1507881cb53943aaf9f4a94d149f0a8c",
     "src/screens/AdministrationScreen.tsx": "e88d3804f4bd3d769b315d056dff5fc60b680214776d706a4106310d68e813dd",
-    "src/components/FiscalControls.tsx": "3e434a6d0ac803c975c58c9da02bd31b5c9323fb3ad8db90b2bfa2131cb3aa7f"
+    "src/components/FiscalControls.tsx": "b0bdfe9ec554c19c53f9a5aaa9a765782d5b45697e564ac9fda02459b0cf4140"
   },
-  "bundle": "AppEntry-0ae2cfcbad17412e24838d09751bc1b0.js",
-  "command": "npm run test:e2e:devices-admin-wcag",
+  "bundle": "AppEntry-30c4a3d9e55e3a1a506c8b059182f1bd.js",
+  "command": "npx playwright test --config playwright.devices-admin-wcag.config.ts",
   "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
   "scans": 54,
   "totalViolations": 0,
   "totalIncomplete": 1718,
-  "pixelSupported": 1148,
-  "pixelManualReview": 570,
+  "pixelSupported": 1146,
+  "pixelManualReview": 572,
   "entries": [
     {
       "state": "admin-device-form",
@@ -143,8 +143,8 @@
       "mode": "dark",
       "violations": 0,
       "incomplete": 61,
-      "pixelSupported": 36,
-      "pixelManualReview": 25,
+      "pixelSupported": 35,
+      "pixelManualReview": 26,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-lg-dark"
     },
     {
@@ -153,8 +153,8 @@
       "mode": "light",
       "violations": 0,
       "incomplete": 61,
-      "pixelSupported": 36,
-      "pixelManualReview": 25,
+      "pixelSupported": 35,
+      "pixelManualReview": 26,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-lg-light"
     },
     {
@@ -557,5 +557,6 @@
       "pixelManualReview": 4,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-xs-light"
     }
-  ]
+  ],
+  "buildProvenance": "Existing .playwright-e2e-web from npm run test:e2e on production source e9c051a; source unchanged since. Bundle retained in summary."
 }

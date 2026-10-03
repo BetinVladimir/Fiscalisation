@@ -11,5 +11,13 @@
     "Alert runtime evidence",
     "Native/manual/200%/all25",
     "Full11 criteria"
-  ]
+  ],
+  "devicesAdminStrictAA": {
+    "scans": 54,
+    "violations": 0,
+    "incompleteNodes": 1718,
+    "status": "INCOMPLETE",
+    "evidence": "../devices-admin-wcag",
+    "scope": "9 states x xs/md/lg x light/dark; not all pages/all25/native"
+  }
 }

@@ -145,3 +145,5 @@ Device/reference/choice/language rows and Drawer navigation now have permanent t
 ### Navigation/reference/Choices browser affordance
 
 Six xs/md/lg light/dark dedicated tests PASS: permanent frame/48 target/viewport bounds, Enter register and form choice, Space navigation, no API mutations. All68 functional E2E and TypeScript PASS. Production e9c051a unchanged; second-register test API composite endpoint added, selected initialization reflected in test. Initial interrupted fixture failure retained. Evidence navigation-affordance. Alert runtime, numerical frame/focus contrast, strictAA/native/manual/200%/all25/full criteria remain open.
+
+Current devices/admin strict audit on unchanged production source e9c051a: 54 scans, 0 violations, 1718 incomplete nodes. Strict command exit1, AA remains INCOMPLETE; 9 states/3 sizes/2 themes only. Screens/full axe JSON retained in devices-admin-wcag.

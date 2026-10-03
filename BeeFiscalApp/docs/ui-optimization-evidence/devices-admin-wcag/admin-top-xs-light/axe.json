@@ -1109,9 +1109,9 @@
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 48,
-        "y": 343,
-        "width": 256,
+        "x": 49,
+        "y": 344,
+        "width": 254,
         "height": 19
       },
       "viewport": {
@@ -1134,7 +1134,7 @@
         "pixelRatio": 13.51,
         "dominantShare": 0.962,
         "matchesDomBackground": true,
-        "sampledPixels": 6550,
+        "sampledPixels": 6500,
         "foregroundPixels": 70,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
@@ -1149,7 +1149,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 56,
-        "y": 400,
+        "y": 402,
         "width": 50.03125,
         "height": 20
       },
@@ -1188,7 +1188,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 48,
-        "y": 466,
+        "y": 468,
         "width": 268,
         "height": 28
       },
@@ -1227,7 +1227,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 48,
-        "y": 506,
+        "y": 508,
         "width": 268,
         "height": 20
       },
@@ -1265,9 +1265,9 @@
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 64,
-        "y": 554,
-        "width": 100,
+        "x": 65,
+        "y": 557,
+        "width": 98,
         "height": 19
       },
       "viewport": {
@@ -1288,9 +1288,9 @@
         "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
         "pixelRatio": 16.79,
-        "dominantShare": 0.79,
+        "dominantShare": 0.786,
         "matchesDomBackground": true,
-        "sampledPixels": 2650,
+        "sampledPixels": 2600,
         "foregroundPixels": 150,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
@@ -1305,7 +1305,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 50.98828125,
-        "y": 599.900390625,
+        "y": 603.900390625,
         "width": 110.1796875,
         "height": 14.40234375
       },
@@ -1344,7 +1344,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 48,
-        "y": 609,
+        "y": 613,
         "width": 268,
         "height": 48
       },
@@ -1383,7 +1383,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 51.046875,
-        "y": 667.900390625,
+        "y": 671.900390625,
         "width": 112.78125,
         "height": 14.40234375
       },
@@ -1422,7 +1422,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 48,
-        "y": 677,
+        "y": 681,
         "width": 268,
         "height": 48
       },
@@ -1461,7 +1461,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 48,
-        "y": 759,
+        "y": 763,
         "width": 78.671875,
         "height": 19.203125
       },
@@ -1483,10 +1483,10 @@
         "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
         "pixelRatio": 9.38,
-        "dominantShare": 0.769,
+        "dominantShare": 0.776,
         "matchesDomBackground": true,
         "sampledPixels": 2100,
-        "foregroundPixels": 43,
+        "foregroundPixels": 24,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -1500,7 +1500,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 48,
-        "y": 745,
+        "y": 749,
         "width": 268,
         "height": 48
       },
@@ -1522,10 +1522,10 @@
         "status": "manual-review",
         "visibleBackground": "rgb(255, 251, 255)",
         "pixelRatio": 16.79,
-        "dominantShare": 0.541,
+        "dominantShare": 0.57,
         "matchesDomBackground": true,
         "sampledPixels": 3699,
-        "foregroundPixels": 74,
+        "foregroundPixels": 46,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
