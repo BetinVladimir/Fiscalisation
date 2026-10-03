@@ -72,3 +72,8 @@ The demo variant's corner badge now uses Paper Surface/Text and the active theme
 ## Onboarding legal action affordance
 
 Two genuine Paper outlined Buttons now have link role/min56/wrapping and own web href/Enter compatibility; original locale URLs/Linking handler unchanged. Six baseline border failures retained; keyboard role-only/href-only failed and corrected using normal Paper click.11final tests (6size/theme legal Enter+pointer+single URL and5auth),types/uiPASS. Required consent test updated; trace showed missing GET/registers fixture404, added read fixture without bypassing auth. Generated Playwright reports excluded from source lint. FullApp/AA/text200/all25/native/manual/contrast remain OPEN. Evidence onboarding-legal-affordance;03-001 IN_PROGRESS.
+
+
+## BeeMiniPOS shared field labels — 2026-10-03
+
+03-009 IN_PROGRESS: genuine Paper Text wraps the full field label above genuine Paper TextInput; email/OTP use existing translated descriptive labels. Baseline xs light/dark clipped (409 px text in304 px), md/lg passed. Final17 tests PASS (6 CSS200 field,6 legal actions,5 auth); TypeScript, UI checker and isolated web export PASS. Six measurements/screenshots retained in BeeMiniPOS docs/ui-optimization-evidence/form-field-text200; xs light inspected. This is CSS text enlargement, not actual browser zoom/native DynamicType. All consumers/locales/states, strict AA/manual/native/fullapp remain OPEN.
