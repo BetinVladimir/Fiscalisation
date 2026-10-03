@@ -187,3 +187,8 @@ Six xs/md/lg light/dark scenarios PASS,150 actual locale selections. Canonical s
 ## BeeFiscal Portal/Card overlay fix — 2026-10-04
 
 Closed shared Paper Dialog portals unmounted; actual Axe stack proved decorative card-outline above content, so genuine Auth/language Card uses contained mode with theme border/background on container. Baseline24scans0VI/270incomplete nodes; portal-only228; current0VI/97nodes (91color/6aria),13strictPASS11FAIL.14auth functionalPASS,2diagnostic capturesPASS (not AA),types/UI/exportPASS. Remaining OTP virtual stack: transient Paper ripple above input; investigate motion/stability. Evidence docs/ui-optimization-evidence/empty-dialog-portal.02-001/007/008/016/020 IN_PROGRESS; remainingstates/native/manual/all11 fullcriteria OPEN.
+
+
+## BeeFiscal real reduced motion — 2026-10-04
+
+02-001/010/016/020 IN_PROGRESS. Actual OTP Axe virtual stack showed transient ripple span. Genuine PaperProvider now honors live web prefers-reduced-motion and native AccessibilityInfo through official rippleEffectEnabled and animation.scale, cleans subscriptions and restores defaults when off.6 real mouse ripple present/absent/present testsPASS xs/md/lg light/dark,14auth functionalPASS/types/UI/exportPASS. Strict24tests18PASS6FAIL:0VI/12incomplete78nodes (72color+6aria, all language-menu), previous97. Email/OTP/company sixcontexts each pass automatic checks; menu stillINCOMPLETE. Evidence docs/ui-optimization-evidence/reduced-motion. Native/manual/alloperational/all11 fullcriteria remain OPEN.
