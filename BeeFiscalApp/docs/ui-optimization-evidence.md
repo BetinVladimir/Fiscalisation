@@ -125,3 +125,8 @@ The auth privacy policy action was a text-only Paper Button without a persistent
 ## Audit expansion action affordance (2026-10-03)
 
 AuditEventCard detailsaction now actualoutlinedPaperButton,minHeight48,wrappinglabel. Eventfields,hash/filtercallbacks/localexpanded/showhide unchanged. Baseline62functionalPASS;newframeassert6FAIL beforepatch. Afterpatch62functionalPASS,including6xs/md/lg-lightdark frame/48px/sameHashdisclosure/showhide/footerbounds cases.Typecheck/uiPASS. Evidence audit-affordance. InstalledPaperButton overwrites accessibilityState withdisabled:retainedexpandedprop isnotverifiedsemanticexpansion;followupneeded. No realauditAPI/fiscalcommands. All25auditcopy/200%/focus/nontextcontrast/strictAA/native/manual/full11criteriaOPEN.
+
+
+## Actual Paper audit disclosure semantics (2026-10-03)
+
+Details usescontrolled genuinePaperList.Accordion,same localexpanded/onPress/labels/recordfields/hash. NativePaperAccordion forwardsaccessibilityState.expanded;installedRNWeb ignores this deprecated object,so aweb-onlycompatibilityeffect onownheaderrolebutton setsaria-expanded throughstructuralViewref. NoPaperfork/custombutton. Header keepsvisibleoutline,min48,unlimitedtitlelines. BaselineButton6FAIL;firstAccordion56PASS/6FAIL proved RNWebgap;final62functionalPASS including6xs/md/lg-lightdark ariafalse→true→false/Enterexpand/Spacecollapse/samehash/footerbounds/frame48. Typecheck/uiPASS. Evidence audit-expanded. NativeVoiceOver/TalkBack/manual/themechangewhileexpanded/200%/all25copy/strictAA/nontext/focuscontrast/currentaudits remainOPEN;no liveAPI/fiscalcommands.

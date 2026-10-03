@@ -1,6 +1,6 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Platform, View } from 'react-native';
-import { ActivityIndicator, Button, Card, HelperText, Text, TextInput } from 'react-native-paper';
+import { ActivityIndicator, Button, Card, HelperText, List, Text, TextInput, useTheme } from 'react-native-paper';
 
 type Event = Record<string, unknown>;
 export type AuditFilters = {
@@ -34,19 +34,32 @@ const display = (value: unknown) => typeof value === 'string' || typeof value ==
 function AuditEventCard({ event }: { event: Event }) {
   const [expanded, setExpanded] = useState(false);
   const id = display(event.event_id);
-  const wrap = Platform.OS === 'web' ? { whiteSpace: 'normal', overflowWrap: 'anywhere', flexShrink: 1 } as const : { flexShrink: 1 };
+  const theme = useTheme();
+  const accordionRef = useRef<View>(null);
+  useEffect(() => {
+    // Paper owns the native expanded state. This installed RN Web maps only
+    // aria-expanded, while Paper Accordion currently exposes accessibilityState.
+    if (Platform.OS !== 'web') return;
+    const root = accordionRef.current as unknown as HTMLElement | null;
+    root?.querySelector('[role="button"]')?.setAttribute('aria-expanded', String(expanded));
+  }, [expanded]);
   return <Card mode="outlined" testID={`audit-event-${id}`}>
     <Card.Content style={{ gap: 6, paddingVertical: 16 }}>
       <Text variant="titleMedium">{display(event.action)} • {display(event.object_type)}</Text>
       <Text variant="bodyMedium">{display(event.occurred_at)}</Text>
-      <Button mode="outlined" contentStyle={{ minHeight: 48 }} labelStyle={wrap} testID={`audit.details.${id}`} accessibilityState={{ expanded }}
-        onPress={() => setExpanded(value => !value)}>{expanded ? 'Скрий подробности' : 'Покажи подробности'}</Button>
-      {expanded ? <View testID={`audit.details-content.${id}`} style={{ gap: 4 }}>
+      <View ref={accordionRef}>
+      <List.Accordion testID={`audit.details.${id}`} expanded={expanded}
+        title={expanded ? 'Скрий подробности' : 'Покажи подробности'} titleNumberOfLines={0}
+        style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline }}
+        onPress={() => setExpanded(value => !value)}>
+      <View testID={`audit.details-content.${id}`} style={{ gap: 4 }}>
         <Text variant="bodyMedium">Обект: {display(event.object_id)}</Text>
         <Text variant="bodyMedium">Участник: {display(event.actor_id)}</Text>
         <Text variant="bodyMedium">УНП: {display(event.unp)}</Text>
         <Text variant="bodySmall">Hash: {display(event.event_hash)}</Text>
-      </View> : null}
+      </View>
+      </List.Accordion>
+      </View>
     </Card.Content>
   </Card>;
 }
