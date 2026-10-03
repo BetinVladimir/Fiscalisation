@@ -107,3 +107,8 @@ Two genuine Paper outlined Buttons now have link role/min56/wrapping and own web
 ## BeeMiniPOS auth contrast diagnosis — 2026-10-04
 
 Strict findings messageKey bgOverlap for6 auth text nodes per scan. Removing decorative image experimentally did not change18 scans0VI/108 incomplete nodes, so source experiment reverted. Browser diagnostic xs/light label hit test showed actual label topmost and all root ancestors360x800; no collapsed root at this point. Strict test now saves layout/hit-stack evidence. docs/ui-optimization-evidence/auth-contrast-diagnostic retains experiment and diagnostic reports. Root cause and contrast adjudication OPEN; no AA PASS or production contrast fix claimed.
+
+
+## BeeMiniPOS all incomplete text hit stacks — 2026-10-04
+
+Expanded strict test diagnostics to every incomplete target/text Range rectangle, recording actual hit stacks/colors/opacity/z-index. Re-exported restored current source (decorative image retained).18 scans still0VI/108 color incomplete; six strict failures preserved. Login samples actual target topmost; open-menu samples covered by menu/backdrop. Evidence docs/ui-optimization-evidence/auth-text-hit-stacks with18-state summary and raw stacks. This does not establish AA or false positives. Next: match background interaction/accessibility to open overlay and diagnose login Axe virtual stacking. Original11-app scope remains OPEN.
