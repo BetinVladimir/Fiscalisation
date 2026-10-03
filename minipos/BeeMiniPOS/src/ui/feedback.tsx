@@ -83,6 +83,8 @@ export function FeedbackProvider({ children }: PropsWithChildren) {
               {(alert?.buttons?.length ? alert.buttons : [{ text: 'OK' }]).map((button, index) => (
                 <Button
                   key={`${button.text || 'OK'}-${index}`}
+                  mode="outlined"
+                  contentStyle={{ minHeight: 48 }}
                   textColor={button.style === 'destructive' ? theme.colors.error : undefined}
                   onPress={() => { dismissAlert(); button.onPress?.(); }}
                 >

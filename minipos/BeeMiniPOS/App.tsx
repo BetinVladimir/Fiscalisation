@@ -1932,7 +1932,7 @@ function Admin({
     void loadOrders();
   }, []);
   if (catalogScreen !== "home") return <ScrollView contentContainerStyle={[s.admin, compact && s.adminCompact]}>
-    <PaperButton testID="admin-catalog-back" mode="text" onPress={() => setCatalogScreen("home")}>← {text.back}</PaperButton>
+    <PaperButton testID="admin-catalog-back" mode="outlined" contentStyle={{ minHeight: 48 }} onPress={() => setCatalogScreen("home")}>← {text.back}</PaperButton>
     {catalogScreen === "products" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <View style={s.screenHeading}>
         <PaperText variant="titleLarge" accessibilityRole="header">{text.products}</PaperText>
@@ -1960,7 +1960,11 @@ function Admin({
         <PaperButton testID="tax-group-add" mode="contained" onPress={() => editTaxGroup()}>{text.newTaxGroup}</PaperButton>
       </View>
       {taxGroups.map((group: TaxGroup) => <PaperList.Item key={group.id} title={`${group.code} • ${group.name}`}
-        description={`${group.rate}% • ${group.status === "ACTIVE" ? text.active : text.inactive}`} onPress={() => editTaxGroup(group)} />)}
+        description={`${group.rate}% • ${group.status === "ACTIVE" ? text.active : text.inactive}`}
+        accessibilityRole="button" accessibilityLabel={`${group.code} • ${group.name} • ${group.rate}% • ${group.status === "ACTIVE" ? text.active : text.inactive}`}
+        titleNumberOfLines={0} descriptionNumberOfLines={0}
+        style={{ borderWidth: 1, borderColor: paperTheme.colors.outline, borderRadius: paperTheme.roundness, minHeight: 48 }}
+        onPress={() => editTaxGroup(group)} />)}
     </PaperCard.Content></PaperCard> : null}
     {catalogScreen === "tax-group-edit" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <PaperText variant="titleLarge" accessibilityRole="header">{editingTaxGroup ? text.editTaxGroup : text.newTaxGroup}</PaperText>

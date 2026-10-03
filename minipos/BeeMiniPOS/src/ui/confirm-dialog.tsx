@@ -23,8 +23,8 @@ export function ConfirmDialog({ visible, title, message, confirmLabel = 'Под�
         <Dialog.Title>{title}</Dialog.Title>
         <Dialog.Content><Text variant="bodyMedium">{message}</Text></Dialog.Content>
         <Dialog.Actions>
-          <Button disabled={busy} onPress={onDismiss}>{cancelLabel}</Button>
-          <Button mode="contained" buttonColor={destructive ? theme.colors.error : undefined} loading={busy} disabled={busy} onPress={onConfirm}>{confirmLabel}</Button>
+          <Button mode="outlined" contentStyle={{ minHeight: 48 }} disabled={busy} onPress={onDismiss}>{cancelLabel}</Button>
+          <Button mode="contained" contentStyle={{ minHeight: 48 }} buttonColor={destructive ? theme.colors.error : undefined} loading={busy} disabled={busy} onPress={onConfirm}>{confirmLabel}</Button>
         </Dialog.Actions>
       </Dialog>
       </View>

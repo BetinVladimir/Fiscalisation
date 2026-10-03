@@ -77,3 +77,8 @@ Two genuine Paper outlined Buttons now have link role/min56/wrapping and own web
 ## BeeMiniPOS shared field labels — 2026-10-03
 
 03-009 IN_PROGRESS: genuine Paper Text wraps the full field label above genuine Paper TextInput; email/OTP use existing translated descriptive labels. Baseline xs light/dark clipped (409 px text in304 px), md/lg passed. Final17 tests PASS (6 CSS200 field,6 legal actions,5 auth); TypeScript, UI checker and isolated web export PASS. Six measurements/screenshots retained in BeeMiniPOS docs/ui-optimization-evidence/form-field-text200; xs light inspected. This is CSS text enlargement, not actual browser zoom/native DynamicType. All consumers/locales/states, strict AA/manual/native/fullapp remain OPEN.
+
+
+## BeeMiniPOS admin action affordance — 2026-10-03
+
+03-001/03-007/03-008 IN_PROGRESS: outlined back button, framed genuine Paper tax-group List.Item with button role/status in name/min48/wrapping; shared dialog secondary actions outlined, primary min48. Baseline6 missing-frame failures, final23 selected E2E PASS (6 admin xs/md/lg light/dark frame/min48/Enter editor/prefill/Enter return +17 auth/legal/field regressions). TypeScript/UI checker/web export PASS; xs light screenshot inspected. Test uses fake ADMIN operator-session rather than bypassing production permissions. Evidence docs/ui-optimization-evidence/admin-action-affordance. Shared dialog runtime, all states/locales/actions, numeric contrast/strict AA/native/manual/fullcriteria remain OPEN.

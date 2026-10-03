@@ -1,0 +1,25 @@
+{
+  "ticket": "03-007",
+  "source": "src/ui/confirm-dialog.tsx",
+  "status": "IN_PROGRESS",
+  "partialActionAffordanceVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "App admin back Paper Button outlined/min48; tax group interactive genuine Paper List.Item frame/theme outline/min48/wrapping/button role/name retains status. Shared confirmation cancel and Feedback Dialog actions outlined/min48; confirmation primary min48.",
+    "baseline": "6 tests FAIL unframed back; first harness stopped because fake operator role lacked admin permission.",
+    "final": "23 PASS:6 admin frames/min48/Enter edit/prefilled values/Enter back +17 auth/onboarding/legal regressions; types/ui/web export PASS",
+    "testFixture": "Actual mocked email OTP flow, fake operator-session ADMIN only; production role guards unchanged. No real API mutations.",
+    "open": [
+      "Shared dialog runtime/native/focus/large text validation",
+      "All admin states/locales and other actions incl menus/snackbar",
+      "Numeric frame/text/focus contrast and strict WCAG AA",
+      "Whole app/all11 criteria"
+    ],
+    "hashes": {
+      "App.tsx": "e906ecfb5cc22a9134d8a4bed92c0fcd28d7421939c92b054a4f9da8a6d1a81c",
+      "src/ui/confirm-dialog.tsx": "f2085e3f6ce50505c5f82569318ec959cddfb1b5478149492f5d23fefe5e71dd",
+      "src/ui/feedback.tsx": "62d3a2c1d16ff53902bda7ac14768917130b1ac005e48fb7d1c42cadc78fe477",
+      "e2e/admin-affordance.spec.ts": "ce26eeb0a9e741099b70baef67ef186c510dd21af15ca8195566058db3ba1f8d"
+    },
+    "evidence": "docs/ui-optimization-evidence/admin-action-affordance"
+  }
+}
