@@ -21,5 +21,23 @@
       "e2e/admin-affordance.spec.ts": "ce26eeb0a9e741099b70baef67ef186c510dd21af15ca8195566058db3ba1f8d"
     },
     "evidence": "docs/ui-optimization-evidence/admin-action-affordance"
+  },
+  "partialEmptyPortalVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "FeedbackProvider mounts genuine Paper Dialog Portal only for active alert; ConfirmDialog returnsnull whileclosed. Fix real empty modal Portal overlay, no fake components/no Axe waiver. Active dialog callbacks unchanged; closing unmounts portal.",
+    "baseline": "Separate diagnostic check captured actual Axe virtual stacks with same unrelated empty absolute Portal layer above theme label/sign-in heading/email label. Previous strict18 scans login6incomplete36nodes.",
+    "final": "Strict6 tests PASS:18 scans0violations0incomplete at xs/md/lg light/dark for email login/language-menu/theme-menu. Functional41PASS incl all25 preferences150reloads; separate1virtualstack regressionPASS with targettopmost. Types/UI/exportPASS.",
+    "diagnosticRule": "Separate debug-only rule returns true to collect stack; assertion on captured data verifies no overlay. Not part of/used to weaken standard WCAG rules.",
+    "open": [
+      "Active shared dialog runtime/focus/native/manual behavior",
+      "Other auth stages and operational screens/other locales full AA",
+      "Full11 criteria/native/manual/truezoom"
+    ],
+    "hashes": {
+      "src/ui/feedback.tsx": "02e7719e35ddda058919412722b73ae66469415b236828afaa0c05817a07a5b8",
+      "src/ui/confirm-dialog.tsx": "7fb4cac2246222795ad52f3ca9258d27ee3b48dcc260986c9ba34f117c857476",
+      "e2e/contrast-stack-diagnostic.spec.ts": "36de5889ef5f75a3a196e7630b29804a91623a2dfc93f40c94dbe421e4c10419"
+    },
+    "evidence": "docs/ui-optimization-evidence/empty-dialog-portal"
   }
 }

@@ -74,7 +74,7 @@ export function FeedbackProvider({ children }: PropsWithChildren) {
       >
         {feedback?.message || ''}
       </Snackbar>
-      <Portal>
+      {alert ? <Portal>
         <View accessibilityViewIsModal>
           <Dialog visible={Boolean(alert)} onDismiss={alert?.options?.cancelable === false ? undefined : dismissAlert}>
             <Dialog.Title>{alert?.title || ''}</Dialog.Title>
@@ -94,7 +94,7 @@ export function FeedbackProvider({ children }: PropsWithChildren) {
             </Dialog.Actions>
           </Dialog>
         </View>
-      </Portal>
+      </Portal> : null}
     </FeedbackContext.Provider>
   );
 }

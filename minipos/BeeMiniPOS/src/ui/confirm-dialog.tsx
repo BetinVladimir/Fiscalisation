@@ -16,6 +16,7 @@ type Props = {
 
 export function ConfirmDialog({ visible, title, message, confirmLabel = 'Подтвердить', cancelLabel = 'Отмена', destructive, busy, onConfirm, onDismiss }: Props) {
   const theme = useTheme();
+  if (!visible) return null;
   return (
     <Portal>
       <View accessibilityViewIsModal>

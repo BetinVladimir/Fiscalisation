@@ -127,3 +127,8 @@ Expanded strict test diagnostics to every incomplete target/text Range rectangle
 ## BeeMiniPOS actual preference persistence — 2026-10-04
 
 03-001 IN_PROGRESS. New preferences-persistence E2E uses actual UI/storage/reload, no storage seed/mock.6contexts xs/md/lg light/dark PASS51.5s with all25locale selections and150 reloads; translated email accessible name and opposite-to-system chosen theme bg retained;150language+150theme reopened checked/focus-on-selected assertions and background inert cleanup. TypeScript PASS; production source unchanged. Evidence docs/ui-optimization-evidence/preferences-persistence. This verifies web preferences only; native/copy/allstates/manual/truezoom/login incomplete/fullAA/all11 remain OPEN.
+
+
+## BeeMiniPOS empty closed-dialog Portal fixed — 2026-10-04
+
+03-001/03-007/03-008 IN_PROGRESS. Direct Axe virtual-stack diagnostic proved unrelated empty absolute Portal layer above theme label/login heading/email label; FeedbackProvider had unconditional Portal/View around closed Dialog. Mount only active alert; ConfirmDialog returnnull whileclosed. Genuine Paper leaves retained, no Axe rules disabled. Current strict6PASS/18scans0VI0incomplete (email login/open language/open theme xs/md/lg light/dark). Functional41PASS incl150 actual reloads; separate1virtualstack regressionPASS, types/UI/exportPASS. Evidence docs/ui-optimization-evidence/empty-dialog-portal includes baseline/final stacks and all strict reports. These web cases pass automatic checks; active-dialog/runtime/native/manual/otherstages/alloperational/all11 fullcriteria remain OPEN.

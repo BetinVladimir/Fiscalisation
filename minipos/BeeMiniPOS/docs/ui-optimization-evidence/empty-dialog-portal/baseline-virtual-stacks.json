@@ -1,0 +1,771 @@
+[
+  {
+    "target": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvibr\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; color: rgb(37, 30, 45); font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Тема: Системна</div>",
+    "stacks": [
+      [
+        {
+          "html": "<div class=\"css-g5y9jx r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-12vffkv\"><div class=\"css-g5y9jx\"></div></div>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "0",
+          "position": "absolute"
+        },
+        {
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvibr\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; color: rgb(37, 30, 45); font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Тема: Системна</div>",
+          "same": true,
+          "inside": true,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1awozwy r-18u37iz r-1777fci r-1pl7oy7\"><div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvibr\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; color: rgb(37, 30, 45); font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Тема: Системна</div></di",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x\" data-testid=\"theme-menu-open\" type=\"button\" aria-expanded=\"false\" aria-haspopup=\"menu\" style=\"border-radius: 20px;\"><div class=\"css-g5y9jx r-1awozwy r-18u37iz r-1777fci r-1pl7oy7\"><div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvib",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"theme-menu-open-container\" style=\"background-color: rgb(233, 225, 240); border-color: rgba(0, 0, 0, 0); border-width: 0px; border-radius: 20px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;\"><button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x\" data-testid=\"theme-menu-open\" type=\"button\" ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"theme-menu-open-container\" style=\"background-color: rgb(233, 225, 240); border-color: rgba(0, 0, 0, 0); border-width: 0px; border-radius: 20px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;\"><button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x\" data-testid=\"theme-m",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-18u37iz r-1w6e6rj r-1cmwbt1 r-17s6mgv r-nsbfu8 r-13qz1uu r-136ojw6\"><div class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"theme-menu-open-container\" style=\"background-color: rgb(233, 225, 240); border-color: rgba(0, 0, 0, 0); border-width: 0px; border-radius: 20px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;\"><button role=\"button\" tabinde",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "2",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "-1",
+          "position": "absolute"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div><img alt=\"\" draggable=",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "0",
+          "position": "absolute"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-v",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-1",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17t",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1ud",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vf",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeMiniPOS</title>\n    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        }
+      ],
+      [
+        {
+          "html": "<div class=\"css-g5y9jx r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-12vffkv\"><div class=\"css-g5y9jx\"></div></div>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "0",
+          "position": "absolute"
+        },
+        {
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvibr\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; color: rgb(37, 30, 45); font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Тема: Системна</div>",
+          "same": true,
+          "inside": true,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1awozwy r-18u37iz r-1777fci r-1pl7oy7\"><div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvibr\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; color: rgb(37, 30, 45); font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Тема: Системна</div></di",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x\" data-testid=\"theme-menu-open\" type=\"button\" aria-expanded=\"false\" aria-haspopup=\"menu\" style=\"border-radius: 20px;\"><div class=\"css-g5y9jx r-1awozwy r-18u37iz r-1777fci r-1pl7oy7\"><div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvib",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"theme-menu-open-container\" style=\"background-color: rgb(233, 225, 240); border-color: rgba(0, 0, 0, 0); border-width: 0px; border-radius: 20px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;\"><button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x\" data-testid=\"theme-menu-open\" type=\"button\" ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"theme-menu-open-container\" style=\"background-color: rgb(233, 225, 240); border-color: rgba(0, 0, 0, 0); border-width: 0px; border-radius: 20px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;\"><button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x\" data-testid=\"theme-m",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-18u37iz r-1w6e6rj r-1cmwbt1 r-17s6mgv r-nsbfu8 r-13qz1uu r-136ojw6\"><div class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"theme-menu-open-container\" style=\"background-color: rgb(233, 225, 240); border-color: rgba(0, 0, 0, 0); border-width: 0px; border-radius: 20px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;\"><button role=\"button\" tabinde",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "2",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "-1",
+          "position": "absolute"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div><img alt=\"\" draggable=",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "0",
+          "position": "absolute"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-v",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-1",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17t",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1ud",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vf",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeMiniPOS</title>\n    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        }
+      ],
+      [
+        {
+          "html": "<div class=\"css-g5y9jx r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-12vffkv\"><div class=\"css-g5y9jx\"></div></div>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "0",
+          "position": "absolute"
+        },
+        {
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvibr\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; color: rgb(37, 30, 45); font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Тема: Системна</div>",
+          "same": true,
+          "inside": true,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1awozwy r-18u37iz r-1777fci r-1pl7oy7\"><div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvibr\" data-testid=\"theme-menu-open-text\" style=\"direction: ltr; color: rgb(37, 30, 45); font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Тема: Системна</div></di",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x\" data-testid=\"theme-menu-open\" type=\"button\" aria-expanded=\"false\" aria-haspopup=\"menu\" style=\"border-radius: 20px;\"><div class=\"css-g5y9jx r-1awozwy r-18u37iz r-1777fci r-1pl7oy7\"><div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvib",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"theme-menu-open-container\" style=\"background-color: rgb(233, 225, 240); border-color: rgba(0, 0, 0, 0); border-width: 0px; border-radius: 20px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;\"><button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x\" data-testid=\"theme-menu-open\" type=\"button\" ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"theme-menu-open-container\" style=\"background-color: rgb(233, 225, 240); border-color: rgba(0, 0, 0, 0); border-width: 0px; border-radius: 20px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;\"><button role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x\" data-testid=\"theme-m",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-18u37iz r-1w6e6rj r-1cmwbt1 r-17s6mgv r-nsbfu8 r-13qz1uu r-136ojw6\"><div class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"theme-menu-open-container\" style=\"background-color: rgb(233, 225, 240); border-color: rgba(0, 0, 0, 0); border-width: 0px; border-radius: 20px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;\"><button role=\"button\" tabinde",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "2",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "-1",
+          "position": "absolute"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div><img alt=\"\" draggable=",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "0",
+          "position": "absolute"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-v",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-1",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17t",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1ud",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vf",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeMiniPOS</title>\n    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        }
+      ]
+    ]
+  },
+  {
+    "target": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Вход с имейл</h1>",
+    "stacks": [
+      [
+        {
+          "html": "<div class=\"css-g5y9jx r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-12vffkv\"><div class=\"css-g5y9jx\"></div></div>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "0",
+          "position": "absolute"
+        },
+        {
+          "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Вход с имейл</h1>",
+          "same": true,
+          "inside": true,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-3pj75a r-w7s2jr r-f4gmv6 r-d23pfw\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">BeeMiniPOS</div><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Robot",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a r-w7s2jr r-f4gmv6 r-d23pfw\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">BeeMiniPOS</div><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direc",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1867qdf r-105ug2t\" data-testid=\"card-container\" style=\"box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px; background-color: rgb(244, 240, 248);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a r-w7s2jr r-f4gmv6 r-d23pfw\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-10fj5tc\" data-testid=\"operator-login\" style=\"width: 328px; max-width: 328px; align-self: center;\"><div class=\"css-g5y9jx r-1867qdf r-105ug2t\" data-testid=\"card-container\" style=\"box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px; background-color: rgb(244, 240, 248);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a r-w7s2jr r-f4gmv6 r-d23pfw\"><",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1awozwy r-11rk87y\"><div class=\"css-g5y9jx r-10fj5tc\" data-testid=\"operator-login\" style=\"width: 328px; max-width: 328px; align-self: center;\"><div class=\"css-g5y9jx r-1867qdf r-105ug2t\" data-testid=\"card-container\" style=\"box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px; background-color: rgb(244, 240, 248);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-13awgt0 r-13qz1uu\"><div class=\"css-g5y9jx r-1awozwy r-11rk87y\"><div class=\"css-g5y9jx r-10fj5tc\" data-testid=\"operator-login\" style=\"width: 328px; max-width: 328px; align-self: center;\"><div class=\"css-g5y9jx r-1867qdf r-105ug2t\" data-testid=\"card-container\" style=\"box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3p",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "-1",
+          "position": "absolute"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div><img alt=\"\" draggable=",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "0",
+          "position": "absolute"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-v",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-1",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17t",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1ud",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vf",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeMiniPOS</title>\n    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        }
+      ]
+    ]
+  },
+  {
+    "target": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"operator-login-email.label\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Имейл</div>",
+    "stacks": [
+      [
+        {
+          "html": "<div class=\"css-g5y9jx r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-12vffkv\"><div class=\"css-g5y9jx\"></div></div>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "0",
+          "position": "absolute"
+        },
+        {
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"operator-login-email.label\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Имейл</div>",
+          "same": true,
+          "inside": true,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"min-width: 0px; gap: 4px;\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"operator-login-email.label\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Имейл</div><div class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1p0dtai r-1d2f490 r-u8",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-3pj75a r-w7s2jr r-f4gmv6 r-d23pfw\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">BeeMiniPOS</div><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Robot",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a r-w7s2jr r-f4gmv6 r-d23pfw\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">BeeMiniPOS</div><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direc",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1867qdf r-105ug2t\" data-testid=\"card-container\" style=\"box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px; background-color: rgb(244, 240, 248);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a r-w7s2jr r-f4gmv6 r-d23pfw\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-10fj5tc\" data-testid=\"operator-login\" style=\"width: 328px; max-width: 328px; align-self: center;\"><div class=\"css-g5y9jx r-1867qdf r-105ug2t\" data-testid=\"card-container\" style=\"box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px; background-color: rgb(244, 240, 248);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a r-w7s2jr r-f4gmv6 r-d23pfw\"><",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1awozwy r-11rk87y\"><div class=\"css-g5y9jx r-10fj5tc\" data-testid=\"operator-login\" style=\"width: 328px; max-width: 328px; align-self: center;\"><div class=\"css-g5y9jx r-1867qdf r-105ug2t\" data-testid=\"card-container\" style=\"box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px; background-color: rgb(244, 240, 248);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-13awgt0 r-13qz1uu\"><div class=\"css-g5y9jx r-1awozwy r-11rk87y\"><div class=\"css-g5y9jx r-10fj5tc\" data-testid=\"operator-login\" style=\"width: 328px; max-width: 328px; align-self: center;\"><div class=\"css-g5y9jx r-1867qdf r-105ug2t\" data-testid=\"card-container\" style=\"box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3p",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "-1",
+          "position": "absolute"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div><img alt=\"\" draggable=",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "0",
+          "position": "absolute"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"><div class=\"css-g5y9jx r-1niwhzg r-v",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17tb59b r-u8s1d r-zchlnj r-ipm5af r-1",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-1p0dtai r-1pi2tsx r-1d2f490 r-17t",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx r-1mlwlqe r-1ud",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx r-13awgt0 r-12vf",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeMiniPOS</title>\n    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        }
+      ]
+    ]
+  }
+]
