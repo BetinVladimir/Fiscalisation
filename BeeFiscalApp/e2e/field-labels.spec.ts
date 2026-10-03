@@ -1,5 +1,6 @@
 import { writeFile } from 'node:fs/promises';
 import { test, expect, type Locator } from '@playwright/test';
+import { frameContrast } from './affordance-contrast';
 import { doubleText } from './text-scale';
 import { mockFiscalApi, openApp } from './helpers';
 
@@ -17,7 +18,9 @@ async function labelFits(label: Locator) {
   expect(metrics.scrollHeight).toBeLessThanOrEqual(metrics.height + 1);
   expect(metrics.left).toBeGreaterThanOrEqual(0);
   expect(metrics.right).toBeLessThanOrEqual(metrics.viewport + 1);
-  return metrics;
+  const contrast = await frameContrast(label, 'color');
+  expect(contrast.insideRatio, 'Label text contrast').toBeGreaterThanOrEqual(4.5);
+  return { ...metrics, contrast };
 }
 for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
   for (const theme of ['light', 'dark'] as const) {
@@ -54,7 +57,10 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       await expect(field).toHaveValue('E2E');
       const jsonMetrics = await labelFits(page.getByTestId('admin-device-transport-parameters.label'));
       await page.getByTestId('admin-device-transport-parameters').fill('{invalid');
-      await expect(page.getByText('Въведете валиден JSON обект.', { exact: true })).toBeVisible();
+      const jsonError = page.getByText('Въведете валиден JSON обект.', { exact: true });
+      await expect(jsonError).toBeVisible();
+      const errorContrast = await frameContrast(jsonError, 'color');
+      expect(errorContrast.insideRatio, 'JSON error text contrast').toBeGreaterThanOrEqual(4.5);
       await expect(page.getByTestId('admin-device-save')).toBeDisabled();
       if (size === 'xs') await page.getByTestId('nav.open').click();
       await page.getByTestId('tab-Одит').click();
@@ -64,10 +70,30 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
         await page.getByTestId(`audit.filter.${name}`).fill('e2e-filter');
         await expect(page.getByTestId(`audit.filter.${name}`)).toHaveValue('e2e-filter');
       }
-      await writeFile(testInfo.outputPath('label-metrics.json'), JSON.stringify({ size, theme, searchMetrics, fieldMetrics, longMetrics, deviceMetrics, jsonMetrics, auditMetrics }, null, 2));
-      await testInfo.attach('label-metrics', { body: JSON.stringify({ size, theme, searchMetrics, fieldMetrics, longMetrics, deviceMetrics, jsonMetrics, auditMetrics }), contentType: 'application/json' });
+      await writeFile(testInfo.outputPath('label-metrics.json'), JSON.stringify({ size, theme, searchMetrics, fieldMetrics, longMetrics, deviceMetrics, jsonMetrics, auditMetrics, errorContrast }, null, 2));
+      await testInfo.attach('label-metrics', { body: JSON.stringify({ size, theme, searchMetrics, fieldMetrics, longMetrics, deviceMetrics, jsonMetrics, auditMetrics, errorContrast }), contentType: 'application/json' });
       expect(mutations).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
     });
   }
 }
+
+
+test('text contrast negative control detects invisible Paper label', async ({ page }) => {
+  await mockFiscalApi(page);
+  await openApp(page);
+  const label = page.getByTestId('devices.search.label');
+  const baseline = await frameContrast(label, 'color');
+  expect(baseline.insideRatio).toBeGreaterThanOrEqual(4.5);
+  const original = await label.getAttribute('style');
+  await label.evaluate((element, background) => {
+    (element as HTMLElement).style.color = `rgb(${background.slice(0, 3).join(',')})`;
+  }, baseline.inside);
+  try {
+    const invisible = await frameContrast(label, 'color');
+    expect(invisible.insideRatio).toBe(1);
+  } finally {
+    await label.evaluate((element, style) => { if (style === null) element.removeAttribute('style'); else element.setAttribute('style', style); }, original);
+  }
+  expect((await frameContrast(label, 'color')).insideRatio).toBeGreaterThanOrEqual(4.5);
+});

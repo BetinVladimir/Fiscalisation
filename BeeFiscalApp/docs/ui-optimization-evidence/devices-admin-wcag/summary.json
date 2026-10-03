@@ -1,30 +1,32 @@
 {
-  "date": "2026-10-03T19:41:56.384Z",
-  "sourceCommit": "5e67a5d89a68d7637d282ad80a67f32a52e00000",
+  "date": "2026-10-03T20:09:53.720Z",
+  "sourceCommit": "3b4a4a5997ac2d89bd4f64eacab78beea05161e2",
   "testSha256": "b79c8ed46a7efc4f8de0a4d31057292e8c18147ab10145e7347da20a3ca4f216",
   "sourceFilesSha256": {
-    "App.tsx": "4c3f744b83afbab3c13cc708c08fb1a2cf390394f347a6764b6c7150eb0a9bd0",
-    "src/screens/DevicesScreen.tsx": "ef275985428b36d0ddc03cdd29e5b95c1507881cb53943aaf9f4a94d149f0a8c",
-    "src/screens/AdministrationScreen.tsx": "e88d3804f4bd3d769b315d056dff5fc60b680214776d706a4106310d68e813dd",
-    "src/components/FiscalControls.tsx": "b0bdfe9ec554c19c53f9a5aaa9a765782d5b45697e564ac9fda02459b0cf4140"
+    "App.tsx": "57d87e14bad98646af5e2f26538b5a585589ce67253a16761a0cbe26f5ebb669",
+    "src/screens/DevicesScreen.tsx": "c2d9bef5286341f2d10ea0019462f39bef39ac1619755e9faeab1c2d5e5d22e6",
+    "src/screens/AdministrationScreen.tsx": "9ce14d25cb02e115578901545cad6794ea765d9cddaa53fafaf5544f0a2cbaef",
+    "src/components/FiscalControls.tsx": "20be45929161d7b0ac3ec55e273597d1a27de40208e0d21fe14250fbb3a050bd",
+    "src/ui/form-field.tsx": "667b65f43038e493205a0d4de33076ef7d9e8139593b543ee3a7bbd7a40e31fe",
+    "src/ui/LanguageThemeControls.tsx": "27d90532d8016590696b61bdd33b08b9df0e631e9b9c74bc4279f4c8ac2265da"
   },
-  "bundle": "AppEntry-30c4a3d9e55e3a1a506c8b059182f1bd.js",
+  "bundle": "AppEntry-f270bd327f8b12ef4c9ffddc2731ca94.js",
   "command": "npx playwright test --config playwright.devices-admin-wcag.config.ts",
   "commandStatus": "FAIL: color-contrast incomplete requires manual adjudication",
   "scans": 54,
   "totalViolations": 0,
-  "totalIncomplete": 1718,
-  "pixelSupported": 1146,
-  "pixelManualReview": 572,
+  "totalIncomplete": 1586,
+  "pixelSupported": 1181,
+  "pixelManualReview": 405,
   "entries": [
     {
       "state": "admin-device-form",
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 50,
-      "pixelSupported": 23,
-      "pixelManualReview": 27,
+      "incomplete": 39,
+      "pixelSupported": 22,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-lg-dark"
     },
     {
@@ -32,9 +34,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 50,
-      "pixelSupported": 23,
-      "pixelManualReview": 27,
+      "incomplete": 39,
+      "pixelSupported": 22,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-lg-light"
     },
     {
@@ -42,9 +44,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 35,
+      "incomplete": 32,
       "pixelSupported": 21,
-      "pixelManualReview": 14,
+      "pixelManualReview": 11,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-md-dark"
     },
     {
@@ -52,9 +54,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 35,
+      "incomplete": 32,
       "pixelSupported": 21,
-      "pixelManualReview": 14,
+      "pixelManualReview": 11,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-md-light"
     },
     {
@@ -62,9 +64,9 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 34,
-      "pixelSupported": 13,
-      "pixelManualReview": 21,
+      "incomplete": 32,
+      "pixelSupported": 14,
+      "pixelManualReview": 18,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-xs-dark"
     },
     {
@@ -72,9 +74,9 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 34,
-      "pixelSupported": 13,
-      "pixelManualReview": 21,
+      "incomplete": 32,
+      "pixelSupported": 14,
+      "pixelManualReview": 18,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-device-form-xs-light"
     },
     {
@@ -82,9 +84,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 49,
-      "pixelSupported": 22,
-      "pixelManualReview": 27,
+      "incomplete": 38,
+      "pixelSupported": 21,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-lg-dark"
     },
     {
@@ -92,9 +94,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 49,
-      "pixelSupported": 22,
-      "pixelManualReview": 27,
+      "incomplete": 38,
+      "pixelSupported": 21,
+      "pixelManualReview": 17,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-lg-light"
     },
     {
@@ -102,9 +104,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 19,
-      "pixelManualReview": 16,
+      "incomplete": 31,
+      "pixelSupported": 21,
+      "pixelManualReview": 10,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-md-dark"
     },
     {
@@ -112,9 +114,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 19,
-      "pixelManualReview": 16,
+      "incomplete": 31,
+      "pixelSupported": 21,
+      "pixelManualReview": 10,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-md-light"
     },
     {
@@ -122,9 +124,9 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 26,
-      "pixelSupported": 12,
-      "pixelManualReview": 14,
+      "incomplete": 31,
+      "pixelSupported": 15,
+      "pixelManualReview": 16,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-xs-dark"
     },
     {
@@ -132,9 +134,9 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 26,
-      "pixelSupported": 12,
-      "pixelManualReview": 14,
+      "incomplete": 31,
+      "pixelSupported": 15,
+      "pixelManualReview": 16,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-invalid-json-xs-light"
     },
     {
@@ -142,9 +144,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 61,
-      "pixelSupported": 35,
-      "pixelManualReview": 26,
+      "incomplete": 54,
+      "pixelSupported": 39,
+      "pixelManualReview": 15,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-lg-dark"
     },
     {
@@ -152,9 +154,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 61,
-      "pixelSupported": 35,
-      "pixelManualReview": 26,
+      "incomplete": 54,
+      "pixelSupported": 39,
+      "pixelManualReview": 15,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-lg-light"
     },
     {
@@ -162,9 +164,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 45,
-      "pixelSupported": 28,
-      "pixelManualReview": 17,
+      "incomplete": 39,
+      "pixelSupported": 29,
+      "pixelManualReview": 10,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-md-dark"
     },
     {
@@ -172,9 +174,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 45,
-      "pixelSupported": 28,
-      "pixelManualReview": 17,
+      "incomplete": 39,
+      "pixelSupported": 29,
+      "pixelManualReview": 10,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-md-light"
     },
     {
@@ -182,9 +184,9 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 29,
-      "pixelSupported": 15,
-      "pixelManualReview": 14,
+      "incomplete": 27,
+      "pixelSupported": 16,
+      "pixelManualReview": 11,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-xs-dark"
     },
     {
@@ -192,9 +194,9 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 29,
+      "incomplete": 27,
       "pixelSupported": 15,
-      "pixelManualReview": 14,
+      "pixelManualReview": 12,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/admin-top-xs-light"
     },
     {
@@ -202,9 +204,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 36,
+      "incomplete": 33,
       "pixelSupported": 28,
-      "pixelManualReview": 8,
+      "pixelManualReview": 5,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-lg-dark"
     },
     {
@@ -212,9 +214,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 36,
+      "incomplete": 33,
       "pixelSupported": 28,
-      "pixelManualReview": 8,
+      "pixelManualReview": 5,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-lg-light"
     },
     {
@@ -222,9 +224,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 34,
-      "pixelSupported": 26,
-      "pixelManualReview": 8,
+      "incomplete": 33,
+      "pixelSupported": 27,
+      "pixelManualReview": 6,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-md-dark"
     },
     {
@@ -232,9 +234,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 34,
-      "pixelSupported": 26,
-      "pixelManualReview": 8,
+      "incomplete": 33,
+      "pixelSupported": 27,
+      "pixelManualReview": 6,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-disconnected-md-light"
     },
     {
@@ -262,9 +264,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 32,
-      "pixelSupported": 21,
-      "pixelManualReview": 11,
+      "incomplete": 29,
+      "pixelSupported": 24,
+      "pixelManualReview": 5,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-lg-dark"
     },
     {
@@ -272,9 +274,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 32,
-      "pixelSupported": 21,
-      "pixelManualReview": 11,
+      "incomplete": 29,
+      "pixelSupported": 24,
+      "pixelManualReview": 5,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-lg-light"
     },
     {
@@ -282,9 +284,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 29,
-      "pixelSupported": 21,
-      "pixelManualReview": 8,
+      "incomplete": 28,
+      "pixelSupported": 23,
+      "pixelManualReview": 5,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-md-dark"
     },
     {
@@ -292,9 +294,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 29,
-      "pixelSupported": 21,
-      "pixelManualReview": 8,
+      "incomplete": 28,
+      "pixelSupported": 23,
+      "pixelManualReview": 5,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-empty-md-light"
     },
     {
@@ -382,9 +384,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 37,
-      "pixelSupported": 26,
-      "pixelManualReview": 11,
+      "incomplete": 34,
+      "pixelSupported": 27,
+      "pixelManualReview": 7,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-lg-dark"
     },
     {
@@ -392,9 +394,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 37,
-      "pixelSupported": 26,
-      "pixelManualReview": 11,
+      "incomplete": 34,
+      "pixelSupported": 27,
+      "pixelManualReview": 7,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-lg-light"
     },
     {
@@ -402,9 +404,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 28,
-      "pixelManualReview": 7,
+      "incomplete": 31,
+      "pixelSupported": 27,
+      "pixelManualReview": 4,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-md-dark"
     },
     {
@@ -412,9 +414,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 35,
-      "pixelSupported": 28,
-      "pixelManualReview": 7,
+      "incomplete": 31,
+      "pixelSupported": 27,
+      "pixelManualReview": 4,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-md-light"
     },
     {
@@ -422,9 +424,9 @@
       "size": "xs",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 21,
+      "incomplete": 19,
       "pixelSupported": 16,
-      "pixelManualReview": 5,
+      "pixelManualReview": 3,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-xs-dark"
     },
     {
@@ -432,9 +434,9 @@
       "size": "xs",
       "mode": "light",
       "violations": 0,
-      "incomplete": 21,
+      "incomplete": 19,
       "pixelSupported": 16,
-      "pixelManualReview": 5,
+      "pixelManualReview": 3,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-no-matches-xs-light"
     },
     {
@@ -442,9 +444,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 36,
+      "incomplete": 33,
       "pixelSupported": 28,
-      "pixelManualReview": 8,
+      "pixelManualReview": 5,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-lg-dark"
     },
     {
@@ -452,9 +454,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 36,
+      "incomplete": 33,
       "pixelSupported": 28,
-      "pixelManualReview": 8,
+      "pixelManualReview": 5,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-lg-light"
     },
     {
@@ -462,9 +464,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 34,
-      "pixelSupported": 26,
-      "pixelManualReview": 8,
+      "incomplete": 33,
+      "pixelSupported": 27,
+      "pixelManualReview": 6,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-md-dark"
     },
     {
@@ -472,9 +474,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 34,
-      "pixelSupported": 26,
-      "pixelManualReview": 8,
+      "incomplete": 33,
+      "pixelSupported": 27,
+      "pixelManualReview": 6,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-populated-md-light"
     },
     {
@@ -502,9 +504,9 @@
       "size": "lg",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 36,
+      "incomplete": 33,
       "pixelSupported": 28,
-      "pixelManualReview": 8,
+      "pixelManualReview": 5,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-lg-dark"
     },
     {
@@ -512,9 +514,9 @@
       "size": "lg",
       "mode": "light",
       "violations": 0,
-      "incomplete": 36,
+      "incomplete": 33,
       "pixelSupported": 28,
-      "pixelManualReview": 8,
+      "pixelManualReview": 5,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-lg-light"
     },
     {
@@ -522,9 +524,9 @@
       "size": "md",
       "mode": "dark",
       "violations": 0,
-      "incomplete": 34,
-      "pixelSupported": 26,
-      "pixelManualReview": 8,
+      "incomplete": 33,
+      "pixelSupported": 27,
+      "pixelManualReview": 6,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-md-dark"
     },
     {
@@ -532,9 +534,9 @@
       "size": "md",
       "mode": "light",
       "violations": 0,
-      "incomplete": 34,
-      "pixelSupported": 26,
-      "pixelManualReview": 8,
+      "incomplete": 33,
+      "pixelSupported": 27,
+      "pixelManualReview": 6,
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-md-light"
     },
     {
@@ -558,5 +560,5 @@
       "evidence": "docs/ui-optimization-evidence/devices-admin-wcag/devices-unavailable-xs-light"
     }
   ],
-  "buildProvenance": "Existing .playwright-e2e-web from npm run test:e2e on production source e9c051a; source unchanged since. Bundle retained in summary."
+  "buildProvenance": "Existing current operational web export from npm run test:e2e on source3b4a4a5; no production source changes this turn."
 }

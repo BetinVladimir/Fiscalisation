@@ -14,7 +14,7 @@ function ratio(a: Color, b: Color) {
   const x = luminance(a), y = luminance(b);
   return (Math.max(x, y) + .05) / (Math.min(x, y) + .05);
 }
-export async function frameContrast(action: Locator, colorProperty: 'borderTopColor' | 'outlineColor' = 'borderTopColor') {
+export async function frameContrast(action: Locator, colorProperty: 'borderTopColor' | 'outlineColor' | 'color' = 'borderTopColor') {
   const layers = await action.evaluate((element, colorProperty) => {
     const chain: { background: string; opacity: string; image: string; filter: string; blend: string }[] = [];
     for (let node: Element | null = element; node; node = node.parentElement) {

@@ -194,7 +194,7 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0 r-h1js2l r-ovu0ai\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; direction: ltr; color: rgb(234, 228, 238); flex-basis: 100%;\">Устройства</div>",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0 r-1wbh5a2 r-h1js2l r-ovu0ai r-dnmrzs\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; direction: ltr; color: rgb(234, 228, 238); flex-basis: 100%;\">Устройства</div>",
           "target": [
             ".r-h1js2l"
           ],
@@ -206,7 +206,7 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
+                "fontSize": "10.5pt (14px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
                 "expectedContrastRatio": "4.5:1"
@@ -219,9 +219,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"reference.search.Касово място.label\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(234, 228, 238); flex-shrink: 1;\">Търсене: Касово място</div>",
           "target": [
-            ".r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".r-uaa2di > .css-g5y9jx:nth-child(2) > .css-g5y9jx:nth-child(1) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -244,7 +244,7 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Търсене: Касово мяст...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"text-input-outlined\" value=\"\" style=\"--placeholderTextCol...\">",
+          "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Търсене: Касово мяст...\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"reference.search.Кас...\" value=\"\" style=\"--placeholderTextCol...\">",
           "target": [
             "input"
           ],
@@ -296,7 +296,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
           "target": [
-            "button[aria-label=\"Обнови Устройства\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-q4m81j.r-bplmwz[data-testid=\"button-text\"]"
+            "button[aria-label=\"Обнови Устройства\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-3s2u2q.r-1iln25a[data-testid=\"button-text\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -346,7 +346,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
           "target": [
-            ".r-3pj75a > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-q4m81j.r-bplmwz[data-testid=\"button-text\"]"
+            ".r-3pj75a > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-3s2u2q.r-1iln25a[data-testid=\"button-text\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -371,7 +371,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-13awgt0\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(234, 228, 238);\">API отказ: {\"code\":\"UNAVAILABLE\"}</div>",
           "target": [
-            ".r-5kkj8d > .r-13awgt0.r-fdjqy7.css-146c3p1"
+            ".r-5kkj8d > .r-fdjqy7.r-13awgt0.css-146c3p1"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -675,18 +675,18 @@
       }
     },
     {
-      "target": ".r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".r-uaa2di > .css-g5y9jx:nth-child(2) > .css-g5y9jx:nth-child(1) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]",
       "text": "Търсене: Касово място",
-      "foreground": "rgb(212, 205, 217)",
-      "fontSize": "16px",
+      "foreground": "rgb(234, 228, 238)",
+      "fontSize": "14px",
       "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
         "x": 32,
-        "y": 287,
-        "width": 210.21875,
-        "height": 19.203125
+        "y": 265,
+        "width": 296,
+        "height": 20
       },
       "viewport": {
         "x": 0,
@@ -700,15 +700,15 @@
       ],
       "background": "rgb(13, 10, 18)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 12.66,
+      "contrastCandidate": 15.74,
       "pixelEvidence": {
         "status": "candidate-supported",
         "visibleBackground": "rgb(13, 10, 18)",
-        "pixelRatio": 12.66,
-        "dominantShare": 0.794,
+        "pixelRatio": 15.74,
+        "dominantShare": 0.887,
         "matchesDomBackground": true,
-        "sampledPixels": 5400,
-        "foregroundPixels": 397,
+        "sampledPixels": 7852,
+        "foregroundPixels": 271,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -722,9 +722,9 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 32,
-        "y": 273,
+        "y": 289,
         "width": 296,
-        "height": 48
+        "height": 56
       },
       "viewport": {
         "x": 0,
@@ -743,9 +743,9 @@
         "status": "manual-review",
         "visibleBackground": "rgb(13, 10, 18)",
         "pixelRatio": 15.74,
-        "dominantShare": 0.893,
+        "dominantShare": 0.962,
         "matchesDomBackground": true,
-        "sampledPixels": 4077,
+        "sampledPixels": 4681,
         "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
@@ -760,7 +760,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 49,
-        "y": 344,
+        "y": 368,
         "width": 254,
         "height": 19
       },
@@ -790,7 +790,7 @@
       }
     },
     {
-      "target": "button[aria-label=\"Обнови Устройства\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-q4m81j.r-bplmwz[data-testid=\"button-text\"]",
+      "target": "button[aria-label=\"Обнови Устройства\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-3s2u2q.r-1iln25a[data-testid=\"button-text\"]",
       "text": "Обнови",
       "foreground": "rgb(235, 223, 243)",
       "fontSize": "14px",
@@ -799,7 +799,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 56,
-        "y": 402,
+        "y": 426,
         "width": 50.03125,
         "height": 20
       },
@@ -838,7 +838,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 48,
-        "y": 468,
+        "y": 492,
         "width": 264,
         "height": 28
       },
@@ -868,7 +868,7 @@
       }
     },
     {
-      "target": ".r-3pj75a > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-q4m81j.r-bplmwz[data-testid=\"button-text\"]",
+      "target": ".r-3pj75a > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1777fci.r-1awozwy.r-18u37iz > .r-3s2u2q.r-1iln25a[data-testid=\"button-text\"]",
       "text": "Опитай отново",
       "foreground": "rgb(210, 193, 240)",
       "fontSize": "14px",
@@ -877,7 +877,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 130.1875,
-        "y": 519,
+        "y": 543,
         "width": 99.609375,
         "height": 20
       },
@@ -907,7 +907,7 @@
       }
     },
     {
-      "target": ".r-5kkj8d > .r-13awgt0.r-fdjqy7.css-146c3p1",
+      "target": ".r-5kkj8d > .r-fdjqy7.r-13awgt0.css-146c3p1",
       "text": "API отказ: {\"code\":\"UNAVAILABLE\"}",
       "foreground": "rgb(234, 228, 238)",
       "fontSize": "14px",

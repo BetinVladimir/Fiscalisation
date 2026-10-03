@@ -1,0 +1,27 @@
+{
+  "status": "IN_PROGRESS",
+  "productionCommit": "3b4a4a5",
+  "contexts": 6,
+  "labelComparisons": 72,
+  "errorComparisons": 6,
+  "minRatio": 7.097957347416672,
+  "method": "Actual computed color and composed RGBA ancestor backgrounds; rejects opacity/image/filter/blend; white browser root under opaque application surfaces. CSS200 only; no pixel/occlusion/manual adjudication.",
+  "result": "7 label tests PASS incl invisible-text negative control;7 action/frame/focus regression tests PASS;types PASS",
+  "sourceHashes": {
+    "e2e/field-labels.spec.ts": "b967a10e7ba0abb072d34c37df51e51f2c13aad69f5e35ea89dda7aa5d795d7f",
+    "e2e/affordance-contrast.ts": "1a4a3efdb619484eef3a3f34519410e3d6b34a49543305a74c2bd5e3919424e7",
+    "src/ui/form-field.tsx": "667b65f43038e493205a0d4de33076ef7d9e8139593b543ee3a7bbd7a40e31fe"
+  },
+  "open": [
+    "Strict AA incomplete nodes require adjudication; no waiver",
+    "Other screens/auth label contrast",
+    "Native/manual/all25/realzoom/full11criteria"
+  ],
+  "currentStrictAA": {
+    "scans": 54,
+    "violations": 0,
+    "incompleteNodes": 1586,
+    "status": "INCOMPLETE",
+    "evidence": "../devices-admin-wcag"
+  }
+}

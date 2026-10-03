@@ -167,3 +167,8 @@ FormField now shows full label with genuine Paper Text above genuine outlined Pa
 ### Remaining extracted-screen fields use genuine shared Paper labels
 
 Auth email/OTP, Audit7 filters, device search and final Administration multiline Transport JSON use FormField. Input types/autocomplete/maxLength/value/onChange/error/multiline unchanged.75 final functional/types/uiPASS;14 authPASS incl6 CSS200 email/OTP contexts (Auth source unchanged since run; later Administration-only change).6 operational CSS200contexts x12labels=72metrics, including7Audit/JSON/search/device/location/X25519, with JSON-invalid save disabled/noAPI mutations. Auth fake challenge means no actual email/OTP. Evidence all-field-labels. No direct TextInput consumers remain in these extracted screens; generic Paper FormField owns leaf. CurrentstrictAA/contrast/native/manual/all25/realzoom/full11criteriaOPEN.
+
+
+### Supplemental Paper label text contrast and current devices/admin strict audit
+
+78 computed comparisons (72labels+6JSONerror), six size/themeCSS200 contexts, min7.097957347416672;7label tests incl invisible-text negative control PASS,7action/frame/focus regressionPASS,typesPASS. RGBA composition rejects unsupported layers; notpixel/occlusion/native/manual/fullAA. Current strict devices/admin54scans: 0 violations, 1586 incomplete nodes;commandexit1/AA INCOMPLETE. All shared field/helper source hashes and screenshots retained. Remainingauth/othertext/currentauditstrict/native/all25/realzoom/full11criteriaOPEN. Evidence label-text-contrast and devices-admin-wcag.

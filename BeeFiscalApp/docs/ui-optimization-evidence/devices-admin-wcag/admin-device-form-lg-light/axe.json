@@ -156,7 +156,7 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "10.5pt (14px)",
+                "fontSize": "12.0pt (16px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
                 "expectedContrastRatio": "4.5:1"
@@ -169,134 +169,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-3691iy r-lrvibr\" style=\"direction: ltr; color: rgb(72, 67, 77); margin-left: 0px; font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Устройства</div>",
           "target": [
-            "button[aria-label=\"Отвори Устройства\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "10.5pt (14px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-3691iy r-lrvibr\" style=\"direction: ltr; color: rgb(72, 67, 77); margin-left: 0px; font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Операции</div>",
-          "target": [
-            "button[aria-label=\"Отвори Операции\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "10.5pt (14px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-3691iy r-lrvibr\" style=\"direction: ltr; color: rgb(72, 67, 77); margin-left: 0px; font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Отчети</div>",
-          "target": [
-            "button[aria-label=\"Отвори Отчети\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "10.5pt (14px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-3691iy r-lrvibr\" style=\"direction: ltr; color: rgb(72, 67, 77); margin-left: 0px; font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Одит</div>",
-          "target": [
-            "button[aria-label=\"Отвори Одит\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "10.5pt (14px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-3691iy r-lrvibr\" style=\"direction: ltr; color: rgb(37, 30, 45); margin-left: 0px; font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">",
-          "target": [
-            "button[aria-label=\"Отвори Администриране\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "10.5pt (14px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-fdjqy7 r-3691iy r-lrvibr\" style=\"direction: ltr; color: rgb(72, 67, 77); margin-left: 0px; font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Настройки</div>",
-          "target": [
-            "button[aria-label=\"Отвори Настройки\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs"
+            "div[data-testid=\"tab-Устройства-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -319,9 +194,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Driver ID\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"admin-device-driver\" value=\"datecs\" style=\"--placeholderTextCol...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Операции</div>",
           "target": [
-            "input[aria-label=\"Driver ID\"]"
+            "div[data-testid=\"tab-Операции-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -344,9 +219,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"admin-device-protoco...\" style=\"font-weight: 400; di...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Отчети</div>",
           "target": [
-            ".css-g5y9jx:nth-child(10) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            "div[data-testid=\"tab-Отчети-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -369,9 +244,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Protocol ID\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"admin-device-protoco...\" value=\"datecs-fp\" style=\"--placeholderTextCol...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Одит</div>",
           "target": [
-            "input[aria-label=\"Protocol ID\"]"
+            "div[data-testid=\"tab-Одит-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -394,9 +269,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"admin-device-protoco...\" style=\"font-weight: 400; di...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(37, 30, 45);\">Администриране</div>",
           "target": [
-            ".css-g5y9jx:nth-child(11) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            "div[data-testid=\"tab-Администриране-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -419,9 +294,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Protocol version\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"admin-device-protoco...\" value=\"2.11.4\" style=\"--placeholderTextCol...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Настройки</div>",
           "target": [
-            "input[aria-label=\"Protocol version\"]"
+            "div[data-testid=\"tab-Настройки-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -531,7 +406,7 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
+                "fontSize": "10.5pt (14px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
                 "expectedContrastRatio": "4.5:1"
@@ -544,9 +419,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Baud</div>",
           "target": [
-            ".css-g5y9jx:nth-child(14) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(14) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -581,7 +456,7 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
+                "fontSize": "10.5pt (14px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
                 "expectedContrastRatio": "4.5:1"
@@ -594,9 +469,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Data bits</div>",
           "target": [
-            ".css-g5y9jx:nth-child(15) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(15) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -631,7 +506,7 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
+                "fontSize": "10.5pt (14px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
                 "expectedContrastRatio": "4.5:1"
@@ -644,9 +519,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Parity (N/E/O)</div>",
           "target": [
-            ".css-g5y9jx:nth-child(16) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(16) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -681,7 +556,7 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
+                "fontSize": "10.5pt (14px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
                 "expectedContrastRatio": "4.5:1"
@@ -694,9 +569,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Stop bits</div>",
           "target": [
-            ".css-g5y9jx:nth-child(17) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(17) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -731,7 +606,7 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
+                "fontSize": "10.5pt (14px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
                 "expectedContrastRatio": "4.5:1"
@@ -744,9 +619,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">TX pin</div>",
           "target": [
-            ".css-g5y9jx:nth-child(18) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(18) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -781,7 +656,7 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
+                "fontSize": "10.5pt (14px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
                 "expectedContrastRatio": "4.5:1"
@@ -794,9 +669,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">RX pin</div>",
           "target": [
-            ".css-g5y9jx:nth-child(19) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(19) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -831,7 +706,7 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
+                "fontSize": "10.5pt (14px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
                 "expectedContrastRatio": "4.5:1"
@@ -844,9 +719,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"admin-device-transpo...\" style=\"font-weight: 400; di...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"admin-device-transport-parameters.label\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Transport JSON</div>",
           "target": [
-            ".css-g5y9jx:nth-child(20) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(20) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -931,156 +806,6 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "10.5pt (14px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"composite-profile-DA...\" style=\"direction: ltr; colo...\">",
-          "target": [
-            "button[aria-label=\"DATECS_BLUECASH50_EMBEDDED\"] > .r-1awozwy.r-1777fci.r-18u37iz > .r-q4m81j.r-bplmwz.r-14mg64r"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "10.5pt (14px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"composite-profile-DA...\" style=\"direction: ltr; colo...\">",
-          "target": [
-            "button[aria-label=\"DATECS_DP150_BLUEPAD50\"] > .r-1awozwy.r-1777fci.r-18u37iz > .r-q4m81j.r-bplmwz.r-14mg64r"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "10.5pt (14px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"composite-profile-DA...\" style=\"direction: ltr; colo...\">",
-          "target": [
-            "button[aria-label=\"DAISY_COMPACT_S01\"] > .r-1awozwy.r-1777fci.r-18u37iz > .r-q4m81j.r-bplmwz.r-14mg64r"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"text-input-outlined-...\" style=\"font-weight: 400; di...\">",
-          "target": [
-            ".css-g5y9jx:nth-child(9) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolic...=\"auto\" aria-label=\"Търсене: Адаптер\" class=\"css-11aywtz r-6taxm2...\" data-testid=\"text-input-outlined\" value=\"\" style=\"--placeholderTextCol...\">",
-          "target": [
-            "input[aria-label=\"Търсене: Адаптер\"]"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
-                "fontWeight": "normal",
-                "messageKey": "bgOverlap",
-                "expectedContrastRatio": "4.5:1"
-              },
-              "relatedNodes": [],
-              "impact": "serious",
-              "message": "Element's background color could not be determined because it is overlapped by another element"
-            }
-          ],
-          "all": [],
-          "none": [],
-          "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-8akbws r-krxsd3 r-dnmrzs r-1qsk4np r-1udbk01 r-fdjqy7 r-ubezar r-lrvibr\" style=\"-webkit-line-clamp: 3; font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Datecs DP-150 MX · —</div>",
-          "target": [
-            "button[aria-label=\"Datecs DP-150 MX · —\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np"
-          ],
-          "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-        },
-        {
-          "any": [
-            {
-              "id": "color-contrast",
-              "data": {
-                "contrastRatio": 0,
                 "fontSize": "9.0pt (12px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
@@ -1121,7 +846,7 @@
           "impact": "serious",
           "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
           "target": [
-            ".css-g5y9jx:nth-child(10) > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1awozwy.r-1777fci.r-18u37iz > .r-q4m81j.r-bplmwz[data-testid=\"button-text\"]"
+            ".css-g5y9jx:nth-child(10) > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1awozwy.r-1777fci.r-18u37iz > .r-3s2u2q.r-1iln25a[data-testid=\"button-text\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -1156,7 +881,7 @@
               "id": "color-contrast",
               "data": {
                 "contrastRatio": 0,
-                "fontSize": "12.0pt (16px)",
+                "fontSize": "10.5pt (14px)",
                 "fontWeight": "normal",
                 "messageKey": "bgOverlap",
                 "expectedContrastRatio": "4.5:1"
@@ -1169,9 +894,9 @@
           "all": [],
           "none": [],
           "impact": "serious",
-          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-1udh08...\" data-testid=\"composite-register-v...\" style=\"font-weight: 400; di...\">",
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"composite-register-version.label\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Expected register version</div>",
           "target": [
-            ".css-g5y9jx:nth-child(12) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)"
+            ".css-g5y9jx:nth-child(12) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]"
           ],
           "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
         },
@@ -1279,9 +1004,9 @@
     }
   ],
   "pixelSummary": {
-    "candidates": 50,
-    "supported": 23,
-    "manualReview": 27
+    "candidates": 39,
+    "supported": 22,
+    "manualReview": 17
   },
   "contrastCandidates": [
     {
@@ -1474,18 +1199,18 @@
       }
     },
     {
-      "target": "button[aria-label=\"Отвори Устройства\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs",
+      "target": "div[data-testid=\"tab-Устройства-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
       "text": "Устройства",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "14px",
-      "fontWeight": "500",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "16px",
+      "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 41,
-        "y": 182,
-        "width": 68,
-        "height": 20
+        "x": 29,
+        "y": 183,
+        "width": 124,
+        "height": 19
       },
       "viewport": {
         "x": 0,
@@ -1495,35 +1220,36 @@
       },
       "backgroundLayers": [
         "rgb(247, 245, 249)",
+        "rgb(255, 251, 255)",
         "rgb(255, 251, 255)"
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
         "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.791,
+        "pixelRatio": 16.79,
+        "dominantShare": 0.827,
         "matchesDomBackground": true,
-        "sampledPixels": 1924,
-        "foregroundPixels": 126,
+        "sampledPixels": 3250,
+        "foregroundPixels": 128,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": "button[aria-label=\"Отвори Операции\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs",
+      "target": "div[data-testid=\"tab-Операции-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
       "text": "Операции",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "14px",
-      "fontWeight": "500",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "16px",
+      "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 41,
-        "y": 238,
-        "width": 66,
-        "height": 20
+        "x": 29,
+        "y": 240,
+        "width": 124,
+        "height": 19
       },
       "viewport": {
         "x": 0,
@@ -1533,35 +1259,36 @@
       },
       "backgroundLayers": [
         "rgb(247, 245, 249)",
+        "rgb(255, 251, 255)",
         "rgb(255, 251, 255)"
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
         "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.763,
+        "pixelRatio": 16.79,
+        "dominantShare": 0.839,
         "matchesDomBackground": true,
-        "sampledPixels": 1872,
-        "foregroundPixels": 157,
+        "sampledPixels": 3250,
+        "foregroundPixels": 133,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": "button[aria-label=\"Отвори Отчети\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs",
+      "target": "div[data-testid=\"tab-Отчети-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
       "text": "Отчети",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "14px",
-      "fontWeight": "500",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "16px",
+      "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 41,
-        "y": 294,
-        "width": 47.296875,
-        "height": 20
+        "x": 29,
+        "y": 297,
+        "width": 124,
+        "height": 19
       },
       "viewport": {
         "x": 0,
@@ -1571,35 +1298,36 @@
       },
       "backgroundLayers": [
         "rgb(247, 245, 249)",
+        "rgb(255, 251, 255)",
         "rgb(255, 251, 255)"
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
         "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.792,
+        "pixelRatio": 16.79,
+        "dominantShare": 0.9,
         "matchesDomBackground": true,
-        "sampledPixels": 1378,
-        "foregroundPixels": 95,
+        "sampledPixels": 3250,
+        "foregroundPixels": 86,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": "button[aria-label=\"Отвори Одит\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs",
+      "target": "div[data-testid=\"tab-Одит-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
       "text": "Одит",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "14px",
-      "fontWeight": "500",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "16px",
+      "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 41,
-        "y": 350,
-        "width": 33.59375,
-        "height": 20
+        "x": 29,
+        "y": 354,
+        "width": 124,
+        "height": 19
       },
       "viewport": {
         "x": 0,
@@ -1609,35 +1337,36 @@
       },
       "backgroundLayers": [
         "rgb(247, 245, 249)",
+        "rgb(255, 251, 255)",
         "rgb(255, 251, 255)"
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
         "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.772,
+        "pixelRatio": 16.79,
+        "dominantShare": 0.924,
         "matchesDomBackground": true,
-        "sampledPixels": 1014,
-        "foregroundPixels": 76,
+        "sampledPixels": 3250,
+        "foregroundPixels": 60,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": "button[aria-label=\"Отвори Администриране\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs",
+      "target": "div[data-testid=\"tab-Администриране-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
       "text": "Администриране",
       "foreground": "rgb(37, 30, 45)",
-      "fontSize": "14px",
-      "fontWeight": "500",
+      "fontSize": "16px",
+      "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 41,
-        "y": 406,
-        "width": 68,
-        "height": 20
+        "x": 29,
+        "y": 411,
+        "width": 124,
+        "height": 38
       },
       "viewport": {
         "x": 0,
@@ -1657,26 +1386,26 @@
         "status": "candidate-supported",
         "visibleBackground": "rgb(233, 225, 240)",
         "pixelRatio": 12.66,
-        "dominantShare": 0.801,
+        "dominantShare": 0.848,
         "matchesDomBackground": true,
-        "sampledPixels": 1924,
-        "foregroundPixels": 127,
+        "sampledPixels": 5720,
+        "foregroundPixels": 239,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": "button[aria-label=\"Отвори Настройки\"] > .r-mbgqwd.r-t60dpp.r-1ow6zhx > .r-13awgt0.r-1awozwy.r-18u37iz > .r-3691iy.r-lrvibr.r-dnmrzs",
+      "target": "div[data-testid=\"tab-Настройки-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
       "text": "Настройки",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "14px",
-      "fontWeight": "500",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "16px",
+      "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 41,
-        "y": 462,
-        "width": 68,
-        "height": 20
+        "x": 29,
+        "y": 487,
+        "width": 124,
+        "height": 19
       },
       "viewport": {
         "x": 0,
@@ -1686,214 +1415,20 @@
       },
       "backgroundLayers": [
         "rgb(247, 245, 249)",
+        "rgb(255, 251, 255)",
         "rgb(255, 251, 255)"
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
         "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.797,
-        "matchesDomBackground": true,
-        "sampledPixels": 1924,
-        "foregroundPixels": 143,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": "input[aria-label=\"Driver ID\"]",
-      "text": "",
-      "foreground": "rgb(29, 26, 32)",
-      "fontSize": "16px",
-      "fontWeight": "400",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 258,
-        "y": -45,
-        "width": 534,
-        "height": 48
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)"
-      ],
-      "background": "rgb(255, 251, 255)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 16.79,
-      "pixelEvidence": {
-        "status": "manual-review",
-        "visibleBackground": "rgb(247, 245, 249)",
-        "pixelRatio": 15.88,
-        "dominantShare": 1,
-        "matchesDomBackground": false,
-        "sampledPixels": 3240,
-        "foregroundPixels": 0,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": ".css-g5y9jx:nth-child(10) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
-      "text": "Protocol ID",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "16px",
-      "fontWeight": "400",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 260.939453125,
-        "y": 13.900390625,
-        "width": 84.38671875,
-        "height": 14.40234375
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)"
-      ],
-      "background": "rgb(255, 251, 255)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
-      "pixelEvidence": {
-        "status": "manual-review",
-        "visibleBackground": "rgb(247, 245, 249)",
-        "pixelRatio": 8.87,
-        "dominantShare": 1,
-        "matchesDomBackground": false,
-        "sampledPixels": 1800,
-        "foregroundPixels": 0,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": "input[aria-label=\"Protocol ID\"]",
-      "text": "",
-      "foreground": "rgb(29, 26, 32)",
-      "fontSize": "16px",
-      "fontWeight": "400",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 258,
-        "y": 23,
-        "width": 534,
-        "height": 48
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)"
-      ],
-      "background": "rgb(255, 251, 255)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 16.79,
-      "pixelEvidence": {
-        "status": "manual-review",
-        "visibleBackground": "rgb(247, 245, 249)",
-        "pixelRatio": 15.88,
-        "dominantShare": 0.704,
-        "matchesDomBackground": false,
-        "sampledPixels": 7290,
-        "foregroundPixels": 0,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": ".css-g5y9jx:nth-child(11) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
-      "text": "Protocol version",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "16px",
-      "fontWeight": "400",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 261.005859375,
-        "y": 81.900390625,
-        "width": 112.53515625,
-        "height": 14.40234375
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)"
-      ],
-      "background": "rgb(255, 251, 255)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
-      "pixelEvidence": {
-        "status": "manual-review",
-        "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 1,
-        "matchesDomBackground": true,
-        "sampledPixels": 2340,
-        "foregroundPixels": 0,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": "input[aria-label=\"Protocol version\"]",
-      "text": "",
-      "foreground": "rgb(29, 26, 32)",
-      "fontSize": "16px",
-      "fontWeight": "400",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 258,
-        "y": 91,
-        "width": 534,
-        "height": 48
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)"
-      ],
-      "background": "rgb(255, 251, 255)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 16.79,
-      "pixelEvidence": {
-        "status": "manual-review",
-        "visibleBackground": "rgb(255, 251, 255)",
         "pixelRatio": 16.79,
-        "dominantShare": 0.969,
+        "dominantShare": 0.831,
         "matchesDomBackground": true,
-        "sampledPixels": 7290,
-        "foregroundPixels": 0,
+        "sampledPixels": 3250,
+        "foregroundPixels": 138,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -1907,7 +1442,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 282,
-        "y": 185,
+        "y": 27,
         "width": 46.265625,
         "height": 20
       },
@@ -1927,13 +1462,13 @@
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
       "contrastCandidate": 12.66,
       "pixelEvidence": {
-        "status": "candidate-supported",
-        "visibleBackground": "rgb(233, 225, 240)",
-        "pixelRatio": 12.66,
-        "dominantShare": 0.745,
-        "matchesDomBackground": true,
+        "status": "manual-review",
+        "visibleBackground": "rgb(247, 245, 249)",
+        "pixelRatio": 14.88,
+        "dominantShare": 1,
+        "matchesDomBackground": false,
         "sampledPixels": 1352,
-        "foregroundPixels": 88,
+        "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -1947,7 +1482,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 386.265625,
-        "y": 185,
+        "y": 27,
         "width": 58.03125,
         "height": 20
       },
@@ -1967,13 +1502,13 @@
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
       "contrastCandidate": 12.66,
       "pixelEvidence": {
-        "status": "candidate-supported",
-        "visibleBackground": "rgb(233, 225, 240)",
-        "pixelRatio": 12.66,
-        "dominantShare": 0.742,
-        "matchesDomBackground": true,
+        "status": "manual-review",
+        "visibleBackground": "rgb(247, 245, 249)",
+        "pixelRatio": 14.88,
+        "dominantShare": 1,
+        "matchesDomBackground": false,
         "sampledPixels": 1638,
-        "foregroundPixels": 123,
+        "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -1987,7 +1522,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 502.296875,
-        "y": 185,
+        "y": 27,
         "width": 63.75,
         "height": 20
       },
@@ -2007,13 +1542,13 @@
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
       "contrastCandidate": 12.66,
       "pixelEvidence": {
-        "status": "candidate-supported",
-        "visibleBackground": "rgb(233, 225, 240)",
-        "pixelRatio": 12.66,
-        "dominantShare": 0.768,
-        "matchesDomBackground": true,
+        "status": "manual-review",
+        "visibleBackground": "rgb(247, 245, 249)",
+        "pixelRatio": 14.88,
+        "dominantShare": 1,
+        "matchesDomBackground": false,
         "sampledPixels": 1794,
-        "foregroundPixels": 141,
+        "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -2027,7 +1562,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 231,
+        "y": 73,
         "width": 534,
         "height": 20
       },
@@ -2046,29 +1581,29 @@
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
       "contrastCandidate": 9.38,
       "pixelEvidence": {
-        "status": "candidate-supported",
+        "status": "manual-review",
         "visibleBackground": "rgb(255, 251, 255)",
         "pixelRatio": 9.38,
-        "dominantShare": 0.93,
+        "dominantShare": 1,
         "matchesDomBackground": true,
         "sampledPixels": 3510,
-        "foregroundPixels": 63,
+        "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(14) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(14) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]",
       "text": "Baud",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "16px",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "14px",
       "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 261.013671875,
-        "y": 261.900390625,
-        "width": 51.83203125,
-        "height": 14.40234375
+        "x": 258,
+        "y": 105,
+        "width": 534,
+        "height": 20
       },
       "viewport": {
         "x": 0,
@@ -2083,15 +1618,15 @@
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
         "status": "manual-review",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.409,
+        "pixelRatio": 16.79,
+        "dominantShare": 0.939,
         "matchesDomBackground": true,
-        "sampledPixels": 1120,
-        "foregroundPixels": 53,
+        "sampledPixels": 3510,
+        "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -2105,9 +1640,9 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 271,
+        "y": 129,
         "width": 534,
-        "height": 48
+        "height": 56
       },
       "viewport": {
         "x": 0,
@@ -2127,26 +1662,26 @@
         "status": "manual-review",
         "visibleBackground": "rgb(247, 245, 249)",
         "pixelRatio": 15.88,
-        "dominantShare": 0.86,
+        "dominantShare": 0.498,
         "matchesDomBackground": false,
-        "sampledPixels": 7290,
+        "sampledPixels": 8370,
         "foregroundPixels": 28,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(15) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(15) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]",
       "text": "Data bits",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "16px",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "14px",
       "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 260.97265625,
-        "y": 329.900390625,
-        "width": 72.5859375,
-        "height": 14.40234375
+        "x": 258,
+        "y": 197,
+        "width": 534,
+        "height": 20
       },
       "viewport": {
         "x": 0,
@@ -2161,15 +1696,15 @@
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
-        "status": "manual-review",
+        "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.393,
+        "pixelRatio": 16.79,
+        "dominantShare": 0.976,
         "matchesDomBackground": true,
-        "sampledPixels": 1560,
-        "foregroundPixels": 66,
+        "sampledPixels": 3510,
+        "foregroundPixels": 30,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -2183,9 +1718,9 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 339,
+        "y": 221,
         "width": 534,
-        "height": 48
+        "height": 56
       },
       "viewport": {
         "x": 0,
@@ -2205,26 +1740,26 @@
         "status": "manual-review",
         "visibleBackground": "rgb(247, 245, 249)",
         "pixelRatio": 15.88,
-        "dominantShare": 0.868,
+        "dominantShare": 0.855,
         "matchesDomBackground": false,
-        "sampledPixels": 7290,
+        "sampledPixels": 8370,
         "foregroundPixels": 8,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(16) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(16) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]",
       "text": "Parity (N/E/O)",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "16px",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "14px",
       "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 260.94921875,
-        "y": 397.900390625,
-        "width": 100.9453125,
-        "height": 14.40234375
+        "x": 258,
+        "y": 289,
+        "width": 534,
+        "height": 20
       },
       "viewport": {
         "x": 0,
@@ -2239,15 +1774,15 @@
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
-        "status": "manual-review",
+        "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.373,
+        "pixelRatio": 16.79,
+        "dominantShare": 0.959,
         "matchesDomBackground": true,
-        "sampledPixels": 2120,
-        "foregroundPixels": 88,
+        "sampledPixels": 3510,
+        "foregroundPixels": 31,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -2261,9 +1796,9 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 407,
+        "y": 313,
         "width": 534,
-        "height": 48
+        "height": 56
       },
       "viewport": {
         "x": 0,
@@ -2283,26 +1818,26 @@
         "status": "manual-review",
         "visibleBackground": "rgb(247, 245, 249)",
         "pixelRatio": 15.88,
-        "dominantShare": 0.865,
+        "dominantShare": 0.855,
         "matchesDomBackground": false,
-        "sampledPixels": 7290,
+        "sampledPixels": 8370,
         "foregroundPixels": 9,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(17) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(17) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]",
       "text": "Stop bits",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "16px",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "14px",
       "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 261.0390625,
-        "y": 465.900390625,
-        "width": 72.234375,
-        "height": 14.40234375
+        "x": 258,
+        "y": 381,
+        "width": 534,
+        "height": 20
       },
       "viewport": {
         "x": 0,
@@ -2317,15 +1852,15 @@
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
-        "status": "manual-review",
+        "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.393,
+        "pixelRatio": 16.79,
+        "dominantShare": 0.974,
         "matchesDomBackground": true,
-        "sampledPixels": 1540,
-        "foregroundPixels": 67,
+        "sampledPixels": 3510,
+        "foregroundPixels": 17,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -2339,9 +1874,9 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 475,
+        "y": 405,
         "width": 534,
-        "height": 48
+        "height": 56
       },
       "viewport": {
         "x": 0,
@@ -2361,26 +1896,26 @@
         "status": "manual-review",
         "visibleBackground": "rgb(247, 245, 249)",
         "pixelRatio": 15.88,
-        "dominantShare": 0.869,
+        "dominantShare": 0.856,
         "matchesDomBackground": false,
-        "sampledPixels": 7290,
+        "sampledPixels": 8370,
         "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(18) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(18) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]",
       "text": "TX pin",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "16px",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "14px",
       "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 261.017578125,
-        "y": 533.900390625,
-        "width": 58.60546875,
-        "height": 14.40234375
+        "x": 258,
+        "y": 473,
+        "width": 534,
+        "height": 20
       },
       "viewport": {
         "x": 0,
@@ -2395,15 +1930,15 @@
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
-        "status": "manual-review",
+        "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.403,
+        "pixelRatio": 16.79,
+        "dominantShare": 0.985,
         "matchesDomBackground": true,
-        "sampledPixels": 1260,
-        "foregroundPixels": 46,
+        "sampledPixels": 3510,
+        "foregroundPixels": 13,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -2417,9 +1952,9 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 543,
+        "y": 497,
         "width": 534,
-        "height": 48
+        "height": 56
       },
       "viewport": {
         "x": 0,
@@ -2439,26 +1974,26 @@
         "status": "manual-review",
         "visibleBackground": "rgb(247, 245, 249)",
         "pixelRatio": 15.88,
-        "dominantShare": 0.869,
+        "dominantShare": 0.855,
         "matchesDomBackground": false,
-        "sampledPixels": 7290,
+        "sampledPixels": 8370,
         "foregroundPixels": 1,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(19) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(19) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]",
       "text": "RX pin",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "16px",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "14px",
       "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 261.0546875,
-        "y": 601.900390625,
-        "width": 58.828125,
-        "height": 14.40234375
+        "x": 258,
+        "y": 565,
+        "width": 534,
+        "height": 20
       },
       "viewport": {
         "x": 0,
@@ -2473,15 +2008,15 @@
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
-        "status": "manual-review",
+        "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.401,
+        "pixelRatio": 16.79,
+        "dominantShare": 0.984,
         "matchesDomBackground": true,
-        "sampledPixels": 1260,
-        "foregroundPixels": 58,
+        "sampledPixels": 3510,
+        "foregroundPixels": 16,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -2495,9 +2030,9 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 611,
+        "y": 589,
         "width": 534,
-        "height": 48
+        "height": 56
       },
       "viewport": {
         "x": 0,
@@ -2517,26 +2052,26 @@
         "status": "manual-review",
         "visibleBackground": "rgb(247, 245, 249)",
         "pixelRatio": 15.88,
-        "dominantShare": 0.868,
+        "dominantShare": 0.854,
         "matchesDomBackground": false,
-        "sampledPixels": 7290,
+        "sampledPixels": 8370,
         "foregroundPixels": 6,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": ".css-g5y9jx:nth-child(20) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
+      "target": ".css-g5y9jx:nth-child(20) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]",
       "text": "Transport JSON",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "16px",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "14px",
       "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
-        "x": 260.970703125,
-        "y": 669.900390625,
-        "width": 110.82421875,
-        "height": 14.40234375
+        "x": 258,
+        "y": 657,
+        "width": 534,
+        "height": 20
       },
       "viewport": {
         "x": 0,
@@ -2551,15 +2086,15 @@
       ],
       "background": "rgb(255, 251, 255)",
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
+      "contrastCandidate": 16.79,
       "pixelEvidence": {
-        "status": "manual-review",
+        "status": "candidate-supported",
         "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.384,
+        "pixelRatio": 16.79,
+        "dominantShare": 0.955,
         "matchesDomBackground": true,
-        "sampledPixels": 2320,
-        "foregroundPixels": 83,
+        "sampledPixels": 3510,
+        "foregroundPixels": 26,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -2573,9 +2108,9 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 258,
-        "y": 679,
+        "y": 681,
         "width": 534,
-        "height": 87.609375
+        "height": 85.609375
       },
       "viewport": {
         "x": 0,
@@ -2595,10 +2130,10 @@
         "status": "manual-review",
         "visibleBackground": "rgb(247, 245, 249)",
         "pixelRatio": 15.88,
-        "dominantShare": 0.867,
+        "dominantShare": 0.851,
         "matchesDomBackground": false,
-        "sampledPixels": 12690,
-        "foregroundPixels": 186,
+        "sampledPixels": 12420,
+        "foregroundPixels": 161,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -2682,138 +2217,18 @@
       }
     },
     {
-      "target": "button[aria-label=\"DATECS_BLUECASH50_EMBEDDED\"] > .r-1awozwy.r-1777fci.r-18u37iz > .r-q4m81j.r-bplmwz.r-14mg64r",
-      "text": "DATECS_BLUECASH50_EMBEDDED",
-      "foreground": "rgb(37, 30, 45)",
-      "fontSize": "14px",
-      "fontWeight": "500",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 862,
-        "y": 22,
-        "width": 225.0625,
-        "height": 20
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)",
-        "rgb(233, 225, 240)"
-      ],
-      "background": "rgb(233, 225, 240)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 12.66,
-      "pixelEvidence": {
-        "status": "manual-review",
-        "visibleBackground": "rgb(247, 245, 249)",
-        "pixelRatio": 14.88,
-        "dominantShare": 1,
-        "matchesDomBackground": false,
-        "sampledPixels": 6006,
-        "foregroundPixels": 0,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": "button[aria-label=\"DATECS_DP150_BLUEPAD50\"] > .r-1awozwy.r-1777fci.r-18u37iz > .r-q4m81j.r-bplmwz.r-14mg64r",
-      "text": "DATECS_DP150_BLUEPAD50",
-      "foreground": "rgb(37, 30, 45)",
-      "fontSize": "14px",
-      "fontWeight": "500",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 1145.0625,
-        "y": 22,
-        "width": 183.703125,
-        "height": 20
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)",
-        "rgb(233, 225, 240)"
-      ],
-      "background": "rgb(233, 225, 240)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 12.66,
-      "pixelEvidence": {
-        "status": "manual-review",
-        "visibleBackground": "rgb(247, 245, 249)",
-        "pixelRatio": 14.88,
-        "dominantShare": 0.941,
-        "matchesDomBackground": false,
-        "sampledPixels": 4888,
-        "foregroundPixels": 0,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": "button[aria-label=\"DAISY_COMPACT_S01\"] > .r-1awozwy.r-1777fci.r-18u37iz > .r-q4m81j.r-bplmwz.r-14mg64r",
-      "text": "DAISY_COMPACT_S01",
-      "foreground": "rgb(37, 30, 45)",
-      "fontSize": "14px",
-      "fontWeight": "500",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 862,
-        "y": 80,
-        "width": 143.359375,
-        "height": 20
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)",
-        "rgb(233, 225, 240)"
-      ],
-      "background": "rgb(233, 225, 240)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 12.66,
-      "pixelEvidence": {
-        "status": "manual-review",
-        "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 15.74,
-        "dominantShare": 1,
-        "matchesDomBackground": false,
-        "sampledPixels": 3874,
-        "foregroundPixels": 0,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": ".css-g5y9jx:nth-child(9) > .css-g5y9jx:nth-child(1) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
-      "text": "Търсене: Адаптер",
+      "target": ".css-g5y9jx:nth-child(10) > .r-1enofrn.r-cnw61z.r-3o4zer",
+      "text": "Справочникът е празен.",
       "foreground": "rgb(72, 67, 77)",
-      "fontSize": "16px",
+      "fontSize": "12px",
       "fontWeight": "400",
       "opacity": "1",
       "effectiveOpacity": 1,
       "rect": {
         "x": 838,
-        "y": 148,
-        "width": 167.796875,
-        "height": 19.203125
+        "y": 21,
+        "width": 320,
+        "height": 28
       },
       "viewport": {
         "x": 0,
@@ -2833,133 +2248,15 @@
         "status": "manual-review",
         "visibleBackground": "rgb(247, 245, 249)",
         "pixelRatio": 8.87,
-        "dominantShare": 0.506,
+        "dominantShare": 1,
         "matchesDomBackground": false,
-        "sampledPixels": 4325,
-        "foregroundPixels": 281,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": "input[aria-label=\"Търсене: Адаптер\"]",
-      "text": "",
-      "foreground": "rgb(29, 26, 32)",
-      "fontSize": "16px",
-      "fontWeight": "400",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 838,
-        "y": 134,
-        "width": 320,
-        "height": 48
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)"
-      ],
-      "background": "rgb(255, 251, 255)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 16.79,
-      "pixelEvidence": {
-        "status": "manual-review",
-        "visibleBackground": "rgb(247, 245, 249)",
-        "pixelRatio": 15.88,
-        "dominantShare": 0.459,
-        "matchesDomBackground": false,
-        "sampledPixels": 4401,
+        "sampledPixels": 2771,
         "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
     {
-      "target": "button[aria-label=\"Datecs DP-150 MX · —\"] > .r-ws14.r-13qz1uu.r-18u37iz > .r-1qhn6m8.r-1wbh5a2[data-testid=\"undefined-content\"] > .r-8akbws.r-krxsd3.r-1qsk4np",
-      "text": "Datecs DP-150 MX · —",
-      "foreground": "rgb(29, 26, 32)",
-      "fontSize": "16px",
-      "fontWeight": "400",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 855,
-        "y": 205,
-        "width": 278,
-        "height": 19
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)",
-        "rgb(255, 251, 255)"
-      ],
-      "background": "rgb(255, 251, 255)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 16.79,
-      "pixelEvidence": {
-        "status": "candidate-supported",
-        "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 16.79,
-        "dominantShare": 0.872,
-        "matchesDomBackground": true,
-        "sampledPixels": 7100,
-        "foregroundPixels": 244,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": ".css-g5y9jx:nth-child(10) > .r-1enofrn.r-cnw61z.r-3o4zer",
-      "text": "Справочникът е празен.",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "12px",
-      "fontWeight": "400",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 838,
-        "y": 251,
-        "width": 320,
-        "height": 28
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)"
-      ],
-      "background": "rgb(255, 251, 255)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
-      "pixelEvidence": {
-        "status": "candidate-supported",
-        "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.93,
-        "matchesDomBackground": true,
-        "sampledPixels": 2771,
-        "foregroundPixels": 42,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": ".css-g5y9jx:nth-child(10) > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1awozwy.r-1777fci.r-18u37iz > .r-q4m81j.r-bplmwz[data-testid=\"button-text\"]",
+      "target": ".css-g5y9jx:nth-child(10) > .r-1phboty.r-1q8sk3r[data-testid=\"button-container\"] > button[data-testid=\"button\"] > .r-1awozwy.r-1777fci.r-18u37iz > .r-3s2u2q.r-1iln25a[data-testid=\"button-text\"]",
       "text": "Попълни справочника",
       "foreground": "rgb(73, 49, 122)",
       "fontSize": "14px",
@@ -2968,7 +2265,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 922.859375,
-        "y": 302,
+        "y": 72,
         "width": 150.265625,
         "height": 20
       },
@@ -2987,13 +2284,13 @@
       "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
       "contrastCandidate": 10.23,
       "pixelEvidence": {
-        "status": "candidate-supported",
+        "status": "manual-review",
         "visibleBackground": "rgb(255, 251, 255)",
         "pixelRatio": 10.23,
-        "dominantShare": 0.768,
+        "dominantShare": 1,
         "matchesDomBackground": true,
         "sampledPixels": 4056,
-        "foregroundPixels": 281,
+        "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -3007,48 +2304,9 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 838,
-        "y": 349,
+        "y": 119,
         "width": 320,
         "height": 28
-      },
-      "viewport": {
-        "x": 0,
-        "y": 0,
-        "width": 1440,
-        "height": 1000
-      },
-      "backgroundLayers": [
-        "rgb(247, 245, 249)",
-        "rgb(247, 245, 249)",
-        "rgb(255, 251, 255)"
-      ],
-      "background": "rgb(255, 251, 255)",
-      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
-      "contrastCandidate": 9.38,
-      "pixelEvidence": {
-        "status": "candidate-supported",
-        "visibleBackground": "rgb(255, 251, 255)",
-        "pixelRatio": 9.38,
-        "dominantShare": 0.938,
-        "matchesDomBackground": true,
-        "sampledPixels": 2771,
-        "foregroundPixels": 24,
-        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
-      }
-    },
-    {
-      "target": ".css-g5y9jx:nth-child(12) > .r-1mdbw0j.r-16y2uox.css-g5y9jx > .r-1g40b8q.r-ipm5af.r-1p0dtai > .r-ipm5af.r-1p0dtai.r-1d2f490 > .css-g5y9jx > .r-3s2u2q.r-1iln25a.r-1udbk01:nth-child(3)",
-      "text": "Expected register version",
-      "foreground": "rgb(72, 67, 77)",
-      "fontSize": "16px",
-      "fontWeight": "400",
-      "opacity": "1",
-      "effectiveOpacity": 1,
-      "rect": {
-        "x": 840.98046875,
-        "y": 387.900390625,
-        "width": 161.1328125,
-        "height": 14.40234375
       },
       "viewport": {
         "x": 0,
@@ -3068,10 +2326,49 @@
         "status": "manual-review",
         "visibleBackground": "rgb(255, 251, 255)",
         "pixelRatio": 9.38,
-        "dominantShare": 0.381,
+        "dominantShare": 1,
         "matchesDomBackground": true,
-        "sampledPixels": 3340,
-        "foregroundPixels": 187,
+        "sampledPixels": 2771,
+        "foregroundPixels": 0,
+        "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
+      }
+    },
+    {
+      "target": ".css-g5y9jx:nth-child(12) > .r-fdjqy7.css-146c3p1[dir=\"auto\"]",
+      "text": "Expected register version",
+      "foreground": "rgb(29, 26, 32)",
+      "fontSize": "14px",
+      "fontWeight": "400",
+      "opacity": "1",
+      "effectiveOpacity": 1,
+      "rect": {
+        "x": 838,
+        "y": 159,
+        "width": 534,
+        "height": 20
+      },
+      "viewport": {
+        "x": 0,
+        "y": 0,
+        "width": 1440,
+        "height": 1000
+      },
+      "backgroundLayers": [
+        "rgb(247, 245, 249)",
+        "rgb(247, 245, 249)",
+        "rgb(255, 251, 255)"
+      ],
+      "background": "rgb(255, 251, 255)",
+      "note": "Candidate only: Axe detected overlapping layers; inspect the screenshot before accepting a ratio.",
+      "contrastCandidate": 16.79,
+      "pixelEvidence": {
+        "status": "candidate-supported",
+        "visibleBackground": "rgb(255, 251, 255)",
+        "pixelRatio": 16.79,
+        "dominantShare": 0.93,
+        "matchesDomBackground": true,
+        "sampledPixels": 3510,
+        "foregroundPixels": 43,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
     },
@@ -3085,9 +2382,9 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 838,
-        "y": 397,
+        "y": 183,
         "width": 534,
-        "height": 48
+        "height": 56
       },
       "viewport": {
         "x": 0,
@@ -3107,9 +2404,9 @@
         "status": "manual-review",
         "visibleBackground": "rgb(247, 245, 249)",
         "pixelRatio": 15.88,
-        "dominantShare": 0.86,
+        "dominantShare": 0.856,
         "matchesDomBackground": false,
-        "sampledPixels": 7290,
+        "sampledPixels": 8370,
         "foregroundPixels": 0,
         "note": "Modal pixel color inside the Axe target is supporting evidence; inspect complex layers and text rendering before accepting WCAG AA."
       }
@@ -3124,7 +2421,7 @@
       "effectiveOpacity": 1,
       "rect": {
         "x": 1012.609375,
-        "y": 471,
+        "y": 265,
         "width": 184.765625,
         "height": 20
       },

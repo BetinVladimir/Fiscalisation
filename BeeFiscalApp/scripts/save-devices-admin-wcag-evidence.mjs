@@ -38,7 +38,7 @@ const bundle = html.match(/AppEntry-[a-f0-9]+\.js/)?.[0];
 if (!bundle) throw new Error('web bundle hash missing');
 const testSha256 = createHash('sha256').update(await readFile('e2e/devices-admin-wcag.spec.ts')).digest('hex');
 const sourceFilesSha256 = Object.fromEntries(await Promise.all(
-  ['App.tsx', 'src/screens/DevicesScreen.tsx', 'src/screens/AdministrationScreen.tsx', 'src/components/FiscalControls.tsx'].map(async file =>
+  ['App.tsx', 'src/screens/DevicesScreen.tsx', 'src/screens/AdministrationScreen.tsx', 'src/components/FiscalControls.tsx', 'src/ui/form-field.tsx', 'src/ui/LanguageThemeControls.tsx'].map(async file =>
     [file, createHash('sha256').update(await readFile(file)).digest('hex')]),
 ));
 const summary = {
