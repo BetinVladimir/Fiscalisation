@@ -202,3 +202,8 @@ Closed shared Paper Dialog portals unmounted; actual Axe stack proved decorative
 ## BeeFiscal closed navigation Portal and E2E variants — 2026-10-04
 
 02-001 IN_PROGRESS. Genuine Paper navigation Portal/Modal onlymounts compact&&navOpen. Baseline12 matched scans2VI/398incomplete nodes; current54 device/admin states0VI/54color incomplete608nodes. Full default functional88PASS/types/UI/demoexportPASS. Production-only motion/stack tests moved from incompatible demo default into explicit prod configs/scripts; --list validates6/2 discovery, prior behaviors hadpassed onprod. Defaultbuild:e2e explicitlydemo. Evidence docs/ui-optimization-evidence/shell-closed-portal contains paired/current summaries andfullraw54scans. Card decoration incomplete/native/manual/otherstate suites/all11 fullcriteria remain OPEN.
+
+
+## BeeFiscal operational Paper Card borders — 2026-10-04
+
+02-001/018/019 IN_PROGRESS. Genuine Paper AdminCard and Devices error/control-plane Card retain theme outline frame/background on host, avoiding full-area decorative outlined layer. Current54 strict devices/admin scans PASS:0violations/0incomplete across nine states x xs/md/lg x light/dark, previous608 incomplete nodes. Full88 default functionalPASS/types/UI/demoexportPASS. No Axe waivers. Evidence docs/ui-optimization-evidence/operational-card-borders contains all54 raw scans and logs/source hashes. Other operational/auth-menu/native/manual/truezoom/all11 criteria remain OPEN.

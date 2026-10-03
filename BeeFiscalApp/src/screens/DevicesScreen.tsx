@@ -60,7 +60,7 @@ export function DevicesScreen({ devices, selected, loading, error, canDiagnose, 
     [device.name, device.vendor, device.model, device.status, device.state]
       .some(value => label(value).toLowerCase().includes(query.trim().toLowerCase())));
   return <View testID="devices.screen" style={{ gap: 8, paddingBottom: 16 }}>
-    {!loading && error ? <Card mode="outlined" testID="devices.error"><Card.Content style={{ gap: 8 }}>
+    {!loading && error ? <Card mode="contained" style={{ borderWidth: 1, borderColor: theme.colors.outline, backgroundColor: theme.colors.surface }} testID="devices.error"><Card.Content style={{ gap: 8 }}>
       <HelperText type="error" visible accessibilityLiveRegion="polite">{error}</HelperText>
       <Button mode="outlined" contentStyle={{ minHeight: 48 }} onPress={actions.retry}>Опитай отново</Button>
     </Card.Content></Card> : null}
@@ -82,7 +82,7 @@ export function DevicesScreen({ devices, selected, loading, error, canDiagnose, 
         Готовност: {device.status !== 'ACTIVE' ? 'Не е готово' : telemetry.deviceReadiness === null ? 'Проверява се' : telemetry.deviceReadiness.ready === true ? 'Готово' : 'Не е готово'}
       </Text> : null}
     </View>)}
-    {!error ? <Card mode="outlined" testID="device-control-plane"><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
+    {!error ? <Card mode="contained" style={{ borderWidth: 1, borderColor: theme.colors.outline, backgroundColor: theme.colors.surface }} testID="device-control-plane"><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
       <Text variant="titleLarge" accessibilityRole="header">Provisioning, BLE и ограничена диагностика</Text>
       <Text variant="bodyMedium">Transport/cloud и достижимостта на крайното ФУ са отделни групи метрики.</Text>
       <View style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8 }}>

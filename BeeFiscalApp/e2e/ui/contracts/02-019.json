@@ -1,0 +1,19 @@
+{
+  "ticket": "02-019",
+  "status": "IN_PROGRESS",
+  "partialOperationalCardVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Genuine Paper AdminCard and Devices error/control-plane Card use contained mode and theme outline border/background on host; no decorative full-area card-outline above text. Buttons/handlers unchanged.",
+    "baseline": "Previous matching54 devices/admin scans:0violations/54color incomplete608nodes.",
+    "final": "54 strict devices/admin scans PASS,0violations/0incomplete. Nine states x xs/md/lg x light/dark. Full88 default functionalPASS; types/UI/demo exportPASS. No Axe rule disabled.",
+    "open": [
+      "Other operational states and authentication menu aria needsReview",
+      "Native/manual/screen readers/true browser zoom/full11 criteria"
+    ],
+    "hashes": {
+      "src/components/FiscalControls.tsx": "cf029a4825e13efdecf2985aed66fad56ab5460ebfd6af75404513502513fa7a",
+      "src/screens/DevicesScreen.tsx": "90bec6980a79ab431e2db3457c79aa1cf6a312860b5d54bf2ee837a614091fb6"
+    },
+    "evidence": "docs/ui-optimization-evidence/operational-card-borders"
+  }
+}

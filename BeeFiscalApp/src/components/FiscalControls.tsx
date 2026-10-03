@@ -22,7 +22,8 @@ export function Action({ label: title, onPress, disabled, testID }: {
 }
 
 export function AdminCard({ title, count, children }: { title: string; count: number; children: React.ReactNode }) {
-  return <Card mode="outlined" style={{ flexBasis: 300, flexGrow: 1, minWidth: 0 }}><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
+  const theme = useTheme();
+  return <Card mode="contained" style={{ borderWidth: 1, borderColor: theme.colors.outline, backgroundColor: theme.colors.surface, flexBasis: 300, flexGrow: 1, minWidth: 0 }}><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
     <Text variant="titleLarge" accessibilityRole="header">{title}</Text>
     <Text variant="bodyMedium">Регистрирани: {count}</Text>
     {children}
