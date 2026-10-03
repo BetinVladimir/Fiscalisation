@@ -67,3 +67,8 @@ The local interaction suite now also visits the products list, new-product form,
 ## Demo badge
 
 The demo variant's corner badge now uses Paper Surface/Text and the active theme's `errorContainer`/`onErrorContainer` roles instead of a legacy Text wrapper and fixed error colors. TypeScript, `npm run ui:check`, 47 unit tests, and production/demo web exports passed. A local browser opened the freshly built demo bundle at 360×800 and switched light/dark: the badge remained visible at the upper-right without covering the theme or language controls. Computed foreground/background were `rgb(65, 14, 11)` / `rgb(249, 222, 220)` in light and `rgb(255, 218, 214)` / `rgb(140, 29, 24)` in dark. Screenshots are `docs/ui-screenshots/demo-login-xs-light.png` and `demo-login-xs-dark.png`. This checks only the demo login viewport, not all badge placements or WCAG manual criteria.
+
+
+## Onboarding legal action affordance
+
+Two genuine Paper outlined Buttons now have link role/min56/wrapping and own web href/Enter compatibility; original locale URLs/Linking handler unchanged. Six baseline border failures retained; keyboard role-only/href-only failed and corrected using normal Paper click.11final tests (6size/theme legal Enter+pointer+single URL and5auth),types/uiPASS. Required consent test updated; trace showed missing GET/registers fixture404, added read fixture without bypassing auth. Generated Playwright reports excluded from source lint. FullApp/AA/text200/all25/native/manual/contrast remain OPEN. Evidence onboarding-legal-affordance;03-001 IN_PROGRESS.

@@ -1,0 +1,28 @@
+{
+  "ticket": "03-001",
+  "status": "IN_PROGRESS",
+  "source": "App.tsx",
+  "partialVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Two existing App.tsx onboarding legal actions only, genuine outlined Paper Button with link role/min56/wrap. StructuralView owns web leaf href/target/rel and Enter click compatibility; same original Linking.openURL URLs/locale, no duplicateEnter activation. Native path Paper onPress unchanged but not device-tested.",
+    "baseline": "6size/theme tests FAIL border0. role-only/href-only intermediate keyboard failed; retained. Installed RNWeb rolelink considered nativeinteractive although Paper host is View; Enter compatibility invokes normal Paper click.",
+    "final": "11PASS (6xs360x800/md960x900/lg1440x1000 light/dark legal frame/height/role/href/Enter+pointer/oneURL each plus5existingauth),types/uiPASS",
+    "testFixture": "No real email/signup/fiscal operations. Mock verify/onboarding, legal window.open stub + abort externallegal requests. Old auth lacked required consent; fixedtest only. Trace404 GET/public/v1/registers blocked startup, missing fake endpoint added; no bypass of prodguards.",
+    "checker": "Generated playwright-report/test-results excluded from static source scan; actualappsource rules retained",
+    "hashes": {
+      "App.tsx": "69f7a3b1b133520845648923da1c99e1e955d0854b05a05d1785710beea9e039",
+      "e2e/onboarding-affordance.spec.ts": "4b9b54e30755ba36cb28e771079ca46d27f0f1fbb5a6cdb065b85f706bed1212",
+      "e2e/auth.spec.ts": "a13a11786383ca862eed0ccc5bd8ba0fa256600b34b74f94b1d7f563146ed683",
+      "e2e/helpers.ts": "f93807ed984229be9339734e778a8db0d89b64e6886b7cff032dd48875fc0d1b",
+      "scripts/check-ui-guideline.mjs": "12d5337ded96f87d3d5e6dfd3fadeb206f05cc0b70a51ae1bb3ad6ca12ad5d1a"
+    },
+    "open": [
+      "WholeApp migration/fullcriteria",
+      "Text/nontext/focuscontrast/strictAA",
+      "CSS200/all25legal labels",
+      "Native/manual/VoiceOverTalkBack",
+      "Other app screens/tests"
+    ]
+  },
+  "evidence": "docs/ui-optimization-evidence/onboarding-legal-affordance"
+}

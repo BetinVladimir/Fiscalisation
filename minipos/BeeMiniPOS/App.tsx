@@ -1346,8 +1346,8 @@ function MiniPosApp({
               onPress={() => setLegalAccepted(value => !value)}
               label={legalText.consent}
             />
-            <PaperButton mode="text" icon="open-in-new" onPress={() => void Linking.openURL(`https://legal.beeloy.org/${emailAuth.language}/terms`)}>{legalText.terms}</PaperButton>
-            <PaperButton mode="text" icon="open-in-new" onPress={() => void Linking.openURL(`https://legal.beeloy.org/${emailAuth.language}/privacy`)}>{legalText.privacy}</PaperButton>
+            <PaperLegalLink testID="operator-onboarding-terms" label={legalText.terms} url={`https://legal.beeloy.org/${emailAuth.language}/terms`} />
+            <PaperLegalLink testID="operator-onboarding-privacy" label={legalText.privacy} url={`https://legal.beeloy.org/${emailAuth.language}/privacy`} />
             <PaperButton testID="operator-onboarding-create" mode="contained" contentStyle={s.authButtonContent} loading={emailAuth.busy} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName||!legalAccepted} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName,accepted_terms_version:"b2b-2026-09-28"})}>{uiText.createCompany}</PaperButton>
           </> : null}
           {emailAuth.error ? <PaperHelperText testID="operator-login-error" type="error" visible accessibilityLiveRegion="polite">{emailAuth.error}</PaperHelperText> : null}
@@ -1728,6 +1728,34 @@ function MiniPosApp({
       </View>
     </SafeAreaView>
   );
+}
+
+function PaperLegalLink({ testID, label, url }: { testID: string; label: string; url: string }) {
+  const rootRef = useRef<View>(null);
+  const labelStyle = Platform.OS === 'web'
+    ? { whiteSpace: 'normal', overflowWrap: 'anywhere', flexShrink: 1 } as const
+    : { flexShrink: 1 };
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    // Installed RN Web treats role=link as native interactive but renders
+    // a Paper-owned View. Give its actual leaf URL metadata and Enter behavior.
+    const link = (rootRef.current as unknown as HTMLElement | null)?.querySelector<HTMLElement>('[role="link"]');
+    link?.setAttribute('href', url);
+    link?.setAttribute('target', '_blank');
+    link?.setAttribute('rel', 'noopener noreferrer');
+    const onKeyDown = (event: KeyboardEvent) => {
+      if (event.key !== 'Enter') return;
+      event.preventDefault(); event.stopPropagation();
+      if (!event.repeat) link?.click();
+    };
+    link?.addEventListener('keydown', onKeyDown);
+    return () => link?.removeEventListener('keydown', onKeyDown);
+  }, [url]);
+  return <View ref={rootRef} style={{ minWidth: 0 }}>
+    <PaperButton testID={testID} mode="outlined" accessibilityRole="link"
+      contentStyle={s.authButtonContent} labelStyle={labelStyle} icon="open-in-new"
+      onPress={event => { event.preventDefault(); void Linking.openURL(url); }}>{label}</PaperButton>
+  </View>;
 }
 
 function ThemeMenu({

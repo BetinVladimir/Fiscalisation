@@ -49,6 +49,9 @@ test.describe('Email auth flow', () => {
     await page.getByTestId('onboarding-address').fill('ул. Тест 1');
     await page.getByTestId('onboarding-tax-id').fill('BG123456789');
     await page.getByTestId('onboarding-full-name').fill('Иван Иванов');
+    await expect(page.getByTestId('operator-onboarding-create')).toBeDisabled();
+    await page.getByTestId('onboarding-legal-consent').click();
+    await expect(page.getByTestId('operator-onboarding-create')).toBeEnabled();
     await page.getByTestId('operator-onboarding-create').click();
 
     await page.getByTestId('status-transport').filter({ hasText: /Готово|Смяната е отворена|Отворената смяна е възстановена/ }).waitFor({ timeout: 15_000 });
