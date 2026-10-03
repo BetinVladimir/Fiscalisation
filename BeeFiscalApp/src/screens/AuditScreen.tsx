@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View } from 'react-native';
+import { Platform, View } from 'react-native';
 import { ActivityIndicator, Button, Card, HelperText, Text, TextInput } from 'react-native-paper';
 
 type Event = Record<string, unknown>;
@@ -34,11 +34,12 @@ const display = (value: unknown) => typeof value === 'string' || typeof value ==
 function AuditEventCard({ event }: { event: Event }) {
   const [expanded, setExpanded] = useState(false);
   const id = display(event.event_id);
+  const wrap = Platform.OS === 'web' ? { whiteSpace: 'normal', overflowWrap: 'anywhere', flexShrink: 1 } as const : { flexShrink: 1 };
   return <Card mode="outlined" testID={`audit-event-${id}`}>
     <Card.Content style={{ gap: 6, paddingVertical: 16 }}>
       <Text variant="titleMedium">{display(event.action)} • {display(event.object_type)}</Text>
       <Text variant="bodyMedium">{display(event.occurred_at)}</Text>
-      <Button mode="text" testID={`audit.details.${id}`} accessibilityState={{ expanded }}
+      <Button mode="outlined" contentStyle={{ minHeight: 48 }} labelStyle={wrap} testID={`audit.details.${id}`} accessibilityState={{ expanded }}
         onPress={() => setExpanded(value => !value)}>{expanded ? 'Скрий подробности' : 'Покажи подробности'}</Button>
       {expanded ? <View testID={`audit.details-content.${id}`} style={{ gap: 4 }}>
         <Text variant="bodyMedium">Обект: {display(event.object_id)}</Text>

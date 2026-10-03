@@ -120,3 +120,8 @@ The strict devices/administration matrix now includes invalid JSON: **54 scans, 
 ## Privacy action affordance (2026-10-03)
 
 The auth privacy policy action was a text-only Paper Button without a persistent shape. It now uses actual outlined Paper Button,48px target and wrapping label; existing linkrole,privacyPolicyUrl(language),Linking handler unchanged. Baseline7authPASS;newframecheck first5FAIL/2PASS. Afterpatch8authPASS,including EN/BG/RU/DE/FR xs samelegalURLs and6 xs/md/lg lightdark frame/height/theme/overflowcontexts. Typecheck andui:checkPASS. Evidence privacy-affordance retains logs/sourcehash/contract. No liveauth/fiscalcommands. FullAA/nontextframecontrast/focus/200%/all25privacybrowser/native/manual andotherappcriteriaOPEN.
+
+
+## Audit expansion action affordance (2026-10-03)
+
+AuditEventCard detailsaction now actualoutlinedPaperButton,minHeight48,wrappinglabel. Eventfields,hash/filtercallbacks/localexpanded/showhide unchanged. Baseline62functionalPASS;newframeassert6FAIL beforepatch. Afterpatch62functionalPASS,including6xs/md/lg-lightdark frame/48px/sameHashdisclosure/showhide/footerbounds cases.Typecheck/uiPASS. Evidence audit-affordance. InstalledPaperButton overwrites accessibilityState withdisabled:retainedexpandedprop isnotverifiedsemanticexpansion;followupneeded. No realauditAPI/fiscalcommands. All25auditcopy/200%/focus/nontextcontrast/strictAA/native/manual/full11criteriaOPEN.

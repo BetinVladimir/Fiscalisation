@@ -337,7 +337,10 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       await expect(page.getByTestId('audit-filters')).toBeVisible();
       await expect(page.getByTestId('audit-event-audit-1')).toContainText('SALE_FINALIZED');
       await expect(page.getByTestId('audit.details-content.audit-1')).toHaveCount(0);
-      await page.getByTestId('audit.details.audit-1').click();
+      const detailsAction=page.getByTestId('audit.details.audit-1');
+      expect(await detailsAction.locator('..').evaluate(node=>parseFloat(getComputedStyle(node).borderTopWidth))).toBeGreaterThanOrEqual(1);
+      expect((await detailsAction.boundingBox())!.height).toBeGreaterThanOrEqual(48);
+      await detailsAction.click();
       await expect(page.getByTestId('audit.details-content.audit-1')).toContainText('Hash: abc123');
       await page.getByTestId('audit.details-content.audit-1').scrollIntoViewIfNeeded();
       const detailsBox = await page.getByTestId('audit.details-content.audit-1').boundingBox();
