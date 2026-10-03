@@ -152,3 +152,8 @@ Current devices/admin strict audit on unchanged production source e9c051a: 54 sc
 ### Frame and keyboard focus contrast (supplemental)
 
 7 dedicated tests PASS including negative frame control. Six xs/md/lg light/dark contexts x reference/Choices/Drawer:36 frame comparisons min4.959729578789477;18 focus comparisons min3.1109458559692036. Computed sRGB/RGBA backgrounds, reject unsupported layers, settled opaque animation; Chromium auto outline visible/width-positive. Keyboard-only menu opening Enter, selection Enter and navigation Space, bounds/48/no mutations retained. This is supplemental numerical evidence, not pixel/occlusion/manual/native adjudication or full AA. Existing1718 strict incomplete nodes remain open. Evidence frame-focus-contrast.
+
+
+### Navigation CSS200 clipping and shell reflow
+
+Baseline six contexts fail truncated Drawer labels. Genuine Paper List.Item multiline navigation fixes labels; header/toolbar wrap fixes md overflow; ScrollView nav190 with no flex-grow fixes visual regression and preserves lower-tab scrolling. Six CSS200 xs/md/lg light/dark action scenarios PASS, doubled actual font measurements/screens retained;69 normal functional/types/ui PASS. Dedicated action frame/focus/keyboard/no-mutations retained. Other200% labels, actual zoom/native/all25/pixel/manual and current full strictAA refresh remain open; older strict evidence predates this source. Evidence navigation-text200.

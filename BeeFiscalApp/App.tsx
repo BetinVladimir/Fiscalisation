@@ -14,7 +14,7 @@ import { StatusBar } from "expo-status-bar";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useWindowDimensions } from 'react-native';
-import { Button, Drawer, Modal, Portal, Text as PaperText, useTheme } from 'react-native-paper';
+import { Button, Drawer, List, Modal, Portal, Text as PaperText, useTheme } from 'react-native-paper';
 import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
@@ -757,13 +757,13 @@ function AppContent() {
         <Modal visible={compact && navOpen} onDismiss={() => setNavOpen(false)} contentContainerStyle={{ margin: 16, maxHeight: '80%', borderRadius: 16, padding: 12, backgroundColor: theme.colors.surface }}>
           <ScrollView>
             <Drawer.Section title="BeeFiscal">
-              {tabs.map(x => <Drawer.Item key={x} testID={`tab-${x}`} label={x} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline }} active={tab === x} accessibilityLabel={`Отвори ${x}`} onPress={() => { setNavOpen(false); changeTab(x); }} />)}
+              {tabs.map(x => <List.Item key={x} testID={`tab-${x}`} title={x} titleNumberOfLines={0} titleStyle={{ color: tab === x ? theme.colors.onSecondaryContainer : theme.colors.onSurface }} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 12, marginVertical: 4, backgroundColor: tab === x ? theme.colors.secondaryContainer : theme.colors.surface }} accessibilityRole="button" accessibilityState={{ selected: tab === x }} accessibilityLabel={`Отвори ${x}`} onPress={() => { setNavOpen(false); changeTab(x); }} />)}
             </Drawer.Section>
           </ScrollView>
         </Modal>
       </Portal>
       <View style={[s.header, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }, compact && { flexWrap: 'wrap', gap: 8, padding: 12 }]}>
-        <View style={compact ? { minWidth: 0, width: '100%' } : undefined}>
+        <View style={{ minWidth: 0, maxWidth: '100%', flexShrink: 1, ...(compact ? { width: '100%' } : {}) }}>
           <PaperText style={[s.title, { color: theme.colors.onSurface }]}>BeeFiscal</PaperText>
           <PaperText style={[s.sub, { color: theme.colors.onSurfaceVariant }]}>
             BG • EUR • публичен API • без локално симулирани записи
@@ -792,11 +792,11 @@ function AppContent() {
         ) : null}
       </View>
       <View style={s.body}>
-        {!compact ? <View style={[s.nav, { backgroundColor: theme.colors.surface }]}>
+        {!compact ? <ScrollView contentContainerStyle={{ paddingHorizontal: 0 }} style={[s.nav, { backgroundColor: theme.colors.surface }]}>
           <Drawer.Section>
-            {tabs.map(x => <Drawer.Item key={x} testID={`tab-${x}`} label={x} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline }} active={tab === x} accessibilityLabel={`Отвори ${x}`} onPress={() => changeTab(x)} />)}
+            {tabs.map(x => <List.Item key={x} testID={`tab-${x}`} title={x} titleNumberOfLines={0} titleStyle={{ color: tab === x ? theme.colors.onSecondaryContainer : theme.colors.onSurface }} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 12, marginVertical: 4, backgroundColor: tab === x ? theme.colors.secondaryContainer : theme.colors.surface }} accessibilityRole="button" accessibilityState={{ selected: tab === x }} accessibilityLabel={`Отвори ${x}`} onPress={() => changeTab(x)} />)}
           </Drawer.Section>
-        </View> : null}
+        </ScrollView> : null}
         <ScrollView style={[s.content, { backgroundColor: theme.colors.background }, compact && { padding: 16 }]}>
           {loading ? (
             <PaperText
@@ -953,6 +953,8 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   header: {
+    flexWrap: 'wrap',
+    gap: 8,
     padding: 20,
     backgroundColor: beeloyColors.surface,
     flexDirection: "row",
@@ -973,15 +975,19 @@ const s = StyleSheet.create({
   offline: { backgroundColor: beeloyColors.errorContainer },
   readyText: { color: beeloyColors.success, fontWeight: "900" },
   body: { flex: 1, flexDirection: "row" },
-  nav: { width: 190, padding: 12, gap: 6 },
+  nav: { width: 190, flexBasis: 190, flexGrow: 0, flexShrink: 0, padding: 12, gap: 6 },
   content: { flex: 1, padding: 20 },
   toolbar: {
+    flexWrap: 'wrap',
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
     marginBottom: 16,
   },
-  section: { fontSize: 25, fontWeight: "900", flex: 1 },
+  section: {
+    flexBasis: '100%',
+    maxWidth: '100%',
+    flexShrink: 1, fontSize: 25, fontWeight: "900", flex: 1 },
   card: {
     backgroundColor: beeloyColors.surface,
     padding: 18,

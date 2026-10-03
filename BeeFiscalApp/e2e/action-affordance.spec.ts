@@ -1,5 +1,6 @@
 import { writeFile } from 'node:fs/promises';
 import { test, expect, type Locator } from '@playwright/test';
+import { doubleText } from './text-scale';
 import { frameContrast } from './affordance-contrast';
 import { mockFiscalApi, openApp } from './helpers';
 
@@ -18,6 +19,19 @@ async function expectFrame(action: Locator) {
       color: style.borderTopColor, height: rect.height, left: rect.left, right: rect.right,
       viewport: innerWidth };
   });
+  let textMetrics: { text: string | null; width: number; scroll: number; original: number; size: number }[] = [];
+  if (process.env.TEXT200 === '1') {
+    const labels = await action.locator('[dir="auto"]').evaluateAll(nodes => nodes.map(node => ({
+      text: node.textContent, width: node.clientWidth, scroll: node.scrollWidth,
+      original: Number((node as HTMLElement).dataset.originalFontSize), size: parseFloat(getComputedStyle(node).fontSize),
+    })));
+    textMetrics = labels;
+    expect(labels.length).toBeGreaterThan(0);
+    for (const label of labels) {
+      expect(label.size).toBe(label.original * 2);
+      expect(label.scroll, `Clipped label: ${label.text}`).toBeLessThanOrEqual(label.width + 1);
+    }
+  }
   const contrast = await frameContrast(action);
   expect(contrast.insideRatio, 'Frame against control fill').toBeGreaterThanOrEqual(3);
   expect(contrast.outsideRatio, 'Frame against surrounding surface').toBeGreaterThanOrEqual(3);
@@ -27,7 +41,7 @@ async function expectFrame(action: Locator) {
   expect(frame.height).toBeGreaterThanOrEqual(48);
   expect(frame.left).toBeGreaterThanOrEqual(0);
   expect(frame.right).toBeLessThanOrEqual(frame.viewport + 1);
-  return contrast;
+  return { ...contrast, textMetrics };
 }
 
 async function expectFocus(action: Locator) {
@@ -51,6 +65,7 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       const mutations = await mockFiscalApi(page, { secondRegister: true });
       await openApp(page);
+      if (process.env.TEXT200 === '1') await doubleText(page);
       const reference = page.getByRole('button', { name: 'R02', exact: true }).first();
       const referenceContrast = await expectFrame(reference);
       await page.keyboard.press('Tab');
@@ -62,8 +77,9 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
         await page.getByTestId('nav.open').focus();
         await page.keyboard.press('Enter');
       }
-      const navigation = page.getByTestId('tab-Администриране').getByRole('button');
+      const navigation = page.getByRole('button', { name: 'Отвори Администриране', exact: true });
       const navigationContrast = await expectFrame(navigation);
+      if (size !== 'xs') { const rect = await navigation.boundingBox(); expect(rect!.x + rect!.width).toBeLessThanOrEqual(191); }
       await navigation.focus();
       const navigationFocus = await expectFocus(navigation);
       await page.keyboard.press('Space');
@@ -78,6 +94,7 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       await expect(page.getByRole('button', { name: 'Избрано: SOF • Sofia', exact: true })).toBeVisible();
       await writeFile(testInfo.outputPath('affordance-contrast.json'), JSON.stringify({ size, theme, referenceContrast, navigationContrast, choiceContrast, referenceFocus, navigationFocus, choiceFocus }, null, 2));
       await testInfo.attach('affordance-contrast', { body: JSON.stringify({ size, theme, referenceContrast, navigationContrast, choiceContrast, referenceFocus, navigationFocus, choiceFocus }), contentType: 'application/json' });
+      if (process.env.TEXT200 === '1') await page.screenshot({ path: testInfo.outputPath('text200.png') });
       expect(mutations).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
     });
