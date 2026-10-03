@@ -1,0 +1,18 @@
+{
+  "status": "IN_PROGRESS",
+  "change": "Shared genuine Paper Text visible multiline label above genuine outlined Paper TextInput; same accessibilityLabel/value/onChangeText/errors/help/props. Actual Field and ReferencePicker consumers now use FormField. Installed Paper floating label numberOfLines1 source inspected.",
+  "sources": {
+    "src/ui/form-field.tsx": "667b65f43038e493205a0d4de33076ef7d9e8139593b543ee3a7bbd7a40e31fe",
+    "src/components/FiscalControls.tsx": "20be45929161d7b0ac3ec55e273597d1a27de40208e0d21fe14250fbb3a050bd"
+  },
+  "scope": "6 xs/md/lg light/dark CSS200 contexts x3 actual labels: reference-search/location-code/X25519; original and doubled font sizes retained; widths/heights no clipping; real filter/input state; noAPI mutation",
+  "result": "6 dedicated and75fullfunctional PASS;types/ui PASS; xs-light screenshot visually inspected",
+  "baseline": "Prior navigation-text200 screenshots show floating label truncation; no dedicated red field test run claimed",
+  "open": [
+    "Full current strictAA refresh",
+    "Remaining fields/auth not migrated",
+    "All locales/realzoom/native/manual",
+    "Label numerical text contrast/pixel adjudication",
+    "Full11 criteria"
+  ]
+}

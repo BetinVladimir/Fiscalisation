@@ -157,3 +157,8 @@ Current devices/admin strict audit on unchanged production source e9c051a: 54 sc
 ### Navigation CSS200 clipping and shell reflow
 
 Baseline six contexts fail truncated Drawer labels. Genuine Paper List.Item multiline navigation fixes labels; header/toolbar wrap fixes md overflow; ScrollView nav190 with no flex-grow fixes visual regression and preserves lower-tab scrolling. Six CSS200 xs/md/lg light/dark action scenarios PASS, doubled actual font measurements/screens retained;69 normal functional/types/ui PASS. Dedicated action frame/focus/keyboard/no-mutations retained. Other200% labels, actual zoom/native/all25/pixel/manual and current full strictAA refresh remain open; older strict evidence predates this source. Evidence navigation-text200.
+
+
+### Multiline genuine Paper field labels
+
+FormField now shows full label with genuine Paper Text above genuine outlined Paper TextInput (floating label undefined); accessibility name/values/change/errors/help preserved. Actual FiscalControls Field/ReferencePicker migrated. Six CSS200 size/theme contexts x3 search/location/X25519 labels PASS, actual doubled metrics/width-height bounds and input/filter/noAPI mutations checked.75 full functional/types/ui PASS; xs-light screenshot visually inspected. Earlier screenshot baseline demonstrated truncation, not dedicated red test. Remaining fields/auth/currentstrictAA/all25/realzoom/native/manual/textcontrast/full criteria OPEN. Evidence field-labels.

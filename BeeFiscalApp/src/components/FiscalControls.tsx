@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { Button, Card, HelperText, List, Text, TextInput, useTheme } from 'react-native-paper';
+import { Button, Card, HelperText, List, Text, useTheme } from 'react-native-paper';
+import { FormField } from '../ui/form-field';
 import { ResponsiveScrollView as ScrollView } from '../ui/responsive-scroll-view';
 
 export type Item = Record<string, unknown>;
@@ -9,7 +10,7 @@ export const label = (value: unknown) => typeof value === 'string' ? value : typ
 export function Field({ label: title, value, onChangeText, testID }: {
   label: string; value: string; onChangeText: (value: string) => void; testID?: string;
 }) {
-  return <TextInput testID={testID} mode="outlined" label={title} accessibilityLabel={title}
+  return <FormField testID={testID} mode="outlined" label={title} accessibilityLabel={title}
     value={value} onChangeText={onChangeText} style={{ width: '100%', minWidth: 0 }} />;
 }
 
@@ -37,7 +38,7 @@ export function ReferencePicker({ label: title, items, value, labelFor, onSelect
   const visible = items.filter(item => labelFor(item).toLowerCase().includes(query.trim().toLowerCase()));
   return <View style={{ gap: 8, minWidth: 0, width: '100%', maxWidth: 320 }}>
     {items.length ? <>
-      <TextInput mode="outlined" label={`Търсене: ${title}`} accessibilityLabel={`Търсене: ${title}`} value={query} onChangeText={setQuery} />
+      <FormField testID={`reference.search.${title}`} mode="outlined" label={`Търсене: ${title}`} accessibilityLabel={`Търсене: ${title}`} value={query} onChangeText={setQuery} />
       <View style={{ gap: 4 }}>
         {visible.map(item => <List.Item key={label(item.id)}
           title={item.id === value ? `✓ ${labelFor(item)}` : labelFor(item)} titleNumberOfLines={3}
