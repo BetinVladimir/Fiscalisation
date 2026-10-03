@@ -141,5 +141,23 @@
       "e2e/menu-keyboard.spec.ts": "3b9d7b8cf9bc178717b6a425bff7b7c732c1e924a6f44a90ceb1ea67398b4603"
     },
     "evidence": "docs/ui-optimization-evidence/menu-background-inert"
+  },
+  "partialMenuTabVerification": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Genuine modal Paper menu: one tabbable current menuitem, arrows update roving tabindex; Tab/ShiftTab cycle item and Paper close-backdrop action, preserving inert background. Overlay accessible label uses existing25-locale back translation. Native unchanged.",
+    "baseline": "6FAIL25 tabbable language items instead of1",
+    "final": "35 regression PASS; enhanced6 keyboard tests PASS both menus xs/md/lg light/dark, one item Tab-stop, Tab/ShiftTab to close and back, arrows/Escape/return/background inert retained. Types/UI/export PASS.",
+    "strictAA": "18scans0VI;12open-menu scans0incomplete;6login scans color-contrast incomplete36nodes, strict6FAIL retained",
+    "open": [
+      "Login contrast diagnosis/resolution",
+      "Native/manual/truezoom/full11 criteria",
+      "Screen-reader announcement/interaction validation"
+    ],
+    "hashes": {
+      "App.tsx": "d33ad01ecb7b74b127c0545e70db76cc11dc03d5669a285970d25c42e4faf2af",
+      "e2e/menu-keyboard.spec.ts": "ce61463fbf5fd23275874f17b26435a6877faff71f726e3719234b3d094d2d6e"
+    },
+    "evidence": "docs/ui-optimization-evidence/menu-tab-navigation"
   }
 }

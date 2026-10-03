@@ -1780,20 +1780,32 @@ function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", se
       document.querySelectorAll<HTMLElement>(`[data-testid^="${prefix}-"][role^="menuitem"]`).forEach(item => {
         item.setAttribute("role", "menuitemradio");
         item.setAttribute("aria-checked", String(item.dataset.testid === `${prefix}-${selected}`));
+        item.tabIndex = item.dataset.testid === `${prefix}-${selected}` ? 0 : -1;
       });
     };
     configure();
     const observer = new MutationObserver(configure);
     observer.observe(document.body, { childList: true, subtree: true });
     const onKeyDown = (event: KeyboardEvent) => {
-      if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
+      if (!["ArrowDown", "ArrowUp", "Home", "End", "Tab"].includes(event.key)) return;
       const items = Array.from(document.querySelectorAll<HTMLElement>(`[role^="menuitem"][data-testid^="${prefix}-"]`))
         .filter(item => item.getClientRects().length > 0);
       const current = items.findIndex(item => item === document.activeElement || item.contains(document.activeElement));
-      if (current < 0 || !items.length) return;
+      if (!items.length) return;
+      if (event.key === "Tab") {
+        const close = items[0].closest('[data-testid$="-view"]')?.parentElement?.querySelector<HTMLElement>('button[aria-label]');
+        if (!close || (current < 0 && document.activeElement !== close)) return;
+        event.preventDefault();
+        const destination = current >= 0 ? close : (items.find(item => item.tabIndex === 0) || items[0]);
+        destination.focus();
+        destination.scrollIntoView({ block: "nearest", inline: "nearest" });
+        return;
+      }
+      if (current < 0) return;
       event.preventDefault();
       const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1
         : (current + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+      items.forEach((item, index) => { item.tabIndex = index === next ? 0 : -1; });
       items[next].focus();
       items[next].scrollIntoView({ block: "nearest", inline: "nearest" });
     };
@@ -1843,6 +1855,7 @@ function ThemeMenu({
   return (
     <PaperMenu
       theme={{ animation: { scale: 0 } }}
+      overlayAccessibilityLabel={text.back}
       visible={visible}
       onDismiss={() => setVisible(false)}
       anchor={
@@ -1907,6 +1920,7 @@ function LanguageMenu({
   return (
     <PaperMenu
       theme={{ animation: { scale: 0 } }}
+      overlayAccessibilityLabel={text.back}
       visible={visible}
       onDismiss={() => setVisible(false)}
       contentStyle={{ maxHeight: menuHeight, width: menuWidth, overflow: "hidden" }}

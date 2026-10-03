@@ -117,3 +117,8 @@ Expanded strict test diagnostics to every incomplete target/text Range rectangle
 ## BeeMiniPOS open-menu background interaction — 2026-10-04
 
 03-001 IN_PROGRESS. Web app-root inert while genuine Paper portal menu/backdrop open, counted locks preserve existing inert and cleanup restores. Native unchanged. Baseline6 missing inert failures;35 functional PASS incl real background email focus rejection/menu focus retained/Escape restore and150 locale choices. Types/UI/export PASS.18 strict scans0VI:12 open-menu scans0incomplete,6 login scans6 color-contrast incomplete36nodes (previous108). Six strict tests FAIL/INCOMPLETE retained. Evidence docs/ui-optimization-evidence/menu-background-inert. Login/Tab/roving/native/manual/truezoom/all11 fullcriteria remain OPEN.
+
+
+## BeeMiniPOS modal menu Tab/roving — 2026-10-04
+
+03-001 IN_PROGRESS. Baseline6FAIL:25 language tab-stops. Genuine Paper menu now one current item Tab-stop with arrows updating it; Tab/ShiftTab cycle current item and actual Paper close action while background inert; close label existing25-locale back translation. Native unchanged.35 regression PASS plus enhanced6 both-menu keyboard cases PASS xs/md/lg light/dark. Types/UI/export PASS. Strict18scans0VI;12menu scans0incomplete;6login scans36 incomplete nodes, strict6FAIL retained. Evidence docs/ui-optimization-evidence/menu-tab-navigation. Login/native/manual/truezoom/screen readers/full11 criteria remain OPEN.
