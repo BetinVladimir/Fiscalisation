@@ -192,3 +192,8 @@ Closed shared Paper Dialog portals unmounted; actual Axe stack proved decorative
 ## BeeFiscal real reduced motion — 2026-10-04
 
 02-001/010/016/020 IN_PROGRESS. Actual OTP Axe virtual stack showed transient ripple span. Genuine PaperProvider now honors live web prefers-reduced-motion and native AccessibilityInfo through official rippleEffectEnabled and animation.scale, cleans subscriptions and restores defaults when off.6 real mouse ripple present/absent/present testsPASS xs/md/lg light/dark,14auth functionalPASS/types/UI/exportPASS. Strict24tests18PASS6FAIL:0VI/12incomplete78nodes (72color+6aria, all language-menu), previous97. Email/OTP/company sixcontexts each pass automatic checks; menu stillINCOMPLETE. Evidence docs/ui-optimization-evidence/reduced-motion. Native/manual/alloperational/all11 fullcriteria remain OPEN.
+
+
+## BeeFiscal bounded language Card clip — 2026-10-04
+
+02-001/020 IN_PROGRESS. Outer genuine Paper Card overflow hidden makes off-scroll language labels clip at menu bounds. Current24strict scans0VI/0color incomplete,6aria needsReview6nodes;18PASS6FAIL retained.14authPASS;correctdemo6all25 CSS200 testsPASS150choices/full labels/keyboard/scroll/persist/contrast assertions. First wrong prod fixture CORE READY timeout retained; rebuilt demo, noauthguard changes. New test:e2e:language-text200 script defines compatible demo build+test. Types/UI/prod+demo exportsPASS. Evidence docs/ui-optimization-evidence/menu-clip. ARIA/manual/native/truezoom/alloperational/all11 fullcriteria OPEN.

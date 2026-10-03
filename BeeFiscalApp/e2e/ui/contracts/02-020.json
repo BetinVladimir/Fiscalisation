@@ -43,5 +43,22 @@
       "e2e/reduced-motion.spec.ts": "8cea66e5c50fc609974ed208d26b3e0b1fd5ef58b04522a8032b7e2b3a7d445c"
     },
     "evidence": "docs/ui-optimization-evidence/reduced-motion"
+  },
+  "partialMenuClipVerification": {
+    "ticket": "02-020",
+    "status": "IN_PROGRESS",
+    "scope": "Genuine Paper language Card clips its bounded scrolling content with overflow hidden. Added test:e2e:language-text200 command explicitly building demo variant for existing operational fixture.",
+    "baseline": "24 scans0VI/12incomplete78nodes (72color+6aria); color message elmPartiallyObscured for off-scroll language labels related to outer Card",
+    "final": "24strict scans0VI/6aria incomplete6nodes;0color incomplete.18strictPASS6menuFAIL/INCOMPLETE retained.14authPASS;6all25 CSS200 operational casesPASS/150locale choices aftercorrectdemo export, persistent storage/focus/text/frame contrast/no-clipping assertions. Types/UI/production+demo exportsPASS.",
+    "harness": "First CSS200 run used prod auth fixture, timed out waiting CORE READY. Preserved failed log, rebuilt demo without changing authguards. New script spells out proven compatible build/test commands.",
+    "open": [
+      "6aria needsReview manual resolution",
+      "Native/manual/truezoom/alloperational/full11 criteria"
+    ],
+    "hashes": {
+      "src/ui/LanguageThemeControls.tsx": "253a3e640e6d38520fc19c7032ec2bde4bccea7e51ed64eb5bf1835d3486f753",
+      "package.json": "6a449935a561cc8f65da99291f5431c2cfb0add3c5c344389af1f928a53e0a2e"
+    },
+    "evidence": "docs/ui-optimization-evidence/menu-clip"
   }
 }

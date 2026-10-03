@@ -45,7 +45,8 @@
     "deploy:web-demo": "npm run build:web:demo && wrangler deploy --env demo",
     "ui:check": "node scripts/check-ui-guideline.mjs && node scripts/check-contrast.mjs && node scripts/check-auth-copy.mjs",
     "ui:contrast": "node scripts/check-contrast.mjs",
-    "e2e:wcag": "node e2e/wcag-aa.mjs"
+    "e2e:wcag": "node e2e/wcag-aa.mjs",
+    "test:e2e:language-text200": "EXPO_PUBLIC_APP_ENV=demo npm run build:e2e && playwright test e2e/language-text200.spec.ts"
   },
   "dependencies": {
     "@beeloy/design-tokens": "file:../../BeeloyBackend/mobile/design-tokens",
