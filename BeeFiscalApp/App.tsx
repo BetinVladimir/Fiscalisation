@@ -753,7 +753,7 @@ function AppContent() {
     <SafeAreaView style={[s.root, { backgroundColor: theme.colors.background }]}>
       <StatusBar style={theme.dark ? 'light' : 'dark'} />
       <LanguageThemeControls testPrefix="shell" />
-      <Portal>
+      {compact && navOpen ? <Portal>
         <Modal visible={compact && navOpen} onDismiss={() => setNavOpen(false)} contentContainerStyle={{ margin: 16, maxHeight: '80%', borderRadius: 16, padding: 12, backgroundColor: theme.colors.surface }}>
           <ScrollView>
             <Drawer.Section title="BeeFiscal">
@@ -761,7 +761,7 @@ function AppContent() {
             </Drawer.Section>
           </ScrollView>
         </Modal>
-      </Portal>
+      </Portal> : null}
       <View style={[s.header, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }, compact && { flexWrap: 'wrap', gap: 8, padding: 12 }]}>
         <View style={{ minWidth: 0, maxWidth: '100%', flexShrink: 1, ...(compact ? { width: '100%' } : {}) }}>
           <PaperText style={[s.title, { color: theme.colors.onSurface }]}>BeeFiscal</PaperText>

@@ -197,3 +197,8 @@ Closed shared Paper Dialog portals unmounted; actual Axe stack proved decorative
 ## BeeFiscal bounded language Card clip — 2026-10-04
 
 02-001/020 IN_PROGRESS. Outer genuine Paper Card overflow hidden makes off-scroll language labels clip at menu bounds. Current24strict scans0VI/0color incomplete,6aria needsReview6nodes;18PASS6FAIL retained.14authPASS;correctdemo6all25 CSS200 testsPASS150choices/full labels/keyboard/scroll/persist/contrast assertions. First wrong prod fixture CORE READY timeout retained; rebuilt demo, noauthguard changes. New test:e2e:language-text200 script defines compatible demo build+test. Types/UI/prod+demo exportsPASS. Evidence docs/ui-optimization-evidence/menu-clip. ARIA/manual/native/truezoom/alloperational/all11 fullcriteria OPEN.
+
+
+## BeeFiscal closed navigation Portal and E2E variants — 2026-10-04
+
+02-001 IN_PROGRESS. Genuine Paper navigation Portal/Modal onlymounts compact&&navOpen. Baseline12 matched scans2VI/398incomplete nodes; current54 device/admin states0VI/54color incomplete608nodes. Full default functional88PASS/types/UI/demoexportPASS. Production-only motion/stack tests moved from incompatible demo default into explicit prod configs/scripts; --list validates6/2 discovery, prior behaviors hadpassed onprod. Defaultbuild:e2e explicitlydemo. Evidence docs/ui-optimization-evidence/shell-closed-portal contains paired/current summaries andfullraw54scans. Card decoration incomplete/native/manual/otherstate suites/all11 fullcriteria remain OPEN.

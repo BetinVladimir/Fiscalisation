@@ -1,0 +1,31 @@
+{
+  "ticket": "02-001",
+  "status": "IN_PROGRESS",
+  "scope": "Genuine Paper navigation Modal/Portal mounts only compact&&navOpen. Default E2E explicit demo build; production-only reduced-motion/contrast-stack tests separated into dedicated config/scripts, analogous existing auth suite. No WCAG exclusions altered.",
+  "baseline": "12matched device-populated/admin-top scans2VI/12incomplete398nodes",
+  "finalFull": {
+    "scans": 54,
+    "violations": 0,
+    "incomplete": 54,
+    "nodes": 608
+  },
+  "finalPaired": {
+    "scans": 12,
+    "violations": 0,
+    "nodes": 172
+  },
+  "functional": "Full compatible demo88PASS30.2s;types/UI/demoexportPASS. Dedicated configs --list identify6motion/2diagnostic tests; those behaviors previously passed onprod but configs themselves onlylistedthisrun.",
+  "open": [
+    "608contrast incomplete operational Card decoration diagnosis/fix",
+    "Active nav/modal focus/native/manual",
+    "All operational other state suites/all11 fullcriteria"
+  ],
+  "hashes": {
+    "App.tsx": "f3e0e1a5d5a062740efd3cacf4b77fd6099a4304502804008cf1b7facb273ac4",
+    "package.json": "0194033da6cb2a74a2c3a59fe0450b06ed9a8c3d7364dd7531ae66a2f09f1534",
+    "playwright.config.ts": "788ec49609a3c320429bd5f968d77be4903211118ef8e7c471be0eb7046652b6",
+    "playwright.reduced-motion.config.ts": "6d8028b95cdeabcc6273191c1d7aa40938775b2172b45152c9fb860fe1ae13f7",
+    "playwright.contrast-stack.config.ts": "55cf0acd7ef46a5b47e733df73d5fd5d0d8fc0c70f8d48654031fe4a219aea4b"
+  },
+  "evidence": "docs/ui-optimization-evidence/shell-closed-portal"
+}

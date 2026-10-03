@@ -13,7 +13,7 @@
     "test:e2e:audit-wcag": "npm run build:e2e && playwright test --config playwright.audit-wcag.config.ts",
     "test:e2e:settings-wcag": "npm run build:e2e && playwright test --config playwright.settings-wcag.config.ts",
     "test:e2e:devices-admin-wcag": "npm run build:e2e && playwright test --config playwright.devices-admin-wcag.config.ts",
-    "build:e2e": "EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
+    "build:e2e": "EXPO_PUBLIC_APP_ENV=demo EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
     "build:e2e:auth": "EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
     "start": "expo start",
     "android": "expo run:android",
@@ -46,7 +46,9 @@
     "ui:check": "node scripts/check-ui-guideline.mjs && node scripts/check-contrast.mjs && node scripts/check-auth-copy.mjs",
     "ui:contrast": "node scripts/check-contrast.mjs",
     "e2e:wcag": "node e2e/wcag-aa.mjs",
-    "test:e2e:language-text200": "EXPO_PUBLIC_APP_ENV=demo npm run build:e2e && playwright test e2e/language-text200.spec.ts"
+    "test:e2e:language-text200": "EXPO_PUBLIC_APP_ENV=demo npm run build:e2e && playwright test e2e/language-text200.spec.ts",
+    "test:e2e:reduced-motion": "npm run build:e2e:auth && playwright test --config playwright.reduced-motion.config.ts",
+    "test:e2e:contrast-stack": "npm run build:e2e:auth && playwright test --config playwright.contrast-stack.config.ts"
   },
   "dependencies": {
     "@beeloy/design-tokens": "file:../../BeeloyBackend/mobile/design-tokens",
