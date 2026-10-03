@@ -172,3 +172,8 @@ Auth email/OTP, Audit7 filters, device search and final Administration multiline
 ### Supplemental Paper label text contrast and current devices/admin strict audit
 
 78 computed comparisons (72labels+6JSONerror), six size/themeCSS200 contexts, min7.097957347416672;7label tests incl invisible-text negative control PASS,7action/frame/focus regressionPASS,typesPASS. RGBA composition rejects unsupported layers; notpixel/occlusion/native/manual/fullAA. Current strict devices/admin54scans: 0 violations, 1586 incomplete nodes;commandexit1/AA INCOMPLETE. All shared field/helper source hashes and screenshots retained. Remainingauth/othertext/currentauditstrict/native/all25/realzoom/full11criteriaOPEN. Evidence label-text-contrast and devices-admin-wcag.
+
+
+### Genuine Paper language menu keyboard and expanded semantics
+
+Six baseline keyboard cases fail missing aria-expanded. Own web-trigger compatibility and genuine Paper list roving focus/menuitemradio checked semantics added. ArrowUp/Down wrap/Home/End/scroll/Escape/select restore/TabShiftTab exit/reopen and unique aria-controls target rolemenu tested.82finalfunctional/14auth/types/uiPASS. Strict6auth-language-open scans:0violations,6aria-valid-attr-value incomplete +138color-contrast nodes, exit1/AAINCOMPLETE. Initial missing-ID interpretation was wrong: installed axe precheck always requests review with haspopup; nativeID already existed. Extra root ID temporarily introduced duplicate-ID6, retained and removed. Final unique original nativeID verified. No waivers. Native expanded/screenreaders/manual/fullmenuCSS200/all25/fullcriteriaOPEN. Evidence language-keyboard.

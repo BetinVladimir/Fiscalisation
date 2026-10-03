@@ -50,7 +50,7 @@ for (const [size, width, height] of [
     await page.goto('/');
     await expect(page.getByTestId('admin-login-email')).toBeVisible();
     await page.getByTestId('auth.language.open').click();
-    await expect(page.getByRole('menuitem')).toHaveCount(25);
+    await expect(page.getByRole('menuitemradio')).toHaveCount(25);
     const box = await page.getByTestId('auth.language.list').boundingBox();
     expect(box).not.toBeNull();
     expect(box!.height).toBeLessThanOrEqual(225);

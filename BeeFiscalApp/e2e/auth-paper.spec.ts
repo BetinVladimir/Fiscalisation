@@ -39,12 +39,12 @@ test('Paper language menu scrolls through 25 locales and theme/language persist'
   });
   await page.goto('/');
   await page.getByTestId('auth.language.open').click();
-  await expect(page.getByRole('menuitem')).toHaveCount(25);
+  await expect(page.getByRole('menuitemradio')).toHaveCount(25);
   await page.getByTestId('auth.language.ru').click();
   await expect(page.getByText('BeeFiscal • вход администратора')).toBeVisible();
   await page.getByTestId('auth.language.open').click();
   await page.keyboard.press('Escape');
-  await expect(page.getByRole('menuitem')).toHaveCount(0);
+  await expect(page.getByRole('menuitemradio')).toHaveCount(0);
   await page.getByTestId('auth.theme.toggle').click();
   await page.getByTestId('auth.theme.toggle').click();
   await expect(page.getByTestId('auth.root')).toHaveCSS('background-color', 'rgb(13, 10, 18)');
