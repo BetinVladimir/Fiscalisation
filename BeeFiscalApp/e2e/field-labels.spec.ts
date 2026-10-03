@@ -27,6 +27,9 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       const mutations = await mockFiscalApi(page);
       await openApp(page);
       await doubleText(page);
+      const deviceMetrics = await labelFits(page.getByTestId('devices.search.label'));
+      await page.getByTestId('devices.search').fill('Datecs');
+      await expect(page.getByTestId('devices.search')).toHaveValue('Datecs');
       const search = page.getByTestId('reference.search.Касово място').first();
       const searchLabel = page.getByTestId('reference.search.Касово място.label').first();
       await expect(searchLabel).toHaveText('Търсене: Касово място');
@@ -49,8 +52,20 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       await expect(field).toHaveAccessibleName('Код на точката');
       await field.fill('E2E');
       await expect(field).toHaveValue('E2E');
-      await writeFile(testInfo.outputPath('label-metrics.json'), JSON.stringify({ size, theme, searchMetrics, fieldMetrics, longMetrics }, null, 2));
-      await testInfo.attach('label-metrics', { body: JSON.stringify({ size, theme, searchMetrics, fieldMetrics, longMetrics }), contentType: 'application/json' });
+      const jsonMetrics = await labelFits(page.getByTestId('admin-device-transport-parameters.label'));
+      await page.getByTestId('admin-device-transport-parameters').fill('{invalid');
+      await expect(page.getByText('Въведете валиден JSON обект.', { exact: true })).toBeVisible();
+      await expect(page.getByTestId('admin-device-save')).toBeDisabled();
+      if (size === 'xs') await page.getByTestId('nav.open').click();
+      await page.getByTestId('tab-Одит').click();
+      const auditMetrics = [];
+      for (const name of ['actor', 'action', 'objectType', 'objectId', 'unp', 'from', 'to']) {
+        auditMetrics.push(await labelFits(page.getByTestId(`audit.filter.${name}.label`)));
+        await page.getByTestId(`audit.filter.${name}`).fill('e2e-filter');
+        await expect(page.getByTestId(`audit.filter.${name}`)).toHaveValue('e2e-filter');
+      }
+      await writeFile(testInfo.outputPath('label-metrics.json'), JSON.stringify({ size, theme, searchMetrics, fieldMetrics, longMetrics, deviceMetrics, jsonMetrics, auditMetrics }, null, 2));
+      await testInfo.attach('label-metrics', { body: JSON.stringify({ size, theme, searchMetrics, fieldMetrics, longMetrics, deviceMetrics, jsonMetrics, auditMetrics }), contentType: 'application/json' });
       expect(mutations).toEqual([]);
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
     });

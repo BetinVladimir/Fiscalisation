@@ -162,3 +162,8 @@ Baseline six contexts fail truncated Drawer labels. Genuine Paper List.Item mult
 ### Multiline genuine Paper field labels
 
 FormField now shows full label with genuine Paper Text above genuine outlined Paper TextInput (floating label undefined); accessibility name/values/change/errors/help preserved. Actual FiscalControls Field/ReferencePicker migrated. Six CSS200 size/theme contexts x3 search/location/X25519 labels PASS, actual doubled metrics/width-height bounds and input/filter/noAPI mutations checked.75 full functional/types/ui PASS; xs-light screenshot visually inspected. Earlier screenshot baseline demonstrated truncation, not dedicated red test. Remaining fields/auth/currentstrictAA/all25/realzoom/native/manual/textcontrast/full criteria OPEN. Evidence field-labels.
+
+
+### Remaining extracted-screen fields use genuine shared Paper labels
+
+Auth email/OTP, Audit7 filters, device search and final Administration multiline Transport JSON use FormField. Input types/autocomplete/maxLength/value/onChange/error/multiline unchanged.75 final functional/types/uiPASS;14 authPASS incl6 CSS200 email/OTP contexts (Auth source unchanged since run; later Administration-only change).6 operational CSS200contexts x12labels=72metrics, including7Audit/JSON/search/device/location/X25519, with JSON-invalid save disabled/noAPI mutations. Auth fake challenge means no actual email/OTP. Evidence all-field-labels. No direct TextInput consumers remain in these extracted screens; generic Paper FormField owns leaf. CurrentstrictAA/contrast/native/manual/all25/realzoom/full11criteriaOPEN.

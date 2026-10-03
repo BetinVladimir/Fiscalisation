@@ -1,6 +1,7 @@
+import { FormField } from '../ui/form-field';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { HelperText, Text as PaperText, TextInput, useTheme } from 'react-native-paper';
+import { HelperText, Text as PaperText, useTheme } from 'react-native-paper';
 import { Action, AdminCard, Choices, Field, ReferencePicker, type Item, label } from '../components/FiscalControls';
 import { MVP1_DEVICE_PROFILES, type DeviceProfile } from '../deviceProfiles';
 import { isRegisterId, registerResourcePath } from '../registerFilter';
@@ -538,7 +539,7 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
             />
           </>
         ) : null}
-        <TextInput
+        <FormField
           mode="outlined"
           label="Transport JSON"
           accessibilityLabel="Transport JSON"

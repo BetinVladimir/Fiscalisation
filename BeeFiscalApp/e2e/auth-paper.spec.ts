@@ -1,3 +1,4 @@
+import { doubleText } from './text-scale';
 import { expect, test } from '@playwright/test';
 import { mockFiscalApi } from './helpers';
 import { authCopy } from '../src/ui/auth-copy.generated';
@@ -122,3 +123,39 @@ test('Privacy Paper action keeps a visible frame on xs md lg in both system them
     expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);
   }
 });
+
+
+for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+  for (const theme of ['light', 'dark'] as const) {
+    test(`Paper auth field labels CSS200 ${size}/${theme}`, async ({ page }) => {
+      await page.setViewportSize({ width, height });
+      await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+      const calls: unknown[] = [];
+      await page.route('http://fiscal-admin.test/public/v1/app-auth/challenges', route => {
+        calls.push(JSON.parse(route.request().postData() ?? '{}'));
+        return route.fulfill({ contentType: 'application/json', body: JSON.stringify({ temporary_token: 'temporary-e2e' }) });
+      });
+      await page.goto('/');
+      await expect(page.getByTestId('admin-login-email')).toBeVisible();
+      await doubleText(page);
+      for (const stage of ['email', 'code'] as const) {
+        const field = page.getByTestId(`admin-login-${stage}`);
+        const label = page.getByTestId(`admin-login-${stage}.label`);
+        await expect(label).toHaveText(stage === 'email' ? authCopy.bg.email : authCopy.bg.code);
+        await label.scrollIntoViewIfNeeded();
+        const metrics = await label.evaluate(element => {
+          const text = element.querySelector<HTMLElement>('[dir="auto"]') ?? element as HTMLElement;
+          return { original: Number(text.dataset.originalFontSize), size: parseFloat(getComputedStyle(text).fontSize), width: text.clientWidth, scroll: text.scrollWidth };
+        });
+        expect(metrics.size).toBe(metrics.original * 2);
+        expect(metrics.scroll).toBeLessThanOrEqual(metrics.width + 1);
+        await expect(field).toHaveAccessibleName(stage === 'email' ? authCopy.bg.email : authCopy.bg.code);
+        await field.fill(stage === 'email' ? 'qa@example.org' : '123456');
+        if (stage === 'email') await page.getByTestId('admin-login-start').click();
+        else { await expect(field).toHaveValue('123456'); await expect(page.getByTestId('admin-login-verify')).toBeEnabled(); }
+      }
+      expect(calls).toHaveLength(1);
+      expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
+    });
+  }
+}

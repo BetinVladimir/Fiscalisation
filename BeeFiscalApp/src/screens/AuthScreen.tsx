@@ -1,8 +1,9 @@
+import { FormField } from '../ui/form-field';
 import React from 'react';
 import { Linking, Platform } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { StatusBar } from 'expo-status-bar';
-import { Button, Card, HelperText, Text, TextInput, useTheme } from 'react-native-paper';
+import { Button, Card, HelperText, Text, useTheme } from 'react-native-paper';
 import { useEmailOtpAuth } from '../emailOtpAuth';
 import { AuthForm } from '../ui/auth-form';
 import { ResponsiveScrollView as ScrollView } from '../ui/responsive-scroll-view';
@@ -34,7 +35,7 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
               {auth.error ? <HelperText type="error" visible accessibilityLiveRegion="polite">{auth.error}</HelperText> : null}
 
               {stage === 'email' ? <>
-                <TextInput
+                <FormField
                   testID="admin-login-email"
                   mode="outlined"
                   label={copy.email}
@@ -47,7 +48,7 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
                 />
                 <Button testID="admin-login-start" mode="contained" contentStyle={{ minHeight: 48 }} disabled={!auth.ready || !auth.email.trim()} onPress={() => void auth.requestCode()}>{copy.requestCode}</Button>
               </> : stage === 'otp' ? <>
-                <TextInput
+                <FormField
                   testID="admin-login-code"
                   mode="outlined"
                   label={copy.code}

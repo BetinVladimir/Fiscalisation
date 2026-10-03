@@ -1,6 +1,7 @@
+import { FormField } from '../ui/form-field';
 import React, { useState } from 'react';
 import { View } from 'react-native';
-import { Button, Card, Chip, HelperText, List, Text, TextInput, useTheme } from 'react-native-paper';
+import { Button, Card, Chip, HelperText, List, Text, useTheme } from 'react-native-paper';
 import { Action, Field, ReferencePicker, type Item, label } from '../components/FiscalControls';
 import { isRegisterId } from '../registerFilter';
 
@@ -64,7 +65,7 @@ export function DevicesScreen({ devices, selected, loading, error, canDiagnose, 
       <Button mode="outlined" contentStyle={{ minHeight: 48 }} onPress={actions.retry}>Опитай отново</Button>
     </Card.Content></Card> : null}
     {!loading && !error && devices.length === 0 ? <Text testID="devices.empty" variant="bodyMedium">Няма устройства за избрания контекст.</Text> : null}
-    {!error && devices.length ? <TextInput testID="devices.search" mode="outlined" label="Търсене на устройство"
+    {!error && devices.length ? <FormField testID="devices.search" mode="outlined" label="Търсене на устройство"
       accessibilityLabel="Търсене на устройство" value={query} onChangeText={setQuery} /> : null}
     {!loading && !error && devices.length > 0 && visibleDevices.length === 0 ? <Text testID="devices.no-matches" variant="bodyMedium">Няма устройства, които съответстват на търсенето.</Text> : null}
     {visibleDevices.map(device => <View key={label(device.id)}><List.Item testID={`device.item.${label(device.id)}`}

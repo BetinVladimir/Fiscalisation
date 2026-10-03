@@ -1,6 +1,7 @@
+import { FormField } from '../ui/form-field';
 import React, { useEffect, useRef, useState } from 'react';
 import { Platform, View } from 'react-native';
-import { ActivityIndicator, Button, Card, HelperText, List, Text, TextInput, useTheme } from 'react-native-paper';
+import { ActivityIndicator, Button, Card, HelperText, List, Text, useTheme } from 'react-native-paper';
 
 type Event = Record<string, unknown>;
 export type AuditFilters = {
@@ -71,7 +72,7 @@ export function AuditScreen({ events, filters, loading, error, onChange, onApply
   return <View testID="audit-events" style={{ gap: 12, paddingBottom: 16 }}>
     <Card mode="outlined" testID="audit-filters"><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
       <Text variant="titleLarge" accessibilityRole="header">Филтри на одитния журнал</Text>
-      {fields.map(({ name, label }) => <TextInput
+      {fields.map(({ name, label }) => <FormField
         key={name} testID={`audit.filter.${name}`} label={label} accessibilityLabel={label}
         mode="outlined" value={filters[name]} onChangeText={value => onChange(name, value)}
         autoCapitalize="none" contentStyle={{ minHeight: 48 }}
