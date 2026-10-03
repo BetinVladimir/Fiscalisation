@@ -177,3 +177,8 @@ Auth email/OTP, Audit7 filters, device search and final Administration multiline
 ### Genuine Paper language menu keyboard and expanded semantics
 
 Six baseline keyboard cases fail missing aria-expanded. Own web-trigger compatibility and genuine Paper list roving focus/menuitemradio checked semantics added. ArrowUp/Down wrap/Home/End/scroll/Escape/select restore/TabShiftTab exit/reopen and unique aria-controls target rolemenu tested.82finalfunctional/14auth/types/uiPASS. Strict6auth-language-open scans:0violations,6aria-valid-attr-value incomplete +138color-contrast nodes, exit1/AAINCOMPLETE. Initial missing-ID interpretation was wrong: installed axe precheck always requests review with haspopup; nativeID already existed. Extra root ID temporarily introduced duplicate-ID6, retained and removed. Final unique original nativeID verified. No waivers. Native expanded/screenreaders/manual/fullmenuCSS200/all25/fullcriteriaOPEN. Evidence language-keyboard.
+
+
+### All25 language menu CSS200
+
+Six xs/md/lg light/dark scenarios PASS,150 actual locale selections. Canonical source literal read without native runtime/eval.150 doubled labelmetrics/textcontrast +300frame comparisons, labels no clip/item48/bounded225/focused item within scrollviewport, keyboard select/return/real preferences persisted. Pageerrors/API mutations/horizontaloverflow0. Productiondc902b6 unchanged; tests/typecheckPASS. Evidence language-all25-text200. This proves menu names/selection only, not fullapp translations/fullAA/native/manual/realzoom; existing6ARIA+138contrast strictincomplete remainopen.
