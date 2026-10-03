@@ -44,7 +44,7 @@ function AuditEventCard({ event }: { event: Event }) {
     const root = accordionRef.current as unknown as HTMLElement | null;
     root?.querySelector('[role="button"]')?.setAttribute('aria-expanded', String(expanded));
   }, [expanded]);
-  return <Card mode="outlined" testID={`audit-event-${id}`}>
+  return <Card mode="contained" style={{ borderWidth: 1, borderColor: theme.colors.outline, backgroundColor: theme.colors.surface }} testID={`audit-event-${id}`}>
     <Card.Content style={{ gap: 6, paddingVertical: 16 }}>
       <Text variant="titleMedium">{display(event.action)} • {display(event.object_type)}</Text>
       <Text variant="bodyMedium">{display(event.occurred_at)}</Text>
@@ -69,8 +69,9 @@ function AuditEventCard({ event }: { event: Event }) {
 }
 
 export function AuditScreen({ events, filters, loading, error, onChange, onApply }: Props) {
+  const theme = useTheme();
   return <View testID="audit-events" style={{ gap: 12, paddingBottom: 16 }}>
-    <Card mode="outlined" testID="audit-filters"><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
+    <Card mode="contained" style={{ borderWidth: 1, borderColor: theme.colors.outline, backgroundColor: theme.colors.surface }} testID="audit-filters"><Card.Content style={{ gap: 12, paddingVertical: 16 }}>
       <Text variant="titleLarge" accessibilityRole="header">Филтри на одитния журнал</Text>
       {fields.map(({ name, label }) => <FormField
         key={name} testID={`audit.filter.${name}`} label={label} accessibilityLabel={label}
@@ -81,7 +82,7 @@ export function AuditScreen({ events, filters, loading, error, onChange, onApply
         disabled={loading} onPress={onApply}>Приложи филтрите</Button>
     </Card.Content></Card>
     {loading ? <ActivityIndicator testID="audit.loading" accessibilityLabel="Зареждане на одитния журнал" /> : null}
-    {!loading && error ? <Card mode="outlined" testID="audit.error"><Card.Content style={{ gap: 8 }}>
+    {!loading && error ? <Card mode="contained" style={{ borderWidth: 1, borderColor: theme.colors.outline, backgroundColor: theme.colors.surface }} testID="audit.error"><Card.Content style={{ gap: 8 }}>
       <HelperText type="error" visible accessibilityLiveRegion="polite">{error}</HelperText>
       <Button mode="outlined" contentStyle={{ minHeight: 48 }} onPress={onApply}>Опитай отново</Button>
     </Card.Content></Card> : null}

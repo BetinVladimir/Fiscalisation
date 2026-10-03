@@ -1,6 +1,6 @@
 import React from 'react';
 import { View } from 'react-native';
-import { Button, Card, Text } from 'react-native-paper';
+import { Button, Card, Text, useTheme } from 'react-native-paper';
 
 type Operation = Record<string, unknown>;
 
@@ -16,13 +16,14 @@ const canReconcileOperation = (operation: Operation) =>
   Array.isArray(operation.allowed_actions) && operation.allowed_actions.includes('RECONCILE');
 
 export function OperationsScreen({ operations, loading, canReconcile, onReconcile }: OperationsScreenProps) {
+  const theme = useTheme();
   return <View testID="operations.screen" style={{ gap: 12, paddingBottom: 16 }}>
     {operations.map(operation => {
       const allowed = Array.isArray(operation.allowed_actions) ? operation.allowed_actions : [];
       const reconcile = canReconcileOperation(operation);
       return <Card
         key={display(operation.id)}
-        mode="outlined"
+        mode="contained" style={{ borderWidth: 1, borderColor: theme.colors.outline, backgroundColor: theme.colors.surface }}
         testID={String(operation.state).includes('UNKNOWN') && reconcile ? 'operation-unknown' : undefined}
       >
         <Card.Content style={{ gap: 8, paddingVertical: 16 }}>

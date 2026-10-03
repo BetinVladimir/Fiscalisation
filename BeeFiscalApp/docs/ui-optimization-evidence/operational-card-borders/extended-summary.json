@@ -1,0 +1,71 @@
+{
+  "status": "IN_PROGRESS",
+  "scope": "Genuine Paper Card host outline/background on Operations, Reports, Audit and Settings. Existing real Paper buttons retain visible fill/frame; callbacks unchanged.",
+  "results": {
+    "extended": {
+      "operations": {
+        "scans": 6,
+        "violations": 0,
+        "incomplete": 6,
+        "nodes": 24
+      },
+      "reports": {
+        "scans": 18,
+        "violations": 0,
+        "incomplete": 18,
+        "nodes": 132
+      },
+      "audit": {
+        "scans": 24,
+        "violations": 0,
+        "incomplete": 24,
+        "nodes": 332
+      },
+      "settings": {
+        "scans": 18,
+        "violations": 0,
+        "incomplete": 18,
+        "nodes": 120
+      }
+    },
+    "extended-current": {
+      "operations": {
+        "scans": 6,
+        "violations": 0,
+        "incomplete": 0,
+        "nodes": 0
+      },
+      "reports": {
+        "scans": 18,
+        "violations": 0,
+        "incomplete": 2,
+        "nodes": 2
+      },
+      "audit": {
+        "scans": 24,
+        "violations": 0,
+        "incomplete": 6,
+        "nodes": 6
+      },
+      "settings": {
+        "scans": 18,
+        "violations": 0,
+        "incomplete": 0,
+        "nodes": 0
+      }
+    }
+  },
+  "checks": "Types/UI/demoexportPASS;88 default functionalPASS. Current strict66 tests58PASS8FAIL/incomplete,0violations. No rules disabled.",
+  "open": [
+    "Reports empty xs/light+dark: text partially clipped by content ScrollView",
+    "Audit expanded six contexts: decorative PUA icon nonBmp needsReview",
+    "Auth menu ARIA/native/manual/realzoom/all11 criteria"
+  ],
+  "hashes": {
+    "src/screens/OperationsScreen.tsx": "c305e5107bc088132737a699b3437256f0207cada56cb5c6f30df259dd34c981",
+    "src/screens/ReportsScreen.tsx": "34d62045493e326eec367704f44161b0ed67b265cb9aa098ef0a1fe116caec66",
+    "src/screens/AuditScreen.tsx": "be2ef3e10a242b8bfdfd6d36c240ba6470fa51049dd6f6d89defb7e4710cf528",
+    "src/screens/SettingsScreen.tsx": "93e26eab580c761612b63c6e5506342c52da6833e0c4eaacc473b332e8355258"
+  },
+  "evidence": "docs/ui-optimization-evidence/operational-card-borders"
+}

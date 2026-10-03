@@ -207,3 +207,8 @@ Closed shared Paper Dialog portals unmounted; actual Axe stack proved decorative
 ## BeeFiscal operational Paper Card borders — 2026-10-04
 
 02-001/018/019 IN_PROGRESS. Genuine Paper AdminCard and Devices error/control-plane Card retain theme outline frame/background on host, avoiding full-area decorative outlined layer. Current54 strict devices/admin scans PASS:0violations/0incomplete across nine states x xs/md/lg x light/dark, previous608 incomplete nodes. Full88 default functionalPASS/types/UI/demoexportPASS. No Axe waivers. Evidence docs/ui-optimization-evidence/operational-card-borders contains all54 raw scans and logs/source hashes. Other operational/auth-menu/native/manual/truezoom/all11 criteria remain OPEN.
+
+
+## BeeFiscal remaining operational Paper Card borders — 2026-10-04
+
+02-001/017 IN_PROGRESS. Operations/Reports/Audit/Settings genuine Paper Cards use theme outline border/background on host; button fills/frames and handlers retained. Before66 strict scans0VI/66incomplete608nodes. Current66scans0VI/8incomplete8nodes: operations6 andsettings18 fullyPASS; reports16PASS2xs empty-message partially-obscured needsReview; audit18PASS6expanded decorative PUA nonBmp needsReview. Strict58PASS8FAIL retained without waivers. Full88 defaultfunctional/types/UI/demoexportPASS. Both baseline/current fullraw, representativexs screenshots, source hashes/logs stored in docs/ui-optimization-evidence/operational-card-borders. Remaining8incomplete/authARIA/native/manual/realzoom/all11 criteriaOPEN.
