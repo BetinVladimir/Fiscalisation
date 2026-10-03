@@ -1836,6 +1836,7 @@ function ThemeMenu({
         </PaperButton>
       }
     >
+      <View accessibilityRole="menu">
       <PaperMenuChoice
         testID="theme-system"
         title={`${text.systemTheme}${preference === "system" ? ` • ${text.selected}` : ""}`}
@@ -1851,6 +1852,7 @@ function ThemeMenu({
         title={`${text.darkTheme}${preference === "dark" ? ` • ${text.selected}` : ""}`}
         onPress={() => choose("dark")}
       />
+      </View>
     </PaperMenu>
   );
 }
@@ -1899,7 +1901,7 @@ function LanguageMenu({
         </PaperButton>
       }
     >
-      <NativeScrollView testID="language-menu-scroll" style={{ maxHeight: menuHeight }} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
+      <NativeScrollView accessibilityRole="menu" testID="language-menu-scroll" style={{ maxHeight: menuHeight }} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
         {supportedLanguages.map((value) => (
           <PaperMenuChoice
             key={value}

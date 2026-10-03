@@ -100,5 +100,22 @@
       "e2e/menu-keyboard.spec.ts": "8362a46f297e924be6a6ad86bf56022d35f47478eb89279bf393abe90399124d"
     },
     "evidence": "docs/ui-optimization-evidence/menu-selected-state"
+  },
+  "partialStrictMenuAA": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Strict WCAG2/2.1 A+AA tags on login/open language/open theme, xs/md/lg light/dark. Genuine Paper leaves retained; structural theme View/language ScrollView now accessibilityRole menu.",
+    "baseline": "18 scans:12 aria-required-parent violations with168 menuitem nodes,18 color-contrast incomplete with108 nodes",
+    "final": "18 scans:0 automatic violations;18 color-contrast incomplete with108 nodes. Strict6 tests FAIL/INCOMPLETE retained; no waiver. Functional35 PASS,types/ui/export PASS.",
+    "open": [
+      "Resolve108 incomplete contrast nodes",
+      "Tab/roving/full ARIA/native/manual",
+      "All pages/states/all11 fullcriteria"
+    ],
+    "hashes": {
+      "App.tsx": "248e216d38d1e43974af01a1025c97b1bdedba2b93c376e44819843723b2483c",
+      "e2e/auth-menu-wcag.spec.ts": "fe1557bf9fee52ee48c623862fd5272d0d906378f58b2666438e7aabefa71411"
+    },
+    "evidence": "docs/ui-optimization-evidence/auth-menu-strict-aa"
   }
 }

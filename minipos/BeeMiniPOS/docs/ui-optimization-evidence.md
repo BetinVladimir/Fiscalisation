@@ -97,3 +97,8 @@ Two genuine Paper outlined Buttons now have link role/min56/wrapping and own web
 ## BeeMiniPOS selected menu semantics — 2026-10-04
 
 03-001 IN_PROGRESS: web genuine Paper menuitem DOM role menuitemradio/checked derived from current preferences; trigger expanded/haspopup, mount observer cleanup. Baseline6 missing checked failures;35 selected E2E PASS with radio/checked/unchecked/expanded assertions in6 xs/md/lg light/dark keyboard cases,150 locale choices retained. Types/UI/export PASS. Evidence docs/ui-optimization-evidence/menu-selected-state. Tab/roving, full ARIA strict Axe/needsReview, state change/reload/native/manual/numeric contrast/full11 remain OPEN.
+
+
+## BeeMiniPOS strict auth/menu Axe and parent roles — 2026-10-04
+
+03-001 IN_PROGRESS. Added strict WCAG2/2.1 A+AA Playwright test saving violations AND incomplete. Baseline18 scans had12 aria-required-parent findings/168 nodes; structural theme View/language ScrollView menu roles fixed, Paper leaves unchanged. Current18 scans0 automatic violations but18 color-contrast incomplete/108 nodes: strict6 FAIL/INCOMPLETE, not AA PASS. Functional35 PASS/types/UI/export PASS. Full compressed baseline/current retained in docs/ui-optimization-evidence/auth-menu-strict-aa. Contrast incomplete resolution/Tab/roving/native/manual/allpages/full11 remain OPEN.
