@@ -112,3 +112,8 @@ Strict findings messageKey bgOverlap for6 auth text nodes per scan. Removing dec
 ## BeeMiniPOS all incomplete text hit stacks — 2026-10-04
 
 Expanded strict test diagnostics to every incomplete target/text Range rectangle, recording actual hit stacks/colors/opacity/z-index. Re-exported restored current source (decorative image retained).18 scans still0VI/108 color incomplete; six strict failures preserved. Login samples actual target topmost; open-menu samples covered by menu/backdrop. Evidence docs/ui-optimization-evidence/auth-text-hit-stacks with18-state summary and raw stacks. This does not establish AA or false positives. Next: match background interaction/accessibility to open overlay and diagnose login Axe virtual stacking. Original11-app scope remains OPEN.
+
+
+## BeeMiniPOS open-menu background interaction — 2026-10-04
+
+03-001 IN_PROGRESS. Web app-root inert while genuine Paper portal menu/backdrop open, counted locks preserve existing inert and cleanup restores. Native unchanged. Baseline6 missing inert failures;35 functional PASS incl real background email focus rejection/menu focus retained/Escape restore and150 locale choices. Types/UI/export PASS.18 strict scans0VI:12 open-menu scans0incomplete,6 login scans6 color-contrast incomplete36nodes (previous108). Six strict tests FAIL/INCOMPLETE retained. Evidence docs/ui-optimization-evidence/menu-background-inert. Login/Tab/roving/native/manual/truezoom/all11 fullcriteria remain OPEN.

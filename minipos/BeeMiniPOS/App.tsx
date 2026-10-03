@@ -1758,6 +1758,8 @@ function PaperLegalLink({ testID, label, url }: { testID: string; label: string;
   </View>;
 }
 
+const menuBackgroundLocks = new WeakMap<HTMLElement, { count: number; originallyInert: boolean }>();
+
 function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", selected: string) {
   useEffect(() => {
     if (Platform.OS !== "web") return;
@@ -1765,6 +1767,15 @@ function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", se
     trigger?.setAttribute("aria-expanded", String(visible));
     trigger?.setAttribute("aria-haspopup", "menu");
     if (!visible) return;
+    // Paper's portal menu/backdrop is outside app-root. Match blocked pointer
+    // interaction with blocked background keyboard and assistive-tech access.
+    const background = document.querySelector<HTMLElement>('[data-testid="app-root"]');
+    if (background) {
+      const lock = menuBackgroundLocks.get(background) || { count: 0, originallyInert: background.hasAttribute("inert") };
+      lock.count += 1;
+      menuBackgroundLocks.set(background, lock);
+      background.setAttribute("inert", "");
+    }
     const configure = () => {
       document.querySelectorAll<HTMLElement>(`[data-testid^="${prefix}-"][role^="menuitem"]`).forEach(item => {
         item.setAttribute("role", "menuitemradio");
@@ -1787,7 +1798,16 @@ function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", se
       items[next].scrollIntoView({ block: "nearest", inline: "nearest" });
     };
     document.addEventListener("keydown", onKeyDown);
-    return () => { observer.disconnect(); document.removeEventListener("keydown", onKeyDown); };
+    return () => {
+      observer.disconnect(); document.removeEventListener("keydown", onKeyDown);
+      if (background) {
+        const lock = menuBackgroundLocks.get(background);
+        if (lock && --lock.count === 0) {
+          if (!lock.originallyInert) background.removeAttribute("inert");
+          menuBackgroundLocks.delete(background);
+        }
+      }
+    };
   }, [visible, prefix, selected]);
 }
 

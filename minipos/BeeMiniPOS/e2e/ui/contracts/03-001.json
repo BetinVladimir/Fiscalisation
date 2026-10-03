@@ -117,5 +117,29 @@
       "e2e/auth-menu-wcag.spec.ts": "fe1557bf9fee52ee48c623862fd5272d0d906378f58b2666438e7aabefa71411"
     },
     "evidence": "docs/ui-optimization-evidence/auth-menu-strict-aa"
+  },
+  "partialMenuBackgroundVerification": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Web background app-root inert while actual Paper portal menu/backdrop is open; lock count preserves pre-existing inert state and cleanup restores on close/unmount. Genuine Paper leaves untouched, native unchanged.",
+    "baseline": "6 background inert assertions FAIL",
+    "final": "35 functional PASS including attempted programmatic background email focus blocked, initial menu focus retained, Escape closes/inert removed/trigger focus returned; all25 CSS200 menu regressions. Types/ui/export PASS.",
+    "strictAA": {
+      "scans": 18,
+      "violations": 0,
+      "incomplete": 6,
+      "incompleteNodes": 36,
+      "menuScans": 12
+    },
+    "strictResult": "12 open-menu scans0VI0incomplete;6 login scans0VI6 color-contrast incomplete36nodes. Strict6 tests stillFAIL/INCOMPLETE; no full AA claim.",
+    "open": [
+      "Login contrast incomplete cause/resolution",
+      "Tab/roving/native/manual/truezoom/full11 criteria"
+    ],
+    "hashes": {
+      "App.tsx": "50f95409eba283031428319abf49bad2f5c92b064cd331a6de46a377e6e7a268",
+      "e2e/menu-keyboard.spec.ts": "3b9d7b8cf9bc178717b6a425bff7b7c732c1e924a6f44a90ceb1ea67398b4603"
+    },
+    "evidence": "docs/ui-optimization-evidence/menu-background-inert"
   }
 }

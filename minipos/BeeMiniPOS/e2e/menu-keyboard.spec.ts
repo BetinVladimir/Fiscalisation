@@ -6,6 +6,10 @@ for(const [size,width,height] of [['xs',360,800],['md',960,900],['lg',1440,1000]
   await expect(page.getByTestId('language-bg')).toBeFocused();
   await expect(page.getByTestId('language-bg')).toHaveAttribute('role','menuitemradio');
   await expect(trigger).toHaveAttribute('aria-expanded','true');
+  await expect(page.getByTestId('app-root')).toHaveAttribute('inert','');
+  await page.getByTestId('operator-login-email').evaluate(el=>(el as HTMLElement).focus());
+  await expect(page.getByTestId('operator-login-email')).not.toBeFocused();
+  await expect(page.getByTestId('language-bg')).toBeFocused();
   await expect(page.getByTestId('language-bg')).toHaveAttribute('aria-checked','true');
   await expect(page.getByTestId('language-hr')).toHaveAttribute('aria-checked','false');
   await page.keyboard.press('ArrowDown');await expect(page.getByTestId('language-hr')).toBeFocused();
@@ -13,7 +17,7 @@ for(const [size,width,height] of [['xs',360,800],['md',960,900],['lg',1440,1000]
   await page.keyboard.press('ArrowDown');await expect(page.getByTestId('language-bg')).toBeFocused();
   await page.keyboard.press('ArrowUp');await expect(page.getByTestId('language-ru')).toBeFocused();
   await page.keyboard.press('Home');await expect(page.getByTestId('language-bg')).toBeFocused();
-  await page.keyboard.press('Escape');await expect(page.getByTestId('language-menu-scroll')).not.toBeVisible();await expect(trigger).toBeFocused();await expect(trigger).toHaveAttribute('aria-expanded','false');
+  await page.keyboard.press('Escape');await expect(page.getByTestId('language-menu-scroll')).not.toBeVisible();await expect(trigger).toBeFocused();await expect(trigger).toHaveAttribute('aria-expanded','false');await expect(page.getByTestId('app-root')).not.toHaveAttribute('inert');
   const themeTrigger=page.getByTestId('theme-menu-open');await themeTrigger.focus();await page.keyboard.press('Enter');
   await expect(page.getByTestId('theme-system')).toBeFocused();await expect(page.getByTestId('theme-system')).toHaveAttribute('aria-checked','true');
   await page.keyboard.press('ArrowDown');await expect(page.getByTestId('theme-light')).toBeFocused();
