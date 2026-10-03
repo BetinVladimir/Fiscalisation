@@ -1,0 +1,27 @@
+{
+  "status": "IN_PROGRESS",
+  "sourceCommit": "3b7701f",
+  "change": "Genuine Paper decorative chevron hidden; outlined Accordion unchanged",
+  "baseline": {
+    "scans": 24,
+    "violations": 12,
+    "incompleteNodes": 826
+  },
+  "final": {
+    "scans": 24,
+    "violations": 0,
+    "incompleteNodes": 826,
+    "strictAA": "INCOMPLETE",
+    "functional": "6 PASS",
+    "types": "PASS",
+    "ui": "PASS"
+  },
+  "open": [
+    "Contrast adjudication",
+    "Native/manual",
+    "200%",
+    "All25 copy",
+    "Nontext/focus contrast",
+    "Full app criteria"
+  ]
+}

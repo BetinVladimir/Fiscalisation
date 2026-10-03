@@ -130,3 +130,8 @@ AuditEventCard detailsaction now actualoutlinedPaperButton,minHeight48,wrappingl
 ## Actual Paper audit disclosure semantics (2026-10-03)
 
 Details usescontrolled genuinePaperList.Accordion,same localexpanded/onPress/labels/recordfields/hash. NativePaperAccordion forwardsaccessibilityState.expanded;installedRNWeb ignores this deprecated object,so aweb-onlycompatibilityeffect onownheaderrolebutton setsaria-expanded throughstructuralViewref. NoPaperfork/custombutton. Header keepsvisibleoutline,min48,unlimitedtitlelines. BaselineButton6FAIL;firstAccordion56PASS/6FAIL proved RNWebgap;final62functionalPASS including6xs/md/lg-lightdark ariafalse→true→false/Enterexpand/Spacecollapse/samehash/footerbounds/frame48. Typecheck/uiPASS. Evidence audit-expanded. NativeVoiceOver/TalkBack/manual/themechangewhileexpanded/200%/all25copy/strictAA/nontext/focuscontrast/currentaudits remainOPEN;no liveAPI/fiscalcommands.
+
+
+### Audit decorative Paper chevron (3b7701f)
+
+24 strict scans: role-img-alt violations 12 before, 0 after; 826 color-contrast incomplete nodes retained. AA remains INCOMPLETE. Six xs/md/lg light/dark journal functional tests, TypeScript and ui:check PASS. Evidence audit-chevron and refreshed audit-wcag. Native/manual, 200%, all25 copy, nontext/focus contrast and full app criteria remain open.
