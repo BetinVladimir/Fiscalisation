@@ -92,3 +92,8 @@ Two genuine Paper outlined Buttons now have link role/min56/wrapping and own web
 ## BeeMiniPOS menu keyboard — 2026-10-04
 
 03-001 IN_PROGRESS. Baseline6 ArrowDown failures; own scoped web key handler supports arrows wrap/HomeEnd/focus+nearest scroll on genuine Paper menuitems, with listener cleanup. Paper initial focus/Escape/return preserved and tested. Selected35 E2E PASS; enhanced6 both-menu keyboard cases PASS xs/md/lg light/dark. Types/UI/export PASS. Evidence docs/ui-optimization-evidence/menu-keyboard. Tab/roving/expanded-selected semantics, numeric contrast/strict AA/native/manual/full11 criteria remain OPEN.
+
+
+## BeeMiniPOS selected menu semantics — 2026-10-04
+
+03-001 IN_PROGRESS: web genuine Paper menuitem DOM role menuitemradio/checked derived from current preferences; trigger expanded/haspopup, mount observer cleanup. Baseline6 missing checked failures;35 selected E2E PASS with radio/checked/unchecked/expanded assertions in6 xs/md/lg light/dark keyboard cases,150 locale choices retained. Types/UI/export PASS. Evidence docs/ui-optimization-evidence/menu-selected-state. Tab/roving, full ARIA strict Axe/needsReview, state change/reload/native/manual/numeric contrast/full11 remain OPEN.

@@ -82,5 +82,23 @@
       "e2e/menu-keyboard.spec.ts": "30d134a84986f6d4b5384eef91e464222245ba85f20becfdee0800e04272a547"
     },
     "evidence": "docs/ui-optimization-evidence/menu-keyboard"
+  },
+  "partialMenuStateVerification": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Web genuine Paper menuitem leaves receive role menuitemradio/aria-checked from current language/theme, trigger gets expanded+haspopup. Child mount observer and keyboard listener are cleaned on close. Native unchanged.",
+    "baseline": "6 FAIL missing aria-checked",
+    "final": "35 selected E2E PASS; six keyboard contexts assert Bulgarian checked/Hrvatski unchecked, radio role, trigger expanded true/false and system theme checked, existing arrow/Escape/return;150 language selections and other regressions retained. Types/UI/export PASS.",
+    "open": [
+      "Tab/ShiftTab/roving focus",
+      "Complete ARIA/strict Axe including needsReview",
+      "State change/reload persistence/native screen reader validation",
+      "Numeric contrast/truezoom/manual/full11 criteria"
+    ],
+    "hashes": {
+      "App.tsx": "9d405da5b0d54fbf013a21eb36b15b86633e1179622ff5fcd9089109ffa51ebb",
+      "e2e/menu-keyboard.spec.ts": "8362a46f297e924be6a6ad86bf56022d35f47478eb89279bf393abe90399124d"
+    },
+    "evidence": "docs/ui-optimization-evidence/menu-selected-state"
   }
 }

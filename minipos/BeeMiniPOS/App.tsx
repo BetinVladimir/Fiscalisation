@@ -1758,12 +1758,25 @@ function PaperLegalLink({ testID, label, url }: { testID: string; label: string;
   </View>;
 }
 
-function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme") {
+function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", selected: string) {
   useEffect(() => {
-    if (!visible || Platform.OS !== "web") return;
+    if (Platform.OS !== "web") return;
+    const trigger = document.querySelector<HTMLElement>(`[data-testid="${prefix}-menu-open"]`);
+    trigger?.setAttribute("aria-expanded", String(visible));
+    trigger?.setAttribute("aria-haspopup", "menu");
+    if (!visible) return;
+    const configure = () => {
+      document.querySelectorAll<HTMLElement>(`[data-testid^="${prefix}-"][role^="menuitem"]`).forEach(item => {
+        item.setAttribute("role", "menuitemradio");
+        item.setAttribute("aria-checked", String(item.dataset.testid === `${prefix}-${selected}`));
+      });
+    };
+    configure();
+    const observer = new MutationObserver(configure);
+    observer.observe(document.body, { childList: true, subtree: true });
     const onKeyDown = (event: KeyboardEvent) => {
       if (!["ArrowDown", "ArrowUp", "Home", "End"].includes(event.key)) return;
-      const items = Array.from(document.querySelectorAll<HTMLElement>(`[role="menuitem"][data-testid^="${prefix}-"]`))
+      const items = Array.from(document.querySelectorAll<HTMLElement>(`[role^="menuitem"][data-testid^="${prefix}-"]`))
         .filter(item => item.getClientRects().length > 0);
       const current = items.findIndex(item => item === document.activeElement || item.contains(document.activeElement));
       if (current < 0 || !items.length) return;
@@ -1774,8 +1787,8 @@ function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme") {
       items[next].scrollIntoView({ block: "nearest", inline: "nearest" });
     };
     document.addEventListener("keydown", onKeyDown);
-    return () => document.removeEventListener("keydown", onKeyDown);
-  }, [visible, prefix]);
+    return () => { observer.disconnect(); document.removeEventListener("keydown", onKeyDown); };
+  }, [visible, prefix, selected]);
 }
 
 function PaperMenuChoice({ testID, title, onPress }: { testID: string; title: string; onPress: () => void }) {
@@ -1796,7 +1809,7 @@ function ThemeMenu({
   onSelect: (value: ThemePreference) => void;
 }) {
   const [visible, setVisible] = useState(false);
-  usePaperMenuKeyboard(visible, "theme");
+  usePaperMenuKeyboard(visible, "theme", preference);
   const labels: Record<ThemePreference, string> = {
     system: text.systemTheme,
     light: text.lightTheme,
@@ -1853,7 +1866,7 @@ function LanguageMenu({
 }) {
   const text = useTranslation();
   const [visible, setVisible] = useState(false);
-  usePaperMenuKeyboard(visible, "language");
+  usePaperMenuKeyboard(visible, "language", language);
   const { width, height } = useWindowDimensions();
   const menuHeight = Math.max(192, Math.min(420, height - 96));
   const menuWidth = Math.max(240, Math.min(320, width - 32));
