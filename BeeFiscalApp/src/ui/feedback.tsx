@@ -82,6 +82,8 @@ export function FeedbackProvider({ children }: PropsWithChildren) {
             <Dialog.Actions>
               {(alert?.buttons?.length ? alert.buttons : [{ text: 'OK' }]).map((button, index) => (
                 <Button
+                  mode="outlined"
+                  contentStyle={{ minHeight: 48 }}
                   key={`${button.text || 'OK'}-${index}`}
                   textColor={button.style === 'destructive' ? theme.colors.error : undefined}
                   onPress={() => { dismissAlert(); button.onPress?.(); }}

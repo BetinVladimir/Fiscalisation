@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
 import { Platform, ScrollView, View } from 'react-native';
-import { Button, Card, List } from 'react-native-paper';
+import { Button, Card, List, useTheme } from 'react-native-paper';
 import { authCopy } from './auth-copy.generated';
 import { languageOptions, useUiPreferences, type ThemeMode } from './preferences';
 
 export function LanguageThemeControls({ testPrefix = 'auth' }: { testPrefix?: string }) {
   const { language, themeMode, setLanguage, setThemeMode } = useUiPreferences();
+  const theme = useTheme();
   const [languageOpen, setLanguageOpen] = useState(false);
   const copy = authCopy[language];
   const modes: ThemeMode[] = ['system', 'light', 'dark'];
@@ -29,6 +30,7 @@ export function LanguageThemeControls({ testPrefix = 'auth' }: { testPrefix?: st
         {languageOptions.map(([code, name]) => <List.Item
           key={code}
           testID={`${testPrefix}.language.${code}`}
+          style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 8, marginVertical: 2 }}
           title={code === language ? `✓ ${name}` : name}
           accessibilityRole="menuitem"
           accessibilityLabel={name}

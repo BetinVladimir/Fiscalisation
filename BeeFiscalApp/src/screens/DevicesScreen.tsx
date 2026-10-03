@@ -70,7 +70,7 @@ export function DevicesScreen({ devices, selected, loading, error, canDiagnose, 
     {visibleDevices.map(device => <View key={label(device.id)}><List.Item testID={`device.item.${label(device.id)}`}
       accessibilityRole="button" accessibilityState={{ selected: selected?.id === device.id }}
       accessibilityLabel={`${label(device.vendor)} ${label(device.model)}, каса ${registerCode}, статус на регистрацията ${label(device.status || device.state)}`}
-      style={{ borderRadius: 12, backgroundColor: selected?.id === device.id ? theme.colors.secondaryContainer : theme.colors.surface }}
+      style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 12, backgroundColor: selected?.id === device.id ? theme.colors.secondaryContainer : theme.colors.surface }}
       title={label(device.name || device.model || device.id)} titleNumberOfLines={2}
       description={`${label(device.vendor)} • ${label(device.model)} • ${label(device.connection_type || device.transport)} • ${registerCode}`}
       descriptionNumberOfLines={3}

@@ -757,7 +757,7 @@ function AppContent() {
         <Modal visible={compact && navOpen} onDismiss={() => setNavOpen(false)} contentContainerStyle={{ margin: 16, maxHeight: '80%', borderRadius: 16, padding: 12, backgroundColor: theme.colors.surface }}>
           <ScrollView>
             <Drawer.Section title="BeeFiscal">
-              {tabs.map(x => <Drawer.Item key={x} testID={`tab-${x}`} label={x} active={tab === x} accessibilityLabel={`Отвори ${x}`} onPress={() => { setNavOpen(false); changeTab(x); }} />)}
+              {tabs.map(x => <Drawer.Item key={x} testID={`tab-${x}`} label={x} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline }} active={tab === x} accessibilityLabel={`Отвори ${x}`} onPress={() => { setNavOpen(false); changeTab(x); }} />)}
             </Drawer.Section>
           </ScrollView>
         </Modal>
@@ -794,7 +794,7 @@ function AppContent() {
       <View style={s.body}>
         {!compact ? <View style={[s.nav, { backgroundColor: theme.colors.surface }]}>
           <Drawer.Section>
-            {tabs.map(x => <Drawer.Item key={x} testID={`tab-${x}`} label={x} active={tab === x} accessibilityLabel={`Отвори ${x}`} onPress={() => changeTab(x)} />)}
+            {tabs.map(x => <Drawer.Item key={x} testID={`tab-${x}`} label={x} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline }} active={tab === x} accessibilityLabel={`Отвори ${x}`} onPress={() => changeTab(x)} />)}
           </Drawer.Section>
         </View> : null}
         <ScrollView style={[s.content, { backgroundColor: theme.colors.background }, compact && { padding: 16 }]}>

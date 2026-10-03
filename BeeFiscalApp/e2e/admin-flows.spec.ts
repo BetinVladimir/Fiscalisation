@@ -49,6 +49,19 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       await openApp(page);
       await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toContainText('Datecs counter');
       await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toContainText('ACTIVE');
+      const device = page.getByTestId(`device.item.${DEVICE_ID}`);
+      const affordance = await device.evaluate(element => {
+        const style = getComputedStyle(element);
+        return { border: parseFloat(style.borderTopWidth), borderStyle: style.borderTopStyle,
+          color: style.borderTopColor, height: element.getBoundingClientRect().height };
+      });
+      expect(affordance.border).toBeGreaterThanOrEqual(1);
+      expect(affordance.borderStyle).toBe('solid');
+      expect(affordance.color).not.toBe('rgba(0, 0, 0, 0)');
+      expect(affordance.height).toBeGreaterThanOrEqual(48);
+      await device.focus();
+      await page.keyboard.press('Enter');
+      await expect(page.getByTestId('device-readiness')).toBeVisible();
       await expect(page.getByTestId('device-diagnostics')).toBeEnabled();
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
     });
@@ -444,7 +457,10 @@ test('operational shell exposes a bounded language list and persisted theme', as
   await expect(list).toBeVisible();
   expect((await list.boundingBox())?.height).toBeLessThanOrEqual(225);
   await page.getByTestId('shell.language.ru').scrollIntoViewIfNeeded();
-  await page.getByTestId('shell.language.ru').click();
+  const languageOption = page.getByTestId('shell.language.ru');
+  expect(await languageOption.evaluate(element => parseFloat(getComputedStyle(element).borderTopWidth))).toBeGreaterThanOrEqual(1);
+  expect((await languageOption.boundingBox())?.height).toBeGreaterThanOrEqual(48);
+  await languageOption.click();
   await expect(page.getByTestId('shell.language.open')).toContainText('RU');
   await page.getByTestId('shell.theme.toggle').click();
   await page.getByTestId('shell.theme.toggle').click();
