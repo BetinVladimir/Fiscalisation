@@ -1,6 +1,6 @@
 @import "@beeloy/design-tokens/tokens.css";
 :root {
-  font-family: Inter, system-ui, sans-serif;
+  font-family: Roboto, system-ui, sans-serif;
   color: var(--beeloy-on-background);
   background: var(--beeloy-background);
 }
