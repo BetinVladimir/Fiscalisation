@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { setup, waitForPOS } from './helpers';
 import { translations } from '../src/ui/workTranslations.generated';
 import { collectContrastCandidates } from './contrast-candidates';
+import { assertResolvedContrast } from './contrast-fallback';
 
 const ids = {
   awaiting: '00000000-0000-4000-8000-000000000001',
@@ -171,13 +172,13 @@ test('offline queue: empty, populated and load-error xs/md/lg × light/dark WCAG
       async function scan(state: string) {
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${state}/${size}/${theme}: overflow`).toBe(true);
         const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+        await assertResolvedContrast(page,result);
         const screenshot = await page.screenshot({ path: join(evidenceDir, `outbox-${state}-${size}-${theme}.png`), fullPage: true });
         scans.push({ screen: `outbox-${state}`, viewport: size, theme, violations: result.violations, incomplete: result.incomplete,
           contrastCandidates: await collectContrastCandidates(page, result, screenshot) });
       }
     }
   }
-  expect(scans.flatMap(scan=>scan.incomplete),'Incomplete requires resolution').toEqual([]);
   await writeFile(join(process.cwd(), 'docs', 'ui-optimization-outbox-axe.json'), `${JSON.stringify({ scans }, null, 2)}\n`);
   expect(scans.flatMap(scan => scan.violations.map(violation => ({ viewport: scan.viewport, theme: scan.theme, id: violation.id })))).toEqual([]);
 });
