@@ -77,6 +77,7 @@ export class RouteController {
         }
     }
     for (const route of this.ordered()) {
+      let submitted = false;
       try {
         if (
           !(await this.timed(this.probeTimeoutMs, (signal) =>
@@ -87,11 +88,10 @@ export class RouteController {
         const known = await this.timed(this.probeTimeoutMs, (signal) =>
           route.lookup(intent.client_operation_id, signal),
         ).catch(() => undefined);
-        const result =
-          known ??
-          (await this.timed(this.operationTimeoutMs, (signal) =>
-            route.submit(intent, signal),
-          ));
+        const result = known ?? (await this.timed(this.operationTimeoutMs, (signal) => {
+          submitted = true;
+          return route.submit(intent, signal);
+        }));
         await putOutbox({
           ...old,
           intent,
@@ -102,6 +102,22 @@ export class RouteController {
         this.observe(route.kind, true);
         return result;
       } catch (error) {
+        if (submitted) {
+          await putOutbox({
+            ...old,
+            intent,
+            result: {
+              operation_id: intent.client_operation_id,
+              state: "UNKNOWN",
+              certainty: "UNKNOWN",
+              error_code: "FISCAL_SUBMISSION_UNCERTAIN",
+              updated_at: new Date().toISOString(),
+            },
+            createdAt: old?.createdAt ?? new Date().toISOString(),
+            updatedAt: new Date().toISOString(),
+          });
+          throw new Error("FISCAL_SUBMISSION_UNCERTAIN");
+        }
         if (error instanceof DOMException && error.name === "AbortError") {
           const unknown = {
             operation_id: intent.client_operation_id,

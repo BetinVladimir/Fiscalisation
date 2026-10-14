@@ -19,7 +19,7 @@ let dbPromise: Promise<IDBDatabase> | null = null;
 
 function database(): Promise<IDBDatabase> {
   if (!dbPromise) {
-    dbPromise = new Promise((resolve, reject) => {
+    const attempt = new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open(DB, 1);
       request.onupgradeneeded = () =>
         request.result.createObjectStore(STORE, {
@@ -27,11 +27,14 @@ function database(): Promise<IDBDatabase> {
         });
       request.onsuccess = () => {
         const db = request.result;
-        db.addEventListener("close", () => { dbPromise = null; });
+        db.addEventListener("close", () => { if (dbPromise === attempt) dbPromise = null; });
+        db.addEventListener("versionchange", () => { db.close(); if (dbPromise === attempt) dbPromise = null; });
         resolve(db);
       };
       request.onerror = () => reject(request.error);
     });
+    dbPromise = attempt;
+    void attempt.catch(() => { if (dbPromise === attempt) dbPromise = null; });
   }
   return dbPromise;
 }
@@ -45,21 +48,26 @@ export async function putOutbox(row: OutboxRow) {
     tx.objectStore(STORE).put(row);
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error ?? new Error("OUTBOX_TRANSACTION_ABORTED"));
   });
 }
 export async function getOutbox(id: string): Promise<OutboxRow | undefined> {
   const db = await database();
   return new Promise<OutboxRow | undefined>((resolve, reject) => {
-    const r = db.transaction(STORE).objectStore(STORE).get(id);
-    r.onsuccess = () => resolve(r.result);
+    const tx = db.transaction(STORE), r = tx.objectStore(STORE).get(id);
+    tx.oncomplete = () => resolve(r.result);
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error ?? new Error("OUTBOX_TRANSACTION_ABORTED"));
     r.onerror = () => reject(r.error);
   });
 }
 export async function listOutbox(): Promise<OutboxRow[]> {
   const db = await database();
   return new Promise<OutboxRow[]>((resolve, reject) => {
-    const r = db.transaction(STORE).objectStore(STORE).getAll();
-    r.onsuccess = () => resolve(r.result);
+    const tx = db.transaction(STORE), r = tx.objectStore(STORE).getAll();
+    tx.oncomplete = () => resolve(r.result);
+    tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error ?? new Error("OUTBOX_TRANSACTION_ABORTED"));
     r.onerror = () => reject(r.error);
   });
 }

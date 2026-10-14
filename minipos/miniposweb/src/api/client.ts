@@ -19,7 +19,7 @@ async function json<T>(
   if (token) headers.set("Authorization", `Bearer ${token}`);
   if (appInstance) headers.set("X-App-Instance-Id", appInstance);
   const response = await fetch(url, { ...init, headers, cache: "no-store" });
-  if (!response.ok) throw new ApiError(response.status, await response.text());
+  if (!response.ok) throw new ApiError(response.status, (await response.text()).trim() || `HTTP ${response.status}`);
   return response.status === 204
     ? (undefined as T)
     : (response.json() as Promise<T>);

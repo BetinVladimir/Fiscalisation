@@ -73,7 +73,7 @@ test.describe('Shift lifecycle', () => {
 
     await expect(page.getByText('adapter-001')).toBeVisible();
     await expect(page.getByText('reg-001')).toBeVisible();
-    await expect(page.locator('text=Generation: 1')).toBeVisible();
+    await expect(page.getByTestId('sale-diagnostics')).toContainText('Поколение: 1');
   });
 
   test('session expired → logout clears auth and shows login', async ({ page }) => {
@@ -81,8 +81,8 @@ test.describe('Shift lifecycle', () => {
     await page.goto('/');
 
     // API returns 401 for session, so the retry/logout button shows
-    await expect(page.getByRole('button', { name: 'Изход' })).toBeVisible({ timeout: 8_000 });
-    await page.getByRole('button', { name: 'Изход' }).click();
+    await expect(page.getByRole('button', { name: 'Излез' })).toBeVisible({ timeout: 8_000 });
+    await page.getByRole('button', { name: 'Излез' }).click();
 
     // App shows auth screen
     await expect(page.getByText('Вход в BeeMiniPOS')).toBeVisible();
@@ -101,7 +101,7 @@ test.describe('Offline mode', () => {
     await page.reload();
 
     // Shows offline notice but still renders products from cache
-    await expect(page.getByText(/Offline справочници/)).toBeVisible({ timeout: 8_000 });
+    await expect(page.getByText(/Офлайн справочници/)).toBeVisible({ timeout: 8_000 });
     await expect(page.getByText('Кафе')).toBeVisible();
   });
 });

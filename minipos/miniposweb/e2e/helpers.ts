@@ -237,13 +237,10 @@ export async function setupDeviceRoutes(page: Page, overrides: DeviceOverrides =
         updated_at: new Date().toISOString(),
       });
 
+    // No prior operation exists by default. Returning success here would skip
+    // the actual /intents submission and make fiscal-route E2E pass falsely.
     if (url.includes('/operations/'))
-      return respond(route, overrides.operation ?? {
-        operation_id: 'op-device-001',
-        state: 'FISCALIZED',
-        fiscal_reference: `DATECS-E2E-${Date.now()}`,
-        updated_at: new Date().toISOString(),
-      });
+      return respond(route, overrides.operation ?? 404);
 
     await route.fulfill({ status: 404, body: JSON.stringify({ code: 'NOT_FOUND' }), contentType: 'application/json' });
   });
