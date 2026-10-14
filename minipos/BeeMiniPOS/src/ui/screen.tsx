@@ -1,7 +1,7 @@
 import React from 'react';
 import type { PropsWithChildren, ReactNode } from 'react';
-import { ScrollView, StyleSheet, View, type ViewStyle } from 'react-native';
-import { Appbar, useTheme } from 'react-native-paper';
+import { Platform, ScrollView, StyleSheet, View, type ViewStyle } from 'react-native';
+import { Appbar, Surface, Text, useTheme } from 'react-native-paper';
 import { useSafeAreaInsets } from 'react-native-safe-area-context';
 import { spacing } from './tokens';
 import { useResponsiveLayout } from './responsive';
@@ -18,16 +18,16 @@ export function Screen({ title, actions, scroll = true, contentStyle, children }
   const insets = useSafeAreaInsets();
   const { gutter } = useResponsiveLayout();
   const body = (
-    <View style={[styles.content, { paddingHorizontal: gutter, paddingBottom: Math.max(insets.bottom, spacing.md) }, contentStyle]}>
+    <Surface mode="flat" elevation={0} style={[styles.content, { paddingLeft:Math.max(gutter,insets.left),paddingRight:Math.max(gutter,insets.right), paddingBottom: Math.max(insets.bottom, spacing.md) }, contentStyle]}>
       {children}
-    </View>
+    </Surface>
   );
 
   return (
-    <View style={[styles.root, { backgroundColor: theme.colors.background }]}>
-      {title ? <Appbar.Header elevated><Appbar.Content title={title} />{actions}</Appbar.Header> : null}
+    <Surface mode="flat" elevation={0} style={[styles.root, { backgroundColor: theme.colors.background }]}>
+      {title ? <Appbar.Header elevated style={{height:Platform.OS==='ios'?null:'auto',minHeight:64,paddingVertical:8}}><View style={{flex:1,minWidth:0,gap:8}}><Appbar.Content title={<Text variant="headlineSmall" accessibilityRole="header">{title}</Text>}/>{actions?<View style={{flexDirection:'row',flexWrap:'wrap',gap:8}}>{actions}</View>:null}</View></Appbar.Header> : actions?<View style={{flexDirection:'row',flexWrap:'wrap',gap:8}}>{actions}</View>:null}
       {scroll ? <ScrollView contentContainerStyle={styles.grow} keyboardShouldPersistTaps="handled">{body}</ScrollView> : body}
-    </View>
+    </Surface>
   );
 }
 
