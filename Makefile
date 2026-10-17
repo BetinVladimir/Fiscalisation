@@ -1,4 +1,5 @@
-.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test smart-device-host-test minipos-outbox-test factory-test iot-test compose-check compose-e2e regression full-regression
+HIL_RUBY ?= ruby
+.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-external-verifier-test supto-hil-verifier-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test smart-device-host-test minipos-outbox-test factory-test iot-test compose-check compose-e2e regression full-regression
 deps:
 	cd minipos/BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
 	cd BeeFiscalApp && npm ci --cache /tmp/beefiscalapp-npm-cache --no-audit --no-fund
@@ -7,15 +8,12 @@ generate-openapi:
 test:
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./...
 	cd minipos/beeminipos-backend && GOCACHE=/tmp/beeminipos-go-cache go test ./...
-	cd edge-agent && GOCACHE=/tmp/edge-go-cache go test ./...
 test-race:
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test -race ./...
 	cd minipos/beeminipos-backend && GOCACHE=/tmp/beeminipos-go-cache go test -race ./...
-	cd edge-agent && GOCACHE=/tmp/edge-go-cache go test -race ./...
 vet:
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-vet-cache go vet ./...
 	cd minipos/beeminipos-backend && GOCACHE=/tmp/beeminipos-go-vet-cache go vet ./...
-	cd edge-agent && GOCACHE=/tmp/edge-go-vet-cache go vet ./...
 governance-test:
 	ruby scripts/verify_governance.rb
 readiness-doc-test:
@@ -42,15 +40,18 @@ supto-export-test:
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test.*Export'
 supto-offline-equivalence-test:
 	ruby scripts/verify_offline_equivalence.rb
-	cd edge-agent && GOCACHE=/tmp/edge-go-cache go test ./gateway ./runtime ./localapi
 supto-security-test: security-test
+supto-external-verifier-test:
+	$(HIL_RUBY) scripts/tests/verify_external_evidence_test.rb
+supto-hil-verifier-test:
+	$(HIL_RUBY) scripts/tests/verify_hil_evidence_test.rb
 supto-hil-verify:
-	ruby scripts/verify_hil_evidence.rb "$(EVIDENCE_DIR)"
+	$(HIL_RUBY) scripts/verify_hil_evidence.rb "$(EVIDENCE_DIR)"
 supto-release-verify:
 	ruby scripts/verify_release_evidence.rb "$(EVIDENCE_DIR)"
 supto-legal-verify:
-	ruby scripts/verify_legal_evidence.rb "$(EVIDENCE_DIR)"
-supto-software-acceptance: supto-trace-test supto-unp-test country-profile-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test contract-test typecheck
+	$(HIL_RUBY) scripts/verify_legal_evidence.rb "$(EVIDENCE_DIR)"
+supto-software-acceptance: supto-external-verifier-test supto-trace-test supto-unp-test country-profile-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test contract-test typecheck
 	ruby scripts/verify_supto_software_acceptance.rb
 supto-full-acceptance: regression postgres-integration compose-e2e supto-software-acceptance
 	ruby scripts/verify_supto_full_acceptance.rb
@@ -150,6 +151,10 @@ minipos-outbox-test:
 factory-test:
 	cd IoT/device-manufacturing && PYTHONPATH=src python3 -m unittest discover -s tests -v
 iot-test:
+	python3 IoT/firmware/edge-agent-s3/idf/tests/go_json_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/go_wire_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/receipt_host/run.py
 	python3 -m unittest discover -s IoT/firmware/edge-agent-s3/idf/tests -p 'test_*.py'
 	IoT/firmware/edge-agent-s3/idf/tests/run_native_saga.sh
 	bash IoT/firmware/edge-agent-s3/idf/tests/run_native_mqtt.sh
@@ -157,6 +162,9 @@ iot-test:
 	bash IoT/firmware/edge-agent-s3/idf/tests/run_native_ble.sh
 	sh IoT/firmware/edge-agent-s3/idf/tests/run_storage_host.sh
 	sh IoT/firmware/edge-agent-s3/idf/tests/run_sync_host.sh
+	sh IoT/firmware/edge-agent-s3/idf/tests/run_money_host.sh
+	sh IoT/firmware/edge-agent-s3/idf/tests/run_saga_storage_host.sh
+	sh IoT/firmware/edge-agent-s3/idf/tests/run_tender_recovery_host.sh
 	IoT/common-modules/daisy/run-tests.sh
 	IoT/common-modules/datecs/run-tests.sh
 	IoT/common-modules/datecspay/run-tests.sh

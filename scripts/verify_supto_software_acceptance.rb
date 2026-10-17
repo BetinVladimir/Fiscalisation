@@ -30,4 +30,5 @@ export_tests = File.read(File.join(root, "fiscal-backend/internal/domain/exports
 %w[SUPTO_18_1 SUPTO_18_2 SUPTO_18_3 SUPTO_18_4 SUPTO_18_5 SUPTO_18_9].each { |kind| abort "export fixture #{kind} missing" unless export_tests.include?(kind) }
 abort "JSON/CSV/XLSX fixture matrix missing" unless %w[JSON CSV XLSX].all? { |format| export_tests.include?(format) }
 
+abort "S3 offline/software evidence OPEN" unless system("ruby", File.join(root, "scripts/verify_offline_equivalence.rb"))
 puts "BG SUPTO software acceptance PASS: behavioral suites + DDL/API/event/export invariants"

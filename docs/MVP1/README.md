@@ -1,5 +1,11 @@
 # MVP1 — состояние реализации
 
+## Актуализация 2026-10-17: удаление Go runtime
+
+Текущий статус: **OPEN_SOFTWARE_GAPS / NO_GO**. По запросу пользователя отдельный Go `edge-agent/` удалён. Прежние результаты и заявления готовности ниже относятся к историческому составу и не подтверждают текущую сборку. Тесты удалённого модуля больше не являются evidence для S3.
+
+Текущий inventory: 74 effective canonical + 61 runtime operations; 135 generated request and 135 success contracts. BG trace: 5 PASS, 14 PARTIAL, 6 EXTERNAL_BLOCKED, 0 EXCLUDED_MVP. Это инвентаризация контрактов, не приёмка всей реализации. Требуются actual-S3 offline/security/retention/soak evidence и новый полный regression.
+
 ## Повторная проверка 2026-10-17
 
 **SOFTWARE_GAPS_OPEN / NO_GO для предварительной приёмки целевых hardware paths.**

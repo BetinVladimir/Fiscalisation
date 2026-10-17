@@ -15,7 +15,7 @@ FileUtils.mkdir_p(output)
 end
 
 components = {}
-Dir[ROOT.join("{fiscal-backend,minipos/beeminipos-backend,edge-agent}/go.sum")].sort.each do |path|
+Dir[ROOT.join("{fiscal-backend,minipos/beeminipos-backend}/go.sum")].sort.each do |path|
   File.foreach(path) do |line|
     name, version = line.split
     next unless name && version && !version.end_with?("/go.mod")

@@ -13,6 +13,8 @@ idf_component_register(
     "canonical_cbor.cpp"
     "device_identity.cpp"
     "sync_runtime.cpp"
+    "go_json.cpp"
+    "go_wire.cpp"
     "uart_runtime.cpp"
     "profile_executor.cpp"
     "serial_exchange.cpp"

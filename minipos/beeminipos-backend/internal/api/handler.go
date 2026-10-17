@@ -24,6 +24,7 @@ import (
 
 type fiscalOperationReader interface {
 	GetFiscalOperation(context.Context, string, string) (fiscalintegration.FiscalOperation, error)
+	GetFiscalSale(context.Context, string, string) (fiscalintegration.FiscalSale, error)
 }
 type handler struct {
 	operations fiscalOperationReader

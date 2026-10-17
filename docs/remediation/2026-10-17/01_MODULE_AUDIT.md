@@ -14,8 +14,8 @@
 | `minipos/miniposweb` | React/Vite POS, IndexedDB, route controller, offline cache; риск повторной отправки UNKNOWN подтверждён ветвлением кода | GAP-026; T-14/17/21 |
 | `BeeFiscalApp` | Администрирование, registry и activation; Edge V2 onboarding не завершён в native implementation | GAP-003; T-02/18/21 |
 | `AdminApp` | Отдельная административная Expo app; typecheck проходит, самостоятельного `test` script нет | T-18: auth expiry/roles/tenant and secret-redaction; UI e2e отдельно |
-| `edge-agent/{authority,ble,gateway,runtime,journal,sync,ota,control,localapi}` | Go reference/host runtime с собственными тестами. Его BLE crypto и frozen sync batch нельзя переносить как evidence на ESP-IDF | T-23: дифференциальные тесты контрактов; GAP-030 |
-| `edge-agent/device`, `cmd` | Simulator/unsupported composition и защищённые DEV/HIL paths, не драйвер физического S3 | Явно различать target runtime в manifests |
+| Удалённый Go `edge-agent/` | Исторический объект исходного аудита; модуль удалён по запросу пользователя | Исторические тесты не являются текущим evidence |
+
 | `IoT/firmware/edge-agent-s3/idf` | Основной ESP32-S3 runtime: SD/SQLite, UART/USB, NimBLE peripheral+central, MQTT, local HTTP, SPA manager | Основная концентрация GAP-003…025; host tests должны компилировать именно эти реализации |
 | `IoT/firmware/edge-agent-s3` Arduino track | Scaffold/другой composition; не считать взаимозаменяемым с IDF | Закрепить один target и reproducible image, T-22 |
 | `IoT/common-modules/{datecs,daisy,datecspay}` | Отдельные драйверы и transport-neutral BLE profile; их тесты проходят | GAP-009…013/029: правильные функции не гарантируют включение в firmware |

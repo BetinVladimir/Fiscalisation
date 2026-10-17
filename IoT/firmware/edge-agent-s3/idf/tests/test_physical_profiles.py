@@ -26,10 +26,7 @@ class PhysicalProfiles(unittest.TestCase):
   executor=(MAIN/"profile_executor.cpp").read_text()
   self.assertNotIn("for(int retry",executor)
   self.assertIn("FISCAL_CLOSE_UNKNOWN",executor)
- def test_recovery_proves_exact_unp_before_committing(self):
-  executor=(MAIN/"profile_executor.cpp").read_text()
-  for token in ("datecs_document_has_unp","daisy_document_has_unp","canonical_unp","FISCAL_DOCUMENT_NOT_PROVEN"):
-   self.assertIn(token,executor)
+ # Receipt-proof semantics are exercised by actual receipt_host/run.py, not helper-name tokens.
  def test_bluepad_is_a_real_binding_derived_central_not_a_readiness_stub(self):
   executor=(MAIN/"profile_executor.cpp").read_text();central=(MAIN/"bluepad_ble_central.cpp").read_text();cmake=(MAIN/"CMakeLists.txt").read_text()
   self.assertNotIn("payment_ready(){/*",executor);self.assertIn("bluepad_ble_ready",executor)

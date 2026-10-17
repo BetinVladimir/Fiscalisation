@@ -29,15 +29,9 @@ type FiscalOperation struct {
 }
 
 func (c *Client) GetFiscalOperation(ctx context.Context, companyID, operationID string) (FiscalOperation, error) {
-	var encrypted []byte
-	var fiscalTenant string
-	err := c.db.QueryRowContext(ctx, `select c.ciphertext,b.fiscal_tenant_id from minipos.company_fiscal_credentials c join minipos.company_fiscal_bindings b on b.id=c.binding_id where b.company_id=$1 and b.status='ACTIVE' and c.status='ACTIVE'`, companyID).Scan(&encrypted, &fiscalTenant)
+	token, fiscalTenant, err := c.fiscalReadCredential(ctx, companyID)
 	if err != nil {
 		return FiscalOperation{}, err
-	}
-	token, err := c.decrypt(encrypted)
-	if err != nil || token == "" || fiscalTenant == "" {
-		return FiscalOperation{}, errors.New("Fiscal operation credential unavailable")
 	}
 	var out FiscalOperation
 	err = c.call(ctx, http.MethodGet, "/public/v1/operations/"+url.PathEscape(operationID), token, "", map[string]string{"X-Api-Version": "2026-08-07"}, nil, &out)
@@ -46,6 +40,44 @@ func (c *Client) GetFiscalOperation(ctx context.Context, companyID, operationID 
 	}
 	if out.TenantID != fiscalTenant || out.OperationID != operationID || out.ClientOperationID != operationID {
 		return FiscalOperation{}, errors.New("Fiscal operation identity mismatch")
+	}
+	return out, nil
+}
+
+func (c *Client) fiscalReadCredential(ctx context.Context, companyID string) (string, string, error) {
+	var encrypted []byte
+	var tenant string
+	err := c.db.QueryRowContext(ctx, `select c.ciphertext,b.fiscal_tenant_id from minipos.company_fiscal_credentials c join minipos.company_fiscal_bindings b on b.id=c.binding_id where b.company_id=$1 and b.status='ACTIVE' and c.status='ACTIVE'`, companyID).Scan(&encrypted, &tenant)
+	if err != nil {
+		return "", "", err
+	}
+	token, err := c.decrypt(encrypted)
+	if err != nil || token == "" || tenant == "" {
+		return "", "", errors.New("Fiscal read credential unavailable")
+	}
+	return token, tenant, nil
+}
+
+type FiscalSale struct {
+	SaleID     string `json:"sale_id"`
+	TenantID   string `json:"tenant_id"`
+	ExternalID string `json:"external_id"`
+	RegisterID string `json:"register_id"`
+	OperatorID string `json:"operator_id"`
+}
+
+func (c *Client) GetFiscalSale(ctx context.Context, companyID, saleID string) (FiscalSale, error) {
+	token, tenant, err := c.fiscalReadCredential(ctx, companyID)
+	if err != nil {
+		return FiscalSale{}, err
+	}
+	var out FiscalSale
+	err = c.call(ctx, http.MethodGet, "/public/v1/sales/"+url.PathEscape(saleID), token, "", map[string]string{"X-Api-Version": "2026-08-07"}, nil, &out)
+	if err != nil {
+		return FiscalSale{}, err
+	}
+	if out.TenantID != tenant || out.SaleID != saleID {
+		return FiscalSale{}, errors.New("Fiscal sale identity mismatch")
 	}
 	return out, nil
 }

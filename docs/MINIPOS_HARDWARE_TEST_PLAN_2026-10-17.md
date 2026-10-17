@@ -10,8 +10,8 @@ mismatch и durability/recovery. Текущий статус — **SOFTWARE_GAPS
 не объявлять выполненной до закрытия перечисленных программных разрывов.
 
 
-Дата: 2026-10-17  
-Базовый commit: `cfff038`  
+Дата: 2026-10-17
+Базовый commit: `cfff038`
 Объект: текущая рабочая копия Fiscalisation, включая незакоммиченные изменения.
 
 ## Вывод
@@ -33,7 +33,7 @@ mismatch и durability/recovery. Текущий статус — **SOFTWARE_GAPS
 | `BeeFiscalApp` | Администрирование и настройка устройств |
 | `IoT/firmware/edge-agent-s3/idf` | S3: UART, USB CDC, BLE, MQTT, журнал на SD |
 | `SmartDevices/bluecash-app` | Android на BlueCash: fiscal/pinpad API, журнал, MQTT/BLE |
-| `edge-agent` | Отдельный Go runtime; его тесты не доказывают работу S3 |
+| `edge-agent` | Go-модуль удалён по запросу пользователя; строка сохранена только как историческое пояснение аудита |
 
 Для аппаратного стенда использовать ESP-IDF-проект `IoT/firmware/edge-agent-s3/idf`. Соседний Arduino-проект описан как skeleton и не эквивалентен полной прошивке.
 
@@ -108,7 +108,7 @@ README SmartDevices описывает старую активацию. MiniPOS 
 | Python ESP-IDF unit tests | 33 PASS |
 | Native C++ saga/profile tests | PASS |
 | MiniPOS TypeScript tests | 47 PASS |
-| Go edge-agent, все пакеты | PASS |
+| Go edge-agent, все пакеты — дополнительная историческая проверка вне текущего контура | PASS, не evidence готовности S3 |
 | Fiscal backend domain и mqttclient | PASS |
 | BlueCash release composition check | PASS |
 | Go MiniPOS backend | FAIL: три API-теста |
@@ -121,7 +121,6 @@ IoT/firmware/edge-agent-s3/idf/tests/run_native_saga.sh
 ruby scripts/verify_bluecash_release_composition.rb
 (cd minipos/BeeMiniPOS && npm test)
 (cd fiscal-backend && GOCACHE=/tmp/beefiscal-audit-go-cache go test ./internal/domain ./internal/mqttclient)
-(cd edge-agent && GOCACHE=/tmp/beefiscal-audit-go-cache go test ./...)
 (cd minipos/beeminipos-backend && GOCACHE=/tmp/beefiscal-audit-go-cache go test ./...)
 ```
 

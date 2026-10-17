@@ -7,6 +7,7 @@
 #include "mbedtls/sha256.h"
 #include <cstring>
 #include <mutex>
+#include <set>
 #include <sys/stat.h>
 
 namespace beefiscal::idf {namespace{
@@ -24,6 +25,10 @@ CREATE TABLE IF NOT EXISTS payments(
  payment_id TEXT PRIMARY KEY,operation_id TEXT NOT NULL REFERENCES operations(operation_id),
  receipt_id TEXT REFERENCES receipts(receipt_id),state TEXT NOT NULL,amount_minor INTEGER NOT NULL,
  terminal_reference TEXT,rrn TEXT,auth_code TEXT,created_at INTEGER NOT NULL,updated_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS payment_saga(
+ operation_id TEXT PRIMARY KEY REFERENCES operations(operation_id),phase TEXT NOT NULL,updated_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS payment_saga_members(
+ operation_id TEXT NOT NULL REFERENCES payment_saga(operation_id),payment_id TEXT PRIMARY KEY REFERENCES payments(payment_id),reversal_reference TEXT,reversal_rrn TEXT,reversal_auth_code TEXT);
 CREATE TABLE IF NOT EXISTS event_outbox(
  sequence INTEGER PRIMARY KEY AUTOINCREMENT,event_id TEXT NOT NULL UNIQUE,
  operation_id TEXT NOT NULL REFERENCES operations(operation_id),kind TEXT NOT NULL,
@@ -137,6 +142,97 @@ esp_err_t DurableStorage::complete_operation(const char*id,const char*rid,const 
 esp_err_t DurableStorage::operation(const char*id,OperationRecord&out)const{std::lock_guard<std::recursive_mutex> guard(impl_->mutex);out={};if(!ready()||!id||!*id)return ESP_ERR_INVALID_ARG;Statement s;if(sqlite3_prepare_v2(impl_->db,"SELECT operation_id,payload_digest,state,COALESCE(result_payload,''),updated_at FROM operations WHERE operation_id=?",-1,&s.v,nullptr)!=SQLITE_OK)return ESP_FAIL;sqlite3_bind_text(s.v,1,id,-1,SQLITE_TRANSIENT);const int rc=sqlite3_step(s.v);if(rc==SQLITE_DONE)return ESP_ERR_NOT_FOUND;if(rc!=SQLITE_ROW)return ESP_FAIL;out.operation_id=(const char*)sqlite3_column_text(s.v,0);out.payload_digest=(const char*)sqlite3_column_text(s.v,1);out.state=(const char*)sqlite3_column_text(s.v,2);out.result_payload=(const char*)sqlite3_column_text(s.v,3);out.updated_at=sqlite3_column_int64(s.v,4);return ESP_OK;}
 esp_err_t DurableStorage::upsert_receipt(const char*rid,const char*oid,const char*state,const char*payload,int64_t now){std::lock_guard<std::recursive_mutex> guard(impl_->mutex);if(!ready()||!rid||!oid||!state||!payload||now<=0)return ESP_ERR_INVALID_ARG;Statement s;const char*sql="INSERT INTO receipts(receipt_id,operation_id,state,canonical_payload,created_at,updated_at)VALUES(?,?,?,?,?,?) ON CONFLICT(receipt_id)DO UPDATE SET state=excluded.state,canonical_payload=excluded.canonical_payload,updated_at=excluded.updated_at WHERE receipts.operation_id=excluded.operation_id";if(sqlite3_prepare_v2(impl_->db,sql,-1,&s.v,nullptr)!=SQLITE_OK)return ESP_FAIL;sqlite3_bind_text(s.v,1,rid,-1,SQLITE_TRANSIENT);sqlite3_bind_text(s.v,2,oid,-1,SQLITE_TRANSIENT);sqlite3_bind_text(s.v,3,state,-1,SQLITE_TRANSIENT);sqlite3_bind_text(s.v,4,payload,-1,SQLITE_TRANSIENT);sqlite3_bind_int64(s.v,5,now);sqlite3_bind_int64(s.v,6,now);return sqlite3_step(s.v)==SQLITE_DONE&&sqlite3_changes(impl_->db)==1?ESP_OK:ESP_FAIL;}
 esp_err_t DurableStorage::upsert_payment(const char*pid,const char*oid,const char*rid,const char*state,int64_t amount,const char*reference,const char*rrn,const char*auth,int64_t now){std::lock_guard<std::recursive_mutex> guard(impl_->mutex);if(!ready()||!pid||!oid||!state||amount<0||now<=0)return ESP_ERR_INVALID_ARG;Statement s;const char*sql="INSERT INTO payments(payment_id,operation_id,receipt_id,state,amount_minor,terminal_reference,rrn,auth_code,created_at,updated_at)VALUES(?,?,?,?,?,?,?,?,?,?) ON CONFLICT(payment_id)DO UPDATE SET state=excluded.state,terminal_reference=COALESCE(excluded.terminal_reference,payments.terminal_reference),rrn=COALESCE(excluded.rrn,payments.rrn),auth_code=COALESCE(excluded.auth_code,payments.auth_code),updated_at=excluded.updated_at WHERE payments.operation_id=excluded.operation_id";if(sqlite3_prepare_v2(impl_->db,sql,-1,&s.v,nullptr)!=SQLITE_OK)return ESP_FAIL;sqlite3_bind_text(s.v,1,pid,-1,SQLITE_TRANSIENT);sqlite3_bind_text(s.v,2,oid,-1,SQLITE_TRANSIENT);if(rid)sqlite3_bind_text(s.v,3,rid,-1,SQLITE_TRANSIENT);else sqlite3_bind_null(s.v,3);sqlite3_bind_text(s.v,4,state,-1,SQLITE_TRANSIENT);sqlite3_bind_int64(s.v,5,amount);const char*values[]={reference,rrn,auth};for(int n=0;n<3;n++)if(values[n])sqlite3_bind_text(s.v,6+n,values[n],-1,SQLITE_TRANSIENT);else sqlite3_bind_null(s.v,6+n);sqlite3_bind_int64(s.v,9,now);sqlite3_bind_int64(s.v,10,now);return sqlite3_step(s.v)==SQLITE_DONE&&sqlite3_changes(impl_->db)==1?ESP_OK:ESP_FAIL;}
+esp_err_t DurableStorage::payment(const char*pid,PaymentRecord&out)const{
+ std::lock_guard<std::recursive_mutex> guard(impl_->mutex);out={};if(!ready()||!pid||!*pid)return ESP_ERR_INVALID_ARG;
+ Statement q;if(sqlite3_prepare_v2(impl_->db,"SELECT payment_id,operation_id,COALESCE(receipt_id,''),state,amount_minor,COALESCE(terminal_reference,''),COALESCE(rrn,''),COALESCE(auth_code,''),COALESCE((SELECT reversal_reference FROM payment_saga_members m WHERE m.payment_id=payments.payment_id),''),COALESCE((SELECT reversal_rrn FROM payment_saga_members m WHERE m.payment_id=payments.payment_id),''),COALESCE((SELECT reversal_auth_code FROM payment_saga_members m WHERE m.payment_id=payments.payment_id),'') FROM payments WHERE payment_id=?",-1,&q.v,nullptr)!=SQLITE_OK)return ESP_FAIL;
+ sqlite3_bind_text(q.v,1,pid,-1,SQLITE_TRANSIENT);int rc=sqlite3_step(q.v);if(rc==SQLITE_DONE)return ESP_ERR_NOT_FOUND;if(rc!=SQLITE_ROW)return ESP_FAIL;
+ out.payment_id=(const char*)sqlite3_column_text(q.v,0);out.operation_id=(const char*)sqlite3_column_text(q.v,1);out.receipt_id=(const char*)sqlite3_column_text(q.v,2);out.state=(const char*)sqlite3_column_text(q.v,3);out.amount_minor=sqlite3_column_int64(q.v,4);out.terminal_reference=(const char*)sqlite3_column_text(q.v,5);out.rrn=(const char*)sqlite3_column_text(q.v,6);out.auth_code=(const char*)sqlite3_column_text(q.v,7);out.reversal_reference=(const char*)sqlite3_column_text(q.v,8);out.reversal_rrn=(const char*)sqlite3_column_text(q.v,9);out.reversal_auth_code=(const char*)sqlite3_column_text(q.v,10);return ESP_OK;
+}
+esp_err_t DurableStorage::payment_saga_phase(const char*oid,std::string&out)const{
+ std::lock_guard<std::recursive_mutex> guard(impl_->mutex);out.clear();if(!ready()||!oid||!*oid)return ESP_ERR_INVALID_ARG;
+ Statement q;if(sqlite3_prepare_v2(impl_->db,"SELECT phase FROM payment_saga WHERE operation_id=?",-1,&q.v,nullptr)!=SQLITE_OK)return ESP_FAIL;sqlite3_bind_text(q.v,1,oid,-1,SQLITE_TRANSIENT);int rc=sqlite3_step(q.v);if(rc==SQLITE_DONE)return ESP_ERR_NOT_FOUND;if(rc!=SQLITE_ROW)return ESP_FAIL;out=(const char*)sqlite3_column_text(q.v,0);return ESP_OK;
+}
+esp_err_t DurableStorage::payment_saga_snapshot(const char*oid,const char*rid,PaymentSagaSnapshot&out)const{
+ std::lock_guard<std::recursive_mutex> guard(impl_->mutex);out={};if(!ready()||!oid||!*oid||!rid||!*rid)return ESP_ERR_INVALID_ARG;
+ // A read transaction is required as another SQLite connection can update rows.
+ if(exec(impl_->db,"BEGIN;")!=ESP_OK)return ESP_FAIL;
+ auto fail=[&](esp_err_t e){exec(impl_->db,"ROLLBACK;");out={};return e;};
+ auto rc=payment_saga_phase(oid,out.phase);if(rc!=ESP_OK)return fail(rc);
+ OperationRecord owner;if(operation(oid,owner)!=ESP_OK||(owner.state!="PAYMENT_SAGA_PENDING"&&owner.state!="COMPENSATION_REQUIRED"&&owner.state!="RECOVERY_REQUIRED"))return fail(ESP_ERR_INVALID_STATE);
+ Statement q;if(sqlite3_prepare_v2(impl_->db,"SELECT payment_id FROM payment_saga_members WHERE operation_id=? ORDER BY rowid",-1,&q.v,nullptr)!=SQLITE_OK)return fail(ESP_FAIL);
+ sqlite3_bind_text(q.v,1,oid,-1,SQLITE_TRANSIENT);int step;
+ while((step=sqlite3_step(q.v))==SQLITE_ROW){PaymentRecord p;if(payment((const char*)sqlite3_column_text(q.v,0),p)!=ESP_OK||p.operation_id!=oid||p.receipt_id!=rid||p.amount_minor<=0)return fail(ESP_FAIL);out.payments.push_back(p);}
+ if(step!=SQLITE_DONE||out.payments.empty()||exec(impl_->db,"COMMIT;")!=ESP_OK)return fail(ESP_FAIL);
+ return ESP_OK;
+}
+esp_err_t DurableStorage::reconcile_payment(const PaymentRecord&expected,const PaymentRecord&observed,const char*next,int64_t now){
+ std::lock_guard<std::recursive_mutex> guard(impl_->mutex);if(!ready()||!next||now<=0)return ESP_ERR_INVALID_ARG;
+ const auto&from=expected.state;const std::string to=next;
+ bool reversal=from=="REVERSAL_SENDING"||from=="REVERSAL_UNKNOWN";
+ if(!((from=="CARD_SENDING"||from=="CARD_UNKNOWN")&&(to=="CARD_APPROVED"||to=="CARD_DECLINED"||to=="CARD_NOT_SENT"))&&!(reversal&&(to=="REVERSED"||to=="REVERSAL_FAILED")))return ESP_ERR_INVALID_ARG;
+ if(expected.payment_id!=observed.payment_id||expected.operation_id!=observed.operation_id||expected.receipt_id!=observed.receipt_id||expected.amount_minor!=observed.amount_minor)return ESP_ERR_INVALID_ARG;
+ if(exec(impl_->db,"BEGIN IMMEDIATE;")!=ESP_OK)return ESP_FAIL;
+ auto fail=[&](){exec(impl_->db,"ROLLBACK;");return ESP_FAIL;};
+ OperationRecord op;if(operation(expected.operation_id.c_str(),op)!=ESP_OK||(op.state!="RECOVERY_REQUIRED"&&op.state!="PAYMENT_SAGA_PENDING"&&op.state!="COMPENSATION_REQUIRED"))return fail();
+ PaymentSagaSnapshot snapshot;if(payment_saga_phase(expected.operation_id.c_str(),snapshot.phase)!=ESP_OK)return fail();
+ if((!reversal&&snapshot.phase!="PAYMENTS")||(reversal&&snapshot.phase!="COMPENSATING"))return fail();
+ PaymentRecord current;if(payment(expected.payment_id.c_str(),current)!=ESP_OK||current.operation_id!=expected.operation_id||current.receipt_id!=expected.receipt_id||current.amount_minor!=expected.amount_minor||current.state!=expected.state||current.terminal_reference!=expected.terminal_reference||current.rrn!=expected.rrn||current.auth_code!=expected.auth_code||current.reversal_reference!=expected.reversal_reference||current.reversal_rrn!=expected.reversal_rrn||current.reversal_auth_code!=expected.reversal_auth_code)return fail();
+ // Existing purchase identity is immutable even if a terminal query contradicts it.
+ if((!current.terminal_reference.empty()&&observed.terminal_reference!=current.terminal_reference)||(!current.rrn.empty()&&observed.rrn!=current.rrn)||(!current.auth_code.empty()&&observed.auth_code!=current.auth_code))return fail();
+ Statement q;if(sqlite3_prepare_v2(impl_->db,"UPDATE payments SET state=?,terminal_reference=?,rrn=?,auth_code=?,updated_at=? WHERE payment_id=? AND EXISTS(SELECT 1 FROM payment_saga_members m WHERE m.payment_id=payments.payment_id AND m.operation_id=payments.operation_id)",-1,&q.v,nullptr)!=SQLITE_OK)return fail();
+ sqlite3_bind_text(q.v,1,next,-1,SQLITE_TRANSIENT);const std::string*refs[]={&observed.terminal_reference,&observed.rrn,&observed.auth_code};for(int n=0;n<3;n++)sqlite3_bind_text(q.v,n+2,refs[n]->c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_int64(q.v,5,now);sqlite3_bind_text(q.v,6,expected.payment_id.c_str(),-1,SQLITE_TRANSIENT);if(sqlite3_step(q.v)!=SQLITE_DONE||sqlite3_changes(impl_->db)!=1)return fail();
+ if(reversal){Statement m;if(sqlite3_prepare_v2(impl_->db,"UPDATE payment_saga_members SET reversal_reference=?,reversal_rrn=?,reversal_auth_code=? WHERE operation_id=? AND payment_id=?",-1,&m.v,nullptr)!=SQLITE_OK)return fail();const std::string*refs[]={&observed.reversal_reference,&observed.reversal_rrn,&observed.reversal_auth_code};for(int n=0;n<3;n++)sqlite3_bind_text(m.v,n+1,refs[n]->c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_text(m.v,4,expected.operation_id.c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_text(m.v,5,expected.payment_id.c_str(),-1,SQLITE_TRANSIENT);if(sqlite3_step(m.v)!=SQLITE_DONE||sqlite3_changes(impl_->db)!=1)return fail();}
+ if(set_operation_state(expected.operation_id.c_str(),"RECOVERY_REQUIRED",nullptr,now)!=ESP_OK||exec(impl_->db,"COMMIT;")!=ESP_OK)return fail();
+ return ESP_OK;
+}
+
+esp_err_t DurableStorage::begin_payment_saga(const char*oid,const char*rid,const std::vector<InitialPayment>&cards,int64_t now){
+ std::lock_guard<std::recursive_mutex> guard(impl_->mutex);if(!ready()||!oid||!*oid||!rid||!*rid||cards.empty()||now<=0)return ESP_ERR_INVALID_ARG;
+ if(exec(impl_->db,"BEGIN IMMEDIATE;")!=ESP_OK)return ESP_FAIL;
+ auto rollback=[&](){exec(impl_->db,"ROLLBACK;");return ESP_FAIL;};
+ OperationRecord operation;if(this->operation(oid,operation)!=ESP_OK||operation.state!="EXECUTING")return rollback();
+ std::set<std::string> ids;
+ for(const auto&card:cards){PaymentRecord p;if(!ids.insert(card.payment_id).second)return rollback();if(payment(card.payment_id.c_str(),p)!=ESP_OK||p.operation_id!=oid||p.receipt_id!=rid||p.amount_minor!=card.amount_minor||p.state!="RESERVED")return rollback();}
+ Statement insert;if(sqlite3_prepare_v2(impl_->db,"INSERT INTO payment_saga(operation_id,phase,updated_at)VALUES(?,'PAYMENTS',?)",-1,&insert.v,nullptr)!=SQLITE_OK)return rollback();sqlite3_bind_text(insert.v,1,oid,-1,SQLITE_TRANSIENT);sqlite3_bind_int64(insert.v,2,now);
+ if(sqlite3_step(insert.v)!=SQLITE_DONE)return rollback();
+ for(const auto&card:cards){Statement member;if(sqlite3_prepare_v2(impl_->db,"INSERT INTO payment_saga_members(operation_id,payment_id)VALUES(?,?)",-1,&member.v,nullptr)!=SQLITE_OK)return rollback();sqlite3_bind_text(member.v,1,oid,-1,SQLITE_TRANSIENT);sqlite3_bind_text(member.v,2,card.payment_id.c_str(),-1,SQLITE_TRANSIENT);if(sqlite3_step(member.v)!=SQLITE_DONE)return rollback();}
+ if(set_operation_state(oid,"PAYMENT_SAGA_PENDING",nullptr,now)!=ESP_OK||exec(impl_->db,"COMMIT;")!=ESP_OK)return rollback();
+ return ESP_OK;
+}
+esp_err_t DurableStorage::checkpoint_payment(const PaymentRecord&p,const char*expected,const char*next,const char*phase,int64_t now){
+ std::lock_guard<std::recursive_mutex> guard(impl_->mutex);if(!ready()||!expected||!next||!phase||p.amount_minor<=0||now<=0)return ESP_ERR_INVALID_ARG;
+ const std::string from=expected,to=next,target=phase;
+ const bool purchase=(from=="RESERVED"&&to=="CARD_SENDING")||(from=="CARD_SENDING"&&(to=="CARD_APPROVED"||to=="CARD_DECLINED"||to=="CARD_NOT_SENT"||to=="CARD_UNKNOWN"));
+ const bool reversal=(from=="CARD_APPROVED"&&to=="REVERSAL_SENDING")||(from=="REVERSAL_SENDING"&&(to=="REVERSED"||to=="REVERSAL_UNKNOWN"||to=="REVERSAL_FAILED"));
+ if((!purchase&&!reversal)||(purchase&&target!="PAYMENTS")||(reversal&&target!="COMPENSATING"))return ESP_ERR_INVALID_ARG;
+ if(exec(impl_->db,"BEGIN IMMEDIATE;")!=ESP_OK)return ESP_FAIL;
+ auto rollback=[&](){exec(impl_->db,"ROLLBACK;");return ESP_FAIL;};
+ OperationRecord operation;if(this->operation(p.operation_id.c_str(),operation)!=ESP_OK||(operation.state!="PAYMENT_SAGA_PENDING"&&operation.state!="COMPENSATION_REQUIRED"&&!(reversal&&operation.state=="RECOVERY_REQUIRED")))return rollback();
+ std::string current;if(payment_saga_phase(p.operation_id.c_str(),current)!=ESP_OK||(purchase&&current!="PAYMENTS")||(reversal&&current!="PAYMENTS"&&current!="COMPENSATING"&&current!="FISCAL_SENDING"&&current!="COMPENSATION_REQUIRED"))return rollback();
+ Statement update;if(sqlite3_prepare_v2(impl_->db,"UPDATE payments SET state=?,terminal_reference=COALESCE(?,terminal_reference),rrn=COALESCE(?,rrn),auth_code=COALESCE(?,auth_code),updated_at=? WHERE payment_id=? AND operation_id=? AND receipt_id=? AND amount_minor=? AND state=? AND EXISTS(SELECT 1 FROM payment_saga_members m WHERE m.operation_id=payments.operation_id AND m.payment_id=payments.payment_id)",-1,&update.v,nullptr)!=SQLITE_OK)return rollback();
+ sqlite3_bind_text(update.v,1,next,-1,SQLITE_TRANSIENT);const std::string*refs[]={&p.terminal_reference,&p.rrn,&p.auth_code};for(int n=0;n<3;n++){if(refs[n]->empty())sqlite3_bind_null(update.v,n+2);else sqlite3_bind_text(update.v,n+2,refs[n]->c_str(),-1,SQLITE_TRANSIENT);}sqlite3_bind_int64(update.v,5,now);sqlite3_bind_text(update.v,6,p.payment_id.c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_text(update.v,7,p.operation_id.c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_text(update.v,8,p.receipt_id.c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_int64(update.v,9,p.amount_minor);sqlite3_bind_text(update.v,10,expected,-1,SQLITE_TRANSIENT);
+ if(sqlite3_step(update.v)!=SQLITE_DONE||sqlite3_changes(impl_->db)!=1)return rollback();
+ if(from=="REVERSAL_SENDING"){
+  Statement evidence;if(sqlite3_prepare_v2(impl_->db,"UPDATE payment_saga_members SET reversal_reference=?,reversal_rrn=?,reversal_auth_code=? WHERE operation_id=? AND payment_id=?",-1,&evidence.v,nullptr)!=SQLITE_OK)return rollback();const std::string*refs[]={&p.reversal_reference,&p.reversal_rrn,&p.reversal_auth_code};for(int n=0;n<3;n++){if(refs[n]->empty())sqlite3_bind_null(evidence.v,n+1);else sqlite3_bind_text(evidence.v,n+1,refs[n]->c_str(),-1,SQLITE_TRANSIENT);}sqlite3_bind_text(evidence.v,4,p.operation_id.c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_text(evidence.v,5,p.payment_id.c_str(),-1,SQLITE_TRANSIENT);if(sqlite3_step(evidence.v)!=SQLITE_DONE||sqlite3_changes(impl_->db)!=1)return rollback();
+ }
+ Statement saga;if(sqlite3_prepare_v2(impl_->db,"UPDATE payment_saga SET phase=?,updated_at=? WHERE operation_id=?",-1,&saga.v,nullptr)!=SQLITE_OK)return rollback();sqlite3_bind_text(saga.v,1,phase,-1,SQLITE_TRANSIENT);sqlite3_bind_int64(saga.v,2,now);sqlite3_bind_text(saga.v,3,p.operation_id.c_str(),-1,SQLITE_TRANSIENT);
+ if(sqlite3_step(saga.v)!=SQLITE_DONE||sqlite3_changes(impl_->db)!=1||set_operation_state(p.operation_id.c_str(),reversal?"COMPENSATION_REQUIRED":"PAYMENT_SAGA_PENDING",nullptr,now)!=ESP_OK||exec(impl_->db,"COMMIT;")!=ESP_OK)return rollback();
+ return ESP_OK;
+}
+esp_err_t DurableStorage::checkpoint_saga_phase(const char*oid,const char*expected,const char*next,int64_t now){
+ std::lock_guard<std::recursive_mutex> guard(impl_->mutex);if(!ready()||!oid||!expected||!next||now<=0)return ESP_ERR_INVALID_ARG;
+ const std::string from=expected,to=next;if(!((from=="PAYMENTS"&&to=="FISCAL_SENDING")||(from=="COMPENSATING"&&to=="COMPENSATED")||((from=="PAYMENTS"||from=="FISCAL_SENDING")&&to=="COMPENSATION_REQUIRED")))return ESP_ERR_INVALID_ARG;
+ if(exec(impl_->db,"BEGIN IMMEDIATE;")!=ESP_OK)return ESP_FAIL;
+ auto rollback=[&](){exec(impl_->db,"ROLLBACK;");return ESP_FAIL;};
+ OperationRecord operation;if(this->operation(oid,operation)!=ESP_OK||(operation.state!="PAYMENT_SAGA_PENDING"&&operation.state!="COMPENSATION_REQUIRED"&&!(to=="COMPENSATED"&&operation.state=="RECOVERY_REQUIRED")))return rollback();
+ if(to=="FISCAL_SENDING"||to=="COMPENSATED"){
+  const char*query=to=="FISCAL_SENDING"?"SELECT count(*) FROM payment_saga_members m JOIN payments p ON p.payment_id=m.payment_id WHERE m.operation_id=? AND p.state!='CARD_APPROVED'":"SELECT count(*) FROM payment_saga_members m JOIN payments p ON p.payment_id=m.payment_id WHERE m.operation_id=? AND p.state NOT IN('REVERSED','CARD_DECLINED','CARD_NOT_SENT','RESERVED')";
+  Statement verify;if(sqlite3_prepare_v2(impl_->db,query,-1,&verify.v,nullptr)!=SQLITE_OK)return rollback();sqlite3_bind_text(verify.v,1,oid,-1,SQLITE_TRANSIENT);if(sqlite3_step(verify.v)!=SQLITE_ROW||sqlite3_column_int64(verify.v,0)!=0)return rollback();
+ }
+ Statement q;if(sqlite3_prepare_v2(impl_->db,"UPDATE payment_saga SET phase=?,updated_at=? WHERE operation_id=? AND phase=?",-1,&q.v,nullptr)!=SQLITE_OK)return rollback();sqlite3_bind_text(q.v,1,next,-1,SQLITE_TRANSIENT);sqlite3_bind_int64(q.v,2,now);sqlite3_bind_text(q.v,3,oid,-1,SQLITE_TRANSIENT);sqlite3_bind_text(q.v,4,expected,-1,SQLITE_TRANSIENT);
+ if(sqlite3_step(q.v)!=SQLITE_DONE||sqlite3_changes(impl_->db)!=1||set_operation_state(oid,to=="COMPENSATION_REQUIRED"?"COMPENSATION_REQUIRED":"PAYMENT_SAGA_PENDING",nullptr,now)!=ESP_OK||exec(impl_->db,"COMMIT;")!=ESP_OK)return rollback();
+ return ESP_OK;
+}
 esp_err_t DurableStorage::append_event(const char*eid,const char*oid,const char*kind,const char*payload,const char*digest,int64_t now){
  std::lock_guard<std::recursive_mutex> guard(impl_->mutex);
  if(!ready()||!eid||!*eid||!oid||!kind||!payload||!digest||strlen(digest)!=64||now<=0)return ESP_ERR_INVALID_ARG;

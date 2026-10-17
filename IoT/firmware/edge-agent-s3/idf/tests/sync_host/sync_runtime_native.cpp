@@ -31,7 +31,7 @@ if(mode=="freeze-fault"){assert(first!=ESP_OK&&publishes==0);FrozenSyncBatch no;
 assert(first==(failed_publish?ESP_FAIL:ESP_OK));FrozenSyncBatch frozen;assert(storage.frozen_sync_batch(frozen)==ESP_OK);assert(frozen.body==sent_body&&frozen.batch_id==sent_id);const auto initial_signs=signs;
 if(mode=="large-sequence"){
  assert(frozen.last_sequence==2147483649LL);assert(accept(ack(2147483649LL,frozen.last_event_hash))==ESP_OK);assert(storage.acknowledged_cursor()==2147483649LL);
- auto invalid=ack(3,frozen.last_event_hash);auto invalidpos=invalid.find("committed_through_seq\":3");assert(invalidpos!=std::string::npos);invalid.replace(invalidpos,std::string("committed_through_seq\":3").size(),"committed_through_seq\":9007199254740992");assert(accept(invalid)==ESP_ERR_INVALID_ARG);
+ auto invalid=ack(3,frozen.last_event_hash);auto invalidpos=invalid.find("committed_through_seq\":3");assert(invalidpos!=std::string::npos);invalid.replace(invalidpos,std::string("committed_through_seq\":3").size(),"committed_through_seq\":9223372036854775808");assert(accept(invalid)==ESP_ERR_INVALID_ARG);
  assert(accept(ack(-1,frozen.last_event_hash))==ESP_ERR_INVALID_ARG);
  auto fraction=ack(3,frozen.last_event_hash);auto pos=fraction.find("committed_through_seq\":3");assert(pos!=std::string::npos);fraction.replace(pos,std::string("committed_through_seq\":3").size(),"committed_through_seq\":1.5");assert(accept(fraction)==ESP_ERR_INVALID_ARG);
  std::cout<<mode<<" PASS\n";return 0;

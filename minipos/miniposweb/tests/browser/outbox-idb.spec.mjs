@@ -50,3 +50,24 @@ test('same UUID and payload digest cannot change command or receipt session',asy
  const actual=await page.evaluate(async row=>{const m=await import('/src/storage/outbox');const original={...row,intent:{...row.intent,action:'REPORT_X',command:'REPORT_X',receipt_session_id:'receipt1'}};await m.prepareOutbox(original);const errors=[];for(const key of ['action','command','receipt_session_id','intent_id','protocol_version','server_sale_id','client_sale_surrogate_id']){const changed={...original,intent:{...original.intent,[key]:'changed'}};for(const fn of [()=>m.prepareOutbox(changed),()=>m.claimOutboxAttempt(changed,'BLE'),()=>m.putOutbox(changed)])try{await fn();errors.push('unexpected');}catch(e){errors.push(e.message);}}return {errors,saved:await m.getOutbox('one')};},row);
  expect(actual.errors).toHaveLength(21);expect(actual.errors.every(value=>value==='IDEMPOTENCY_ENVELOPE_CONFLICT')).toBe(true);expect(actual.saved.intent.command).toBe('REPORT_X');expect(actual.saved.intent.receipt_session_id).toBe('receipt1');expect(actual.saved.attempt).toBeUndefined();
 });
+
+test('actual cloud client recovers lost response after reload into real IndexedDB with GET only',async({page})=>{
+ const original={...row,intent:{...row.intent,metadata:{order_id:'order-1'}}};
+ let submissions=0;await page.exposeFunction('recordSubmit',()=>{submissions++;});
+ await page.evaluate(async row=>{const {RouteController}=await import('/src/fiscal/routeController');try{await new RouteController([{kind:'CLOUD',probe:async()=>true,lookup:async()=>{throw Error('unused');},submit:async()=>{await window.recordSubmit();throw Error('response lost after acceptance');}}]).execute(row.intent);}catch{}const m=await import('/src/storage/outbox');const saved=await m.getOutbox(row.intent.client_operation_id);if(saved.attempt.route!=='CLOUD')throw Error('attempt not durable');},original);
+ await page.reload();const requests=[];
+ await page.route('**/minipos/orders/**',async route=>{requests.push({method:route.request().method(),url:route.request().url(),headers:route.request().headers()});await route.fulfill({status:200,json:{operation_id:'one',client_operation_id:'one',state:'FISCALIZED',fiscal_reference:'device-receipt',updated_at:'2026-10-17T20:00:00Z'}});});
+ const saved=await page.evaluate(async()=>{const {MiniPosClient}=await import('/src/api/client');const {refreshCloudOutbox}=await import('/src/fiscal/cloudRecovery');const rows=await refreshCloudOutbox(new MiniPosClient('/minipos',()=> 'employee-token','app-instance'),{tenant:'t1',location:'l1',register:'r1',operator:'op1'},()=>true);return rows[0];});
+ expect(submissions).toBe(1);expect(requests).toHaveLength(1);expect(requests[0]).toMatchObject({method:'GET',headers:{authorization:'Bearer employee-token','x-app-instance-id':'app-instance','x-api-version':'2026-08-07'}});
+ expect(saved.attempt.route).toBe('CLOUD');expect(saved.result).toMatchObject({operation_id:'one',state:'FISCALIZED',certainty:'PROVEN_SUCCESS',fiscal_reference:'device-receipt'});
+ await page.reload();expect(await page.evaluate(async()=>(await import('/src/storage/outbox')).getOutbox('one'))).toMatchObject({result:saved.result,attempt:saved.attempt});
+});
+
+test('actual cloud errors and mismatched proof retain uncertain claim across reload',async({page})=>{
+ const original={...row,intent:{...row.intent,metadata:{order_id:'order-1'}}};
+ await page.evaluate(async row=>{const m=await import('/src/storage/outbox');await m.prepareOutbox(row);await m.claimOutboxAttempt(row,'CLOUD');},original);
+ let status=401;let mismatched=false;const methods=[];
+ await page.route('**/minipos/orders/**',async route=>{methods.push(route.request().method());await route.fulfill({status,json:mismatched?{operation_id:'foreign',client_operation_id:'one',state:'FISCALIZED',fiscal_reference:'foreign-proof'}:{error:'uncertain'}});});
+ for(const next of [401,403,404,409,503,200]){status=next;mismatched=next===200;await page.reload();const saved=await page.evaluate(async()=>{const {MiniPosClient}=await import('/src/api/client');const {refreshCloudOutbox}=await import('/src/fiscal/cloudRecovery');return (await refreshCloudOutbox(new MiniPosClient('/minipos',()=> 'token','instance'),{tenant:'t1',location:'l1',register:'r1',operator:'op1'},()=>true))[0];});expect(saved.attempt.route).toBe('CLOUD');expect(saved.result).toBeUndefined();}
+ expect(methods).toEqual(Array(6).fill('GET'));
+});

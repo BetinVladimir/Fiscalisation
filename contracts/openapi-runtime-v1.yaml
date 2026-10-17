@@ -813,57 +813,6 @@ paths:
         '204': {description: Durably accepted and applied idempotently}
         '401': {$ref: '#/components/responses/Problem'}
         '409': {$ref: '#/components/responses/Problem'}
-  /internal/v1/final-device:
-    get:
-      operationId: probeFinalDeviceForHIL
-      tags: [Edge DEV HIL]
-      security: [{localBearer: []}]
-      responses:
-        '200':
-          description: Final device is reachable
-          content: {application/json: {schema: {$ref: '#/components/schemas/DeviceProbeResult'}}}
-        '503':
-          description: Final device is unavailable; fiscal sale must be blocked
-          content: {application/json: {schema: {$ref: '#/components/schemas/DeviceProbeResult'}}}
-  /internal/v1/commands:
-    post:
-      operationId: executeCanonicalEdgeCommandForHIL
-      tags: [Edge DEV HIL]
-      security: [{localBearer: []}]
-      requestBody:
-        required: true
-        content: {application/json: {schema: {$ref: '#/components/schemas/EdgeRuntimeCommand'}}}
-      responses:
-        '200':
-          description: Durable command result or replayed terminal result
-          content: {application/json: {schema: {$ref: '#/components/schemas/EdgeRuntimeResult'}}}
-        '409': {$ref: '#/components/responses/Problem'}
-        '422': {$ref: '#/components/responses/Problem'}
-  /internal/v1/storage:
-    get:
-      operationId: getEdgeStorageStatusForHIL
-      tags: [Edge DEV HIL]
-      security: [{localBearer: []}]
-      responses:
-        '200':
-          description: SQLite durable-media occupancy and threshold state
-          content: {application/json: {schema: {$ref: '#/components/schemas/EdgeStorageStatus'}}}
-        '503': {$ref: '#/components/responses/Problem'}
-  /local/v1/intents:
-    post:
-      operationId: executeLocalComplianceIntent
-      description: Loopback-only POS intent surface with the same server-owned sale semantics as the cloud gateway. It never accepts a vendor fiscal command or a caller-generated regulatory identifier.
-      tags: [Edge Local Compliance]
-      security: [{localBearer: []}]
-      requestBody:
-        required: true
-        content: {application/json: {schema: {$ref: '#/components/schemas/ComplianceIntent'}}}
-      responses:
-        '200':
-          description: Durable local result or idempotently replayed result
-          content: {application/json: {schema: {$ref: '#/components/schemas/ComplianceIntentResult'}}}
-        '409': {$ref: '#/components/responses/Problem'}
-        '422': {$ref: '#/components/responses/Problem'}
   /minipos/tax-groups:
     get:
       operationId: listMiniPosTaxGroups

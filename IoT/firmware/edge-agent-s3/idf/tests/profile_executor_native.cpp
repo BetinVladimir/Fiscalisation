@@ -7,9 +7,10 @@
 #include <vector>
 using namespace beefiscal::idf;
 
-// The production orchestrator references these only when a real journal is supplied.
-esp_err_t DurableStorage::upsert_payment(const char*,const char*,const char*,const char*,int64_t,const char*,const char*,const char*,int64_t){return ESP_OK;}
-esp_err_t DurableStorage::set_operation_state(const char*,const char*,const char*,int64_t){return ESP_OK;}
+// Every CARD scenario uses an actual durable journal; test plans are separate operations.
+#include <unistd.h>
+struct Journal{DurableStorage storage;std::string path;Journal(){char file[]="/tmp/beefiscal-profile-saga.XXXXXX";int fd=mkstemp(file);assert(fd>=0);close(fd);path=file;remove(path.c_str());assert(storage.open_database_for_test(path.c_str())==ESP_OK);assert(storage.configure_authority("TEST-",1,1000,1)==ESP_OK);}~Journal(){storage.close();remove(path.c_str());}};
+static ExecutionResult run(ProfileExecutor&executor,DurableStorage&storage,const ReceiptPlan&p){std::vector<InitialPayment>payments;for(const auto&v:p.payments)payments.push_back({v.id,v.amount_minor});assert(storage.reserve_command(p.operation_id.c_str(),std::string(64,'a').c_str(),"HTTP","{}",("received-"+p.operation_id).c_str(),p.receipt_session_id.c_str(),"{}",payments,1704067200,[](const AuthorityReservation&){return "{}";}).status==ReservationStatus::New);assert(storage.set_operation_state(p.operation_id.c_str(),"EXECUTING",nullptr,1704067200)==ESP_OK);return executor.execute(p);}
 
 struct ProtocolFaithfulIo final:DeviceIo{
  EdgeProfile profile;bool fiscal_up{true},payment_up{true};
@@ -19,6 +20,7 @@ struct ProtocolFaithfulIo final:DeviceIo{
  PaymentOutcome next_reverse{PaymentCertainty::Approved,"STAN-1","RRN-1","AUTH-1",""};
  int fiscal_calls{},purchase_calls{},lookup_calls{},reverse_calls{};std::vector<std::string> commands;
  explicit ProtocolFaithfulIo(EdgeProfile value):profile(value){}
+ bool verified_reversal_profile()const override{return true;}
  bool fiscal_ready()override{return fiscal_up;}bool payment_ready()override{return payment_up;}
  // Independent response layout from Daisy v2.0-4 p6 and Datecs PM v2.11.4 sec3.4.
  // Do not use the production request encoder to manufacture a device response.
@@ -47,8 +49,8 @@ struct ProtocolFaithfulIo final:DeviceIo{
  PaymentOutcome reverse(const std::string&,int64_t)override{reverse_calls++;commands.push_back("BLUEPAD_BLE_VOID");return next_reverse;}
  ExecutionResult recover(const RecoveryItem&)override{lookup_calls++;commands.push_back(profile==EdgeProfile::DaisyCompactS01?"DAISY_USB_LOOKUP":"DATECS_UART_LOOKUP");return next_fiscal;}
 };
-ReceiptPlan plan(const std::string&kind,const std::string&payment="CASH") {ReceiptPlan p;p.operation_id="11111111-1111-4111-8111-111111111111";p.receipt_session_id="22222222-2222-4222-8222-222222222222";p.unp="DY000600-OP01-0000001";p.command_type=kind;p.payments.push_back({"pay",payment,"10.00",1000});return p;}
-CompositeBinding binding(EdgeProfile profile){CompositeBinding b;b.profile=profile;b.payment.present=profile==EdgeProfile::DatecsDp150BluePad50;return b;}
+ReceiptPlan plan(const std::string&kind,const std::string&payment="CASH") {static int sequence=0;ReceiptPlan p;p.operation_id="operation-"+std::to_string(++sequence);p.receipt_session_id="receipt-"+std::to_string(sequence);p.unp="DY000600-OP01-0000001";p.command_type=kind;p.items.push_back({"line","Coffee","1.000","10.00","B",""});p.payments.push_back({"pay-"+p.operation_id,payment,"10.00",1000});return p;}
+CompositeBinding binding(EdgeProfile profile){CompositeBinding b;b.profile=profile;b.fiscal.execution.present=true;b.fiscal.execution.operator_number=1;b.fiscal.execution.operator_count=30;b.fiscal.execution.operator_password_ref="fiscal-pass";b.fiscal.execution.device_configuration_id="test-config";if(profile==EdgeProfile::DatecsDp150BluePad50){b.fiscal.execution.till_number=1;b.fiscal.execution.datecs_card_mode=1;}else b.fiscal.execution.daisy_card_code='N';b.payment.present=profile==EdgeProfile::DatecsDp150BluePad50;return b;}
 
 void protocol_corruption_matrix(EdgeProfile profile){
  ProtocolFaithfulIo io(profile);std::vector<uint8_t>payload{'O','K'};assert(io.roundtrip(69,payload));
@@ -61,20 +63,27 @@ void protocol_corruption_matrix(EdgeProfile profile){
  for(size_t n=0;n<valid.size();++n)assert(!accepted(std::vector<uint8_t>(valid.begin(),valid.begin()+n)));
  auto bad_bcc=valid;bad_bcc[bad_bcc.size()-2]='A';assert(!accepted(bad_bcc));
 }
-void fiscal_matrix(EdgeProfile profile){auto b=binding(profile);ProtocolFaithfulIo io(profile);ProfileExecutor x(b,io);
- for(const auto&kind:{"REPORT_X","REPORT_Z","CASH_IN","CASH_OUT","SALE_REVERSE"}){auto r=x.execute(plan(kind));if(r.certainty!=ExecutionCertainty::Committed)std::fprintf(stderr,"profile command failed: %s %s\n",kind,r.error_code.c_str());assert(r.certainty==ExecutionCertainty::Committed);}
+void fiscal_matrix(EdgeProfile profile){auto b=binding(profile);ProtocolFaithfulIo io(profile);Journal journal;ProfileExecutor x(b,io,&journal.storage);
+ for(const auto&kind:{"REPORT_X","REPORT_Z","CASH_IN","CASH_OUT","SALE_REVERSE"}){auto r=run(x,journal.storage,plan(kind));if(r.certainty!=ExecutionCertainty::Committed)std::fprintf(stderr,"profile command failed: %s %s\n",kind,r.error_code.c_str());assert(r.certainty==ExecutionCertainty::Committed);}
  assert(io.commands.size()==5);
 }
-void receipt_fault_matrix(EdgeProfile profile){auto b=binding(profile);ProtocolFaithfulIo io(profile);ProfileExecutor x(b,io);
- assert(x.execute(plan("SALE_FINALIZE")).certainty==ExecutionCertainty::Committed);
- if(profile==EdgeProfile::DaisyCompactS01){assert(x.execute(plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::DeviceUnavailable);return;}
- assert(x.execute(plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Committed);
- auto split=plan("SALE_FINALIZE","CASH");split.payments.push_back({"card","CARD","5.00",500});assert(x.execute(split).certainty==ExecutionCertainty::Committed);
- io.next_purchase.certainty=PaymentCertainty::Declined;assert(x.execute(plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Rejected);io.next_purchase.certainty=PaymentCertainty::Unknown;assert(x.execute(plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Unknown);
- io.next_purchase.certainty=PaymentCertainty::Approved;io.next_fiscal.certainty=ExecutionCertainty::Rejected;assert(x.execute(plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Compensated);
- io.next_reverse.certainty=PaymentCertainty::Unknown;assert(x.execute(plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Unknown);
- io.next_reverse.certainty=PaymentCertainty::Approved;io.payment_up=false;assert(x.execute(plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::DeviceUnavailable);io.payment_up=true;
- RecoveryItem recovery{};recovery.operation_id="11111111-1111-4111-8111-111111111111";assert(x.recover(recovery).certainty==io.next_fiscal.certainty);
- io.fiscal_up=false;assert(x.execute(plan("SALE_FINALIZE")).certainty==ExecutionCertainty::DeviceUnavailable);
+void receipt_fault_matrix(EdgeProfile profile){auto b=binding(profile);ProtocolFaithfulIo io(profile);Journal journal;ProfileExecutor x(b,io,&journal.storage);
+ assert(run(x,journal.storage,plan("SALE_FINALIZE")).certainty==ExecutionCertainty::Committed);
+ if(profile==EdgeProfile::DaisyCompactS01){assert(run(x,journal.storage,plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::DeviceUnavailable);return;}
+ assert(run(x,journal.storage,plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Committed);
+ auto split=plan("SALE_FINALIZE","CASH");split.payments[0].amount="5.00";split.payments[0].amount_minor=500;split.payments.push_back({"card","CARD","5.00",500});assert(run(x,journal.storage,split).certainty==ExecutionCertainty::Committed);
+ io.next_purchase.certainty=PaymentCertainty::Declined;assert(run(x,journal.storage,plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Rejected);io.next_purchase.certainty=PaymentCertainty::Unknown;assert(run(x,journal.storage,plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Unknown);
+ io.next_purchase.certainty=PaymentCertainty::Approved;io.next_fiscal.certainty=ExecutionCertainty::Rejected;assert(run(x,journal.storage,plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Compensated);
+ io.next_reverse.certainty=PaymentCertainty::Unknown;assert(run(x,journal.storage,plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Unknown);
+ io.next_reverse.certainty=PaymentCertainty::Approved;io.payment_up=false;assert(run(x,journal.storage,plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::DeviceUnavailable);io.payment_up=true;
+ RecoveryItem recovery{};recovery.operation_id="11111111-1111-4111-8111-111111111111";
+ recovery.receipt_id="legacy-cash-receipt";
+ const int lookups_before=io.lookup_calls;
+ assert(x.recover(recovery).certainty==ExecutionCertainty::Unknown);
+ assert(io.lookup_calls==lookups_before); // Missing durable payload never authorizes device recovery.
+ recovery.canonical_payload=R"({"payments":[{"type":"CASH"}]})";
+ assert(x.recover(recovery).certainty==io.next_fiscal.certainty);
+ assert(io.lookup_calls==lookups_before+1);
+ io.fiscal_up=false;assert(run(x,journal.storage,plan("SALE_FINALIZE")).certainty==ExecutionCertainty::DeviceUnavailable);
 }
 int main(){for(auto profile:{EdgeProfile::DatecsDp150BluePad50,EdgeProfile::DaisyCompactS01}){protocol_corruption_matrix(profile);fiscal_matrix(profile);receipt_fault_matrix(profile);}return 0;}

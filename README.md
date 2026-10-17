@@ -89,7 +89,6 @@ European standard layer for fiscal device integration with cloud ERP.
 ├── SmartDevices/
 │   ├── apps/
 │   └── shared-sdk/
-├── edge-agent/
 ├── cloud-core/
 │   ├── mqtt-router/
 │   ├── transaction-engine/
@@ -110,7 +109,7 @@ European standard layer for fiscal device integration with cloud ERP.
 - `IoT` — PlatformIO/Arduino C++-проекты: общие модули, конечные firmware и `IoT/protocol-abstraction`.
 - `SmartDevices` — Android-приложения под разные кассовые аппараты.
 - `protocol-abstraction` — часть `IoT` (`IoT/protocol-abstraction`): C++ Arduino-слой унификации протоколов (Epson/Datecs/Tremol...) с выбором целевого протокола при сборке прошивки через конфигурацию препроцессора.
-- `edge-agent` — локальный слой подключения, буферизации и offline-first синхронизации.
+- `IoT/firmware/edge-agent-s3/idf` — ESP32-S3 runtime подключения устройств, локального журнала и синхронизации. Отдельный Go-модуль удалён.
 - `cloud-core` — облачное event-driven ядро платформы.
 - `fiscal-backend` — Go backend для фискального контура.
 - `database/dbmigrate` — PostgreSQL-миграции.

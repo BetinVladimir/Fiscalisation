@@ -128,3 +128,49 @@ func TestGetFiscalOperationUsesCompanyCredentialAndValidatesIdentity(t *testing.
 		})
 	}
 }
+
+func TestGetFiscalSaleUsesTenantCredentialAndReadOnlyIdentity(t *testing.T) {
+	for _, scenario := range []string{"success", "tenant", "id", "notfound", "timeout"} {
+		t.Run(scenario, func(t *testing.T) {
+			block, _ := aes.NewCipher(make([]byte, 32))
+			aead, _ := cipher.NewGCM(block)
+			c := &Client{base: "https://fiscal.test", aead: aead}
+			encrypted, _ := c.encrypt("company-secret")
+			d := &recoveryDriver{encrypted: encrypted}
+			db := sql.OpenDB(recoveryConnector{d})
+			defer db.Close()
+			c.db = db
+			c.http = &http.Client{Transport: readTransport(func(r *http.Request) (*http.Response, error) {
+				if r.Method != "GET" || r.URL.Path != "/public/v1/sales/sale-one" || r.Header.Get("Authorization") != "Bearer company-secret" || r.Header.Get("Idempotency-Key") != "" {
+					t.Fatal("unsafe request", r.Method, r.URL.Path)
+				}
+				if scenario == "timeout" {
+					return nil, context.DeadlineExceeded
+				}
+				sale := FiscalSale{SaleID: "sale-one", TenantID: "fiscal-tenant-a"}
+				status := 200
+				if scenario == "tenant" {
+					sale.TenantID = "foreign"
+				}
+				if scenario == "id" {
+					sale.SaleID = "foreign"
+				}
+				if scenario == "notfound" {
+					status = 404
+				}
+				body, _ := json.Marshal(sale)
+				return &http.Response{StatusCode: status, Body: io.NopCloser(strings.NewReader(string(body))), Header: http.Header{}}, nil
+			})}
+			_, err := c.GetFiscalSale(context.Background(), "company-a", "sale-one")
+			if scenario == "success" && err != nil {
+				t.Fatal(err)
+			}
+			if scenario != "success" && err == nil {
+				t.Fatal("unvalidated sale accepted")
+			}
+			if d.company != "company-a" {
+				t.Fatal("wrong credential scope")
+			}
+		})
+	}
+}

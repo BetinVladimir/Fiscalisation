@@ -135,7 +135,7 @@ extern "C" void app_main(void) {
   }
   ESP_ERROR_CHECK(storage.configure_authority(binding.authority.unp_prefix.c_str(),
     binding.authority.unp_range_start,binding.authority.unp_range_end,binding.generation));
-  static beefiscal::idf::EspIdfDeviceIo physical_io(binding);
+  static beefiscal::idf::EspIdfDeviceIo physical_io(binding,secrets.fiscal_operator_password);
   if(!physical_io.begin()){ESP_LOGE(TAG,"physical profile transport failed to start");return;}
   static beefiscal::idf::ProfileExecutor physical_executor(binding,physical_io,&storage);
   static beefiscal::idf::IntentProcessor runtime(storage,binding,physical_executor,

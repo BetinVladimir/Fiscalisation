@@ -50,7 +50,7 @@ bool daisyDateTime(const std::string& value){
   return true;
 }
 bool daisyLongDateTime(const std::string& value){
-  if(value.size()!=19||value[2]!='.'||value[5]!='.'||value[10]!=' '||value[13]!=':'||value[16]!=':')return false;
+  if(value.size()!=19||value[2]!='.'||value[5]!='.'||value[10]!=' '||(value[13]!=':'&&value[13]!='.')||value[16]!=value[13])return false;
   for(size_t i=0;i<value.size();i++)if(i!=2&&i!=5&&i!=10&&i!=13&&i!=16&&!std::isdigit(static_cast<unsigned char>(value[i])))return false;
   return true;
 }

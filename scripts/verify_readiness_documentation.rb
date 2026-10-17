@@ -7,10 +7,10 @@ surface = acceptance.fetch('contract_surface')
 trace = acceptance.fetch('requirement_trace')
 
 expected = [
-  'SOFTWARE_COMPLETE_HIL_PENDING',
+  acceptance['base_profile_status'] == 'PASS' ? 'SOFTWARE_COMPLETE_HIL_PENDING' : 'OPEN_SOFTWARE_GAPS',
   "#{surface.fetch('canonical_operations')} effective canonical + #{surface.fetch('runtime_operations')} runtime operations",
   "#{surface.fetch('request_contracts')} generated request and #{surface.fetch('successful_response_contracts')} success contracts",
-  "#{trace.fetch('pass')} PASS, #{trace.fetch('partial_external_only')} PARTIAL, #{trace.fetch('external_blocked')} EXTERNAL_BLOCKED, #{trace.fetch('excluded_mvp')} EXCLUDED_MVP"
+  "#{trace.fetch('pass')} PASS, #{trace.fetch('partial_software_or_external', trace.fetch('partial_external_only'))} PARTIAL, #{trace.fetch('external_blocked')} EXTERNAL_BLOCKED, #{trace.fetch('excluded_mvp')} EXCLUDED_MVP"
 ]
 
 audit = File.read(File.join(root, 'MVP_COMPLETION_AUDIT.md'))

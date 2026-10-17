@@ -7,17 +7,35 @@
       "id": "SOAK-72H-NETWORK-FLAP",
       "simulated_duration_hours": 72,
       "slot_minutes": 5,
-      "test": "TestAccelerated72HourNetworkFlapSoak",
-      "source": "edge-agent/sync/soak_test.go",
-      "invariants": ["no lost journal event", "no duplicate backend commit", "same idempotency key after ambiguous response loss", "pending batch survives process restart", "durable ACK cursor reaches final sequence"]
+      "test": null,
+      "source": null,
+      "invariants": [
+        "no lost journal event",
+        "no duplicate backend commit",
+        "same idempotency key after ambiguous response loss",
+        "pending batch survives process restart",
+        "durable ACK cursor reaches final sequence"
+      ],
+      "status": "OPEN",
+      "gap": "OPEN: removed Go runtime evidence is not S3 evidence; actual ESP-IDF behavioral coverage and migration acceptance are required."
     },
     {
       "id": "SOAK-7D-JOURNAL",
       "simulated_duration_hours": 168,
       "slot_minutes": 10,
-      "test": "TestAcceleratedSevenDayJournalSoak",
-      "source": "edge-agent/journal/soak_test.go",
-      "invariants": ["monotonic sequence across daily restart", "hash chain remains valid", "all events acknowledged", "three-month retention preserved", "post-purge chain anchor remains appendable"]
+      "test": null,
+      "source": null,
+      "invariants": [
+        "monotonic sequence across daily restart",
+        "hash chain remains valid",
+        "all events acknowledged",
+        "three-month retention preserved",
+        "post-purge chain anchor remains appendable"
+      ],
+      "status": "OPEN",
+      "gap": "OPEN: removed Go runtime evidence is not S3 evidence; actual ESP-IDF behavioral coverage and migration acceptance are required."
     }
-  ]
+  ],
+  "implementation_target": "ESP_IDF_S3_ONLY",
+  "acceptance_status": "OPEN_SOFTWARE_GAPS"
 }

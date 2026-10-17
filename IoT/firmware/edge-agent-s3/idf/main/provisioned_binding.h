@@ -6,8 +6,9 @@
 
 namespace beefiscal::idf {
 enum class EdgeProfile:uint8_t{Unconfigured,DatecsDp150BluePad50,DaisyCompactS01};
+struct FiscalExecutionConfig{bool present{};uint8_t operator_number{},operator_count{};uint32_t till_number{};std::string operator_password_ref,device_configuration_id;int datecs_card_mode{-1};char daisy_card_code{};};
 struct FiscalEndpointBinding{std::string device_id,vendor,model,transport,driver_id,protocol_id,protocol_version,usb_serial;
-  uint32_t uart_baud{};uint8_t uart_data_bits{};char uart_parity{'N'};uint8_t uart_stop_bits{};
+  FiscalExecutionConfig execution;uint32_t uart_baud{};uint8_t uart_data_bits{};char uart_parity{'N'};uint8_t uart_stop_bits{};
   int uart_tx_pin{-1},uart_rx_pin{-1};uint16_t usb_vid{},usb_pid{};uint8_t usb_interface{};};
 struct PaymentEndpointBinding{bool present{};std::string device_id,vendor,model,transport,driver_id,protocol_id,protocol_version,
   ble_identity,service_uuid,tx_characteristic_uuid,rx_characteristic_uuid;};

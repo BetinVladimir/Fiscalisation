@@ -11,6 +11,7 @@ import (
 	"fiscalisation/beeminipos-backend/internal/fiscalintegration"
 	"net/http"
 	"net/http/httptest"
+	"strings"
 	"testing"
 	"time"
 )
@@ -21,13 +22,31 @@ func (f operationReadFunc) GetFiscalOperation(c context.Context, t, id string) (
 	return f(c, t, id)
 }
 
+func (f operationReadFunc) GetFiscalSale(ctx context.Context, company, id string) (fiscalintegration.FiscalSale, error) {
+	sale := fiscalintegration.FiscalSale{SaleID: id, TenantID: "fiscal-tenant-a", ExternalID: "external-order", RegisterID: "register", OperatorID: "operator"}
+	switch id {
+	case "foreign-sale":
+		sale.ExternalID = "foreign-order"
+	case "foreign-register":
+		sale.RegisterID = "foreign"
+	case "foreign-operator":
+		sale.OperatorID = "foreign"
+	case "foreign-tenant":
+		sale.TenantID = "foreign"
+	}
+	return sale, nil
+}
+
 const recoveryOrderID = "00000000-0000-4000-8000-000000000021"
 const recoveryOperationID = "00000000-0000-4000-8000-000000000022"
 const recoverySessionID = "00000000-0000-4000-8000-000000000023"
 
-func recoveryHandler(t *testing.T, mutate func(*fiscalintegration.FiscalOperation), upstreamErr error) (http.Handler, string, *int) {
+func recoveryHandler(t *testing.T, mutate func(*fiscalintegration.FiscalOperation), upstreamErr error, edit ...func(*domain.Order)) (http.Handler, string, *int) {
 	t.Helper()
-	order := domain.Order{ID: recoveryOrderID, TenantID: "tenant-a", ShiftID: "shift", RegisterID: "register", CheckoutOperationID: recoveryOperationID, ReceiptSessionID: recoverySessionID, FiscalSaleID: "sale", State: "UNKNOWN"}
+	order := domain.Order{ID: recoveryOrderID, TenantID: "tenant-a", ShiftID: "shift", RegisterID: "register", CheckoutOperationID: recoveryOperationID, ReceiptSessionID: recoverySessionID, FiscalSaleID: "sale", State: "UNKNOWN", ExternalID: "external-order", OperatorCode: "operator"}
+	if len(edit) > 0 {
+		edit[0](&order)
+	}
 	data, _ := json.Marshal(map[string]any{"orders": map[string]domain.Order{recoveryOrderID: order}, "shifts": map[string]domain.Shift{"shift": {ID: "shift", TenantID: "tenant-a", EmployeeID: "employee"}}, "employees": map[string]domain.Employee{"employee": {ID: "employee", TenantID: "tenant-a", Active: true, Status: "ACTIVE"}}})
 	svc, err := domain.NewPersistentService("https://unused", "2026-08-07", &apiStore{b: data})
 	if err != nil {
@@ -131,5 +150,55 @@ func TestCloudOperationRecoveryRejectsWrongActorOrAssociationBeforeLookup(t *tes
 				t.Fatalf("got %d calls%d body%s", w.Code, *calls, w.Body.String())
 			}
 		})
+	}
+}
+
+func TestCloudOperationRecoveryBindsMissingSaleByReadOnlyProof(t *testing.T) {
+	for _, scenario := range []string{"success", "foreign-sale", "foreign-register", "foreign-operator", "foreign-tenant", "absent operation"} {
+		t.Run(scenario, func(t *testing.T) {
+			var upstream error
+			if scenario == "absent operation" {
+				upstream = errors.New("404")
+			}
+			h, token, calls := recoveryHandler(t, func(op *fiscalintegration.FiscalOperation) {
+				if strings.HasPrefix(scenario, "foreign-") {
+					op.SaleID = scenario
+				}
+			}, upstream, func(order *domain.Order) { order.FiscalSaleID = "" })
+			r := httptest.NewRequest("GET", "/public/v1/minipos/orders/"+recoveryOrderID+"/operations/"+recoveryOperationID, nil)
+			r.Header.Set("Authorization", "Bearer "+token)
+			r.Header.Set("X-App-Instance-Id", "instance")
+			r.Header.Set("X-Api-Version", "2026-08-07")
+			w := httptest.NewRecorder()
+			h.ServeHTTP(w, r)
+			want := 502
+			if scenario == "success" {
+				want = 200
+			}
+			if w.Code != want || *calls != 1 {
+				t.Fatalf("code%d body%s", w.Code, w.Body.String())
+			}
+		})
+	}
+}
+
+func TestCloudLookupReturnsEffectivePriorProofAfterUnknownRead(t *testing.T) {
+	h, token, _ := recoveryHandler(t, func(op *fiscalintegration.FiscalOperation) { op.State = "UNKNOWN"; op.FiscalReference = "" }, nil, func(order *domain.Order) {
+		order.State = "COMPLETED"
+		order.ReceiptReference = "prior-proven-receipt"
+		order.FiscalVersion = 2
+	})
+	r := httptest.NewRequest("GET", "/public/v1/minipos/orders/"+recoveryOrderID+"/operations/"+recoveryOperationID, nil)
+	r.Header.Set("Authorization", "Bearer "+token)
+	r.Header.Set("X-App-Instance-Id", "instance")
+	r.Header.Set("X-Api-Version", "2026-08-07")
+	w := httptest.NewRecorder()
+	h.ServeHTTP(w, r)
+	if w.Code != 200 {
+		t.Fatal(w.Code, w.Body.String())
+	}
+	var result fiscalintegration.FiscalOperation
+	if err := json.Unmarshal(w.Body.Bytes(), &result); err != nil || result.State != "FISCALIZED" || result.FiscalReference != "prior-proven-receipt" || result.Version != 2 {
+		t.Fatal(result, err)
 	}
 }

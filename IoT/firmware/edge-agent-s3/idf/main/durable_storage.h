@@ -20,6 +20,8 @@ struct RecoveryItem{std::string operation_id;std::string receipt_id;std::string 
 struct FrozenSyncBatch{std::string batch_id,body,last_event_hash,previous_hash;int64_t first_sequence{},last_sequence{};};
 struct AuthorityReservation{int64_t operation_sequence{},unp_sequence{};std::string unp;};
 struct InitialPayment{std::string payment_id;int64_t amount_minor{};};
+struct PaymentRecord{std::string payment_id,operation_id,receipt_id,state,terminal_reference,rrn,auth_code,reversal_reference,reversal_rrn,reversal_auth_code;int64_t amount_minor{};};
+struct PaymentSagaSnapshot{std::string phase;std::vector<PaymentRecord> payments;};
 struct OperationRecord{std::string operation_id,payload_digest,state,result_payload;int64_t updated_at{};};
 struct AtomicReservationResult{ReservationStatus status;std::string prior_result;
   AuthorityReservation authority;};
@@ -57,6 +59,18 @@ public:
   esp_err_t upsert_payment(const char* payment_id,const char* operation_id,
     const char* receipt_id,const char* state,int64_t amount_minor,const char* terminal_reference,
     const char* rrn,const char* auth_code,int64_t now);
+  esp_err_t payment(const char* payment_id,PaymentRecord&)const;
+  esp_err_t payment_saga_phase(const char* operation_id,std::string&)const;
+  esp_err_t payment_saga_snapshot(const char* operation_id,const char* receipt_id,PaymentSagaSnapshot&)const;
+  // Recovery CAS compares the complete observed row; it never purchases again.
+  esp_err_t reconcile_payment(const PaymentRecord& expected,const PaymentRecord& observed,
+    const char* next_state,int64_t now);
+  esp_err_t begin_payment_saga(const char* operation_id,const char* receipt_id,
+    const std::vector<InitialPayment>& card_payments,int64_t now);
+  esp_err_t checkpoint_payment(const PaymentRecord&,const char* expected_state,
+    const char* next_state,const char* saga_phase,int64_t now);
+  esp_err_t checkpoint_saga_phase(const char* operation_id,const char* expected_phase,
+    const char* next_phase,int64_t now);
   esp_err_t append_event(const char* event_id,const char* operation_id,const char* kind,
     const char* payload,const char* digest,int64_t now);
   esp_err_t pending(size_t limit,const std::function<bool(const PendingEvent&)>&);

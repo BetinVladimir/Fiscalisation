@@ -1,6 +1,8 @@
 # Цель и ускоренная стратегия достижения
 
-Дата фиксации: 2026-10-17. Основание: прямой запрос пользователя зафиксировать цель, предложить максимально быстрый путь, распараллелить и агрегировать работу. Цель также зарегистрирована как активная цель задачи. Статус исполнения: **ACTIVE — STRATEGY_DEFINED; software gaps OPEN**. Этот документ фиксирует стратегию; его появление не означает выполнения исправлений.
+## Уточнение текущего контура
+
+По прямому запросу пользователя отдельный Go-модуль `edge-agent/` удалён из репозитория. Его команды, генераторы и ссылки на тестовые evidence исключаются из действующего контура. Исторические результаты не подтверждают готовность S3. Текущий IoT runtime — `IoT/firmware/edge-agent-s3/idf`; обязательны actual-runtime тесты и сборка этой прошивки. Go oracle в `idf/tests/go_wire_host` использует `fiscal-backend/internal`, а не удалённый модуль, и остаётся применимым. Недостающие эквивалентные проверки S3 остаются OPEN до реализации, а не закрываются удалением reference tests.
 
 ## Цель
 
@@ -24,7 +26,7 @@
 |---|---|---|---|
 | L1 — protocols и device emulation | `IoT/protocol-abstraction/**`, `IoT/common-modules/**`, profile executor/device central files IDF, device models и transport mocks W9 | Datecs/Daisy vendor vectors, codec failures/fixes, command parsers, minimal COM harness, затем USB/BLE models | Typed DeviceIo/ExecutionResult/PaymentOutcome contract с L2; exact vendor spec для CARD |
 | L2 — IoT durability/runtime | Остальные IDF runtime files: intent processor, durable storage, sync, MQTT/BLE ingress, provisioning; `IoT/device-manufacturing/**` | Atomic projection+outbox, failpoints, frozen batches/ACK, UNP recovery snapshot и software bootstrap | Контракты L1 и MQTT/identity A2; actual stateful device для crash/reconcile |
-| L3 — services, POS и BlueCash | `fiscal-backend/**`, `minipos/**`, `BeeFiscalApp/**`, `AdminApp/**`, `SmartDevices/**`, `edge-agent/**` | MQTT topic/ID regressions, три backend failures, UNKNOWN route persistence, Kotlin Datecs vectors | Shared wire/sync/lookup semantics L2; отдельное Android evidence |
+| L3 — services, POS и BlueCash | `fiscal-backend/**`, `minipos/**`, `BeeFiscalApp/**`, `AdminApp/**`, `SmartDevices/**` | MQTT topic/ID regressions, три backend failures, UNKNOWN route persistence, Kotlin Datecs vectors | Shared wire/sync/lookup semantics L2; отдельное Android evidence |
 | I — интегратор / независимая приёмка | `contracts/**`, shared registry/schema, root `Makefile`, gate scripts, docs/status/evidence; общие interfaces до передачи owner | Baseline, A2 решения, CI manifest, актуальная SUPTO traceability и draft пакета НАП | Принимает небольшие patches и запускает merged-path gates; статус READY выдаёт только по общему snapshot |
 
 Перед каждым coding dispatch закрепить exact file ownership, включая shared headers, CMake и registry entries: один файл — один writer. Новые эмуляторы L1 регистрируются через integrator-owned registry patch. Поток L3 большой: ранний приоритет backend/POS safety и Kotlin codec, затем onboarding/admin; косметические изменения не задерживают CASH. При достижении milestones перераспределять освободившиеся слоты на CARD, mobile lifecycle и независимое review, а не открывать произвольное число конфликтующих задач.

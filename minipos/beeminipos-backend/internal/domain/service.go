@@ -1740,6 +1740,28 @@ func (s *Service) applyFiscalEventLinkedForTenant(tenant, aggregateID, externalI
 		if o.FiscalSaleID != aggregateID && (externalID == "" || o.ExternalID != externalID) {
 			continue
 		}
+		// A delayed webhook cannot undo a proven terminal checkout/return.
+		if o.State == "REVERSED" {
+			if state != "REVERSED" {
+				return nil
+			}
+			if (o.ReversalOperationID != "" && operation != o.ReversalOperationID) || (o.ReversalFiscalReference != "" && fiscalReference != "" && o.ReversalFiscalReference != fiscalReference) {
+				return errors.New("reversal proof conflict")
+			}
+			return nil
+		}
+		if o.CheckoutOperationID != "" && state != "REVERSED" && operation != o.CheckoutOperationID {
+			return errors.New("checkout operation association conflict")
+		}
+		if o.State == "COMPLETED" && o.ReceiptReference != "" && state != "FISCALIZED" && state != "REVERSED" {
+			return errors.New("terminal fiscal projection conflict")
+		}
+		if o.State == "COMPLETED" && o.ReceiptReference != "" && state == "FISCALIZED" && o.FiscalOperationID != "" && operation != o.FiscalOperationID {
+			return errors.New("checkout operation conflict")
+		}
+		if state == "FISCALIZED" && o.ReceiptReference != "" && fiscalReference != "" && o.ReceiptReference != fiscalReference {
+			return errors.New("fiscal reference conflict")
+		}
 		if version <= o.FiscalVersion && operation != o.ReversalOperationID && !(state == "REVERSED" && o.State == "UNKNOWN") {
 			return nil
 		}
@@ -1769,7 +1791,7 @@ func (s *Service) applyFiscalEventLinkedForTenant(tenant, aggregateID, externalI
 			o.FiscalSaleID = aggregateID
 		}
 		o.FiscalVersion = version
-		o.Version = version
+		o.Version++
 		s.orders[id] = o
 		return s.persistLocked()
 	}

@@ -6,6 +6,8 @@ matrix = JSON.parse(File.read(File.join(root, "contracts/soak-regression-matrix.
 abort "invalid soak time model" unless matrix["time_model"] == "ACCELERATED_DETERMINISTIC_SLOTS"
 abort "soak matrix must not claim HIL" unless matrix["hardware_claimed"] == false
 scenarios = matrix.fetch("scenarios")
+open_cases = scenarios.select { |item| item["status"] == "OPEN" }
+abort "S3 accelerated soak evidence OPEN: #{open_cases.map { |item| item['id'] }.join(', ')}" unless open_cases.empty?
 abort "expected two soak scenarios" unless scenarios.map { |v| v.fetch("id") }.sort == %w[SOAK-72H-NETWORK-FLAP SOAK-7D-JOURNAL]
 
 scenarios.each do |scenario|

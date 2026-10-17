@@ -1159,6 +1159,12 @@ static void testDaisyRemainingSupportedCommands() {
         std::vector<uint8_t>(documentRaw.begin(), documentRaw.end()), false,
         document, error));
     assert(parseDaisyIssuedDocument({'F'}, false, document, error) && !document.found);
+    // Vendor v2.0-4 p42 uses HH.mm.ss; retain HH:mm:ss compatibility above.
+    const std::string vendorIssued="P000470\t17.10.2026 14.00.00\t193\t0\t1\t0\tDY999636-OP01-1234567\t0";
+    assert(parseDaisyIssuedDocument(std::vector<uint8_t>(vendorIssued.begin(),vendorIssued.end()),false,document,error));
+    assert(document.number==470&&document.issuedAt=="17.10.2026 14.00.00");
+    std::string mixedIssued=vendorIssued;mixedIssued[mixedIssued.find("14.00")+2]=':';
+    assert(!parseDaisyIssuedDocument(std::vector<uint8_t>(mixedIssued.begin(),mixedIssued.end()),false,document,error));
 
     for (uint16_t command : {128, 153}) {
         assert(buildDaisySupportedNoData(command, payload, error));

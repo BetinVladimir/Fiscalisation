@@ -1,5 +1,6 @@
 #include "intent_processor.h"
 #include "cJSON.h"
+#include "go_wire.h"
 #include "canonical_cbor.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/md.h"
@@ -89,7 +90,8 @@ const char *state(ExecutionCertainty c) {
     return "REJECTED";
   }
 }
-std::string result_json(const std::string &operation_id, const ExecutionResult &r) {
+std::string result_json(const std::string &operation_id, const ExecutionResult &r,
+                        const std::string &operation_type = {}) {
   Json root(cJSON_CreateObject());
   if (!root) return {};
   const std::pair<const char *, const std::string *> fields[] = {
@@ -100,6 +102,7 @@ std::string result_json(const std::string &operation_id, const ExecutionResult &
   for (const auto &field : fields)
     if (!cJSON_AddStringToObject(root.get(), field.first,
         field.second ? field.second->c_str() : state(r.certainty))) return {};
+  if (!operation_type.empty() && !cJSON_AddStringToObject(root.get(), "operation_type", operation_type.c_str())) return {};
   char *raw = cJSON_PrintUnformatted(root.get());
   if (!raw) return {};
   std::string result(raw);
@@ -116,7 +119,8 @@ std::string accepted_json(const ReceiptPlan &p, const CompositeBinding &b,
   cJSON_AddStringToObject(command, "tenant_id", b.tenant_id.c_str());
   cJSON_AddStringToObject(command, "register_id", b.register_id.c_str());
   cJSON_AddStringToObject(command, "device_id", b.edge_device_id.c_str());
-  cJSON_AddStringToObject(command, "command_type", p.command_type.c_str());
+  cJSON_AddStringToObject(command, "command_type",
+      p.command_type == "SALE_REVERSE" ? "REVERSAL" : p.command_type.c_str());
   cJSON *payload = cJSON_Parse(p.canonical_payload.c_str());
   cJSON_AddItemToObject(command, "payload",
                         payload ? payload : cJSON_CreateObject());
@@ -126,19 +130,15 @@ std::string accepted_json(const ReceiptPlan &p, const CompositeBinding &b,
   cJSON_Delete(root);
   return out;
 }
-bool verify_hmac(cJSON *root, const std::string &key) {
-  auto *signature = cJSON_DetachItemFromObjectCaseSensitive(root, "signature");
-  if (!cJSON_IsString(signature)) {
-    cJSON_Delete(signature);
+bool verify_hmac(go_json::Value root, const std::string &key) {
+  auto *signature = go_json::field(root, "signature");
+  if (!signature || signature->kind != go_json::Value::Kind::String)
     return false;
-  }
-  std::string supplied = signature->valuestring;
-  cJSON_Delete(signature);
-  char *raw = cJSON_PrintUnformatted(root);
-  if (!raw)
-    return false;
-  std::string canonical = raw;
-  cJSON_free(raw);
+  std::string supplied = signature->text;
+  root.fields.erase(std::remove_if(root.fields.begin(), root.fields.end(),
+      [](const auto &f) { return f.first == "signature"; }), root.fields.end());
+  std::string canonical, error;
+  if (!go_json::encode(root, canonical, error)) return false;
   for (char &c : supplied) {
     if (c == '-')
       c = '+';
@@ -188,17 +188,31 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
   if (!view.data || !view.size || view.size > 8192)
     return ESP_ERR_INVALID_ARG;
   cJSON *decoded = nullptr;
+  go_json::Value canonical_root;
+  std::string json_error;
   if (view.ingress == Ingress::Ble) {
     if (canonical_cbor_to_json(view.data, view.size, &decoded) != ESP_OK)
       return ESP_ERR_INVALID_ARG;
-  } else
-    decoded = cJSON_ParseWithLengthOpts((const char *)view.data, view.size,
+    if (!go_json::from_cjson(decoded, canonical_root, json_error)) {
+      cJSON_Delete(decoded); return ESP_ERR_INVALID_ARG;
+    }
+  } else {
+    if (!go_json::parse((const char*)view.data, view.size, canonical_root, json_error))
+      return ESP_ERR_INVALID_ARG;
+    std::string business_json;
+    if (!go_json::encode(canonical_root, business_json, json_error))
+      return ESP_ERR_INVALID_ARG;
+    decoded = cJSON_ParseWithLengthOpts(business_json.data(), business_json.size(),
                                         nullptr, false);
+  }
   Json root(decoded);
-  if (!root || !cJSON_IsObject(root.get()))
+  if (!root || !cJSON_IsObject(root.get()) ||
+      canonical_root.kind != go_json::Value::Kind::Map ||
+      go_json::contains_nul(canonical_root) ||
+      !go_json::safe_cjson_numbers(canonical_root))
     return ESP_ERR_INVALID_ARG;
   if (view.ingress == Ingress::Mqtt &&
-      !verify_hmac(root.get(), command_hmac_key_))
+      !verify_hmac(canonical_root, command_hmac_key_))
     return ESP_ERR_INVALID_CRC;
   std::string tenant, reg, device, provided;
   const bool local =
@@ -236,6 +250,8 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
   }
   if (!uuid(p.operation_id) || !uuid(p.receipt_session_id))
     return ESP_ERR_INVALID_ARG;
+  // Preserve authenticated JSON/payload bytes; normalize only the internal plan.
+  if (p.command_type == "REVERSAL") p.command_type = "SALE_REVERSE";
   const std::vector<std::string> allowed = {
       "SALE_FINALIZE",   "SALE_REVERSE", "REPORT_X",
       "REPORT_Z",        "CASH_IN",      "CASH_OUT",
@@ -243,11 +259,11 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
   if (std::find(allowed.begin(), allowed.end(), p.command_type) ==
       allowed.end())
     return ESP_ERR_NOT_SUPPORTED;
-  char *canonical = cJSON_PrintUnformatted(payload);
-  if (!canonical)
-    return ESP_ERR_NO_MEM;
-  p.canonical_payload = canonical;
-  cJSON_free(canonical);
+  const auto *canonical_payload = go_json::field(canonical_root,
+      local ? "canonical_payload" : "payload");
+  if (!canonical_payload || !go_json::encode(*canonical_payload,
+                                            p.canonical_payload, json_error))
+    return ESP_ERR_INVALID_ARG;
   p.payload_digest =
       hash(p.canonical_payload.data(), p.canonical_payload.size());
   if (p.payload_digest != provided)
@@ -262,7 +278,7 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
       return ESP_ERR_INVALID_ARG;
   }
   p.route_snapshot =
-      "{\"binding_generation\":" + std::to_string(binding_.generation) +
+      "{\"command_type\":\"" + std::string(p.command_type == "SALE_REVERSE" ? "REVERSAL" : p.command_type) + "\",\"binding_generation\":" + std::to_string(binding_.generation) +
       ",\"edge_device_id\":\"" + binding_.edge_device_id +
       "\",\"fiscal_device_id\":\"" + binding_.fiscal.device_id + "\"" +
       (binding_.payment.present
@@ -288,15 +304,48 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
         cJSON_GetObjectItemCaseSensitive(payload, "original_document");
     auto *number =
         cJSON_GetObjectItemCaseSensitive(original, "document_number");
-    auto *reason = cJSON_GetObjectItemCaseSensitive(payload, "reason");
+    auto *reason = cJSON_GetObjectItemCaseSensitive(original, "reason");
+    auto *legacy_reason = cJSON_GetObjectItemCaseSensitive(payload, "reason");
+    if (!reason) reason = legacy_reason;
+    else if (legacy_reason && (!cJSON_IsNumber(legacy_reason) ||
+             legacy_reason->valuedouble != reason->valuedouble))
+      return ESP_ERR_INVALID_ARG;
     if (!cJSON_IsObject(original) || !cJSON_IsNumber(number) ||
-        number->valueint < 1 ||
+        number->valuedouble != number->valueint || number->valueint < 1 || number->valueint > 9999999 ||
         !text(original, "document_datetime", p.original_datetime, 32) ||
         !text(original, "fiscal_memory_number", p.original_fmin, 16) ||
-        !cJSON_IsNumber(reason) || reason->valueint < 0 || reason->valueint > 2)
+        !cJSON_IsNumber(reason) || reason->valuedouble != reason->valueint ||
+        reason->valueint < 0 || reason->valueint > 2)
       return ESP_ERR_INVALID_ARG;
+    auto *reason_code = cJSON_GetObjectItemCaseSensitive(payload, "reason_code");
+    if (reason_code) {
+      std::string code;
+      if (!text(payload, "reason_code", code, 32)) return ESP_ERR_INVALID_ARG;
+      const int expected = code == "OPERATOR_ERROR" ? 0 :
+          (code == "CUSTOMER_RETURN" || code == "CUSTOMER_COMPLAINT") ? 1 :
+          code == "TAX_BASE_REDUCTION" ? 2 : -1;
+      if (expected != reason->valueint) return ESP_ERR_INVALID_ARG;
+    }
     p.original_document = number->valueint;
-    p.reversal_reason = reason->valueint;
+    // Canonical backend semantics are Datecs:0 operator,1 return,2 tax base.
+    // Daisy v2.0-4 p17 swaps0/1; Datecs PM v2.11.4 section4.6 does not.
+    p.reversal_reason = binding_.profile == EdgeProfile::DaisyCompactS01 && reason->valueint < 2
+                            ? 1 - reason->valueint : reason->valueint;
+    std::string original_unp;
+    if (cJSON_GetObjectItemCaseSensitive(original, "original_unp")) {
+      if (!text(original, "original_unp", original_unp, 21)) return ESP_ERR_INVALID_ARG;
+    } else if (!text(payload, "unp", original_unp, 21)) return ESP_ERR_INVALID_ARG;
+    std::string legacy_unp;
+    if (text(payload, "unp", legacy_unp, 21) && legacy_unp != original_unp)
+      return ESP_ERR_INVALID_ARG;
+    if (original_unp.size() != 21 || original_unp[8] != '-' || original_unp[13] != '-')
+      return ESP_ERR_INVALID_ARG;
+    for (size_t i=0;i<original_unp.size();++i) {
+      const unsigned char c=original_unp[i];
+      if (i<2 ? (c<'A'||c>'Z') : i<8 || i>13 ? (c<'0'||c>'9') : i==8 || i==13 ? false : !((c>='A'&&c<='Z')||(c>='a'&&c<='z')||(c>='0'&&c<='9')))
+        return ESP_ERR_INVALID_ARG;
+    }
+    p.unp = original_unp;
   }
   auto *items = cJSON_GetObjectItemCaseSensitive(payload, "items");
   auto *payments = cJSON_GetObjectItemCaseSensitive(payload, "payments");
@@ -307,15 +356,21 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
   cJSON_ArrayForEach(item, items) {
     IntentLine l;
     auto *price = cJSON_GetObjectItemCaseSensitive(item, "unit_price");
+    std::string price_currency;
     if ((!text(item, "line_id", l.id) && !text(item, "item_id", l.id)) ||
         !uuid(l.id) || !text(item, "name", l.name, 240) ||
         !text(item, "quantity", l.quantity, 32) || !cJSON_IsObject(price) ||
         !text(price, "amount", l.unit_price, 32) ||
+        !text(price, "currency", price_currency, 3) || price_currency != "EUR" ||
         !text(item, "tax_group", l.tax_group, 8))
       return ESP_ERR_INVALID_ARG;
     auto *d = cJSON_GetObjectItemCaseSensitive(item, "discount");
-    if (cJSON_IsObject(d) && !text(d, "amount", l.discount, 32))
-      return ESP_ERR_INVALID_ARG;
+    if (d && !cJSON_IsNull(d)) {
+      std::string discount_currency;
+      if (!cJSON_IsObject(d) || !text(d, "amount", l.discount, 32) ||
+          !text(d, "currency", discount_currency, 3) || discount_currency != "EUR")
+        return ESP_ERR_INVALID_ARG;
+    }
     p.items.push_back(std::move(l));
   }
   int64_t total = 0;
@@ -354,7 +409,7 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
       p.route_snapshot.c_str(), event.c_str(), p.receipt_session_id.c_str(),
       p.canonical_payload.c_str(), initial, at,
       [&](const AuthorityReservation &a) {
-        p.unp = a.unp;
+        if (p.command_type != "SALE_REVERSE") p.unp = a.unp;
         return accepted_json(p, binding_, a);
       });
   if (reserved.status == ReservationStatus::Duplicate) {
@@ -367,7 +422,7 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
     return ESP_ERR_INVALID_CRC;
   if (reserved.status != ReservationStatus::New)
     return ESP_FAIL;
-  p.unp = reserved.authority.unp;
+  if (p.command_type != "SALE_REVERSE") p.unp = reserved.authority.unp;
   if (!executor_.ready()) {
     std::string unavailable =
         "{\"error_code\":\"PHYSICAL_DEVICE_UNAVAILABLE\",\"operation_id\":\"" +
@@ -385,7 +440,7 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
   if (checkpoint != ESP_OK)
     return checkpoint;
   auto r = executor_.execute(p);
-  auto result = result_json(p.operation_id, r);
+  auto result = result_json(p.operation_id, r, p.command_type == "SALE_REVERSE" ? "REVERSAL" : p.command_type);
   if (result.empty()) return ESP_ERR_NO_MEM;
   // CARD states and references belong to individual executor checkpoints.
   // An operation-level result cannot safely overwrite per-tender evidence.
@@ -421,7 +476,10 @@ esp_err_t IntentProcessor::recover_pending() {
     if (r.terminal_reference.empty()) r.terminal_reference = i.terminal_reference;
     if (r.rrn.empty()) r.rrn = i.rrn;
     if (r.auth_code.empty()) r.auth_code = i.auth_code;
-    const auto payload = result_json(i.operation_id, r);
+    Json route(cJSON_Parse(i.route_snapshot.c_str()));
+    std::string operation_type;
+    text(route.get(), "command_type", operation_type, 32);
+    const auto payload = result_json(i.operation_id, r, operation_type);
     if (payload.empty()) { result = ESP_ERR_NO_MEM; return true; }
     const int64_t at = now();
     const auto digest = hash(payload.data(), payload.size());

@@ -1,8 +1,8 @@
 # Тесты к добавлению и критерии предварительной приёмки
 
-[Навигация](README.md) · [План этапов](04_REMEDIATION_PLAN.md) · [GAP register](02_GAP_REGISTER.md)
+## Уточнение текущего контура
 
-Это спецификация **будущих** тестов; перечисление не означает, что они уже добавлены или исполнены. Тестовые файлы/каталоги ниже — предлагаемое место реализации. В текущем этапе код не менялся.
+По прямому запросу пользователя отдельный Go-модуль `edge-agent/` удалён из репозитория. Его команды, генераторы и ссылки на тестовые evidence исключаются из действующего контура. Исторические результаты не подтверждают готовность S3. Текущий IoT runtime — `IoT/firmware/edge-agent-s3/idf`; обязательны actual-runtime тесты и сборка этой прошивки. Go oracle в `idf/tests/go_wire_host` использует `fiscal-backend/internal`, а не удалённый модуль, и остаётся применимым. Недостающие эквивалентные проверки S3 остаются OPEN до реализации, а не закрываются удалением reference tests.
 
 ## Требования к тестовому стенду
 
@@ -154,7 +154,7 @@ Clean checkout/offline dependency manifest, pinned toolchain/JAR hashes, explici
 
 **GAP:** 030/034. **Где:** CI и `scripts` regression tooling.
 
-Manifest отображает actual `.cpp`/Kotlin entrypoints, linked drivers, build flags, profile и test IDs. Gate выполняет actual runtime units; source-string checks остаются supplemental. Negative controls: сломать frame LEN/topic mapping/pre-I/O checkpoint/ACK hash в тестовом mutation workspace — соответствующая suite обязана падать. Go reference и IDF используют общий contract corpus, но отдельные statuses. Отсутствующий compiler/broker/Postgres/device evidence не превращается в PASS через skip или pipeline tail exit code. Required case coverage и trust verifier — самостоятельные negative tests.
+Manifest отображает actual `.cpp`/Kotlin entrypoints, linked drivers, build flags, profile и test IDs. Gate выполняет actual runtime units; source-string checks остаются supplemental. Negative controls: сломать frame LEN/topic mapping/pre-I/O checkpoint/ACK hash в тестовом mutation workspace — соответствующая suite обязана падать. IDF проверяется собственным обязательным contract corpus; Go reference вне текущего контура и может иметь только дополнительный отдельный статус. Отсутствующий compiler/broker/Postgres/device evidence не превращается в PASS через skip или pipeline tail exit code. Required case coverage и trust verifier — самостоятельные negative tests.
 
 ## T-24 — Tremol conformance при включении в scope
 

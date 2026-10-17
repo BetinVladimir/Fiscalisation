@@ -30,12 +30,11 @@ sources = {
     "identity-binding", "checkout-batch", "reversals", "/public/v1/fiscal-webhooks",
     "/public/v1/minipos/fiscal-enrollment", "/public/v1/minipos/tax-groups"
   ],
-  "edge-agent/localapi/handler.go" => ["/internal/v1/final-device", "/internal/v1/commands", "/internal/v1/storage", "/local/v1/intents"],
 }
 sources.each do |relative, routes|
   source = File.read(File.join(root, relative))
   routes.each { |route| abort "runtime route disappeared: #{route}" unless source.include?(route) }
 end
 
-abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 64
+abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 61
 puts "runtime OpenAPI coverage OK: #{operations.length} operations"

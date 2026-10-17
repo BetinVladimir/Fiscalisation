@@ -14,7 +14,7 @@ end
 
 assert(record['schema_version'] == '1.0', 'acceptance schema version')
 assert(record['profile'] == 'BG_MVP_FUNCTIONAL_NONPROD', 'unexpected acceptance profile')
-assert(record['acceptance_state'] == 'READY_FOR_HUMAN_SIGNATURE', 'software must not fabricate human acceptance')
+assert(record['acceptance_state'] == 'READY_FOR_HUMAN_SIGNATURE', 'software gaps remain; human handover is not ready')
 assert(record['base_profile_status'] == 'PASS', 'base software profile is not PASS')
 assert(record['pilot_status'] == 'NO_GO' && record['production_status'] == 'NO_GO', 'external gates must remain NO_GO')
 assert(record.dig('regression', 'status') == 'PASS', 'regression evidence missing')
@@ -41,7 +41,6 @@ assert(surface['runtime_operations'] == runtime_count, "runtime contract count d
 generated = %w[
   fiscal-backend/internal/api/response_contracts_gen.go
   minipos/beeminipos-backend/internal/api/response_contracts_gen.go
-  edge-agent/localapi/response_contracts_gen.go
 ].map { |relative| File.read(File.join(root, relative)) }
 success_count = generated.sum { |body| body.split('var generatedRequestContracts =', 2).first.scan(/^\s*\{Method:/).length }
 request_count = generated.sum { |body| body.split('var generatedRequestContracts =', 2).fetch(1).scan(/^\s*\{Method:/).length }
@@ -54,7 +53,7 @@ trace_counts = trace.group_by { |row| row.fetch('status') }.transform_values(&:l
 record_trace = record.fetch('requirement_trace')
 assert(record_trace['total'] == trace.length, 'BG trace total drift')
 assert(record_trace['pass'] == trace_counts.fetch('PASS', 0), 'BG PASS count drift')
-assert(record_trace['partial_external_only'] == trace_counts.fetch('PARTIAL', 0), 'BG PARTIAL count drift')
+assert(record_trace.fetch('partial_software_or_external', record_trace['partial_external_only']) == trace_counts.fetch('PARTIAL', 0), 'BG PARTIAL count drift')
 assert(record_trace['external_blocked'] == trace_counts.fetch('EXTERNAL_BLOCKED', 0), 'BG EXTERNAL_BLOCKED count drift')
 assert(record_trace['excluded_mvp'] == trace_counts.fetch('EXCLUDED_MVP', 0), 'BG EXCLUDED_MVP count drift')
 assert(record.fetch('external_no_go_gates').length >= 8, 'external NO-GO inventory incomplete')

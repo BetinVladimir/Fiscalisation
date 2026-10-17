@@ -11,7 +11,7 @@ abort "canonical roadmap missing" unless File.file?(roadmap)
 stages = register.fetch("stages")
 abort "roadmap stages must be exactly 1..25" unless stages.map { |row| row.fetch("stage") } == (1..25).to_a
 
-allowed = %w[SOFTWARE_PASS SOFTWARE_PASS_HIL_PENDING FORMALLY_EXCLUDED_EXTERNAL PENDING_EXTERNAL_ACCEPTANCE]
+allowed = %w[OPEN_SOFTWARE SOFTWARE_PASS SOFTWARE_PASS_HIL_PENDING FORMALLY_EXCLUDED_EXTERNAL PENDING_EXTERNAL_ACCEPTANCE]
 makefile = File.read(File.join(root, "Makefile"))
 stages.each do |row|
   id = "stage #{row.fetch('stage')}"
@@ -33,7 +33,9 @@ end
 acceptance = JSON.parse(File.read(File.join(root, "contracts/mvp-acceptance-v1.json")))
 pending = stages.select { |row| row.fetch("status") == "PENDING_EXTERNAL_ACCEPTANCE" }
 abort "stage 25 must remain pending while signatures are external" unless pending.map { |row| row.fetch("stage") } == [25]
-abort "acceptance must remain ready for human signature" unless acceptance.fetch("acceptance_state") == "READY_FOR_HUMAN_SIGNATURE"
+open_software = stages.any? { |row| row["status"] == "OPEN_SOFTWARE" }
+expected_state = open_software ? "NOT_READY_SOFTWARE_GAPS" : "READY_FOR_HUMAN_SIGNATURE"
+abort "acceptance state inconsistent with software gaps" unless acceptance.fetch("acceptance_state") == expected_state
 abort "production cannot be GO with external stages" unless acceptance.fetch("production_status") == "NO_GO"
 
 counts = stages.group_by { |row| row.fetch("status") }.transform_values(&:length)

@@ -2,35 +2,35 @@
   "schema_version": "1.0",
   "profile": "BG_MVP_FUNCTIONAL_NONPROD",
   "evaluated_at": "2026-08-14",
-  "acceptance_state": "READY_FOR_HUMAN_SIGNATURE",
-  "base_profile_status": "PASS",
+  "acceptance_state": "NOT_READY_SOFTWARE_GAPS",
+  "base_profile_status": "OPEN_SOFTWARE_GAPS",
   "pilot_status": "NO_GO",
   "production_status": "NO_GO",
   "release_evidence_status": "UNSIGNED_NO_GO",
   "regression": {
     "command": "make full-regression",
-    "status": "PASS",
+    "status": "REQUIRES_RERUN",
     "required_consecutive_clean_runs": 2,
-    "observed_consecutive_clean_runs": 2
+    "observed_consecutive_clean_runs": 0
   },
   "contract_surface": {
     "canonical_operations": 74,
-    "runtime_operations": 64,
-    "request_contracts": 138,
-    "successful_response_contracts": 138
+    "runtime_operations": 61,
+    "request_contracts": 135,
+    "successful_response_contracts": 135
   },
   "requirement_trace": {
     "total": 25,
-    "pass": 7,
-    "partial_external_only": 12,
+    "pass": 5,
+    "partial_external_only": 0,
     "external_blocked": 6,
-    "excluded_mvp": 0
+    "excluded_mvp": 0,
+    "partial_software_or_external": 14
   },
   "accepted_software_capabilities": [
     "isolated Fiscal and MiniPOS Compose projects with separate Caddy and PostgreSQL",
     "public OpenAPI-only MiniPOS to Fiscal integration",
     "cash and registry-bound card simulator verticals",
-    "REST-issued BLE authority, Edge SQLite journal, signed sync ACK and retention",
     "Android iOS and Web build surfaces for both Expo applications",
     "Daisy SMART S contract-complete STUB with production hard guard",
     "typed PostgreSQL persistence with FORCE RLS",
@@ -47,10 +47,29 @@
     "NAP BIM legal and authorized-service acceptance"
   ],
   "signoffs": [
-    {"role": "PRODUCT", "status": "PENDING_EXTERNAL_SIGNATURE"},
-    {"role": "ENGINEERING", "status": "PENDING_EXTERNAL_SIGNATURE"},
-    {"role": "QA", "status": "PENDING_EXTERNAL_SIGNATURE"},
-    {"role": "SECURITY", "status": "PENDING_EXTERNAL_SIGNATURE"},
-    {"role": "COMPLIANCE", "status": "PENDING_EXTERNAL_SIGNATURE"}
+    {
+      "role": "PRODUCT",
+      "status": "PENDING_EXTERNAL_SIGNATURE"
+    },
+    {
+      "role": "ENGINEERING",
+      "status": "PENDING_EXTERNAL_SIGNATURE"
+    },
+    {
+      "role": "QA",
+      "status": "PENDING_EXTERNAL_SIGNATURE"
+    },
+    {
+      "role": "SECURITY",
+      "status": "PENDING_EXTERNAL_SIGNATURE"
+    },
+    {
+      "role": "COMPLIANCE",
+      "status": "PENDING_EXTERNAL_SIGNATURE"
+    }
+  ],
+  "software_gaps": [
+    "OPEN: removed Go runtime evidence is not S3 evidence; actual ESP-IDF behavioral coverage and migration acceptance are required.",
+    "Actual S3 offline authority/encrypted BLE equivalence, retention, OTA and accelerated soak require implementation-specific evidence."
   ]
 }
