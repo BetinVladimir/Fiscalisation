@@ -1,7 +1,8 @@
+import {breakpoints} from './tokens';
 import { useMemo } from 'react';
 import { useWindowDimensions } from 'react-native';
 
-export const BREAKPOINTS = { xs: 320, sm: 360, md: 600, lg: 840 } as const;
+export const BREAKPOINTS = breakpoints;
 export type ScreenSize = keyof typeof BREAKPOINTS;
 
 export function getScreenSize(width: number): ScreenSize {

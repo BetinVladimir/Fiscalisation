@@ -44,6 +44,12 @@ public:
     const std::function<std::string(const AuthorityReservation&)>& event_payload);
   esp_err_t set_operation_state(const char* operation_id,const char* state,
     const char* result_payload,int64_t now);
+  // Atomically project a result and durable outbox evidence. Only explicitly
+  // supplied payments are updated; executor-owned CARD records stay untouched.
+  esp_err_t complete_operation(const char* operation_id,const char* receipt_id,
+    const char* state,const char* canonical_payload,const char* result_payload,
+    const std::vector<InitialPayment>& payments,const char* event_id,
+    const char* event_kind,const char* payload_digest,int64_t now);
   esp_err_t operation(const char* operation_id,OperationRecord&)const;
   esp_err_t upsert_receipt(const char* receipt_id,const char* operation_id,
     const char* state,const char* canonical_payload,int64_t now);

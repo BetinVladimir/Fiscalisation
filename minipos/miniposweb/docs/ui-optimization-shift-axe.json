@@ -44,7 +44,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
               "target": [
                 ".r-paddingInline-3pj75a > h1"
               ],
@@ -69,7 +69,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"button-text\"]"
               ],
@@ -86,7 +86,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.856,
+          "dominantShare": 0.842,
           "fontSize": "22px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -98,7 +98,7 @@
           "foreground": "rgb(255, 255, 255)",
           "pixelBackground": "rgb(73, 49, 122)",
           "contrastCandidate": 10.48,
-          "dominantShare": 0.682,
+          "dominantShare": 0.66,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -149,7 +149,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
               "target": [
                 ".r-paddingInline-3pj75a > h1"
               ],
@@ -174,7 +174,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"button-text\"]"
               ],
@@ -191,7 +191,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.856,
+          "dominantShare": 0.842,
           "fontSize": "22px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -203,7 +203,7 @@
           "foreground": "rgb(36, 21, 63)",
           "pixelBackground": "rgb(210, 193, 240)",
           "contrastCandidate": 10.07,
-          "dominantShare": 0.682,
+          "dominantShare": 0.66,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -254,7 +254,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
               "target": [
                 ".r-paddingInline-3pj75a > h1"
               ],
@@ -279,7 +279,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"button-text\"]"
               ],
@@ -296,7 +296,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.951,
+          "dominantShare": 0.94,
           "fontSize": "22px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -308,7 +308,7 @@
           "foreground": "rgb(255, 255, 255)",
           "pixelBackground": "rgb(73, 49, 122)",
           "contrastCandidate": 10.48,
-          "dominantShare": 0.682,
+          "dominantShare": 0.66,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -359,7 +359,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
               "target": [
                 ".r-paddingInline-3pj75a > h1"
               ],
@@ -384,7 +384,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"button-text\"]"
               ],
@@ -401,7 +401,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.951,
+          "dominantShare": 0.94,
           "fontSize": "22px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -413,7 +413,7 @@
           "foreground": "rgb(36, 21, 63)",
           "pixelBackground": "rgb(210, 193, 240)",
           "contrastCandidate": 10.07,
-          "dominantShare": 0.682,
+          "dominantShare": 0.66,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -464,7 +464,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
               "target": [
                 ".r-paddingInline-3pj75a > h1"
               ],
@@ -489,7 +489,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"button-text\"]"
               ],
@@ -506,7 +506,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.957,
+          "dominantShare": 0.959,
           "fontSize": "22px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -518,7 +518,7 @@
           "foreground": "rgb(255, 255, 255)",
           "pixelBackground": "rgb(73, 49, 122)",
           "contrastCandidate": 10.48,
-          "dominantShare": 0.682,
+          "dominantShare": 0.66,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -569,7 +569,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">Касова смяна</h1>",
               "target": [
                 ".r-paddingInline-3pj75a > h1"
               ],
@@ -594,7 +594,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"button-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"button-text\"]"
               ],
@@ -611,7 +611,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.957,
+          "dominantShare": 0.959,
           "fontSize": "22px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -623,7 +623,7 @@
           "foreground": "rgb(36, 21, 63)",
           "pixelBackground": "rgb(210, 193, 240)",
           "contrastCandidate": 10.07,
-          "dominantShare": 0.682,
+          "dominantShare": 0.66,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."

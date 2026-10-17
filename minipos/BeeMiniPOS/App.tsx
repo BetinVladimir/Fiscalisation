@@ -1,13 +1,16 @@
+import {Surface as SafePaperSurface} from 'react-native-paper';
+import {Surface as PaintedPaperSurface} from 'react-native-paper';
+import { AppButton as PaperButton } from './src/ui/app-button';
 import { colors as beeloyColors } from './src/ui/tokens';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { SafeAreaInsetsContext, SafeAreaView } from 'react-native-safe-area-context';
 import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-view';
 import { FormField as TextInput } from './src/ui/form-field';
 import { AuthForm } from './src/ui/auth-form';
 import { StatusBar } from "expo-status-bar";
-import { useEffect, useMemo, useRef, useState } from "react";
-import { Image, Linking, Platform, ScrollView as NativeScrollView, StyleSheet, useWindowDimensions, View } from "react-native";
+import { useContext, useEffect, useId, useMemo, useRef, useState } from "react";
+import { Linking, Platform, ScrollView as NativeScrollView, StyleSheet, useWindowDimensions, View } from "react-native";
 import {
-  Button as PaperButton,
+  Badge as PaperBadge,
   Card as PaperCard,
   Checkbox as PaperCheckbox,
   HelperText as PaperHelperText,
@@ -302,13 +305,9 @@ async function fiscalCloudReachable(path: string): Promise<boolean> {
 type FiscalRegisterReference = {id:string;code?:string;name?:string;status?:string};
 export default function App() { return <BeeloyAppProvider><View style={{flex:1}}><AppContent/><DemoBadge/></View></BeeloyAppProvider>; }
 function DemoBadge(){
-  const theme = useTheme();
-  if (!Constants.expoConfig?.extra?.isDemo) return null;
-  return <PaperSurface pointerEvents="none" elevation={1} style={[demo.badge, { backgroundColor: theme.colors.errorContainer }]}>
-    <PaperText variant="labelSmall" style={{ color: theme.colors.onErrorContainer, fontWeight: "700" }}>DEMO</PaperText>
-  </PaperSurface>;
+ if(!Constants.expoConfig?.extra?.isDemo)return null;
+ return <View pointerEvents="none" style={{position:'absolute',right:8,top:8,zIndex:9999}}><PaperBadge size={28}>DEMO</PaperBadge></View>;
 }
-const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,borderRadius:5,paddingHorizontal:9,paddingVertical:4}});
 function AppContent() {
   const { preference: themePreference, dark, selectTheme } = useThemePreference();
   return <MiniPosApp dark={dark} themePreference={themePreference} selectTheme={selectTheme} />;
@@ -330,6 +329,7 @@ function MiniPosApp({
   const connectivity = useRef(new ConnectivityController());
   const checkoutJournal = useRef(new CheckoutJournal());
   const emailAuth = useEmailAuth(apiBase);
+  const authErrorId = `beeminipos-auth-error-${useId().replace(/:/g, '')}`;
   const legalText = legalTranslations[emailAuth.language];
   const uiText = useTranslation();
   runtimeUnauthorized = () => void emailAuth.logout();
@@ -1188,8 +1188,10 @@ function MiniPosApp({
       setPPrice("");
       setPBarcode("");
       await refresh();
+      return true;
     } catch (e) {
       setStatus(message(e));
+      return false;
     }
   };
   const createEmployee = async () => {
@@ -1206,8 +1208,10 @@ function MiniPosApp({
       setELast("");
       setECode("");
       await refresh();
+      return true;
     } catch (e) {
       setStatus(message(e));
+      return false;
     }
   };
   const saveTaxGroup = async (group: Partial<TaxGroup> & { code: string; name: string; rate: string }) => {
@@ -1305,13 +1309,16 @@ function MiniPosApp({
   };
   if (!emailAuth.accessToken)
     return (
-      <SafeAreaView testID="app-root" style={[s.root, s.authRoot, { backgroundColor: paperTheme.colors.background }]}>
+      <SafePaperSurface testID="app-paper-surface" mode="flat" elevation={0} style={{flex:1,backgroundColor:paperTheme.colors.background}}><SafeAreaView testID="app-root" style={[s.root, s.authRoot, { }]}>
         <StatusBar style={dark ? "light" : "dark"} />
-        <Image
+        <PaperCard.Cover
           accessibilityIgnoresInvertColors
           source={require("../imgs/background.png")}
           resizeMode="cover"
-          style={s.authBackground}
+          style={[s.authBackground,{borderRadius:0}]}
+          accessible={false}
+          accessibilityElementsHidden
+          importantForAccessibility="no-hide-descendants"
         />
         <View style={s.authHeader}>
           <ThemeMenu preference={themePreference} text={uiText} onSelect={selectTheme} />
@@ -1331,36 +1338,39 @@ function MiniPosApp({
           <PaperCard.Content style={s.loginContent}>
           <PaperText variant="titleLarge">BeeMiniPOS</PaperText>
           <PaperText variant="headlineSmall" accessibilityRole="header">{uiText.signIn}</PaperText>
-          {emailAuth.stage === "email" ? <><TextInput testID="operator-login-email" label={uiText.email} accessibilityLabel={uiText.email} keyboardType="email-address" autoCapitalize="none" autoComplete="email" placeholder="email@example.com" value={emailAuth.email} onChangeText={emailAuth.setEmail}/><PaperButton testID="operator-login-start" mode="contained" contentStyle={s.authButtonContent} loading={emailAuth.busy} disabled={emailAuth.busy||!emailAuth.email} onPress={()=>void emailAuth.requestCode()}>{uiText.sendCode}</PaperButton></> : null}
-          {emailAuth.stage === "code" ? <><TextInput testID="operator-login-code" label={uiText.oneTimeCode} accessibilityLabel={uiText.oneTimeCode} textContentType="oneTimeCode" keyboardType="number-pad" maxLength={6} placeholder="000000" value={loginCode} onChangeText={setLoginCode}/><PaperButton testID="operator-login-verify" mode="contained" contentStyle={s.authButtonContent} loading={emailAuth.busy} disabled={emailAuth.busy||loginCode.length!==6} onPress={()=>void emailAuth.verifyCode(loginCode)}>{uiText.continue}</PaperButton></> : null}
+          {emailAuth.stage === "email" ? <><TextInput editable={!emailAuth.busy} aria-describedby={Platform.OS === 'web' && emailAuth.error ? authErrorId : undefined} testID="operator-login-email" label={uiText.email} accessibilityLabel={uiText.email} keyboardType="email-address" autoCapitalize="none" autoComplete="email" placeholder="email@example.com" value={emailAuth.email} onChangeText={emailAuth.setEmail}/><PaperButton testID="operator-login-start" mode="contained" contentStyle={s.authButtonContent} loading={emailAuth.busy} disabled={emailAuth.busy||!emailAuth.email} onPress={()=>void emailAuth.requestCode()}>{uiText.sendCode}</PaperButton></> : null}
+          {emailAuth.stage === "code" ? <><TextInput editable={!emailAuth.busy} aria-describedby={Platform.OS === 'web' && emailAuth.error ? authErrorId : undefined} testID="operator-login-code" label={uiText.oneTimeCode} accessibilityLabel={uiText.oneTimeCode} textContentType="oneTimeCode" autoComplete="one-time-code" keyboardType="number-pad" maxLength={6} placeholder="000000" value={loginCode} onChangeText={setLoginCode}/><PaperButton testID="operator-login-verify" mode="contained" contentStyle={s.authButtonContent} loading={emailAuth.busy} disabled={emailAuth.busy||loginCode.length!==6} onPress={()=>void emailAuth.verifyCode(loginCode)}>{uiText.continue}</PaperButton></> : null}
           {emailAuth.stage === "onboarding" ? <>
             <PaperText variant="titleLarge" accessibilityRole="header">{uiText.companyDetails}</PaperText>
-            <TextInput testID="onboarding-company-name" placeholder={uiText.companyName} value={companyName} onChangeText={setCompanyName}/>
-            <TextInput testID="onboarding-address" placeholder={uiText.address} value={companyAddress} onChangeText={setCompanyAddress}/>
-            <TextInput testID="onboarding-tax-id" placeholder={uiText.taxIdentifier} value={taxIdentifier} onChangeText={setTaxIdentifier}/>
-            <TextInput testID="onboarding-full-name" placeholder={uiText.fullName} value={currentUserName} onChangeText={setCurrentUserName}/>
+            <TextInput editable={!emailAuth.busy} aria-describedby={Platform.OS === 'web' && emailAuth.error ? authErrorId : undefined} testID="onboarding-company-name" label={uiText.companyName} accessibilityLabel={uiText.companyName} placeholder={uiText.companyName} value={companyName} onChangeText={setCompanyName}/>
+            <TextInput editable={!emailAuth.busy} aria-describedby={Platform.OS === 'web' && emailAuth.error ? authErrorId : undefined} testID="onboarding-address" label={uiText.address} accessibilityLabel={uiText.address} placeholder={uiText.address} value={companyAddress} onChangeText={setCompanyAddress}/>
+            <TextInput editable={!emailAuth.busy} aria-describedby={Platform.OS === 'web' && emailAuth.error ? authErrorId : undefined} testID="onboarding-tax-id" label={uiText.taxIdentifier} accessibilityLabel={uiText.taxIdentifier} placeholder={uiText.taxIdentifier} value={taxIdentifier} onChangeText={setTaxIdentifier}/>
+            <TextInput editable={!emailAuth.busy} aria-describedby={Platform.OS === 'web' && emailAuth.error ? authErrorId : undefined} testID="onboarding-full-name" label={uiText.fullName} accessibilityLabel={uiText.fullName} placeholder={uiText.fullName} value={currentUserName} onChangeText={setCurrentUserName}/>
             <PaperCheckbox.Item
               testID="onboarding-legal-consent"
+              disabled={emailAuth.busy}
+              labelMaxFontSizeMultiplier={0}
+              style={{minHeight:48}}
               position="leading"
               status={legalAccepted ? "checked" : "unchecked"}
-              onPress={() => setLegalAccepted(value => !value)}
+              onPress={() => { if (!emailAuth.busy) setLegalAccepted(value => !value); }}
               label={legalText.consent}
             />
             <PaperLegalLink testID="operator-onboarding-terms" label={legalText.terms} url={`https://legal.beeloy.org/${emailAuth.language}/terms`} />
             <PaperLegalLink testID="operator-onboarding-privacy" label={legalText.privacy} url={`https://legal.beeloy.org/${emailAuth.language}/privacy`} />
             <PaperButton testID="operator-onboarding-create" mode="contained" contentStyle={s.authButtonContent} loading={emailAuth.busy} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName||!legalAccepted} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName,accepted_terms_version:"b2b-2026-09-28"})}>{uiText.createCompany}</PaperButton>
           </> : null}
-          {emailAuth.error ? <PaperHelperText testID="operator-login-error" type="error" visible accessibilityLiveRegion="polite">{emailAuth.error}</PaperHelperText> : null}
+          {emailAuth.error ? <PaperHelperText nativeID={authErrorId} accessibilityRole="alert" testID="operator-login-error" type="error" visible accessibilityLiveRegion="polite">{emailAuth.error}</PaperHelperText> : null}
           </PaperCard.Content>
           </PaperCard>
         </AuthForm>
         </NativeScrollView>
-      </SafeAreaView>
+      </SafeAreaView></SafePaperSurface>
     );
   return (
-    <SafeAreaView testID="app-root" style={[s.root, { backgroundColor: paperTheme.colors.background }]}>
+    <SafePaperSurface testID="app-paper-surface" mode="flat" elevation={0} style={{flex:1,backgroundColor:paperTheme.colors.background}}><SafeAreaView testID="app-root" style={[s.root, { }]}>
       <StatusBar style={dark ? "light" : "dark"} />
-      <View testID="app-header" style={[s.top, isCompact && s.topCompact, { backgroundColor: paperTheme.colors.surface, borderColor: paperTheme.colors.outlineVariant }]}>
+      <PaintedPaperSurface mode="flat" elevation={0} testID="app-header" style={[s.top, isCompact && s.topCompact, { backgroundColor: paperTheme.colors.surface, borderColor: paperTheme.colors.outlineVariant }]}>
         <View style={s.topIdentity}>
           <PaperText variant="headlineSmall" style={{ color: paperTheme.colors.onSurface }}>BeeMiniPOS</PaperText>
           <PaperText variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
@@ -1429,7 +1439,7 @@ function MiniPosApp({
               ? uiText.closeShift
               : uiText.openShift}</PaperButton>
         </View>
-      </View>
+      </PaintedPaperSurface>
       {pendingOrder ? (
         <PaperCard
           testID="operation-unknown"
@@ -1510,7 +1520,7 @@ function MiniPosApp({
       ) : (
         <View style={s.posShell}>
           {isPhone ? (
-            <View style={[s.mobileTabs, { backgroundColor: paperTheme.colors.background }]}>
+            <PaintedPaperSurface mode="flat" elevation={0} style={[s.mobileTabs, { backgroundColor: paperTheme.colors.background }]}>
               <PaperSegmentedButtons
                 value={mobilePosView}
                 onValueChange={setMobilePosView}
@@ -1519,11 +1529,11 @@ function MiniPosApp({
                   { value: "cart", label: uiText.cart, accessibilityLabel: `${uiText.currentSale} (${cart.length}) • € ${total.toFixed(2)}${mobilePosView === "cart" ? ` • ${uiText.selected}` : ""}`, testID: "mobile-view-cart" },
                 ]}
               />
-            </View>
+            </PaintedPaperSurface>
           ) : null}
           <View style={[s.body, isPhone && s.bodyPhone]}>
           {(!isPhone || mobilePosView === "catalog") ? <View style={[s.catalog, isPhone && s.panelPhone]}>
-            <TextInput
+            <TextInput label={uiText.searchBarcode}
               testID="product-search"
               accessibilityLabel={uiText.searchBarcode}
               value={search}
@@ -1562,7 +1572,7 @@ function MiniPosApp({
                 ))}
             </ScrollView>
           </View> : null}
-          {(!isPhone || mobilePosView === "cart") ? <View
+          {(!isPhone || mobilePosView === "cart") ? <PaintedPaperSurface mode="flat" elevation={0}
             style={[s.cart, isPhone && s.cartPhone, { backgroundColor: paperTheme.colors.surface, borderColor: paperTheme.colors.outlineVariant }]}
           >
             <NativeScrollView
@@ -1591,7 +1601,7 @@ function MiniPosApp({
                 <PaperText variant="bodyMedium" style={[s.empty, { color: paperTheme.colors.onSurfaceVariant }]}>{uiText.touchProduct}</PaperText>
               ) : (
                 cart.map((x) => (
-                  <View
+                  <PaintedPaperSurface mode="flat" elevation={0}
                     testID={`cart-line-${x.product.id}`}
                     style={[s.line, { borderColor: paperTheme.colors.outlineVariant }]}
                     key={x.product.id}
@@ -1656,7 +1666,7 @@ function MiniPosApp({
                         Number(x.discountAmount || "0")
                       ).toFixed(2)}
                     </PaperText>
-                  </View>
+                  </PaintedPaperSurface>
                 ))
               )}
             </View>
@@ -1702,20 +1712,20 @@ function MiniPosApp({
               >{uiText.card}</PaperButton>
             </View>
             </NativeScrollView>
-            <View testID="cart-sticky-total" style={[s.total, { borderColor: paperTheme.colors.outlineVariant, backgroundColor: paperTheme.colors.surface }]}>
+            <PaintedPaperSurface mode="flat" elevation={0} testID="cart-sticky-total" style={[s.total, { borderColor: paperTheme.colors.outlineVariant, backgroundColor: paperTheme.colors.surface }]}>
               <PaperText variant="titleMedium">{uiText.total}</PaperText>
               <PaperText testID="sale-total" variant="headlineSmall">€ {total.toFixed(2)}</PaperText>
-            </View>
-          </View> : null}
+            </PaintedPaperSurface>
+          </PaintedPaperSurface> : null}
           </View>
         </View>
       )}
-      <View
+      <PaintedPaperSurface mode="flat" elevation={0}
         testID="status-transport"
         accessibilityLiveRegion="polite"
         style={[s.footer, { backgroundColor: paperTheme.colors.surfaceVariant }]}
       >
-        <View
+        <PaperBadge size={10} visible accessible={false} accessibilityElementsHidden importantForAccessibility="no-hide-descendants"
           style={[
             s.dot,
             (status.includes("блокирана") ||
@@ -1725,8 +1735,8 @@ function MiniPosApp({
           ]}
         />
         <PaperText variant="bodyMedium" style={[s.status, { color: paperTheme.colors.onSurfaceVariant }]}>{uiText.statusLabel}: {status}</PaperText>
-      </View>
-    </SafeAreaView>
+      </PaintedPaperSurface>
+    </SafeAreaView></SafePaperSurface>
   );
 }
 
@@ -1777,10 +1787,12 @@ function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", se
       background.setAttribute("inert", "");
     }
     const configure = () => {
-      document.querySelectorAll<HTMLElement>(`[data-testid^="${prefix}-"][role^="menuitem"]`).forEach(item => {
+      const items=Array.from(document.querySelectorAll<HTMLElement>(`[data-testid^="${prefix}-"][role^="menuitem"]`));
+      const active=items.find(item=>item===document.activeElement||item.contains(document.activeElement));
+      items.forEach(item => {
         item.setAttribute("role", "menuitemradio");
         item.setAttribute("aria-checked", String(item.dataset.testid === `${prefix}-${selected}`));
-        item.tabIndex = item.dataset.testid === `${prefix}-${selected}` ? 0 : -1;
+        item.tabIndex = active ? item === active ? 0 : -1 : item.dataset.testid === `${prefix}-${selected}` ? 0 : -1;
       });
     };
     configure();
@@ -1824,11 +1836,12 @@ function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", se
 }
 
 function PaperMenuChoice({ testID, title, onPress }: { testID: string; title: string; onPress: () => void }) {
-  const theme = useTheme();
-  return <PaperList.Item testID={testID} title={title} titleNumberOfLines={0}
+  const theme = useTheme(),mounted=useRef(false),snapshot={},latest=useRef(snapshot);latest.current=snapshot;
+  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
+  return <PaperList.Item testID={testID} title={title} titleNumberOfLines={0} titleMaxFontSizeMultiplier={0}
     accessibilityRole="menuitem" accessibilityLabel={title}
     style={{ minHeight: 48, minWidth: 0, margin: 4, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: theme.roundness }}
-    onPress={onPress} />;
+    onPress={()=>{if(mounted.current&&latest.current===snapshot)onPress();}} />;
 }
 
 function ThemeMenu({
@@ -1842,6 +1855,10 @@ function ThemeMenu({
 }) {
   const [visible, setVisible] = useState(false);
   usePaperMenuKeyboard(visible, "theme", preference);
+  const { width, height } = useWindowDimensions();
+  const insets = useContext(SafeAreaInsetsContext) ?? { top: 0, bottom: 0, left: 0, right: 0 };
+  const menuHeight = Math.max(0, Math.min(420, height - insets.top - insets.bottom - 64));
+  const menuWidth = Math.max(0, Math.min(320, width - insets.left - insets.right - 32));
   const labels: Record<ThemePreference, string> = {
     system: text.systemTheme,
     light: text.lightTheme,
@@ -1854,7 +1871,8 @@ function ThemeMenu({
 
   return (
     <PaperMenu
-      theme={{ animation: { scale: 0 } }}
+      statusBarHeight={0}
+      contentStyle={{ maxHeight: menuHeight, width: menuWidth, overflow: "hidden" }}
       overlayAccessibilityLabel={text.back}
       visible={visible}
       onDismiss={() => setVisible(false)}
@@ -1869,7 +1887,7 @@ function ThemeMenu({
         </PaperButton>
       }
     >
-      <View accessibilityRole="menu">
+      <NativeScrollView accessibilityRole="menu" testID="theme-menu-scroll" style={{maxHeight: menuHeight}} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
       <PaperMenuChoice
         testID="theme-system"
         title={`${text.systemTheme}${preference === "system" ? ` • ${text.selected}` : ""}`}
@@ -1885,7 +1903,7 @@ function ThemeMenu({
         title={`${text.darkTheme}${preference === "dark" ? ` • ${text.selected}` : ""}`}
         onPress={() => choose("dark")}
       />
-      </View>
+      </NativeScrollView>
     </PaperMenu>
   );
 }
@@ -1903,8 +1921,9 @@ function LanguageMenu({
   const [visible, setVisible] = useState(false);
   usePaperMenuKeyboard(visible, "language", language);
   const { width, height } = useWindowDimensions();
-  const menuHeight = Math.max(192, Math.min(420, height - 96));
-  const menuWidth = Math.max(240, Math.min(320, width - 32));
+  const insets = useContext(SafeAreaInsetsContext) ?? { top: 0, bottom: 0, left: 0, right: 0 };
+  const menuHeight = Math.max(0, Math.min(420, height - insets.top - insets.bottom - 64));
+  const menuWidth = Math.max(0, Math.min(320, width - insets.left - insets.right - 32));
   const labels: Record<Language, string> = {
     bg: "Български", hr: "Hrvatski", cs: "Čeština", da: "Dansk", nl: "Nederlands",
     en: "English", et: "Eesti", fi: "Suomi", fr: "Français", de: "Deutsch",
@@ -1919,7 +1938,7 @@ function LanguageMenu({
 
   return (
     <PaperMenu
-      theme={{ animation: { scale: 0 } }}
+      statusBarHeight={0}
       overlayAccessibilityLabel={text.back}
       visible={visible}
       onDismiss={() => setVisible(false)}
@@ -2017,13 +2036,13 @@ function Admin({
         <PaperText variant="titleLarge" accessibilityRole="header">{text.products}</PaperText>
         <PaperButton testID="product-add" mode="contained" onPress={() => setCatalogScreen("product-new")}>{text.addProduct}</PaperButton>
       </View>
-      {products.map((p: Product) => <PaperList.Item key={p.id} title={p.name} description={`€ ${p.price.amount} • ${text.vat} ${p.tax_group}`} />)}
+      {products.map((p: Product) => <PaperList.Item titleNumberOfLines={0} descriptionNumberOfLines={0} titleMaxFontSizeMultiplier={0} descriptionMaxFontSizeMultiplier={0} key={p.id} title={p.name} description={`€ ${p.price.amount} • ${text.vat} ${p.tax_group}`} />)}
     </PaperCard.Content></PaperCard> : null}
     {catalogScreen === "product-new" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <PaperText variant="titleLarge" accessibilityRole="header">{text.newProduct}</PaperText>
-      <TextInput testID="product-name" style={s.search} placeholder={text.name} value={values.pName} onChangeText={setters.setPName}/>
-      <TextInput testID="product-barcode" style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={setters.setPBarcode}/>
-      <TextInput testID="product-price" style={s.search} placeholder={text.priceEur} keyboardType="decimal-pad" value={values.pPrice} onChangeText={setters.setPPrice}/>
+      <TextInput label={text.name} testID="product-name" style={s.search} placeholder={text.name} value={values.pName} onChangeText={setters.setPName}/>
+      <TextInput label={text.barcode} testID="product-barcode" style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={setters.setPBarcode}/>
+      <TextInput label={text.priceEur} testID="product-price" style={s.search} placeholder={text.priceEur} keyboardType="decimal-pad" value={values.pPrice} onChangeText={setters.setPPrice}/>
       <PaperText variant="titleMedium">{text.vatGroup}</PaperText>
       {taxGroups.filter((group: TaxGroup) => group.status === "ACTIVE").map((group: TaxGroup) => <PaperButton
         key={group.id} mode={values.pTaxGroup === group.code ? "contained-tonal" : "outlined"}
@@ -2031,7 +2050,7 @@ function Admin({
         onPress={() => setters.setPTaxGroup(group.code)}
       >{`${group.code} • ${group.name} • ${group.rate}%${values.pTaxGroup === group.code ? ` • ${text.selected}` : ""}`}</PaperButton>)}
       {!taxGroups.some((group: TaxGroup) => group.status === "ACTIVE") ? <PaperButton mode="outlined" onPress={() => setCatalogScreen("tax-groups")}>{text.configureTaxGroups}</PaperButton> : null}
-      <PaperButton testID="product-create" mode="contained" disabled={!values.pTaxGroup} onPress={async () => { await createProduct(); setCatalogScreen("products"); }}>{text.save}</PaperButton>
+      <PaperButton testID="product-create" mode="contained" disabled={!values.pTaxGroup} onPress={async () => { if (await createProduct()) setCatalogScreen("products"); }}>{text.save}</PaperButton>
     </PaperCard.Content></PaperCard> : null}
     {catalogScreen === "tax-groups" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <View style={s.screenHeading}>
@@ -2041,15 +2060,15 @@ function Admin({
       {taxGroups.map((group: TaxGroup) => <PaperList.Item key={group.id} title={`${group.code} • ${group.name}`}
         description={`${group.rate}% • ${group.status === "ACTIVE" ? text.active : text.inactive}`}
         accessibilityRole="button" accessibilityLabel={`${group.code} • ${group.name} • ${group.rate}% • ${group.status === "ACTIVE" ? text.active : text.inactive}`}
-        titleNumberOfLines={0} descriptionNumberOfLines={0}
+        titleNumberOfLines={0} descriptionNumberOfLines={0} titleMaxFontSizeMultiplier={0} descriptionMaxFontSizeMultiplier={0}
         style={{ borderWidth: 1, borderColor: paperTheme.colors.outline, borderRadius: paperTheme.roundness, minHeight: 48 }}
         onPress={() => editTaxGroup(group)} />)}
     </PaperCard.Content></PaperCard> : null}
     {catalogScreen === "tax-group-edit" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <PaperText variant="titleLarge" accessibilityRole="header">{editingTaxGroup ? text.editTaxGroup : text.newTaxGroup}</PaperText>
-      <TextInput testID="tax-group-code" style={s.search} placeholder={text.taxCode} maxLength={1} autoCapitalize="characters" value={taxCode} onChangeText={setTaxCode}/>
-      <TextInput testID="tax-group-name" style={s.search} placeholder={text.name} value={taxName} onChangeText={setTaxName}/>
-      <TextInput testID="tax-group-rate" style={s.search} placeholder={text.taxRate} keyboardType="decimal-pad" value={taxRate} onChangeText={setTaxRate}/>
+      <TextInput label={text.taxCode} testID="tax-group-code" style={s.search} placeholder={text.taxCode} maxLength={1} autoCapitalize="characters" value={taxCode} onChangeText={setTaxCode}/>
+      <TextInput label={text.name} testID="tax-group-name" style={s.search} placeholder={text.name} value={taxName} onChangeText={setTaxName}/>
+      <TextInput label={text.taxRate} testID="tax-group-rate" style={s.search} placeholder={text.taxRate} keyboardType="decimal-pad" value={taxRate} onChangeText={setTaxRate}/>
       <PaperButton testID="tax-group-save" mode="contained" onPress={async () => { const saved = await saveTaxGroup({ ...editingTaxGroup, code: taxCode, name: taxName, rate: taxRate, status: editingTaxGroup?.status || "ACTIVE" }); if (saved) setCatalogScreen("tax-groups"); }}>{text.save}</PaperButton>
     </PaperCard.Content></PaperCard> : null}
     {catalogScreen === "employees" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
@@ -2057,14 +2076,14 @@ function Admin({
         <PaperText variant="titleLarge" accessibilityRole="header">{text.employees}</PaperText>
         <PaperButton testID="employee-add" mode="contained" onPress={() => setCatalogScreen("employee-new")}>{text.addEmployee}</PaperButton>
       </View>
-      {employees.map((e: Employee) => <PaperList.Item key={e.id} title={`${e.first_name} ${e.last_name}`} description={e.operator_code} />)}
+      {employees.map((e: Employee) => <PaperList.Item titleNumberOfLines={0} descriptionNumberOfLines={0} titleMaxFontSizeMultiplier={0} descriptionMaxFontSizeMultiplier={0} key={e.id} title={`${e.first_name} ${e.last_name}`} description={e.operator_code} />)}
     </PaperCard.Content></PaperCard> : null}
     {catalogScreen === "employee-new" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <PaperText variant="titleLarge" accessibilityRole="header">{text.newEmployee}</PaperText>
-      <TextInput testID="employee-first-name" style={s.search} placeholder={text.firstName} value={values.eFirst} onChangeText={setters.setEFirst}/>
-      <TextInput testID="employee-last-name" style={s.search} placeholder={text.lastName} value={values.eLast} onChangeText={setters.setELast}/>
-      <TextInput testID="employee-code" style={s.search} placeholder={text.operatorCode} maxLength={4} value={values.eCode} onChangeText={setters.setECode}/>
-      <PaperButton testID="employee-create" mode="contained" onPress={async () => { await createEmployee(); setCatalogScreen("employees"); }}>{text.save}</PaperButton>
+      <TextInput label={text.firstName} testID="employee-first-name" style={s.search} placeholder={text.firstName} value={values.eFirst} onChangeText={setters.setEFirst}/>
+      <TextInput label={text.lastName} testID="employee-last-name" style={s.search} placeholder={text.lastName} value={values.eLast} onChangeText={setters.setELast}/>
+      <TextInput label={text.operatorCode} testID="employee-code" style={s.search} placeholder={text.operatorCode} maxLength={4} value={values.eCode} onChangeText={setters.setECode}/>
+      <PaperButton testID="employee-create" mode="contained" onPress={async () => { if (await createEmployee()) setCatalogScreen("employees"); }}>{text.save}</PaperButton>
     </PaperCard.Content></PaperCard> : null}
   </ScrollView>;
   const reverse = async (order: Order) => {
@@ -2111,7 +2130,7 @@ function Admin({
               order.state === "COMPLETED" || order.state === "REVERSED",
           )
           .map((order) => (
-            <View key={order.id} style={[s.line, { borderColor: paperTheme.colors.outlineVariant }]}>
+            <PaintedPaperSurface mode="flat" elevation={0} key={order.id} style={[s.line, { borderColor: paperTheme.colors.outlineVariant }]}>
               <View>
                 <PaperText variant="titleMedium">{order.id}</PaperText>
                 <PaperText variant="bodyMedium">
@@ -2132,12 +2151,12 @@ function Admin({
                   onPress={() => void reverse(order)}
                 >{text.returnSale}</PaperButton>
               ) : null}
-            </View>
+            </PaintedPaperSurface>
           ))}
       </PaperCard.Content></PaperCard>
       <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
         <PaperText variant="titleLarge" accessibilityRole="header">{text.locationWorkstation}</PaperText>
-        <TextInput
+        <TextInput label={text.locationName}
           testID="config-location-name"
           accessibilityLabel={text.locationName}
           style={s.search}
@@ -2145,13 +2164,13 @@ function Admin({
           value={values.locationName}
           onChangeText={setters.setLocationName}
         />
-        <TextInput
+        <TextInput label={text.address}
           style={s.search}
           placeholder={text.address}
           value={values.locationAddress}
           onChangeText={setters.setLocationAddress}
         />
-        <TextInput
+        <TextInput label={text.workstationName}
           style={s.search}
           placeholder={text.workstationName}
           value={values.workstationName}

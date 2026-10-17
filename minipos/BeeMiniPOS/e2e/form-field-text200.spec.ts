@@ -3,7 +3,7 @@ import { test, expect } from '@playwright/test';
 import { setupMiniposRoutes, setupFiscalRoutes } from './helpers';
 import { translations } from '../src/translations.generated';
 import { doubleText } from './text-scale';
-for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+for (const [size, width, height] of [['xs', 320, 800], ['md', 768, 900], ['lg', 1440, 1000]] as const) {
   for (const theme of ['light', 'dark'] as const) {
     test(`Paper shared onboarding field CSS200 ${size}/${theme}`, async ({ page }, testInfo) => {
       await page.setViewportSize({ width, height });
@@ -25,6 +25,9 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       expect(metrics.size).toBe(metrics.original * 2);
       expect(metrics.scrollWidth).toBeLessThanOrEqual(metrics.width + 1);
       expect(metrics.scrollHeight).toBeLessThanOrEqual(metrics.height + 1);
+      const labelId = await page.getByTestId('onboarding-tax-id.label').getAttribute('id');
+      expect(labelId).toBeTruthy();
+      await expect(page.getByTestId('onboarding-tax-id')).toHaveAttribute('aria-labelledby', labelId!);
       await page.getByTestId('onboarding-tax-id').fill('BG123456789');
       await expect(page.getByTestId('onboarding-tax-id')).toHaveValue('BG123456789');
       await expect(page.getByTestId('onboarding-tax-id')).toHaveAccessibleName(translations.bg.taxIdentifier);

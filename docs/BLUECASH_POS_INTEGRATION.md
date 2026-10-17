@@ -1,5 +1,13 @@
 # Интеграция и активация Datecs BlueCash-50
 
+## Ограничения текущей реализации — 2026-10-17
+
+Integration contract ниже не означает завершённость runtime. До испытаний закрыть
+MQTT topic mismatch, Datecs frame LEN/stream parsing и flavored build gate:
+[аудит и acceptance tests](remediation/2026-10-17/README.md).
+Статус целевой end-to-end трассы: **SOFTWARE_GAPS_OPEN**.
+
+
 Версия: `2026-08-11`. Нормативный API-контракт: [`../contracts/openapi-runtime-v1.yaml`](../contracts/openapi-runtime-v1.yaml). Общий протокол внешнего POS: [`EXTERNAL_POS_INTEGRATION_PROTOCOL.md`](EXTERNAL_POS_INTEGRATION_PROTOCOL.md).
 
 ## Граница ответственности

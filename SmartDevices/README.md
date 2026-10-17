@@ -1,11 +1,25 @@
 # SmartDevices: Daisy SMART и Datecs BlueCash
 
+## Актуальный статус — 2026-10-17
+
+**SOFTWARE_GAPS_OPEN.** В `bluecash-app/libs` уже поставлены fiscal/pinpad JAR и
+Gradle подключает их; наличие bridge не доказывает protocol correctness/HIL.
+[Аудит и задания](../docs/remediation/2026-10-17/README.md) фиксируют MQTT topic
+mismatch, ошибки Datecs LEN/stream parsing и неактуальный build gate.
+`demo`/`prod` flavors имеют application IDs `org.beeloy.bluecash.demo` и
+`org.beeloy.bluecash.prod`; `com.beeloy.fiscal.bluecash` — namespace.
+Release tasks сейчас намеренно завершаются `STORE_BLOCKED`.
+Для будущего debug-HIL использовать точные flavored tasks после проверки
+`gradlew tasks`; старый `make smart-device-test` требует актуализации.
+Daisy SMART остаётся STUB и отличается от Daisy USB через S3.
+
+
 Здесь находятся два независимых Android application-модуля с разными package/application ID. Общим остаётся только transport-neutral интерфейс `:shared`.
 
 | Модуль | Application ID | Назначение | Статус |
 |---|---|---|---|
 | `daisy-smart-app` | `com.beeloy.fiscal.daisy.smart` | Daisy SMART S | debug-only STUB; PROD запрещён до документации вендора |
-| `bluecash-app` | `com.beeloy.fiscal.bluecash` | Datecs BlueCash-50 | BLE provisioning реализован; Fiscal/Pinpad vendor bridge fail-closed до поставки совместимого SDK и HIL |
+| `bluecash-app` | `org.beeloy.bluecash.demo` / `org.beeloy.bluecash.prod` | Datecs BlueCash-50 | vendor JAR подключены; программные gaps открыты, HIL pending |
 
 ## Изученные материалы Datecs
 
@@ -15,7 +29,7 @@
 - `PinpadSDK/PACKAGE/DatecsPaySDK_MultiPlatform_Net8.1.0.4.nupkg` и `Com.Android.Pinpad.dll` — .NET 8/MAUI binding для карточных операций;
 - demo-проекты показывают Bluetooth discovery/connect и особый случай встроенного `bluecash-50` hardware.
 
-В поставке нет Kotlin/Java AAR. Поэтому Android provisioning реализован нативно, а `BlueCashFiscalAdapter` и `BlueCashCardAdapter` являются явной границей интеграции. `MissingVendor*Adapter` всегда отказывает: фискализация или карточная операция не симулируются как успешные.
+Исходный комплект содержит .NET bindings; текущий Android Gradle также подключает `libs/com.android.fiscal.jar` и `libs/com.android.pinpad.jar`. Реальная wire-интеграция нуждается в исправлениях и аппаратной проверке; прежнее описание только `MissingVendor*Adapter` устарело.
 
 ## BlueCash activation
 
@@ -40,4 +54,4 @@ BLE UUID:
 make smart-device-test
 ```
 
-Команда собирает и тестирует оба приложения независимо. Для BlueCash обязательный production gate остаётся внешним: vendor SDK/license, acquirer credentials, сертифицированное EUR firmware, физический BlueCash-50 и HIL fiscal/card scenarios.
+Текущий target требует исправления под flavors и release guard (GAP-029); не считать его подтверждённой успешной сборкой. Для BlueCash обязательны также программные доработки из аудита и production evidence: vendor SDK/license, acquirer credentials, сертифицированное EUR firmware, физический BlueCash-50 и HIL fiscal/card scenarios.

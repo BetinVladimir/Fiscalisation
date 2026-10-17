@@ -12,7 +12,7 @@ test('Paper auth and language menu: WCAG matrix at xs/md/lg in light/dark', asyn
   const scans: { screen: string; viewport: string; theme: string; violations: unknown[]; incomplete: unknown[]; contrastCandidates: unknown[] }[] = [];
   await setupMiniposRoutes(page, { verifyCode: { access_token: '', refresh_token: '', expires_in: 0, onboarding_required: true, onboarding_token: 'wcag-onboard' } });
   await page.goto('/');
-  for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+  for (const [size, width, height] of [['xs', 320, 800], ['md', 768, 900], ['lg', 1440, 1000]] as const) {
     await page.setViewportSize({ width, height });
     for (const mode of ['light', 'dark'] as const) {
       await page.getByTestId('auth-theme-open').click();

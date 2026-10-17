@@ -48,7 +48,10 @@
     "e2e:wcag": "node e2e/wcag-aa.mjs",
     "test:e2e:language-text200": "EXPO_PUBLIC_APP_ENV=demo npm run build:e2e && playwright test e2e/language-text200.spec.ts",
     "test:e2e:reduced-motion": "npm run build:e2e:auth && playwright test --config playwright.reduced-motion.config.ts",
-    "test:e2e:contrast-stack": "npm run build:e2e:auth && playwright test --config playwright.contrast-stack.config.ts"
+    "test:e2e:contrast-stack": "npm run build:e2e:auth && playwright test --config playwright.contrast-stack.config.ts",
+    "postinstall": "node ../../BeeloyBackend/mobile/shared-ui/scripts/install-paper-patches.mjs",
+    "test:ui": "jest --config jest.ui.config.cjs",
+    "test:paper-menu-patch": "node --test ../../BeeloyBackend/mobile/shared-ui/scripts/patch-paper-menu-lines.test.mjs"
   },
   "dependencies": {
     "@beeloy/design-tokens": "file:../../BeeloyBackend/mobile/design-tokens",
@@ -74,9 +77,14 @@
   "devDependencies": {
     "@axe-core/playwright": "^4.11.0",
     "@playwright/test": "^1.62.1",
+    "@types/jest": "29.5.14",
     "@types/react": "~19.1.10",
+    "@types/react-test-renderer": "19.1.0",
     "babel-preset-expo": "~54.0.10",
+    "jest": "29.7.0",
+    "react-test-renderer": "19.1.0",
     "sharp": "^0.35.4",
+    "ts-jest": "29.4.12",
     "typescript": "~5.9.2",
     "wrangler": "4.131.1"
   },

@@ -1,7 +1,7 @@
 import {test,expect} from '@playwright/test';
 import AxeBuilder from '@axe-core/playwright';
 import {mkdir,writeFile} from 'node:fs/promises';
-for(const [size,width,height] of [['xs',360,800],['md',960,900],['lg',1440,1000]] as const)for(const theme of ['light','dark'] as const){
+for(const [size,width,height] of [['xs',320,800],['md',768,900],['lg',1440,1000]] as const)for(const theme of ['light','dark'] as const){
  test(`Strict auth/menu WCAG ${size}/${theme}`,async({page},testInfo)=>{
   await page.setViewportSize({width,height});await page.emulateMedia({colorScheme:theme,reducedMotion:'reduce'});await page.goto('/');await expect(page.getByTestId('operator-login-email')).toBeVisible();
   const scans=[];

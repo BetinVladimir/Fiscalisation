@@ -12,9 +12,8 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       await trigger.focus();
       await page.keyboard.press('Enter');
       await expect(trigger).toHaveAttribute('aria-expanded', 'true');
-      await expect(trigger).toHaveAttribute('aria-controls', 'shell-language-menu');
-      await expect(page.locator('#shell-language-menu')).toHaveCount(1);
-      await expect(page.locator('#shell-language-menu')).toHaveAttribute('role', 'menu');
+      await expect(trigger).toHaveAttribute('aria-haspopup', 'menu');
+      await expect(page.getByTestId('shell.language.list')).toHaveAttribute('role', 'menu');
       const selected = page.getByTestId('shell.language.bg');
       await expect(selected).toBeFocused();
       await expect(selected).toHaveAttribute('role', 'menuitemradio');
@@ -53,4 +52,29 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
     });
   }
+}
+
+// Written during the code phase; execution remains gated by the global form/test register.
+for (const theme of ['light', 'dark'] as const) {
+  test(`Language menu recovers after viewport shrink/${theme}`, async ({ page }) => {
+    await page.setViewportSize({ width: 960, height: 900 });
+    await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
+    await mockFiscalApi(page);
+    await openApp(page);
+    const trigger = page.getByTestId('shell.language.open');
+    await trigger.click();
+    await page.setViewportSize({ width: 360, height: 480 });
+    const list = page.getByTestId('shell.language.list');
+    await expect(list).toBeVisible();
+    await page.keyboard.press('End');
+    await expect(page.getByTestId('shell.language.ru')).toBeFocused();
+    const bounds = await list.boundingBox();
+    expect(bounds).not.toBeNull();
+    expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(480);
+    await page.keyboard.press('Enter');
+    await expect(trigger).toContainText('RU');
+    await expect(list).toHaveCount(0);
+    await trigger.click();
+    await expect(page.getByTestId('shell.language.ru')).toHaveAttribute('aria-checked', 'true');
+  });
 }

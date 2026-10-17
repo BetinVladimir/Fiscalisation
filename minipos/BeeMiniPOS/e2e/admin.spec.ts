@@ -1,3 +1,4 @@
+import { doubleText } from './text-scale';
 import { test, expect } from '@playwright/test';
 import { setup, waitForReady } from './helpers';
 
@@ -288,4 +289,49 @@ test.describe('Admin panel – reversals', () => {
 
     expect(reversalCalled).toBe(true);
   });
+});
+
+// Authored only; execution remains deferred by the shared completion gate.
+for (const [size,width,height] of [['xs',320,800],['md',768,900],['lg',1440,1000]] as const) {
+ for (const theme of ['light','dark'] as const) {
+  test(`Paper product labels CSS200 ${size}/${theme}`,async({page})=>{
+   await page.setViewportSize({width,height});
+   await page.emulateMedia({colorScheme:theme,reducedMotion:'reduce'});
+   await setup(page);await page.goto('/');await waitForReady(page);
+   await page.getByTestId('admin-toggle').click();
+   await page.getByTestId('admin-products').click();
+   await page.getByTestId('product-add').click();
+   await doubleText(page);
+   for(const name of ['product-name','product-barcode','product-price']) {
+    const field=page.getByTestId(name),label=page.getByTestId(`${name}.label`);
+    await label.scrollIntoViewIfNeeded();
+    const id=await label.getAttribute('id');expect(id).toBeTruthy();
+    await expect(field).toHaveAttribute('aria-labelledby',id!);
+    await expect(label).not.toHaveText('');
+   }
+   await page.getByTestId('product-name').fill('Long product fixture');
+   await expect(page.getByTestId('product-name')).toHaveValue('Long product fixture');
+   expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);
+  });
+ }
+}
+
+test('failed product create keeps the Paper form and entered values',async({page})=>{
+ await setup(page);
+ let writes=0;
+ await page.route('**/public/v1/minipos/products',async route=>{
+  if(route.request().method()!=='POST')return route.fallback();
+  writes++;return route.fulfill({status:503,contentType:'application/json',body:JSON.stringify({code:'UNAVAILABLE'})});
+ });
+ await page.goto('/');await waitForReady(page);
+ await page.getByTestId('admin-toggle').click();await page.getByTestId('admin-products').click();await page.getByTestId('product-add').click();
+ await page.getByTestId('product-name').fill('Retained product');await page.getByTestId('product-barcode').fill('3800000000099');await page.getByTestId('product-price').fill('1.80');
+ const group=page.getByRole('button').filter({hasText:/^B •/});await expect(group).toHaveCount(1);await group.click();
+ await page.getByTestId('product-create').click();
+ await expect.poll(()=>writes).toBe(1);
+ await expect(page.getByTestId('product-name')).toHaveValue('Retained product');
+ await expect(page.getByTestId('product-price')).toHaveValue('1.80');
+ await expect(page.getByTestId('product-barcode')).toHaveValue('3800000000099');
+ await expect(page.getByTestId('product-create')).toBeVisible();
+ await expect(page.getByTestId('product-add')).toHaveCount(0);
 });

@@ -1,3 +1,9 @@
+import {AppFrame} from './ui/app-frame';
+import {operationMessage} from './ui/operation-message';
+import { belongsToOutboxScope } from './storage/outboxScope';
+import { referenceScope } from './storage/referenceScope';
+import { persistAuthTokens } from './storage/authTokens';
+import { AppButton as PaperButton } from './ui/app-button';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { buildIntent } from "./fiscal/intentBuilder";
 import {
@@ -24,7 +30,8 @@ import type {
 import "./styles.css";
 import { AuthFlow } from "./AuthFlow";
 import { Management } from "./Management";
-import { ActivityIndicator, Button as PaperButton, Card, HelperText, Surface, Text as PaperText, useTheme } from "react-native-paper";
+import { ActivityIndicator, Card, HelperText, Surface, Text as PaperText, useTheme } from "react-native-paper";
+import { View } from "react-native";
 import { PreferenceControls, readLanguage, type Language } from "./ui/PreferenceControls";
 import { PaymentPanel, ProductGrid, type CartLine } from "./SalePanels";
 import { OutboxPanel } from "./OutboxPanel";
@@ -86,41 +93,65 @@ export default function App() {
     () => new MiniPosClient(backend, () => accessToken, appInstance),
     [backend, accessToken],
   );
+  const mounted=useRef(false),owner=useMemo(()=>({api}),[api]),latestOwner=useRef(owner);latestOwner.current=owner;
+  const render={},latestRender=useRef(render);latestRender.current=render;
+  const outboxRequest=useRef(0),loginPending=useRef<{owner:object;ticket:object}|null>(null);
+  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;managementRequest.current++;outboxRequest.current++;};},[]);
+  const current=()=>mounted.current&&latestOwner.current===owner;
+  const admitted=()=>current()&&latestRender.current===render;
+  const operationScope=useMemo(()=>({owner,employee:session?.employee.id,configuration,shift:shift?.id}),[owner,session?.employee.id,configuration,shift?.id]);
+  const latestOperationScope=useRef(operationScope);latestOperationScope.current=operationScope;
+  const syncPending=useRef<{scope:object;ticket:object}|null>(null);
+  const operationCurrent=()=>current()&&latestOperationScope.current===operationScope;
+  const outboxScope={tenant:tenantFrom(accessToken),location:configuration?.location_id??'',register:configuration?.fiscal_register_id??'',operator:session?.employee.operator_code??''};
+  const commandPending=useRef<object|null>(null);
+  const beginCommand=()=>{
+    if(!admitted()||!operationCurrent()||busy||commandPending.current)return null;
+    const ticket={};commandPending.current=ticket;setBusy(true);
+    return {live:()=>operationCurrent()&&commandPending.current===ticket,finish:()=>{if(commandPending.current===ticket){commandPending.current=null;if(current())setBusy(false);}}};
+  };
+  const cacheScope=referenceScope(backend,accessToken);
+  function readReference<T>(key:string){return cacheScope?cacheGet<T>(`${cacheScope}:${key}`):Promise.resolve(undefined);}
+  function writeReference<T>(key:string,value:T){return cacheScope?cachePut(`${cacheScope}:${key}`,value):Promise.resolve();}
+  useEffect(()=>{setSession(undefined);setConfiguration(undefined);setShift(undefined);setProducts([]);setEmployees([]);setCart([]);setCardAmount(0);setResult(undefined);setLastOrderId('');setLocalToken('');sessionStorage.removeItem('minipos-local-token');sessionStorage.removeItem('minipos-local-token-expires');managementRequest.current++;outboxRequest.current++;},[cacheScope]);
   const total = cart.reduce(
     (sum, line) =>
       sum + Number(line.product.price.amount) * line.quantity - line.discount,
     0,
   );
   useEffect(() => {
-    if (accessToken && !session) void login();
-  }, [accessToken]);
+    if (accessToken) void login();
+  }, [api]);
   useEffect(() => {
     if (!accessToken) return;
-    let timer: number;
+    let timer: number, active=true, refreshing=false;
     const scheduleRefresh = (expiresIn?: number) => {
       window.clearInterval(timer);
       const delay = expiresIn ? Math.max((expiresIn - 60) * 1000, 30_000) : 12 * 60 * 1000;
       timer = window.setInterval(() => {
+        if(!active||refreshing||!current()||commandPending.current)return;
+        refreshing=true;
         void (async () => {
           const token = localStorage.getItem("minipos-refresh-token");
-          if (!token) return;
+          if (!token) { refreshing=false; return; }
           try {
             const next = await new EmailAuthClient(backend).refresh(token);
-            localStorage.setItem("minipos-access-token", next.access_token);
-            localStorage.setItem("minipos-refresh-token", next.refresh_token);
+            if(!active||!current()||localStorage.getItem("minipos-refresh-token")!==token)return;
+            persistAuthTokens(localStorage,next);
             setAccessToken(next.access_token);
             scheduleRefresh(next.expires_in);
           } catch {
+            if(!active||!current()||localStorage.getItem("minipos-refresh-token")!==token)return;
             localStorage.removeItem("minipos-access-token");
             localStorage.removeItem("minipos-refresh-token");
             setAccessToken("");
             setSession(undefined);
-          }
+          } finally { refreshing=false; }
         })();
       }, delay);
     };
     scheduleRefresh();
-    return () => window.clearInterval(timer);
+    return () => {active=false;window.clearInterval(timer);};
   }, [accessToken, backend]);
   useEffect(() => {
     if (!session || !configuration || !shift) return;
@@ -142,41 +173,52 @@ export default function App() {
       15_000,
     );
     return () => window.clearInterval(timer);
-  }, [session?.employee.id, accessToken, backend]);
+  }, [session?.employee.id, accessToken, backend, configuration, shift?.id]);
   async function login() {
+    if(!admitted()||commandPending.current||loginPending.current?.owner===owner)return;
+    const ticket={};loginPending.current={owner,ticket};
+    const live=()=>current()&&loginPending.current?.ticket===ticket;
     setBusy(true);
     setMessage("");
     try {
       const active = await api.session();
-      setSession(active);
+      if(!live())return;setSession(active);
       const [cfg, refs] = await Promise.all([
         api.configuration().catch(() => undefined),
         api.products(),
       ]);
+      if(!live())return;
       if (cfg) setConfiguration(cfg);
       setProducts(refs.items.filter((item) => item.status === "ACTIVE"));
-      await Promise.all([cfg ? cachePut("configuration", cfg) : Promise.resolve(), cachePut("products", refs.items)]);
+      await Promise.all([cfg ? writeReference("configuration", cfg) : Promise.resolve(), writeReference("products", refs.items)]);
+      if(!live())return;
       const shifts = await api.shifts(active.employee.id);
+      if(!live())return;
       if (!shifts.items[0]) throw new Error("NO_OPEN_SHIFT");
       setShift(shifts.items[0]);
       await Promise.all([
-        cachePut("operator-session", active),
-        cachePut("active-shift", shifts.items[0]),
+        writeReference("operator-session", active),
+        writeReference("active-shift", shifts.items[0]),
       ]);
+      if(!live())return;
       localStorage.setItem("minipos-access-token", accessToken);
       localStorage.setItem("minipos-backend", backend);
     } catch (error) {
+      if(!live())return;
+      try {
       const [cfg, refs] = await Promise.all([
-        cacheGet<PosConfiguration>("configuration"),
-        cacheGet<Product[]>("products"),
+        readReference<PosConfiguration>("configuration"),
+        readReference<Product[]>("products"),
       ]);
+      if(!live())return;
       if (cfg && refs) {
         setConfiguration(cfg.value);
         setProducts(refs.value);
         const [cachedSession, cachedShift] = await Promise.all([
-          cacheGet<OperatorSession>("operator-session"),
-          cacheGet<Shift>("active-shift"),
+          readReference<OperatorSession>("operator-session"),
+          readReference<Shift>("active-shift"),
         ]);
+        if(!live())return;
         if (
           cachedSession &&
           new Date(cachedSession.value.expires_at) > new Date()
@@ -187,11 +229,13 @@ export default function App() {
           "OFFLINE_REFERENCE",
         );
       } else setMessage(error instanceof Error ? error.message : String(error));
+      } catch { if(live())setMessage("SESSION_CACHE_UNAVAILABLE"); }
     } finally {
-      setBusy(false);
+      if(loginPending.current?.ticket===ticket){loginPending.current=null;if(current())setBusy(false);}
     }
   }
   async function openManagement(kind: "products" | "employees") {
+    if(!admitted())return;outboxRequest.current++;
     const request = ++managementRequest.current;
     setView(kind);
     setManagementError("");
@@ -199,47 +243,47 @@ export default function App() {
     try {
       if (kind === "products") {
         const response = await api.products();
-        if (request === managementRequest.current) setProducts(response.items);
+        if (current() && request === managementRequest.current) setProducts(response.items);
       } else {
         const response = await api.employees();
-        if (request === managementRequest.current) setEmployees(response.items);
+        if (current() && request === managementRequest.current) setEmployees(response.items);
       }
     } catch (error) {
-      if (request === managementRequest.current) setManagementError(error instanceof Error ? error.message : String(error));
+      if (current() && request === managementRequest.current) setManagementError(error instanceof Error ? error.message : String(error));
     } finally {
-      if (request === managementRequest.current) setManagementLoading(false);
+      if (current() && request === managementRequest.current) setManagementLoading(false);
     }
   }
   async function openOutbox() {
+    if(!admitted())return;
+    const request=++outboxRequest.current;
     managementRequest.current++;
-    setView("outbox");
-    setOutboxLoading(true);
-    setOutboxError(false);
-    try {
-      setOutboxRows(await listOutbox());
-    } catch {
-      setOutboxError(true);
-    } finally {
-      setOutboxLoading(false);
-    }
+    setView('outbox');setOutboxLoading(true);setOutboxError(false);
+    const live=()=>operationCurrent()&&request===outboxRequest.current;
+    try { const rows=await listOutbox();if(live()&&operationCurrent())setOutboxRows(rows.filter(row=>belongsToOutboxScope(row,outboxScope))); }
+    catch { if(live())setOutboxError(true); }
+    finally { if(live())setOutboxLoading(false); }
   }
   async function openShift() {
     if (!session || !configuration) return;
-    setBusy(true);
+    const command=beginCommand();if(!command)return;
     try {
       const opened = await api.openShift(
         configuration.fiscal_register_id,
         session.employee.id,
       );
+      if(!command.live())return;
       setShift(opened);
-      await cachePut("active-shift", opened);
+      await writeReference("active-shift", opened);
     } catch (error) {
+      if(!command.live())return;
       setMessage(String(error));
     } finally {
-      setBusy(false);
+      command.finish();
     }
   }
   function add(product: Product) {
+    if(!admitted()||busy||commandPending.current||!products.includes(product))return;
     setCart((value) => {
       const old = value.find((line) => line.product.id === product.id);
       return old
@@ -250,6 +294,7 @@ export default function App() {
     });
   }
   function update(id: string, key: "quantity" | "discount", value: number) {
+    if(!admitted()||busy||commandPending.current||!Number.isFinite(value))return;
     setCart((lines) =>
       lines.map((line) =>
         line.product.id === id
@@ -273,17 +318,23 @@ export default function App() {
       },
       crypto.randomUUID(),
     );
+    if(!operationCurrent())throw new Error("POS_CONTEXT_CHANGED");
     setLocalToken(issued.access_token);
     sessionStorage.setItem("minipos-local-token", issued.access_token);
     sessionStorage.setItem("minipos-local-token-expires", issued.expires_at);
     return issued.access_token;
   }
   async function syncOfflineOrders() {
-    if (!navigator.onLine) return;
+    if (!navigator.onLine||!operationCurrent()||!configuration||!session||syncPending.current?.scope===operationScope) return;
+    const ticket={};syncPending.current={scope:operationScope,ticket};
+    const live=()=>operationCurrent()&&syncPending.current?.ticket===ticket;
+    try {
     const pending = (await listOutbox()).filter(
-      (row) => row.posSync && row.result && !row.posSync.synced_at,
+      (row) => belongsToOutboxScope(row,outboxScope) && row.posSync && row.result && !row.posSync.synced_at,
     );
+    if(!live())return;
     for (const row of pending) {
+      if(!live())return;
       const sync = row.posSync!;
       const imported = await api.importOfflineOrder(
         {
@@ -302,6 +353,7 @@ export default function App() {
         },
         sync.external_id,
       );
+      if(!live())return;
       if (typeof imported.id === "string") setLastOrderId(imported.id);
       await putOutbox({
         ...row,
@@ -309,12 +361,15 @@ export default function App() {
         updatedAt: new Date().toISOString(),
       });
     }
+    } finally {if(syncPending.current?.ticket===ticket)syncPending.current=null;}
   }
-  async function prepareOrder(items: SaleItem[]) {
+  async function prepareOrder(items: SaleItem[], live:()=>boolean) {
     if (!shift) throw new Error("SHIFT_REQUIRED");
     let order = await api.createOrder(shift.id),
       version = order.version;
+    if(!live())throw new Error("POS_CONTEXT_CHANGED");
     for (let i = 0; i < items.length; i++) {
+      if(!live())throw new Error("POS_CONTEXT_CHANGED");
       const item = items[i];
       const updated = await api.addLine(
         order.id,
@@ -330,14 +385,15 @@ export default function App() {
         },
         crypto.randomUUID(),
       );
+      if(!live())throw new Error("POS_CONTEXT_CHANGED");
       version = updated.version;
     }
     return order;
   }
   async function checkout() {
-    if (!configuration || !session || !shift || !cart.length || total <= 0)
+    if (!configuration || !session || !shift || !cart.length || !Number.isFinite(total) || total <= 0 || !Number.isFinite(cardAmount) || cardAmount<0 || cardAmount>total)
       return;
-    setBusy(true);
+    const command=beginCommand();if(!command)return;
     setMessage("");
     try {
       const items: SaleItem[] = cart.map((line) => ({
@@ -371,8 +427,10 @@ export default function App() {
         ];
       let order: { id: string; external_id: string } | undefined;
       try {
-        order = await prepareOrder(items);
+        order = await prepareOrder(items,command.live);
+        if(!command.live())return;
       } catch (error) {
+      if(!command.live())return;
         if (error instanceof ApiError && error.status < 500) throw error;
         setMessage(
           "CLOUD_PREPARE_UNAVAILABLE",
@@ -393,6 +451,7 @@ export default function App() {
         payments,
         metadata: { order_id: order?.id, shift_id: shift.id },
       });
+      if(!command.live())return;
       if (!order) {
         await putOutbox({
           intent,
@@ -414,7 +473,9 @@ export default function App() {
           updatedAt: new Date().toISOString(),
         });
       }
+      if(!command.live())return;
       const executionToken = localToken || (await adapterToken());
+      if(!command.live())return;
       const local = new LocalFiscalClient(
         configuration.adapter_base_url,
         () => executionToken,
@@ -451,6 +512,7 @@ export default function App() {
           }),
         );
       const executed = await new RouteController(routes).execute(intent);
+      if(!command.live())return;
       setResult(executed);
       if (order) setLastOrderId(order.id);
       if (!order) void syncOfflineOrders().catch(() => undefined);
@@ -459,14 +521,15 @@ export default function App() {
         setCardAmount(0);
       }
     } catch (error) {
+      if(!command.live())return;
       setMessage(error instanceof Error ? error.message : String(error));
     } finally {
-      setBusy(false);
+      command.finish();
     }
   }
   async function reverseLastOrder() {
     if (!lastOrderId) return;
-    setBusy(true);
+    const command=beginCommand();if(!command)return;
     try {
       const operationId = crypto.randomUUID();
       const reversed = await api.reverseOrder(
@@ -474,6 +537,7 @@ export default function App() {
         "CUSTOMER_RETURN",
         operationId,
       );
+      if(!command.live())return;
       setResult({
         operation_id: String(reversed.operation_id ?? operationId),
         state: String(reversed.state ?? "UNKNOWN"),
@@ -485,14 +549,15 @@ export default function App() {
         updated_at: String(reversed.updated_at ?? new Date().toISOString()),
       });
     } catch (error) {
+      if(!command.live())return;
       setMessage(error instanceof Error ? error.message : String(error));
     } finally {
-      setBusy(false);
+      command.finish();
     }
   }
   async function printer() {
     if (!configuration || !session || !shift) return;
-    setBusy(true);
+    const command=beginCommand();if(!command)return;
     try {
       const token = localToken || (await adapterToken()),
         client = new LocalFiscalClient(
@@ -508,25 +573,27 @@ export default function App() {
           operatorCode: session.employee.operator_code,
           command: "PRINTER_TEST",
         });
-      setResult(await client.submit(intent));
+      if(!command.live())return;
+      const printed=await client.submit(intent);if(command.live())setResult(printed);
     } catch (error) {
+      if(!command.live())return;
       setMessage(String(error));
     } finally {
-      setBusy(false);
+      command.finish();
     }
   }
   if (!accessToken) return <AuthFlow backend={backend} onAuthenticated={(tokens)=>setAccessToken(tokens.access_token)} />;
-  if (!session) return <main><Card mode="outlined" testID="session-recovery" style={{ width: "100%", maxWidth: 480, alignSelf: "center", marginTop: 40 }}><Card.Content style={{ gap: 12 }}>
+  if (!session) return <AppFrame testID="minipos.session.surface"><main><Card mode="outlined" testID="session-recovery" style={{ width: "100%", maxWidth: 480, alignSelf: "center", marginTop: 40 }}><Card.Content style={{ gap: 12 }}>
     <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
-    <PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="session" />
+    <View style={{position:'relative',zIndex:10}}><PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="session" /></View>
     <PaperText variant="bodyMedium" accessibilityLiveRegion="polite" testID="session-status">{message === "OFFLINE_REFERENCE" ? t.offlineReference : message === "CLOUD_PREPARE_UNAVAILABLE" ? t.cloudPrepareUnavailable : message ? t.sessionUnavailable : t.loading}</PaperText>
     {busy ? <ActivityIndicator accessibilityLabel={t.loading} testID="session-loading-indicator" /> : null}
     <PaperButton mode="contained" disabled={busy} onPress={()=>void login()} testID="session-retry">{t.retry}</PaperButton>
     <PaperButton mode="outlined" onPress={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}} testID="session-logout">{t.logout}</PaperButton>
-  </Card.Content></Card></main>;
+  </Card.Content></Card></main></AppFrame>;
   return (
-    <main>
-      <Surface elevation={1} style={{ padding: 12, borderRadius: 12, backgroundColor: paperTheme.colors.surface }}>
+    <AppFrame testID="minipos.work.surface"><main>
+      <Surface elevation={1} style={{ position: 'relative', zIndex: 10, padding: 12, borderRadius: 12, backgroundColor: paperTheme.colors.surface }}>
         <header>
           <div>
             <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
@@ -536,7 +603,7 @@ export default function App() {
             </PaperText>
           </div>
           <PaperButton mode={settings ? "contained-tonal" : "outlined"} onPress={() => setSettings(!settings)} testID="app-settings">{t.settings}</PaperButton>
-          <PaperButton mode={view === "sale" ? "contained-tonal" : "outlined"} onPress={() => { managementRequest.current++; setView("sale"); }} testID="app-sales">{t.sales}</PaperButton>
+          <PaperButton mode={view === "sale" ? "contained-tonal" : "outlined"} onPress={() => { if(!admitted())return;managementRequest.current++;outboxRequest.current++; setView("sale"); }} testID="app-sales">{t.sales}</PaperButton>
           <PaperButton mode={view === "products" ? "contained-tonal" : "outlined"} onPress={() => void openManagement("products")} testID="app-products">{t.products}</PaperButton>
           <PaperButton mode={view === "employees" ? "contained-tonal" : "outlined"} onPress={() => void openManagement("employees")} testID="app-employees">{t.employees}</PaperButton>
           <PaperButton mode={view === "outbox" ? "contained-tonal" : "outlined"} onPress={() => void openOutbox()} testID="app-outbox">{t.outboxTitle}</PaperButton>
@@ -552,7 +619,7 @@ export default function App() {
       {view === "outbox" ? <OutboxPanel rows={outboxRows} loading={outboxLoading} error={outboxError} language={language} onRefresh={() => void openOutbox()} /> : view !== "sale" ? managementLoading ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-loading"><Card.Content style={{ gap: 12 }}>
         <ActivityIndicator accessibilityLabel={t.loading} /><PaperText variant="bodyMedium">{t.loading}</PaperText>
       </Card.Content></Card> : managementError ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-load-error"><Card.Content style={{ gap: 12 }}>
-        <HelperText type="error" visible>{t.loadFailed}</HelperText>
+        <HelperText accessibilityRole="alert" accessibilityLiveRegion="polite" type="error" visible>{t.loadFailed}</HelperText>
         <PaperButton mode="contained" onPress={() => void openManagement(view)} testID="management-retry">{t.retry}</PaperButton>
       </Card.Content></Card> : <Management kind={view} products={products} employees={employees} api={api} onProducts={setProducts} onEmployees={setEmployees} language={language} /> : !shift ? (
         <Card mode="outlined" style={{ marginTop: 16 }} testID="shift-open"><Card.Content style={{ gap: 12 }}>
@@ -561,11 +628,11 @@ export default function App() {
         </Card.Content></Card>
       ) : (
         <>
-          <ProductGrid products={products} onAdd={add} language={language} />
-          <PaymentPanel cart={cart} total={total} cardAmount={cardAmount} busy={busy} lastOrderId={lastOrderId} language={language} onUpdate={update} onCardAmount={setCardAmount} onCheckout={checkout} onReverse={reverseLastOrder} />
+          <ProductGrid busy={busy} products={products} onAdd={add} language={language} />
+          <PaymentPanel cart={cart} total={total} cardAmount={cardAmount} busy={busy} lastOrderId={lastOrderId} language={language} onUpdate={update} onCardAmount={value=>{if(admitted()&&!busy&&!commandPending.current&&Number.isFinite(value))setCardAmount(value);}} onCheckout={checkout} onReverse={reverseLastOrder} />
         </>
       )}
-      {message ? <div className="error"><HelperText type="error" visible testID="sale-message">{message === "OFFLINE_REFERENCE" ? t.offlineReference : message === "CLOUD_PREPARE_UNAVAILABLE" ? t.cloudPrepareUnavailable : message}</HelperText></div> : null}
-    </main>
+      {message ? <div className="error"><HelperText accessibilityRole="alert" accessibilityLiveRegion="polite" type="error" visible testID="sale-message">{operationMessage(language,message)}</HelperText></div> : null}
+    </main></AppFrame>
   );
 }

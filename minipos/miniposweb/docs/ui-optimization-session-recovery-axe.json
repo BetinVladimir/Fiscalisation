@@ -44,7 +44,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
               "target": [
                 "h1"
               ],
@@ -69,7 +69,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-theme-open-text\"]"
               ],
@@ -94,7 +94,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-language-open-text\"]"
               ],
@@ -119,7 +119,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
               "target": [
                 "div[aria-live=\"polite\"]"
               ],
@@ -144,7 +144,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-logout-text\"]"
               ],
@@ -161,7 +161,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.803,
+          "dominantShare": 0.784,
           "fontSize": "24px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -173,7 +173,7 @@
           "foreground": "rgb(73, 49, 122)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 10.23,
-          "dominantShare": 0.702,
+          "dominantShare": 0.696,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -185,7 +185,7 @@
           "foreground": "rgb(73, 49, 122)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 10.23,
-          "dominantShare": 0.662,
+          "dominantShare": 0.682,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -197,7 +197,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.914,
+          "dominantShare": 0.901,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -209,7 +209,7 @@
           "foreground": "rgb(73, 49, 122)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 10.23,
-          "dominantShare": 0.668,
+          "dominantShare": 0.695,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -260,7 +260,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
               "target": [
                 "h1"
               ],
@@ -285,7 +285,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-theme-open-text\"]"
               ],
@@ -310,7 +310,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-language-open-text\"]"
               ],
@@ -335,7 +335,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">",
               "target": [
                 "div[aria-live=\"polite\"]"
               ],
@@ -360,7 +360,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-retry-text\"]"
               ],
@@ -385,7 +385,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-logout-text\"]"
               ],
@@ -402,7 +402,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.803,
+          "dominantShare": 0.784,
           "fontSize": "24px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -414,7 +414,7 @@
           "foreground": "rgb(73, 49, 122)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 10.23,
-          "dominantShare": 0.702,
+          "dominantShare": 0.696,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -426,7 +426,7 @@
           "foreground": "rgb(73, 49, 122)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 10.23,
-          "dominantShare": 0.662,
+          "dominantShare": 0.682,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -438,7 +438,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.803,
+          "dominantShare": 0.772,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -450,1161 +450,223 @@
           "foreground": "rgb(255, 255, 255)",
           "pixelBackground": "rgb(73, 49, 122)",
           "contrastCandidate": 10.48,
-          "dominantShare": 0.7,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-logout-text\"]",
-          "status": "manual-review",
-          "text": "Излез",
-          "foreground": "rgb(73, 49, 122)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 10.23,
-          "dominantShare": 0.668,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        }
-      ]
-    },
-    {
-      "screen": "session-recovery-loading",
-      "viewport": "xs",
-      "theme": "dark",
-      "violations": [],
-      "incomplete": [
-        {
-          "id": "color-contrast",
-          "impact": "serious",
-          "tags": [
-            "cat.color",
-            "wcag2aa",
-            "wcag143",
-            "TTv5",
-            "TT13.c",
-            "EN-301-549",
-            "EN-9.1.4.3",
-            "ACT",
-            "RGAAv4",
-            "RGAA-3.2.1"
-          ],
-          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
-          "help": "Elements must meet minimum color contrast ratio thresholds",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
-          "nodes": [
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "18.0pt (24px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "3:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
-              "target": [
-                "h1"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-theme-open-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-language-open-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[aria-live=\"polite\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-logout-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            }
-          ]
-        }
-      ],
-      "contrastCandidates": [
-        {
-          "target": "h1",
-          "status": "manual-review",
-          "text": "Bee MiniPOS Web",
-          "foreground": "rgb(234, 228, 238)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 14.92,
-          "dominantShare": 0.803,
-          "fontSize": "24px",
-          "fontWeight": "400",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-theme-open-text\"]",
-          "status": "manual-review",
-          "text": "Тема: Тъмна",
-          "foreground": "rgb(210, 193, 240)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 11.19,
-          "dominantShare": 0.691,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-language-open-text\"]",
-          "status": "manual-review",
-          "text": "Език: Български",
-          "foreground": "rgb(210, 193, 240)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 11.19,
-          "dominantShare": 0.662,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[aria-live=\"polite\"]",
-          "status": "manual-review",
-          "text": "Зареждане…",
-          "foreground": "rgb(234, 228, 238)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 14.92,
-          "dominantShare": 0.914,
-          "fontSize": "14px",
-          "fontWeight": "400",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-logout-text\"]",
-          "status": "manual-review",
-          "text": "Излез",
-          "foreground": "rgb(210, 193, 240)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 11.19,
-          "dominantShare": 0.668,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        }
-      ]
-    },
-    {
-      "screen": "session-recovery-error",
-      "viewport": "xs",
-      "theme": "dark",
-      "violations": [],
-      "incomplete": [
-        {
-          "id": "color-contrast",
-          "impact": "serious",
-          "tags": [
-            "cat.color",
-            "wcag2aa",
-            "wcag143",
-            "TTv5",
-            "TT13.c",
-            "EN-301-549",
-            "EN-9.1.4.3",
-            "ACT",
-            "RGAAv4",
-            "RGAA-3.2.1"
-          ],
-          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
-          "help": "Elements must meet minimum color contrast ratio thresholds",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
-          "nodes": [
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "18.0pt (24px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "3:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
-              "target": [
-                "h1"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-theme-open-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-language-open-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[aria-live=\"polite\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-retry-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-logout-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            }
-          ]
-        }
-      ],
-      "contrastCandidates": [
-        {
-          "target": "h1",
-          "status": "manual-review",
-          "text": "Bee MiniPOS Web",
-          "foreground": "rgb(234, 228, 238)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 14.92,
-          "dominantShare": 0.803,
-          "fontSize": "24px",
-          "fontWeight": "400",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-theme-open-text\"]",
-          "status": "manual-review",
-          "text": "Тема: Тъмна",
-          "foreground": "rgb(210, 193, 240)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 11.19,
-          "dominantShare": 0.691,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-language-open-text\"]",
-          "status": "manual-review",
-          "text": "Език: Български",
-          "foreground": "rgb(210, 193, 240)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 11.19,
-          "dominantShare": 0.662,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[aria-live=\"polite\"]",
-          "status": "manual-review",
-          "text": "Сесията не може да се възстанови. Опитайте отново или влезте.",
-          "foreground": "rgb(234, 228, 238)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 14.92,
-          "dominantShare": 0.803,
-          "fontSize": "14px",
-          "fontWeight": "400",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-retry-text\"]",
-          "status": "manual-review",
-          "text": "Повтори",
-          "foreground": "rgb(36, 21, 63)",
-          "pixelBackground": "rgb(210, 193, 240)",
-          "contrastCandidate": 10.07,
-          "dominantShare": 0.7,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-logout-text\"]",
-          "status": "manual-review",
-          "text": "Излез",
-          "foreground": "rgb(210, 193, 240)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 11.19,
-          "dominantShare": 0.668,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        }
-      ]
-    },
-    {
-      "screen": "session-recovery-loading",
-      "viewport": "md",
-      "theme": "light",
-      "violations": [],
-      "incomplete": [
-        {
-          "id": "color-contrast",
-          "impact": "serious",
-          "tags": [
-            "cat.color",
-            "wcag2aa",
-            "wcag143",
-            "TTv5",
-            "TT13.c",
-            "EN-301-549",
-            "EN-9.1.4.3",
-            "ACT",
-            "RGAAv4",
-            "RGAA-3.2.1"
-          ],
-          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
-          "help": "Elements must meet minimum color contrast ratio thresholds",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
-          "nodes": [
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "18.0pt (24px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "3:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
-              "target": [
-                "h1"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-theme-open-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-language-open-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[aria-live=\"polite\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-logout-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            }
-          ]
-        }
-      ],
-      "contrastCandidates": [
-        {
-          "target": "h1",
-          "status": "manual-review",
-          "text": "Bee MiniPOS Web",
-          "foreground": "rgb(29, 26, 32)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 16.79,
-          "dominantShare": 0.817,
-          "fontSize": "24px",
-          "fontWeight": "400",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-theme-open-text\"]",
-          "status": "manual-review",
-          "text": "Тема: Светла",
-          "foreground": "rgb(73, 49, 122)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 10.23,
-          "dominantShare": 0.73,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-language-open-text\"]",
-          "status": "manual-review",
-          "text": "Език: Български",
-          "foreground": "rgb(73, 49, 122)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 10.23,
-          "dominantShare": 0.69,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[aria-live=\"polite\"]",
-          "status": "manual-review",
-          "text": "Зареждане…",
-          "foreground": "rgb(29, 26, 32)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 16.79,
-          "dominantShare": 0.913,
-          "fontSize": "14px",
-          "fontWeight": "400",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-logout-text\"]",
-          "status": "manual-review",
-          "text": "Излез",
-          "foreground": "rgb(73, 49, 122)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 10.23,
-          "dominantShare": 0.668,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        }
-      ]
-    },
-    {
-      "screen": "session-recovery-error",
-      "viewport": "md",
-      "theme": "light",
-      "violations": [],
-      "incomplete": [
-        {
-          "id": "color-contrast",
-          "impact": "serious",
-          "tags": [
-            "cat.color",
-            "wcag2aa",
-            "wcag143",
-            "TTv5",
-            "TT13.c",
-            "EN-301-549",
-            "EN-9.1.4.3",
-            "ACT",
-            "RGAAv4",
-            "RGAA-3.2.1"
-          ],
-          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
-          "help": "Elements must meet minimum color contrast ratio thresholds",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
-          "nodes": [
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "18.0pt (24px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "3:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
-              "target": [
-                "h1"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-theme-open-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-language-open-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[aria-live=\"polite\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-retry-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-logout-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            }
-          ]
-        }
-      ],
-      "contrastCandidates": [
-        {
-          "target": "h1",
-          "status": "manual-review",
-          "text": "Bee MiniPOS Web",
-          "foreground": "rgb(29, 26, 32)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 16.79,
-          "dominantShare": 0.869,
-          "fontSize": "24px",
-          "fontWeight": "400",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-theme-open-text\"]",
-          "status": "manual-review",
-          "text": "Тема: Светла",
-          "foreground": "rgb(73, 49, 122)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 10.23,
-          "dominantShare": 0.721,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-language-open-text\"]",
-          "status": "manual-review",
-          "text": "Език: Български",
-          "foreground": "rgb(73, 49, 122)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 10.23,
-          "dominantShare": 0.674,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[aria-live=\"polite\"]",
-          "status": "manual-review",
-          "text": "Сесията не може да се възстанови. Опитайте отново или влезте.",
-          "foreground": "rgb(29, 26, 32)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 16.79,
-          "dominantShare": 0.739,
-          "fontSize": "14px",
-          "fontWeight": "400",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-retry-text\"]",
-          "status": "manual-review",
-          "text": "Повтори",
-          "foreground": "rgb(255, 255, 255)",
-          "pixelBackground": "rgb(73, 49, 122)",
-          "contrastCandidate": 10.48,
-          "dominantShare": 0.7,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-logout-text\"]",
-          "status": "manual-review",
-          "text": "Излез",
-          "foreground": "rgb(73, 49, 122)",
-          "pixelBackground": "rgb(255, 251, 255)",
-          "contrastCandidate": 10.23,
-          "dominantShare": 0.668,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        }
-      ]
-    },
-    {
-      "screen": "session-recovery-loading",
-      "viewport": "md",
-      "theme": "dark",
-      "violations": [],
-      "incomplete": [
-        {
-          "id": "color-contrast",
-          "impact": "serious",
-          "tags": [
-            "cat.color",
-            "wcag2aa",
-            "wcag143",
-            "TTv5",
-            "TT13.c",
-            "EN-301-549",
-            "EN-9.1.4.3",
-            "ACT",
-            "RGAAv4",
-            "RGAA-3.2.1"
-          ],
-          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
-          "help": "Elements must meet minimum color contrast ratio thresholds",
-          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
-          "nodes": [
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "18.0pt (24px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "3:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
-              "target": [
-                "h1"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-theme-open-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-language-open-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[aria-live=\"polite\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"session-logout-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            }
-          ]
-        }
-      ],
-      "contrastCandidates": [
-        {
-          "target": "h1",
-          "status": "manual-review",
-          "text": "Bee MiniPOS Web",
-          "foreground": "rgb(234, 228, 238)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 14.92,
-          "dominantShare": 0.814,
-          "fontSize": "24px",
-          "fontWeight": "400",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-theme-open-text\"]",
-          "status": "manual-review",
-          "text": "Тема: Тъмна",
-          "foreground": "rgb(210, 193, 240)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 11.19,
-          "dominantShare": 0.716,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
-          "target": "div[data-testid=\"session-language-open-text\"]",
-          "status": "manual-review",
-          "text": "Език: Български",
-          "foreground": "rgb(210, 193, 240)",
-          "pixelBackground": "rgb(21, 17, 27)",
-          "contrastCandidate": 11.19,
           "dominantShare": 0.686,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
         },
         {
+          "target": "div[data-testid=\"session-logout-text\"]",
+          "status": "manual-review",
+          "text": "Излез",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.695,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
+      ]
+    },
+    {
+      "screen": "session-recovery-loading",
+      "viewport": "xs",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "18.0pt (24px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "target": [
+                "h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-theme-open-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-language-open-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
+              "target": [
+                "div[aria-live=\"polite\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-logout-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "h1",
+          "status": "manual-review",
+          "text": "Bee MiniPOS Web",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.784,
+          "fontSize": "24px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-theme-open-text\"]",
+          "status": "manual-review",
+          "text": "Тема: Тъмна",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.684,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-language-open-text\"]",
+          "status": "manual-review",
+          "text": "Език: Български",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.682,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
           "target": "div[aria-live=\"polite\"]",
           "status": "manual-review",
           "text": "Зареждане…",
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.912,
+          "dominantShare": 0.901,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1616,7 +678,945 @@
           "foreground": "rgb(210, 193, 240)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 11.19,
-          "dominantShare": 0.668,
+          "dominantShare": 0.695,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
+      ]
+    },
+    {
+      "screen": "session-recovery-error",
+      "viewport": "xs",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "18.0pt (24px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "target": [
+                "h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-theme-open-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-language-open-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">",
+              "target": [
+                "div[aria-live=\"polite\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-retry-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-logout-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "h1",
+          "status": "manual-review",
+          "text": "Bee MiniPOS Web",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.784,
+          "fontSize": "24px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-theme-open-text\"]",
+          "status": "manual-review",
+          "text": "Тема: Тъмна",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.684,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-language-open-text\"]",
+          "status": "manual-review",
+          "text": "Език: Български",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.682,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[aria-live=\"polite\"]",
+          "status": "manual-review",
+          "text": "Сесията не може да се възстанови. Опитайте отново или влезте.",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.772,
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-retry-text\"]",
+          "status": "manual-review",
+          "text": "Повтори",
+          "foreground": "rgb(36, 21, 63)",
+          "pixelBackground": "rgb(210, 193, 240)",
+          "contrastCandidate": 10.07,
+          "dominantShare": 0.686,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-logout-text\"]",
+          "status": "manual-review",
+          "text": "Излез",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.695,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
+      ]
+    },
+    {
+      "screen": "session-recovery-loading",
+      "viewport": "md",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "18.0pt (24px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "target": [
+                "h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-theme-open-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-language-open-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
+              "target": [
+                "div[aria-live=\"polite\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-logout-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "h1",
+          "status": "manual-review",
+          "text": "Bee MiniPOS Web",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.813,
+          "fontSize": "24px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-theme-open-text\"]",
+          "status": "manual-review",
+          "text": "Тема: Светла",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.709,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-language-open-text\"]",
+          "status": "manual-review",
+          "text": "Език: Български",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.677,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[aria-live=\"polite\"]",
+          "status": "manual-review",
+          "text": "Зареждане…",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.923,
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-logout-text\"]",
+          "status": "manual-review",
+          "text": "Излез",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.695,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
+      ]
+    },
+    {
+      "screen": "session-recovery-error",
+      "viewport": "md",
+      "theme": "light",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "18.0pt (24px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "target": [
+                "h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-theme-open-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-language-open-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">",
+              "target": [
+                "div[aria-live=\"polite\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-retry-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-logout-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "h1",
+          "status": "manual-review",
+          "text": "Bee MiniPOS Web",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.871,
+          "fontSize": "24px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-theme-open-text\"]",
+          "status": "manual-review",
+          "text": "Тема: Светла",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.7,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-language-open-text\"]",
+          "status": "manual-review",
+          "text": "Език: Български",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.679,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[aria-live=\"polite\"]",
+          "status": "manual-review",
+          "text": "Сесията не може да се възстанови. Опитайте отново или влезте.",
+          "foreground": "rgb(29, 26, 32)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 16.79,
+          "dominantShare": 0.729,
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-retry-text\"]",
+          "status": "manual-review",
+          "text": "Повтори",
+          "foreground": "rgb(255, 255, 255)",
+          "pixelBackground": "rgb(73, 49, 122)",
+          "contrastCandidate": 10.48,
+          "dominantShare": 0.686,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-logout-text\"]",
+          "status": "manual-review",
+          "text": "Излез",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.695,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        }
+      ]
+    },
+    {
+      "screen": "session-recovery-loading",
+      "viewport": "md",
+      "theme": "dark",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "18.0pt (24px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "3:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "target": [
+                "h1"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-theme-open-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-language-open-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
+              "target": [
+                "div[aria-live=\"polite\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"session-logout-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            }
+          ]
+        }
+      ],
+      "contrastCandidates": [
+        {
+          "target": "h1",
+          "status": "manual-review",
+          "text": "Bee MiniPOS Web",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.81,
+          "fontSize": "24px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-theme-open-text\"]",
+          "status": "manual-review",
+          "text": "Тема: Тъмна",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.707,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-language-open-text\"]",
+          "status": "manual-review",
+          "text": "Език: Български",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.68,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[aria-live=\"polite\"]",
+          "status": "manual-review",
+          "text": "Зареждане…",
+          "foreground": "rgb(234, 228, 238)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 14.92,
+          "dominantShare": 0.924,
+          "fontSize": "14px",
+          "fontWeight": "400",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
+          "target": "div[data-testid=\"session-logout-text\"]",
+          "status": "manual-review",
+          "text": "Излез",
+          "foreground": "rgb(210, 193, 240)",
+          "pixelBackground": "rgb(21, 17, 27)",
+          "contrastCandidate": 11.19,
+          "dominantShare": 0.695,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1667,7 +1667,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
               "target": [
                 "h1"
               ],
@@ -1692,7 +1692,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-theme-open-text\"]"
               ],
@@ -1717,7 +1717,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-language-open-text\"]"
               ],
@@ -1742,7 +1742,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">",
               "target": [
                 "div[aria-live=\"polite\"]"
               ],
@@ -1767,7 +1767,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-retry-text\"]"
               ],
@@ -1792,7 +1792,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-logout-text\"]"
               ],
@@ -1809,7 +1809,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.869,
+          "dominantShare": 0.871,
           "fontSize": "24px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1821,7 +1821,7 @@
           "foreground": "rgb(210, 193, 240)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 11.19,
-          "dominantShare": 0.72,
+          "dominantShare": 0.688,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1833,7 +1833,7 @@
           "foreground": "rgb(210, 193, 240)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 11.19,
-          "dominantShare": 0.674,
+          "dominantShare": 0.679,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1845,7 +1845,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.739,
+          "dominantShare": 0.729,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1857,7 +1857,7 @@
           "foreground": "rgb(36, 21, 63)",
           "pixelBackground": "rgb(210, 193, 240)",
           "contrastCandidate": 10.07,
-          "dominantShare": 0.7,
+          "dominantShare": 0.686,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1869,7 +1869,7 @@
           "foreground": "rgb(210, 193, 240)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 11.19,
-          "dominantShare": 0.668,
+          "dominantShare": 0.695,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1920,7 +1920,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
               "target": [
                 "h1"
               ],
@@ -1945,7 +1945,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-theme-open-text\"]"
               ],
@@ -1970,7 +1970,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-language-open-text\"]"
               ],
@@ -1995,7 +1995,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
               "target": [
                 "div[aria-live=\"polite\"]"
               ],
@@ -2020,7 +2020,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-logout-text\"]"
               ],
@@ -2037,7 +2037,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.817,
+          "dominantShare": 0.813,
           "fontSize": "24px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2049,7 +2049,7 @@
           "foreground": "rgb(73, 49, 122)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 10.23,
-          "dominantShare": 0.73,
+          "dominantShare": 0.709,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2061,7 +2061,7 @@
           "foreground": "rgb(73, 49, 122)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 10.23,
-          "dominantShare": 0.69,
+          "dominantShare": 0.677,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2073,7 +2073,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.913,
+          "dominantShare": 0.923,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2085,7 +2085,7 @@
           "foreground": "rgb(73, 49, 122)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 10.23,
-          "dominantShare": 0.668,
+          "dominantShare": 0.695,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2136,7 +2136,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
               "target": [
                 "h1"
               ],
@@ -2161,7 +2161,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-theme-open-text\"]"
               ],
@@ -2186,7 +2186,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-language-open-text\"]"
               ],
@@ -2211,7 +2211,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">",
               "target": [
                 "div[aria-live=\"polite\"]"
               ],
@@ -2236,7 +2236,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-retry-text\"]"
               ],
@@ -2261,7 +2261,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-logout-text\"]"
               ],
@@ -2278,7 +2278,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.869,
+          "dominantShare": 0.871,
           "fontSize": "24px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2290,7 +2290,7 @@
           "foreground": "rgb(73, 49, 122)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 10.23,
-          "dominantShare": 0.721,
+          "dominantShare": 0.7,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2302,7 +2302,7 @@
           "foreground": "rgb(73, 49, 122)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 10.23,
-          "dominantShare": 0.674,
+          "dominantShare": 0.679,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2314,7 +2314,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.739,
+          "dominantShare": 0.729,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2326,7 +2326,7 @@
           "foreground": "rgb(255, 255, 255)",
           "pixelBackground": "rgb(73, 49, 122)",
           "contrastCandidate": 10.48,
-          "dominantShare": 0.7,
+          "dominantShare": 0.686,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2338,7 +2338,7 @@
           "foreground": "rgb(73, 49, 122)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 10.23,
-          "dominantShare": 0.668,
+          "dominantShare": 0.695,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2389,7 +2389,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
               "target": [
                 "h1"
               ],
@@ -2414,7 +2414,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-theme-open-text\"]"
               ],
@@ -2439,7 +2439,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-language-open-text\"]"
               ],
@@ -2464,7 +2464,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
               "target": [
                 "div[aria-live=\"polite\"]"
               ],
@@ -2489,7 +2489,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-logout-text\"]"
               ],
@@ -2506,7 +2506,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.814,
+          "dominantShare": 0.81,
           "fontSize": "24px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2518,7 +2518,7 @@
           "foreground": "rgb(210, 193, 240)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 11.19,
-          "dominantShare": 0.716,
+          "dominantShare": 0.707,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2530,7 +2530,7 @@
           "foreground": "rgb(210, 193, 240)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 11.19,
-          "dominantShare": 0.686,
+          "dominantShare": 0.68,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2542,7 +2542,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.912,
+          "dominantShare": 0.924,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2554,7 +2554,7 @@
           "foreground": "rgb(210, 193, 240)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 11.19,
-          "dominantShare": 0.668,
+          "dominantShare": 0.695,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2605,7 +2605,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
+              "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">Bee MiniPOS Web</h1>",
               "target": [
                 "h1"
               ],
@@ -2630,7 +2630,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-theme-open-t...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-theme-open-text\"]"
               ],
@@ -2655,7 +2655,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-language-ope...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-language-open-text\"]"
               ],
@@ -2680,7 +2680,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-status\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" data-testid=\"session-status\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">",
               "target": [
                 "div[aria-live=\"polite\"]"
               ],
@@ -2705,7 +2705,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-retry-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-retry-text\"]"
               ],
@@ -2730,7 +2730,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"session-logout-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"session-logout-text\"]"
               ],
@@ -2747,7 +2747,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.869,
+          "dominantShare": 0.871,
           "fontSize": "24px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2759,7 +2759,7 @@
           "foreground": "rgb(210, 193, 240)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 11.19,
-          "dominantShare": 0.72,
+          "dominantShare": 0.688,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2771,7 +2771,7 @@
           "foreground": "rgb(210, 193, 240)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 11.19,
-          "dominantShare": 0.674,
+          "dominantShare": 0.679,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2783,7 +2783,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.739,
+          "dominantShare": 0.729,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2795,7 +2795,7 @@
           "foreground": "rgb(36, 21, 63)",
           "pixelBackground": "rgb(210, 193, 240)",
           "contrastCandidate": 10.07,
-          "dominantShare": 0.7,
+          "dominantShare": 0.686,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -2807,7 +2807,7 @@
           "foreground": "rgb(210, 193, 240)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 11.19,
-          "dominantShare": 0.668,
+          "dominantShare": 0.695,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."

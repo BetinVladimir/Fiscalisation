@@ -3,7 +3,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { mockFiscalApi, openApp } from './helpers';
 import { saveWcagEvidence } from './contrast-evidence';
 
-for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+for (const [size, width, height] of [['xs', 320, 800], ['md', 768, 900], ['lg', 1440, 1000]] as const) {
   for (const mode of ['light', 'dark'] as const) {
     for (const state of ['devices-populated', 'devices-disconnected', 'devices-unavailable', 'devices-empty', 'devices-no-matches', 'devices-error', 'admin-top', 'admin-device-form', 'admin-invalid-json'] as const) {
       test(`Paper devices/admin WCAG AA ${state}/${size}/${mode}`, async ({ page }, testInfo) => {
@@ -17,7 +17,11 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
           : state === 'devices-error' ? { devicesStatus: 503 } : {});
         if (state === 'devices-error') {
           await page.goto('/');
-          await expect(page.getByTestId('devices.error')).toBeVisible();
+          const error = page.getByTestId('devices.error');
+          await expect(error).toBeVisible();
+          const id = await error.getByRole('alert').getAttribute('id');
+          expect(id).toBeTruthy();
+          await expect(page.getByTestId('devices.retry')).toHaveAttribute('aria-describedby', id!);
         } else {
           await openApp(page);
           if (state.startsWith('admin-')) {
@@ -29,7 +33,12 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
               await expect(page.getByTestId('admin-device-save')).toBeVisible();
               if (state === 'admin-invalid-json') {
                 await page.getByTestId('admin-device-transport-parameters').fill('{invalid');
-                await expect(page.getByText('Въведете валиден JSON обект.')).toBeVisible();
+                const helper = page.getByRole('alert').filter({ hasText: 'Въведете валиден JSON обект.' });
+                await expect(helper).toBeVisible();
+                const helperId = await helper.getAttribute('id');
+                expect(helperId).toBeTruthy();
+                await expect(page.getByTestId('admin-device-transport-parameters')).toHaveAttribute('aria-describedby', helperId!);
+                await expect(page.getByTestId('admin-device-transport-parameters')).toHaveAttribute('aria-invalid', 'true');
                 await expect(page.getByTestId('admin-device-save')).toBeDisabled();
               }
             }

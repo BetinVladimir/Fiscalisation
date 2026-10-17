@@ -1,5 +1,13 @@
 # MVP gates and formal exclusions
 
+## Readiness update — 2026-10-17
+
+Current target MiniPOS/S3/BlueCash readiness: **SOFTWARE_GAPS_OPEN**.
+The [runtime audit, remediation tasks and acceptance tests](docs/remediation/2026-10-17/README.md)
+supersede earlier blanket software-complete claims. Hardware, vendor and
+production gates remain separate; this audit changed documentation only.
+
+
 This register prevents a software simulator from being mistaken for Bulgarian production readiness.
 
 | Gate | MVP disposition | Closure evidence |

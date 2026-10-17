@@ -1,3 +1,8 @@
+import {Surface as SafePaperSurface} from 'react-native-paper';
+import {Surface as PaintedPaperSurface} from 'react-native-paper';
+import { compositeSelectionValid } from './src/compositeSelection';
+import { auditFilterDatesValid } from './src/auditFilters';
+import { AppButton } from './src/ui/app-button';
 import { colors as beeloyColors } from './src/ui/tokens';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-view';
@@ -5,16 +10,16 @@ import { AuthScreen } from './src/screens/AuthScreen';
 import { OperationsScreen } from './src/screens/OperationsScreen';
 import { ReportsScreen } from './src/screens/ReportsScreen';
 import { DevicesScreen } from './src/screens/DevicesScreen';
-import { AdministrationScreen } from './src/screens/AdministrationScreen';
+import { AdministrationScreen, type AdminRequest } from './src/screens/AdministrationScreen';
 import { AuditScreen, type AuditFilters } from './src/screens/AuditScreen';
 import { SettingsScreen } from './src/screens/SettingsScreen';
 import { LanguageThemeControls } from './src/ui/LanguageThemeControls';
 import { ReferencePicker } from './src/components/FiscalControls';
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { useWindowDimensions } from 'react-native';
-import { Button, Drawer, List, Modal, Portal, Text as PaperText, useTheme } from 'react-native-paper';
+import { Badge, Drawer, List, Surface, Modal, Portal, Text as PaperText, useTheme } from 'react-native-paper';
 import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
 import { fetchWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
@@ -48,7 +53,7 @@ type AdminLists = {
   devices: Item[];
 };
 
-async function call(path: string, init: RequestInit = {}) {
+async function call(path: string, init: RequestInit = {}, requestToken = runtimeAuthToken) {
   // Every mutation is independently idempotent. A PROD 401 clears local
   // authority immediately instead of leaving privileged controls usable.
   const mutation = !!init.method && init.method !== "GET";
@@ -62,31 +67,35 @@ async function call(path: string, init: RequestInit = {}) {
             "Idempotency-Key": `${Date.now()}-${Math.random().toString(16).slice(2)}-admin`,
           }
         : {}),
-      ...(runtimeAuthToken
-        ? { Authorization: `Bearer ${runtimeAuthToken}` }
+      ...(requestToken
+        ? { Authorization: `Bearer ${requestToken}` }
         : {}),
       ...(init.headers || {}),
     },
   });
   const text = await r.text();
-  if (r.status === 401 && prodMode) runtimeUnauthorized?.();
+  if (r.status === 401 && prodMode && requestToken === runtimeAuthToken) runtimeUnauthorized?.();
   if (!r.ok) throw new Error(text || `HTTP ${r.status}`);
   return text ? JSON.parse(text) : {};
 }
-const collect = (path: string) =>
-  collectCursorPages<Item>(path, (next) => call(next));
+const collect = (path: string, token: string, live: () => boolean) =>
+  collectCursorPages<Item>(path, async next => {
+    if (!live()) throw new Error('STALE_READ');
+    const result = await call(next, {}, token);
+    if (!live()) throw new Error('STALE_READ');
+    return result;
+  });
 const label = (v: unknown) =>
   typeof v === "string" ? v : typeof v === "number" ? String(v) : "—";
 
 export default function App() { return <BeeloyAppProvider><View style={{flex:1}}><AppContent/><DemoBadge/></View></BeeloyAppProvider>; }
-function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><PaperText style={demo.text}>DEMO</PaperText></View>:null}
-const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:beeloyColors.error,borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:beeloyColors.onPrimary,fontWeight:"900",fontSize:12,letterSpacing:1}});
+function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={{position:'absolute',right:8,top:8,zIndex:9999}}><Badge size={28}>DEMO</Badge></View>:null}
 function AppContent() {
   const { width } = useWindowDimensions();
   const compact = width < 600;
   const theme = useTheme();
   const [navOpen, setNavOpen] = useState(false);
-  const reportPending = useRef(false);
+  const commandPending = useRef<object | null>(null);
   // Token roles are reduced to explicit UI capabilities. The backend remains
   // authoritative; these guards prevent presenting accidental admin paths.
   const oidc = useEmailOtpAuth();
@@ -107,7 +116,6 @@ function AppContent() {
     ...(canAdminister ? ["Администриране"] : []),
     "Настройки",
   ];
-  runtimeUnauthorized = () => oidc.logout();
   const [tab, setTab] = useState("Устройства"),
     [message, setMessage] = useState("Зареждане на данните от публичния API…"),
     [core, setCore] = useState("CHECKING"),
@@ -176,24 +184,88 @@ function AppContent() {
     [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState('');
   const [reportError, setReportError] = useState('');
+  const mounted = useRef(false), readEpoch = useRef(0);
+  const authKey = JSON.stringify([oidc.accessToken, roles]);
+  const authOwner = useRef({ key: authKey });
+  if (authOwner.current.key !== authKey) authOwner.current = { key: authKey };
+  const renderSnapshot = {}, latestRender = useRef(renderSnapshot); latestRender.current = renderSnapshot;
+  const currentRender = () => mounted.current && latestRender.current === renderSnapshot;
+  const contextKey = JSON.stringify([authKey, tab, register, selected?.id]);
+  const contextRef = useRef({ key: contextKey });
+  if (contextRef.current.key !== contextKey) { contextRef.current = { key: contextKey }; commandPending.current = null; }
+  const contextOwner = contextRef.current;
+  const beginDeviceCommand = () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== 'Устройства') return null;
+    const ticket = {}, owner = contextOwner, auth = authOwner.current, epoch = readEpoch.current;
+    const token = oidc.accessToken || devAuthToken;
+    commandPending.current = ticket; setLoading(true);
+    const live = () => mounted.current && contextRef.current === owner && authOwner.current === auth && readEpoch.current === epoch && commandPending.current === ticket;
+    return {
+      live,
+      call: async (path: string, init: RequestInit = {}) => {
+        if (!live()) throw new Error('STALE_COMMAND');
+        const result = await call(path, init, token);
+        if (!live()) throw new Error('STALE_COMMAND');
+        return result;
+      },
+      finish: () => {
+        if (commandPending.current !== ticket) return;
+        commandPending.current = null;
+        if (mounted.current && contextRef.current === owner && authOwner.current === auth && readEpoch.current === epoch) setLoading(false);
+      },
+    };
+  };
+
+
+  const beginAdminCommand = () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== 'Администриране' || !canAdminister) return null;
+    const ticket = {}, owner = contextOwner, auth = authOwner.current;
+    const token = oidc.accessToken || devAuthToken;
+    commandPending.current = ticket; setAdminBusy(true);
+    const live = () => mounted.current && contextRef.current === owner && authOwner.current === auth && commandPending.current === ticket;
+    return {
+      live,
+      call: async (path: string, init: RequestInit = {}) => {
+        if (!live()) throw new Error('STALE_COMMAND');
+        const result = await call(path, init, token);
+        if (!live()) throw new Error('STALE_COMMAND');
+        return result;
+      },
+      finish: () => {
+        if (commandPending.current !== ticket) return;
+        commandPending.current = null;
+        if (mounted.current && contextRef.current === owner && authOwner.current === auth) setAdminBusy(false);
+      },
+    };
+  };
+  useEffect(() => { if (!commandPending.current) setAdminBusy(false); }, [contextKey]);
+
+  const invalidateReads = () => { readEpoch.current++; authOwner.current = { key: authKey }; };
+  runtimeUnauthorized = () => { invalidateReads(); void oidc.logout(); };
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; readEpoch.current++; }; }, []);
+
   useEffect(() => {
     // Poll telemetry only while a selected device is visible. This avoids
     // background API load and late updates after navigation.
     if (tab !== "Устройства" || !selected) return;
-    let active = true;
+    let active = true, pending = false;
+    const owner = authOwner.current, epoch = readEpoch.current, token = oidc.accessToken || devAuthToken;
     const poll = async () => {
       if (
         typeof document !== "undefined" &&
         document.visibilityState === "hidden"
       )
         return;
+      if (pending) return;
+      pending = true;
       const devicePath = `/devices/${encodeURIComponent(label(selected.id))}`;
       const [readiness, health, activity] = await Promise.allSettled([
-        call(`${devicePath}/readiness`),
-        call(`${devicePath}/health`),
-        call(`${devicePath}/activity`),
+        call(`${devicePath}/readiness`, {}, token),
+        call(`${devicePath}/health`, {}, token),
+        call(`${devicePath}/activity`, {}, token),
       ]);
-      if (!active) return;
+      pending = false;
+      if (!active || !mounted.current || authOwner.current !== owner || readEpoch.current !== epoch) return;
       setDeviceReadiness(readiness.status === 'fulfilled' ? readiness.value : { ready: false, state: 'UNAVAILABLE' });
       setDeviceHealth(health.status === 'fulfilled' ? health.value : { effective_state: 'UNKNOWN' });
       setDeviceActivity(activity.status === 'fulfilled' && Array.isArray(activity.value.items)
@@ -205,7 +277,7 @@ function AppContent() {
       active = false;
       clearInterval(timer);
     };
-  }, [tab, selected?.id]);
+  }, [tab, selected?.id, register, oidc.accessToken, roles.join(",")]);
   const transportParameter = (name: string, fallback = "") => {
     try {
       const parsed = JSON.parse(deviceTransportParameters || "{}");
@@ -226,8 +298,12 @@ function AppContent() {
     parsed[name] = numeric ? Number(value) : value;
     setDeviceTransportParameters(JSON.stringify(parsed));
   };
-  const refresh = useCallback(
-    async (next = tab, registerOverride = register) => {
+  const refresh = async (next = tab, registerOverride = register, continuation = false) => {
+      if ((!currentRender() && !(continuation && mounted.current && contextRef.current === contextOwner)) || !tabs.includes(next)) return false;
+      if (next === "Одит" && !auditFilterDatesValid({ from: auditFrom, to: auditTo })) return false;
+      const owner = authOwner.current, epoch = ++readEpoch.current, token = oidc.accessToken || devAuthToken;
+      const requestCurrent = () => mounted.current && authOwner.current === owner && readEpoch.current === epoch;
+      const read = (path: string) => collect(path, token, requestCurrent);
       setLoading(true);
       setLoadError('');
       if (next === 'Устройства' || next === 'Операции' || next === 'Отчети' || next === 'Одит') setItems([]);
@@ -249,10 +325,11 @@ function AppContent() {
         let registersForContext = adminLists.registers;
         if (next !== "Администриране" && registersForContext.length === 0) {
           const [locations, registers, operators] = await Promise.all([
-            collect("/locations"),
-            collect("/registers"),
-            collect("/operators"),
+            read("/locations"),
+            read("/registers"),
+            read("/operators"),
           ]);
+          if (!requestCurrent()) return false;
           setAdminLists(current => ({ ...current, locations, registers, operators }));
           registersForContext = registers;
           setLocationId(current => current || label(locations[0]?.id));
@@ -261,7 +338,8 @@ function AppContent() {
           setOperatorId(current => current || label(operators[0]?.id));
         }
         if (next === "Устройства") {
-          const companyDevices = await collect("/devices");
+          const companyDevices = await read("/devices");
+          if (!requestCurrent()) return false;
           const registerId = registerOverride || label(registersForContext[0]?.id);
           const activeRegister = registersForContext.find(item => item.id === registerId);
           const scopedDevices = devicesBoundToRegister(companyDevices, activeRegister);
@@ -269,13 +347,15 @@ function AppContent() {
           setSelected(scopedDevices[0] || null);
         }
         if (next === "Операции") {
-          const v = await collect(
+          const v = await read(
             registerCollectionPath("/operations", registerOverride),
           );
+          if (!requestCurrent()) return false;
           setItems(v);
         }
         if (next === "Отчети") {
-          const v = await collect(registerCollectionPath("/reports", registerOverride));
+          const v = await read(registerCollectionPath("/reports", registerOverride));
+          if (!requestCurrent()) return false;
           setItems(v);
         }
         if (next === "Одит") {
@@ -285,28 +365,30 @@ function AppContent() {
           if (auditObjectType) params.set("object_type", auditObjectType);
           if (auditObjectId) params.set("object_id", auditObjectId);
           if (auditUnp) params.set("unp", auditUnp);
-          if (auditFrom) params.set("from", auditFrom);
-          if (auditTo) params.set("to", auditTo);
+          if (auditFrom) params.set("from", auditFrom.trim());
+          if (auditTo) params.set("to", auditTo.trim());
           setItems([]);
-          setItems(
-            await collect(`/audit-events${params.size ? `?${params}` : ""}`),
-          );
+          const events = await read(`/audit-events${params.size ? `?${params}` : ""}`);
+          if (!requestCurrent()) return false;
+          setItems(events);
         }
         if (next === "Настройки") {
           const [p, t] = await Promise.all([
-            call("/country-policy"),
-            call("/tax-groups"),
+            call("/country-policy", {}, token),
+            call("/tax-groups", {}, token),
           ]);
+          if (!requestCurrent()) return false;
           setPolicy({ ...p, tax_groups: t });
           setItems([]);
         }
         if (next === "Администриране") {
           const [locations, registers, operators, devices] = await Promise.all([
-            collect("/locations"),
-            collect("/registers"),
-            collect("/operators"),
-            collect("/devices"),
+            read("/locations"),
+            read("/registers"),
+            read("/operators"),
+            read("/devices"),
           ]);
+          if (!requestCurrent()) return false;
           const lists = {
             locations,
             registers,
@@ -322,8 +404,9 @@ function AppContent() {
           const selectedRegister = registerOverride || label(lists.registers[0]?.id);
           if (isRegisterId(selectedRegister)) {
             const history = await call(
-              registerResourcePath(selectedRegister, "/composite-bindings"),
+              registerResourcePath(selectedRegister, "/composite-bindings"), {}, token,
             );
+            if (!requestCurrent()) return false;
             const bindings = Array.isArray(history.items)
               ? (history.items as Item[])
               : [];
@@ -336,41 +419,29 @@ function AppContent() {
             );
           }
         }
+        if (!requestCurrent()) return false;
         setMessage(`${next}: данните са обновени от BeeFiscal API`);
         setCore("CORE READY");
         return true;
       } catch (e) {
+        if (!requestCurrent()) return false;
         setCore("CORE OFFLINE");
         setLoadError('Данните не могат да се заредят.');
         setMessage(`API отказ: ${e instanceof Error ? e.message : String(e)}`);
         return false;
       } finally {
-        setLoading(false);
+        if (requestCurrent()) setLoading(false);
       }
-    },
-    [
-      register,
-      adminLists.registers.length,
-      tab,
-      canAdminister,
-      canReadAudit,
-      roles.join(","),
-      auditActor,
-      auditAction,
-      auditObjectType,
-      auditObjectId,
-      auditUnp,
-      auditFrom,
-      auditTo,
-    ],
-  );
+  };
   useEffect(() => {
     runtimeAuthToken = oidc.accessToken || devAuthToken;
     if (prodMode && !oidc.accessToken) {
+      setItems([]); setSelected(null); setAdminLists({ locations: [], registers: [], operators: [], devices: [] });
       setCore("AUTH REQUIRED");
       setMessage("Влезте с персоналния си административен профил");
       return;
     }
+    setTab("Устройства");
     void refresh("Устройства");
   }, [oidc.accessToken]);
   useEffect(() => {
@@ -380,6 +451,7 @@ function AppContent() {
     }
   }, [roles.join(","), tab]);
   const changeTab = (next: string) => {
+    if (!currentRender() || !tabs.includes(next)) return;
     setTab(next);
     setItems([]);
     setLoadError('');
@@ -387,7 +459,7 @@ function AppContent() {
     void refresh(next);
   };
   const selectRegisterContext = (nextRegister: string) => {
-    if (nextRegister === register) return;
+    if (!currentRender() || nextRegister === register || !adminLists.registers.some(item => item.id === nextRegister)) return;
     setRegister(nextRegister);
     setItems([]);
     setSelected(null);
@@ -399,6 +471,7 @@ function AppContent() {
     void refresh(tab, nextRegister);
   };
   const probe = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!isRegisterId(register)) {
       setMessage("Изберете валиден Fiscal register UUID преди сквозния probe");
       return;
@@ -407,14 +480,17 @@ function AppContent() {
       setMessage("Няма регистрирано устройство за probe");
       return;
     }
+    const command = beginDeviceCommand(); if (!command) return;
     setMessage("Проверка на cloud route, Edge, driver и крайното ФУ…");
     try {
       const id = label(selected.id);
-      const route = await call(
+      const route = await command.call(
         registerResourcePath(register, "/connectivity-probes"),
         { method: "POST", body: "{}" },
       );
-      const device = await call(`/devices/${encodeURIComponent(id)}/readiness`);
+      if (!command.live()) return;
+      const device = await command.call(`/devices/${encodeURIComponent(id)}/readiness`);
+      if (!command.live()) return;
       setTransportMetrics({
         state: route.state,
         hops: route.hops,
@@ -429,92 +505,103 @@ function AppContent() {
         `Cloud ${route.hops?.cloud?.state || route.state} → Edge ${route.hops?.edge?.state || "?"} → Driver ${device.driver} → ФУ ${device.fiscal_device}`,
       );
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `Probe отказан: ${e instanceof Error ? e.message : String(e)}`,
       );
-    }
+    } finally { command.finish(); }
   };
   const loadDiagnostics = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!selected || !canDiagnose) {
       setMessage("Диагностиката изисква роля ADMIN или SERVICE");
       return;
     }
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
       const id = encodeURIComponent(label(selected.id));
       const [capabilities, details] = await Promise.all([
-        call(`/devices/${id}/capabilities`),
-        call(`/devices/${id}/diagnostics`),
+        command.call(`/devices/${id}/capabilities`),
+        command.call(`/devices/${id}/diagnostics`),
       ]);
+      if (!command.live()) return;
       setDiagnostics({ capabilities, details });
       setMessage("Диагностиката е заредена с приложени server redactions");
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `Диагностиката е отказана: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const printerTest = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!selected || !canDiagnose) {
       setMessage("Тестът на принтера изисква ADMIN или SERVICE");
       return;
     }
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
-      const result = await call(
+      const result = await command.call(
         `/devices/${encodeURIComponent(label(selected.id))}/tests/printer`,
         { method: "POST", body: "{}" },
       );
+      if (!command.live()) return;
       setMessage(
         `Тест на принтера: ${label(result.state)} • ${label(result.id)}`,
       );
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `Тестът на принтера е отказан: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const startProvisioning = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!selected || !canAdminister) {
       setMessage("Provisioning изисква роля ADMIN");
       return;
     }
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
-      const result = await call(
+      const result = await command.call(
         `/devices/${encodeURIComponent(label(selected.id))}/provisioning-sessions`,
         { method: "POST", body: "" },
       );
+      if (!command.live()) return;
       setProvisioning(result);
       setMessage(
         `Provisioning сесия ${label(result.session_id)} • ${label(result.state)}`,
       );
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `Provisioning е отказан: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const issueBleSession = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!canIssueBleSession) {
       setMessage("BLE сесията изисква оперативна роля");
       return;
     }
-    if (!isRegisterId(register) || !operatorId || !blePublicKey.trim()) {
+    if (!isRegisterId(register) || !adminLists.registers.some(item => item.id === register) || !adminLists.operators.some(item => item.id === operatorId) || !blePublicKey.trim()) {
       setMessage(
         "BLE сесията изисква валиден register UUID, operator и предварително подготвен client public key",
       );
       return;
     }
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
-      const result = await call(
+      const result = await command.call(
         registerResourcePath(register, "/ble-sessions"),
         {
           method: "POST",
@@ -525,30 +612,33 @@ function AppContent() {
           }),
         },
       );
+      if (!command.live()) return;
       setBleSession(result);
       setMessage(
         `BLE сесия ${label(result.ble_session_id)} • валидна до ${label(result.expires_at)}`,
       );
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `BLE сесията е отказана: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const activateBlueCash = async () => {
-    if (!activationRequest || !canAdminister) {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
+    if (!activationRequest || !canAdminister || typeof activationRequest.activation_request_id !== "string" || !activationRequest.activation_request_id.trim() || !activationCode.trim()) {
       setMessage("Първо намерете чакащата заявка с QR/краткия код");
       return;
     }
-    if (!isRegisterId(activationLocationId) || !isRegisterId(register)) {
+    if (!isRegisterId(activationLocationId) || !adminLists.locations.some(item => item.id === activationLocationId) || !isRegisterId(register) || !adminLists.registers.some(item => item.id === register)) {
       setMessage("Изберете валидни търговска точка и касово място");
       return;
     }
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
-      const confirmed = await call(
+      const confirmed = await command.call(
         `/device-activation-requests/${encodeURIComponent(label(activationRequest.activation_request_id))}:confirm`,
         {
           method: "POST",
@@ -560,61 +650,71 @@ function AppContent() {
           }),
         },
       );
+      if (!command.live()) return;
       setBlueCashActivation(confirmed);
       setActivationRequest(null);
       setMessage(
         `Заявката е потвърдена. Организацията е взета от вашия tenant token; устройството ще завърши key-bound activation.`,
       );
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `BlueCash activation е отказан: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const lookupActivation = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!canAdminister || !activationCode.trim()) return;
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
-      const pending = await call(
+      const pending = await command.call(
         `/device-activation-requests:lookup?user_code=${encodeURIComponent(activationCode.trim().toUpperCase())}`,
       );
+      if (!command.live()) return;
+      if (typeof pending.activation_request_id !== "string" || !pending.activation_request_id.trim() || !Array.isArray(pending.requested_roles) || !pending.requested_roles.every((role: unknown) => typeof role === "string")) throw new Error("INVALID_ACTIVATION_REQUEST");
       setActivationRequest(pending);
       setMessage(
         "Проверете vendor, model, serial, FMIN и key thumbprint преди потвърждение",
       );
     } catch (e) {
+      if (!command.live()) return;
       setActivationRequest(null);
       setMessage(
         `Заявката не е намерена: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const disconnectDevice = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!selected || !canAdminister) return;
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
-      await call(
+      await command.call(
         `/devices/${encodeURIComponent(label(selected.id))}:disconnect`,
         { method: "POST", body: "{}" },
       );
+      if (!command.live()) return;
       setMessage(
         "Устройството, credential-ът, BLE сесиите и register bindings са оттеглени",
       );
-      await refresh("Устройства");
+      await refresh("Устройства", register, true);
+      if (!command.live()) return;
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `Отключването е отказано: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const report = async (type: string) => {
-    if (reportPending.current) return;
+    if (!currentRender() || loading || adminBusy || commandPending.current || !["X", "Z", "KLEN", "FISCAL_MEMORY"].includes(type)) return;
     if (!canRunReports) {
       setMessage("Командата за отчет изисква роля SUPERVISOR или ADMIN");
       return;
@@ -623,7 +723,9 @@ function AppContent() {
       setMessage("Командата за отчет изисква валиден Fiscal register UUID");
       return;
     }
-    reportPending.current = true;
+    const ticket = {}; commandPending.current = ticket;
+    const commandLive = () => mounted.current && contextRef.current === contextOwner && commandPending.current === ticket;
+    const token = oidc.accessToken || devAuthToken;
     setLoading(true);
     setReportError('');
     setMessage(`${type} отчет…`);
@@ -631,20 +733,22 @@ function AppContent() {
       const v = await call(registerResourcePath(register, "/reports"), {
         method: "POST",
         body: JSON.stringify({ type }),
-      });
+      }, token);
+      if (!commandLive()) return;
       setMessage(`${type}: ${v.state} • ${v.fiscal_reference || v.id}`);
-      await refresh("Отчети");
+      await refresh("Отчети", register, true);
     } catch (e) {
+      if (!commandLive()) return;
       setReportError('Създаването на отчета не успя. Опитайте отново.');
       setMessage(
         `Отчетът е отказан: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      reportPending.current = false;
-      setLoading(false);
+      if (commandPending.current === ticket) { commandPending.current = null; if (mounted.current && contextRef.current === contextOwner) setLoading(false); }
     }
   };
   const reconcileOperation = async (operation: Item) => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || !items.includes(operation) || typeof operation.id !== "string" || !operation.id.trim()) return;
     if (!canReconcile) {
       setMessage("Reconciliation изисква роля SUPERVISOR или ADMIN");
       return;
@@ -656,47 +760,61 @@ function AppContent() {
       setMessage("Reconciliation е блокирано: backend не го разрешава");
       return;
     }
+    const ticket = {}; commandPending.current = ticket;
+    const commandLive = () => mounted.current && contextRef.current === contextOwner && commandPending.current === ticket;
+    const token = oidc.accessToken || devAuthToken;
     setLoading(true);
     setMessage(`Reconciliation ${label(operation.id)}…`);
     try {
       const result = await call(
         `/operations/${encodeURIComponent(label(operation.id))}/reconcile`,
-        { method: "POST", body: "{}" },
+        { method: "POST", body: "{}" }, token,
       );
+      if (!commandLive()) return;
       setMessage(
         `Reconciliation: ${label(result.state)} • ${label(result.operation_id || result.id)}`,
       );
-      await refresh("Операции");
+      await refresh("Операции", register, true);
     } catch (e) {
+      if (!commandLive()) return;
       setMessage(
         `Reconciliation е отказано: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      if (commandPending.current === ticket) { commandPending.current = null; if (mounted.current && contextRef.current === contextOwner) setLoading(false); }
     }
   };
   const mutateAdmin = async (
     description: string,
-    action: () => Promise<unknown>,
+    action: (request: AdminRequest) => Promise<unknown>,
   ) => {
-    setAdminBusy(true);
+    const command = beginAdminCommand(); if (!command) return;
     setMessage(`${description}…`);
     try {
-      await action();
-      const refreshed = await refresh("Администриране");
+      const result = await action(command.call);
+      if (!command.live()) return;
+      const commit = result && typeof result === 'object' ? result as { apply?: unknown; registerId?: unknown } : null;
+      const targetRegister = typeof commit?.registerId === 'string' ? commit.registerId : register;
+      const epoch = readEpoch.current;
+      const refreshed = await refresh("Администриране", targetRegister, true);
+      if (!command.live() || readEpoch.current !== epoch + 1) return;
+      if (typeof commit?.apply === 'function') commit.apply();
       setMessage(refreshed ? `${description}: готово` : `${description}: записано, но списъкът не се обнови`);
     } catch (e) {
-      setMessage(
-        `${description}: ${e instanceof Error ? e.message : String(e)}`,
-      );
-    } finally {
-      setAdminBusy(false);
-    }
+      if (!command.live()) return;
+      setMessage(`${description}: ${e instanceof Error ? e.message : String(e)}`);
+    } finally { command.finish(); }
   };
   const stageCompositeBinding = async () => {
-    setAdminBusy(true);
+    if (!isRegisterId(register) || !adminLists.registers.some(item => item.id === register)
+      || !compositeSelectionValid(compositeProfile,adapterDeviceId,fiscalEndpointId,paymentEndpointId,adminLists.devices)
+      || !adminLists.devices.some(item => item.id === adapterDeviceId)
+      || !adminLists.devices.some(item => item.id === fiscalEndpointId)
+      || (paymentEndpointId && !adminLists.devices.some(item => item.id === paymentEndpointId))
+      || !Number.isSafeInteger(Number(expectedRegisterVersion)) || Number(expectedRegisterVersion) < 1) return;
+    const command = beginAdminCommand(); if (!command) return;
     try {
-      const v = await call(
+      const v = await command.call(
         registerResourcePath(register, "/composite-bindings"),
         {
           method: "POST",
@@ -711,21 +829,25 @@ function AppContent() {
           }),
         },
       );
+      if (!command.live()) return;
       setCompositeBinding(v);
       setMessage(`Composite generation ${label(v.generation)} е подготвена`);
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `Composite binding: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setAdminBusy(false);
+      command.finish();
     }
   };
   const disableCompositeBinding = async () => {
-    if (!compositeBinding) return;
-    setAdminBusy(true);
+    if (!compositeBinding || !isRegisterId(register) || !isRegisterId(String(compositeBinding.binding_id || ''))
+      || compositeBinding.register_id !== register || compositeBinding.status === 'REVOKED'
+      || !Number.isSafeInteger(compositeBinding.version) || Number(compositeBinding.version) < 1) return;
+    const command = beginAdminCommand(); if (!command) return;
     try {
-      const v = await call(
+      const v = await command.call(
         registerResourcePath(register, "/composite-bindings/disable"),
         {
           method: "POST",
@@ -735,69 +857,78 @@ function AppContent() {
           }),
         },
       );
+      if (!command.live()) return;
       setCompositeBinding(v);
-      setExpectedRegisterVersion(String(Number(expectedRegisterVersion) + 1));
+      // Disabling a pending binding does not increment the register version.
+      // Read the authoritative version instead of guessing +1.
+      const currentRegister = await command.call(registerResourcePath(register));
+      if (!command.live()) return;
+      if (currentRegister.id !== register || !Number.isSafeInteger(currentRegister.version) || Number(currentRegister.version) < 1) throw new Error('INVALID_REGISTER_RESPONSE');
+      setExpectedRegisterVersion(String(currentRegister.version));
       setMessage(
         "Composite binding е изключен; може да бъде подготвена нова връзка",
       );
     } catch (e) {
+      if (!command.live()) return;
       setMessage(`Disable: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
-      setAdminBusy(false);
+      command.finish();
     }
   };
   if (prodMode && !oidc.accessToken) {
     return <AuthScreen auth={oidc} />;
   }
   return (
-    <SafeAreaView style={[s.root, { backgroundColor: theme.colors.background }]}>
+    <SafePaperSurface mode="flat" elevation={0} style={{flex:1,backgroundColor:theme.colors.background}}><SafeAreaView style={[s.root, { }]}>
       <StatusBar style={theme.dark ? 'light' : 'dark'} />
       <LanguageThemeControls testPrefix="shell" />
       {compact && navOpen ? <Portal>
         <Modal visible={compact && navOpen} onDismiss={() => setNavOpen(false)} contentContainerStyle={{ margin: 16, maxHeight: '80%', borderRadius: 16, padding: 12, backgroundColor: theme.colors.surface }}>
           <ScrollView>
             <Drawer.Section title="BeeFiscal">
-              {tabs.map(x => <List.Item key={x} testID={`tab-${x}`} title={x} titleNumberOfLines={0} titleStyle={{ color: tab === x ? theme.colors.onSecondaryContainer : theme.colors.onSurface }} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 12, marginVertical: 4, backgroundColor: tab === x ? theme.colors.secondaryContainer : theme.colors.surface }} accessibilityRole="button" accessibilityState={{ selected: tab === x }} accessibilityLabel={`Отвори ${x}`} onPress={() => { setNavOpen(false); changeTab(x); }} />)}
+              {tabs.map(x => <List.Item key={x} testID={`tab-${x}`} title={x} titleNumberOfLines={0} titleMaxFontSizeMultiplier={0} titleStyle={{ color: tab === x ? theme.colors.onSecondaryContainer : theme.colors.onSurface }} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 12, marginVertical: 4, backgroundColor: tab === x ? theme.colors.secondaryContainer : theme.colors.surface }} accessibilityRole="button" accessibilityState={{ selected: tab === x }} accessibilityLabel={`Отвори ${x}`} onPress={() => { if(!currentRender())return;setNavOpen(false); changeTab(x); }} />)}
             </Drawer.Section>
           </ScrollView>
         </Modal>
       </Portal> : null}
-      <View style={[s.header, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }, compact && { flexWrap: 'wrap', gap: 8, padding: 12 }]}>
+      <PaintedPaperSurface mode="flat" elevation={0} style={[s.header, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }, compact && { flexWrap: 'wrap', gap: 8, padding: 12 }]}>
         <View style={{ minWidth: 0, maxWidth: '100%', flexShrink: 1, ...(compact ? { width: '100%' } : {}) }}>
-          <PaperText style={[s.title, { color: theme.colors.onSurface }]}>BeeFiscal</PaperText>
+          <PaperText variant="headlineMedium" style={[s.title, { color: theme.colors.onSurface }]}>BeeFiscal</PaperText>
           <PaperText style={[s.sub, { color: theme.colors.onSurfaceVariant }]}>
             BG • EUR • публичен API • без локално симулирани записи
           </PaperText>
         </View>
-        {compact ? <Button testID="nav.open" mode="outlined" contentStyle={{ minHeight: 48 }} onPress={() => setNavOpen(true)}>Меню</Button> : null}
-        <View
+        {compact ? <AppButton testID="nav.open" mode="outlined" contentStyle={{ minHeight: 48 }} onPress={() => {if(currentRender())setNavOpen(true);}}>Меню</AppButton> : null}
+        <Surface elevation={0}
           testID="status-fiscal-device"
           accessibilityLiveRegion="polite"
-          style={[s.ready, core.includes("OFFLINE") && s.offline]}
+          style={[s.ready, { backgroundColor: core.includes("OFFLINE") ? theme.colors.errorContainer : theme.colors.secondaryContainer }]}
         >
-          <PaperText style={s.readyText}>Fiscal Core: {core}</PaperText>
-        </View>
-        {prodMode && oidc.tenants.length > 1 ? <View style={s.actions}>{oidc.tenants.map(t=><Button key={t.tenant_id} mode={t.tenant_id===oidc.currentTenant?.tenant_id ? 'contained-tonal' : 'outlined'} contentStyle={{ minHeight: 48 }} disabled={t.tenant_id===oidc.currentTenant?.tenant_id} accessibilityLabel={`Компания ${t.display_name}`} onPress={()=>{setItems([]);setSelected(null);setRegister('');setAdminLists({locations:[],registers:[],operators:[],devices:[]});void oidc.switchTenant(t.tenant_id)}}>{t.display_name}</Button>)}</View>:null}
+          <PaperText style={{color: core.includes("OFFLINE") ? theme.colors.onErrorContainer : theme.colors.onSecondaryContainer}}>Fiscal Core: {core}</PaperText>
+        </Surface>
+        {prodMode && oidc.tenants.length > 1 ? <View style={s.actions}>{oidc.tenants.map(t=><AppButton key={t.tenant_id} mode={t.tenant_id===oidc.currentTenant?.tenant_id ? 'contained-tonal' : 'outlined'} contentStyle={{ minHeight: 48 }} disabled={!oidc.ready || t.tenant_id===oidc.currentTenant?.tenant_id} accessibilityLabel={`Компания ${t.display_name}`} onPress={()=>{if(!currentRender()||!oidc.ready||commandPending.current||t.tenant_id===oidc.currentTenant?.tenant_id)return;invalidateReads();setItems([]);setSelected(null);setRegister('');setAdminLists({locations:[],registers:[],operators:[],devices:[]});void oidc.switchTenant(t.tenant_id)}}>{t.display_name}</AppButton>)}</View>:null}
         {prodMode ? (
-          <Button
+          <AppButton
             testID="admin-logout"
             mode="outlined"
             contentStyle={{ minHeight: 48 }}
             accessibilityLabel="Излез от административния профил"
             onPress={() => {
+              if(!currentRender())return;
+              invalidateReads();
               runtimeAuthToken = "";
               void oidc.logout();
             }}
-          >Излез</Button>
+          >Излез</AppButton>
         ) : null}
-      </View>
+      </PaintedPaperSurface>
       <View style={s.body}>
-        {!compact ? <ScrollView contentContainerStyle={{ paddingHorizontal: 0 }} style={[s.nav, { backgroundColor: theme.colors.surface }]}>
+        {!compact ? <PaintedPaperSurface testID="shell.navigation.surface" mode="flat" elevation={0} style={[s.nav,{padding:0,gap:0,backgroundColor:theme.colors.surface}]}><ScrollView contentContainerStyle={{ paddingHorizontal: 0 }} style={s.nav}>
           <Drawer.Section>
-            {tabs.map(x => <List.Item key={x} testID={`tab-${x}`} title={x} titleNumberOfLines={0} titleStyle={{ color: tab === x ? theme.colors.onSecondaryContainer : theme.colors.onSurface }} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 12, marginVertical: 4, backgroundColor: tab === x ? theme.colors.secondaryContainer : theme.colors.surface }} accessibilityRole="button" accessibilityState={{ selected: tab === x }} accessibilityLabel={`Отвори ${x}`} onPress={() => changeTab(x)} />)}
+            {tabs.map(x => <List.Item key={x} testID={`tab-${x}`} title={x} titleNumberOfLines={0} titleMaxFontSizeMultiplier={0} titleStyle={{ color: tab === x ? theme.colors.onSecondaryContainer : theme.colors.onSurface }} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 12, marginVertical: 4, backgroundColor: tab === x ? theme.colors.secondaryContainer : theme.colors.surface }} accessibilityRole="button" accessibilityState={{ selected: tab === x }} accessibilityLabel={`Отвори ${x}`} onPress={() => changeTab(x)} />)}
           </Drawer.Section>
-        </ScrollView> : null}
-        <ScrollView testID="operational.content" style={[s.content, { backgroundColor: theme.colors.background }]}
+        </ScrollView></PaintedPaperSurface> : null}
+        <PaintedPaperSurface testID="shell.content.surface" mode="flat" elevation={0} style={[s.content,{backgroundColor:theme.colors.background}]}><ScrollView testID="operational.content" style={s.content}
           contentContainerStyle={{ paddingVertical: compact ? 16 : 20 }}>
           {loading ? (
             <PaperText
@@ -809,9 +940,9 @@ function AppContent() {
             </PaperText>
           ) : null}
           <View style={[s.toolbar, compact && { flexWrap: 'wrap' }]}>
-            <PaperText style={[s.section, { color: theme.colors.onBackground }, compact && { flexBasis: '100%' }]}>{tab}</PaperText>
-            <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={selectRegisterContext} onEmpty={()=>changeTab("Администриране")}/>
-            <Button mode="contained-tonal" contentStyle={{ minHeight: 48 }} accessibilityLabel={`Обнови ${tab}`} disabled={loading} onPress={() => refresh()}>{loading ? "…" : "Обнови"}</Button>
+            <PaperText variant="headlineSmall" style={[s.section, { color: theme.colors.onBackground }, compact && { flexBasis: '100%' }]}>{tab}</PaperText>
+            <ReferencePicker disabled={adminBusy} label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={selectRegisterContext} onEmpty={()=>changeTab("Администриране")}/>
+            <AppButton mode="contained-tonal" contentStyle={{ minHeight: 48 }} accessibilityLabel={`Обнови ${tab}`} disabled={loading || adminBusy} onPress={() => refresh()}>{loading ? "…" : "Обнови"}</AppButton>
           </View>
           {tab === "Устройства" ? (
             <DevicesScreen
@@ -822,44 +953,45 @@ function AppContent() {
               telemetry={{ transportMetrics, deviceHealth, deviceReadiness, deviceActivity, fiscalMetrics, diagnostics, provisioning, bleSession, blueCashActivation }}
               actions={{
                 retry: () => void refresh('Устройства'),
-                selectDevice: device => { setSelected(device); setDeviceHealth(null); setDeviceReadiness(null); setDeviceActivity([]); setDiagnostics(null); setMessage(`${label(device.name || device.id)} е избрано`); },
+                selectDevice: device => { if (!currentRender() || loading || loadError || !items.includes(device)) return; setSelected(device); setDeviceHealth(null); setDeviceReadiness(null); setDeviceActivity([]); setDiagnostics(null); setMessage(`${label(device.name || device.id)} е избрано`); },
                 openAdministration: () => changeTab('Администриране'),
                 diagnostics: () => void loadDiagnostics(),
                 printerTest: () => void printerTest(),
                 provisioning: () => void startProvisioning(),
-                selectOperator: setOperatorId,
-                changeBlePublicKey: setBlePublicKey,
+                selectOperator: id => { if (currentRender() && !loading && !commandPending.current && adminLists.operators.some(item => item.id === id)) setOperatorId(id); },
+                changeBlePublicKey: value => { if (currentRender() && !loading && !commandPending.current) setBlePublicKey(value); },
                 issueBleSession: () => void issueBleSession(),
-                changeActivationCode: setActivationCode,
+                changeActivationCode: value => { if (currentRender() && !loading && !commandPending.current) { setActivationCode(value); setActivationRequest(null); setBlueCashActivation(null); } },
                 lookupActivation: () => void lookupActivation(),
-                selectActivationLocation: setActivationLocationId,
+                selectActivationLocation: id => { if (currentRender() && !loading && !commandPending.current && adminLists.locations.some(item => item.id === id)) setActivationLocationId(id); },
                 selectRegister: selectRegisterContext,
                 confirmActivation: () => void activateBlueCash(),
                 disconnectDevice: () => void disconnectDevice(),
               }}
             />
           ) : tab === "Операции" ? (
-            <OperationsScreen operations={items} loading={loading} canReconcile={canReconcile} onReconcile={(operation) => void reconcileOperation(operation)} />
+            <OperationsScreen loadError={loadError} onRetry={() => void refresh('Операции')} operations={items} loading={loading} canReconcile={canReconcile} onReconcile={(operation) => void reconcileOperation(operation)} />
           ) : tab === "Отчети" ? (
             <ReportsScreen reports={items} loading={loading} canRunReports={canRunReports} registerValid={isRegisterId(register)} loadError={loadError} commandError={reportError} onReport={(type) => void report(type)} onRetry={() => void refresh('Отчети')} />
           ) : tab === "Одит" && canReadAudit ? (
             <AuditScreen events={items} loading={loading} error={loadError}
               filters={{ actor: auditActor, action: auditAction, objectType: auditObjectType, objectId: auditObjectId, unp: auditUnp, from: auditFrom, to: auditTo }}
               onChange={(name: keyof AuditFilters, value: string) => {
+                if(!currentRender()||loading||commandPending.current||tab!=="Одит"||!canReadAudit)return;
                 const setters = { actor: setAuditActor, action: setAuditAction, objectType: setAuditObjectType, objectId: setAuditObjectId, unp: setAuditUnp, from: setAuditFrom, to: setAuditTo };
                 setters[name](value);
               }} onApply={() => void refresh('Одит')} />
           ) : tab === "Администриране" && canAdminister ? (
             <AdministrationScreen {...{
               adminLists,
-              adminBusy,
+              adminBusy: adminBusy || loading,
               compositeBinding,
+              compositeProfile,
               mutateAdmin,
               stageCompositeBinding,
               disableCompositeBinding,
               transportParameter,
               setTransportParameter,
-              call,
               locationCode,
               locationName,
               locationAddress,
@@ -921,31 +1053,33 @@ function AppContent() {
           tab !== "Устройства" &&
           tab !== "Одит" &&
           tab !== "Отчети" &&
+          tab !== "Операции" &&
           tab !== "Администриране" ? (
             <PaperText variant="bodyMedium" style={{ paddingVertical: 32, textAlign: 'center' }}>Няма записи в API за избрания филтър.</PaperText>
           ) : null}
-        </ScrollView>
+        </ScrollView></PaintedPaperSurface>
       </View>
-      <View
+      <PaintedPaperSurface mode="flat" elevation={0}
         testID="status-transport"
         accessibilityLiveRegion="polite"
         style={[s.footer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }, compact && { flexWrap: 'wrap', gap: 8 }]}
       >
         <PaperText style={[s.footerText, { color: theme.colors.onSurface }]}>{message}</PaperText>
-        <Button
+        <AppButton
           testID="readiness-probe"
           mode="contained"
           contentStyle={{ minHeight: 48 }}
           accessibilityLabel="Провери cloud, Edge, driver и крайното фискално устройство"
+          disabled={loading || adminBusy || tab !== "Устройства" || !selected || !isRegisterId(register)}
           onPress={probe}
-        >Сквозен probe</Button>
-      </View>
-    </SafeAreaView>
+        >Сквозен probe</AppButton>
+      </PaintedPaperSurface>
+    </SafeAreaView></SafePaperSurface>
   );
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: beeloyColors.background },
+  root: { flex: 1 },
   logout: {
     minHeight: 48,
     paddingHorizontal: 14,
@@ -964,7 +1098,7 @@ const s = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: beeloyColors.tertiaryContainer,
   },
-  title: { fontSize: 29, fontWeight: "900", color: beeloyColors.tertiary },
+  title: { flexShrink: 1 },
   sub: { color: beeloyColors.tertiary, marginTop: 3 },
   ready: {
     backgroundColor: beeloyColors.successContainer,
@@ -988,7 +1122,7 @@ const s = StyleSheet.create({
   section: {
     flexBasis: '100%',
     maxWidth: '100%',
-    flexShrink: 1, fontSize: 25, fontWeight: "900", flex: 1 },
+    flexShrink: 1, flex: 1 },
   card: {
     backgroundColor: beeloyColors.surface,
     padding: 18,

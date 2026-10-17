@@ -1,17 +1,60 @@
-import React, { useState } from 'react';
-import { View } from 'react-native';
-import { Button, Card, HelperText, List, Text, useTheme } from 'react-native-paper';
+import {AppButton as Button} from '../ui/app-button';
+import React, { useEffect, useRef, useState } from 'react';
+import { Platform, View } from 'react-native';
+import { Card, HelperText, RadioButton, Text, useTheme } from 'react-native-paper';
 import { FormField } from '../ui/form-field';
-import { ResponsiveScrollView as ScrollView } from '../ui/responsive-scroll-view';
 
 export type Item = Record<string, unknown>;
 export const label = (value: unknown) => typeof value === 'string' ? value : typeof value === 'number' ? String(value) : '—';
 
-export function Field({ label: title, value, onChangeText, testID }: {
-  label: string; value: string; onChangeText: (value: string) => void; testID?: string;
+function useCurrentControl(disabled: boolean) {
+  const mounted = useRef(false), snapshot = {}, latest = useRef(snapshot); latest.current = snapshot;
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  return () => mounted.current && latest.current === snapshot && !disabled;
+}
+/** Keyboard adapter only; visible rows and activation remain genuine Paper radio items. */
+function useRadioKeyboard(disabled: boolean) {
+  const ref = useRef<View>(null);
+  useEffect(() => {
+    if (Platform.OS !== 'web') return;
+    const root = ref.current as unknown as HTMLElement | null;
+    if (!root) return;
+    const radios = Array.from(root.querySelectorAll<HTMLElement>('[role="radio"]'));
+    const enabled = radios.filter(node => node.getAttribute('aria-disabled') !== 'true');
+    const selected = enabled.find(node => node.getAttribute('aria-checked') === 'true') ?? enabled[0];
+    radios.forEach(node => { node.tabIndex = !disabled && node === selected ? 0 : -1; });
+    const keydown = (event: KeyboardEvent) => {
+      if (disabled || event.altKey || event.ctrlKey || event.metaKey || !enabled.length) return;
+      const index = enabled.findIndex(node => node === event.target || node.contains(event.target as Node));
+      if (index < 0) return;
+      let next: number;
+      if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = (index + 1) % enabled.length;
+      else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = (index + enabled.length - 1) % enabled.length;
+      else if (event.key === 'Home') next = 0;
+      else if (event.key === 'End') next = enabled.length - 1;
+      else return;
+      event.preventDefault();
+      enabled.forEach((node, i) => { node.tabIndex = i === next ? 0 : -1; });
+      enabled[next].focus(); enabled[next].click();
+    };
+    root.addEventListener('keydown', keydown);
+    return () => root.removeEventListener('keydown', keydown);
+  });
+  return ref;
+}
+const itemId = (item: Item) => typeof item.id === 'string' && item.id.trim() ? item.id : typeof item.id === 'number' && Number.isFinite(item.id) ? String(item.id) : '';
+function uniqueItems(items: Item[]) {
+  const counts = new Map<string, number>();
+  items.forEach(item => { const id = itemId(item); counts.set(id, (counts.get(id) || 0) + 1); });
+  return items.filter(item => itemId(item) && counts.get(itemId(item)) === 1);
+}
+
+export function Field({ label: title, value, onChangeText, testID, disabled = false }: {
+  label: string; value: string; onChangeText: (value: string) => void; testID?: string; disabled?: boolean;
 }) {
-  return <FormField testID={testID} mode="outlined" label={title} accessibilityLabel={title}
-    value={value} onChangeText={onChangeText} style={{ width: '100%', minWidth: 0 }} />;
+  const current = useCurrentControl(disabled);
+  return <FormField editable={!disabled} testID={testID} mode="outlined" label={title} accessibilityLabel={title}
+    value={value} onChangeText={next => { if (current()) onChangeText(next); }} style={{ width: '100%', minWidth: 0 }} />;
 }
 
 export function Action({ label: title, onPress, disabled, testID }: {
@@ -30,41 +73,48 @@ export function AdminCard({ title, count, children }: { title: string; count: nu
   </Card.Content></Card>;
 }
 
-export function ReferencePicker({ label: title, items, value, labelFor, onSelect, onEmpty, required = true }: {
+export function ReferencePicker({ label: title, items, value, labelFor, onSelect, onEmpty, required = true, disabled = false }: {
   label: string; items: Item[]; value: string; labelFor: (item: Item) => string;
-  onSelect: (id: string) => void; onEmpty?: () => void; required?: boolean;
+  onSelect: (id: string) => void; onEmpty?: () => void; required?: boolean; disabled?: boolean;
 }) {
   const [query, setQuery] = useState('');
+  const groupRef = useRadioKeyboard(disabled);
   const theme = useTheme();
-  const visible = items.filter(item => labelFor(item).toLowerCase().includes(query.trim().toLowerCase()));
+  const current = useCurrentControl(disabled);
+  const selectable = uniqueItems(items);
+  const visible = selectable.filter(item => labelFor(item).toLowerCase().includes(query.trim().toLowerCase()));
   return <View style={{ gap: 8, minWidth: 0, width: '100%', maxWidth: 320 }}>
     {items.length ? <>
-      <FormField testID={`reference.search.${title}`} mode="outlined" label={`Търсене: ${title}`} accessibilityLabel={`Търсене: ${title}`} value={query} onChangeText={setQuery} />
-      <View style={{ gap: 4 }}>
-        {visible.map(item => <List.Item key={label(item.id)}
-          title={item.id === value ? `✓ ${labelFor(item)}` : labelFor(item)} titleNumberOfLines={3}
-          accessibilityRole="button" accessibilityLabel={item.id === value ? `Избрано: ${labelFor(item)}` : labelFor(item)} accessibilityState={{ selected: item.id === value }}
-          style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 8, backgroundColor: item.id === value ? theme.colors.secondaryContainer : theme.colors.surface }}
-          onPress={() => onSelect(label(item.id))} />)}
+      <FormField editable={!disabled} testID={`reference.search.${title}`} mode="outlined" label={`Търсене: ${title}`} accessibilityLabel={`Търсене: ${title}`} value={query} onChangeText={next => { if (current()) setQuery(next); }} />
+      <View ref={groupRef} accessibilityRole="radiogroup" accessibilityLabel={title} style={{ gap: 4 }}>
+        {visible.map(item => <RadioButton.Item key={itemId(item)} value={itemId(item)}
+          label={labelFor(item)} labelStyle={{ flexShrink: 1 }}
+          status={itemId(item) === value ? 'checked' : 'unchecked'} disabled={disabled}
+          accessibilityLabel={labelFor(item)}
+          style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 8, backgroundColor: itemId(item) === value ? theme.colors.secondaryContainer : theme.colors.surface }}
+          onPress={() => { if (current() && selectable.some(candidate => itemId(candidate) === itemId(item))) onSelect(itemId(item)); }} />)}
       </View>
       {!visible.length ? <HelperText type="info" visible>Няма съвпадения.</HelperText> : null}
     </> : <>
       <HelperText type="info" visible>{required ? 'Справочникът е празен.' : 'Няма налични записи.'}</HelperText>
-      {required && onEmpty ? <Button mode="outlined" contentStyle={{ minHeight: 48 }} onPress={onEmpty}>Попълни справочника</Button> : null}
+      {required && onEmpty ? <Button mode="outlined" contentStyle={{ minHeight: 48 }} disabled={disabled} onPress={() => { if (current()) onEmpty(); }}>Попълни справочника</Button> : null}
     </>}
   </View>;
 }
 
-export function Choices({ items, selectedId, labelFor, onSelect }: {
-  items: Item[]; selectedId: string; labelFor: (item: Item) => string; onSelect: (item: Item) => void;
+export function Choices({ items, selectedId, labelFor, onSelect, disabled = false }: {
+  items: Item[]; selectedId: string; labelFor: (item: Item) => string; onSelect: (item: Item) => void; disabled?: boolean;
 }) {
-  const theme = useTheme();
-  if (items.length === 0) return <Text variant="bodyMedium">Все още няма записи.</Text>;
-  return <ScrollView horizontal accessibilityRole="toolbar" accessibilityLabel="Съществуващи записи"
-    contentContainerStyle={{ gap: 8, paddingVertical: 2 }}>
-    {items.map(item => <List.Item key={label(item.id)}
-      title={item.id === selectedId ? `✓ ${labelFor(item)}` : labelFor(item)} titleNumberOfLines={3}
-      accessibilityRole="button" accessibilityLabel={item.id === selectedId ? `Избрано: ${labelFor(item)}` : labelFor(item)} accessibilityState={{ selected: item.id === selectedId }}
-      style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 8, minWidth: 140, maxWidth: 250 }} onPress={() => onSelect(item)} />)}
-  </ScrollView>;
+  const theme = useTheme(), current = useCurrentControl(disabled), selectable = uniqueItems(items);
+  const groupRef = useRadioKeyboard(disabled);
+  if (selectable.length === 0) return <Text variant="bodyMedium">Все още няма записи.</Text>;
+  return <View ref={groupRef} accessibilityRole="radiogroup" accessibilityLabel="Съществуващи записи"
+    style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingVertical: 2, minWidth: 0 }}>
+    {selectable.map(item => <RadioButton.Item key={itemId(item)} value={itemId(item)}
+      label={labelFor(item)} labelStyle={{ flexShrink: 1 }}
+      status={itemId(item) === selectedId ? 'checked' : 'unchecked'} disabled={disabled}
+      accessibilityLabel={labelFor(item)}
+      style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 8, flexBasis: 220, flexGrow: 1, minWidth: 0, maxWidth: '100%' }}
+      onPress={() => { if (current() && selectable.some(candidate => itemId(candidate) === itemId(item))) onSelect(item); }} />)}
+  </View>;
 }

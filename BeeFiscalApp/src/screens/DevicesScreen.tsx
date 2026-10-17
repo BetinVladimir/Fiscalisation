@@ -1,7 +1,8 @@
+import { AppButton } from '../ui/app-button';
 import { FormField } from '../ui/form-field';
-import React, { useState } from 'react';
-import { View } from 'react-native';
-import { Button, Card, Chip, HelperText, List, Text, useTheme } from 'react-native-paper';
+import React, { useEffect, useId, useRef, useState } from 'react';
+import { Platform, View } from 'react-native';
+import { Card, Chip, HelperText, List, Text, useTheme } from 'react-native-paper';
 import { Action, Field, ReferencePicker, type Item, label } from '../components/FiscalControls';
 import { isRegisterId } from '../registerFilter';
 
@@ -54,29 +55,33 @@ export type DeviceScreenProps = {
 
 export function DevicesScreen({ devices, selected, loading, error, canDiagnose, canAdminister, canIssueBleSession, lists, context, telemetry, actions }: DeviceScreenProps) {
   const theme = useTheme();
+  const errorId = `beefiscal-devices-error-${useId().replace(/:/g, '')}`;
   const [query, setQuery] = useState('');
+  const mounted = useRef(false), snapshot = {}, latest = useRef(snapshot); latest.current = snapshot;
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const current = () => mounted.current && latest.current === snapshot && !loading && !error;
   const registerCode = label(lists.registers.find(item => item.id === context.register)?.code || context.register);
   const visibleDevices = devices.filter(device =>
     [device.name, device.vendor, device.model, device.status, device.state]
       .some(value => label(value).toLowerCase().includes(query.trim().toLowerCase())));
   return <View testID="devices.screen" style={{ gap: 8, paddingBottom: 16 }}>
     {!loading && error ? <Card mode="contained" style={{ borderWidth: 1, borderColor: theme.colors.outline, backgroundColor: theme.colors.surface }} testID="devices.error"><Card.Content style={{ gap: 8 }}>
-      <HelperText type="error" visible accessibilityLiveRegion="polite">{error}</HelperText>
-      <Button mode="outlined" contentStyle={{ minHeight: 48 }} onPress={actions.retry}>Опитай отново</Button>
+      <HelperText nativeID={errorId} accessibilityRole="alert" type="error" visible accessibilityLiveRegion="polite">{error}</HelperText>
+      <AppButton testID="devices.retry" disabled={loading} aria-describedby={Platform.OS === 'web' ? errorId : undefined} mode="outlined" contentStyle={{ minHeight: 48 }} onPress={actions.retry}>Опитай отново</AppButton>
     </Card.Content></Card> : null}
     {!loading && !error && devices.length === 0 ? <Text testID="devices.empty" variant="bodyMedium">Няма устройства за избрания контекст.</Text> : null}
-    {!error && devices.length ? <FormField testID="devices.search" mode="outlined" label="Търсене на устройство"
-      accessibilityLabel="Търсене на устройство" value={query} onChangeText={setQuery} /> : null}
+    {!error && devices.length ? <FormField editable={!loading} testID="devices.search" mode="outlined" label="Търсене на устройство"
+      accessibilityLabel="Търсене на устройство" value={query} onChangeText={next => { if (current()) setQuery(next); }} /> : null}
     {!loading && !error && devices.length > 0 && visibleDevices.length === 0 ? <Text testID="devices.no-matches" variant="bodyMedium">Няма устройства, които съответстват на търсенето.</Text> : null}
-    {visibleDevices.map(device => <View key={label(device.id)}><List.Item testID={`device.item.${label(device.id)}`}
+    {visibleDevices.map(device => <View key={label(device.id)}><List.Item disabled={loading || !!error} testID={`device.item.${label(device.id)}`}
       accessibilityRole="button" accessibilityState={{ selected: selected?.id === device.id }}
       accessibilityLabel={`${label(device.vendor)} ${label(device.model)}, каса ${registerCode}, статус на регистрацията ${label(device.status || device.state)}`}
       style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 12, backgroundColor: selected?.id === device.id ? theme.colors.secondaryContainer : theme.colors.surface }}
-      title={label(device.name || device.model || device.id)} titleNumberOfLines={2}
+      title={label(device.name || device.model || device.id)} titleNumberOfLines={0} titleMaxFontSizeMultiplier={0}
       description={`${label(device.vendor)} • ${label(device.model)} • ${label(device.connection_type || device.transport)} • ${registerCode}`}
-      descriptionNumberOfLines={3}
+      descriptionNumberOfLines={0} descriptionMaxFontSizeMultiplier={0}
       right={() => <Chip compact accessibilityLabel={`Статус на регистрацията ${label(device.status || device.state)}`}>{label(device.status || device.state)}</Chip>}
-      onPress={() => actions.selectDevice(device)} />
+      onPress={() => { if (current() && visibleDevices.includes(device)) actions.selectDevice(device); }} />
       {selected?.id === device.id ? <Text testID="device-readiness" variant="bodyMedium" accessibilityLiveRegion="polite"
         style={{ color: theme.colors.onSurface, paddingHorizontal: 16, paddingVertical: 8 }}>
         Готовност: {device.status !== 'ACTIVE' ? 'Не е готово' : telemetry.deviceReadiness === null ? 'Проверява се' : telemetry.deviceReadiness.ready === true ? 'Готово' : 'Не е готово'}
@@ -91,10 +96,10 @@ export function DevicesScreen({ devices, selected, loading, error, canDiagnose, 
         {canAdminister ? <Action testID="device-provision" label="Нова provisioning сесия" disabled={loading || !selected} onPress={actions.provisioning} /> : null}
       </View>
       {canIssueBleSession ? <>
-        <ReferencePicker label="Оператор за BLE" items={lists.operators} value={context.operatorId}
+        <ReferencePicker disabled={loading} label="Оператор за BLE" items={lists.operators} value={context.operatorId}
           labelFor={item => `${label(item.operator_code)} ${label(item.first_name)} ${label(item.last_name)}`}
           onSelect={actions.selectOperator} onEmpty={actions.openAdministration} />
-        <Field label="Подготвен X25519 client public key" value={context.blePublicKey}
+        <Field disabled={loading} label="Подготвен X25519 client public key" value={context.blePublicKey}
           onChangeText={actions.changeBlePublicKey} testID="ble-client-public-key" />
         <Action testID="ble-session-issue" label="Издай BLE сесия"
           disabled={loading || !isRegisterId(context.register) || !context.operatorId || !context.blePublicKey.trim()}
@@ -102,17 +107,17 @@ export function DevicesScreen({ devices, selected, loading, error, canDiagnose, 
       </> : null}
       {canAdminister ? <>
         <Text variant="titleLarge" accessibilityRole="header">Активация на SmartDevice</Text>
-        <Field label="QR / еднократен кратък код" value={context.activationCode}
+        <Field disabled={loading} label="QR / еднократен кратък код" value={context.activationCode}
           onChangeText={actions.changeActivationCode} testID="smart-device-activation-code" />
         <Action testID="smart-device-activation-lookup" label="Намери чакащото устройство"
           disabled={loading || !context.activationCode.trim()} onPress={actions.lookupActivation} />
         {context.activationRequest ? <Text testID="smart-device-activation-preview" variant="bodySmall">
           {JSON.stringify(context.activationRequest, null, 2)}
         </Text> : null}
-        <ReferencePicker label="Търговска точка" items={lists.locations} value={context.activationLocationId}
+        <ReferencePicker disabled={loading} label="Търговска точка" items={lists.locations} value={context.activationLocationId}
           labelFor={item => label(item.name || item.code)} onSelect={actions.selectActivationLocation}
           onEmpty={actions.openAdministration} />
-        <ReferencePicker label="Касово място" items={lists.registers} value={context.register}
+        <ReferencePicker disabled={loading} label="Касово място" items={lists.registers} value={context.register}
           labelFor={item => label(item.code || item.name)} onSelect={actions.selectRegister}
           onEmpty={actions.openAdministration} />
         <Action testID="bluecash-activate" label="Потвърди и привържи устройството"

@@ -44,7 +44,32 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"app-settings-text\" style=\"direction: ltr; colo...\">",
+              "target": [
+                "div[data-testid=\"app-settings-text\"]"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "10.5pt (14px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgOverlap",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined because it is overlapped by another element"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"app-products-text\"]"
               ],
@@ -69,7 +94,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
               "target": [
                 ".r-paddingInline-3pj75a > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]"
               ],
@@ -80,13 +105,25 @@
       ],
       "contrastCandidates": [
         {
+          "target": "div[data-testid=\"app-settings-text\"]",
+          "status": "manual-review",
+          "text": "Настройки",
+          "foreground": "rgb(73, 49, 122)",
+          "pixelBackground": "rgb(255, 251, 255)",
+          "contrastCandidate": 10.23,
+          "dominantShare": 0.692,
+          "fontSize": "14px",
+          "fontWeight": "500",
+          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
+        },
+        {
           "target": "div[data-testid=\"app-products-text\"]",
           "status": "manual-review",
           "text": "Продукти",
           "foreground": "rgb(37, 30, 45)",
           "pixelBackground": "rgb(221, 213, 228)",
           "contrastCandidate": 11.3,
-          "dominantShare": 0.674,
+          "dominantShare": 0.682,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -98,7 +135,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.914,
+          "dominantShare": 0.901,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -136,31 +173,6 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"app-products-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
                     "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -174,7 +186,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto,...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" role=\"alert\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto;...\">",
               "target": [
                 ".r-fontSize-1enofrn"
               ],
@@ -199,7 +211,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"management-retry-text\"]"
               ],
@@ -210,25 +222,13 @@
       ],
       "contrastCandidates": [
         {
-          "target": "div[data-testid=\"app-products-text\"]",
-          "status": "manual-review",
-          "text": "Продукти",
-          "foreground": "rgb(37, 30, 45)",
-          "pixelBackground": "rgb(221, 213, 228)",
-          "contrastCandidate": 11.3,
-          "dominantShare": 0.674,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
           "target": ".r-fontSize-1enofrn",
           "status": "manual-review",
           "text": "Списъкът не може да се зареди",
           "foreground": "rgb(159, 45, 45)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 7.1,
-          "dominantShare": 0.892,
+          "dominantShare": 0.872,
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -240,7 +240,7 @@
           "foreground": "rgb(255, 255, 255)",
           "pixelBackground": "rgb(73, 49, 122)",
           "contrastCandidate": 10.48,
-          "dominantShare": 0.7,
+          "dominantShare": 0.686,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -291,7 +291,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"app-products-text\"]"
               ],
@@ -316,7 +316,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
               "target": [
                 ".r-paddingInline-3pj75a > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]"
               ],
@@ -333,7 +333,7 @@
           "foreground": "rgb(235, 223, 243)",
           "pixelBackground": "rgb(78, 67, 85)",
           "contrastCandidate": 7.26,
-          "dominantShare": 0.674,
+          "dominantShare": 0.682,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -345,7 +345,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.914,
+          "dominantShare": 0.901,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -383,31 +383,6 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"app-products-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
                     "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -421,7 +396,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto,...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" role=\"alert\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto;...\">",
               "target": [
                 ".r-fontSize-1enofrn"
               ],
@@ -446,7 +421,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"management-retry-text\"]"
               ],
@@ -457,25 +432,13 @@
       ],
       "contrastCandidates": [
         {
-          "target": "div[data-testid=\"app-products-text\"]",
-          "status": "manual-review",
-          "text": "Продукти",
-          "foreground": "rgb(235, 223, 243)",
-          "pixelBackground": "rgb(78, 67, 85)",
-          "contrastCandidate": 7.26,
-          "dominantShare": 0.674,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
           "target": ".r-fontSize-1enofrn",
           "status": "manual-review",
           "text": "Списъкът не може да се зареди",
           "foreground": "rgb(255, 180, 171)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 10.97,
-          "dominantShare": 0.894,
+          "dominantShare": 0.873,
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -487,7 +450,7 @@
           "foreground": "rgb(36, 21, 63)",
           "pixelBackground": "rgb(210, 193, 240)",
           "contrastCandidate": 10.07,
-          "dominantShare": 0.7,
+          "dominantShare": 0.686,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -538,7 +501,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"app-products-text\"]"
               ],
@@ -563,7 +526,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
               "target": [
                 ".r-paddingInline-3pj75a > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]"
               ],
@@ -580,7 +543,7 @@
           "foreground": "rgb(37, 30, 45)",
           "pixelBackground": "rgb(221, 213, 228)",
           "contrastCandidate": 11.3,
-          "dominantShare": 0.694,
+          "dominantShare": 0.685,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -592,7 +555,7 @@
           "foreground": "rgb(29, 26, 32)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 16.79,
-          "dominantShare": 0.971,
+          "dominantShare": 0.962,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -630,31 +593,6 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"app-products-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
                     "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -668,7 +606,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto,...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" role=\"alert\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto;...\">",
               "target": [
                 ".r-fontSize-1enofrn"
               ],
@@ -693,7 +631,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"management-retry-text\"]"
               ],
@@ -704,25 +642,13 @@
       ],
       "contrastCandidates": [
         {
-          "target": "div[data-testid=\"app-products-text\"]",
-          "status": "manual-review",
-          "text": "Продукти",
-          "foreground": "rgb(37, 30, 45)",
-          "pixelBackground": "rgb(221, 213, 228)",
-          "contrastCandidate": 11.3,
-          "dominantShare": 0.694,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
           "target": ".r-fontSize-1enofrn",
           "status": "manual-review",
           "text": "Списъкът не може да се зареди",
           "foreground": "rgb(159, 45, 45)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 7.1,
-          "dominantShare": 0.963,
+          "dominantShare": 0.951,
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -734,7 +660,7 @@
           "foreground": "rgb(255, 255, 255)",
           "pixelBackground": "rgb(73, 49, 122)",
           "contrastCandidate": 10.48,
-          "dominantShare": 0.7,
+          "dominantShare": 0.686,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -785,7 +711,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"app-products-text\"]"
               ],
@@ -810,7 +736,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
               "target": [
                 ".r-paddingInline-3pj75a > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]"
               ],
@@ -827,7 +753,7 @@
           "foreground": "rgb(235, 223, 243)",
           "pixelBackground": "rgb(78, 67, 85)",
           "contrastCandidate": 7.26,
-          "dominantShare": 0.694,
+          "dominantShare": 0.685,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -839,7 +765,7 @@
           "foreground": "rgb(234, 228, 238)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 14.92,
-          "dominantShare": 0.971,
+          "dominantShare": 0.962,
           "fontSize": "14px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -877,31 +803,6 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"app-products-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
                     "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -915,7 +816,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto,...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" role=\"alert\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto;...\">",
               "target": [
                 ".r-fontSize-1enofrn"
               ],
@@ -940,7 +841,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"management-retry-text\"]"
               ],
@@ -951,25 +852,13 @@
       ],
       "contrastCandidates": [
         {
-          "target": "div[data-testid=\"app-products-text\"]",
-          "status": "manual-review",
-          "text": "Продукти",
-          "foreground": "rgb(235, 223, 243)",
-          "pixelBackground": "rgb(78, 67, 85)",
-          "contrastCandidate": 7.26,
-          "dominantShare": 0.694,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
           "target": ".r-fontSize-1enofrn",
           "status": "manual-review",
           "text": "Списъкът не може да се зареди",
           "foreground": "rgb(255, 180, 171)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 10.97,
-          "dominantShare": 0.964,
+          "dominantShare": 0.952,
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -981,7 +870,7 @@
           "foreground": "rgb(36, 21, 63)",
           "pixelBackground": "rgb(210, 193, 240)",
           "contrastCandidate": 10.07,
-          "dominantShare": 0.7,
+          "dominantShare": 0.686,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1032,7 +921,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"app-products-text\"]"
               ],
@@ -1057,7 +946,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
               "target": [
                 ".r-paddingInline-3pj75a > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]"
               ],
@@ -1074,7 +963,7 @@
           "foreground": "rgb(37, 30, 45)",
           "pixelBackground": "rgb(221, 213, 228)",
           "contrastCandidate": 11.3,
-          "dominantShare": 0.694,
+          "dominantShare": 0.685,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1124,31 +1013,6 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"app-products-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
                     "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -1162,7 +1026,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto,...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" role=\"alert\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto;...\">",
               "target": [
                 ".r-fontSize-1enofrn"
               ],
@@ -1187,7 +1051,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"management-retry-text\"]"
               ],
@@ -1198,25 +1062,13 @@
       ],
       "contrastCandidates": [
         {
-          "target": "div[data-testid=\"app-products-text\"]",
-          "status": "manual-review",
-          "text": "Продукти",
-          "foreground": "rgb(37, 30, 45)",
-          "pixelBackground": "rgb(221, 213, 228)",
-          "contrastCandidate": 11.3,
-          "dominantShare": 0.694,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
           "target": ".r-fontSize-1enofrn",
           "status": "manual-review",
           "text": "Списъкът не може да се зареди",
           "foreground": "rgb(159, 45, 45)",
           "pixelBackground": "rgb(255, 251, 255)",
           "contrastCandidate": 7.1,
-          "dominantShare": 0.968,
+          "dominantShare": 0.967,
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1228,7 +1080,7 @@
           "foreground": "rgb(255, 255, 255)",
           "pixelBackground": "rgb(73, 49, 122)",
           "contrastCandidate": 10.48,
-          "dominantShare": 0.7,
+          "dominantShare": 0.686,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1279,7 +1131,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"app-products-text\"]"
               ],
@@ -1304,7 +1156,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto, &quot;Helvetica Neue&quot;, Helvetica, Arial, sans-serif; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-textAlign-fdjqy7\" style=\"direction: ltr; color: rgb(234, 228, 238); font-family: Roboto; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px;\">Зареждане…</div>",
               "target": [
                 ".r-paddingInline-3pj75a > .r-textAlign-fdjqy7.css-text-146c3p1[dir=\"auto\"]"
               ],
@@ -1321,7 +1173,7 @@
           "foreground": "rgb(235, 223, 243)",
           "pixelBackground": "rgb(78, 67, 85)",
           "contrastCandidate": 7.26,
-          "dominantShare": 0.694,
+          "dominantShare": 0.685,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1371,31 +1223,6 @@
                   "id": "color-contrast",
                   "data": {
                     "contrastRatio": 0,
-                    "fontSize": "10.5pt (14px)",
-                    "fontWeight": "normal",
-                    "messageKey": "bgOverlap",
-                    "expectedContrastRatio": "4.5:1"
-                  },
-                  "relatedNodes": [],
-                  "impact": "serious",
-                  "message": "Element's background color could not be determined because it is overlapped by another element"
-                }
-              ],
-              "all": [],
-              "none": [],
-              "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"app-products-text\" style=\"direction: ltr; colo...\">",
-              "target": [
-                "div[data-testid=\"app-products-text\"]"
-              ],
-              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined because it is overlapped by another element"
-            },
-            {
-              "any": [
-                {
-                  "id": "color-contrast",
-                  "data": {
-                    "contrastRatio": 0,
                     "fontSize": "9.0pt (12px)",
                     "fontWeight": "normal",
                     "messageKey": "bgOverlap",
@@ -1409,7 +1236,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto,...\">",
+              "html": "<div dir=\"auto\" aria-live=\"polite\" role=\"alert\" class=\"css-text-146c3p1 r-t...\" style=\"font-family: Roboto;...\">",
               "target": [
                 ".r-fontSize-1enofrn"
               ],
@@ -1434,7 +1261,7 @@
               "all": [],
               "none": [],
               "impact": "serious",
-              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-m...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
+              "html": "<div dir=\"auto\" class=\"css-text-146c3p1 r-t...\" data-testid=\"management-retry-tex...\" style=\"direction: ltr; colo...\">",
               "target": [
                 "div[data-testid=\"management-retry-text\"]"
               ],
@@ -1445,25 +1272,13 @@
       ],
       "contrastCandidates": [
         {
-          "target": "div[data-testid=\"app-products-text\"]",
-          "status": "manual-review",
-          "text": "Продукти",
-          "foreground": "rgb(235, 223, 243)",
-          "pixelBackground": "rgb(78, 67, 85)",
-          "contrastCandidate": 7.26,
-          "dominantShare": 0.694,
-          "fontSize": "14px",
-          "fontWeight": "500",
-          "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
-        },
-        {
           "target": ".r-fontSize-1enofrn",
           "status": "manual-review",
           "text": "Списъкът не може да се зареди",
           "foreground": "rgb(255, 180, 171)",
           "pixelBackground": "rgb(21, 17, 27)",
           "contrastCandidate": 10.97,
-          "dominantShare": 0.969,
+          "dominantShare": 0.967,
           "fontSize": "12px",
           "fontWeight": "400",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."
@@ -1475,7 +1290,7 @@
           "foreground": "rgb(36, 21, 63)",
           "pixelBackground": "rgb(210, 193, 240)",
           "contrastCandidate": 10.07,
-          "dominantShare": 0.7,
+          "dominantShare": 0.686,
           "fontSize": "14px",
           "fontWeight": "500",
           "note": "Screenshot modal color within target bounds; not a WCAG verdict. Check actual glyph background, opacity, overlays and pseudo-elements."

@@ -51,7 +51,7 @@ test.describe('Checkout – CLOUD route (fiscal-route-health → checkout-batch)
     await page.getByTestId('sale-discount-prod-001').fill('abc');
     await page.getByTestId('sale-card-amount').fill('invalid');
     await expect(page.getByTestId('sale-total')).toContainText('2.50 EUR');
-    await expect(page.getByTestId('sale-checkout')).toBeEnabled();
+    await expect(page.getByTestId('sale-checkout')).toBeDisabled();
   });
 
   test('reversal of last order', async ({ page }) => {

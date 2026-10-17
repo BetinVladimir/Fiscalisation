@@ -125,7 +125,7 @@ test('Privacy Paper action keeps a visible frame on xs md lg in both system them
 });
 
 
-for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+for (const [size, width, height] of [['xs', 320, 800], ['md', 768, 900], ['lg', 1440, 1000]] as const) {
   for (const theme of ['light', 'dark'] as const) {
     test(`Paper auth field labels CSS200 ${size}/${theme}`, async ({ page }) => {
       await page.setViewportSize({ width, height });
@@ -150,6 +150,10 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
         expect(metrics.size).toBe(metrics.original * 2);
         expect(metrics.scroll).toBeLessThanOrEqual(metrics.width + 1);
         await expect(field).toHaveAccessibleName(stage === 'email' ? authCopy.bg.email : authCopy.bg.code);
+        const labelId = await label.getAttribute('id');
+        expect(labelId).toBeTruthy();
+        await expect(field).toHaveAttribute('aria-labelledby', labelId!);
+        if (stage === 'code') await expect(field).toHaveAttribute('autocomplete', 'one-time-code');
         await field.fill(stage === 'email' ? 'qa@example.org' : '123456');
         if (stage === 'email') await page.getByTestId('admin-login-start').click();
         else { await expect(field).toHaveValue('123456'); await expect(page.getByTestId('admin-login-verify')).toBeEnabled(); }

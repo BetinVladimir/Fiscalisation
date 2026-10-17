@@ -5,16 +5,18 @@ let dbPromise: Promise<IDBDatabase> | null = null;
 
 function database(): Promise<IDBDatabase> {
   if (!dbPromise) {
-    dbPromise = new Promise((resolve, reject) => {
+    const attempt = new Promise<IDBDatabase>((resolve, reject) => {
       const request = indexedDB.open(DB, 1);
       request.onupgradeneeded = () => request.result.createObjectStore(STORE);
       request.onsuccess = () => {
         const db = request.result;
-        db.addEventListener("close", () => { dbPromise = null; });
+        db.addEventListener("close", () => { if(dbPromise===attempt)dbPromise=null; });
+        db.addEventListener("versionchange",()=>{db.close();if(dbPromise===attempt)dbPromise=null;});
         resolve(db);
       };
       request.onerror = () => reject(request.error);
     });
+    dbPromise=attempt;void attempt.catch(()=>{if(dbPromise===attempt)dbPromise=null;});
   }
   return dbPromise;
 }
@@ -29,6 +31,7 @@ export async function cachePut<T>(key: string, value: T) {
     );
     tx.oncomplete = () => resolve();
     tx.onerror = () => reject(tx.error);
+    tx.onabort = () => reject(tx.error ?? new Error("REFERENCE_TRANSACTION_ABORTED"));
   });
 }
 export async function cacheGet<T>(
@@ -37,8 +40,10 @@ export async function cacheGet<T>(
   const db = await database();
   return new Promise<{ value: T; updated_at: string } | undefined>(
     (resolve, reject) => {
-      const request = db.transaction(STORE).objectStore(STORE).get(key);
-      request.onsuccess = () => resolve(request.result);
+      const tx=db.transaction(STORE),request=tx.objectStore(STORE).get(key);
+      tx.oncomplete = () => resolve(request.result);
+      tx.onerror = () => reject(tx.error);
+      tx.onabort = () => reject(tx.error ?? new Error("REFERENCE_TRANSACTION_ABORTED"));
       request.onerror = () => reject(request.error);
     },
   );

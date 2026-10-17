@@ -14,7 +14,7 @@ async function seedOutboxRecord(page: import('@playwright/test').Page, id: strin
       intent: {
         protocol_version: '1.0', intent_id: id, action: 'SALE_FINALIZE', client_operation_id: id,
         receipt_session_id: 'receipt-e2e', client_sale_surrogate_id: 'external-e2e', server_sale_id: '',
-        operator_code: '001', tenant_id: 'tenant-e2e', location_id: 'loc-001', register_id: 'reg-001',
+        operator_code: '001', tenant_id: '00000000-0000-4000-8000-000000000001', location_id: 'loc-001', register_id: 'reg-001',
         edge_device_id: 'adapter-001', binding_generation: 1, command: 'SALE_FINALIZE',
         items: [{ item_id: 'line-001', name: 'Кафе', quantity: '1.000', unit_price: { amount: '2.50', currency: 'EUR' }, tax_group: 'B' }],
         payments: [{ payment_id: 'cash-001', type: 'CASH', amount: { amount: '2.50', currency: 'EUR' } }],

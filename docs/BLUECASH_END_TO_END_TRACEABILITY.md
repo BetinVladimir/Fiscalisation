@@ -1,5 +1,14 @@
 # BlueCash: трассировка REST/WebHook → MQTT/BLE → fiscal protocol
 
+## Перепроверка 2026-10-17
+
+Трасса ниже — целевая/историческая, а не доказательство текущей сквозной готовности.
+Подтверждены mismatch MQTT command topic и ошибки LEN в Kotlin DatecsFrameCodec;
+release APK tasks блокируются `STORE_BLOCKED`.
+[Актуальный реестр](remediation/2026-10-17/02_GAP_REGISTER.md), GAP-001/010/011/029.
+Статус: **SOFTWARE_GAPS_OPEN**, физический HIL не выполнен.
+
+
 Статус: **as-built**, protocol version `2026-08-07`, аудит 2026-08-14.
 
 ## Результат аудита

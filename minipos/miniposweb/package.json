@@ -13,7 +13,9 @@
     "test:e2e": "playwright test",
     "e2e:wcag": "playwright test e2e/auth-wcag.spec.ts e2e/management-wcag.spec.ts e2e/sale-wcag.spec.ts e2e/outbox.spec.ts e2e/session-recovery.spec.ts",
     "ui:manifest": "node scripts/check-ui-manifest.mjs --structure-only",
-    "ui:check": "node scripts/check-ui-manifest.mjs"
+    "ui:check": "node scripts/check-ui-manifest.mjs",
+    "postinstall": "node ../../../BeeloyBackend/mobile/shared-ui/scripts/install-paper-patches.mjs",
+    "typecheck:e2e": "tsc --noEmit -p tsconfig.e2e.json"
   },
   "dependencies": {
     "@beeloy/design-tokens": "file:../../../BeeloyBackend/mobile/design-tokens",

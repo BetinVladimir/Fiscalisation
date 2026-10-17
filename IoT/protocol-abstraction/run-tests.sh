@@ -19,3 +19,11 @@ c++ -std=c++17 -Wall -Wextra -Werror \
   "$HERE/tests/ProtocolFacadeTest.cpp" -o "$OUT"
 "$OUT"
 echo "protocol-abstraction tests: OK"
+
+# Exercise the codec linked by IDF, independently of facade/common-module tests.
+CODEC_OUT="$(mktemp "${TMPDIR:-/tmp}/beefiscal-runtime-codec.XXXXXX")"
+trap 'rm -f "$CODEC_OUT"' EXIT
+c++ -std=c++17 -Wall -Wextra -Werror \
+  -I"$HERE/include" "$HERE/src/FrameCodec.cpp" \
+  "$HERE/tests/RuntimeCodecVendorTest.cpp" -o "$CODEC_OUT"
+"$CODEC_OUT"

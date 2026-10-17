@@ -11,6 +11,10 @@ const { createJSONStorage, persist } = require("zustand/middleware") as typeof i
 export type Language = typeof supportedLanguages[number];
 
 const copy = translations;
+export function isSupportedLanguage(value: unknown): value is Language {
+  return typeof value === 'string' && supportedLanguages.some(language => language === value);
+}
+
 
 export type Translation = (typeof copy)[Language];
 
@@ -21,8 +25,16 @@ type LanguageState = {
 
 export const useLanguageStore = create<LanguageState>()(
   persist(
-    (set) => ({ language: "bg", setLanguage: (language) => set({ language }) }),
-    { name: "beeminipos-language-store", storage: createJSONStorage(() => AsyncStorage) },
+    (set) => ({ language: "bg", setLanguage: (language) => { if (isSupportedLanguage(language)) set({ language }); } }),
+    { name: "beeminipos-language-store", storage: createJSONStorage(() => AsyncStorage),
+      partialize: state => ({ language: state.language }),
+      merge: (persisted, current) => {
+        const saved = persisted && typeof persisted === 'object' && !Array.isArray(persisted)
+          && Object.prototype.hasOwnProperty.call(persisted, 'language')
+          ? (persisted as {language?:unknown}).language : undefined;
+        return { ...current, language: isSupportedLanguage(saved) ? saved : current.language };
+      },
+    },
   ),
 );
 

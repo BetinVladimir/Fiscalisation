@@ -10,7 +10,7 @@ import { frameContrast } from './affordance-contrast';
 import { doubleText } from './text-scale';
 import { mockFiscalApi, openApp } from './helpers';
 
-for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+for (const [size, width, height] of [['xs', 320, 800], ['md', 768, 900], ['lg', 1440, 1000]] as const) {
   for (const theme of ['light', 'dark'] as const) {
     test(`Paper all25 language selection CSS200 ${size}/${theme}`, async ({ page }, testInfo) => {
       test.setTimeout(90_000);
@@ -28,6 +28,7 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
         await page.keyboard.press('Enter');
         const list = page.getByTestId('shell.language.list');
         await expect(page.getByRole('menuitemradio')).toHaveCount(25);
+        await expect(page.getByRole('menuitemradio', { checked: true })).toHaveCount(1);
         await page.keyboard.press('Home');
         for (let step = 0; step < index; step++) await page.keyboard.press('ArrowDown');
         const item = page.getByTestId(`shell.language.${code}`);

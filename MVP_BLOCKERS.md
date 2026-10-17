@@ -1,5 +1,13 @@
 # MVP implementation blockers and formal exclusions
 
+## Software blockers reopened — 2026-10-17
+
+The current working-tree audit found software gaps before the intended physical
+MiniPOS/S3/BlueCash acceptance. See the [open gap register and remediation plan](docs/remediation/2026-10-17/README.md).
+All GAP-001…GAP-034 are open; some are explicit validation risks/external gates,
+not reproduced defects. Earlier software-complete statements are historical.
+
+
 This document records decisions that cannot be implemented safely from the locked contracts or without external vendor/hardware evidence. A blocker is not counted as implemented and must not be replaced with a simulator PASS.
 
 ## P0-AUTH-001 — MiniPOS passwordless operator session contract

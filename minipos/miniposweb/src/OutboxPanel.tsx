@@ -1,4 +1,6 @@
-import { ActivityIndicator, Button, Card, HelperText, Text } from "react-native-paper";
+import { useId } from 'react';
+import { AppButton as Button } from './ui/app-button';
+import { ActivityIndicator, Card, HelperText, Text } from "react-native-paper";
 import type { OutboxRow } from "./storage/outbox";
 import { translations } from "./ui/workTranslations.generated";
 import type { Language } from "./ui/PreferenceControls";
@@ -20,13 +22,13 @@ export function OutboxPanel({ rows, loading, error, language, onRefresh }: {
   language: Language;
   onRefresh: () => void;
 }) {
-  const t = translations[language];
+  const t = translations[language], errorId = `miniposweb-outbox-error-${useId().replace(/:/g, "")}`;
   return <Card mode="outlined" style={{ marginTop: 16 }} testID="offline-outbox">
     <Card.Content style={{ gap: 12 }}>
       <Text variant="titleLarge" accessibilityRole="header">{t.outboxTitle}</Text>
-      <Button mode="outlined" loading={loading} disabled={loading} onPress={onRefresh} testID="offline-outbox-refresh">{t.outboxRefresh}</Button>
+      <Button mode="outlined" loading={loading} disabled={loading} aria-describedby={error ? errorId : undefined} onPress={onRefresh} testID="offline-outbox-refresh">{t.outboxRefresh}</Button>
       {loading ? <ActivityIndicator accessibilityLabel={t.loading} testID="offline-outbox-loading" /> : null}
-      {error ? <HelperText type="error" visible testID="offline-outbox-error">{t.loadFailed}</HelperText> : null}
+      {error ? <HelperText nativeID={errorId} accessibilityRole="alert" accessibilityLiveRegion="polite" type="error" visible testID="offline-outbox-error">{t.loadFailed}</HelperText> : null}
       {!loading && !error && rows.length === 0 ? <Text variant="bodyMedium" testID="offline-outbox-empty">{t.outboxEmpty}</Text> : null}
       {!loading && !error ? [...rows].sort((a, b) => b.createdAt.localeCompare(a.createdAt)).map(row =>
         <Card key={row.intent.client_operation_id} mode="outlined" testID={`offline-outbox-row-${row.intent.client_operation_id}`}>

@@ -66,13 +66,13 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       const mutations = await mockFiscalApi(page, { secondRegister: true });
       await openApp(page);
       if (process.env.TEXT200 === '1') await doubleText(page);
-      const reference = page.getByRole('button', { name: 'R02', exact: true }).first();
+      const reference = page.getByRole('radio', { name: 'R02', exact: true }).first();
       const referenceContrast = await expectFrame(reference);
       await page.keyboard.press('Tab');
       await reference.focus();
       const referenceFocus = await expectFocus(reference);
       await page.keyboard.press('Enter');
-      await expect(page.getByRole('button', { name: 'Избрано: R02', exact: true }).first()).toBeVisible();
+      await expect(page.getByRole('radio', { name: 'R02', exact: true }).first()).toBeChecked();
       if (size === 'xs') {
         await page.getByTestId('nav.open').focus();
         await page.keyboard.press('Enter');
@@ -84,14 +84,14 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       const navigationFocus = await expectFocus(navigation);
       await page.keyboard.press('Space');
       await expect(page.getByTestId('admin-editors')).toBeVisible();
-      const choice = page.getByRole('toolbar', { name: 'Съществуващи записи' }).getByRole('button', { name: 'Избрано: SOF • Sofia', exact: true });
+      const choice = page.getByRole('radiogroup', { name: 'Съществуващи записи' }).getByRole('radio', { name: 'SOF • Sofia', exact: true });
       const choiceContrast = await expectFrame(choice);
       await page.getByTestId('admin-location-code').fill('CHANGED');
       await choice.focus();
       const choiceFocus = await expectFocus(choice);
       await page.keyboard.press('Enter');
       await expect(page.getByTestId('admin-location-code')).toHaveValue('SOF');
-      await expect(page.getByRole('button', { name: 'Избрано: SOF • Sofia', exact: true })).toBeVisible();
+      await expect(page.getByRole('radio', { name: 'SOF • Sofia', exact: true })).toBeChecked();
       await writeFile(testInfo.outputPath('affordance-contrast.json'), JSON.stringify({ size, theme, referenceContrast, navigationContrast, choiceContrast, referenceFocus, navigationFocus, choiceFocus }, null, 2));
       await testInfo.attach('affordance-contrast', { body: JSON.stringify({ size, theme, referenceContrast, navigationContrast, choiceContrast, referenceFocus, navigationFocus, choiceFocus }), contentType: 'application/json' });
       if (process.env.TEXT200 === '1') await page.screenshot({ path: testInfo.outputPath('text200.png') });
@@ -105,7 +105,7 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
 test('contrast negative control detects a frame matching the fill', async ({ page }) => {
   await mockFiscalApi(page, { secondRegister: true });
   await openApp(page);
-  const action = page.getByRole('button', { name: 'R02', exact: true }).first();
+  const action = page.getByRole('radio', { name: 'R02', exact: true }).first();
   const original = await action.getAttribute('style');
   await action.evaluate(element => { (element as HTMLElement).style.borderColor = getComputedStyle(element).backgroundColor; });
   try {

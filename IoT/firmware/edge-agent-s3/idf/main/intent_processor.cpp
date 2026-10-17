@@ -372,30 +372,24 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
                    result_context_);
     return ESP_ERR_INVALID_STATE;
   }
-  storage_.set_operation_state(p.operation_id.c_str(), "EXECUTING", nullptr,
-                               at);
+  // A durable checkpoint is mandatory before any final-device side effect.
+  const auto checkpoint = storage_.set_operation_state(
+      p.operation_id.c_str(), "EXECUTING", nullptr, at);
+  if (checkpoint != ESP_OK)
+    return checkpoint;
   auto r = executor_.execute(p);
   auto result = result_json(p, r);
-  storage_.set_operation_state(p.operation_id.c_str(), state(r.certainty),
-                               result.c_str(), now());
-  storage_.upsert_receipt(p.receipt_session_id.c_str(), p.operation_id.c_str(),
-                          state(r.certainty), p.canonical_payload.c_str(),
-                          now());
-  for (auto &v : p.payments)
-    storage_.upsert_payment(
-        v.id.c_str(), p.operation_id.c_str(), p.receipt_session_id.c_str(),
-        state(r.certainty), v.amount_minor,
-        v.type == "CARD" && !r.terminal_reference.empty()
-            ? r.terminal_reference.c_str()
-            : nullptr,
-        v.type == "CARD" && !r.rrn.empty() ? r.rrn.c_str() : nullptr,
-        v.type == "CARD" && !r.auth_code.empty() ? r.auth_code.c_str()
-                                                  : nullptr,
-        now());
-  std::string eid = "result-" + p.operation_id;
-  auto stored = storage_.append_event(
-      eid.c_str(), p.operation_id.c_str(), "RECEIPT_RESULT", result.c_str(),
-      hash(result.data(), result.size()).c_str(), now());
+  // CARD states and references belong to individual executor checkpoints.
+  // An operation-level result cannot safely overwrite per-tender evidence.
+  std::vector<InitialPayment> cash_payments;
+  for (const auto &v : p.payments)
+    if (v.type == "CASH")
+      cash_payments.push_back({v.id, v.amount_minor});
+  const std::string eid = "result-" + p.operation_id;
+  const auto stored = storage_.complete_operation(
+      p.operation_id.c_str(), p.receipt_session_id.c_str(), state(r.certainty),
+      p.canonical_payload.c_str(), result.c_str(), cash_payments, eid.c_str(),
+      "RECEIPT_RESULT", hash(result.data(), result.size()).c_str(), now());
   if (stored == ESP_OK && result_sink_)
     result_sink_(p.operation_id.c_str(), result.c_str(), ingress,
                  result_context_);

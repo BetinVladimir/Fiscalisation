@@ -1,5 +1,14 @@
 # BeeMiniPOS — развёртывание и разработка
 
+## Проверка готовности — 2026-10-17
+
+Целевые Cloud/MQTT/direct BLE hardware cycles требуют программных доработок.
+[Реестр и план](../docs/remediation/2026-10-17/README.md): UNKNOWN routing,
+BLE onboarding/MTU/lifecycle и три MiniPOS backend API regression failures.
+47 native module tests и 78 web tests проходят, но actual Android/iOS BLE HIL
+этим не подтверждён. Статус: **SOFTWARE_GAPS_OPEN**.
+
+
 Этот каталог содержит оба компонента автономной POS-системы BeeMiniPOS:
 
 | Каталог | Технология | Назначение |

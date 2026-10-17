@@ -22,7 +22,7 @@ async function labelFits(label: Locator) {
   expect(contrast.insideRatio, 'Label text contrast').toBeGreaterThanOrEqual(4.5);
   return { ...metrics, contrast };
 }
-for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+for (const [size, width, height] of [['xs', 320, 800], ['md', 768, 900], ['lg', 1440, 1000]] as const) {
   for (const theme of ['light', 'dark'] as const) {
     test(`Paper administrative field labels CSS200 ${size}/${theme}`, async ({ page }, testInfo) => {
       await page.setViewportSize({ width, height });
@@ -53,6 +53,7 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       const fieldMetrics = await labelFits(label);
       const field = page.getByTestId('admin-location-code');
       await expect(field).toHaveAccessibleName('Код на точката');
+      const visibleLabelId=await label.getAttribute('id');expect(visibleLabelId).toBeTruthy();await expect(field).toHaveAttribute('aria-labelledby',visibleLabelId!);
       await field.fill('E2E');
       await expect(field).toHaveValue('E2E');
       const jsonMetrics = await labelFits(page.getByTestId('admin-device-transport-parameters.label'));

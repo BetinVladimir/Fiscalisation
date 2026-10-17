@@ -1,0 +1,1 @@
+module.exports={testEnvironment:'node',testMatch:['<rootDir>/__tests__/**/*.test.ts','<rootDir>/__tests__/**/*.test.tsx'],transform:{'^.+[.]tsx?$':['ts-jest',{tsconfig:{jsx:'react-jsx',module:'commonjs',esModuleInterop:true}}]},moduleNameMapper:{'^@/(.*)$':'<rootDir>/$1'},testPathIgnorePatterns:['/node_modules/','/[.]store-build/']};

@@ -151,11 +151,11 @@ test('register selection reloads operations and reports for the selected registe
   await openApp(page);
   await page.getByTestId('tab-Операции').click();
   await expect(page.getByTestId('operations.screen')).toBeVisible();
-  await page.getByRole('button', { name: 'R02', exact: true }).click();
+  await page.getByRole('radio', { name: 'R02', exact: true }).click();
   await expect.poll(() => requested.some(url => url.includes(`/operations?register_id=${SECOND_REGISTER_ID}`))).toBe(true);
   await page.getByTestId('tab-Отчети').click();
   await expect.poll(() => requested.some(url => url.includes(`/reports?register_id=${SECOND_REGISTER_ID}`))).toBe(true);
-  await expect(page.getByRole('button', { name: 'Избрано: R02', exact: true })).toBeVisible();
+  await expect(page.getByRole('radio', { name: 'R02', exact: true })).toBeChecked();
 });
 
 test('device list follows backend register bindings when the register changes', async ({ page }) => {
@@ -164,11 +164,11 @@ test('device list follows backend register bindings when the register changes', 
   await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeVisible();
   await expect(page.getByTestId('device-readiness')).toHaveText('Готовност: Готово');
   await expect(page.getByTestId(`device.item.${SECOND_DEVICE_ID}`)).toHaveCount(0);
-  await page.getByRole('button', { name: 'R02', exact: true }).first().click();
+  await page.getByRole('radio', { name: 'R02', exact: true }).first().click();
   await expect(page.getByTestId(`device.item.${SECOND_DEVICE_ID}`)).toBeVisible();
   await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toHaveCount(0);
   await expect(page.getByTestId('device-readiness')).toHaveText('Готовност: Не е готово');
-  await page.getByRole('button', { name: 'R01', exact: true }).first().click();
+  await page.getByRole('radio', { name: 'R01', exact: true }).first().click();
   await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeVisible();
   await expect(page.getByTestId(`device.item.${SECOND_DEVICE_ID}`)).toHaveCount(0);
   await expect(page.getByTestId('device-readiness')).toHaveText('Готовност: Готово');

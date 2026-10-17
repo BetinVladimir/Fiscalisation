@@ -1,7 +1,8 @@
+import { compositeSelectionValid } from '../compositeSelection';
 import { FormField } from '../ui/form-field';
 import React from 'react';
 import { StyleSheet, View } from 'react-native';
-import { HelperText, Text as PaperText, useTheme } from 'react-native-paper';
+import { Text as PaperText, useTheme } from 'react-native-paper';
 import { Action, AdminCard, Choices, Field, ReferencePicker, type Item, label } from '../components/FiscalControls';
 import { MVP1_DEVICE_PROFILES, type DeviceProfile } from '../deviceProfiles';
 import { isRegisterId, registerResourcePath } from '../registerFilter';
@@ -35,16 +36,18 @@ type AdminStringKey =
 type AdminStrings = Record<AdminStringKey, string> & {
   [K in AdminStringKey as `set${Capitalize<K>}`]: (value: string) => void;
 };
+export type AdminRequest = (path: string, init?: RequestInit) => Promise<Item>;
+
 export type AdministrationScreenProps = AdminStrings & {
   adminLists: { locations: Item[]; registers: Item[]; operators: Item[]; devices: Item[] };
   adminBusy: boolean;
   compositeBinding: Item | null;
-  mutateAdmin: (description: string, action: () => Promise<unknown>) => Promise<void>;
+  compositeProfile: DeviceProfile['id'];
+  mutateAdmin: (description: string, action: (request: AdminRequest) => Promise<unknown>) => Promise<void>;
   stageCompositeBinding: () => Promise<void>;
   disableCompositeBinding: () => Promise<void>;
   transportParameter: (name: string, fallback?: string) => string;
   setTransportParameter: (name: string, value: string, numeric?: boolean) => void;
-  call: (path: string, init?: RequestInit) => Promise<Item>;
   setCompositeProfile: (value: DeviceProfile['id']) => void;
   setMessage: (value: string) => void;
 };
@@ -60,12 +63,12 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
     adminLists,
     adminBusy,
     compositeBinding,
+    compositeProfile,
     mutateAdmin,
     stageCompositeBinding,
     disableCompositeBinding,
     transportParameter,
     setTransportParameter,
-    call,
     locationCode,
     locationName,
     locationAddress,
@@ -133,7 +136,7 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
         title="Точка на продажба"
         count={adminLists.locations.length}
       >
-        <Choices
+        <Choices disabled={adminBusy}
           items={adminLists.locations}
           selectedId={locationId}
           labelFor={(x) => `${label(x.code)} • ${label(x.name)}`}
@@ -144,18 +147,18 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
             setLocationAddress(label(x.address));
           }}
         />
-        <Field
+        <Field disabled={adminBusy}
           label="Код на точката"
           value={locationCode}
           onChangeText={setLocationCode}
           testID="admin-location-code"
         />
-        <Field
+        <Field disabled={adminBusy}
           label="Име на точката"
           value={locationName}
           onChangeText={setLocationName}
         />
-        <Field
+        <Field disabled={adminBusy}
           label="Адрес"
           value={locationAddress}
           onChangeText={setLocationAddress}
@@ -165,11 +168,11 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
           disabled={adminBusy}
           testID="admin-location-save"
           onPress={() =>
-            mutateAdmin("Запис на точка", async () => {
+            mutateAdmin("Запис на точка", async (request) => {
               const current = adminLists.locations.find(
                 (x) => x.id === locationId,
               );
-              const v = await call(
+              const v = await request(
                 current
                   ? `/locations/${encodeURIComponent(locationId)}`
                   : "/locations",
@@ -186,7 +189,8 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
                   }),
                 },
               );
-              setLocationId(label(v.id));
+              if (typeof v.id !== "string" || !v.id.trim()) throw new Error("INVALID_LOCATION_RESPONSE");
+              return { apply: () => setLocationId(v.id as string) };
             })
           }
         />
@@ -195,7 +199,7 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
         title="Касово място"
         count={adminLists.registers.length}
       >
-        <Choices
+        <Choices disabled={adminBusy}
           items={adminLists.registers}
           selectedId={register}
           labelFor={(x) => label(x.code)}
@@ -205,8 +209,8 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
             setLocationId(label(x.location_id));
           }}
         />
-        <ReferencePicker label="Търговска точка" items={adminLists.locations} value={locationId} labelFor={(x)=>label(x.name || x.code)} onSelect={setLocationId} onEmpty={()=>setMessage("Първо създайте търговска точка в картата по-горе.")}/>
-        <Field
+        <ReferencePicker disabled={adminBusy} label="Търговска точка" items={adminLists.locations} value={locationId} labelFor={(x)=>label(x.name || x.code)} onSelect={setLocationId} onEmpty={()=>setMessage("Първо създайте търговска точка в картата по-горе.")}/>
+        <Field disabled={adminBusy}
           label="Код на касата"
           value={registerCode}
           onChangeText={setRegisterCode}
@@ -216,11 +220,11 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
           disabled={adminBusy}
           testID="admin-register-save"
           onPress={() =>
-            mutateAdmin("Запис на каса", async () => {
+            mutateAdmin("Запис на каса", async (request) => {
               const current = adminLists.registers.find(
                 (x) => x.id === register,
               );
-              const v = await call(
+              const v = await request(
                 current ? registerResourcePath(register) : "/registers",
                 {
                   method: current ? "PATCH" : "POST",
@@ -236,7 +240,8 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
                   }),
                 },
               );
-              setRegister(label(v.id));
+              if (typeof v.id !== "string" || !isRegisterId(v.id)) throw new Error("INVALID_REGISTER_RESPONSE");
+              return { registerId: v.id, apply: () => setRegister(v.id as string) };
             })
           }
         />
@@ -245,7 +250,7 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
         title="Фискален оператор"
         count={adminLists.operators.length}
       >
-        <Choices
+        <Choices disabled={adminBusy}
           items={adminLists.operators}
           selectedId={operatorId}
           labelFor={(x) =>
@@ -258,18 +263,18 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
             setOperatorLastName(label(x.last_name));
           }}
         />
-        <Field
+        <Field disabled={adminBusy}
           label="Код (4 символа)"
           value={operatorCode}
           onChangeText={setOperatorCode}
           testID="admin-operator-code"
         />
-        <Field
+        <Field disabled={adminBusy}
           label="Име"
           value={operatorFirstName}
           onChangeText={setOperatorFirstName}
         />
-        <Field
+        <Field disabled={adminBusy}
           label="Фамилия"
           value={operatorLastName}
           onChangeText={setOperatorLastName}
@@ -279,11 +284,11 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
           disabled={adminBusy}
           testID="admin-operator-save"
           onPress={() =>
-            mutateAdmin("Запис на оператор", async () => {
+            mutateAdmin("Запис на оператор", async (request) => {
               const current = adminLists.operators.find(
                 (x) => x.id === operatorId,
               );
-              const v = await call(
+              const v = await request(
                 current
                   ? `/operators/${encodeURIComponent(operatorId)}`
                   : "/operators",
@@ -303,7 +308,8 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
                   }),
                 },
               );
-              setOperatorId(label(v.id));
+              if (typeof v.id !== "string" || !v.id.trim()) throw new Error("INVALID_OPERATOR_RESPONSE");
+              return { apply: () => setOperatorId(v.id as string) };
             })
           }
         />
@@ -312,7 +318,7 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
         title="Фискално устройство"
         count={adminLists.devices.length}
       >
-        <Choices
+        <Choices disabled={adminBusy}
           items={adminLists.devices}
           selectedId={deviceId}
           labelFor={(x) =>
@@ -363,35 +369,35 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
         <PaperText variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>
           Capability: {deviceKind} • binding: {bindingRole}
         </PaperText>
-        <Field
+        <Field disabled={adminBusy}
           label="Производител"
           value={deviceVendor}
           onChangeText={setDeviceVendor}
         />
-        <Field
+        <Field disabled={adminBusy}
           label="Модел"
           value={deviceModel}
           onChangeText={setDeviceModel}
         />
-        <Field
+        <Field disabled={adminBusy}
           label="Сериен номер"
           value={deviceSerial}
           onChangeText={setDeviceSerial}
           testID="admin-device-serial"
         />
-        <Field
+        <Field disabled={adminBusy}
           label="Driver ID"
           value={deviceDriverId}
           onChangeText={setDeviceDriverId}
           testID="admin-device-driver"
         />
-        <Field
+        <Field disabled={adminBusy}
           label="Protocol ID"
           value={deviceProtocolId}
           onChangeText={setDeviceProtocolId}
           testID="admin-device-protocol"
         />
-        <Field
+        <Field disabled={adminBusy}
           label="Protocol version"
           value={deviceProtocolVersion}
           onChangeText={setDeviceProtocolVersion}
@@ -435,40 +441,40 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
         <PaperText variant="bodyMedium" style={{ color: theme.colors.onSurfaceVariant }}>Избран transport: {deviceTransport}</PaperText>
         {deviceTransport === "RS232" ? (
           <>
-            <Field
+            <Field disabled={adminBusy}
               label="Baud"
               value={transportParameter("baud", "115200")}
               onChangeText={(v) =>
                 setTransportParameter("baud", v, true)
               }
             />
-            <Field
+            <Field disabled={adminBusy}
               label="Data bits"
               value={transportParameter("data_bits", "8")}
               onChangeText={(v) =>
                 setTransportParameter("data_bits", v, true)
               }
             />
-            <Field
+            <Field disabled={adminBusy}
               label="Parity (N/E/O)"
               value={transportParameter("parity", "N")}
               onChangeText={(v) => setTransportParameter("parity", v)}
             />
-            <Field
+            <Field disabled={adminBusy}
               label="Stop bits"
               value={transportParameter("stop_bits", "1")}
               onChangeText={(v) =>
                 setTransportParameter("stop_bits", v, true)
               }
             />
-            <Field
+            <Field disabled={adminBusy}
               label="TX pin"
               value={transportParameter("tx_pin", "17")}
               onChangeText={(v) =>
                 setTransportParameter("tx_pin", v, true)
               }
             />
-            <Field
+            <Field disabled={adminBusy}
               label="RX pin"
               value={transportParameter("rx_pin", "18")}
               onChangeText={(v) =>
@@ -479,28 +485,28 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
         ) : null}
         {deviceTransport === "USB_SERIAL" ? (
           <>
-            <Field
+            <Field disabled={adminBusy}
               label="USB VID"
               value={transportParameter("vid", "0")}
               onChangeText={(v) =>
                 setTransportParameter("vid", v, true)
               }
             />
-            <Field
+            <Field disabled={adminBusy}
               label="USB PID"
               value={transportParameter("pid", "0")}
               onChangeText={(v) =>
                 setTransportParameter("pid", v, true)
               }
             />
-            <Field
+            <Field disabled={adminBusy}
               label="CDC interface"
               value={transportParameter("interface", "0")}
               onChangeText={(v) =>
                 setTransportParameter("interface", v, true)
               }
             />
-            <Field
+            <Field disabled={adminBusy}
               label="Очакван USB serial"
               value={transportParameter("serial", "")}
               onChangeText={(v) => setTransportParameter("serial", v)}
@@ -509,28 +515,28 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
         ) : null}
         {deviceTransport === "BLE_GATT" ? (
           <>
-            <Field
+            <Field disabled={adminBusy}
               label="Advertising identity"
               value={transportParameter("advertising_identity", "")}
               onChangeText={(v) =>
                 setTransportParameter("advertising_identity", v)
               }
             />
-            <Field
+            <Field disabled={adminBusy}
               label="Service UUID"
               value={transportParameter("service_uuid", "")}
               onChangeText={(v) =>
                 setTransportParameter("service_uuid", v)
               }
             />
-            <Field
+            <Field disabled={adminBusy}
               label="TX characteristic UUID"
               value={transportParameter("tx_characteristic_uuid", "")}
               onChangeText={(v) =>
                 setTransportParameter("tx_characteristic_uuid", v)
               }
             />
-            <Field
+            <Field disabled={adminBusy}
               label="RX characteristic UUID"
               value={transportParameter("rx_characteristic_uuid", "")}
               onChangeText={(v) =>
@@ -539,31 +545,30 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
             />
           </>
         ) : null}
-        <FormField
+        <FormField editable={!adminBusy}
           mode="outlined"
           label="Transport JSON"
           accessibilityLabel="Transport JSON"
           value={deviceTransportParameters}
           onChangeText={setDeviceTransportParameters}
           error={!transportJsonValid}
+          errorMessage={!transportJsonValid ? 'Въведете валиден JSON обект.' : undefined}
+          helpText={transportJsonValid ? 'Разширени транспортни параметри в JSON формат.' : undefined}
           multiline
           numberOfLines={3}
           style={{ width: '100%', minWidth: 0 }}
           testID="admin-device-transport-parameters"
         />
-        <HelperText type={transportJsonValid ? 'info' : 'error'} visible>
-          {transportJsonValid ? 'Разширени транспортни параметри в JSON формат.' : 'Въведете валиден JSON обект.'}
-        </HelperText>
         <Action
           label="Запази DEV ФУ"
           disabled={adminBusy || !transportJsonValid}
           testID="admin-device-save"
           onPress={() =>
-            mutateAdmin("Запис на ФУ", async () => {
+            mutateAdmin("Запис на ФУ", async (request) => {
               const current = adminLists.devices.find(
                 (x) => x.id === deviceId,
               );
-              const v = await call(
+              const v = await request(
                 current
                   ? `/devices/${encodeURIComponent(deviceId)}`
                   : "/devices",
@@ -594,7 +599,8 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
                   }),
                 },
               );
-              setDeviceId(label(v.id));
+              if (typeof v.id !== "string" || !v.id.trim()) throw new Error("INVALID_DEVICE_RESPONSE");
+              return { apply: () => setDeviceId(v.id as string) };
             })
           }
         />
@@ -619,8 +625,8 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
               disabled={adminBusy}
               testID="admin-device-activate"
               onPress={() =>
-                mutateAdmin("Промяна на lifecycle", () =>
-                  call(`/devices/${encodeURIComponent(deviceId)}`, {
+                mutateAdmin("Промяна на lifecycle", request =>
+                  request(`/devices/${encodeURIComponent(deviceId)}`, {
                     method: "PATCH",
                     headers: { "If-Match": String(current.version) },
                     body: JSON.stringify({
@@ -639,7 +645,7 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
         })()}
       </AdminCard>
       <AdminCard title="Привързване към касата" count={0}>
-        <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>setMessage("Първо създайте касово място.")}/>
+        <ReferencePicker disabled={adminBusy} label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>setMessage("Първо създайте касово място.")}/>
         <View style={s.actions}>
           <Action
             label="Роля ФУ"
@@ -654,14 +660,14 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
             onPress={() => setBindingRole("OPTIONAL_PAYMENT_TERMINAL")}
           />
         </View>
-        <ReferencePicker label="Устройство" items={adminLists.devices} value={deviceId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setDeviceId} onEmpty={()=>setMessage("Първо създайте устройство.")}/>
+        <ReferencePicker disabled={adminBusy} label="Устройство" items={adminLists.devices} value={deviceId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setDeviceId} onEmpty={()=>setMessage("Първо създайте устройство.")}/>
         <Action
           label="Привържи ФУ"
           disabled={adminBusy || !isRegisterId(register)}
           testID="admin-binding-save"
           onPress={() =>
-            mutateAdmin("Привързване на ФУ", () =>
-              call(registerResourcePath(register, "/bindings"), {
+            mutateAdmin("Привързване на ФУ", request =>
+              request(registerResourcePath(register, "/bindings"), {
                 method: "POST",
                 body: JSON.stringify({
                   device_id: deviceId,
@@ -675,21 +681,11 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
           Composite profile — активира се само след apply ACK от
           адаптера
         </PaperText>
-        <View style={s.actions}>
-          {MVP1_DEVICE_PROFILES.map((profile) => (
-            <Action
-              key={profile.id}
-              label={profile.id}
-              disabled={adminBusy}
-              testID={`composite-profile-${profile.id}`}
-              onPress={() => setCompositeProfile(profile.id)}
-            />
-          ))}
-        </View>
-        <ReferencePicker label="Адаптер" items={adminLists.devices} value={adapterDeviceId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setAdapterDeviceId} onEmpty={()=>setMessage("Първо създайте устройство-адаптер.")}/>
-        <ReferencePicker label="Фискално устройство" items={adminLists.devices.filter((x)=>x.kind === "FISCAL_DEVICE")} value={fiscalEndpointId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setFiscalEndpointId} onEmpty={()=>setMessage("Първо създайте фискално устройство.")}/>
-        <ReferencePicker label="Платежен терминал (незадължително)" items={adminLists.devices.filter((x)=>x.kind === "PAYMENT_TERMINAL")} value={paymentEndpointId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setPaymentEndpointId} required={false}/>
-        <Field
+        <Choices disabled={adminBusy} items={MVP1_DEVICE_PROFILES.map(profile=>({id:profile.id}))} selectedId={compositeProfile} labelFor={profile=>String(profile.id)} onSelect={profile=>setCompositeProfile(profile.id as DeviceProfile['id'])}/>
+        <ReferencePicker disabled={adminBusy} label="Адаптер" items={adminLists.devices.filter(x=>x.status === "ACTIVE")} value={adapterDeviceId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setAdapterDeviceId} onEmpty={()=>setMessage("Първо създайте устройство-адаптер.")}/>
+        <ReferencePicker disabled={adminBusy} label="Фискално устройство" items={adminLists.devices.filter((x)=>x.status === "ACTIVE" && (compositeProfile === "DATECS_BLUECASH50_EMBEDDED" ? x.id === adapterDeviceId : x.kind === "FISCAL_DEVICE"))} value={fiscalEndpointId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setFiscalEndpointId} onEmpty={()=>setMessage("Първо създайте фискално устройство.")}/>
+        <ReferencePicker disabled={adminBusy} label="Платежен терминал (незадължително)" items={adminLists.devices.filter((x)=>x.status === "ACTIVE" && (compositeProfile === "DATECS_BLUECASH50_EMBEDDED" ? x.id === adapterDeviceId : x.kind === "PAYMENT_TERMINAL"))} value={paymentEndpointId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setPaymentEndpointId} required={false}/>
+        <Field disabled={adminBusy}
           label="Expected register version"
           value={expectedRegisterVersion}
           onChangeText={setExpectedRegisterVersion}
@@ -697,7 +693,7 @@ export function AdministrationScreen(props: AdministrationScreenProps) {
         />
         <Action
           label="Подготви composite binding"
-          disabled={adminBusy || !isRegisterId(register)}
+          disabled={adminBusy || !isRegisterId(register) || !Number.isSafeInteger(Number(expectedRegisterVersion)) || Number(expectedRegisterVersion) < 1 || !compositeSelectionValid(compositeProfile,adapterDeviceId,fiscalEndpointId,paymentEndpointId,adminLists.devices)}
           testID="composite-binding-save"
           onPress={stageCompositeBinding}
         />

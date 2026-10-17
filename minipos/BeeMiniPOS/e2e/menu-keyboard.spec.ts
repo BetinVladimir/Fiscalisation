@@ -1,5 +1,5 @@
 import {test,expect} from '@playwright/test';
-for(const [size,width,height] of [['xs',360,800],['md',960,900],['lg',1440,1000]] as const)for(const theme of ['light','dark'] as const){
+for(const [size,width,height] of [['xs',320,800],['md',768,900],['lg',1440,1000]] as const)for(const theme of ['light','dark'] as const){
  test(`Paper menu keyboard ${size}/${theme}`,async({page})=>{
   await page.setViewportSize({width,height});await page.emulateMedia({colorScheme:theme,reducedMotion:'reduce'});await page.goto('/');
   const trigger=page.getByTestId('language-menu-open');await trigger.focus();await page.keyboard.press('Enter');
@@ -19,6 +19,13 @@ for(const [size,width,height] of [['xs',360,800],['md',960,900],['lg',1440,1000]
   await page.keyboard.press('Shift+Tab');await expect(page.getByTestId('language-bg')).toBeFocused();
   await page.keyboard.press('ArrowDown');await expect(page.getByTestId('language-hr')).toBeFocused();
   await page.keyboard.press('End');await expect(page.getByTestId('language-ru')).toBeFocused();
+  const last = await page.getByTestId('language-ru').boundingBox();
+  const menu = await page.getByTestId('language-menu-scroll').boundingBox();
+  expect(last).not.toBeNull(); expect(menu).not.toBeNull();
+  expect(last!.y).toBeGreaterThanOrEqual(menu!.y - 1);
+  expect(last!.y + last!.height).toBeLessThanOrEqual(menu!.y + menu!.height + 1);
+  expect(menu!.x).toBeGreaterThanOrEqual(0);
+  expect(menu!.x + menu!.width).toBeLessThanOrEqual(width + 1);
   await page.keyboard.press('ArrowDown');await expect(page.getByTestId('language-bg')).toBeFocused();
   await page.keyboard.press('ArrowUp');await expect(page.getByTestId('language-ru')).toBeFocused();
   await page.keyboard.press('Home');await expect(page.getByTestId('language-bg')).toBeFocused();

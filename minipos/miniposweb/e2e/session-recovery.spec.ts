@@ -5,6 +5,7 @@ import { join } from 'node:path';
 import { setup } from './helpers';
 import { translations } from '../src/ui/workTranslations.generated';
 import { collectContrastCandidates } from './contrast-candidates';
+import { assertResolvedContrast } from './contrast-fallback';
 
 test('session recovery offers localized retry, theme, language and logout', async ({ page }) => {
   let sessionRequests = 0;
@@ -34,8 +35,8 @@ test('session loading and error: xs/md/lg × light/dark WCAG matrix', async ({ p
   await setup(page, { minipos: { session: 503 } });
   const evidenceDir = join(process.cwd(), 'docs', 'ui-screenshots');
   await mkdir(evidenceDir, { recursive: true });
-  const scans = [];
-  for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
+  const scans: {screen:string;viewport:string;theme:string;violations:Awaited<ReturnType<AxeBuilder['analyze']>>['violations'];incomplete:Awaited<ReturnType<AxeBuilder['analyze']>>['incomplete'];contrastCandidates:unknown[]}[] = [];
+  for (const [size, width, height] of [['xs', 320, 800], ['md', 768, 900], ['lg', 1440, 1000]] as const) {
     await page.setViewportSize({ width, height });
     for (const theme of ['light', 'dark'] as const) {
       await page.addInitScript(value => localStorage.setItem('minipos-web-theme', value), theme);
@@ -61,6 +62,7 @@ test('session loading and error: xs/md/lg × light/dark WCAG matrix', async ({ p
       await expect(page.getByTestId('session-theme-open')).toBeVisible();
       expect(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth + 1), `${size}/${theme}: overflow`).toBe(true);
       const result = await new AxeBuilder({ page }).withTags(['wcag2a', 'wcag2aa', 'wcag21aa', 'wcag22aa']).analyze();
+      await assertResolvedContrast(page,result);
       const screenshot = await page.screenshot({ path: join(evidenceDir, `session-recovery-${state}-${size}-${theme}.png`), fullPage: true });
       scans.push({ screen: `session-recovery-${state}`, viewport: size, theme, violations: result.violations, incomplete: result.incomplete,
         contrastCandidates: await collectContrastCandidates(page, result, screenshot) });

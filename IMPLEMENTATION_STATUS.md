@@ -1,5 +1,14 @@
 # MVP implementation status
 
+## Актуальный аудит 2026-10-17
+
+**SOFTWARE_GAPS_OPEN** для MiniPOS → MQTT/BLE → S3/BlueCash.
+[Доказательства, открытые GAP и задания на доработку](docs/remediation/2026-10-17/README.md).
+Перечень возможностей ниже содержит исторические заявления; их нельзя переносить
+между Go reference runtime, actual ESP-IDF firmware и Android приложением.
+Код в этом этапе аудита не изменялся; исправления ещё предстоят.
+
+
 ## SUPTO BG-014 remediation (2026-08-11)
 
 - BeeMiniPOS is a thin server-projection UI: first product uses atomic `sales:open-with-line`; subsequent line changes/cancellations and payment intents use versioned Fiscal APIs; regulatory identifiers are opaque. Legacy local cart/checkout transport modules were removed and the browser E2E now exercises the authoritative lifecycle and lookup-only UNKNOWN reconciliation.

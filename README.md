@@ -1,5 +1,13 @@
 # BeeFiscal / BeeMiniPOS MVP
 
+## Readiness update — 2026-10-17
+
+Current target MiniPOS/S3/BlueCash readiness: **SOFTWARE_GAPS_OPEN**.
+The [runtime audit, remediation tasks and acceptance tests](docs/remediation/2026-10-17/README.md)
+supersede earlier blanket software-complete claims. Hardware, vendor and
+production gates remain separate; this audit changed documentation only.
+
+
 Исполняемая реализация двух изолированных продуктов: BeeFiscal и автономного BeeMiniPOS. Точка входа в актуальную документацию реализации — [`docs/README.md`](docs/README.md). Canonical regulatory documentation, public OpenAPI, roadmap и Н-18 traceability находятся в [`../BeeloyBackend/docs/Fiscal`](../BeeloyBackend/docs/Fiscal/README.md); их контрольные SHA-256 закреплены в [`contracts/CONTRACT_LOCK.md`](contracts/CONTRACT_LOCK.md).
 
 Android-приложения для встроенных smart-касс, включая отдельные Daisy SMART и Datecs BlueCash tracks, описаны в [`SmartDevices/README.md`](SmartDevices/README.md). Key-bound QR/code activation, привязка к tenant/location/register, mTLS и отключение: [`docs/BLUECASH_POS_INTEGRATION.md`](docs/BLUECASH_POS_INTEGRATION.md). Сквозная трассировка REST → MQTT/BLE → BlueCash → Datecs → sync/WebHook, включая signed SQLite journal и retention: [`docs/BLUECASH_END_TO_END_TRACEABILITY.md`](docs/BLUECASH_END_TO_END_TRACEABILITY.md).

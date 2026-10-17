@@ -44,15 +44,17 @@ for (const required of ['src/ui/provider.tsx', 'src/ui/theme.ts', 'src/ui/respon
 
 const providerSource = fs.readFileSync(path.join(root, 'src/ui/provider.tsx'), 'utf8');
 const themeSource = fs.readFileSync(path.join(root, 'src/ui/theme.ts'), 'utf8');
+const themeReexport=themeSource.match(/from ['"]([^'"]*shared-ui\/src\/theme\/paper)['"]/);
+const themeCheckSource=themeReexport?fs.readFileSync(themeReexport[1].startsWith('.')?path.resolve(root,'src/ui',themeReexport[1]+'.ts'):path.resolve(root,'../shared-ui/src/theme/paper.ts'),'utf8'):themeSource;
 const pressableSource = fs.readFileSync(path.join(root, 'src/ui/app-pressable.tsx'), 'utf8');
 const appSource = fs.readFileSync(path.join(root, 'App.tsx'), 'utf8');
 if (!providerSource.includes('PaperProvider')) failures.push('src/ui/provider.tsx: PaperProvider is required at the app root');
 if (appSource.includes('<PaperProvider') || !appSource.includes('useThemePreference')) failures.push('App.tsx: use the single PaperProvider and persisted theme in src/ui/provider.tsx');
 if (!providerSource.includes('ThemePreferenceContext') || !providerSource.includes('AsyncStorage.getItem')) failures.push('src/ui/provider.tsx: persisted system/light/dark preference is required');
-if (!themeSource.includes('MD3LightTheme') || !themeSource.includes('MD3DarkTheme')) failures.push('src/ui/theme.ts: both standard Paper MD3 light and dark themes are required');
+if (!themeCheckSource.includes('MD3LightTheme') || !themeCheckSource.includes('MD3DarkTheme')) failures.push('src/ui/theme.ts: both standard Paper MD3 light and dark themes are required');
 if (!pressableSource.includes('TouchableRipple') || /import\s*\{[^}]*Pressable[^}]*\}\s*from\s*['"]react-native['"]/.test(pressableSource)) failures.push('src/ui/app-pressable.tsx: use Paper TouchableRipple instead of native Pressable');
 
-if (!themeSource.includes('lightColors') || !themeSource.includes('darkColors')) {
+if (!themeCheckSource.includes('lightColors') || !themeCheckSource.includes('darkColors')) {
   failures.push('src/ui/theme.ts: the approved high-contrast Paper palettes are required for both themes');
 }
 

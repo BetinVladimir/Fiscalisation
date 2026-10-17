@@ -1,5 +1,16 @@
 # MVP1 — состояние реализации
 
+## Повторная проверка 2026-10-17
+
+**SOFTWARE_GAPS_OPEN / NO_GO для предварительной приёмки целевых hardware paths.**
+Обнаружены программные блокеры: MQTT topics/ACK, runtime fiscal codecs,
+BLE onboarding/MTU, durable recovery/sync и UNKNOWN routing.
+[Реестр, план доработок и acceptance tests](../remediation/2026-10-17/README.md).
+Ниже сохранён исторический отчёт от 2026-08-14; его blanket software-complete
+claims не подтверждены текущим срезом. Его старые PASS не являются результатом
+повторного запуска всех перечисленных gates 2026-10-17.
+
+
 Дата проверки: 2026-08-14
 Статус: `SOFTWARE_COMPLETE_HIL_PENDING`
 

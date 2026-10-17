@@ -14,7 +14,7 @@ function json(route: Route, body: unknown, status = 200) {
 
 export type CapturedMutation = { path: string; body: Record<string, unknown>; headers: Record<string, string> };
 
-export async function mockFiscalApi(page: Page, options: { devicesStatus?: number; devicesEmpty?: boolean; devicesDisconnected?: boolean; deviceReady?: boolean; secondDeviceReady?: boolean; reportsStatus?: number; reportsEmpty?: boolean; auditStatus?: number; auditEmpty?: boolean; policyStatus?: number; taxGroupsEmpty?: boolean; secondRegister?: boolean } = {}) {
+export async function mockFiscalApi(page: Page, options: { devicesStatus?: number; devicesEmpty?: boolean; devicesDisconnected?: boolean; deviceReady?: boolean; secondDeviceReady?: boolean; operationsStatus?: number; operationsEmpty?: boolean; reportsStatus?: number; reportsEmpty?: boolean; auditStatus?: number; auditEmpty?: boolean; policyStatus?: number; taxGroupsEmpty?: boolean; secondRegister?: boolean } = {}) {
   const mutations: CapturedMutation[] = [];
   await page.route(`${API}/**`, async route => {
     const request = route.request();
@@ -45,7 +45,11 @@ export async function mockFiscalApi(page: Page, options: { devicesStatus?: numbe
     if (path === `/registers/${REGISTER_ID}/ble-sessions` && method === 'POST') return json(route, { ble_session_id: 'ble-1', expires_at: '2026-08-20T11:00:00Z' }, 201);
     if (path.startsWith('/device-activation-requests:lookup')) return json(route, { activation_request_id: 'activation-1', vendor: 'BlueCash', model: 'A920', serial: 'BC-001', requested_roles: ['PAYMENT_TERMINAL'] });
     if (path === '/device-activation-requests/activation-1:confirm' && method === 'POST') return json(route, { device_id: DEVICE_ID, state: 'ACTIVE' });
-    if (path.startsWith('/operations') && method === 'GET') return json(route, { items: [{ id: 'operation-unknown-1', type: 'FISCAL_SALE', state: 'UNKNOWN', unp: 'UNP-1', allowed_actions: ['RECONCILE'] }], page: { has_more: false } });
+    if (path.startsWith('/operations') && method === 'GET') {
+      if (options.operationsStatus) return json(route, { code: 'UNAVAILABLE' }, options.operationsStatus);
+      if (options.operationsEmpty) return json(route, { items: [], page: { has_more: false } });
+      return json(route, { items: [{ id: 'operation-unknown-1', type: 'FISCAL_SALE', state: 'UNKNOWN', unp: 'UNP-1', allowed_actions: ['RECONCILE'] }], page: { has_more: false } });
+    }
     if (path === '/operations/operation-unknown-1/reconcile' && method === 'POST') return json(route, { operation_id: 'operation-unknown-1', state: 'FISCALIZED' });
     if (path.startsWith('/reports') || path.includes(`/registers/${REGISTER_ID}/reports`)) {
       if (method === 'POST') return json(route, { id: 'report-z-1', state: 'COMPLETED', fiscal_reference: 'Z-REF-1' }, 202);

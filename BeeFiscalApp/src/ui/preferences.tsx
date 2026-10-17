@@ -54,13 +54,17 @@ async function writePreferences(value: Preferences) {
 export function UiPreferencesProvider({ children }: React.PropsWithChildren) {
   const [preferences, setPreferences] = useState<Preferences>(defaults);
   const [hydrated, setHydrated] = useState(false);
-  useEffect(() => { void readPreferences().then(value => { setPreferences(value); setHydrated(true); }); }, []);
+  useEffect(() => {
+    let active = true;
+    void readPreferences().then(value => { if (active) { setPreferences(value); setHydrated(true); } });
+    return () => { active = false; };
+  }, []);
   useEffect(() => { if (hydrated) void writePreferences(preferences); }, [hydrated, preferences]);
   const value = useMemo<PreferencesContextValue>(() => ({
     ...preferences,
     hydrated,
-    setLanguage: language => setPreferences(current => ({ ...current, language })),
-    setThemeMode: themeMode => setPreferences(current => ({ ...current, themeMode })),
+    setLanguage: language => { if (isLanguage(language)) setPreferences(current => ({ ...current, language })); },
+    setThemeMode: themeMode => { if (isThemeMode(themeMode)) setPreferences(current => ({ ...current, themeMode })); },
   }), [preferences, hydrated]);
   return <PreferencesContext.Provider value={value}>{children}</PreferencesContext.Provider>;
 }
