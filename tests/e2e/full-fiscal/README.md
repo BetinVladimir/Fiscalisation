@@ -17,7 +17,7 @@
 
 SMTP mock принимает обычный SMTP на `127.0.0.1:18025`, хранит письма только в памяти и предоставляет API `http://127.0.0.1:18080/messages`. Тест никогда не читает OTP напрямую из БД.
 
-Device mocks моделируют сетевую границу `/beeloy/local/v1`, а не ESP-IDF/Android runtime и не реальное фискальное или банковское оборудование. Hardware certification, BLE, secure element и vendor SDK должны проверяться отдельными HIL/instrumentation suites.
+Device mocks моделируют сетевую границу `/beeloy/local/v1`, а не ESP-IDF/Android runtime и не реальное фискальное или банковское оборудование. Hardware certification, BLE, хранение ключей во внутренней NVS ESP32-S3 и vendor SDK должны проверяться отдельными HIL/instrumentation suites. Внешний ATECC608A не используется.
 
 ## Требования
 

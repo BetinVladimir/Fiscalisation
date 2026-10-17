@@ -1,0 +1,198 @@
+{
+  "acceptance_event": {
+    "event_id": "received-10000000-0000-4000-8000-000000000001",
+    "operation_id": "10000000-0000-4000-8000-000000000001",
+    "device_id": "adapter-1",
+    "journal_seq": 0,
+    "event_type": "ACCEPTED",
+    "occurred_at": "2026-10-17T20:14:42Z",
+    "payload": {
+      "acceptance_evidence": {
+        "authority": {
+          "binding_sha256": "b11631d405d5ede286f0cf688a58ced774500db1bb56ff6aa00411855bcba607",
+          "range_end": 1000,
+          "range_start": 1,
+          "unp_prefix": "AB123456"
+        },
+        "binding_sha256": "b11631d405d5ede286f0cf688a58ced774500db1bb56ff6aa00411855bcba607",
+        "client_sale_surrogate_id": "offline-external-1",
+        "fiscal_device_id": "fiscal-1",
+        "generation": 7,
+        "ingress": "BLE",
+        "payload_sha256": "98d08f507ad55c2b4eb2fb3b43774e9fbf8a23fef95767f9805ec8c81fcb899d",
+        "proof_state": "AUTHORIZED",
+        "receipt_session_id": "10000000-0000-4000-8000-000000000002",
+        "server_sale_id": "online-sale",
+        "session_evidence": {
+          "authorization_id": "bd8f6966-8640-4a5a-8e0d-445e45480ff7",
+          "authorization_sha256": "6160eb4e944cfa27b2c4758ac6fbeacc19bbbfca36f40d40eb229d2e3f3aab76",
+          "client_proof_sha256": "e5c9e903a4b780f5ac4a0339e8890458c10ba0a1f489656dc9634d3caf01ab2d"
+        },
+        "unp": "AB123456-A001-0005000",
+        "version": 2
+      },
+      "command": {
+        "command_type": "SALE_FINALIZE",
+        "device_id": "adapter-1",
+        "operation_id": "10000000-0000-4000-8000-000000000001",
+        "payload": {
+          "currency": "EUR",
+          "external_id": "offline-external-1",
+          "items": [
+            {
+              "line_id": "30000000-0000-4000-8000-000000000001",
+              "name": "Кафе ☕",
+              "quantity": "1.000",
+              "tax_group": "B",
+              "unit_price": {
+                "amount": "2.50",
+                "currency": "EUR"
+              }
+            }
+          ],
+          "location_id": "location-1",
+          "metadata": {},
+          "operator_code": "A001",
+          "operator_id": "operator-1",
+          "payments": [
+            {
+              "amount": {
+                "amount": "2.50",
+                "currency": "EUR"
+              },
+              "payment_id": "20000000-0000-4000-8000-000000000001",
+              "type": "CASH"
+            }
+          ],
+          "server_sale_id": "online-sale",
+          "unp": "AB123456-A001-0005000",
+          "unp_source": "SERVER_ASSIGNED"
+        },
+        "register_id": "register-1",
+        "tenant_id": "tenant-1"
+      },
+      "operation_sequence": 10,
+      "unp_sequence": 0
+    },
+    "prev_hash": null,
+    "event_hash": "",
+    "signature": null
+  },
+  "authorization": {
+    "algorithm": "ES256_DER",
+    "key_id": "binding-hJv1QEsgph0",
+    "payload": "eyJhY3Rvcl9zdWJqZWN0Ijoic3ViamVjdC0xIiwiYWxsb3dlZF9jb21tYW5kcyI6WyJTQUxFX0ZJTkFMSVpFIl0sImFwcF9pbnN0YW5jZV9pZCI6ImFwcC0xIiwiYXV0aG9yaXR5Ijp7ImJpbmRpbmdfc2hhMjU2IjoiYjExNjMxZDQwNWQ1ZWRlMjg2ZjBjZjY4OGE1OGNlZDc3NDUwMGRiMWJiNTZmZjZhYTAwNDExODU1YmNiYTYwNyIsInJhbmdlX2VuZCI6MTAwMCwicmFuZ2Vfc3RhcnQiOjEsInVucF9wcmVmaXgiOiJBQjEyMzQ1NiJ9LCJhdXRob3JpemF0aW9uX2lkIjoiYmQ4ZjY5NjYtODY0MC00YTVhLThlMGQtNDQ1ZTQ1NDgwZmY3IiwiYmluZGluZ19nZW5lcmF0aW9uIjo3LCJiaW5kaW5nX3NoYTI1NiI6ImIxMTYzMWQ0MDVkNWVkZTI4NmYwY2Y2ODhhNThjZWQ3NzQ1MDBkYjFiYjU2ZmY2YWEwMDQxMTg1NWJjYmE2MDciLCJjbGllbnRfc2lnbmluZ19wdWJsaWNfa2V5X2Rlcl9iYXNlNjQiOiJNRmt3RXdZSEtvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUVsb1FrMGZKak9HSEtSRTB2X0w4ZkViUzdjdF9sVDExbE5ZbGVLVlVYUXNDYmhoUWpGV2VpYXBuRk9TTXUxX0JoQzBpUGVSVm84aTZMVEgybVZwSHZVQSIsImVkZ2VfZGV2aWNlX2lkIjoiYWRhcHRlci0xIiwiZXhwIjoxNzkyMjY4OTgyLCJmaXNjYWxfZGV2aWNlX2lkIjoiZmlzY2FsLTEiLCJmaXNjYWxfZGV2aWNlX251bWJlciI6IkFCMTIzNDU2IiwiZmlzY2FsX21lbW9yeV9udW1iZXIiOiIxMjM0NTY3OCIsImtpbmQiOiJFWEVDVVRJT05fQVVUSE9SSVpBVElPTiIsImxvY2F0aW9uX2lkIjoibG9jYXRpb24tMSIsIm5iZiI6MTc5MjI2ODA4Miwib3BlcmF0b3JfY29kZSI6IkEwMDEiLCJvcGVyYXRvcl9pZCI6Im9wZXJhdG9yLTEiLCJyZWdpc3Rlcl9pZCI6InJlZ2lzdGVyLTEiLCJzY29wZSI6ImZpc2NhbC5leGVjdXRlIiwidGVuYW50X2lkIjoidGVuYW50LTEiLCJ1bnBfYXV0aG9yaXR5Ijp7Im9wZXJhdGlvbl9pZCI6IjEwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInBheWxvYWRfc2hhMjU2IjoiOThkMDhmNTA3YWQ1NWMyYjRlYjJmYjNiNDM3NzRlOWZiZjhhMjNmZWY5NTc2N2Y5ODA1ZWM4YzgxZmNiODk5ZCIsInJlY2VpcHRfc2Vzc2lvbl9pZCI6IjEwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMiIsInNlcnZlcl9zYWxlX2lkIjoib25saW5lLXNhbGUiLCJzb3VyY2UiOiJTRVJWRVJfQVNTSUdORUQiLCJ1bnAiOiJBQjEyMzQ1Ni1BMDAxLTAwMDUwMDAifSwidmVyc2lvbiI6MSwid29ya3N0YXRpb25fc2Vzc2lvbl9pZCI6InNlc3Npb24tMSJ9",
+    "sha256": "6160eb4e944cfa27b2c4758ac6fbeacc19bbbfca36f40d40eb229d2e3f3aab76",
+    "signature": "MEUCIQDxd9oHyFmf4s7OreAP4lZ45g8dQRZRR8ygQo1O7CCmeAIgD1Jfgg8Kki4_yzGKosSyEIeQMyd_Mvw1HB63mWcpfkQ"
+  },
+  "binding": {
+    "edge_device_id": "adapter-1",
+    "fiscal_endpoint": {
+      "device_id": "fiscal-1",
+      "fiscal_device_number": "AB123456",
+      "fiscal_memory_number": "12345678"
+    },
+    "generation": 7,
+    "location_id": "location-1",
+    "operational_authority": {
+      "unp_prefix": "AB123456",
+      "unp_range_end": 1000,
+      "unp_range_start": 1
+    },
+    "register_id": "register-1",
+    "schema_version": 3,
+    "tenant_id": "tenant-1"
+  },
+  "command": {
+    "action": "SALE_FINALIZE",
+    "binding_generation": 7,
+    "canonical_payload": {
+      "currency": "EUR",
+      "external_id": "offline-external-1",
+      "items": [
+        {
+          "line_id": "30000000-0000-4000-8000-000000000001",
+          "name": "Кафе ☕",
+          "quantity": "1.000",
+          "tax_group": "B",
+          "unit_price": {
+            "amount": "2.50",
+            "currency": "EUR"
+          }
+        }
+      ],
+      "location_id": "location-1",
+      "metadata": {},
+      "operator_code": "A001",
+      "operator_id": "operator-1",
+      "payments": [
+        {
+          "amount": {
+            "amount": "2.50",
+            "currency": "EUR"
+          },
+          "payment_id": "20000000-0000-4000-8000-000000000001",
+          "type": "CASH"
+        }
+      ],
+      "server_sale_id": "online-sale",
+      "unp": "AB123456-A001-0005000",
+      "unp_source": "SERVER_ASSIGNED"
+    },
+    "client_operation_id": "10000000-0000-4000-8000-000000000001",
+    "client_proof": {
+      "algorithm": "ES256_DER",
+      "signature": "MEYCIQDzdOelW23Rt5Gf4-e6o-j_MnhNEuP2RvsTFhy-MY7PCgIhAOgkHJawxMuYHkEQEf2IybH-N8sC1ZQ3qlyP0YdixTUm"
+    },
+    "client_sale_surrogate_id": "offline-external-1",
+    "command": "SALE_FINALIZE",
+    "edge_device_id": "adapter-1",
+    "execution_authorization": {
+      "algorithm": "ES256_DER",
+      "key_id": "binding-hJv1QEsgph0",
+      "payload": "eyJhY3Rvcl9zdWJqZWN0Ijoic3ViamVjdC0xIiwiYWxsb3dlZF9jb21tYW5kcyI6WyJTQUxFX0ZJTkFMSVpFIl0sImFwcF9pbnN0YW5jZV9pZCI6ImFwcC0xIiwiYXV0aG9yaXR5Ijp7ImJpbmRpbmdfc2hhMjU2IjoiYjExNjMxZDQwNWQ1ZWRlMjg2ZjBjZjY4OGE1OGNlZDc3NDUwMGRiMWJiNTZmZjZhYTAwNDExODU1YmNiYTYwNyIsInJhbmdlX2VuZCI6MTAwMCwicmFuZ2Vfc3RhcnQiOjEsInVucF9wcmVmaXgiOiJBQjEyMzQ1NiJ9LCJhdXRob3JpemF0aW9uX2lkIjoiYmQ4ZjY5NjYtODY0MC00YTVhLThlMGQtNDQ1ZTQ1NDgwZmY3IiwiYmluZGluZ19nZW5lcmF0aW9uIjo3LCJiaW5kaW5nX3NoYTI1NiI6ImIxMTYzMWQ0MDVkNWVkZTI4NmYwY2Y2ODhhNThjZWQ3NzQ1MDBkYjFiYjU2ZmY2YWEwMDQxMTg1NWJjYmE2MDciLCJjbGllbnRfc2lnbmluZ19wdWJsaWNfa2V5X2Rlcl9iYXNlNjQiOiJNRmt3RXdZSEtvWkl6ajBDQVFZSUtvWkl6ajBEQVFjRFFnQUVsb1FrMGZKak9HSEtSRTB2X0w4ZkViUzdjdF9sVDExbE5ZbGVLVlVYUXNDYmhoUWpGV2VpYXBuRk9TTXUxX0JoQzBpUGVSVm84aTZMVEgybVZwSHZVQSIsImVkZ2VfZGV2aWNlX2lkIjoiYWRhcHRlci0xIiwiZXhwIjoxNzkyMjY4OTgyLCJmaXNjYWxfZGV2aWNlX2lkIjoiZmlzY2FsLTEiLCJmaXNjYWxfZGV2aWNlX251bWJlciI6IkFCMTIzNDU2IiwiZmlzY2FsX21lbW9yeV9udW1iZXIiOiIxMjM0NTY3OCIsImtpbmQiOiJFWEVDVVRJT05fQVVUSE9SSVpBVElPTiIsImxvY2F0aW9uX2lkIjoibG9jYXRpb24tMSIsIm5iZiI6MTc5MjI2ODA4Miwib3BlcmF0b3JfY29kZSI6IkEwMDEiLCJvcGVyYXRvcl9pZCI6Im9wZXJhdG9yLTEiLCJyZWdpc3Rlcl9pZCI6InJlZ2lzdGVyLTEiLCJzY29wZSI6ImZpc2NhbC5leGVjdXRlIiwidGVuYW50X2lkIjoidGVuYW50LTEiLCJ1bnBfYXV0aG9yaXR5Ijp7Im9wZXJhdGlvbl9pZCI6IjEwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMSIsInBheWxvYWRfc2hhMjU2IjoiOThkMDhmNTA3YWQ1NWMyYjRlYjJmYjNiNDM3NzRlOWZiZjhhMjNmZWY5NTc2N2Y5ODA1ZWM4YzgxZmNiODk5ZCIsInJlY2VpcHRfc2Vzc2lvbl9pZCI6IjEwMDAwMDAwLTAwMDAtNDAwMC04MDAwLTAwMDAwMDAwMDAwMiIsInNlcnZlcl9zYWxlX2lkIjoib25saW5lLXNhbGUiLCJzb3VyY2UiOiJTRVJWRVJfQVNTSUdORUQiLCJ1bnAiOiJBQjEyMzQ1Ni1BMDAxLTAwMDUwMDAifSwidmVyc2lvbiI6MSwid29ya3N0YXRpb25fc2Vzc2lvbl9pZCI6InNlc3Npb24tMSJ9",
+      "sha256": "6160eb4e944cfa27b2c4758ac6fbeacc19bbbfca36f40d40eb229d2e3f3aab76",
+      "signature": "MEUCIQDxd9oHyFmf4s7OreAP4lZ45g8dQRZRR8ygQo1O7CCmeAIgD1Jfgg8Kki4_yzGKosSyEIeQMyd_Mvw1HB63mWcpfkQ"
+    },
+    "intent_id": "10000000-0000-4000-8000-000000000001",
+    "location_id": "location-1",
+    "payload_sha256": "98d08f507ad55c2b4eb2fb3b43774e9fbf8a23fef95767f9805ec8c81fcb899d",
+    "protocol_version": "1.0",
+    "receipt_session_id": "10000000-0000-4000-8000-000000000002",
+    "register_id": "register-1",
+    "server_sale_id": "online-sale",
+    "tenant_id": "tenant-1"
+  },
+  "now": 1792268082,
+  "result_event": {
+    "event_id": "result-10000000-0000-4000-8000-000000000001",
+    "operation_id": "10000000-0000-4000-8000-000000000001",
+    "device_id": "adapter-1",
+    "journal_seq": 0,
+    "event_type": "FISCALIZED",
+    "occurred_at": "2026-10-17T20:14:43Z",
+    "payload": {
+      "fiscal_reference": "FD-123",
+      "operation_id": "10000000-0000-4000-8000-000000000001",
+      "payload_sha256": "98d08f507ad55c2b4eb2fb3b43774e9fbf8a23fef95767f9805ec8c81fcb899d",
+      "payment_evidence": [
+        {
+          "amount_minor": 250,
+          "auth_code": "",
+          "payment_id": "20000000-0000-4000-8000-000000000001",
+          "rrn": "",
+          "state": "FISCALIZED_CASH",
+          "terminal_reference": "",
+          "type": "CASH"
+        }
+      ],
+      "receipt_session_id": "10000000-0000-4000-8000-000000000002",
+      "state": "FISCALIZED",
+      "unp": "AB123456-A001-0005000"
+    },
+    "prev_hash": null,
+    "event_hash": "",
+    "signature": null
+  },
+  "trust_key_der_base64": "MFkwEwYHKoZIzj0CAQYIKoZIzj0DAQcDQgAE7cbfUCzNTLOBQ1bxLSN8yJq0klud_NnI0o7JyhbXPFIvzJmOZhsP5FM5qr9WTI8ZkF9HTqcorQO9qrN1r9dDcw"
+}

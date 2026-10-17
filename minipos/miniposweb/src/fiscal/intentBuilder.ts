@@ -4,17 +4,7 @@ import type {
   SaleItem,
   SalePayment,
 } from "../types";
-const canonical = (v: unknown): string =>
-  v === null
-    ? "null"
-    : Array.isArray(v)
-      ? `[${v.map(canonical).join(",")}]`
-      : typeof v === "object"
-        ? `{${Object.entries(v as Record<string, unknown>)
-            .sort(([a], [b]) => a.localeCompare(b))
-            .map(([k, x]) => `${JSON.stringify(k)}:${canonical(x)}`)
-            .join(",")}}`
-        : JSON.stringify(v);
+import { canonical } from "./goCanonical";
 const hex = (v: ArrayBuffer) =>
   [...new Uint8Array(v)].map((x) => x.toString(16).padStart(2, "0")).join("");
 export async function buildIntent(input: {
@@ -35,13 +25,13 @@ export async function buildIntent(input: {
 }): Promise<FiscalIntent> {
   const operation = input.operationId ?? crypto.randomUUID(),
     receipt = input.receiptSessionId ?? crypto.randomUUID();
-  const sale = input.saleId ?? operation,
-    surrogate = input.surrogateId ?? sale;
+  const sale = input.saleId ?? null,
+    surrogate = input.surrogateId ?? input.saleId ?? operation;
   const items = input.items ?? [],
     payments = input.payments ?? [];
   const salePayload = {
     currency: "EUR",
-    server_sale_id: surrogate,
+    server_sale_id: sale,
     external_id: surrogate,
     location_id: input.locationId,
     operator_id: input.operatorCode,

@@ -1,6 +1,7 @@
 #include "intent_processor.h"
 #include "cJSON.h"
 #include "go_wire.h"
+#include "authority_unp.h"
 #include "canonical_cbor.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/md.h"
@@ -90,45 +91,33 @@ const char *state(ExecutionCertainty c) {
     return "REJECTED";
   }
 }
-std::string result_json(const std::string &operation_id, const ExecutionResult &r,
-                        const std::string &operation_type = {}) {
-  Json root(cJSON_CreateObject());
-  if (!root) return {};
-  const std::pair<const char *, const std::string *> fields[] = {
-      {"error_code", &r.error_code}, {"fiscal_reference", &r.fiscal_reference},
-      {"operation_id", &operation_id}, {"state", nullptr},
-      {"terminal_reference", &r.terminal_reference}, {"rrn", &r.rrn},
-      {"auth_code", &r.auth_code}};
-  for (const auto &field : fields)
-    if (!cJSON_AddStringToObject(root.get(), field.first,
-        field.second ? field.second->c_str() : state(r.certainty))) return {};
-  if (!operation_type.empty() && !cJSON_AddStringToObject(root.get(), "operation_type", operation_type.c_str())) return {};
-  char *raw = cJSON_PrintUnformatted(root.get());
-  if (!raw) return {};
-  std::string result(raw);
-  cJSON_free(raw);
-  return result;
+std::string result_json(const std::string &operation_id,const ExecutionResult &r,
+ const std::string &operation_type={},const ReceiptPlan*plan=nullptr,
+ const RecoveryItem*recovery=nullptr,DurableStorage*storage=nullptr){
+ using V=go_json::Value;auto str=[](const std::string&s){return V::string(s);};
+ std::vector<std::pair<std::string,V>>fields={{"error_code",str(r.error_code)},{"fiscal_reference",str(r.fiscal_reference)},{"operation_id",str(operation_id)},{"state",str(state(r.certainty))},{"terminal_reference",str(r.terminal_reference)},{"rrn",str(r.rrn)},{"auth_code",str(r.auth_code)}};
+ if(!operation_type.empty())fields.push_back({"operation_type",str(operation_type)});
+ const std::string receipt=plan?plan->receipt_session_id:recovery?recovery->receipt_id:"";
+ const std::string digest=plan?plan->payload_digest:recovery?recovery->payload_digest:"";
+ const std::string unp=plan?plan->unp:recovery?recovery->canonical_unp:"";
+ fields.push_back({"receipt_session_id",str(receipt)});fields.push_back({"payload_sha256",str(digest)});fields.push_back({"unp",str(unp)});
+ std::vector<IntentPayment>payments;if(plan)payments=plan->payments;
+ else if(recovery){Json canonical(cJSON_Parse(recovery->canonical_payload.c_str()));auto*array=cJSON_GetObjectItemCaseSensitive(canonical.get(),"payments");cJSON*item=nullptr;cJSON_ArrayForEach(item,array){IntentPayment p;auto*amount=cJSON_GetObjectItemCaseSensitive(item,"amount");if(!text(item,"payment_id",p.id)||!text(item,"type",p.type)||!text(amount,"amount",p.amount)||!money(p.amount,p.amount_minor))return {};payments.push_back(std::move(p));}}
+ std::vector<V>evidence;
+ for(const auto&payment:payments){PaymentRecord saved;if(!storage||storage->payment(payment.id.c_str(),saved)!=ESP_OK||saved.operation_id!=operation_id||saved.receipt_id!=receipt||saved.amount_minor!=payment.amount_minor)return {};
+  const std::string payment_state=payment.type=="CASH"&&r.certainty==ExecutionCertainty::Committed?"FISCALIZED_CASH":saved.state;
+  evidence.push_back(V::object({{"payment_id",str(payment.id)},{"type",str(payment.type)},{"amount_minor",V::integer_value(saved.amount_minor)},{"state",str(payment_state)},{"terminal_reference",str(saved.terminal_reference)},{"rrn",str(saved.rrn)},{"auth_code",str(saved.auth_code)},{"reversal_reference",str(saved.reversal_reference)},{"reversal_rrn",str(saved.reversal_rrn)},{"reversal_auth_code",str(saved.reversal_auth_code)}}));
+ }
+ fields.push_back({"payment_evidence",V::array(evidence)});std::string result,error;return go_json::encode(V::object(fields),result,error)?result:std::string{};
 }
-std::string accepted_json(const ReceiptPlan &p, const CompositeBinding &b,
-                          const AuthorityReservation &a) {
-  cJSON *root = cJSON_CreateObject();
-  cJSON_AddNumberToObject(root, "operation_sequence", a.operation_sequence);
-  cJSON_AddNumberToObject(root, "unp_sequence", a.unp_sequence);
-  cJSON *command = cJSON_AddObjectToObject(root, "command");
-  cJSON_AddStringToObject(command, "operation_id", p.operation_id.c_str());
-  cJSON_AddStringToObject(command, "tenant_id", b.tenant_id.c_str());
-  cJSON_AddStringToObject(command, "register_id", b.register_id.c_str());
-  cJSON_AddStringToObject(command, "device_id", b.edge_device_id.c_str());
-  cJSON_AddStringToObject(command, "command_type",
-      p.command_type == "SALE_REVERSE" ? "REVERSAL" : p.command_type.c_str());
-  cJSON *payload = cJSON_Parse(p.canonical_payload.c_str());
-  cJSON_AddItemToObject(command, "payload",
-                        payload ? payload : cJSON_CreateObject());
-  char *raw = cJSON_PrintUnformatted(root);
-  std::string out = raw ? raw : "";
-  cJSON_free(raw);
-  cJSON_Delete(root);
-  return out;
+std::string accepted_json(const ReceiptPlan &p,const CompositeBinding &b,const AuthorityReservation &a){
+ using V=go_json::Value;auto str=[](const std::string&s){return V::string(s);};auto nullable=[&](const std::string&s){return s.empty()?V::null():str(s);};
+ V payload;std::string error,result;if(!go_json::parse(p.canonical_payload.data(),p.canonical_payload.size(),payload,error))return {};
+ auto session=p.authorization_verified?V::object({{"authorization_id",str(p.authorization.authorization_id)},{"authorization_sha256",str(p.authorization.authorization_sha256)},{"client_proof_sha256",str(p.authorization.client_proof_sha256)}}):V::null();
+ V evidence=V::object({{"version",V::integer_value(2)},{"unp_source",str(p.unp_source)},{"ingress",str(p.ingress==Ingress::Mqtt?"MQTT":p.ingress==Ingress::Ble?"BLE":"HTTP")},{"receipt_session_id",str(p.receipt_session_id)},{"server_sale_id",nullable(p.server_sale_id)},{"client_sale_surrogate_id",nullable(p.client_sale_surrogate_id)},{"payload_sha256",str(p.payload_digest)},{"unp",str(p.unp)},{"binding_sha256",str(b.payload_sha256)},{"generation",V::integer_value(b.generation)},{"fiscal_device_id",str(b.fiscal.device_id)},{"authority",V::object({{"binding_sha256",str(b.payload_sha256)},{"range_start",V::integer_value(a.range_start)},{"range_end",V::integer_value(a.range_end)},{"unp_prefix",str(a.prefix)}})},{"session_evidence",session},{"proof_state",str(p.authorization_verified?"AUTHORIZED":p.ingress==Ingress::Mqtt?"SERVER_COMMAND":"OPEN_AUTHORIZATION")}});
+ V command=V::object({{"operation_id",str(p.operation_id)},{"tenant_id",str(b.tenant_id)},{"register_id",str(b.register_id)},{"device_id",str(b.edge_device_id)},{"command_type",str(p.command_type=="SALE_REVERSE"?"REVERSAL":p.command_type)},{"payload",payload}});
+ V event=V::object({{"operation_sequence",V::integer_value(a.operation_sequence)},{"unp_sequence",V::integer_value(a.unp_sequence)},{"acceptance_evidence",evidence},{"command",command}});
+ return go_json::encode(event,result,error)?result:std::string{};
 }
 bool verify_hmac(go_json::Value root, const std::string &key) {
   auto *signature = go_json::field(root, "signature");
@@ -181,12 +170,16 @@ bool verify_hmac(go_json::Value root, const std::string &key) {
 } // namespace
 IntentProcessor::IntentProcessor(DurableStorage &s, const CompositeBinding &b,
                                  ReceiptExecutor &e, const std::string &key,
-                                 ResultSink sink, void *context)
+                                 ResultSink sink, void *context,const ExecutionAuthorizationTrust* trust,const CommandClock* clock)
     : storage_(s), binding_(b), executor_(e), command_hmac_key_(key),
-      result_sink_(sink), result_context_(context) {}
+      result_sink_(sink), result_context_(context) {
+  if(clock){command_clock_=*clock;}
+  if(trust){authorization_trust_=*trust;explicit_authorization_trust_=true;}
+}
 esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
   if (!view.data || !view.size || view.size > 8192)
     return ESP_ERR_INVALID_ARG;
+  p.ingress=view.ingress;
   cJSON *decoded = nullptr;
   go_json::Value canonical_root;
   std::string json_error;
@@ -214,6 +207,12 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
   if (view.ingress == Ingress::Mqtt &&
       !verify_hmac(canonical_root, command_hmac_key_))
     return ESP_ERR_INVALID_CRC;
+  if(view.ingress==Ingress::Mqtt){
+    std::string issued,expires;
+    if(!text(root.get(),"issued_at",issued,30)||!text(root.get(),"expires_at",expires,30)||
+       !parse_command_instant(issued,p.command_issued)||!parse_command_instant(expires,p.command_expires)||
+       !command_valid_now(p.command_issued,p.command_expires,command_clock_))return ESP_ERR_INVALID_STATE;
+  }
   std::string tenant, reg, device, provided;
   const bool local =
       view.ingress == Ingress::Ble || view.ingress == Ingress::Http;
@@ -270,12 +269,14 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
     return ESP_ERR_INVALID_CRC;
   // Non-sale commands are first-class operations. UNP is allocated durably by
   // reserve_command() and is never accepted as client authority.
-  if (p.command_type == "SALE_FINALIZE" &&
-      !text(payload, "server_sale_id", p.sale_id)) {
-    if (local)
-      p.sale_id = p.operation_id;
-    else
-      return ESP_ERR_INVALID_ARG;
+  if(local){
+    auto optional_id=[&](const char*name,std::string&out){auto*v=cJSON_GetObjectItemCaseSensitive(root.get(),name);if(!v||cJSON_IsNull(v))return true;if(!cJSON_IsString(v)||strlen(v->valuestring)>128)return false;out=v->valuestring;return true;};
+    if(!optional_id("server_sale_id",p.server_sale_id)||!optional_id("client_sale_surrogate_id",p.client_sale_surrogate_id))return ESP_ERR_INVALID_ARG;
+    if(p.command_type=="SALE_FINALIZE"&&p.client_sale_surrogate_id.empty())return ESP_ERR_INVALID_ARG;
+    p.sale_id=p.server_sale_id.empty()?p.client_sale_surrogate_id:p.server_sale_id;
+  }else if(p.command_type=="SALE_FINALIZE"){
+    if(!text(payload,"server_sale_id",p.server_sale_id))return ESP_ERR_INVALID_ARG;
+    p.sale_id=p.server_sale_id;
   }
   p.route_snapshot =
       "{\"command_type\":\"" + std::string(p.command_type == "SALE_REVERSE" ? "REVERSAL" : p.command_type) + "\",\"binding_generation\":" + std::to_string(binding_.generation) +
@@ -285,6 +286,13 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
            ? ",\"payment_device_id\":\"" + binding_.payment.device_id + "\""
            : "") +
       "}";
+  auto authorize=[&]()->esp_err_t {
+    if(binding_.authority.unp_prefix!=binding_.fiscal.fiscal_device_number||!authority_prefix_valid(binding_.authority.unp_prefix)||binding_.authority.unp_range_start<1||binding_.authority.unp_range_end>9999999||binding_.authority.unp_range_end<binding_.authority.unp_range_start)return ESP_ERR_INVALID_STATE;
+    if(local){const auto verified=explicit_authorization_trust_?verify_execution_authorization(canonical_root,binding_,authorization_trust_,p.authorization):verify_execution_authorization(canonical_root,binding_,p.authorization);if(verified!=ESP_OK)return verified;p.authorization_verified=true;p.operator_code=p.authorization.operator_code;if(p.command_type=="SALE_FINALIZE"){p.unp_source=p.authorization.unp_source;if(p.unp_source=="SERVER_ASSIGNED")p.unp=p.authorization.assigned_unp;}}else{if(!text(payload,"operator_code",p.operator_code,4)||!authority_operator_valid(p.operator_code))return ESP_ERR_INVALID_ARG;
+      if(p.command_type=="SALE_FINALIZE"){if(!text(payload,"unp_source",p.unp_source,32)||p.unp_source!="SERVER_ASSIGNED"||!text(payload,"unp",p.unp,21)||!authority_unp_valid(p.unp)||p.unp.substr(0,8)!=binding_.fiscal.fiscal_device_number||p.unp.substr(9,4)!=p.operator_code)return ESP_ERR_INVALID_ARG;}
+    }
+    return ESP_OK;
+  };
   if (p.command_type == "REPORT_X" || p.command_type == "REPORT_Z" ||
       p.command_type == "DEVICE_IDENTITY" || p.command_type == "DEVICE_TIME" ||
       p.command_type == "PRINTER_TEST")
@@ -297,7 +305,7 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
         !text(a, "currency", currency, 3) || currency != "EUR" ||
         !money(p.amount, minor))
       return ESP_ERR_INVALID_ARG;
-    return ESP_OK;
+    return authorize();
   }
   if (p.command_type == "SALE_REVERSE") {
     auto *original =
@@ -389,9 +397,10 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
     total += v.amount_minor;
     p.payments.push_back(std::move(v));
   }
-  return total > 0 ? ESP_OK : ESP_ERR_INVALID_ARG;
+  return total > 0 ? authorize() : ESP_ERR_INVALID_ARG;
 }
 esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
+  if(ingress==Ingress::Mqtt&&!command_valid_now(p.command_issued,p.command_expires,command_clock_))return ESP_ERR_INVALID_STATE;
   const int64_t at = now();
   std::string event = "received-" + p.operation_id;
   // Never consume authority or touch a final device when the durable journal
@@ -409,9 +418,12 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
       p.route_snapshot.c_str(), event.c_str(), p.receipt_session_id.c_str(),
       p.canonical_payload.c_str(), initial, at,
       [&](const AuthorityReservation &a) {
+        // SQLite lock waits must not let an expired command reserve authority.
+        if(ingress==Ingress::Mqtt&&!command_valid_now(p.command_issued,p.command_expires,command_clock_))return std::string{};
+        if(!binding_.authority.unp_prefix.empty()&&(a.prefix!=binding_.authority.unp_prefix||a.range_start!=binding_.authority.unp_range_start||a.range_end!=binding_.authority.unp_range_end||a.generation!=binding_.generation))return std::string{};
         if (p.command_type != "SALE_REVERSE") p.unp = a.unp;
         return accepted_json(p, binding_, a);
-      });
+      },(p.command_type=="SALE_REVERSE"||p.unp_source=="SERVER_ASSIGNED")?p.unp.c_str():nullptr,(p.command_type=="SALE_FINALIZE"&&p.unp_source=="LEASED")?p.operator_code.c_str():nullptr,p.command_type=="SALE_FINALIZE");
   if (reserved.status == ReservationStatus::Duplicate) {
     if (result_sink_ && !reserved.prior_result.empty())
       result_sink_(p.operation_id.c_str(), reserved.prior_result.c_str(),
@@ -423,7 +435,9 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
   if (reserved.status != ReservationStatus::New)
     return ESP_FAIL;
   if (p.command_type != "SALE_REVERSE") p.unp = reserved.authority.unp;
-  if (!executor_.ready()) {
+  const auto valid_command=[&](){return ingress!=Ingress::Mqtt||command_valid_now(p.command_issued,p.command_expires,command_clock_);};
+  const bool admitted=valid_command();
+  if (admitted&&!executor_.ready()) {
     std::string unavailable =
         "{\"error_code\":\"PHYSICAL_DEVICE_UNAVAILABLE\",\"operation_id\":\"" +
         p.operation_id + "\",\"state\":\"RECOVERY_REQUIRED\"}";
@@ -439,8 +453,9 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
       p.operation_id.c_str(), "EXECUTING", nullptr, at);
   if (checkpoint != ESP_OK)
     return checkpoint;
-  auto r = executor_.execute(p);
-  auto result = result_json(p.operation_id, r, p.command_type == "SALE_REVERSE" ? "REVERSAL" : p.command_type);
+  // Expiry after reservation is durably terminal, never a recovery retry.
+  auto r = admitted&&valid_command()?executor_.execute(p):ExecutionResult{ExecutionCertainty::Rejected,"","COMMAND_EXPIRED","","",""};
+  auto result = result_json(p.operation_id, r, p.command_type == "SALE_REVERSE" ? "REVERSAL" : p.command_type,&p,nullptr,&storage_);
   if (result.empty()) return ESP_ERR_NO_MEM;
   // CARD states and references belong to individual executor checkpoints.
   // An operation-level result cannot safely overwrite per-tender evidence.
@@ -479,7 +494,7 @@ esp_err_t IntentProcessor::recover_pending() {
     Json route(cJSON_Parse(i.route_snapshot.c_str()));
     std::string operation_type;
     text(route.get(), "command_type", operation_type, 32);
-    const auto payload = result_json(i.operation_id, r, operation_type);
+    const auto payload = result_json(i.operation_id, r, operation_type,nullptr,&i,&storage_);
     if (payload.empty()) { result = ESP_ERR_NO_MEM; return true; }
     const int64_t at = now();
     const auto digest = hash(payload.data(), payload.size());

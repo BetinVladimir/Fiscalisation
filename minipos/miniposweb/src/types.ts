@@ -27,7 +27,7 @@ export type FiscalIntent = {
   client_operation_id: string;
   receipt_session_id: string;
   client_sale_surrogate_id: string;
-  server_sale_id: string;
+  server_sale_id: string | null;
   operator_code: string;
   tenant_id: string;
   location_id: string;

@@ -26,8 +26,8 @@ npm run test:e2e
 
 Playwright-набор проверяет HTTP-контракты диагностики, printer test,
 provisioning, BLE session, SmartDevice activation, UNKNOWN reconciliation,
-отчётов и audit-фильтров. Реальные BLE, secure element, фискальное и банковское
-оборудование остаются в HIL/instrumentation suites.
+отчётов и audit-фильтров. Реальные BLE, хранение ключей во внутренней NVS ESP32-S3, фискальное и банковское
+оборудование проверяются в HIL/instrumentation suites. Внешний ATECC608A не используется.
 
 <!-- deployment-and-store-listing:start -->
 ## Deployment and store listing

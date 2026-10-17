@@ -63,3 +63,6 @@ login.sh
 **/store/*.keystore
 !**/store/icon.png
 **/.cache/**
+# Python test/build caches
+__pycache__/
+*.py[cod]

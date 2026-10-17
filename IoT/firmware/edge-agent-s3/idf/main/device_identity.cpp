@@ -2,6 +2,8 @@
 #include "esp_random.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/ecdsa.h"
+#include "mbedtls/ecdh.h"
+#include "mbedtls/platform_util.h"
 #include "mbedtls/pk.h"
 #include "mbedtls/sha256.h"
 #include "nvs.h"
@@ -18,5 +20,17 @@ esp_err_t DeviceIdentity::open(){if(impl_->ok)return ESP_OK;nvs_handle_t h{};esp
   mbedtls_pk_context pk;mbedtls_pk_init(&pk);if(mbedtls_pk_setup(&pk,mbedtls_pk_info_from_type(MBEDTLS_PK_ECKEY))!=0){mbedtls_pk_free(&pk);return ESP_FAIL;}if(mbedtls_ecp_group_copy(&mbedtls_pk_ec(pk)->MBEDTLS_PRIVATE(grp),&group)!=0||mbedtls_ecp_copy(&mbedtls_pk_ec(pk)->MBEDTLS_PRIVATE(Q),&public_key)!=0){mbedtls_pk_free(&pk);return ESP_FAIL;}uint8_t der[160];int n=mbedtls_pk_write_pubkey_der(&pk,der,sizeof(der));mbedtls_pk_free(&pk);if(n<=0)return ESP_FAIL;impl_->public_der=b64(der+sizeof(der)-n,n);uint8_t d[32];mbedtls_sha256((uint8_t*)impl_->public_der.data(),impl_->public_der.size(),d,0);impl_->kid="esp32-p256-"+b64(d,12);impl_->ok=true;return ESP_OK;}
 bool DeviceIdentity::ready()const{return impl_->ok;}
 esp_err_t DeviceIdentity::sign_hash_hex(const char*h,std::string&out)const{out.clear();if(!impl_->ok)return ESP_ERR_INVALID_STATE;uint8_t digest[32],double_digest[32],sig[64];if(!hex(h,digest,32)||mbedtls_sha256(digest,sizeof(digest),double_digest,0)!=0)return ESP_ERR_INVALID_ARG;mbedtls_mpi r,s;mbedtls_mpi_init(&r);mbedtls_mpi_init(&s);int e=mbedtls_ecdsa_sign(&impl_->key.MBEDTLS_PRIVATE(grp),&r,&s,&impl_->key.MBEDTLS_PRIVATE(d),double_digest,sizeof(double_digest),random,nullptr);if(e==0)e=mbedtls_mpi_write_binary(&r,sig,32);if(e==0)e=mbedtls_mpi_write_binary(&s,sig+32,32);mbedtls_mpi_free(&r);mbedtls_mpi_free(&s);if(e)return ESP_FAIL;out=impl_->kid+":"+b64(sig,sizeof(sig));return ESP_OK;}
+esp_err_t DeviceIdentity::provisioning_shared_secret(const uint8_t peer_point[65],uint8_t shared[32])const{
+ if(!shared){return ESP_ERR_INVALID_ARG;}
+ mbedtls_platform_zeroize(shared,32);
+ if(!impl_->ok||!peer_point||peer_point[0]!=4)return ESP_ERR_INVALID_STATE;
+ mbedtls_ecp_point peer;mbedtls_ecp_point_init(&peer);mbedtls_mpi z;mbedtls_mpi_init(&z);
+ const auto&group=impl_->key.MBEDTLS_PRIVATE(grp);
+ int e=mbedtls_ecp_point_read_binary(&group,&peer,peer_point,65);if(!e)e=mbedtls_ecp_check_pubkey(&group,&peer);
+ if(!e)e=mbedtls_ecdh_compute_shared(const_cast<mbedtls_ecp_group*>(&group),&z,&peer,&impl_->key.MBEDTLS_PRIVATE(d),random,nullptr);
+ if(!e){e=mbedtls_mpi_write_binary(&z,shared,32);}
+ mbedtls_mpi_free(&z);mbedtls_ecp_point_free(&peer);
+ if(e){mbedtls_platform_zeroize(shared,32);return ESP_ERR_INVALID_CRC;}return ESP_OK;
+}
 std::string DeviceIdentity::public_key_der_base64url()const{return impl_->public_der;}std::string DeviceIdentity::kid()const{return impl_->kid;}
 }

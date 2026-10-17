@@ -21,9 +21,12 @@ out=$(mktemp -d "$parent/beefiscal-storage-host.XXXXXX")
 trap 'rm -rf "$out"' EXIT
 trap 'exit 130' INT
 trap 'exit 143' TERM
+python3 "$root/tests/mbedtls_host.py" "$out" > "$out/mbedtls-paths"
+mbedtls_include=$(sed -n '1p' "$out/mbedtls-paths")
+mbedtls_library=$(sed -n '2p' "$out/mbedtls-paths")
 "${CC:-cc}" -I"$cjson" -c "$cjson/cJSON.c" -o "$out/cJSON.o"
 # A small executable probe distinguishes unavailable SQLite/OpenSSL from tests.
 printf '%s\n' '#include <sqlite3.h>' '#include <openssl/sha.h>' 'int main(){return sqlite3_libversion_number()<1 || SHA256(0,0,0)==0;}' > "$out/dependency_probe.cpp"
 "${CXX:-c++}" -I"$openssl/include" "$out/dependency_probe.cpp" -L"$openssl/lib" -lcrypto -lsqlite3 -o "$out/dependency_probe" || fail "SQLite/OpenSSL development libraries unavailable; install them or set OPENSSL_PREFIX"
-"${CXX:-c++}" -std=c++17 -I"$root/tests/storage_host" -I"$source_root/main" -I"$cjson" -I"$openssl/include" "$source_root/main/durable_storage.cpp" "$source_root/main/intent_processor.cpp" "$source_root/main/go_json.cpp" "$source_root/main/go_wire.cpp" "$root/tests/storage_host/runtime_storage_test.cpp" "$out/cJSON.o" -L"$openssl/lib" -lcrypto -lsqlite3 -o "$out/runtime_storage_test"
-for mode in currency-validation recovery-json json-result checkpoint outbox receipt payment collision normal cards recovery-outbox recovery-receipt recovery-normal recovery-progress recovery-preserve-cards recovery-storage-error recovery-missing-receipt; do "$out/runtime_storage_test" "$mode" "$out/$mode.sqlite"; done
+"${CXX:-c++}" -std=c++17 -I"$mbedtls_include" -I"$root/tests/storage_host" -I"$source_root/main" -I"$cjson" -I"$openssl/include" "$source_root/main/durable_storage.cpp" "$source_root/main/intent_processor.cpp" "$source_root/main/execution_authorization.cpp" "$source_root/main/go_json.cpp" "$source_root/main/go_wire.cpp" "$root/tests/storage_host/runtime_storage_test.cpp" "$out/cJSON.o" "$mbedtls_library" -L"$openssl/lib" -lcrypto -lsqlite3 -o "$out/runtime_storage_test"
+for mode in validity-issued-boundary validity-fraction validity-nano-expired validity-nano-future validity-expired validity-future validity-missing-issued validity-missing-expires validity-reversed validity-equal validity-calendar validity-overflow validity-offset validity-leap-second validity-clock-zero validity-clock-failed validity-clock-nanos validity-reservation-expired validity-transaction-expired validity-admitted-expired validity-before-io-expired expired-command preassigned preassigned-negative currency-validation recovery-json json-result checkpoint outbox receipt payment collision normal cards recovery-outbox recovery-receipt recovery-normal recovery-progress recovery-preserve-cards recovery-storage-error recovery-missing-receipt; do "$out/runtime_storage_test" "$mode" "$out/$mode.sqlite"; done

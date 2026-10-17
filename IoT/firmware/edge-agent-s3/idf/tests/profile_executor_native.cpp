@@ -9,8 +9,8 @@ using namespace beefiscal::idf;
 
 // Every CARD scenario uses an actual durable journal; test plans are separate operations.
 #include <unistd.h>
-struct Journal{DurableStorage storage;std::string path;Journal(){char file[]="/tmp/beefiscal-profile-saga.XXXXXX";int fd=mkstemp(file);assert(fd>=0);close(fd);path=file;remove(path.c_str());assert(storage.open_database_for_test(path.c_str())==ESP_OK);assert(storage.configure_authority("TEST-",1,1000,1)==ESP_OK);}~Journal(){storage.close();remove(path.c_str());}};
-static ExecutionResult run(ProfileExecutor&executor,DurableStorage&storage,const ReceiptPlan&p){std::vector<InitialPayment>payments;for(const auto&v:p.payments)payments.push_back({v.id,v.amount_minor});assert(storage.reserve_command(p.operation_id.c_str(),std::string(64,'a').c_str(),"HTTP","{}",("received-"+p.operation_id).c_str(),p.receipt_session_id.c_str(),"{}",payments,1704067200,[](const AuthorityReservation&){return "{}";}).status==ReservationStatus::New);assert(storage.set_operation_state(p.operation_id.c_str(),"EXECUTING",nullptr,1704067200)==ESP_OK);return executor.execute(p);}
+struct Journal{DurableStorage storage;std::string path;Journal(){char file[]="/tmp/beefiscal-profile-saga.XXXXXX";int fd=mkstemp(file);assert(fd>=0);close(fd);path=file;remove(path.c_str());assert(storage.open_database_for_test(path.c_str())==ESP_OK);assert(storage.configure_authority("DT636497",1,1000,1)==ESP_OK);}~Journal(){storage.close();remove(path.c_str());}};
+static ExecutionResult run(ProfileExecutor&executor,DurableStorage&storage,const ReceiptPlan&p){std::vector<InitialPayment>payments;for(const auto&v:p.payments)payments.push_back({v.id,v.amount_minor});assert(storage.reserve_command(p.operation_id.c_str(),std::string(64,'a').c_str(),"HTTP","{}",("received-"+p.operation_id).c_str(),p.receipt_session_id.c_str(),"{}",payments,1704067200,[](const AuthorityReservation&){return "{}";},nullptr,"0001").status==ReservationStatus::New);assert(storage.set_operation_state(p.operation_id.c_str(),"EXECUTING",nullptr,1704067200)==ESP_OK);return executor.execute(p);}
 
 struct ProtocolFaithfulIo final:DeviceIo{
  EdgeProfile profile;bool fiscal_up{true},payment_up{true};
@@ -76,14 +76,7 @@ void receipt_fault_matrix(EdgeProfile profile){auto b=binding(profile);ProtocolF
  io.next_purchase.certainty=PaymentCertainty::Approved;io.next_fiscal.certainty=ExecutionCertainty::Rejected;assert(run(x,journal.storage,plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Compensated);
  io.next_reverse.certainty=PaymentCertainty::Unknown;assert(run(x,journal.storage,plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::Unknown);
  io.next_reverse.certainty=PaymentCertainty::Approved;io.payment_up=false;assert(run(x,journal.storage,plan("SALE_FINALIZE","CARD")).certainty==ExecutionCertainty::DeviceUnavailable);io.payment_up=true;
- RecoveryItem recovery{};recovery.operation_id="11111111-1111-4111-8111-111111111111";
- recovery.receipt_id="legacy-cash-receipt";
- const int lookups_before=io.lookup_calls;
- assert(x.recover(recovery).certainty==ExecutionCertainty::Unknown);
- assert(io.lookup_calls==lookups_before); // Missing durable payload never authorizes device recovery.
- recovery.canonical_payload=R"({"payments":[{"type":"CASH"}]})";
- assert(x.recover(recovery).certainty==io.next_fiscal.certainty);
- assert(io.lookup_calls==lookups_before+1);
+ RecoveryItem recovery{};recovery.operation_id="11111111-1111-4111-8111-111111111111";const auto lookups=io.lookup_calls;assert(x.recover(recovery).certainty==ExecutionCertainty::Unknown);assert(io.lookup_calls==lookups);
  io.fiscal_up=false;assert(run(x,journal.storage,plan("SALE_FINALIZE")).certainty==ExecutionCertainty::DeviceUnavailable);
 }
 int main(){for(auto profile:{EdgeProfile::DatecsDp150BluePad50,EdgeProfile::DaisyCompactS01}){protocol_corruption_matrix(profile);fiscal_matrix(profile);receipt_fault_matrix(profile);}return 0;}

@@ -51,7 +51,7 @@ func TestBridgeCommandUsesRecursivelyCanonicalSignedPayload(t *testing.T) {
 	client := &captureClient{}
 	bridge := NewBridge(key)
 	bridge.bind(client)
-	sale := domain.Sale{ID: "sale-1", TenantID: "tenant-1", ExternalID: "external-1", LocationID: "loc-1", RegisterID: "reg-1", OperatorID: "operator-1", UNP: "DY000600-OP01-0000001", Lines: []domain.SaleLine{{LineID: "line-1", Name: "Coffee", Quantity: "1.000", UnitPrice: domain.Money{Amount: "2.65", Currency: "EUR"}, TaxGroup: "B"}}, FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "device-1", BindingVersion: 7}}
+	sale := domain.Sale{OperatorCode: "OP01", ID: "sale-1", TenantID: "tenant-1", ExternalID: "external-1", LocationID: "loc-1", RegisterID: "reg-1", OperatorID: "operator-1", UNP: "DY000600-OP01-0000001", Lines: []domain.SaleLine{{LineID: "line-1", Name: "Coffee", Quantity: "1.000", UnitPrice: domain.Money{Amount: "2.65", Currency: "EUR"}, TaxGroup: "B"}}, FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "device-1", BindingVersion: 7}}
 	payment := domain.PaymentRequest{PaymentID: "pay-1", Type: "CARD", Amount: domain.Money{Amount: "2.65", Currency: "EUR"}}
 	if err := bridge.Queue(domain.Operation{ID: "op-1", Type: "FISCAL_SALE"}, sale, payment); err != nil {
 		t.Fatal(err)
@@ -78,7 +78,7 @@ func TestBridgeCommandUsesRecursivelyCanonicalSignedPayload(t *testing.T) {
 
 func TestBridgeBuildsDatecsReversalPayload(t *testing.T) {
 	bridge := NewBridge("0123456789abcdef0123456789abcdef")
-	sale := domain.Sale{ID: "sale-1", TenantID: "tenant-1", ExternalID: "external-1", LocationID: "loc-1", RegisterID: "reg-1", OperatorID: "A001", UNP: "DY000600-OP01-0000001", FiscalOperationID: "original-op", Lines: []domain.SaleLine{{LineID: "line-1", Name: "Coffee", Quantity: "1.000", UnitPrice: domain.Money{Amount: "2.65", Currency: "EUR"}, TaxGroup: "B"}}, Payments: []domain.PaymentRecord{{PaymentID: "pay-1", Type: "CARD", Amount: domain.Money{Amount: "2.65", Currency: "EUR"}}}, FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "device-1", BindingVersion: 7, FiscalMemoryNumber: "12345678"}}
+	sale := domain.Sale{OperatorCode: "A001", ID: "sale-1", TenantID: "tenant-1", ExternalID: "external-1", LocationID: "loc-1", RegisterID: "reg-1", OperatorID: "A001", UNP: "DY000600-OP01-0000001", FiscalOperationID: "original-op", Lines: []domain.SaleLine{{LineID: "line-1", Name: "Coffee", Quantity: "1.000", UnitPrice: domain.Money{Amount: "2.65", Currency: "EUR"}, TaxGroup: "B"}}, Payments: []domain.PaymentRecord{{PaymentID: "pay-1", Type: "CARD", Amount: domain.Money{Amount: "2.65", Currency: "EUR"}}}, FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "device-1", BindingVersion: 7, FiscalMemoryNumber: "12345678"}}
 	op := domain.Operation{ID: "reversal-op", Type: "REVERSAL", ReasonCode: "CUSTOMER_RETURN", OriginalDocumentNumber: 269, OriginalDocumentAt: time.Date(2026, 8, 11, 9, 30, 45, 0, time.UTC)}
 	command, err := bridge.Prepare(op, sale, domain.PaymentRequest{})
 	if err != nil {
@@ -193,7 +193,7 @@ func TestProcessorBindsActivationToDeviceTopicAndSignsAck(t *testing.T) {
 func TestBridgeUsesInternalSaleIDForEdgeMaterialization(t *testing.T) {
 	bridge := NewBridge("0123456789abcdef0123456789abcdef")
 	for _, kind := range []string{"FISCAL_SALE", "SALE_FINALIZE"} {
-		sale := domain.Sale{ID: "internal-sale", ExternalID: "merchant-order", TenantID: "tenant", FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "device", BindingVersion: 1}}
+		sale := domain.Sale{OperatorID: "A001", UNP: "AB123456-A001-0005000", OperatorCode: "A001", ID: "internal-sale", ExternalID: "merchant-order", TenantID: "tenant", FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "device", BindingVersion: 1}}
 		command, err := bridge.Prepare(domain.Operation{ID: "operation", Type: kind}, sale, domain.PaymentRequest{})
 		if err != nil {
 			t.Fatal(err)
@@ -203,7 +203,7 @@ func TestBridgeUsesInternalSaleIDForEdgeMaterialization(t *testing.T) {
 			t.Fatal(err)
 		}
 		payload := envelope["payload"].(map[string]any)
-		if payload["server_sale_id"] != sale.ID || payload["external_id"] != sale.ExternalID {
+		if payload["operator_code"] != sale.OperatorCode || payload["server_sale_id"] != sale.ID || payload["external_id"] != sale.ExternalID {
 			t.Fatalf("%s misidentifies sale: %#v", kind, payload)
 		}
 	}
@@ -213,7 +213,7 @@ func TestBridgeRoutesImmutableCompositeSnapshotToAdapter(t *testing.T) {
 	repo := domain.NewMemoryRepository()
 	repo.PutResource(domain.ResourceRecord{Kind: "device", ID: "adapter", Version: 1, TenantID: "tenant", Data: map[string]any{"credential_id": "adapter-credential"}})
 	bridge := NewBridge("0123456789abcdef0123456789abcdef", repo)
-	sale := domain.Sale{ID: "sale", TenantID: "tenant", RegisterID: "register", FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "fiscal", AdapterDeviceID: "adapter", BindingVersion: 99, BindingGeneration: 7}}
+	sale := domain.Sale{OperatorID: "A001", UNP: "AB123456-A001-0005000", OperatorCode: "A001", ID: "sale", TenantID: "tenant", RegisterID: "register", FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "fiscal", AdapterDeviceID: "adapter", BindingVersion: 99, BindingGeneration: 7}}
 	command, err := bridge.Prepare(domain.Operation{ID: "operation", Type: "SALE_FINALIZE"}, sale, domain.PaymentRequest{})
 	if err != nil {
 		t.Fatal(err)
@@ -241,7 +241,7 @@ func outcomeFixture(t *testing.T) (*domain.MemoryRepository, *domain.Service, *P
 	t.Helper()
 	repo := domain.NewMemoryRepository()
 	now := time.Now().UTC()
-	sale := domain.Sale{ID: "scope-sale", TenantID: "tenant-a", RegisterID: "register", State: "PAYMENT_PENDING", Version: 1, CreatedAt: now, UpdatedAt: now}
+	sale := domain.Sale{OperatorID: "A001", UNP: "AB123456-A001-0005000", OperatorCode: "A001", ID: "scope-sale", TenantID: "tenant-a", RegisterID: "register", State: "PAYMENT_PENDING", Version: 1, CreatedAt: now, UpdatedAt: now}
 	op := domain.Operation{ID: "scope-command", TenantID: "tenant-a", SaleID: sale.ID, State: "EXECUTING", Type: "SALE_FINALIZE", Version: 1, CreatedAt: now, UpdatedAt: now}
 	for _, err := range []error{repo.PutSale(sale), repo.PutOperation(op), repo.PutResource(domain.ResourceRecord{Kind: "device_command_outbox", ID: op.ID, TenantID: "tenant-a", Version: 1, Data: map[string]any{"device_id": "old-adapter", "topic": "tenants/tenant-a/devices/old-adapter/commands"}})} {
 		if err != nil {
@@ -392,7 +392,7 @@ func TestBridgeRejectsMissingOrAmbiguousTransportAuthorityBeforePublish(t *testi
 			}
 			c := &captureClient{}
 			b.bind(c)
-			sale := domain.Sale{ID: "sale", TenantID: "tenant", FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "fiscal", AdapterDeviceID: tc.adapter, BindingVersion: 99, BindingGeneration: tc.generation}}
+			sale := domain.Sale{OperatorID: "A001", UNP: "AB123456-A001-0005000", OperatorCode: "A001", ID: "sale", TenantID: "tenant", FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "fiscal", AdapterDeviceID: tc.adapter, BindingVersion: 99, BindingGeneration: tc.generation}}
 			err := b.Queue(domain.Operation{ID: "op", Type: "SALE_FINALIZE"}, sale, domain.PaymentRequest{})
 			if tc.valid {
 				if err != nil || c.topic == "" {

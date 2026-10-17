@@ -151,6 +151,8 @@ minipos-outbox-test:
 factory-test:
 	cd IoT/device-manufacturing && PYTHONPATH=src python3 -m unittest discover -s tests -v
 iot-test:
+	python3 IoT/firmware/edge-agent-s3/idf/tests/execution_auth_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/authority_host/run.py
 	python3 IoT/firmware/edge-agent-s3/idf/tests/go_json_host/run.py
 	python3 IoT/firmware/edge-agent-s3/idf/tests/go_wire_host/run.py
 	python3 IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py

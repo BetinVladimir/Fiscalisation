@@ -16,9 +16,9 @@ struct RecoveryItem{std::string operation_id;std::string receipt_id;std::string 
   std::string route_snapshot;std::string canonical_payload;std::string canonical_unp;
   std::string payment_id;
   int64_t payment_amount_minor{};std::string payment_state,terminal_reference,rrn,auth_code;
-  int64_t updated_at;};
+  int64_t updated_at;std::string payload_digest;};
 struct FrozenSyncBatch{std::string batch_id,body,last_event_hash,previous_hash;int64_t first_sequence{},last_sequence{};};
-struct AuthorityReservation{int64_t operation_sequence{},unp_sequence{};std::string unp;};
+struct AuthorityReservation{int64_t operation_sequence{},unp_sequence{};std::string unp;std::string prefix;int64_t range_start{},range_end{},generation{};};
 struct InitialPayment{std::string payment_id;int64_t amount_minor{};};
 struct PaymentRecord{std::string payment_id,operation_id,receipt_id,state,terminal_reference,rrn,auth_code,reversal_reference,reversal_rrn,reversal_auth_code;int64_t amount_minor{};};
 struct PaymentSagaSnapshot{std::string phase;std::vector<PaymentRecord> payments;};
@@ -44,7 +44,7 @@ public:
     const char* payload_digest,const char* transport,const char* route_snapshot,
     const char* event_id,const char* receipt_id,const char* canonical_payload,
     const std::vector<InitialPayment>& payments,int64_t now,
-    const std::function<std::string(const AuthorityReservation&)>& event_payload);
+    const std::function<std::string(const AuthorityReservation&)>& event_payload,const char* execution_unp=nullptr,const char* operator_code=nullptr,bool claim_sale=false);
   esp_err_t set_operation_state(const char* operation_id,const char* state,
     const char* result_payload,int64_t now);
   // Atomically project a result and durable outbox evidence. Only explicitly
@@ -85,7 +85,7 @@ public:
   std::string acknowledged_event_hash()const;
   esp_err_t configure_authority(const char*prefix,int64_t first,int64_t last,
     int64_t generation);
-  esp_err_t reserve_authority(AuthorityReservation&);
+  esp_err_t reserve_authority(AuthorityReservation&,const char* operator_code=nullptr);
   esp_err_t load_local_sale(const char* surrogate_id,std::string& payload,
     int64_t& version,std::string& state)const;
   esp_err_t save_local_sale(const char* surrogate_id,int64_t version,

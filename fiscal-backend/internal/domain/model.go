@@ -208,15 +208,20 @@ type SyncOperationResult struct {
 	Version     int64  `json:"version"`
 }
 type EdgePendingCommand struct {
-	OperationID       string         `json:"operation_id"`
-	TenantID          string         `json:"tenant_id"`
-	RegisterID        string         `json:"register_id"`
-	DeviceID          string         `json:"device_id"`
-	CommandType       string         `json:"command_type"`
-	Payload           map[string]any `json:"payload"`
-	OperationSequence int64          `json:"operation_sequence"`
-	UNPSequence       int64          `json:"unp_sequence"`
-	AcceptedAt        time.Time      `json:"accepted_at"`
+	Acceptance        *EdgeAcceptanceEvidence `json:"acceptance_evidence,omitempty"`
+	ResultPayload     map[string]any          `json:"result_payload,omitempty"`
+	ResultDigest      string                  `json:"result_digest,omitempty"`
+	ResultState       string                  `json:"result_state,omitempty"`
+	ProjectedSaleID   string                  `json:"projected_sale_id,omitempty"`
+	OperationID       string                  `json:"operation_id"`
+	TenantID          string                  `json:"tenant_id"`
+	RegisterID        string                  `json:"register_id"`
+	DeviceID          string                  `json:"device_id"`
+	CommandType       string                  `json:"command_type"`
+	Payload           map[string]any          `json:"payload"`
+	OperationSequence int64                   `json:"operation_sequence"`
+	UNPSequence       int64                   `json:"unp_sequence"`
+	AcceptedAt        time.Time               `json:"accepted_at"`
 }
 type ConnectivityProbe struct {
 	ProbeID              string                    `json:"probe_id"`

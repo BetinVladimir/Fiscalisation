@@ -143,6 +143,32 @@ func (b *Bridge) Prepare(op domain.Operation, sale domain.Sale, payment domain.P
 		}
 		signingKey = domain.DeriveDeviceTransportKey(b.signingKey, "command", transportID, credentialID)
 	}
+	// OperatorCode is captured with the sale nomenclature snapshot. Never
+	// interpret an operator resource identifier as its four-character UNP code.
+	operatorID := sale.OperatorID
+	operatorCode := sale.OperatorCode
+	if b.repo != nil {
+		for _, operator := range b.repo.Resources("operator", sale.TenantID) {
+			code, _ := operator.Data["code"].(string)
+			if operator.ID == sale.OperatorID || code == sale.OperatorID {
+				if operatorCode != "" && operatorCode != code {
+					return domain.ResourceRecord{}, fmt.Errorf("ambiguous operator identity")
+				}
+				operatorCode = code
+				operatorID = operator.ID
+			}
+		}
+	}
+	monetary := op.Type == "SALE_FINALIZE" || op.Type == "FISCAL_SALE" || op.Type == "REVERSAL" || op.Type == "CASH_IN" || op.Type == "CASH_OUT"
+	if monetary {
+		valid := len(operatorCode) == 4
+		for _, ch := range operatorCode {
+			valid = valid && ((ch >= 'A' && ch <= 'Z') || (ch >= 'a' && ch <= 'z') || (ch >= '0' && ch <= '9'))
+		}
+		if !valid {
+			return domain.ResourceRecord{}, fmt.Errorf("trusted operator code missing; snapshot migration required")
+		}
+	}
 	payments := []domain.PaymentRequest{payment}
 	if op.Type == "SALE_FINALIZE" {
 		payments = make([]domain.PaymentRequest, 0, len(sale.Payments))
@@ -150,7 +176,14 @@ func (b *Bridge) Prepare(op domain.Operation, sale domain.Sale, payment domain.P
 			payments = append(payments, domain.PaymentRequest{PaymentID: p.PaymentID, Type: p.Type, Amount: p.Amount})
 		}
 	}
-	payload := map[string]any{"currency": "EUR", "server_sale_id": sale.ID, "external_id": sale.ExternalID, "location_id": sale.LocationID, "operator_id": sale.OperatorID, "items": sale.Lines, "payments": payments, "metadata": map[string]any{}}
+	payload := map[string]any{"currency": "EUR", "server_sale_id": sale.ID, "external_id": sale.ExternalID, "location_id": sale.LocationID, "operator_id": sale.OperatorID, "operator_code": operatorCode, "items": sale.Lines, "payments": payments, "metadata": map[string]any{}}
+	if op.Type == "SALE_FINALIZE" {
+		var err error
+		payload, err = domain.BuildFinalizePayload(sale, operatorID, operatorCode)
+		if err != nil {
+			return domain.ResourceRecord{}, err
+		}
+	}
 	commandType := op.Type
 	if mapped, ok := map[string]string{"X": "REPORT_X", "Z": "REPORT_Z"}[op.Type]; ok {
 		commandType = mapped
@@ -168,7 +201,7 @@ func (b *Bridge) Prepare(op domain.Operation, sale domain.Sale, payment domain.P
 			payments = append(payments, domain.PaymentRequest{PaymentID: p.PaymentID, Type: p.Type, Amount: p.Amount})
 		}
 		reason := map[string]int{"OPERATOR_ERROR": 0, "CUSTOMER_RETURN": 1, "CUSTOMER_COMPLAINT": 1, "TAX_BASE_REDUCTION": 2}[op.ReasonCode]
-		payload = map[string]any{"currency": "EUR", "server_sale_id": sale.ID, "external_id": sale.ExternalID, "location_id": sale.LocationID, "operator_id": sale.OperatorID, "unp": sale.UNP, "original_operation_id": sale.FiscalOperationID, "reason_code": op.ReasonCode, "original_document": map[string]any{"reason": reason, "document_number": op.OriginalDocumentNumber, "document_datetime": op.OriginalDocumentAt.In(sofia).Format("02-01-06 15:04:05"), "fiscal_memory_number": sale.FiscalDevice.FiscalMemoryNumber, "original_unp": sale.UNP}, "items": sale.Lines, "payments": payments, "metadata": map[string]any{}}
+		payload = map[string]any{"currency": "EUR", "server_sale_id": sale.ID, "external_id": sale.ExternalID, "location_id": sale.LocationID, "operator_id": sale.OperatorID, "operator_code": operatorCode, "unp": sale.UNP, "original_operation_id": sale.FiscalOperationID, "reason_code": op.ReasonCode, "original_document": map[string]any{"reason": reason, "document_number": op.OriginalDocumentNumber, "document_datetime": op.OriginalDocumentAt.In(sofia).Format("02-01-06 15:04:05"), "fiscal_memory_number": sale.FiscalDevice.FiscalMemoryNumber, "original_unp": sale.UNP}, "items": sale.Lines, "payments": payments, "metadata": map[string]any{}}
 	}
 	// Round-trip typed nested values into maps so encoding/json sorts keys at
 	// every object level. Android/Web clients use the same recursive canonical

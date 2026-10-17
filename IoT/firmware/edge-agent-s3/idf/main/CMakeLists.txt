@@ -9,6 +9,7 @@ idf_component_register(
     "provisioned_binding.cpp"
     "runtime_config.cpp"
     "intent_processor.cpp"
+    "execution_authorization.cpp"
     "command_queue.cpp"
     "canonical_cbor.cpp"
     "device_identity.cpp"

@@ -5,6 +5,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -368,7 +369,16 @@ func (s *Service) CreateCompositeBinding(registerID, tenant, profile, adapterID,
 			return nil, errors.New("active composite binding exists")
 		}
 	}
+	var execution map[string]any
 	if s.compositeBindingPublisher != nil {
+		var executionErr error
+		execution, executionErr = compositeExecution(fiscal.Data, profile)
+		if executionErr != nil {
+			return nil, executionErr
+		}
+		if !bgFMINPattern.MatchString(stringField(fiscal.Data, "fiscal_memory_number")) || !bgFMINPattern.MatchString(stringField(fiscal.Data, "fiscal_device_number")) || stringField(adapter.Data, "unp_prefix") != stringField(fiscal.Data, "fiscal_device_number") {
+			return nil, errors.New("fiscal memory identity mismatch")
+		}
 		if stringField(adapter.Data, "mqtt_uri") == "" || stringField(adapter.Data, "mqtt_client_id") == "" ||
 			stringField(adapter.Data, "ble_advertising_identity") == "" || stringField(adapter.Data, "transaction_signing_kid") == "" ||
 			stringField(adapter.Data, "unp_prefix") == "" || int64Field(adapter.Data, "unp_range_start") < 1 ||
@@ -396,12 +406,9 @@ func (s *Service) CreateCompositeBinding(registerID, tenant, profile, adapterID,
 	now := time.Now().UTC()
 	generation := register.Version + 1
 	data := map[string]any{"binding_id": id, "register_id": registerID, "profile": profile, "adapter_device_id": adapterID, "fiscal_device_id": fiscalID, "payment_device_id": paymentID, "generation": generation, "status": "PENDING", "expected_register_version": expectedVersion, "created_at": now, "updated_at": now}
-	if err = s.repo.PutResource(ResourceRecord{Kind: "composite_binding", TenantID: tenant, ID: id, Version: 1, Data: cloneMap(data), CreatedAt: now, UpdatedAt: now}); err != nil {
-		return nil, err
-	}
 	if s.compositeBindingPublisher != nil {
 		locationID := stringField(register.Data, "location_id")
-		fiscalEndpoint := map[string]any{"device_id": fiscalID, "vendor": strings.ToUpper(stringField(fiscal.Data, "vendor")), "model": strings.ToUpper(stringField(fiscal.Data, "model")), "transport": stringField(fiscal.Data, "transport"), "driver_id": stringField(fiscal.Data, "driver_id"), "protocol_id": stringField(fiscal.Data, "protocol_id"), "protocol_version": stringField(fiscal.Data, "protocol_version")}
+		fiscalEndpoint := map[string]any{"fiscal_device_number": stringField(fiscal.Data, "fiscal_device_number"), "fiscal_memory_number": stringField(fiscal.Data, "fiscal_memory_number"), "execution": execution, "device_id": fiscalID, "vendor": strings.ToUpper(stringField(fiscal.Data, "vendor")), "model": strings.ToUpper(stringField(fiscal.Data, "model")), "transport": stringField(fiscal.Data, "transport"), "driver_id": stringField(fiscal.Data, "driver_id"), "protocol_id": stringField(fiscal.Data, "protocol_id"), "protocol_version": stringField(fiscal.Data, "protocol_version")}
 		if profile == "DATECS_DP150_BLUEPAD50" {
 			fiscalEndpoint["transport"] = "RS232"
 			fiscalEndpoint["uart"] = map[string]any{"baud": int64Field(fiscal.Data, "uart_baud"), "data_bits": int64Field(fiscal.Data, "uart_data_bits"), "parity": stringField(fiscal.Data, "uart_parity"), "stop_bits": int64Field(fiscal.Data, "uart_stop_bits"), "tx_pin": int64Field(adapter.Data, "uart_tx_pin"), "rx_pin": int64Field(adapter.Data, "uart_rx_pin")}
@@ -423,7 +430,7 @@ func (s *Service) CreateCompositeBinding(registerID, tenant, profile, adapterID,
 		if s.spaDeploymentDescriptorURL != "" && s.spaDeploymentSigningKID != "" && s.spaDeploymentPublicKeyDERBase64 != "" {
 			localHTTP["deployment_descriptor_url"], localHTTP["deployment_signing_kid"], localHTTP["deployment_public_key_base64"] = s.spaDeploymentDescriptorURL, s.spaDeploymentSigningKID, s.spaDeploymentPublicKeyDERBase64
 		}
-		canonicalValue := map[string]any{"schema_version": 2, "generation": generation, "tenant_id": tenant, "location_id": locationID, "register_id": registerID, "edge_device_id": adapterID, "profile": profile, "ble_advertising_identity": stringField(adapter.Data, "ble_advertising_identity"), "fiscal_endpoint": fiscalEndpoint, "payment_endpoint": paymentEndpoint, "mqtt": map[string]any{"uri": stringField(adapter.Data, "mqtt_uri"), "client_id": stringField(adapter.Data, "mqtt_client_id"), "command_topic": fmt.Sprintf("tenants/%s/devices/%s/commands", tenant, adapterID), "sync_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/batches", tenant, adapterID), "ack_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/acks", tenant, adapterID), "root_ca_ref": "mqtt-ca", "client_certificate_ref": "mqtt-cert", "client_key_ref": "mqtt-key"}, "operational_authority": map[string]any{"command_hmac_ref": "command-hmac", "sync_ack_hmac_ref": "sync-ack-hmac", "transaction_signing_kid": stringField(adapter.Data, "transaction_signing_kid"), "unp_prefix": stringField(adapter.Data, "unp_prefix"), "unp_range_start": int64Field(adapter.Data, "unp_range_start"), "unp_range_end": int64Field(adapter.Data, "unp_range_end")}, "local_http": localHTTP}
+		canonicalValue := map[string]any{"schema_version": 3, "generation": generation, "tenant_id": tenant, "location_id": locationID, "register_id": registerID, "edge_device_id": adapterID, "profile": profile, "ble_advertising_identity": stringField(adapter.Data, "ble_advertising_identity"), "fiscal_endpoint": fiscalEndpoint, "payment_endpoint": paymentEndpoint, "mqtt": map[string]any{"uri": stringField(adapter.Data, "mqtt_uri"), "client_id": stringField(adapter.Data, "mqtt_client_id"), "command_topic": fmt.Sprintf("tenants/%s/devices/%s/commands", tenant, adapterID), "sync_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/batches", tenant, adapterID), "ack_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/acks", tenant, adapterID), "root_ca_ref": "mqtt-ca", "client_certificate_ref": "mqtt-cert", "client_key_ref": "mqtt-key"}, "operational_authority": map[string]any{"command_hmac_ref": "command-hmac", "sync_ack_hmac_ref": "sync-ack-hmac", "transaction_signing_kid": stringField(adapter.Data, "transaction_signing_kid"), "unp_prefix": stringField(adapter.Data, "unp_prefix"), "unp_range_start": int64Field(adapter.Data, "unp_range_start"), "unp_range_end": int64Field(adapter.Data, "unp_range_end")}, "local_http": localHTTP}
 		canonical, marshalErr := json.Marshal(canonicalValue)
 		if marshalErr != nil {
 			return nil, marshalErr
@@ -448,8 +455,24 @@ func (s *Service) CreateCompositeBinding(registerID, tenant, profile, adapterID,
 		copy(envelope[12:], keyID)
 		copy(envelope[12+len(keyID):], signature)
 		copy(envelope[12+len(keyID)+len(signature):], canonical)
+		digest := sha256.Sum256(canonical)
+		payloadHash := hex.EncodeToString(digest[:])
+		snapshot := ResourceRecord{Kind: "issued_binding", ID: payloadHash, TenantID: tenant, Version: 1, CreatedAt: now, UpdatedAt: now, Data: map[string]any{"canonical_payload": canonicalValue, "canonical_json": string(canonical), "payload_sha256": payloadHash, "key_id": keyID, "signature": signature, "issued_at": now.Format(time.RFC3339Nano)}}
+		// Immutable repository guard rejects mutation; snapshot must exist before
+		// any message can reference it. Orphan snapshots are safe on later failure.
+		if err = s.repo.PutResource(snapshot); err != nil {
+			return nil, err
+		}
+		data["payload_sha256"] = payloadHash
+		if err = s.repo.PutResource(ResourceRecord{Kind: "composite_binding", TenantID: tenant, ID: id, Version: 1, Data: cloneMap(data), CreatedAt: now, UpdatedAt: now}); err != nil {
+			return nil, err
+		}
 		if publishErr := s.compositeBindingPublisher.PublishCompositeBinding(tenant, adapterID, envelope); publishErr != nil {
 			return nil, publishErr
+		}
+	} else {
+		if err = s.repo.PutResource(ResourceRecord{Kind: "composite_binding", TenantID: tenant, ID: id, Version: 1, Data: cloneMap(data), CreatedAt: now, UpdatedAt: now}); err != nil {
+			return nil, err
 		}
 	}
 	return data, nil

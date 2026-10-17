@@ -41,7 +41,7 @@ bool issued_time(const std::string& value){
 }
 bool device_identity(const CompositeBinding& b,SerialSession& sequence){
  std::vector<uint8_t>payload;bee::ParsedFrame frame;std::string error,serial;
- if(b.authority.unp_prefix.size()<9)return false;
+ if(b.authority.unp_prefix.size()!=8)return false;
  if(b.profile==EdgeProfile::DatecsDp150BluePad50){bee::buildDatecsDeviceIdentity(payload);if(!exchange(b,123,payload,sequence,&frame))return false;bee::DeviceIdentityResult identity;if(!bee::parseDatecsDeviceIdentity(frame.data,identity,error))return false;serial=identity.serialNumber;}
  else{bee::buildDaisyDiagnostic(false,payload);if(!exchange(b,90,payload,sequence,&frame))return false;bee::DaisyDiagnosticResult identity;if(!bee::parseDaisyDiagnostic(frame.data,identity,error)||identity.country!=6)return false;serial=identity.serialNumber;}
  return serial.size()==8&&serial==b.authority.unp_prefix.substr(0,8);

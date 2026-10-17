@@ -21,9 +21,9 @@ class IntentProcessorContract(unittest.TestCase):
   self.assertIn("ReservationStatus::PayloadConflict",SOURCE)
  # Durability is exercised against actual IntentProcessor + SQLite by
  # run_storage_host.sh (included in make iot-test), not inferred from tokens.
- def test_non_sale_commands_do_not_require_sale_fields(self):
-  self.assertIn('p.command_type=="SALE_FINALIZE"&&!text(payload,"server_sale_id",p.sale_id)',COMPACT)
-  self.assertNotIn('!text(payload,"server_sale_id",p.sale_id)||!text(payload,"unp",p.unp)',COMPACT)
+ # Nullable offline server_sale_id and distinct client surrogate are exercised
+ # by authority_host/run.py against Go-issued commands, actual IntentProcessor
+ # and SQLite. Non-sale execution is covered by run_storage_host.sh.
  def test_startup_recovery_is_called_before_transports(self):
   self.assertLess(APP.index("recover_pending"),APP.index("mqtt_runtime_start"))
 

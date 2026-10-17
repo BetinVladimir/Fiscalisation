@@ -69,12 +69,9 @@ class DurableStorageContract(unittest.TestCase):
         ).fetchone()
         self.assertEqual(recovered, ("operation-2", "receipt-2", "APPROVED"))
 
-    def test_runtime_recovery_query_restores_card_approval_evidence_once(self):
-        text = SOURCE.read_text()
-        self.assertIn("'CARD_APPROVED'", text)
-        self.assertIn("json_extract(r.canonical_payload,'$.unp')", text)
-        self.assertIn("p.payment_id=(SELECT p1.payment_id", text)
-        self.assertIn("LIMIT 1", text)
+    # Actual runtime recovery and per-tender references are exercised by
+    # run_storage_host.sh. authority_host/run.py additionally proves recovery
+    # uses the persisted execution UNP, rather than caller canonical_payload.
 
     def test_ack_cursor_and_retention_never_delete_unacknowledged(self):
         self.reserve("operation-3", "d" * 64)

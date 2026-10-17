@@ -89,6 +89,7 @@ type Repository interface {
 	ActivateDeviceRequest(string, string, time.Time) (DeviceActivationRequest, error)
 	RevokeActivatedDevice(string, string, string, time.Time) (DeviceActivationRequest, error)
 	ReserveUNPRange(string, string, int64) (int64, int64, error)
+	ReserveFiscalUNPRange(string, string, string, int64) (int64, int64, error)
 	Sale(string) (Sale, error)
 	Sales(string) []Sale
 	PutSale(Sale) error
@@ -127,7 +128,7 @@ type Repository interface {
 	BLESession(string) (BLESessionRecord, error)
 	LastSyncAck(string, string) (SyncAck, bool)
 	PutSyncAck(SyncAck) error
-	CommitEdgeSync(string, SyncAck, []Sale, []Operation, map[string][]byte, []OutboxItem, []EdgePendingCommand, []string) error
+	CommitEdgeSync(string, SyncAck, []Sale, []Operation, map[string][]byte, []OutboxItem, []EdgePendingCommand, []string, EdgeSyncExpectation) error
 	EdgePendingCommand(string, string) (EdgePendingCommand, error)
 	PutConnectivityProbe(ConnectivityProbe) error
 	ConnectivityProbe(string) (ConnectivityProbe, error)
@@ -146,6 +147,11 @@ func (r *MemoryRepository) ReserveUNPRange(tenant, fmin string, count int64) (in
 	defer r.mu.Unlock()
 	if tenant == "" || fmin == "" || count < 1 || count > 10000 {
 		return 0, 0, errors.New("invalid UNP range reservation")
+	}
+	for _, identity := range r.resources {
+		if identity.Kind == "unp_serial_identity" && identity.TenantID == tenant && stringAny(identity.Data, "fiscal_memory_number") == fmin && stringAny(identity.Data, "fiscal_device_number") != fmin {
+			return 0, 0, ErrLegacyUNPLeaseFenceRequired
+		}
 	}
 	key := tenant + "\n" + fmin
 	start := r.unp[key] + 1
@@ -660,9 +666,30 @@ func (r *MemoryRepository) PutSyncAck(v SyncAck) error {
 	r.syncAcks[v.EdgeID] = v
 	return r.persistLocked()
 }
-func (r *MemoryRepository) CommitEdgeSync(tenant string, ack SyncAck, sales []Sale, operations []Operation, artifacts map[string][]byte, outbox []OutboxItem, pending []EdgePendingCommand, completed []string) error {
+func (r *MemoryRepository) CommitEdgeSync(tenant string, ack SyncAck, sales []Sale, operations []Operation, artifacts map[string][]byte, outbox []OutboxItem, pending []EdgePendingCommand, completed []string, expected EdgeSyncExpectation) (resultErr error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.validateEdgeSyncLocked(tenant, ack, sales, operations, pending, expected); err != nil {
+		return err
+	}
+	oldSales, oldOperations, oldArtifacts, oldOutbox, oldPending, oldAcks := copyEdgeMap(r.sales), copyEdgeMap(r.operations), copyEdgeMap(r.artifacts), copyEdgeMap(r.outbox), copyEdgeMap(r.edgePending), copyEdgeMap(r.syncAcks)
+	oldAudit := append([]AuditEvent(nil), r.audit...)
+	oldGeneration := r.generation
+	oldConfirmed := append([]byte(nil), r.confirmedSnapshot...)
+	defer func() {
+		if resultErr != nil {
+			key := ack.EdgeID
+			if tenant != "" {
+				key = tenant + "\n" + ack.EdgeID
+			}
+			if current, ok := r.syncAcks[key]; ok && current.AckID == ack.AckID {
+				r.sales, r.operations, r.artifacts, r.outbox, r.edgePending, r.syncAcks = oldSales, oldOperations, oldArtifacts, oldOutbox, oldPending, oldAcks
+				r.audit = oldAudit
+				r.generation = oldGeneration
+				r.confirmedSnapshot = oldConfirmed
+			}
+		}
+	}()
 	artifactTenants := make(map[string]string, len(artifacts))
 	for _, sale := range sales {
 		if sale.ReceiptArtifactID != "" && sale.TenantID != "" {
@@ -706,12 +733,21 @@ func (r *MemoryRepository) CommitEdgeSync(tenant string, ack SyncAck, sales []Sa
 		}
 	}
 	for _, item := range pending {
-		r.edgePending[item.OperationID] = item
+		previous, existed := r.edgePending[item.OperationID]
+		r.edgePending[item.OperationID] = edgeDeepPending(item)
+		if existed && edgeAcceptanceDigest(previous) == edgeAcceptanceDigest(item) {
+			if previous.ResultDigest != item.ResultDigest {
+				r.appendAuditLocked(item.TenantID, "edge:"+ack.EdgeID, "EDGE_RESULT_RECONCILED", "sale", item.ProjectedSaleID, "", nil, edgeDeepMap(item.ResultPayload))
+			}
+			continue
+		}
 		saleID := stringAny(item.Payload, "server_sale_id", "client_sale_surrogate_id", "external_id")
-		r.appendAuditLocked(item.TenantID, "edge:"+ack.EdgeID, "EDGE_INTENT_ACCEPTED", "sale", saleID, stringAny(item.Payload, "unp"), nil, map[string]any{"operation_id": item.OperationID, "command_type": item.CommandType, "raw_intent": cloneMap(item.Payload), "edge_id": ack.EdgeID})
+		r.appendAuditLocked(item.TenantID, "edge:"+ack.EdgeID, "EDGE_INTENT_ACCEPTED", "sale", saleID, stringAny(item.Payload, "unp"), nil, map[string]any{"operation_id": item.OperationID, "command_type": item.CommandType, "raw_intent": edgeDeepMap(item.Payload), "edge_id": ack.EdgeID})
 	}
 	for _, id := range completed {
-		delete(r.edgePending, id)
+		if item, ok := r.edgePending[id]; ok && item.Acceptance == nil {
+			delete(r.edgePending, id)
+		}
 	}
 	ackKey := ack.EdgeID
 	if tenant != "" {
@@ -730,7 +766,7 @@ func (r *MemoryRepository) EdgePendingCommand(id, tenant string) (EdgePendingCom
 		if err = json.Unmarshal(raw, &v); err != nil {
 			return EdgePendingCommand{}, err
 		}
-		return v, nil
+		return edgeDeepPending(v), nil
 	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
@@ -738,7 +774,7 @@ func (r *MemoryRepository) EdgePendingCommand(id, tenant string) (EdgePendingCom
 	if !ok || (tenant != "" && v.TenantID != tenant) {
 		return v, ErrNotFound
 	}
-	return v, nil
+	return edgeDeepPending(v), nil
 }
 func (r *MemoryRepository) PutConnectivityProbe(v ConnectivityProbe) error {
 	r.mu.Lock()
@@ -777,6 +813,39 @@ func resourceKey(kind, id string) string { return kind + ":" + id }
 func (r *MemoryRepository) PutResource(v ResourceRecord) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if old, ok := r.resources[resourceKey(v.Kind, v.ID)]; ok && immutableResourceKind(v.Kind) {
+		if immutableResourceEqual(old, v) {
+			return nil
+		}
+		return errors.New("immutable issued resource conflict")
+	}
+	if v.Kind == "execution_authorization" {
+		sources, ok := v.Data["issuance_sources"].(map[string]any)
+		if !ok || len(sources) < 5 {
+			return errors.New("authorization issuance sources required")
+		}
+		if saleID := stringAny(v.Data, "issuance_sale_id"); saleID != "" {
+			sale, ok := r.sales[saleID]
+			op, exists := r.operations[stringAny(v.Data, "issuance_operation_id")]
+			if !ok || !exists || sale.TenantID != v.TenantID || sale.Version != intAny(v.Data, "issuance_sale_version") || op.TenantID != v.TenantID || op.Version != intAny(v.Data, "issuance_operation_version") || op.SaleID != sale.ID {
+				return errors.New("server sale changed during authorization issuance")
+			}
+		}
+		for key, raw := range sources {
+			expected := intAny(map[string]any{"version": raw}, "version")
+			source, exists := r.resources[key]
+			if !exists || source.TenantID != v.TenantID || source.Version != expected {
+				return errors.New("authorization source changed during issuance")
+			}
+		}
+	}
+	if v.Kind == "device_command_outbox" {
+		if old, ok := r.resources[resourceKey(v.Kind, v.ID)]; ok && stringAny(old.Data, "body") != "" {
+			if old.TenantID != v.TenantID || stringAny(old.Data, "body") != stringAny(v.Data, "body") || stringAny(old.Data, "device_id") != stringAny(v.Data, "device_id") || stringAny(old.Data, "topic") != stringAny(v.Data, "topic") {
+				return errors.New("prepared command authority is immutable")
+			}
+		}
+	}
 	uniqueField := map[string]string{"location": "code", "register": "code", "operator": "code", "device": "serial"}[v.Kind]
 	for _, existing := range r.resources {
 		if existing.ID == v.ID || existing.TenantID != v.TenantID || existing.Kind != v.Kind {
@@ -798,7 +867,11 @@ func (r *MemoryRepository) PutResource(v ResourceRecord) error {
 	} else if v.Version != 1 {
 		return errors.New("new resource version must be 1")
 	}
-	v.Data = cloneMap(v.Data)
+	if immutableResourceKind(v.Kind) {
+		v.Data = edgeDeepMap(v.Data)
+	} else {
+		v.Data = cloneMap(v.Data)
+	}
 	r.resources[resourceKey(v.Kind, v.ID)] = v
 	action := "CONFIGURATION_CHANGED"
 	if v.Kind == "operator" {
@@ -861,7 +934,11 @@ func (r *MemoryRepository) Resource(kind, id string) (ResourceRecord, error) {
 	if !ok {
 		return v, ErrNotFound
 	}
-	v.Data = cloneMap(v.Data)
+	if immutableResourceKind(kind) {
+		v.Data = edgeDeepMap(v.Data)
+	} else {
+		v.Data = cloneMap(v.Data)
+	}
 	return v, nil
 }
 func (r *MemoryRepository) Resources(kind, tenant string) []ResourceRecord {
@@ -1107,9 +1184,21 @@ func (r *MemoryRepository) OpenSaleWithFirstLine(v Sale, line SaleLine, fmin str
 		}
 	}
 	key := v.TenantID + "\n" + fmin
+	counter := r.unp[key]
+	var identity ResourceRecord
+	if v.TenantID != "" && v.FiscalDevice.FiscalMemoryNumber != "" {
+		var err error
+		counter, identity, err = r.fiscalUNPHighwaterLocked(v.TenantID, fmin, v.FiscalDevice.FiscalMemoryNumber)
+		if err != nil {
+			return Sale{}, err
+		}
+	}
 	for {
-		r.unp[key]++
-		u, err := NewBGUNP(fmin, v.OperatorID, r.unp[key])
+		if counter >= BGUNPSequenceMax {
+			return Sale{}, errors.New("UNP range exhausted")
+		}
+		counter++
+		u, err := NewBGUNP(fmin, v.OperatorID, counter)
 		if err != nil {
 			return Sale{}, err
 		}
@@ -1119,13 +1208,27 @@ func (r *MemoryRepository) OpenSaleWithFirstLine(v Sale, line SaleLine, fmin str
 			break
 		}
 	}
+	oldUNP := copyEdgeMap(r.unp)
+	oldResources := copyEdgeMap(r.resources)
+	oldSales := copyEdgeMap(r.sales)
+	oldAudit := append([]AuditEvent(nil), r.audit...)
+	oldGeneration := r.generation
+	r.unp[key] = counter
+	if identity.ID != "" {
+		r.resources[resourceKey(identity.Kind, identity.ID)] = identity
+	}
 	v.State = "OPEN"
 	v.Version = 1
 	v.Lines = []SaleLine{line}
 	r.sales[v.ID] = v
 	r.appendAuditLocked(v.TenantID, v.OperatorID, "SALE_OPENED", "sale", v.ID, v.UNP, nil, asMap(v))
 	if err := r.persistLocked(); err != nil {
-		delete(r.sales, v.ID)
+		if current, ok := r.sales[v.ID]; ok && current.UNP == v.UNP && r.unp[key] == counter && r.generation == oldGeneration {
+			r.unp = oldUNP
+			r.resources = oldResources
+			r.sales = oldSales
+			r.audit = oldAudit
+		}
 		return Sale{}, err
 	}
 	return v, nil
