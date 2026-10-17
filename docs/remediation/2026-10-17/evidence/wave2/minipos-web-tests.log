@@ -1,0 +1,25 @@
+
+> @beeloy/miniposweb@0.1.0 test
+> vitest run --cache=false
+
+
+ RUN  v3.0.7 /Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/miniposweb
+
+ ✓ tests/outboxScope.test.ts (10 tests) 3ms
+ ✓ tests/saleNumber.test.ts (16 tests) 3ms
+ ✓ tests/reference-recovery.test.ts (2 tests) 122ms
+ ✓ tests/outbox-recovery.test.ts (2 tests) 56ms
+ ✓ tests/referenceScope.test.ts (8 tests) 2ms
+ ✓ tests/intentBuilder.test.ts (1 test) 11ms
+ ✓ tests/workTranslations.test.ts (1 test) 36ms
+ ✓ tests/authTokens.test.ts (12 tests) 5ms
+ ✓ tests/routeController.test.ts (21 tests) 10ms
+ ✓ tests/operation-message-current.test.ts (25 tests) 6ms
+ ✓ tests/cloudRecovery.test.ts (14 tests) 26ms
+ ✓ tests/authTranslations.test.ts (1 test) 14ms
+
+ Test Files  12 passed (12)
+      Tests  113 passed (113)
+   Start at  21:56:44
+   Duration  1.14s (transform 746ms, setup 0ms, collect 1.48s, tests 293ms, environment 1ms, prepare 2.75s)
+

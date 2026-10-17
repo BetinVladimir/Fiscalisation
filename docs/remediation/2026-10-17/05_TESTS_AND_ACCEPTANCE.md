@@ -181,3 +181,13 @@ Registry-driven runner автоматически включает сущест�
 Применимые T-01…T-23 и обязательный T-25 зелёные на фиксированном release candidate; T-24 нужен только при включённом Tremol. Покрытие T-25 расширяется при каждом новом поддерживаемом устройстве/версии протокола. Нет незакрытых P0; P1 закрыты или соответствующий profile исключён и блокируется программно. Все required cases исполняются без unexpected SKIP, evidence привязано к exact artifacts. Fault matrix доказывает: **0 повторных списаний/чеков, 0 потерянных approved tenders, 0 terminal operations без recoverable result/outbox, 0 ложных success**, а ambiguous states остаются видимыми для reconciliation.
 
 Обязательный acceptance отчёт: test/case ID → GAP → runtime/profile → build hash → command/fixture → expected/actual state/counters → logs/artifacts → reviewer. Coverage percentage и число PASS сами по себе не заменяют этот отчёт.
+
+## Дополнительные regression cases, обнаруженные при реализации
+
+### T-26 — Scoped MQTT outcome
+
+Actual backend MQTT handler + immutable outbox: reject чужого tenant/device, несовпадающей sale, отсутствующего outbox, небезопасного legacy physical snapshot; terminal replay также проверяет scope. Positive: исходный adapter завершает свою команду после rebind, корректный composite использует собственный credential/generation. Отдельно broker ACL/E2E подтверждает transport boundary.
+
+### T-27 — Device reference JSON integrity
+
+Actual IntentProcessor execute и recovery с настоящим SQLite: длинные2048-byte references, quotes/newline/backslash; parse outbox и exact equality operation/receipt references после close/reopen. Baseline должен воспроизводить truncation/invalid JSON; OOM не становится доказанным успехом. Это дополняет, а не заменяет atomicity и power-cut tests.

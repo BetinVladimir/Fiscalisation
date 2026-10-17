@@ -1,6 +1,7 @@
 #pragma once
 #include "intent_processor.h"
 #include "provisioned_binding.h"
+#include "serial_exchange.h"
 namespace beefiscal::idf{
 enum class PaymentCertainty:uint8_t{Approved,Declined,NotSent,Unknown};
 struct PaymentOutcome{PaymentCertainty certainty{PaymentCertainty::NotSent};std::string reference,rrn,auth_code,error_code;};
@@ -28,6 +29,6 @@ class EspIdfDeviceIo final:public DeviceIo{
  PaymentOutcome payment_lookup(const std::string&)override;
  PaymentOutcome reverse(const std::string&,int64_t)override;
  ExecutionResult recover(const RecoveryItem&)override;
- private:const CompositeBinding&binding_;
+ private:const CompositeBinding&binding_;SerialSession serial_;
 };
 }

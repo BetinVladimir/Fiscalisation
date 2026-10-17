@@ -1,0 +1,26 @@
+cd IoT/device-manufacturing && PYTHONPATH=src python3 -m unittest discover -s tests -v
+test_corruption_detected_after_generation (test_bundle.BundleTest.test_corruption_detected_after_generation) ... ok
+test_invalid_sources_never_publish_bundle (test_bundle.BundleTest.test_invalid_sources_never_publish_bundle) ... ok
+test_reproducible_and_no_overwrite (test_bundle.BundleTest.test_reproducible_and_no_overwrite) ... ok
+test_roundtrip_nonstandard_app_offset_and_source_independence (test_bundle.BundleTest.test_roundtrip_nonstandard_app_offset_and_source_independence) ... ok
+test_evidence_is_deterministic (test_evidence.EvidenceTest.test_evidence_is_deterministic) ... ok
+test_file_hash (test_evidence.EvidenceTest.test_file_hash) ... ok
+test_actual_cli_passes_verified_segments_and_cleans_staging (test_flash_manifest.FlashManifestTest.test_actual_cli_passes_verified_segments_and_cleans_staging) ... ok
+test_all_partition_entries_respect_vendor_layout_invariants (test_flash_manifest.FlashManifestTest.test_all_partition_entries_respect_vendor_layout_invariants) ... ok
+test_app_only_uses_verified_nonzero_offset (test_flash_manifest.FlashManifestTest.test_app_only_uses_verified_nonzero_offset) ... ok
+test_bad_layout_and_magic (test_flash_manifest.FlashManifestTest.test_bad_layout_and_magic) ... ok
+test_cli_parser_requires_manifest (test_flash_manifest.FlashManifestTest.test_cli_parser_requires_manifest) ... usage: beefiscal-factory flash [-h] --port PORT --manifest MANIFEST
+                               --expected-manifest-sha256
+                               EXPECTED_MANIFEST_SHA256
+beefiscal-factory flash: error: the following arguments are required: --manifest, --expected-manifest-sha256
+ok
+test_duplicates_wrong_kind_and_overlap (test_flash_manifest.FlashManifestTest.test_duplicates_wrong_kind_and_overlap) ... ok
+test_failed_subprocess_cleans_verified_staging (test_flash_manifest.FlashManifestTest.test_failed_subprocess_cleans_verified_staging) ... ok
+test_invalid_offsets (test_flash_manifest.FlashManifestTest.test_invalid_offsets) ... ok
+test_manifest_and_artifact_hash_mismatch (test_flash_manifest.FlashManifestTest.test_manifest_and_artifact_hash_mismatch) ... ok
+test_merged_requires_explicit_zero_and_embedded_layout (test_flash_manifest.FlashManifestTest.test_merged_requires_explicit_zero_and_embedded_layout) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.057s
+
+OK

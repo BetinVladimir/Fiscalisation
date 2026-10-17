@@ -38,7 +38,7 @@ type deviceHealthService interface {
 	UpsertDeviceHealth(string, string, domain.DeviceHealthStatus) (map[string]any, error)
 }
 type commandResultService interface {
-	CompleteDeviceCommand(string, string, string, string) (domain.Operation, error)
+	CompleteDeviceCommandForDevice(string, string, string, string, string, string) (domain.Operation, error)
 }
 
 type Processor struct {
@@ -85,15 +85,20 @@ func (b *Bridge) Probe() error {
 	}
 	return nil
 }
+
 // DeviceTime exposes the adapter host's UTC clock as the trusted transport
 // clock. Physical fiscal-device drift remains part of the signed command
 // result; this capability only gates workstation readiness before a sale.
 func (b *Bridge) DeviceTime() (time.Time, error) {
-	if err := b.Probe(); err != nil { return time.Time{}, err }
+	if err := b.Probe(); err != nil {
+		return time.Time{}, err
+	}
 	return time.Now().UTC(), nil
 }
 func (b *Bridge) SetDeviceTime(at time.Time) error {
-	if at.IsZero() { return fmt.Errorf("invalid device time") }
+	if at.IsZero() {
+		return fmt.Errorf("invalid device time")
+	}
 	return b.Probe()
 }
 func (b *Bridge) Execute(domain.Operation, domain.Sale, domain.PaymentRequest) (string, string) {
@@ -111,6 +116,33 @@ func (b *Bridge) Prepare(op domain.Operation, sale domain.Sale, payment domain.P
 	if sale.TenantID == "" || sale.FiscalDevice.DeviceID == "" || sale.FiscalDevice.BindingVersion < 1 {
 		return domain.ResourceRecord{}, fmt.Errorf("mqtt command binding missing")
 	}
+	// Historical operations must never be rerouted using a mutable register.
+	composite := sale.FiscalDevice.AdapterDeviceID != ""
+	transportID := sale.FiscalDevice.AdapterDeviceID
+	generation := sale.FiscalDevice.BindingGeneration
+	if composite {
+		if generation < 1 || b.repo == nil {
+			return domain.ResourceRecord{}, fmt.Errorf("composite transport authority missing; snapshot migration required")
+		}
+	} else {
+		transportID = sale.FiscalDevice.DeviceID
+		generation = sale.FiscalDevice.BindingVersion
+	}
+	signingKey := b.signingKey
+	if b.repo != nil {
+		device, err := b.repo.Resource("device", transportID)
+		if err != nil || device.TenantID != sale.TenantID {
+			return domain.ResourceRecord{}, fmt.Errorf("mqtt transport device unavailable")
+		}
+		if !composite && device.Data["kind"] != "SMART_DEVICE" {
+			return domain.ResourceRecord{}, fmt.Errorf("legacy transport classification missing; snapshot migration required")
+		}
+		credentialID, _ := device.Data["credential_id"].(string)
+		if credentialID == "" {
+			return domain.ResourceRecord{}, fmt.Errorf("mqtt transport credential missing")
+		}
+		signingKey = domain.DeriveDeviceTransportKey(b.signingKey, "command", transportID, credentialID)
+	}
 	payments := []domain.PaymentRequest{payment}
 	if op.Type == "SALE_FINALIZE" {
 		payments = make([]domain.PaymentRequest, 0, len(sale.Payments))
@@ -118,7 +150,7 @@ func (b *Bridge) Prepare(op domain.Operation, sale domain.Sale, payment domain.P
 			payments = append(payments, domain.PaymentRequest{PaymentID: p.PaymentID, Type: p.Type, Amount: p.Amount})
 		}
 	}
-	payload := map[string]any{"currency": "EUR", "server_sale_id": sale.ExternalID, "external_id": sale.ExternalID, "location_id": sale.LocationID, "operator_id": sale.OperatorID, "items": sale.Lines, "payments": payments, "metadata": map[string]any{}}
+	payload := map[string]any{"currency": "EUR", "server_sale_id": sale.ID, "external_id": sale.ExternalID, "location_id": sale.LocationID, "operator_id": sale.OperatorID, "items": sale.Lines, "payments": payments, "metadata": map[string]any{}}
 	commandType := op.Type
 	if mapped, ok := map[string]string{"X": "REPORT_X", "Z": "REPORT_Z"}[op.Type]; ok {
 		commandType = mapped
@@ -158,23 +190,17 @@ func (b *Bridge) Prepare(op domain.Operation, sale domain.Sale, payment domain.P
 	if receiptSessionID == "" {
 		receiptSessionID = op.ID
 	}
-	envelope := map[string]any{"event_id": op.ID, "command_id": op.ID, "correlation_id": clientOperationID, "causation_id": op.ID, "operation_id": op.ID, "client_operation_id": clientOperationID, "receipt_session_id": receiptSessionID, "tenant_id": sale.TenantID, "register_id": sale.RegisterID, "device_id": sale.FiscalDevice.DeviceID, "fencing_token": sale.FiscalDevice.BindingVersion, "command_type": commandType, "issued_at": now.Format(time.RFC3339Nano), "expires_at": now.Add(2 * time.Minute).Format(time.RFC3339Nano), "payload": payload, "payload_sha256": fmt.Sprintf("%x", sum)}
-	chainCanonical,_:=json.Marshal(envelope);chainHash:=sha256.Sum256(chainCanonical);envelope["event_hash"]=fmt.Sprintf("%x",chainHash)
+	envelope := map[string]any{"event_id": op.ID, "command_id": op.ID, "correlation_id": clientOperationID, "causation_id": op.ID, "operation_id": op.ID, "client_operation_id": clientOperationID, "receipt_session_id": receiptSessionID, "tenant_id": sale.TenantID, "register_id": sale.RegisterID, "device_id": transportID, "fencing_token": generation, "command_type": commandType, "issued_at": now.Format(time.RFC3339Nano), "expires_at": now.Add(2 * time.Minute).Format(time.RFC3339Nano), "payload": payload, "payload_sha256": fmt.Sprintf("%x", sum)}
+	chainCanonical, _ := json.Marshal(envelope)
+	chainHash := sha256.Sum256(chainCanonical)
+	envelope["event_hash"] = fmt.Sprintf("%x", chainHash)
 	unsigned, _ := json.Marshal(envelope)
-	signingKey := b.signingKey
-	if b.repo != nil {
-		if device, deviceErr := b.repo.Resource("device", sale.FiscalDevice.DeviceID); deviceErr == nil {
-			if credentialID, _ := device.Data["credential_id"].(string); credentialID != "" {
-				signingKey = domain.DeriveDeviceTransportKey(b.signingKey, "command", sale.FiscalDevice.DeviceID, credentialID)
-			}
-		}
-	}
 	mac := hmac.New(sha256.New, signingKey)
 	mac.Write(unsigned)
 	envelope["signature"] = base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
 	body, _ := json.Marshal(envelope)
-	topic := fmt.Sprintf("beeloy/v1/tenants/%s/devices/%s/commands/%s", sale.TenantID, sale.FiscalDevice.DeviceID, op.ID)
-	return domain.ResourceRecord{Kind: "device_command_outbox", TenantID: sale.TenantID, ID: op.ID, Version: 1, Data: map[string]any{"topic": topic, "body": string(body), "expires_at": envelope["expires_at"], "device_id": sale.FiscalDevice.DeviceID, "state": "PENDING"}, CreatedAt: now, UpdatedAt: now}, nil
+	topic := fmt.Sprintf("tenants/%s/devices/%s/commands", sale.TenantID, transportID)
+	return domain.ResourceRecord{Kind: "device_command_outbox", TenantID: sale.TenantID, ID: op.ID, Version: 1, Data: map[string]any{"topic": topic, "body": string(body), "expires_at": envelope["expires_at"], "device_id": transportID, "state": "PENDING"}, CreatedAt: now, UpdatedAt: now}, nil
 }
 
 func (b *Bridge) Publish(command domain.ResourceRecord) error {
@@ -235,19 +261,33 @@ func NewProcessor(service syncService, signingKey ...string) *Processor {
 
 func (p *Processor) Process(topic string, payload []byte) (string, []byte, error) {
 	if parts := commandOutcomeTopic.FindStringSubmatch(topic); len(parts) == 5 {
-		if parts[4] == "ack" { return "", nil, nil }
+		if parts[4] == "ack" {
+			return "", nil, nil
+		}
 		service, ok := p.service.(commandResultService)
-		if !ok { return "", nil, fmt.Errorf("device command result service unavailable") }
+		if !ok {
+			return "", nil, fmt.Errorf("device command result service unavailable")
+		}
 		var in struct {
 			CommandID string `json:"command_id"`
-			Status string `json:"status"`
-			Result struct { FiscalReference string `json:"fiscal_reference"` } `json:"result"`
-			Error *struct { Code string `json:"code"` } `json:"error"`
+			Status    string `json:"status"`
+			Result    struct {
+				FiscalReference string `json:"fiscal_reference"`
+			} `json:"result"`
+			Error *struct {
+				Code string `json:"code"`
+			} `json:"error"`
 		}
-		if json.Unmarshal(payload, &in) != nil || in.CommandID != parts[3] || in.Status == "" { return "", nil, fmt.Errorf("invalid device command result") }
+		if json.Unmarshal(payload, &in) != nil || in.CommandID != parts[3] || in.Status == "" {
+			return "", nil, fmt.Errorf("invalid device command result")
+		}
 		errorCode := ""
-		if in.Error != nil { errorCode = in.Error.Code }
-		if _, err := service.CompleteDeviceCommand(in.CommandID, in.Status, in.Result.FiscalReference, errorCode); err != nil { return "", nil, err }
+		if in.Error != nil {
+			errorCode = in.Error.Code
+		}
+		if _, err := service.CompleteDeviceCommandForDevice(parts[1], parts[2], in.CommandID, in.Status, in.Result.FiscalReference, errorCode); err != nil {
+			return "", nil, err
+		}
 		return "", nil, nil
 	}
 	if parts := statusTopic.FindStringSubmatch(topic); len(parts) == 3 {
@@ -393,8 +433,15 @@ func Start(ctx context.Context, cfg config.Config, logger *log.Logger, service s
 	opts.SetConnectRetryInterval(5 * time.Second)
 	opts.SetOnConnectHandler(func(client mqtt.Client) {
 		go func() {
-			if err := subscribe(client); err != nil { logger.Printf("mqtt subscribe error: %v", err); return }
-			if bridge != nil { if err := bridge.FlushOutbox(); err != nil { logger.Printf("mqtt command outbox flush error: %v", err) } }
+			if err := subscribe(client); err != nil {
+				logger.Printf("mqtt subscribe error: %v", err)
+				return
+			}
+			if bridge != nil {
+				if err := bridge.FlushOutbox(); err != nil {
+					logger.Printf("mqtt command outbox flush error: %v", err)
+				}
+			}
 		}()
 	})
 	opts.SetConnectionLostHandler(func(_ mqtt.Client, err error) {

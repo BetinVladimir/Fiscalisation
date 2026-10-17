@@ -2,7 +2,7 @@
 
 [Навигация](README.md) · [Протоколы](03_DEVICE_PROTOCOLS.md) · [Тесты](05_TESTS_AND_ACCEPTANCE.md)
 
-Все записи открыты. C/R/E и P0/P1/P2 определены в README. Пути ниже относительно корня репозитория; `IDF` означает `IoT/firmware/edge-agent-s3/idf/main`. Kotlin `...` означает `src/main/kotlin/com/beeloy/fiscal/bluecash`. Владелец указан в плане пакетов, фактического исполнителя назначить при старте реализации.
+Все записи сохраняют исходные критерии закрытия. Принятые частичные исправления и реальные проверки перечислены в [журнале реализации](10_IMPLEMENTATION_EVIDENCE.md); общий integration/HIL gate пока не пройден. C/R/E и P0/P1/P2 определены в README. Пути ниже относительно корня репозитория; `IDF` означает `IoT/firmware/edge-agent-s3/idf/main`. Kotlin `...` означает `src/main/kotlin/com/beeloy/fiscal/bluecash`. Владелец указан в плане пакетов, фактического исполнителя назначить при старте реализации.
 
 ## GAP-001 — MQTT command namespace не совпадает
 
@@ -411,3 +411,27 @@
 **Доработка:** Trust root из CI/управляемого registry, manifest schema с required case IDs/build hashes/device model/fw/operator/date; verify referenced artifact bytes и revoked reviewer keys.
 
 **Критерий закрытия:** Самоподписанный пакет с произвольным новым ключом/без cases/с подменённым логом не проходит; валидный полный пакет проходит.
+
+## GAP-035 — MQTT outcome принимался без immutable tenant/device association
+
+**P0 · C · SOFTWARE_FIXED / E2E_OPEN** · Тесты: T-26.
+
+**Основание:** actual fiscal-backend MQTT completion path; evidence [10_IMPLEMENTATION_EVIDENCE.md](10_IMPLEMENTATION_EVIDENCE.md).
+
+**Разрыв:** outcome другого адаптера/tenant мог завершить операцию через общий completion helper. Current register binding не является доказательством владельца ранее отправленной команды.
+
+**Исправлено:** scoped completion сверяет tenant/device сохранённого command outbox и tenant operation/sale до обработки terminal replay. Для composite требуются adapter credential и положительная applied generation; legacy physical fallback без adapter запрещён.
+
+**Приёмка:** foreign tenant/device, missing outbox и несогласованная sale не меняют состояние; повтор результата проверяется тем же scope; rebind не отнимает право у исходного adapter завершить его команду. Полный backend suite PASS. Для полного закрытия нужны broker ACL и S3/BlueCash delivery E2E.
+
+## GAP-036 — Result JSON обрезался и не экранировал device references
+
+**P0 · C · SOFTWARE_FIXED / POWER_CUT_OPEN** · Тесты: T-27.
+
+**Основание:** `intent_processor.cpp::result_json`, actual execute/recovery + SQLite.
+
+**Разрыв:** фиксированный буфер1024 и ручная конкатенация давали невалидный JSON/потерю references при длинном ответе или специальных символах.
+
+**Исправлено:** cJSON сериализует все строки; execute/recovery используют общий helper, ошибка выделения не маскируется успешным terminal result. Operation/receipt/outbox сохраняют согласованный результат.
+
+**Приёмка:**2048-символьные refs с кавычками, переносами и backslash сохраняются byte-exact после reopen SQLite; outbox JSON парсится и соответствует operation. Два runtime regression cases PASS; аппаратный power-cut/fsync evidence остаётся отдельным требованием GAP018.

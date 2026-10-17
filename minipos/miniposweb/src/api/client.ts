@@ -194,6 +194,22 @@ export class MiniPosClient {
       this.appInstance,
     );
   }
+  async operation(orderId: string, clientOperationId: string, signal?: AbortSignal): Promise<FiscalOperation> {
+    const value = await json<Record<string, unknown>>(
+      `${this.baseUrl}/orders/${encodeURIComponent(orderId)}/operations/${encodeURIComponent(clientOperationId)}`,
+      { signal, headers: { "X-Api-Version": "2026-08-07" } }, this.token(), this.appInstance,
+    );
+    if (value.operation_id !== clientOperationId || value.client_operation_id !== clientOperationId)
+      throw new Error("FISCAL_OPERATION_IDENTITY_MISMATCH");
+    const state = String(value.state ?? "UNKNOWN");
+    const reference = typeof value.fiscal_reference === "string" ? value.fiscal_reference : undefined;
+    if (state === "FISCALIZED" && !reference) throw new Error("FISCAL_OPERATION_PROOF_MISSING");
+    return { operation_id: clientOperationId, state,
+      certainty: state === "FISCALIZED" && reference ? "PROVEN_SUCCESS" : "UNKNOWN",
+      fiscal_reference: reference, error_code: typeof value.error_code === "string" ? value.error_code : undefined,
+      updated_at: String(value.updated_at ?? new Date().toISOString()),
+    };
+  }
   checkout(
     orderId: string,
     payments: SalePayment[],

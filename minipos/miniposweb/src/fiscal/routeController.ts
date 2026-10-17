@@ -1,5 +1,5 @@
 import type { FiscalIntent, FiscalOperation, RouteKind } from "../types";
-import { getOutbox, putOutbox } from "../storage/outbox";
+import { getOutbox, prepareOutbox, claimOutboxAttempt, updateOutboxResult, isProvenTerminal } from "../storage/outbox";
 export interface FiscalRoute {
   kind: RouteKind;
   probe(signal: AbortSignal): Promise<boolean>;
@@ -45,109 +45,71 @@ export class RouteController {
     }
   }
   async execute(intent: FiscalIntent): Promise<FiscalOperation> {
-    const old = await getOutbox(intent.client_operation_id);
-    if (old && old.intent.payload_sha256 !== intent.payload_sha256)
+    const old = await prepareOutbox({
+      intent, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(),
+    });
+    if (old.intent.payload_sha256 !== intent.payload_sha256)
       throw new Error("IDEMPOTENCY_PAYLOAD_CONFLICT");
-    if (
-      old?.result &&
-      !["UNKNOWN", "RECOVERY_REQUIRED", "EXECUTING", "RESERVED"].includes(
-        old.result.state,
-      )
-    )
-      return old.result;
-    await putOutbox(
-      old ?? {
-        intent,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      },
-    );
+    const uncertain = (result?: FiscalOperation) => !!result && !this.terminal(result);
+    if (old.result && !uncertain(old.result)) return old.result;
+    // Legacy uncertain rows did not record the original route. They must also
+    // recover without submitting, even when lookup fails or returns HTTP 404.
+    if (old.attempt || uncertain(old.result)) return this.recover(intent);
+    // Probe cloud while serving new operations locally; return only after the
+    // configured number of healthy observations. Recovery remains lookup-only.
     if (this.preferred !== "CLOUD") {
-      const cloud = this.routes.find((route) => route.kind === "CLOUD");
-      if (cloud)
-        try {
-          this.observe(
-            "CLOUD",
-            await this.timed(this.probeTimeoutMs, (signal) =>
-              cloud.probe(signal),
-            ),
-          );
-        } catch {
-          this.observe("CLOUD", false);
-        }
+      const cloud = this.routes.find(route => route.kind === "CLOUD");
+      if (cloud) {
+        try { this.observe("CLOUD", await this.timed(this.probeTimeoutMs, signal => cloud.probe(signal))); }
+        catch { this.observe("CLOUD", false); }
+      }
     }
     for (const route of this.ordered()) {
-      let submitted = false;
+      let available = false;
       try {
-        if (
-          !(await this.timed(this.probeTimeoutMs, (signal) =>
-            route.probe(signal),
-          ))
-        )
-          continue;
-        const known = await this.timed(this.probeTimeoutMs, (signal) =>
-          route.lookup(intent.client_operation_id, signal),
-        ).catch(() => undefined);
-        const result = known ?? (await this.timed(this.operationTimeoutMs, (signal) => {
-          submitted = true;
-          return route.submit(intent, signal);
-        }));
-        await putOutbox({
-          ...old,
-          intent,
-          result,
-          createdAt: old?.createdAt ?? new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
+        available = await this.timed(this.probeTimeoutMs, signal => route.probe(signal));
+      } catch { this.observe(route.kind, false); }
+      if (!available) { this.observe(route.kind, false); continue; }
+      // IndexedDB serializes this claim across controllers/tabs. Commit it
+      // before invoking submit: a reload at any later point is lookup-only.
+      if (!(await claimOutboxAttempt(old, route.kind))) return this.recover(intent);
+      let result: FiscalOperation;
+      try {
+        result = await this.timed(this.operationTimeoutMs, signal => route.submit(intent, signal));
+      } catch {
+        // The durable attempt remains sufficient if this second write fails.
+        const saved = await updateOutboxResult(intent, {
+          operation_id: intent.client_operation_id, state: "UNKNOWN", certainty: "UNKNOWN",
+          error_code: "FISCAL_SUBMISSION_UNCERTAIN", updated_at: new Date().toISOString(),
         });
-        this.observe(route.kind, true);
-        return result;
-      } catch (error) {
-        if (submitted) {
-          await putOutbox({
-            ...old,
-            intent,
-            result: {
-              operation_id: intent.client_operation_id,
-              state: "UNKNOWN",
-              certainty: "UNKNOWN",
-              error_code: "FISCAL_SUBMISSION_UNCERTAIN",
-              updated_at: new Date().toISOString(),
-            },
-            createdAt: old?.createdAt ?? new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          });
-          throw new Error("FISCAL_SUBMISSION_UNCERTAIN");
-        }
-        if (error instanceof DOMException && error.name === "AbortError") {
-          const unknown = {
-            operation_id: intent.client_operation_id,
-            state: "UNKNOWN",
-            certainty: "UNKNOWN",
-            error_code: "ROUTE_TIMEOUT",
-            updated_at: new Date().toISOString(),
-          };
-          await putOutbox({
-            ...old,
-            intent,
-            result: unknown,
-            createdAt: old?.createdAt ?? new Date().toISOString(),
-            updatedAt: new Date().toISOString(),
-          });
-          continue;
-        }
-        if (
-          typeof error === "object" &&
-          error !== null &&
-          "status" in error &&
-          Number((error as { status: number }).status) >= 400 &&
-          Number((error as { status: number }).status) < 500
-        )
-          throw error;
-        this.observe(route.kind, false);
+        if (this.terminal(saved)) return saved;
+        throw new Error("FISCAL_SUBMISSION_UNCERTAIN");
       }
+      const saved = await updateOutboxResult(intent, result);
+      this.observe(route.kind, true);
+      return saved;
     }
     throw new Error("NO_FISCAL_ROUTE");
   }
+  private terminal(result: FiscalOperation): boolean {
+    return isProvenTerminal(result);
+  }
+  private async recover(intent: FiscalIntent): Promise<FiscalOperation> {
+    const current = await getOutbox(intent.client_operation_id);
+    if (current?.result && this.terminal(current.result)) return current.result;
+    const routes = current?.attempt
+      ? this.routes.filter(route => route.kind === current.attempt!.route)
+      : this.ordered();
+    for (const route of routes) {
+      let result: FiscalOperation;
+      try {
+        result = await this.timed(this.operationTimeoutMs, signal => route.lookup(intent.client_operation_id, signal));
+      } catch { continue; }
+      return updateOutboxResult(intent, result);
+    }
+    throw new Error("FISCAL_SUBMISSION_UNCERTAIN");
+  }
+
   private observe(kind: RouteKind, success: boolean) {
     if (kind === "CLOUD" && success) {
       if (++this.cloudSuccesses >= this.recoveryThreshold)

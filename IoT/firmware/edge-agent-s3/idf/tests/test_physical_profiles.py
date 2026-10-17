@@ -17,9 +17,9 @@ class PhysicalProfiles(unittest.TestCase):
   executor=(MAIN/"profile_executor.cpp").read_text()
   uart=(MAIN/"uart_runtime.cpp").read_text()
   for token in ("buildDatecsOpenReceipt","buildDatecsSaleItem","buildDatecsPayment",
-                "buildDaisyOpenReceipt","buildDaisySaleItem","buildDaisyPayment",
-                "DatecsCodec::decode","DaisyCodec::decode"):
+                "buildDaisyOpenReceipt","buildDaisySaleItem","buildDaisyPayment"):
    self.assertIn(token,executor)
+  # Actual serial codec/correlation/error semantics are run by run_native_serial.sh.
   for token in ("uart_baud","uart_parity","uart_tx_pin","uart_rx_pin"):
    self.assertIn(token,uart)
  def test_unknown_after_send_is_not_blindly_retried(self):

@@ -1,0 +1,10 @@
+normal PASS (actual sync runtime, durable SQLite restart)
+duplicate PASS (actual sync runtime, durable SQLite restart)
+interleaving PASS (writer queued while ACK holds storage mutex)
+large-sequence PASS
+concurrent-append PASS (concurrent actual SQLite writer/ACK)
+publish-failure PASS (actual sync runtime, durable SQLite restart)
+changed-row PASS (actual sync runtime, durable SQLite restart)
+ack-fault PASS (actual sync runtime, durable SQLite restart)
+delete-fault PASS (actual sync runtime, durable SQLite restart)
+freeze-fault PASS

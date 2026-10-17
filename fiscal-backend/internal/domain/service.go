@@ -556,7 +556,22 @@ func (s *Service) activeFiscalDeviceSnapshot(registerID, tenant string, now time
 	if err != nil || device.TenantID != tenant || stringField(device.Data, "status") != "ACTIVE" || !oneOf(stringField(device.Data, "kind"), "FISCAL_DEVICE", "SMART_DEVICE") {
 		return FiscalDeviceSnapshot{}, errors.New("fiscal device unavailable")
 	}
-	return FiscalDeviceSnapshot{DeviceID: device.ID, BindingVersion: register.Version, Serial: stringField(device.Data, "serial"), FiscalDeviceNumber: stringField(device.Data, "fiscal_device_number"), FiscalMemoryNumber: stringField(device.Data, "fiscal_memory_number"), Vendor: stringField(device.Data, "vendor"), Model: stringField(device.Data, "model"), Firmware: stringField(device.Data, "firmware")}, nil
+	adapterID := stringField(register.Data, "adapter_device_id")
+	var generation int64
+	if adapterID != "" {
+		binding, bindingErr := s.repo.Resource("composite_binding", stringField(register.Data, "composite_binding_id"))
+		if bindingErr != nil || binding.TenantID != tenant || stringField(binding.Data, "status") != "ACTIVE" ||
+			stringField(binding.Data, "register_id") != registerID || stringField(binding.Data, "adapter_device_id") != adapterID ||
+			stringField(binding.Data, "fiscal_device_id") != deviceID || int64Field(binding.Data, "generation") < 1 {
+			return FiscalDeviceSnapshot{}, errors.New("composite binding unavailable")
+		}
+		adapter, adapterErr := s.repo.Resource("device", adapterID)
+		if adapterErr != nil || adapter.TenantID != tenant || stringField(adapter.Data, "status") != "ACTIVE" {
+			return FiscalDeviceSnapshot{}, errors.New("adapter unavailable")
+		}
+		generation = int64Field(binding.Data, "generation")
+	}
+	return FiscalDeviceSnapshot{AdapterDeviceID: adapterID, BindingGeneration: generation, DeviceID: device.ID, BindingVersion: register.Version, Serial: stringField(device.Data, "serial"), FiscalDeviceNumber: stringField(device.Data, "fiscal_device_number"), FiscalMemoryNumber: stringField(device.Data, "fiscal_memory_number"), Vendor: stringField(device.Data, "vendor"), Model: stringField(device.Data, "model"), Firmware: stringField(device.Data, "firmware")}, nil
 }
 
 func (s *Service) registerHasActivePaymentTerminal(registerID, tenant string) bool {
@@ -1159,6 +1174,28 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 }
 func (s *Service) GetSale(id string) (Sale, error)           { return s.repo.Sale(id) }
 func (s *Service) GetOperation(id string) (Operation, error) { return s.repo.Operation(id) }
+
+// CompleteDeviceCommandForDevice authorizes MQTT outcomes against the persisted
+// command route, including idempotent terminal replays. Register rebindings do
+// not transfer authority over an already dispatched command to another adapter.
+func (s *Service) CompleteDeviceCommandForDevice(tenant, deviceID, id, status, fiscalReference, errorCode string) (Operation, error) {
+	if tenant == "" || deviceID == "" || id == "" {
+		return Operation{}, ErrNotFound
+	}
+	command, err := s.repo.Resource("device_command_outbox", id)
+	if err != nil || command.Kind != "device_command_outbox" || command.ID != id || command.TenantID != tenant || stringField(command.Data, "device_id") != deviceID {
+		return Operation{}, ErrNotFound
+	}
+	op, err := s.repo.Operation(id)
+	if err != nil || op.ID != id || op.TenantID != tenant {
+		return Operation{}, ErrNotFound
+	}
+	sale, err := s.repo.Sale(op.SaleID)
+	if err != nil || sale.TenantID != tenant {
+		return Operation{}, ErrNotFound
+	}
+	return s.CompleteDeviceCommand(id, status, fiscalReference, errorCode)
+}
 
 func (s *Service) CompleteDeviceCommand(id, status, fiscalReference, errorCode string) (Operation, error) {
 	op, err := s.repo.Operation(id)

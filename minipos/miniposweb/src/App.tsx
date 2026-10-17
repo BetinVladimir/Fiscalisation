@@ -5,6 +5,7 @@ import { referenceScope } from './storage/referenceScope';
 import { persistAuthTokens } from './storage/authTokens';
 import { AppButton as PaperButton } from './ui/app-button';
 import { useEffect, useMemo, useRef, useState } from "react";
+import { refreshCloudOutbox } from "./fiscal/cloudRecovery";
 import { buildIntent } from "./fiscal/intentBuilder";
 import {
   ApiError,
@@ -260,7 +261,7 @@ export default function App() {
     managementRequest.current++;
     setView('outbox');setOutboxLoading(true);setOutboxError(false);
     const live=()=>operationCurrent()&&request===outboxRequest.current;
-    try { const rows=await listOutbox();if(live()&&operationCurrent())setOutboxRows(rows.filter(row=>belongsToOutboxScope(row,outboxScope))); }
+    try { const rows=await refreshCloudOutbox(api,outboxScope,live);if(live())setOutboxRows(rows); }
     catch { if(live())setOutboxError(true); }
     finally { if(live())setOutboxLoading(false); }
   }
@@ -485,9 +486,7 @@ export default function App() {
         routes.push({
           kind: "CLOUD",
           probe: (signal) => api.fiscalRouteHealth(signal).then(() => true),
-          lookup: async () => {
-            throw new Error("CLOUD_LOOKUP_NOT_FOUND");
-          },
+          lookup: (id, signal) => api.operation(order!.id, id, signal),
           submit: (value, signal) =>
             api.checkout(order!.id, payments, value, signal),
         });

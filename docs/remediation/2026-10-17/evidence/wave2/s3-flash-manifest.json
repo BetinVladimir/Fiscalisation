@@ -1,0 +1,32 @@
+{
+  "chip": "esp32s3",
+  "flash_size_bytes": 8388608,
+  "mode": "segments",
+  "partition_layout": {
+    "app_label": "factory",
+    "path": "partition_table.bin",
+    "sha256": "bd9ab5aace828042720cde613ccb9840fc22f643f818383aeb2cea4f46c9abc2",
+    "table_offset": 32768
+  },
+  "schema_version": 1,
+  "segments": [
+    {
+      "kind": "bootloader",
+      "offset": 0,
+      "path": "bootloader.bin",
+      "sha256": "ddd319872f140199db6ed0f750b4b285ad9390709082627178bd01a7099c7b44"
+    },
+    {
+      "kind": "partition_table",
+      "offset": 32768,
+      "path": "partition_table.bin",
+      "sha256": "bd9ab5aace828042720cde613ccb9840fc22f643f818383aeb2cea4f46c9abc2"
+    },
+    {
+      "kind": "application",
+      "offset": 65536,
+      "path": "application.bin",
+      "sha256": "ad13d250eab836d161766c7a1afc03582c86509bbc73d575d9888f21d18bf41f"
+    }
+  ]
+}

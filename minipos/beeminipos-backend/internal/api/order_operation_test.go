@@ -1,0 +1,135 @@
+package api
+
+import (
+	"context"
+	"crypto/sha256"
+	"encoding/base64"
+	"encoding/json"
+	"errors"
+	"fiscalisation/beeminipos-backend/internal/auth"
+	"fiscalisation/beeminipos-backend/internal/domain"
+	"fiscalisation/beeminipos-backend/internal/fiscalintegration"
+	"net/http"
+	"net/http/httptest"
+	"testing"
+	"time"
+)
+
+type operationReadFunc func(context.Context, string, string) (fiscalintegration.FiscalOperation, error)
+
+func (f operationReadFunc) GetFiscalOperation(c context.Context, t, id string) (fiscalintegration.FiscalOperation, error) {
+	return f(c, t, id)
+}
+
+const recoveryOrderID = "00000000-0000-4000-8000-000000000021"
+const recoveryOperationID = "00000000-0000-4000-8000-000000000022"
+const recoverySessionID = "00000000-0000-4000-8000-000000000023"
+
+func recoveryHandler(t *testing.T, mutate func(*fiscalintegration.FiscalOperation), upstreamErr error) (http.Handler, string, *int) {
+	t.Helper()
+	order := domain.Order{ID: recoveryOrderID, TenantID: "tenant-a", ShiftID: "shift", RegisterID: "register", CheckoutOperationID: recoveryOperationID, ReceiptSessionID: recoverySessionID, FiscalSaleID: "sale", State: "UNKNOWN"}
+	data, _ := json.Marshal(map[string]any{"orders": map[string]domain.Order{recoveryOrderID: order}, "shifts": map[string]domain.Shift{"shift": {ID: "shift", TenantID: "tenant-a", EmployeeID: "employee"}}, "employees": map[string]domain.Employee{"employee": {ID: "employee", TenantID: "tenant-a", Active: true, Status: "ACTIVE"}}})
+	svc, err := domain.NewPersistentService("https://unused", "2026-08-07", &apiStore{b: data})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if _, err = svc.BindEmployeeIdentity("tenant-a", "employee", "operator", "test"); err != nil {
+		t.Fatal(err)
+	}
+	token, err := auth.Sign(auth.Claims{Subject: "operator", Issuer: "test", TenantID: "tenant-a", Roles: []string{"CASHIER"}, Scope: "fiscal.base", ExpiresAt: time.Now().Add(time.Hour).Unix()}, []byte(testAuthHMACKey))
+	if err != nil {
+		t.Fatal(err)
+	}
+	digest := sha256.Sum256([]byte(token))
+	if _, err = svc.RegisterOperatorSession("tenant-a", "employee", "instance", base64.RawURLEncoding.EncodeToString(digest[:]), time.Now().Add(time.Hour)); err != nil {
+		t.Fatal(err)
+	}
+	calls := new(int)
+	h := &handler{s: svc, operations: operationReadFunc(func(ctx context.Context, tenant, id string) (fiscalintegration.FiscalOperation, error) {
+		*calls++
+		if tenant != "tenant-a" || id != recoveryOperationID {
+			t.Error("incorrect lookup scope")
+		}
+		op := fiscalintegration.FiscalOperation{OperationID: id, ClientOperationID: id, ReceiptSessionID: recoverySessionID, TenantID: "fiscal-tenant-a", SaleID: "sale", RegisterID: "register", Type: "SALE_FINALIZE", State: "FISCALIZED", Version: 1, FiscalReference: "receipt-17", CreatedAt: time.Now().UTC(), UpdatedAt: time.Now().UTC()}
+		if mutate != nil {
+			mutate(&op)
+		}
+		return op, upstreamErr
+	})}
+	return auth.Middleware(testAuthHMACKey, enforceSuccessResponses(http.HandlerFunc(h.order))), token, calls
+}
+func TestCloudOperationRecoveryReadOnlyAssociation(t *testing.T) {
+	for _, field := range []string{"success", "uuid", "client", "session", "sale", "register", "type", "version", "reference", "upstream"} {
+		t.Run(field, func(t *testing.T) {
+			var upstreamErr error
+			if field == "upstream" {
+				upstreamErr = errors.New("timeout")
+			}
+			h, token, calls := recoveryHandler(t, func(op *fiscalintegration.FiscalOperation) {
+				switch field {
+				case "uuid":
+					op.OperationID = "other"
+				case "client":
+					op.ClientOperationID = "other"
+				case "session":
+					op.ReceiptSessionID = "other"
+				case "sale":
+					op.SaleID = "other"
+				case "register":
+					op.RegisterID = "other"
+				case "type":
+					op.Type = "REVERSAL"
+				case "version":
+					op.Version = 0
+				case "reference":
+					op.FiscalReference = ""
+				}
+			}, upstreamErr)
+			r := httptest.NewRequest("GET", "/public/v1/minipos/orders/"+recoveryOrderID+"/operations/"+recoveryOperationID, nil)
+			r.Header.Set("Authorization", "Bearer "+token)
+			r.Header.Set("X-App-Instance-Id", "instance")
+			r.Header.Set("X-Api-Version", "2026-08-07")
+			w := httptest.NewRecorder()
+			h.ServeHTTP(w, r)
+			want := 502
+			if field == "success" {
+				want = 200
+			}
+			if w.Code != want || *calls != 1 {
+				t.Fatalf("got %d calls%d body%s", w.Code, *calls, w.Body.String())
+			}
+		})
+	}
+}
+func TestCloudOperationRecoveryRejectsWrongActorOrAssociationBeforeLookup(t *testing.T) {
+	for _, scenario := range []string{"wrong uuid", "missing order", "missing session", "wrong actor", "foreign tenant"} {
+		t.Run(scenario, func(t *testing.T) {
+			h, token, calls := recoveryHandler(t, nil, nil)
+			orderID, opID := recoveryOrderID, recoveryOperationID
+			if scenario == "wrong uuid" {
+				opID = "00000000-0000-4000-8000-000000000099"
+			}
+			if scenario == "missing order" {
+				orderID = "00000000-0000-4000-8000-000000000099"
+			}
+			if scenario == "wrong actor" || scenario == "foreign tenant" {
+				tenant, sub := "tenant-a", "different"
+				if scenario == "foreign tenant" {
+					tenant = "tenant-b"
+				}
+				token, _ = auth.Sign(auth.Claims{Subject: sub, Issuer: "test", TenantID: tenant, Roles: []string{"CASHIER"}, Scope: "fiscal.base", ExpiresAt: time.Now().Add(time.Hour).Unix()}, []byte(testAuthHMACKey))
+			}
+			r := httptest.NewRequest("GET", "/public/v1/minipos/orders/"+orderID+"/operations/"+opID, nil)
+			r.Header.Set("Authorization", "Bearer "+token)
+			if scenario != "missing session" {
+				r.Header.Set("X-App-Instance-Id", "instance")
+			}
+			r.Header.Set("X-Api-Version", "2026-08-07")
+			w := httptest.NewRecorder()
+			h.ServeHTTP(w, r)
+			if w.Code < 400 || *calls != 0 {
+				t.Fatalf("got %d calls%d body%s", w.Code, *calls, w.Body.String())
+			}
+		})
+	}
+}

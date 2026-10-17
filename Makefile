@@ -1,4 +1,4 @@
-.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test iot-test compose-check compose-e2e regression full-regression
+.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test smart-device-host-test minipos-outbox-test factory-test iot-test compose-check compose-e2e regression full-regression
 deps:
 	cd minipos/BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
 	cd BeeFiscalApp && npm ci --cache /tmp/beefiscalapp-npm-cache --no-audit --no-fund
@@ -136,17 +136,27 @@ ios-build:
 	cd minipos/BeeMiniPOS/ios && pod install
 	cd minipos/BeeMiniPOS/ios && xcodebuild -workspace BeeMiniPOS.xcworkspace -scheme BeeMiniPOS -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
 native-regression: native-bundle android-build ios-build
-smart-device-test:
-	ruby scripts/verify_bluecash_release_composition.rb
-	cd minipos/BeeMiniPOS/android && ./gradlew -p ../../../SmartDevices :daisy-smart-app:testDebugUnitTest :bluecash-app:testDebugUnitTest :daisy-smart-app:assembleDebug :daisy-smart-app:assembleRelease :bluecash-app:assembleDebug :bluecash-app:assembleRelease --no-daemon
-	test -f SmartDevices/daisy-smart-app/build/outputs/apk/debug/daisy-smart-app-debug.apk
-	test -f SmartDevices/daisy-smart-app/build/outputs/apk/release/daisy-smart-app-release-unsigned.apk
-	test -f SmartDevices/bluecash-app/build/outputs/apk/debug/bluecash-app-debug.apk
-	test -f SmartDevices/bluecash-app/build/outputs/apk/release/bluecash-app-release-unsigned.apk
-	rg -q 'BuildConfig.STUB_ADAPTER && BuildConfig.DEBUG' SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy/DaisySmartStub.kt
+smart-device-host-test:
+	python3 SmartDevices/bluecash-app/tests/host/run-datecs-codec.py
+smart-device-test: smart-device-host-test
+	cd minipos/BeeMiniPOS/android && ./gradlew -p ../../../SmartDevices :daisy-smart-app:testProdDebugUnitTest :daisy-smart-app:testDemoDebugUnitTest :bluecash-app:testProdDebugUnitTest :bluecash-app:testDemoDebugUnitTest :daisy-smart-app:assembleProdDebug :daisy-smart-app:assembleDemoDebug :bluecash-app:assembleProdDebug :bluecash-app:assembleDemoDebug --no-daemon
+	test -f SmartDevices/daisy-smart-app/build/outputs/apk/prod/debug/daisy-smart-app-prod-debug.apk
+	test -f SmartDevices/daisy-smart-app/build/outputs/apk/demo/debug/daisy-smart-app-demo-debug.apk
+	test -f SmartDevices/bluecash-app/build/outputs/apk/prod/debug/bluecash-app-prod-debug.apk
+	test -f SmartDevices/bluecash-app/build/outputs/apk/demo/debug/bluecash-app-demo-debug.apk
+minipos-outbox-test:
+	cd minipos/miniposweb && npx vitest run tests/routeController.test.ts --cache=false
+	cd minipos/miniposweb && npx playwright test -c playwright.outbox-idb.config.mjs
+factory-test:
+	cd IoT/device-manufacturing && PYTHONPATH=src python3 -m unittest discover -s tests -v
 iot-test:
 	python3 -m unittest discover -s IoT/firmware/edge-agent-s3/idf/tests -p 'test_*.py'
 	IoT/firmware/edge-agent-s3/idf/tests/run_native_saga.sh
+	bash IoT/firmware/edge-agent-s3/idf/tests/run_native_mqtt.sh
+	bash IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh
+	bash IoT/firmware/edge-agent-s3/idf/tests/run_native_ble.sh
+	sh IoT/firmware/edge-agent-s3/idf/tests/run_storage_host.sh
+	sh IoT/firmware/edge-agent-s3/idf/tests/run_sync_host.sh
 	IoT/common-modules/daisy/run-tests.sh
 	IoT/common-modules/datecs/run-tests.sh
 	IoT/common-modules/datecspay/run-tests.sh
@@ -160,5 +170,5 @@ compose-check:
 	MINIPOS_DB_PASSWORD=test MINIPOS_RLS_DB_PASSWORD=test-rls AUTH_HMAC_KEY=production-minipos-auth-key-at-least-32-bytes MINIPOS_RABBITMQ_URL=amqps://fiscal:rabbit-password@rabbit.example.test/ FISCAL_PUBLIC_BASE_URL=https://fiscal.example.test/public/v1 FISCAL_OAUTH_TOKEN_URL=https://id.example.test/token FISCAL_OAUTH_CLIENT_ID=minipos FISCAL_OAUTH_CLIENT_SECRET=production-client-secret FISCAL_SYSTEM_TOKEN=production-fiscal-system-token-at-least-32-bytes FISCAL_CREDENTIAL_ENCRYPTION_KEY_BASE64=MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY= FISCAL_CREDENTIAL_KEK_ID=fiscal-kek-2026-01 WEBHOOK_VERIFICATION_KEY=production-webhook-key-at-least-32-bytes LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM=test-private-key LOCAL_FISCAL_TOKEN_SIGNING_KID=local-2026-01 MINIPOS_SITE=https://pos.example.test MINIPOS_CORS_ALLOWED_ORIGINS=https://pos.example.test MINIPOS_SMTP_HOST=smtp.example.test MINIPOS_SMTP_USER=minipos-smtp-user MINIPOS_SMTP_PASSWORD=production-smtp-password MINIPOS_SMTP_FROM=noreply@example.test DAP_MINIO_ROOT_USER=dap-admin DAP_MINIO_ROOT_PASSWORD=production-minio-password-at-least-32-bytes docker compose -f compose.minipos.yaml -f compose.minipos.prod.yaml config >/dev/null
 compose-e2e:
 	./scripts/e2e-two-compose.sh
-regression: test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test boundary-test typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test evidence-test web-build native-bundle smart-device-test iot-test compose-check
+regression: test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test boundary-test typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test evidence-test web-build native-bundle smart-device-test minipos-outbox-test factory-test iot-test compose-check
 full-regression: regression postgres-integration compose-e2e

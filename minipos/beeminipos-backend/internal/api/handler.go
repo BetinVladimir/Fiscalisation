@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -21,11 +22,15 @@ import (
 	"time"
 )
 
+type fiscalOperationReader interface {
+	GetFiscalOperation(context.Context, string, string) (fiscalintegration.FiscalOperation, error)
+}
 type handler struct {
-	s *domain.Service
-	c config.Config
-	a *emailauth.Service
-	f *fiscalintegration.Client
+	operations fiscalOperationReader
+	s          *domain.Service
+	c          config.Config
+	a          *emailauth.Service
+	f          *fiscalintegration.Client
 }
 
 func New(s *domain.Service, c config.Config) http.Handler {
@@ -36,6 +41,9 @@ func NewWithEmailAuth(s *domain.Service, c config.Config, email *emailauth.Servi
 }
 func NewWithIntegrations(s *domain.Service, c config.Config, email *emailauth.Service, fiscal *fiscalintegration.Client) http.Handler {
 	h := &handler{s: s, c: c, a: email, f: fiscal}
+	if fiscal != nil {
+		h.operations = fiscal
+	}
 	m := http.NewServeMux()
 	m.HandleFunc("/livez", h.health)
 	m.HandleFunc("/readyz", h.health)
@@ -1061,6 +1069,10 @@ func (h *handler) order(w http.ResponseWriter, r *http.Request) {
 	}
 	p := strings.Split(strings.Trim(r.URL.Path[i+len("/orders/"):], "/"), "/")
 	if len(p) > 0 && !h.authorizeOrder(w, r, p[0]) {
+		return
+	}
+	if len(p) == 3 && p[1] == "operations" && r.Method == http.MethodGet {
+		h.orderOperation(w, r, p[0], p[2])
 		return
 	}
 	if len(p) == 1 && r.Method == "GET" {

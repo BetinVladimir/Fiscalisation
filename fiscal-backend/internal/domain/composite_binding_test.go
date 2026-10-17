@@ -1,6 +1,9 @@
 package domain
 
-import "testing"
+import (
+	"testing"
+	"time"
+)
 
 type bindingCapture struct {
 	tenant, adapter string
@@ -93,8 +96,22 @@ func TestCompositeBindingIsNotRoutableUntilExactAdapterAck(t *testing.T) {
 	if e != nil || a["status"] != "ACTIVE" || a["applied_generation"] != b["generation"] {
 		t.Fatal(a, e)
 	}
+	snapshot, snapshotErr := s.activeFiscalDeviceSnapshot(r["id"].(string), "tenant-1", time.Now().UTC())
+	if snapshotErr != nil || snapshot.DeviceID != fiscal["id"] || snapshot.AdapterDeviceID != adapter["id"] || snapshot.BindingGeneration != b["generation"] {
+		t.Fatalf("incorrect composite snapshot: %#v %v", snapshot, snapshotErr)
+	}
+	// An unrelated register edit must not advance the adapter's applied generation.
+	storedRegister, _ := s.repo.Resource("register", r["id"].(string))
+	storedRegister.Version++
+	if err := s.repo.PutResource(storedRegister); err != nil {
+		t.Fatal(err)
+	}
+	snapshot, snapshotErr = s.activeFiscalDeviceSnapshot(r["id"].(string), "tenant-1", time.Now().UTC())
+	if snapshotErr != nil || snapshot.BindingGeneration != b["generation"] || snapshot.BindingVersion != storedRegister.Version {
+		t.Fatal(snapshot, snapshotErr)
+	}
 	after, _ := s.GetResource("register", r["id"].(string), "tenant-1")
-	if after["fiscal_device_id"] != fiscal["id"] || after["payment_terminal_id"] != pay["id"] || after["version"] != b["generation"] {
+	if after["fiscal_device_id"] != fiscal["id"] || after["payment_terminal_id"] != pay["id"] || after["version"] != storedRegister.Version {
 		t.Fatal(after)
 	}
 }

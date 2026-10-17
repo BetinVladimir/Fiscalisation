@@ -1,0 +1,9 @@
+{
+  "factory-bundle.log": "73e6237ba08fcf7dddb222937cc737c4eb23b574eef497366793249b02c0edb6",
+  "iot-factory.log": "2775b0b1755240037183a593dc4ad77d2ac695faad4d1661fb688e1a6dff63b8",
+  "minipos-backend.log": "03f36504a75bb86cba114ac0034519b0b9565fd89372a00cee8d2c7df6c493d4",
+  "minipos-web-build.log": "a1cc5e12c3cb5266a8bf4d1fbf63920e4ca798edddf3369d31b1e23c00b847c5",
+  "minipos-web-tests.log": "00456be1fa39db306874b042b7281872fdec03bed53bfb261b4f081b75213f88",
+  "s3-build.log": "97ecb4a2628e7f05aea9d2ebbad70f16619389771675022008dfb5b0be949e00",
+  "sync.log": "18965366ab6d996f0032a437a0412ce5d1be6454e8319771527e12b68962a432"
+}

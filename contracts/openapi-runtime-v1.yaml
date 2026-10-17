@@ -722,6 +722,26 @@ paths:
           description: Authoritative MiniPOS order state and permitted actions
           content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosOrderRuntimeState'}}}
         '404': {$ref: '#/components/responses/Problem'}
+  /minipos/orders/{order_id}/operations/{client_operation_id}:
+    get:
+      operationId: getMiniPosCheckoutOperation
+      description: Read-only recovery of the original checkout operation, authorized by order tenant and shift actor. Lookup errors or missing association never permit resubmission.
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+        - $ref: '#/components/parameters/ApiVersion'
+        - name: client_operation_id
+          in: path
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Associated operation fetched with the company's Fiscal credential
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosFiscalOperation'}}}
+        '403': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '502': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
   /minipos/orders/{order_id}/checkout-batch:
     post:
       operationId: checkoutMiniPosOrderBatch

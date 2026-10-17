@@ -19,9 +19,8 @@ class IntentProcessorContract(unittest.TestCase):
   self.assertLess(SOURCE.index("storage_.reserve_command("),SOURCE.index("executor_.execute"))
   self.assertLess(SOURCE.index("accepted_json"),SOURCE.index("executor_.execute"))
   self.assertIn("ReservationStatus::PayloadConflict",SOURCE)
- def test_receipt_payment_and_result_are_durable(self):
-  for token in ("upsert_receipt","upsert_payment","append_event","RECOVERY_REQUIRED"):
-   self.assertIn(token,SOURCE)
+ # Durability is exercised against actual IntentProcessor + SQLite by
+ # run_storage_host.sh (included in make iot-test), not inferred from tokens.
  def test_non_sale_commands_do_not_require_sale_fields(self):
   self.assertIn('p.command_type=="SALE_FINALIZE"&&!text(payload,"server_sale_id",p.sale_id)',COMPACT)
   self.assertNotIn('!text(payload,"server_sale_id",p.sale_id)||!text(payload,"unp",p.unp)',COMPACT)

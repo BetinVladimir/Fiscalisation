@@ -466,54 +466,109 @@ func TestMiniPosRequestContractRejectsInvalidUUIDPath(t *testing.T) {
 		t.Fatalf("invalid UUID reached handler: %d called=%v %s", w.Code, called, w.Body.String())
 	}
 }
-func TestEditorsShiftOrder(t *testing.T) {
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey})
-	e := do(h, "POST", "/api/v1/employees", "", map[string]any{"first_name": "Ada", "last_name": "Lovelace", "operator_code": "A001"})
-	if e.Code != 201 {
-		t.Fatal(e.Code, e.Body.String())
+
+// cashierFixture uses the real enrollment boundary: ADMIN provisions identity,
+// CASHIER establishes its own workstation session before touching shifts/orders.
+func cashierFixture(t *testing.T, h http.Handler, subject, code string) (domain.Employee, string) {
+	t.Helper()
+	const issuer = "https://identity.example.test"
+	admin := operatorToken(t, testAuthHMACKey, "fixture-admin", issuer, "tenant-a", "ADMIN")
+	token := operatorToken(t, testAuthHMACKey, subject, issuer, "tenant-a", "CASHIER")
+	body, err := json.Marshal(map[string]string{"first_name": subject, "last_name": "Cashier", "operator_code": code})
+	if err != nil {
+		t.Fatal(err)
 	}
-	var emp map[string]any
-	_ = json.Unmarshal(e.Body.Bytes(), &emp)
-	sh := do(h, "POST", "/api/v1/shifts", "", map[string]any{"register_id": "00000000-0000-4000-8000-000000000001", "employee_id": emp["id"]})
-	if sh.Code != 201 {
+	created := operatorRequest(h, http.MethodPost, "/public/v1/minipos/employees", admin, "employee-fixture-"+code, string(body))
+	if created.Code != http.StatusCreated {
+		t.Fatal(created.Code, created.Body.String())
+	}
+	var employee domain.Employee
+	if err := json.Unmarshal(created.Body.Bytes(), &employee); err != nil {
+		t.Fatal(err)
+	}
+	binding, err := json.Marshal(map[string]string{"subject": subject, "issuer": issuer})
+	if err != nil {
+		t.Fatal(err)
+	}
+	bound := operatorRequest(h, http.MethodPost, "/public/v1/minipos/employees/"+employee.ID+"/identity-binding", admin, "binding-fixture-"+code, string(binding))
+	if bound.Code != http.StatusCreated {
+		t.Fatal(bound.Code, bound.Body.String())
+	}
+	session := operatorRequest(h, http.MethodGet, "/public/v1/minipos/operator-session", token, "", "")
+	if session.Code != http.StatusOK {
+		t.Fatal(session.Code, session.Body.String())
+	}
+	return employee, token
+}
+
+func TestEditorsShiftOrder(t *testing.T) {
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, APIVersion: "2026-08-07"})
+	employee, cashier := cashierFixture(t, h, "Ada", "A001")
+	sh := operatorRequest(h, http.MethodPost, "/public/v1/minipos/shifts", cashier, "editor-shift-0001", `{"register_id":"00000000-0000-4000-8000-000000000001","employee_id":"`+employee.ID+`"}`)
+	if sh.Code != http.StatusCreated {
 		t.Fatal(sh.Code, sh.Body.String())
 	}
-	var shift map[string]any
-	_ = json.Unmarshal(sh.Body.Bytes(), &shift)
-	o := do(h, "POST", "/api/v1/orders", "", map[string]any{"shift_id": shift["id"]})
-	if o.Code != 201 {
-		t.Fatal(o.Code, o.Body.String())
+	var shift domain.Shift
+	if err := json.Unmarshal(sh.Body.Bytes(), &shift); err != nil {
+		t.Fatal(err)
+	}
+	order := operatorRequest(h, http.MethodPost, "/public/v1/minipos/orders", cashier, "editor-order-0001", `{"shift_id":"`+shift.ID+`"}`)
+	if order.Code != http.StatusCreated {
+		t.Fatal(order.Code, order.Body.String())
+	}
+	var created domain.Order
+	if err := json.Unmarshal(order.Body.Bytes(), &created); err != nil {
+		t.Fatal(err)
+	}
+	if created.ShiftID != shift.ID {
+		t.Fatalf("order belongs to wrong shift: %+v", created)
 	}
 }
 func TestShiftRecoveryFiltersByEmployeeRegisterAndState(t *testing.T) {
-	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey})
-	create := func(first, code, register string) map[string]any {
-		employeeResponse := do(h, http.MethodPost, "/api/v1/employees", "", map[string]any{"first_name": first, "last_name": "Cashier", "operator_code": code})
-		if employeeResponse.Code != http.StatusCreated {
-			t.Fatal(employeeResponse.Code, employeeResponse.Body.String())
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, APIVersion: "2026-08-07"})
+	create := func(subject, code, register string) (domain.Employee, string) {
+		t.Helper()
+		employee, token := cashierFixture(t, h, subject, code)
+		opened := operatorRequest(h, http.MethodPost, "/public/v1/minipos/shifts", token, "recovery-shift-"+code, `{"register_id":"`+register+`","employee_id":"`+employee.ID+`"}`)
+		if opened.Code != http.StatusCreated {
+			t.Fatal(opened.Code, opened.Body.String())
 		}
-		var employee map[string]any
-		_ = json.Unmarshal(employeeResponse.Body.Bytes(), &employee)
-		shiftResponse := do(h, http.MethodPost, "/api/v1/shifts", "", map[string]any{"register_id": register, "employee_id": employee["id"]})
-		if shiftResponse.Code != http.StatusCreated {
-			t.Fatal(shiftResponse.Code, shiftResponse.Body.String())
-		}
-		return employee
+		return employee, token
 	}
-	first := create("Ada", "A001", "00000000-0000-4000-8000-000000000001")
-	_ = create("Grace", "G001", "00000000-0000-4000-8000-000000000002")
-	recovery := do(h, http.MethodGet, "/api/v1/shifts?employee_id="+first["id"].(string)+"&register_id=00000000-0000-4000-8000-000000000001&state=OPEN", "", nil)
+	first, cashier := create("Ada", "A001", "00000000-0000-4000-8000-000000000001")
+	second, other := create("Grace", "G001", "00000000-0000-4000-8000-000000000002")
+	recovery := operatorRequest(h, http.MethodGet, "/public/v1/minipos/shifts?employee_id="+first.ID+"&register_id=00000000-0000-4000-8000-000000000001&state=OPEN", cashier, "", "")
 	if recovery.Code != http.StatusOK {
 		t.Fatal(recovery.Code, recovery.Body.String())
 	}
 	var page struct {
 		Items []domain.Shift `json:"items"`
 	}
-	_ = json.Unmarshal(recovery.Body.Bytes(), &page)
-	if len(page.Items) != 1 || page.Items[0].EmployeeID != first["id"] || page.Items[0].RegisterID != "00000000-0000-4000-8000-000000000001" || page.Items[0].State != "OPEN" {
+	if err := json.Unmarshal(recovery.Body.Bytes(), &page); err != nil {
+		t.Fatal(err)
+	}
+	if len(page.Items) != 1 || page.Items[0].EmployeeID != first.ID || page.Items[0].RegisterID != "00000000-0000-4000-8000-000000000001" || page.Items[0].State != "OPEN" {
 		t.Fatalf("unexpected recovery page: %+v", page.Items)
 	}
-	bad := do(h, http.MethodGet, "/api/v1/shifts?state=INVALID", "", nil)
+	for _, filter := range []string{"register_id=00000000-0000-4000-8000-000000000002", "state=CLOSED"} {
+		filtered := operatorRequest(h, http.MethodGet, "/public/v1/minipos/shifts?employee_id="+first.ID+"&"+filter, cashier, "", "")
+		if filtered.Code != http.StatusOK {
+			t.Fatal(filtered.Code, filtered.Body.String())
+		}
+		if err := json.Unmarshal(filtered.Body.Bytes(), &page); err != nil {
+			t.Fatal(err)
+		}
+		if len(page.Items) != 0 {
+			t.Fatalf("filter %s returned another shift: %+v", filter, page.Items)
+		}
+	}
+	for _, attempt := range []struct{ employee, token string }{{first.ID, other}, {second.ID, cashier}, {first.ID, defaultOperatorToken()}} {
+		denied := operatorRequest(h, http.MethodGet, "/public/v1/minipos/shifts?employee_id="+attempt.employee, attempt.token, "", "")
+		if denied.Code != http.StatusForbidden {
+			t.Fatalf("unbound or cross-employee recovery accepted: %d %s", denied.Code, denied.Body.String())
+		}
+	}
+	bad := operatorRequest(h, http.MethodGet, "/public/v1/minipos/shifts?employee_id="+first.ID+"&state=INVALID", cashier, "", "")
 	if bad.Code != http.StatusBadRequest {
 		t.Fatal(bad.Code, bad.Body.String())
 	}
@@ -631,10 +686,11 @@ func TestPublicContractAliasAndOptimisticUpdate(t *testing.T) {
 		t.Fatal(w.Code, w.Body.String())
 	}
 	r = httptest.NewRequest("GET", "/public/v1/minipos/products", nil)
+	r.Header.Set("Authorization", "Bearer "+defaultOperatorToken())
 	w = httptest.NewRecorder()
 	h.ServeHTTP(w, r)
 	if w.Code != 400 {
-		t.Fatal("version must be mandatory")
+		t.Fatalf("authenticated request without API version accepted: %d %s", w.Code, w.Body.String())
 	}
 }
 
@@ -704,5 +760,34 @@ func TestConfigurationRejectsNonUUIDFiscalRegister(t *testing.T) {
 	h.ServeHTTP(w, r)
 	if w.Code != http.StatusBadRequest || !strings.Contains(w.Body.String(), "REQUEST_CONTRACT_VIOLATION") {
 		t.Fatalf("non-UUID Fiscal register accepted: %d %s", w.Code, w.Body.String())
+	}
+}
+
+func TestPublicVersionAndAuthenticationPrecedence(t *testing.T) {
+	h := New(domain.NewService("http://invalid", "2026-08-07"), config.Config{AuthHMACKey: testAuthHMACKey, APIVersion: "2026-08-07"})
+	for _, tc := range []struct {
+		name, token, version string
+		want                 int
+	}{
+		{"anonymous-no-version", "", "", http.StatusUnauthorized},
+		{"anonymous-current-version", "", "2026-08-07", http.StatusUnauthorized},
+		{"authenticated-no-version", defaultOperatorToken(), "", http.StatusBadRequest},
+		{"authenticated-wrong-version", defaultOperatorToken(), "2020-01-01", http.StatusBadRequest},
+		{"authenticated-current-version", defaultOperatorToken(), "2026-08-07", http.StatusOK},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := httptest.NewRequest(http.MethodGet, "/public/v1/minipos/products", nil)
+			if tc.token != "" {
+				r.Header.Set("Authorization", "Bearer "+tc.token)
+			}
+			if tc.version != "" {
+				r.Header.Set("X-Api-Version", tc.version)
+			}
+			w := httptest.NewRecorder()
+			h.ServeHTTP(w, r)
+			if w.Code != tc.want {
+				t.Fatalf("status=%d want=%d body=%s", w.Code, tc.want, w.Body.String())
+			}
+		})
 	}
 }

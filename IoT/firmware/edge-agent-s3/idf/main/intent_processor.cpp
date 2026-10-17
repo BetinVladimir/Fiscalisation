@@ -9,6 +9,7 @@
 #include <cstring>
 #include <ctime>
 #include <memory>
+#include <utility>
 
 namespace beefiscal::idf {
 namespace {
@@ -88,16 +89,22 @@ const char *state(ExecutionCertainty c) {
     return "REJECTED";
   }
 }
-std::string result_json(const ReceiptPlan &p, const ExecutionResult &r) {
-  char b[1024];
-  snprintf(b, sizeof(b),
-           "{\"error_code\":\"%s\",\"fiscal_reference\":\"%s\",\"operation_"
-           "id\":\"%s\",\"state\":\"%s\",\"terminal_reference\":\"%s\","
-           "\"rrn\":\"%s\",\"auth_code\":\"%s\"}",
-           r.error_code.c_str(), r.fiscal_reference.c_str(),
-           p.operation_id.c_str(), state(r.certainty),
-           r.terminal_reference.c_str(), r.rrn.c_str(), r.auth_code.c_str());
-  return b;
+std::string result_json(const std::string &operation_id, const ExecutionResult &r) {
+  Json root(cJSON_CreateObject());
+  if (!root) return {};
+  const std::pair<const char *, const std::string *> fields[] = {
+      {"error_code", &r.error_code}, {"fiscal_reference", &r.fiscal_reference},
+      {"operation_id", &operation_id}, {"state", nullptr},
+      {"terminal_reference", &r.terminal_reference}, {"rrn", &r.rrn},
+      {"auth_code", &r.auth_code}};
+  for (const auto &field : fields)
+    if (!cJSON_AddStringToObject(root.get(), field.first,
+        field.second ? field.second->c_str() : state(r.certainty))) return {};
+  char *raw = cJSON_PrintUnformatted(root.get());
+  if (!raw) return {};
+  std::string result(raw);
+  cJSON_free(raw);
+  return result;
 }
 std::string accepted_json(const ReceiptPlan &p, const CompositeBinding &b,
                           const AuthorityReservation &a) {
@@ -378,7 +385,8 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
   if (checkpoint != ESP_OK)
     return checkpoint;
   auto r = executor_.execute(p);
-  auto result = result_json(p, r);
+  auto result = result_json(p.operation_id, r);
+  if (result.empty()) return ESP_ERR_NO_MEM;
   // CARD states and references belong to individual executor checkpoints.
   // An operation-level result cannot safely overwrite per-tender evidence.
   std::vector<InitialPayment> cash_payments;
@@ -402,41 +410,34 @@ esp_err_t IntentProcessor::accept(const CommandView &v) {
 }
 esp_err_t IntentProcessor::recover_pending() {
   esp_err_t result = ESP_OK;
-  storage_.recovery(128, [&](const RecoveryItem &i) {
+  const auto scanned = storage_.recovery(128, [&](const RecoveryItem &i) {
+    // Legacy incomplete snapshots cannot be projected atomically. Preserve the
+    // pending operation and do not contact devices without its receipt context.
+    if (i.receipt_id.empty() || i.canonical_payload.empty()) {
+      result = ESP_FAIL;
+      return true;
+    }
     auto r = executor_.recover(i);
-    const auto terminal = r.terminal_reference.empty() ? i.terminal_reference
-                                                       : r.terminal_reference;
-    const auto rrn = r.rrn.empty() ? i.rrn : r.rrn;
-    const auto auth = r.auth_code.empty() ? i.auth_code : r.auth_code;
-    std::string payload =
-        "{\"auth_code\":\"" + auth + "\",\"fiscal_reference\":\"" +
-        r.fiscal_reference + "\",\"operation_id\":\"" + i.operation_id +
-        "\",\"rrn\":\"" + rrn + "\",\"state\":\"" + state(r.certainty) +
-        "\",\"terminal_reference\":\"" + terminal + "\"}";
+    if (r.terminal_reference.empty()) r.terminal_reference = i.terminal_reference;
+    if (r.rrn.empty()) r.rrn = i.rrn;
+    if (r.auth_code.empty()) r.auth_code = i.auth_code;
+    const auto payload = result_json(i.operation_id, r);
+    if (payload.empty()) { result = ESP_ERR_NO_MEM; return true; }
     const int64_t at = now();
-    if (storage_.set_operation_state(i.operation_id.c_str(), state(r.certainty),
-                                     payload.c_str(), at) != ESP_OK)
+    const auto digest = hash(payload.data(), payload.size());
+    // Recovery may progress UNKNOWN -> COMMITTED. Content-address the evidence
+    // so an earlier uncertain result cannot mask the later terminal projection.
+    const std::string event = "recovery-" + i.operation_id + "-" + digest;
+    // RecoveryItem currently exposes only one selected payment. Its result is
+    // not sufficient authority to rewrite all (or an arbitrary selected) tender
+    // records. Keep executor-owned durable payment checkpoints unchanged.
+    if (storage_.complete_operation(
+            i.operation_id.c_str(), i.receipt_id.c_str(), state(r.certainty),
+            i.canonical_payload.c_str(), payload.c_str(), {}, event.c_str(),
+            "RECOVERY_RESULT", digest.c_str(), at) != ESP_OK)
       result = ESP_FAIL;
-    if (!i.receipt_id.empty() && !i.canonical_payload.empty() &&
-        storage_.upsert_receipt(i.receipt_id.c_str(), i.operation_id.c_str(),
-                                state(r.certainty), i.canonical_payload.c_str(),
-                                at) != ESP_OK)
-      result = ESP_FAIL;
-    if (!i.payment_id.empty() &&
-        storage_.upsert_payment(
-            i.payment_id.c_str(), i.operation_id.c_str(),
-            i.receipt_id.empty() ? nullptr : i.receipt_id.c_str(),
-            state(r.certainty), i.payment_amount_minor,
-            terminal.empty() ? nullptr : terminal.c_str(),
-            rrn.empty() ? nullptr : rrn.c_str(),
-            auth.empty() ? nullptr : auth.c_str(), at) != ESP_OK)
-      result = ESP_FAIL;
-    std::string event = "recovery-" + i.operation_id;
-    storage_.append_event(event.c_str(), i.operation_id.c_str(),
-                          "RECOVERY_RESULT", payload.c_str(),
-                          hash(payload.data(), payload.size()).c_str(), at);
     return true;
   });
-  return result;
+  return scanned == ESP_OK ? result : scanned;
 }
 } // namespace beefiscal::idf

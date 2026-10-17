@@ -10,7 +10,7 @@ mismatch, ошибки Datecs LEN/stream parsing и неактуальный bui
 `org.beeloy.bluecash.prod`; `com.beeloy.fiscal.bluecash` — namespace.
 Release tasks сейчас намеренно завершаются `STORE_BLOCKED`.
 Для будущего debug-HIL использовать точные flavored tasks после проверки
-`gradlew tasks`; старый `make smart-device-test` требует актуализации.
+`gradlew tasks`. `make smart-device-test` выполняет prod/demo debug unit tests и создаёт четыре debug APK; `make smart-device-host-test` отдельно проверяет actual Kotlin Datecs codec на vendor vectors. Нужны JDK17, Android SDK36 и cached Kotlin2.0.21 dependencies для host runner. Release gate по-прежнему блокирует выпуск до HIL; debug build не подтверждает работоспособность Daisy stub.
 Daisy SMART остаётся STUB и отличается от Daisy USB через S3.
 
 

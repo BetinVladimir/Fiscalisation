@@ -813,6 +813,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/minipos/orders/{order_id}/operations/{client_operation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read-only recovery of the original checkout operation, authorized by order tenant and shift actor. Lookup errors or missing association never permit resubmission. */
+        get: operations["getMiniPosCheckoutOperation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/minipos/orders/{order_id}/checkout-batch": {
         parameters: {
             query?: never;
@@ -1462,7 +1479,7 @@ export interface components {
         };
         PeriodizedComplianceExportRequest: {
             /** @enum {string} */
-            type: "SUPTO_18_1" | "SUPTO_18_2" | "SUPTO_18_3" | "SUPTO_18_4" | "SUPTO_18_5" | "SUPTO_18_9" | "KLEN" | "FISCAL_MEMORY";
+            type: "SUPTO_18_1" | "SUPTO_18_2" | "SUPTO_18_3" | "SUPTO_18_4" | "SUPTO_18_5" | "SUPTO_18_6" | "SUPTO_18_7" | "SUPTO_18_8" | "SUPTO_18_9" | "KLEN" | "FISCAL_MEMORY";
             /**
              * Format: date-time
              * @description Inclusive interval start
@@ -3579,6 +3596,36 @@ export interface operations {
                 };
             };
             404: components["responses"]["Problem"];
+        };
+    };
+    getMiniPosCheckoutOperation: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path: {
+                order_id: components["parameters"]["OrderId"];
+                client_operation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Associated operation fetched with the company's Fiscal credential */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosFiscalOperation"];
+                };
+            };
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            502: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
         };
     };
     checkoutMiniPosOrderBatch: {

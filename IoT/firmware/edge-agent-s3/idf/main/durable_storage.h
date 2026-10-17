@@ -17,6 +17,7 @@ struct RecoveryItem{std::string operation_id;std::string receipt_id;std::string 
   std::string payment_id;
   int64_t payment_amount_minor{};std::string payment_state,terminal_reference,rrn,auth_code;
   int64_t updated_at;};
+struct FrozenSyncBatch{std::string batch_id,body,last_event_hash,previous_hash;int64_t first_sequence{},last_sequence{};};
 struct AuthorityReservation{int64_t operation_sequence{},unp_sequence{};std::string unp;};
 struct InitialPayment{std::string payment_id;int64_t amount_minor{};};
 struct OperationRecord{std::string operation_id,payload_digest,state,result_payload;int64_t updated_at{};};
@@ -60,6 +61,8 @@ public:
     const char* payload,const char* digest,int64_t now);
   esp_err_t pending(size_t limit,const std::function<bool(const PendingEvent&)>&);
   esp_err_t record_publish_attempt(const char* event_id,const char* error,int64_t now);
+  esp_err_t frozen_sync_batch(FrozenSyncBatch&)const;
+  esp_err_t freeze_sync_batch(const FrozenSyncBatch&,const std::vector<PendingEvent>&);
   esp_err_t acknowledge_through(int64_t sequence,const char* ack_id,
     const char* committed_event_hash,int64_t now);
   esp_err_t recovery(size_t limit,const std::function<bool(const RecoveryItem&)>&);

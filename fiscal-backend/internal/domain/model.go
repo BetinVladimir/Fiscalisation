@@ -26,6 +26,8 @@ type PaymentRecord struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 type FiscalDeviceSnapshot struct {
+	AdapterDeviceID    string `json:"adapter_device_id,omitempty"`
+	BindingGeneration  int64  `json:"binding_generation,omitempty"`
 	DeviceID           string `json:"device_id"`
 	BindingVersion     int64  `json:"binding_version,omitempty"`
 	Serial             string `json:"serial,omitempty"`

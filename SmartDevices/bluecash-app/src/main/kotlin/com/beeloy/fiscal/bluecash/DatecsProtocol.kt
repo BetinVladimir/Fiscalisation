@@ -32,7 +32,7 @@ object DatecsFrameCodec {
       "DATECS_FRAME_FIELDS"
     }
     val out = mutableListOf(SOH.toByte())
-    putWord(out, data.size + 0x26)
+    putWord(out, data.size + 0x2a)
     out += sequence.toByte()
     putWord(out, command)
     out += data.toList()
@@ -46,12 +46,12 @@ object DatecsFrameCodec {
     require(raw.size >= 25 && raw[0].toInt() == SOH && raw.last().toInt() == ETX) {
       "DATECS_BAD_FRAME"
     }
-    val dataSize = word(raw, 1) - 0x2f
-    require(dataSize >= 0 && raw.size == 25 + dataSize) { "DATECS_LENGTH" }
+    val dataSize = word(raw, 1) - 0x33
+    require(dataSize in 0..480 && raw.size == 25 + dataSize) { "DATECS_LENGTH" }
     val separator = 10 + dataSize
     val checksumAt = 19 + dataSize
     require(raw[separator].toInt() == EOT && raw[checksumAt].toInt() == ENQ) { "DATECS_SEPARATOR" }
-    val expected = (1 until checksumAt).sumOf { raw[it].toInt() and 255 } and 0xffff
+    val expected = (1..checksumAt).sumOf { raw[it].toInt() and 255 } and 0xffff
     require(word(raw, checksumAt + 1) == expected) { "DATECS_BCC" }
     return DatecsResponse(
       raw[5].toInt() and 255,
