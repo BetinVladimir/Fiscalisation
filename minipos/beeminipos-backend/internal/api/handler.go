@@ -28,6 +28,7 @@ type fiscalOperationReader interface {
 }
 type handler struct {
 	operations fiscalOperationReader
+	execution  fiscalExecutionAuthorizer
 	s          *domain.Service
 	c          config.Config
 	a          *emailauth.Service
@@ -44,6 +45,7 @@ func NewWithIntegrations(s *domain.Service, c config.Config, email *emailauth.Se
 	h := &handler{s: s, c: c, a: email, f: fiscal}
 	if fiscal != nil {
 		h.operations = fiscal
+		h.execution = fiscal
 	}
 	m := http.NewServeMux()
 	m.HandleFunc("/livez", h.health)
@@ -69,6 +71,8 @@ func NewWithIntegrations(s *domain.Service, c config.Config, email *emailauth.Se
 	m.HandleFunc("/public/v1/minipos/employees/", h.employee)
 	m.HandleFunc("/public/v1/minipos/operator-session", h.operatorSession)
 	m.HandleFunc("/public/v1/minipos/fiscal-local-tokens", h.localFiscalToken)
+	m.HandleFunc("/public/v1/minipos/execution-authorizations", h.executionAuthorization)
+	m.HandleFunc("/public/v1/minipos/execution-authorizations:dispatch", h.dispatchExecutionAuthorization)
 	m.HandleFunc("/public/v1/minipos/fiscal-route-health", h.fiscalRouteHealth)
 	m.HandleFunc("/public/v1/minipos/shifts", h.shifts)
 	m.HandleFunc("/public/v1/minipos/shifts/", h.shift)
@@ -1264,6 +1268,8 @@ func publicOrder(order domain.Order) map[string]any {
 	result := map[string]any{}
 	_ = json.Unmarshal(raw, &result)
 	delete(result, "payments")
+	delete(result, "fiscal_register_id")
+	delete(result, "execution_authorization_id")
 	return result
 }
 func problem(w http.ResponseWriter, s int, d string) {

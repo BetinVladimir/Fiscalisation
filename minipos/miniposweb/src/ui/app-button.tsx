@@ -12,5 +12,5 @@ export function AppButton({contentStyle,labelStyle,style,mode,accessibilityRole=
   style={[{maxWidth:'100%',flexShrink:1},style]}
   contentStyle={[{minHeight:touchTarget.min,minWidth:touchTarget.min},contentStyle]}
   labelStyle={[{flexWrap:'wrap',flexShrink:1,minWidth:0},labelStyle]}
-  onPress={event=>{const current=latest.current;if(mounted.current&&!current.disabled&&!current.loading)current.onPress?.(event)}}/>;
+  onPress={event=>{const current=latest.current;if(mounted.current&&current===snapshot&&!current.disabled&&!current.loading)current.onPress?.(event)}}/>;
 }

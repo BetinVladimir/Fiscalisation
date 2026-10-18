@@ -24,7 +24,11 @@ ExecutionResult ProfileExecutor::execute(const ReceiptPlan&p){
  if(prior==ESP_OK)return uncertain("PAYMENT_SAGA_RECONCILIATION_REQUIRED");
  if(prior!=ESP_ERR_NOT_FOUND)return uncertain("PAYMENT_SAGA_STORAGE_FAILED");
  if(!binding_.payment.present||!io_.payment_ready())return{ExecutionCertainty::DeviceUnavailable,"","PAYMENT_TERMINAL_UNAVAILABLE","","",""};
- if(storage_->begin_payment_saga(p.operation_id.c_str(),p.receipt_session_id.c_str(),cards,std::time(nullptr))!=ESP_OK)return uncertain("PAYMENT_SAGA_BEGIN_FAILED");
+ if(binding_.payment.device_id.empty())return{ExecutionCertainty::Rejected,"","PAYMENT_TERMINAL_ID_REQUIRED","","",""};
+ const auto started=storage_->begin_payment_saga(p.operation_id.c_str(),p.receipt_session_id.c_str(),cards,std::time(nullptr),binding_.payment.device_id.c_str());
+ if(started==ESP_ERR_NOT_SUPPORTED)return{ExecutionCertainty::Rejected,"","PAYMENT_TERMINAL_LEGACY_INVENTORY_REQUIRED","","",""};
+ if(started==ESP_ERR_INVALID_STATE)return{ExecutionCertainty::Rejected,"","PAYMENT_TERMINAL_RECONCILIATION_REQUIRED","","",""};
+ if(started!=ESP_OK)return uncertain("PAYMENT_SAGA_BEGIN_FAILED");
  std::vector<std::pair<IntentPayment,PaymentOutcome>>approved;
  auto compensate=[&](const char*reason)->ExecutionResult{
   const auto&last=approved.back().second;

@@ -10,6 +10,7 @@ idf_component_register(
     "runtime_config.cpp"
     "intent_processor.cpp"
     "execution_authorization.cpp"
+    "payment_reconciliation.cpp"
     "command_queue.cpp"
     "canonical_cbor.cpp"
     "device_identity.cpp"

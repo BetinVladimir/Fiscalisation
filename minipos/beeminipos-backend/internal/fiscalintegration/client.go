@@ -22,6 +22,16 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+// HTTPStatusError preserves an authoritative upstream denial across the source bridge.
+type HTTPStatusError struct {
+	StatusCode int
+	Body       string
+}
+
+func (e *HTTPStatusError) Error() string {
+	return fmt.Sprintf("Fiscal HTTP %d: %s", e.StatusCode, e.Body)
+}
+
 type Client struct {
 	db                       *sql.DB
 	base, systemToken, keyID string
@@ -132,7 +142,7 @@ func (c *Client) call(ctx context.Context, method, path, token, idempotency stri
 		return e
 	}
 	if resp.StatusCode < 200 || resp.StatusCode >= 300 {
-		return fmt.Errorf("Fiscal HTTP %d: %s", resp.StatusCode, string(data))
+		return &HTTPStatusError{StatusCode: resp.StatusCode, Body: string(data)}
 	}
 	if out != nil {
 		return json.Unmarshal(data, out)

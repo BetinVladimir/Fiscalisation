@@ -21,7 +21,7 @@ with tempfile.TemporaryDirectory(prefix="reversal-host-") as name:
  args=[os.environ.get("CXX","c++"),"-std=c++17","-Wall","-Wextra","-Werror"]
  if os.environ.get("SANITIZE"): args += ["-fsanitize=address,undefined","-fno-omit-frame-pointer"]
  for inc in [mbed_include,here,idf/"tests/sync_host",idf/"tests/storage_host",idf/"main",here.parents[5]/"IoT/protocol-abstraction/include",cjson,ssl/"include"]:args += ["-I",inc]
- args += [idf/"main"/f for f in ["durable_storage.cpp","go_json.cpp","go_wire.cpp","intent_processor.cpp","execution_authorization.cpp","canonical_cbor.cpp","profile_executor.cpp","profile_orchestrator.cpp","serial_exchange.cpp"]]
+ args += [idf/"main"/f for f in ["durable_storage.cpp","go_json.cpp","go_wire.cpp","intent_processor.cpp","execution_authorization.cpp","payment_reconciliation.cpp","canonical_cbor.cpp","profile_executor.cpp","profile_orchestrator.cpp","serial_exchange.cpp"]]
  args += [here.parents[5]/"IoT/protocol-abstraction/src"/f for f in ["FrameCodec.cpp","CommandPayload.cpp"]]
  args += [here/"runtime.cpp",d/"cJSON.o",mbed_library,"-L",ssl/"lib","-lcrypto","-lsqlite3","-o",d/"runtime"]
  run(args)

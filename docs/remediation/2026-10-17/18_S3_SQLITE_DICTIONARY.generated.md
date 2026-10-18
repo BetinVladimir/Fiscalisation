@@ -2,9 +2,9 @@
 
 Generated from actual firmware SQL. Field names, SQLite declared types, defaults, keys, relations and executable DDL are authoritative to this source hash; business descriptions require review.
 
-Source SHA256: `25bfcc52b226d256993f24954b2bf8704b74e22952833e845964a0ca2df2aca6`
+Source SHA256: `a3aa973183ee484af3e13079d5dfb49714327b510af630eb48520af7d0c94aba`
 
-Schema SQL SHA256: `5cece51937fcd06080460ef782b48118e0820bb747593274282f7e51b6ee4616`
+Schema SQL SHA256: `80e0b9539a16897733296a8cb28c3fee250013c06601e41cbe09317ec372136b`
 
 Recognized forward migrations: `["ALTER TABLE sync_cursor ADD COLUMN committed_event_hash TEXT"]`
 
@@ -137,6 +137,28 @@ Durable operation identity, payload digest, first transport, route snapshot, sta
 Foreign keys: `[]`
 
 Indexes: `[{"columns": [{"cid": 0, "name": "operation_id", "sequence": 0}], "name": "sqlite_autoindex_operations_1", "origin": "pk", "partial": 0, "unique": 1}]`
+
+## payment_reconciliations
+
+Audited exact payment CAS decisions and evidence/authorization references; not independent bank proof.
+
+| Field | SQLite declared type | NOT NULL | PK position | Default SQL |
+|---|---|---|---|---|
+| reconciliation_id | TEXT | False | 1 | None |
+| terminal_id | TEXT | True | 0 | None |
+| payment_id | TEXT | True | 0 | None |
+| operation_id | TEXT | True | 0 | None |
+| actor_id | TEXT | True | 0 | None |
+| evidence_reference | TEXT | True | 0 | None |
+| evidence_sha256 | TEXT | True | 0 | None |
+| authorization_sha256 | TEXT | True | 0 | None |
+| old_state | TEXT | True | 0 | None |
+| new_state | TEXT | True | 0 | None |
+| created_at | INTEGER | True | 0 | None |
+
+Foreign keys: `[{"from_column": "operation_id", "id": 0, "match": "NONE", "on_delete": "NO ACTION", "on_update": "NO ACTION", "sequence": 0, "target_table": "operations", "to_column": "operation_id"}, {"from_column": "payment_id", "id": 1, "match": "NONE", "on_delete": "NO ACTION", "on_update": "NO ACTION", "sequence": 0, "target_table": "payments", "to_column": "payment_id"}]`
+
+Indexes: `[{"columns": [{"cid": 0, "name": "reconciliation_id", "sequence": 0}], "name": "sqlite_autoindex_payment_reconciliations_1", "origin": "pk", "partial": 0, "unique": 1}]`
 
 ## payment_saga
 
@@ -283,6 +305,20 @@ Foreign keys: `[]`
 
 Indexes: `[]`
 
+## terminal_payment_guard
+
+Persistent terminal-scoped operation ownership; unresolved payment quarantine survives restart.
+
+| Field | SQLite declared type | NOT NULL | PK position | Default SQL |
+|---|---|---|---|---|
+| terminal_id | TEXT | False | 1 | None |
+| operation_id | TEXT | True | 0 | None |
+| created_at | INTEGER | True | 0 | None |
+
+Foreign keys: `[{"from_column": "operation_id", "id": 0, "match": "NONE", "on_delete": "NO ACTION", "on_update": "NO ACTION", "sequence": 0, "target_table": "operations", "to_column": "operation_id"}]`
+
+Indexes: `[{"columns": [{"cid": 0, "name": "terminal_id", "sequence": 0}], "name": "sqlite_autoindex_terminal_payment_guard_1", "origin": "pk", "partial": 0, "unique": 1}, {"columns": [{"cid": 1, "name": "operation_id", "sequence": 0}], "name": "sqlite_autoindex_terminal_payment_guard_2", "origin": "u", "partial": 0, "unique": 1}]`
+
 ## SQLite schema definitions (reference, not a restore script)
 
 SQLite-owned objects such as sqlite_sequence are engine metadata; do not execute their definitions manually. The extractor does not restore or migrate a production database.
@@ -341,6 +377,10 @@ CREATE TABLE operations(
 ```
 
 ```sql
+CREATE TABLE payment_reconciliations(reconciliation_id TEXT PRIMARY KEY,terminal_id TEXT NOT NULL,payment_id TEXT NOT NULL REFERENCES payments(payment_id),operation_id TEXT NOT NULL REFERENCES operations(operation_id),actor_id TEXT NOT NULL,evidence_reference TEXT NOT NULL,evidence_sha256 TEXT NOT NULL,authorization_sha256 TEXT NOT NULL,old_state TEXT NOT NULL,new_state TEXT NOT NULL,created_at INTEGER NOT NULL);
+```
+
+```sql
 CREATE TABLE payment_saga(
  operation_id TEXT PRIMARY KEY REFERENCES operations(operation_id),phase TEXT NOT NULL,updated_at INTEGER NOT NULL);
 ```
@@ -383,4 +423,8 @@ CREATE TABLE sqlite_sequence(name,seq);
 CREATE TABLE sync_cursor(singleton INTEGER PRIMARY KEY CHECK(singleton=1),
  acknowledged_sequence INTEGER NOT NULL DEFAULT 0,ack_id TEXT,committed_event_hash TEXT,
  updated_at INTEGER NOT NULL DEFAULT 0);
+```
+
+```sql
+CREATE TABLE terminal_payment_guard(terminal_id TEXT PRIMARY KEY,operation_id TEXT NOT NULL UNIQUE REFERENCES operations(operation_id),created_at INTEGER NOT NULL);
 ```

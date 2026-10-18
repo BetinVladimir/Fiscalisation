@@ -35,6 +35,8 @@ PURPOSES = {
  'authority_ranges': 'Historical provisioned UNP lease generations.',
  'receipt_authority': 'Receipt allocation/execution UNP and authority snapshot.',
  'sale_unp_claims': 'Unique local sale UNP claims and operation association.',
+ 'terminal_payment_guard': 'Persistent terminal-scoped operation ownership; unresolved payment quarantine survives restart.',
+ 'payment_reconciliations': 'Audited exact payment CAS decisions and evidence/authorization references; not independent bank proof.',
  'sqlite_sequence': 'SQLite AUTOINCREMENT high-water marks; included for complete extraction.',
 }
 
@@ -145,7 +147,7 @@ def sidecars(path):
 
 
 def markdown(dictionary):
-    out = ['# Generated S3 SQLite dictionary', '',
+    out = ['# Generated ' + dictionary['source'].get('store_label', 'S3 SQLite') + ' dictionary', '',
            'Generated from actual firmware SQL. Field names, SQLite declared types, defaults, keys, relations and executable DDL are authoritative to this source hash; business descriptions require review.', '',
            'Source SHA256: `' + dictionary['source']['sha256'] + '`', '',
            'Schema SQL SHA256: `' + dictionary['source']['schema_sql_sha256'] + '`', '',
@@ -165,7 +167,7 @@ def markdown(dictionary):
     return '\n'.join(out).encode()
 
 
-def extract(database, output, source, device_id, source_commit, acquisition_note, quiescent_copy=False):
+def extract(database, output, source, device_id, source_commit, acquisition_note, quiescent_copy=False, *, schema_provider=None, storage_profile=None):
     if not quiescent_copy:
         raise ValueError('Require --quiescent-copy: acquire an offline consistent copy with all writers stopped first')
     original = Path(database).absolute()
@@ -185,7 +187,8 @@ def extract(database, output, source, device_id, source_commit, acquisition_note
         raise ValueError('source-commit must be a full lowercase source revision identifier')
     if not device_id.strip() or not acquisition_note.strip():
         raise ValueError('Device and acquisition description are required operator declarations')
-    expected = expected_schema(source)
+    profile = storage_profile or {}
+    expected = (schema_provider or expected_schema)(source)
     before = file_hash(database)
     stage = Path(tempfile.mkdtemp(prefix='.s3-extract-', dir=output_parent))
     os.chmod(stage, 0o700)
@@ -209,6 +212,11 @@ def extract(database, output, source, device_id, source_commit, acquisition_note
         db.execute('PRAGMA trusted_schema=OFF')
         db.execute('BEGIN')
         actual = schema(db)
+        for table in actual["tables"]:
+            table["purpose"] = profile.get("table_purposes", {}).get(table["name"], table["purpose"])
+        user_version = db.execute('PRAGMA user_version').fetchone()[0]
+        if 'user_version' in profile and user_version != profile['user_version']:
+            raise ValueError('Database user_version differs from selected storage profile')
         if actual != {k: v for k, v in expected.items() if k != 'source'}:
             raise ValueError('Database schema differs from selected actual firmware schema; no silent omission/migration permitted')
         integrity = [row[0] for row in db.execute('PRAGMA integrity_check')]
@@ -243,23 +251,29 @@ def extract(database, output, source, device_id, source_commit, acquisition_note
         after = file_hash(database)
         if before != after or sidecars(database):
             raise ValueError('Source changed during extraction; acquired copy was not quiescent')
-        manifest = {'format': 'beefiscal-s3-sqlite-extract-v1', 'exported_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
-                    'scope': 'complete acquired S3 SQLite database only',
+        manifest = {'format': profile.get('format', 'beefiscal-s3-sqlite-extract-v1'), 'exported_at': datetime.datetime.now(datetime.timezone.utc).isoformat(),
+                    'scope': profile.get('scope', 'complete acquired S3 SQLite database only'),
                     'status': 'EXPORTED_WITH_FOREIGN_KEY_ISSUES' if foreign_keys else 'EXPORTED',
                     'acquisition': {'device_id_declared': device_id, 'note_declared': acquisition_note,
                                     'quiescent_copy_declared': True, 'source_commit_declared': source_commit,
                                     'provenance_authenticated': False},
                     'input': {'sha256': before, 'bytes': database.stat().st_size},
-                    'tool': {'source_sha256': sha(Path(__file__).read_bytes()), 'python_sqlite_version': sqlite3.sqlite_version},
+                    'tool': {'source_sha256': sha(Path(__file__).read_bytes()), 'python_sqlite_version': sqlite3.sqlite_version,
+                             **profile.get('tool_metadata', {})},
                     'firmware_schema_source': expected['source'], 'schema_versions': [],
+                    'sqlite_user_version': user_version,
+                    'entrypoint': profile.get('entrypoint', 'scripts/export_s3_sqlite.py'),
                     'integrity_check': integrity, 'foreign_key_issues': foreign_keys,
                     'tables': counts, 'files': files,
                     'not_included': ['cloud Fiscal/MiniPOS PostgreSQL and audit/event/object stores', 'Android BlueCash and native app databases/preferences',
                                      'MiniPOSWeb IndexedDB/localStorage', 'ESP32-S3 NVS identities/configuration/secrets', 'physical fiscal/POS device memory',
                                      'pruned local records and already lost data', 'authenticated firmware/device provenance or legal determination']}
         # schema_version rows already included losslessly; manifest is a convenience index.
-        version_file = stage / counts['schema_version']['file']
-        manifest['schema_versions'] = [json.loads(line) for line in version_file.read_text().splitlines()]
+        if 'schema_version' in counts:
+            version_file = stage / counts['schema_version']['file']
+            manifest['schema_versions'] = [json.loads(line) for line in version_file.read_text().splitlines()]
+        if 'not_included' in profile:
+            manifest['not_included'] = profile['not_included']
         with (stage / 'manifest.json').open('xb') as handle:
             os.chmod(stage / 'manifest.json', 0o600)
             handle.write(encode_json(manifest))
@@ -305,14 +319,14 @@ def decode_typed(cell):
     raise ValueError('Invalid typed cell')
 
 
-def verify(directory):
+def verify(directory, *, allowed_formats=('beefiscal-s3-sqlite-extract-v1',)):
     """Check accidental corruption/completeness, NOT signatures or provenance."""
     directory = Path(directory).resolve(strict=True)
     manifest_path = directory / 'manifest.json'
     if manifest_path.is_symlink():
         raise ValueError('Symlink manifest rejected')
     manifest = json.loads(manifest_path.read_text())
-    if manifest.get('format') != 'beefiscal-s3-sqlite-extract-v1':
+    if manifest.get('format') not in allowed_formats:
         raise ValueError('Unsupported extraction format')
     files = manifest.get('files')
     if not isinstance(files, dict) or set(p.name for p in directory.iterdir()) != set(files) | {'manifest.json'}:

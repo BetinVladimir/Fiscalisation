@@ -177,6 +177,7 @@ func newHandler(s *domain.Service, c config.Config, integrationHandler http.Hand
 	m.HandleFunc("/public/v1/webhook-endpoints/", h.webhookEndpoint)
 	m.HandleFunc("/public/v1/ble-sessions/", h.bleSession)
 	m.HandleFunc("/public/v1/edge-sync/batches", h.sync)
+	m.HandleFunc("/public/v1/payment-reconciliations:authorize", h.paymentReconciliations)
 	m.HandleFunc("/public/v1/execution-authorizations", h.executionAuthorizations)
 	m.HandleFunc("/public/v1/operators:bind-identity", h.operatorIdentityBinding)
 	m.HandleFunc("/public/v1/device-activation-requests/", h.deviceActivationConfirmation)

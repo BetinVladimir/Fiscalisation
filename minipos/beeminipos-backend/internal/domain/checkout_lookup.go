@@ -16,7 +16,7 @@ func (s *Service) ApplyValidatedCheckoutLookup(tenant string, expected Order, pr
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	current, ok := s.orders[expected.ID]
-	if !ok || tenant == "" || current.TenantID != tenant || current.CheckoutOperationID != proof.OperationID || current.ReceiptSessionID != proof.ReceiptSessionID || current.RegisterID != proof.RegisterID || proof.SaleID == "" || proof.Version < 1 || (current.FiscalSaleID != "" && current.FiscalSaleID != proof.SaleID) {
+	if !ok || tenant == "" || current.TenantID != tenant || current.CheckoutOperationID != proof.OperationID || current.ReceiptSessionID != proof.ReceiptSessionID || FiscalRegisterForOrder(current) != proof.RegisterID || proof.SaleID == "" || proof.Version < 1 || (current.FiscalSaleID != "" && current.FiscalSaleID != proof.SaleID) {
 		return Order{}, errors.New("checkout lookup association conflict")
 	}
 	if current.Version != expected.Version {

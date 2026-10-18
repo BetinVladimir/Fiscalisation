@@ -1,3 +1,4 @@
+import {PaperOperationalHeader} from './ui/PaperOperationalHeader';
 import { persistAuthTokens } from './storage/authTokens';
 import { foundationCopy } from '../../../../BeeloyBackend/mobile/shared-ui/src/foundation-copy.generated';
 import { AppButton as Button } from './ui/app-button';
@@ -57,9 +58,7 @@ export function AuthFlow({ backend, onAuthenticated }: { backend: string; onAuth
     save(await auth.onboarding(onboardingToken, {company_name:companyName.trim(),address:address.trim(),tax_identifier:taxIdentifier.trim(),full_name:fullName.trim()}));
   });
   return <Surface testID="minipos.auth.surface" mode="flat" elevation={0} style={{minHeight:'100%',minWidth:0,backgroundColor:theme.colors.background}}><main className="auth-shell"><div className="auth-card">
-    <Surface elevation={1} style={{ backgroundColor: theme.colors.surface, position: 'relative', zIndex: 10, flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end", gap: 8, padding: 8, marginBottom: 12, borderRadius: 12 }}>
-      <PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="auth" />
-    </Surface>
+    <PaperOperationalHeader testID="auth.header" title={title(language,t.signIn)} preferences={target=><PreferenceControls target={target} language={language} onLanguageChange={setLanguage} testIdPrefix="auth"/>}/>
     <Card mode="outlined" style={{ backgroundColor: theme.colors.surface }}><Card.Content><div className="auth-form-stack">
       <Text variant="headlineSmall" accessibilityRole="header">{title(language, t.signIn)}</Text>
       {stage === "email" && <>

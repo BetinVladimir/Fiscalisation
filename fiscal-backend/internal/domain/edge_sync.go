@@ -111,7 +111,7 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 	outbox := []OutboxItem{}
 	materializedSales := map[string]Sale{}
 	expectation := EdgeSyncExpectation{Cursor: expectedCursor, Hash: expectedPrevious, SaleVersions: map[string]int64{}, OperationVersions: map[string]int64{}, PendingDigests: map[string]string{}}
-	allowed := map[string]bool{"ACCEPTED": true, "EXECUTING": true, "PAYMENT_PREPARED": true, "PAYMENT_APPROVED": true, "FISCAL_OPENING": true, "FISCAL_OPEN": true, "LINES_REGISTERING": true, "PAYMENTS_REGISTERING": true, "FISCAL_CLOSING": true, "COMPENSATION_REQUIRED": true, "COMPENSATED": true, "RECOVERY_REQUIRED": true, "FISCALIZED": true, "REVERSED": true, "FAILED": true, "UNKNOWN": true, "SNAPSHOT": true, "SYNC_BATCH": true}
+	allowed := map[string]bool{"PAYMENT_RECONCILED": true, "ACCEPTED": true, "EXECUTING": true, "PAYMENT_PREPARED": true, "PAYMENT_APPROVED": true, "FISCAL_OPENING": true, "FISCAL_OPEN": true, "LINES_REGISTERING": true, "PAYMENTS_REGISTERING": true, "FISCAL_CLOSING": true, "COMPENSATION_REQUIRED": true, "COMPENSATED": true, "RECOVERY_REQUIRED": true, "FISCALIZED": true, "REVERSED": true, "FAILED": true, "UNKNOWN": true, "SNAPSHOT": true, "SYNC_BATCH": true}
 	for i, event := range v.Events {
 		occurredAt, occurredErr := time.Parse(time.RFC3339Nano, event.OccurredAt)
 		if event.JournalSeq != v.FirstSeq+int64(i) || event.EventID == "" || event.OperationID == "" || event.DeviceID == "" || (s.requireHardwareSyncSignatures && event.DeviceID != v.EdgeID) || event.Payload == nil || !allowed[event.EventType] || occurredErr != nil || occurredAt.After(time.Now().UTC().Add(2*time.Minute)) || DeviceEventHash(event) != event.EventHash {
@@ -128,6 +128,14 @@ func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, e
 			return SyncAck{}, errors.New("event hash chain mismatch")
 		}
 		previousHash = event.EventHash
+		if event.EventType == "PAYMENT_RECONCILED" {
+			item, e := s.paymentReconciliationEvent(tenant, event)
+			if e != nil {
+				return SyncAck{}, e
+			}
+			expectation.Reconciliations = append(expectation.Reconciliations, item)
+			continue
+		}
 		state, _ := event.Payload["state"].(string)
 		if state == "" {
 			state = event.EventType

@@ -1,4 +1,5 @@
 // @vitest-environment jsdom
+vi.mock('../src/ui/PaperOperationalHeader',()=>({PaperOperationalHeader:()=>null}));
 // Authored only; execution deferred until global gate.
 import React,{act} from 'react';import {createRoot,type Root} from 'react-dom/client';
 import {afterEach,beforeEach,expect,it,vi} from 'vitest';

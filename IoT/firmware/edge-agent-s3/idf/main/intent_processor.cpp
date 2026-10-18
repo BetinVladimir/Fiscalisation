@@ -2,6 +2,7 @@
 #include "cJSON.h"
 #include "go_wire.h"
 #include "authority_unp.h"
+#include "payment_reconciliation.h"
 #include "canonical_cbor.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/md.h"
@@ -474,6 +475,19 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
   return stored;
 }
 esp_err_t IntentProcessor::accept(const CommandView &v) {
+  // ADMIN decisions are independently signed, fixed-row capabilities; they do
+  // not enter the sale decoder and never invoke a physical device executor.
+  if (!v.data || !v.size || v.size > 32768) return ESP_ERR_INVALID_ARG;
+  go_json::Value root; std::string error;
+  bool parsed=false;
+  if(v.ingress==Ingress::Ble){cJSON*json=nullptr;if(canonical_cbor_to_json(v.data,v.size,&json)==ESP_OK){parsed=go_json::from_cjson(json,root,error);cJSON_Delete(json);}}
+  else parsed=go_json::parse((const char*)v.data,v.size,root,error);
+  if(!parsed||go_json::contains_nul(root))return ESP_ERR_INVALID_ARG;
+  for(const auto&f:root.fields)if(f.first=="command"&&f.second.kind==go_json::Value::Kind::String&&f.second.text=="PAYMENT_RECONCILE") {
+    const auto applied=apply_payment_reconciliation(root,binding_,storage_,explicit_authorization_trust_?&authorization_trust_:nullptr);
+    if(applied==ESP_OK&&result_sink_){const auto*id=go_json::field(root,"client_operation_id");OperationRecord saved;if(id&&id->kind==go_json::Value::Kind::String&&storage_.operation(id->text.c_str(),saved)==ESP_OK&&!saved.result_payload.empty())result_sink_(saved.operation_id.c_str(),saved.result_payload.c_str(),v.ingress,result_context_);}
+    return applied;
+  }
   ReceiptPlan p;
   esp_err_t e = decode(v, p);
   return e == ESP_OK ? execute(p, v.ingress) : e;

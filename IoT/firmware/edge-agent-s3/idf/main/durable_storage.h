@@ -21,6 +21,7 @@ struct FrozenSyncBatch{std::string batch_id,body,last_event_hash,previous_hash;i
 struct AuthorityReservation{int64_t operation_sequence{},unp_sequence{};std::string unp;std::string prefix;int64_t range_start{},range_end{},generation{};};
 struct InitialPayment{std::string payment_id;int64_t amount_minor{};};
 struct PaymentRecord{std::string payment_id,operation_id,receipt_id,state,terminal_reference,rrn,auth_code,reversal_reference,reversal_rrn,reversal_auth_code;int64_t amount_minor{};};
+struct PaymentReconciliationEvidence{std::string reconciliation_id,terminal_id,actor_id,evidence_reference,evidence_sha256,authorization_sha256;};
 struct PaymentSagaSnapshot{std::string phase;std::vector<PaymentRecord> payments;};
 struct OperationRecord{std::string operation_id,payload_digest,state,result_payload;int64_t updated_at{};};
 struct AtomicReservationResult{ReservationStatus status;std::string prior_result;
@@ -63,10 +64,14 @@ public:
   esp_err_t payment_saga_phase(const char* operation_id,std::string&)const;
   esp_err_t payment_saga_snapshot(const char* operation_id,const char* receipt_id,PaymentSagaSnapshot&)const;
   // Recovery CAS compares the complete observed row; it never purchases again.
+  // Evidence is supplied only by a trusted, fully verified reconciliation adapter;
+  // this storage API is not itself an authorization verifier or public clear API.
   esp_err_t reconcile_payment(const PaymentRecord& expected,const PaymentRecord& observed,
-    const char* next_state,int64_t now);
+    const char* next_state,int64_t now,const PaymentReconciliationEvidence* evidence=nullptr);
+  // Production purchase paths must supply the immutable terminal device ID.
+  // Null preserves legacy journal-only callers; it cannot authorize terminal I/O.
   esp_err_t begin_payment_saga(const char* operation_id,const char* receipt_id,
-    const std::vector<InitialPayment>& card_payments,int64_t now);
+    const std::vector<InitialPayment>& card_payments,int64_t now,const char* terminal_id=nullptr);
   esp_err_t checkpoint_payment(const PaymentRecord&,const char* expected_state,
     const char* next_state,const char* saga_phase,int64_t now);
   esp_err_t checkpoint_saga_phase(const char* operation_id,const char* expected_phase,

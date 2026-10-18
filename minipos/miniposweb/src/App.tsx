@@ -1,3 +1,6 @@
+import {useHeaderLeaveGuard,HeaderLeaveDialog} from './ui/useHeaderLeaveGuard';
+import {headerLeaveCopy} from './ui/header-leave-copy';
+import {PaperOperationalHeader} from './ui/PaperOperationalHeader';
 import {FiscalOperationResult} from './ui/FiscalOperationResult';
 import {AppFrame} from './ui/app-frame';
 import {operationMessage} from './ui/operation-message';
@@ -7,6 +10,8 @@ import { persistAuthTokens } from './storage/authTokens';
 import { AppButton as PaperButton } from './ui/app-button';
 import { useEffect, useMemo, useRef, useState } from "react";
 import { refreshCloudOutbox } from "./fiscal/cloudRecovery";
+import {ExecutionAuthorizationManager} from "./fiscal/executionManager";
+import type {AuthorizedContext} from "./fiscal/executionAuthorization";
 import { buildIntent } from "./fiscal/intentBuilder";
 import {
   ApiError,
@@ -87,6 +92,7 @@ export default function App() {
     sessionStorage.getItem("minipos-local-token") ?? "",
   );
   const [result, setResult] = useState<FiscalOperation>();
+  const [executionContext,setExecutionContext]=useState<AuthorizedContext>();
   const [lastOrderId, setLastOrderId] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -105,7 +111,10 @@ export default function App() {
   const latestOperationScope=useRef(operationScope);latestOperationScope.current=operationScope;
   const syncPending=useRef<{scope:object;ticket:object}|null>(null);
   const operationCurrent=()=>current()&&latestOperationScope.current===operationScope;
-  const outboxScope={tenant:tenantFrom(accessToken),location:configuration?.location_id??'',register:configuration?.fiscal_register_id??'',operator:session?.employee.operator_code??''};
+  const executionManager=useMemo(()=>session?.session_id&&shift ? new ExecutionAuthorizationManager(api,{tenant:tenantFrom(accessToken),employee:session.employee.id,sessionID:session.session_id,shiftID:shift.id}):undefined,[api,session?.session_id,session?.employee.id,shift?.id]);
+  const previousExecutionManager=useRef<ExecutionAuthorizationManager|undefined>(undefined);
+  useEffect(()=>{const previous=previousExecutionManager.current;previousExecutionManager.current=executionManager;setExecutionContext(undefined);if(previous&&previous!==executionManager)void previous.revoke();if(!executionManager)return;let active=true;void (async()=>{try{const cached=await executionManager.restore();if(active&&cached)setExecutionContext(cached);const fresh=await executionManager.issue();if(active)setExecutionContext(fresh.context);}catch(error){if(active&&!(error instanceof ApiError&&error.status>=500)&&navigator.onLine)setMessage(error instanceof Error?error.message:String(error));}})();return()=>{active=false;};},[executionManager]);
+  const outboxScope={tenant:executionContext?.claims.tenant_id??'',location:executionContext?.claims.location_id??'',register:executionContext?.claims.register_id??'',operator:executionContext?.claims.operator_code??''};
   const commandPending=useRef<object|null>(null);
   const beginCommand=()=>{
     if(!admitted()||!operationCurrent()||busy||commandPending.current)return null;
@@ -438,15 +447,24 @@ export default function App() {
           "CLOUD_PREPARE_UNAVAILABLE",
         );
       }
+      if(!executionManager)throw new Error('AUTHENTICATED_SESSION_REQUIRED');
+      // Preparation failure may use a valid offline lease only before any fiscal attempt.
+      // A server-prepared order must retain its exact authority, payload and operation.
+      const prepared=order?await executionManager.issue({id:order.id,payments}):undefined;
+      const context=prepared?.context??await executionManager.restore();
+      if(!context)throw new Error('OFFLINE_EXECUTION_AUTHORIZATION_REQUIRED');
+      if(!command.live())return;
+      const claims=context.claims;
       const surrogateId = order?.external_id ?? crypto.randomUUID();
       const intent = await buildIntent({
-        tenantId: tenantFrom(accessToken),
-        locationId: configuration.location_id,
-        registerId: configuration.fiscal_register_id,
-        edgeDeviceId: configuration.fiscal_adapter_id,
-        bindingGeneration: configuration.binding_generation,
-        operatorCode: session.employee.operator_code,
-        saleId: order?.id,
+        execution:context,serverPreparedPayload:prepared?.canonicalPayload,
+        tenantId: claims.tenant_id,
+        locationId: claims.location_id,
+        registerId: claims.register_id,
+        edgeDeviceId: claims.edge_device_id,
+        bindingGeneration: claims.binding_generation,
+        operatorCode: claims.operator_code,
+        saleId: claims.unp_authority?.server_sale_id,
         surrogateId,
         command: "SALE_FINALIZE",
         items,
@@ -476,7 +494,7 @@ export default function App() {
         });
       }
       if(!command.live())return;
-      const executionToken = localToken || (await adapterToken());
+      const executionToken = context.transportToken??"";
       if(!command.live())return;
       const local = new LocalFiscalClient(
         configuration.adapter_base_url,
@@ -489,7 +507,7 @@ export default function App() {
           probe: (signal) => api.fiscalRouteHealth(signal).then(() => true),
           lookup: (id, signal) => api.operation(order!.id, id, signal),
           submit: (value, signal) =>
-            api.checkout(order!.id, payments, value, signal),
+            api.dispatchExecution(order!.id, value, signal),
         });
       routes.push({
         kind: "LOCAL_HTTP",
@@ -582,38 +600,33 @@ export default function App() {
       command.finish();
     }
   }
+  const [headerChildPending,setHeaderChildPending]=useState<{scope:typeof operationScope;pending:boolean}|null>(null);
+  const headerPending=headerChildPending?.scope===operationScope&&headerChildPending.pending;
+  const headerLeave=useHeaderLeaveGuard(operationScope,()=>!admitted()||busy||Boolean(commandPending.current));
   if (!accessToken) return <AuthFlow backend={backend} onAuthenticated={(tokens)=>setAccessToken(tokens.access_token)} />;
-  if (!session) return <AppFrame testID="minipos.session.surface"><main><Card mode="outlined" testID="session-recovery" style={{ width: "100%", maxWidth: 480, alignSelf: "center", marginTop: 40 }}><Card.Content style={{ gap: 12 }}>
+  if (!session) return <AppFrame testID="minipos.session.surface"><main><PaperOperationalHeader testID="session.header" title={t.loading} preferences={target=><PreferenceControls target={target} language={language} onLanguageChange={setLanguage} testIdPrefix="session"/>}/><Card mode="outlined" testID="session-recovery" style={{ width: "100%", maxWidth: 480, alignSelf: "center", marginTop: 40 }}><Card.Content style={{ gap: 12 }}>
     <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
-    <View style={{position:'relative',zIndex:10}}><PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="session" /></View>
     <PaperText variant="bodyMedium" accessibilityLiveRegion="polite" testID="session-status">{message === "OFFLINE_REFERENCE" ? t.offlineReference : message === "CLOUD_PREPARE_UNAVAILABLE" ? t.cloudPrepareUnavailable : message ? t.sessionUnavailable : t.loading}</PaperText>
     {busy ? <ActivityIndicator accessibilityLabel={t.loading} testID="session-loading-indicator" /> : null}
     <PaperButton mode="contained" disabled={busy} onPress={()=>void login()} testID="session-retry">{t.retry}</PaperButton>
-    <PaperButton mode="outlined" onPress={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}} testID="session-logout">{t.logout}</PaperButton>
+    <PaperButton mode="outlined" onPress={()=>{void executionManager?.revoke();setExecutionContext(undefined);localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}} testID="session-logout">{t.logout}</PaperButton>
   </Card.Content></Card></main></AppFrame>;
   return (
-    <AppFrame testID="minipos.work.surface"><main>
+    <AppFrame testID="minipos.work.surface"><main><HeaderLeaveDialog guard={headerLeave} copy={headerLeaveCopy[language]}/>
       <Surface elevation={1} style={{ position: 'relative', zIndex: 10, padding: 12, borderRadius: 12, backgroundColor: paperTheme.colors.surface }}>
-        <header>
-          <div>
-            <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
-            <PaperText variant="bodySmall">
-              {session.employee.first_name} {session.employee.last_name} ·{" "}
-              {navigator.onLine ? t.online : t.offline}
-            </PaperText>
-          </div>
-          <PaperButton mode={settings ? "contained-tonal" : "outlined"} onPress={() => setSettings(!settings)} testID="app-settings">{t.settings}</PaperButton>
-          <PaperButton mode={view === "sale" ? "contained-tonal" : "outlined"} onPress={() => { if(!admitted())return;managementRequest.current++;outboxRequest.current++; setView("sale"); }} testID="app-sales">{t.sales}</PaperButton>
-          <PaperButton mode={view === "products" ? "contained-tonal" : "outlined"} onPress={() => void openManagement("products")} testID="app-products">{t.products}</PaperButton>
-          <PaperButton mode={view === "employees" ? "contained-tonal" : "outlined"} onPress={() => void openManagement("employees")} testID="app-employees">{t.employees}</PaperButton>
-          <PaperButton mode={view === "outbox" ? "contained-tonal" : "outlined"} onPress={() => void openOutbox()} testID="app-outbox">{t.outboxTitle}</PaperButton>
-          <PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="app" />
-        </header>
+        <PaperOperationalHeader testID="app.header" title={view==='sale'?t.sales:view==='products'?t.products:view==='employees'?t.employees:t.outboxTitle} back={view!=='sale'?{label:t.sales,disabled:busy||headerPending,onPress:()=>headerLeave.request(()=>{managementRequest.current++;outboxRequest.current++;setView('sale');})}:undefined} preferences={target=><PreferenceControls target={target} language={language} onLanguageChange={setLanguage} testIdPrefix="app"/>}/>
+        <PaperText variant="bodySmall">{session.employee.first_name} {session.employee.last_name} · {navigator.onLine?t.online:t.offline}</PaperText>
+        <View style={{minWidth:0,flexDirection:'row',flexWrap:'wrap',gap:8}}>
+          <PaperButton disabled={busy||headerPending} mode={settings ? "contained-tonal" : "outlined"} onPress={() => {if(!headerLeave.isBlocked())setSettings(!settings);}} testID="app-settings">{t.settings}</PaperButton>
+          <PaperButton disabled={busy||headerPending} mode={view === "products" ? "contained-tonal" : "outlined"} onPress={() => headerLeave.request(()=>void openManagement("products"))} testID="app-products">{t.products}</PaperButton>
+          <PaperButton disabled={busy||headerPending} mode={view === "employees" ? "contained-tonal" : "outlined"} onPress={() => headerLeave.request(()=>void openManagement("employees"))} testID="app-employees">{t.employees}</PaperButton>
+          <PaperButton disabled={busy||headerPending} mode={view === "outbox" ? "contained-tonal" : "outlined"} onPress={() => headerLeave.request(()=>void openOutbox())} testID="app-outbox">{t.outboxTitle}</PaperButton>
+        </View>
       </Surface>
       {settings && <Card mode="outlined" style={{ marginTop: 16 }} testID="sale-diagnostics"><Card.Content style={{ gap: 12 }}>
         <PaperText variant="titleLarge" accessibilityRole="header">{t.diagnostics}</PaperText>
         <PaperText variant="bodyMedium">{t.adapter}: {configuration?.fiscal_adapter_id}{"\n"}{t.register}: {configuration?.fiscal_register_id}{"\n"}{t.generation}: {configuration?.binding_generation}{"\n"}{t.localUrl}: {configuration?.adapter_base_url}</PaperText>
-        <PaperButton mode="outlined" disabled={busy || !shift} onPress={printer}>{t.printerTest}</PaperButton>
+        <PaperButton mode="outlined" disabled={busy || headerPending || !shift} onPress={()=>{if(!headerLeave.isBlocked())void printer();}}>{t.printerTest}</PaperButton>
         {result ? <FiscalOperationResult value={result} language={language} ownerKey={operationScope} testID="sale-result"/> : null}
       </Card.Content></Card>}
       {view === "outbox" ? <OutboxPanel rows={outboxRows} loading={outboxLoading} error={outboxError} language={language} onRefresh={() => void openOutbox()} /> : view !== "sale" ? managementLoading ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-loading"><Card.Content style={{ gap: 12 }}>
@@ -621,7 +634,7 @@ export default function App() {
       </Card.Content></Card> : managementError ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-load-error"><Card.Content style={{ gap: 12 }}>
         <HelperText accessibilityRole="alert" accessibilityLiveRegion="polite" type="error" visible>{t.loadFailed}</HelperText>
         <PaperButton mode="contained" onPress={() => void openManagement(view)} testID="management-retry">{t.retry}</PaperButton>
-      </Card.Content></Card> : <Management kind={view} products={products} employees={employees} api={api} onProducts={setProducts} onEmployees={setEmployees} language={language} /> : !shift ? (
+      </Card.Content></Card> : <Management canEditHeader={headerLeave.canEdit} reportHeaderPending={pending=>setHeaderChildPending({scope:operationScope,pending})} registerHeaderDraft={headerLeave.register} kind={view} products={products} employees={employees} api={api} onProducts={setProducts} onEmployees={setEmployees} language={language} /> : !shift ? (
         <Card mode="outlined" style={{ marginTop: 16 }} testID="shift-open"><Card.Content style={{ gap: 12 }}>
           <PaperText variant="titleLarge" accessibilityRole="header">{t.shiftTitle}</PaperText>
           <PaperButton mode="contained" loading={busy} disabled={busy || !configuration} onPress={openShift}>{t.openShift}</PaperButton>

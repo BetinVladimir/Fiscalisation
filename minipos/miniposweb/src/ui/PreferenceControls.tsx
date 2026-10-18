@@ -1,6 +1,8 @@
-import { AppButton as Button } from './app-button';
+import {headerIcons} from './header-icons';
+import {useHeaderMetrics} from './PaperOperationalHeader';
+import {IconButton} from 'react-native-paper';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-import { useContext, useEffect, useRef, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
 import { List, Surface, useTheme } from "react-native-paper";
 import { Platform, ScrollView, View, useWindowDimensions } from "react-native";
 import { supportedLanguages, translations } from "./authTranslations.generated";
@@ -20,13 +22,14 @@ export function readLanguage(): Language {
   catch { return "bg"; }
 }
 
-export function PreferenceControls({ language, onLanguageChange, testIdPrefix }: {
+export function PreferenceControls({ language, onLanguageChange, testIdPrefix, target=48 }: {
+  target?:number;
   language: Language;
   onLanguageChange: (value: Language) => void;
   testIdPrefix: string;
 }) {
   const theme = useTheme();
-  const {width,height} = useWindowDimensions();
+  const {width,height}=useHeaderMetrics();
   const insets = useContext(SafeAreaInsetsContext) ?? {top:0,bottom:0,left:0,right:0};
   const menuHeight = Math.max(0,Math.min(224,height-insets.top-insets.bottom-64));
   const menuWidth = Math.max(0,Math.min(320,width-insets.left-insets.right-32));
@@ -34,9 +37,9 @@ export function PreferenceControls({ language, onLanguageChange, testIdPrefix }:
   const [themeOpen, setThemeOpen] = useState(false);
   const { preference, setPreference } = useThemePreference();
   const t = translations[language];
-  const mounted = useRef(false), snapshot = { language, preference, languageOpen, themeOpen, onLanguageChange, setPreference }, consumed = useRef<object | null>(null);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  const current = () => mounted.current;
+  const mounted = useRef(false), snapshot = { language, preference, languageOpen, themeOpen, onLanguageChange, setPreference }, consumed = useRef<object | null>(null), committed = useRef<object | null>(null);
+  useLayoutEffect(() => { mounted.current = true; committed.current = snapshot; return () => { mounted.current = false; if(committed.current===snapshot)committed.current=null; }; });
+  const current = () => mounted.current && committed.current === snapshot;
   const openLanguage = () => { if (!current()) return; setThemeOpen(false); setLanguageOpen(true); };
   const openTheme = () => { if (!current()) return; setLanguageOpen(false); setThemeOpen(true); };
   const dismissLanguage = () => { if (current()) setLanguageOpen(false); };
@@ -79,17 +82,10 @@ export function PreferenceControls({ language, onLanguageChange, testIdPrefix }:
     setLanguageOpen(false);
     try { localStorage.setItem("minipos-language", value); } catch { /* private browsing */ }
   };
-  return <View style={{ width: "100%", minWidth: 0, flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end", gap: 8 }}>
-    <View testID={`${testIdPrefix}-theme-anchor`} style={{position:'relative',zIndex:themeOpen?2:0,minWidth:0,maxWidth:'100%',flexShrink:1}}>
-      <Button contentStyle={{maxWidth:"100%",flexShrink:1}} labelStyle={{maxWidth:"100%",...(Platform.OS==="web"?{overflowWrap:"anywhere"} as any:{})}} mode="outlined" onPress={themeOpen?dismissTheme:openTheme} testID={`${testIdPrefix}-theme-open`} accessibilityState={{expanded:themeOpen}}>{t.theme}: {preference === "system" ? t.systemTheme : preference === "dark" ? t.darkTheme : t.lightTheme}</Button>
-      {themeOpen && <Surface elevation={3} style={{position:'absolute',top:'100%',right:0,zIndex:3,width:menuWidth,maxHeight:menuHeight,backgroundColor:theme.colors.elevation.level3}}>
-      <ScrollView accessibilityRole="menu" testID={`${testIdPrefix}-theme-scroll`} style={{maxHeight:menuHeight}} nestedScrollEnabled keyboardShouldPersistTaps="handled">
-        {(["system", "light", "dark"] as const).map(value => <List.Item titleNumberOfLines={0} accessibilityRole={'menuitemradio' as never} style={{minHeight:48,borderWidth:1,borderColor:theme.colors.outline,borderRadius:theme.roundness,margin:4}} key={value} accessibilityState={{checked:preference===value}} testID={`${testIdPrefix}-theme-${value}`} title={`${value === "system" ? t.systemTheme : value === "dark" ? t.darkTheme : t.lightTheme}${preference === value ? " ✓" : ""}`} onPress={() => chooseTheme(value)}/>) }
-      </ScrollView>
-      </Surface>}
-    </View>
+  return <View style={{ minWidth: 0, flexDirection: "row", flexWrap: "nowrap", gap: 2 }}>
     <View testID={`${testIdPrefix}-language-anchor`} style={{position:'relative',zIndex:languageOpen?2:0,minWidth:0,maxWidth:'100%',flexShrink:1}}>
-      <Button contentStyle={{maxWidth:"100%",flexShrink:1}} labelStyle={{maxWidth:"100%",...(Platform.OS==="web"?{overflowWrap:"anywhere"} as any:{})}} mode="outlined" onPress={languageOpen?dismissLanguage:openLanguage} testID={`${testIdPrefix}-language-open`} accessibilityState={{expanded:languageOpen}}>{t.language}: {languageLabels[language]}</Button>
+      <IconButton mode="outlined" icon={headerIcons.translate} size={20} style={{width:target,height:target,margin:0}} accessibilityLabel={`${t.language}: ${languageLabels[language]}`} onPress={languageOpen?dismissLanguage:openLanguage} testID={`${testIdPrefix}-language-open`} accessibilityState={{expanded:languageOpen}}/>
+
       {languageOpen && <Surface elevation={3} style={{position:'absolute',top:'100%',right:0,zIndex:3,width:menuWidth,maxHeight:menuHeight,backgroundColor:theme.colors.elevation.level3}}>
       <ScrollView testID={`${testIdPrefix}-language-scroll`} style={{ maxHeight: menuHeight }} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
         <View accessibilityRole="menu">
@@ -97,6 +93,15 @@ export function PreferenceControls({ language, onLanguageChange, testIdPrefix }:
         </View>
       </ScrollView>
       </Surface>}
+    </View>    <View testID={`${testIdPrefix}-theme-anchor`} style={{position:'relative',zIndex:themeOpen?2:0,minWidth:0,maxWidth:'100%',flexShrink:1}}>
+      <IconButton mode="outlined" icon={headerIcons[preference==='dark'?'weather-night':'weather-sunny']} size={20} style={{width:target,height:target,margin:0}} accessibilityLabel={`${t.theme}: ${preference === "system" ? t.systemTheme : preference === "dark" ? t.darkTheme : t.lightTheme}`} onPress={themeOpen?dismissTheme:openTheme} testID={`${testIdPrefix}-theme-open`} accessibilityState={{expanded:themeOpen}}/>
+
+      {themeOpen && <Surface elevation={3} style={{position:'absolute',top:'100%',right:0,zIndex:3,width:menuWidth,maxHeight:menuHeight,backgroundColor:theme.colors.elevation.level3}}>
+      <ScrollView accessibilityRole="menu" testID={`${testIdPrefix}-theme-scroll`} style={{maxHeight:menuHeight}} nestedScrollEnabled keyboardShouldPersistTaps="handled">
+        {(["system", "light", "dark"] as const).map(value => <List.Item titleNumberOfLines={0} accessibilityRole={'menuitemradio' as never} style={{minHeight:48,borderWidth:1,borderColor:theme.colors.outline,borderRadius:theme.roundness,margin:4}} key={value} accessibilityState={{checked:preference===value}} testID={`${testIdPrefix}-theme-${value}`} title={`${value === "system" ? t.systemTheme : value === "dark" ? t.darkTheme : t.lightTheme}${preference === value ? " ✓" : ""}`} onPress={() => chooseTheme(value)}/>) }
+      </ScrollView>
+      </Surface>}
     </View>
+
   </View>;
 }

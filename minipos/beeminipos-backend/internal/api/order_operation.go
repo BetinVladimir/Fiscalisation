@@ -25,7 +25,7 @@ func (h *handler) orderOperation(w http.ResponseWriter, r *http.Request, orderID
 		problem(w, http.StatusBadGateway, "FISCAL_OPERATION_LOOKUP_UNCERTAIN")
 		return
 	}
-	if operation.TenantID == "" || operation.SaleID == "" || operation.OperationID != operationID || operation.ClientOperationID != operationID || operation.ReceiptSessionID != order.ReceiptSessionID || (order.FiscalSaleID != "" && operation.SaleID != order.FiscalSaleID) || operation.RegisterID != order.RegisterID || (operation.Type != "SALE_FINALIZE" && operation.Type != "FISCAL_SALE") || operation.Version < 1 || operation.CreatedAt.IsZero() || operation.UpdatedAt.IsZero() || (operation.State == "FISCALIZED" && operation.FiscalReference == "") {
+	if operation.TenantID == "" || operation.SaleID == "" || operation.OperationID != operationID || operation.ClientOperationID != operationID || operation.ReceiptSessionID != order.ReceiptSessionID || (order.FiscalSaleID != "" && operation.SaleID != order.FiscalSaleID) || operation.RegisterID != domain.FiscalRegisterForOrder(order) || (operation.Type != "SALE_FINALIZE" && operation.Type != "FISCAL_SALE") || operation.Version < 1 || operation.CreatedAt.IsZero() || operation.UpdatedAt.IsZero() || (operation.State == "FISCALIZED" && operation.FiscalReference == "") {
 		problem(w, http.StatusBadGateway, "FISCAL_OPERATION_ASSOCIATION_MISMATCH")
 		return
 	}

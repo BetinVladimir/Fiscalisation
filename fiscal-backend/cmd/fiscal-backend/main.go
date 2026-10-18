@@ -92,7 +92,7 @@ func main() {
 		}
 		defer integrationService.Close()
 		integrationService.SetAppSigningKey([]byte(cfg.AuthHMACKey))
-		integrationHTTP = &integration.HTTPHandler{Service: integrationService, PublicBaseURL: cfg.PublicBaseURL}
+		integrationHTTP = &integration.HTTPHandler{Service: integrationService, PublicBaseURL: cfg.PublicBaseURL, ExecutionAuthorizations: svc}
 	}
 	var revoked func(context.Context, string) bool
 	if integrationService != nil {

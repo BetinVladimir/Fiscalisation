@@ -31,6 +31,8 @@ CREATE TABLE IF NOT EXISTS payment_saga(
  operation_id TEXT PRIMARY KEY REFERENCES operations(operation_id),phase TEXT NOT NULL,updated_at INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS payment_saga_members(
  operation_id TEXT NOT NULL REFERENCES payment_saga(operation_id),payment_id TEXT PRIMARY KEY REFERENCES payments(payment_id),reversal_reference TEXT,reversal_rrn TEXT,reversal_auth_code TEXT);
+CREATE TABLE IF NOT EXISTS terminal_payment_guard(terminal_id TEXT PRIMARY KEY,operation_id TEXT NOT NULL UNIQUE REFERENCES operations(operation_id),created_at INTEGER NOT NULL);
+CREATE TABLE IF NOT EXISTS payment_reconciliations(reconciliation_id TEXT PRIMARY KEY,terminal_id TEXT NOT NULL,payment_id TEXT NOT NULL REFERENCES payments(payment_id),operation_id TEXT NOT NULL REFERENCES operations(operation_id),actor_id TEXT NOT NULL,evidence_reference TEXT NOT NULL,evidence_sha256 TEXT NOT NULL,authorization_sha256 TEXT NOT NULL,old_state TEXT NOT NULL,new_state TEXT NOT NULL,created_at INTEGER NOT NULL);
 CREATE TABLE IF NOT EXISTS event_outbox(
  sequence INTEGER PRIMARY KEY AUTOINCREMENT,event_id TEXT NOT NULL UNIQUE,
  operation_id TEXT NOT NULL REFERENCES operations(operation_id),kind TEXT NOT NULL,
@@ -63,6 +65,36 @@ INSERT OR IGNORE INTO schema_version(version,applied_at)VALUES(3,CAST(strftime('
 )sql";
 struct Statement{sqlite3_stmt*v{};~Statement(){if(v)sqlite3_finalize(v);}};
 esp_err_t exec(sqlite3*db,const char*sql){char*message=nullptr;int rc=sqlite3_exec(db,sql,nullptr,nullptr,&message);if(message)sqlite3_free(message);return rc==SQLITE_OK?ESP_OK:ESP_FAIL;}
+
+// Only a completed business outcome may release an uncertain terminal claim.
+// A bank approval alone is insufficient when fiscalization/compensation is open.
+bool terminal_owner_complete(sqlite3*db,const char*operation){
+ Statement q;const char*sql="SELECT o.state,p.state FROM operations o JOIN payment_saga_members m ON m.operation_id=o.operation_id JOIN payments p ON p.payment_id=m.payment_id WHERE o.operation_id=?";
+ if(sqlite3_prepare_v2(db,sql,-1,&q.v,nullptr)!=SQLITE_OK)return false;
+ sqlite3_bind_text(q.v,1,operation,-1,SQLITE_TRANSIENT);int rc;bool any=false;
+ while((rc=sqlite3_step(q.v))==SQLITE_ROW){any=true;const std::string op=(const char*)sqlite3_column_text(q.v,0),payment=(const char*)sqlite3_column_text(q.v,1);
+  const bool negative=payment=="CARD_DECLINED"||payment=="CARD_NOT_SENT"||payment=="RESERVED";
+  if(!((op=="COMMITTED"&&payment=="CARD_APPROVED")||(op=="COMPENSATED"&&(payment=="REVERSED"||negative))||(op=="REJECTED"&&negative)))return false;
+ }return any&&rc==SQLITE_DONE;
+}
+esp_err_t claim_terminal(sqlite3*db,const char*terminal,const char*operation,int64_t now){
+ if(!terminal||!*terminal||strlen(terminal)>128)return ESP_ERR_INVALID_ARG;
+ Statement existing;if(sqlite3_prepare_v2(db,"SELECT operation_id FROM terminal_payment_guard WHERE terminal_id=?",-1,&existing.v,nullptr)!=SQLITE_OK)return ESP_FAIL;
+ sqlite3_bind_text(existing.v,1,terminal,-1,SQLITE_TRANSIENT);int rc=sqlite3_step(existing.v);
+ if(rc==SQLITE_ROW){const std::string owner=(const char*)sqlite3_column_text(existing.v,0);if(!terminal_owner_complete(db,owner.c_str()))return ESP_ERR_INVALID_STATE;
+  Statement remove;if(sqlite3_prepare_v2(db,"DELETE FROM terminal_payment_guard WHERE terminal_id=? AND operation_id=?",-1,&remove.v,nullptr)!=SQLITE_OK)return ESP_FAIL;sqlite3_bind_text(remove.v,1,terminal,-1,SQLITE_TRANSIENT);sqlite3_bind_text(remove.v,2,owner.c_str(),-1,SQLITE_TRANSIENT);if(sqlite3_step(remove.v)!=SQLITE_DONE||sqlite3_changes(db)!=1)return ESP_FAIL;
+ }else if(rc!=SQLITE_DONE)return ESP_FAIL;
+ // Pre-upgrade journals have no guard rows. Never infer their terminal from a
+ // mutable current binding: use their immutable operation route snapshot.
+ Statement legacy;const char*sql="SELECT DISTINCT o.operation_id,o.route_snapshot FROM payments p JOIN operations o ON o.operation_id=p.operation_id WHERE o.operation_id<>? AND (p.state IN('CARD_SENDING','CARD_UNKNOWN','REVERSAL_SENDING','REVERSAL_UNKNOWN','REVERSAL_FAILED','EXECUTING') OR (p.state='CARD_APPROVED' AND o.state<>'COMMITTED'))";
+ if(sqlite3_prepare_v2(db,sql,-1,&legacy.v,nullptr)!=SQLITE_OK)return ESP_FAIL;
+ sqlite3_bind_text(legacy.v,1,operation,-1,SQLITE_TRANSIENT);
+ while((rc=sqlite3_step(legacy.v))==SQLITE_ROW){const char*owner=(const char*)sqlite3_column_text(legacy.v,0);if(terminal_owner_complete(db,owner))continue;
+  auto*route=cJSON_Parse((const char*)sqlite3_column_text(legacy.v,1));auto*id=cJSON_GetObjectItemCaseSensitive(route,"payment_device_id");const bool unknown=!cJSON_IsString(id)||!id->valuestring||!*id->valuestring;const bool same=unknown||std::string(id->valuestring)==terminal;cJSON_Delete(route);if(unknown)return ESP_ERR_NOT_SUPPORTED;if(same)return ESP_ERR_INVALID_STATE;
+ }if(rc!=SQLITE_DONE)return ESP_FAIL;
+ Statement add;if(sqlite3_prepare_v2(db,"INSERT INTO terminal_payment_guard(terminal_id,operation_id,created_at)VALUES(?,?,?)",-1,&add.v,nullptr)!=SQLITE_OK)return ESP_FAIL;sqlite3_bind_text(add.v,1,terminal,-1,SQLITE_TRANSIENT);sqlite3_bind_text(add.v,2,operation,-1,SQLITE_TRANSIENT);sqlite3_bind_int64(add.v,3,now);return sqlite3_step(add.v)==SQLITE_DONE?ESP_OK:ESP_FAIL;
+}
+bool hex_digest(const std::string&s){if(s.size()!=64)return false;for(auto c:s)if(!((c>='0'&&c<='9')||(c>='a'&&c<='f')))return false;return true;}
 }
 struct DurableStorage::Impl{std::recursive_mutex mutex;sqlite3*db{};bool mounted{};std::string mount;sdmmc_card_t*card{};};
 DurableStorage::DurableStorage():impl_(new Impl){}DurableStorage::~DurableStorage(){close();delete impl_;}
@@ -182,7 +214,7 @@ esp_err_t DurableStorage::payment_saga_snapshot(const char*oid,const char*rid,Pa
  if(step!=SQLITE_DONE||out.payments.empty()||exec(impl_->db,"COMMIT;")!=ESP_OK)return fail(ESP_FAIL);
  return ESP_OK;
 }
-esp_err_t DurableStorage::reconcile_payment(const PaymentRecord&expected,const PaymentRecord&observed,const char*next,int64_t now){
+esp_err_t DurableStorage::reconcile_payment(const PaymentRecord&expected,const PaymentRecord&observed,const char*next,int64_t now,const PaymentReconciliationEvidence*evidence){
  std::lock_guard<std::recursive_mutex> guard(impl_->mutex);if(!ready()||!next||now<=0)return ESP_ERR_INVALID_ARG;
  const auto&from=expected.state;const std::string to=next;
  bool reversal=from=="REVERSAL_SENDING"||from=="REVERSAL_UNKNOWN";
@@ -199,15 +231,32 @@ esp_err_t DurableStorage::reconcile_payment(const PaymentRecord&expected,const P
  Statement q;if(sqlite3_prepare_v2(impl_->db,"UPDATE payments SET state=?,terminal_reference=?,rrn=?,auth_code=?,updated_at=? WHERE payment_id=? AND EXISTS(SELECT 1 FROM payment_saga_members m WHERE m.payment_id=payments.payment_id AND m.operation_id=payments.operation_id)",-1,&q.v,nullptr)!=SQLITE_OK)return fail();
  sqlite3_bind_text(q.v,1,next,-1,SQLITE_TRANSIENT);const std::string*refs[]={&observed.terminal_reference,&observed.rrn,&observed.auth_code};for(int n=0;n<3;n++)sqlite3_bind_text(q.v,n+2,refs[n]->c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_int64(q.v,5,now);sqlite3_bind_text(q.v,6,expected.payment_id.c_str(),-1,SQLITE_TRANSIENT);if(sqlite3_step(q.v)!=SQLITE_DONE||sqlite3_changes(impl_->db)!=1)return fail();
  if(reversal){Statement m;if(sqlite3_prepare_v2(impl_->db,"UPDATE payment_saga_members SET reversal_reference=?,reversal_rrn=?,reversal_auth_code=? WHERE operation_id=? AND payment_id=?",-1,&m.v,nullptr)!=SQLITE_OK)return fail();const std::string*refs[]={&observed.reversal_reference,&observed.reversal_rrn,&observed.reversal_auth_code};for(int n=0;n<3;n++)sqlite3_bind_text(m.v,n+1,refs[n]->c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_text(m.v,4,expected.operation_id.c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_text(m.v,5,expected.payment_id.c_str(),-1,SQLITE_TRANSIENT);if(sqlite3_step(m.v)!=SQLITE_DONE||sqlite3_changes(impl_->db)!=1)return fail();}
+ if(evidence){
+  const auto&e=*evidence;if(to=="CARD_APPROVED"&&(observed.terminal_reference.empty()||observed.rrn.empty()||observed.auth_code.empty()))return fail();if(to=="REVERSED"&&(observed.reversal_reference.empty()||observed.reversal_rrn.empty()||observed.reversal_auth_code.empty()))return fail();if(e.reconciliation_id.empty()||e.reconciliation_id.size()>128||e.terminal_id.empty()||e.terminal_id.size()>128||e.actor_id.empty()||e.actor_id.size()>128||e.evidence_reference.empty()||e.evidence_reference.size()>1024||!hex_digest(e.evidence_sha256)||!hex_digest(e.authorization_sha256))return fail();
+  Statement guardrow;if(sqlite3_prepare_v2(impl_->db,"SELECT 1 FROM terminal_payment_guard WHERE terminal_id=? AND operation_id=?",-1,&guardrow.v,nullptr)!=SQLITE_OK)return fail();sqlite3_bind_text(guardrow.v,1,e.terminal_id.c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_text(guardrow.v,2,expected.operation_id.c_str(),-1,SQLITE_TRANSIENT);if(sqlite3_step(guardrow.v)!=SQLITE_ROW)return fail();
+  Statement audit;const char*values[]={e.reconciliation_id.c_str(),e.terminal_id.c_str(),expected.payment_id.c_str(),expected.operation_id.c_str(),e.actor_id.c_str(),e.evidence_reference.c_str(),e.evidence_sha256.c_str(),e.authorization_sha256.c_str(),expected.state.c_str(),next};
+  // Explicit column list prevents a schema extension from changing evidence order.
+  if(sqlite3_prepare_v2(impl_->db,"INSERT INTO payment_reconciliations(reconciliation_id,terminal_id,payment_id,operation_id,actor_id,evidence_reference,evidence_sha256,authorization_sha256,old_state,new_state,created_at)VALUES(?,?,?,?,?,?,?,?,?,?,?)",-1,&audit.v,nullptr)!=SQLITE_OK)return fail();
+  for(int n=0;n<10;++n)sqlite3_bind_text(audit.v,n+1,values[n],-1,SQLITE_TRANSIENT);
+  sqlite3_bind_int64(audit.v,11,now);if(sqlite3_step(audit.v)!=SQLITE_DONE)return fail();
+  auto*payload=cJSON_CreateObject();if(!payload)return fail();const char*names[]={"reconciliation_id","terminal_id","payment_id","operation_id","actor_id","evidence_reference","evidence_sha256","authorization_sha256","old_state","new_state"};bool ok=true;for(int n=0;n<10;++n)ok=ok&&cJSON_AddStringToObject(payload,names[n],values[n]);ok=ok&&cJSON_AddStringToObject(payload,"amount_minor",std::to_string(observed.amount_minor).c_str())&&cJSON_AddStringToObject(payload,"terminal_reference",observed.terminal_reference.c_str())&&cJSON_AddStringToObject(payload,"rrn",observed.rrn.c_str())&&cJSON_AddStringToObject(payload,"auth_code",observed.auth_code.c_str())&&cJSON_AddStringToObject(payload,"reversal_reference",observed.reversal_reference.c_str())&&cJSON_AddStringToObject(payload,"reversal_rrn",observed.reversal_rrn.c_str())&&cJSON_AddStringToObject(payload,"reversal_auth_code",observed.reversal_auth_code.c_str());char*body=ok?cJSON_PrintUnformatted(payload):nullptr;cJSON_Delete(payload);if(!body)return fail();unsigned char hash[32];if(mbedtls_sha256((const unsigned char*)body,strlen(body),hash,0)!=0){cJSON_free(body);return fail();}char digest[65];const char*digits="0123456789abcdef";for(int n=0;n<32;++n){digest[2*n]=digits[hash[n]>>4];digest[2*n+1]=digits[hash[n]&15];}digest[64]=0;// Persist the administrative command result in this same transaction. The
+  // original financial operation remains unresolved; this result certifies only
+  // successful application of the signed bank-decision CAS.
+  Statement adminop;
+  if(e.reconciliation_id==expected.operation_id||sqlite3_prepare_v2(impl_->db,"INSERT INTO operations(operation_id,payload_digest,first_transport,route_snapshot,state,result_payload,created_at,updated_at)VALUES(?,?,'ADMIN','{}','COMMITTED',?,?,?)",-1,&adminop.v,nullptr)!=SQLITE_OK){cJSON_free(body);return fail();}
+  sqlite3_bind_text(adminop.v,1,e.reconciliation_id.c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_text(adminop.v,2,e.authorization_sha256.c_str(),-1,SQLITE_TRANSIENT);auto*adminresult=cJSON_Parse(body);if(!adminresult){cJSON_free(body);return fail();}cJSON_SetValuestring(cJSON_GetObjectItemCaseSensitive(adminresult,"operation_id"),e.reconciliation_id.c_str());if(!cJSON_AddStringToObject(adminresult,"original_operation_id",expected.operation_id.c_str())||!cJSON_AddStringToObject(adminresult,"state","COMMITTED")||!cJSON_AddStringToObject(adminresult,"effect","BANK_DECISION_RECORDED_FISCAL_UNRESOLVED")){cJSON_Delete(adminresult);cJSON_free(body);return fail();}char*adminbody=cJSON_PrintUnformatted(adminresult);cJSON_Delete(adminresult);if(!adminbody){cJSON_free(body);return fail();}sqlite3_bind_text(adminop.v,3,adminbody,-1,SQLITE_TRANSIENT);cJSON_free(adminbody);sqlite3_bind_int64(adminop.v,4,now);sqlite3_bind_int64(adminop.v,5,now);if(sqlite3_step(adminop.v)!=SQLITE_DONE){cJSON_free(body);return fail();}
+  const auto result=append_event((e.reconciliation_id+"-reconciled").c_str(),expected.operation_id.c_str(),"PAYMENT_RECONCILED",body,digest,now);if(result!=ESP_OK){cJSON_free(body);return fail();}Statement published;if(sqlite3_prepare_v2(impl_->db,"SELECT 1 FROM event_outbox WHERE event_id=? AND operation_id=? AND kind='PAYMENT_RECONCILED' AND payload=? AND payload_digest=?",-1,&published.v,nullptr)!=SQLITE_OK){cJSON_free(body);return fail();}sqlite3_bind_text(published.v,1,(e.reconciliation_id+"-reconciled").c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_text(published.v,2,expected.operation_id.c_str(),-1,SQLITE_TRANSIENT);sqlite3_bind_text(published.v,3,body,-1,SQLITE_TRANSIENT);sqlite3_bind_text(published.v,4,digest,-1,SQLITE_TRANSIENT);cJSON_free(body);if(sqlite3_step(published.v)!=SQLITE_ROW)return fail();
+ }
  if(set_operation_state(expected.operation_id.c_str(),"RECOVERY_REQUIRED",nullptr,now)!=ESP_OK||exec(impl_->db,"COMMIT;")!=ESP_OK)return fail();
  return ESP_OK;
 }
 
-esp_err_t DurableStorage::begin_payment_saga(const char*oid,const char*rid,const std::vector<InitialPayment>&cards,int64_t now){
+esp_err_t DurableStorage::begin_payment_saga(const char*oid,const char*rid,const std::vector<InitialPayment>&cards,int64_t now,const char*terminal){
  std::lock_guard<std::recursive_mutex> guard(impl_->mutex);if(!ready()||!oid||!*oid||!rid||!*rid||cards.empty()||now<=0)return ESP_ERR_INVALID_ARG;
  if(exec(impl_->db,"BEGIN IMMEDIATE;")!=ESP_OK)return ESP_FAIL;
  auto rollback=[&](){exec(impl_->db,"ROLLBACK;");return ESP_FAIL;};
  OperationRecord operation;if(this->operation(oid,operation)!=ESP_OK||operation.state!="EXECUTING")return rollback();
+ if(terminal){const auto claimed=claim_terminal(impl_->db,terminal,oid,now);if(claimed!=ESP_OK){exec(impl_->db,"ROLLBACK;");return claimed;}}
  std::set<std::string> ids;
  for(const auto&card:cards){PaymentRecord p;if(!ids.insert(card.payment_id).second)return rollback();if(payment(card.payment_id.c_str(),p)!=ESP_OK||p.operation_id!=oid||p.receipt_id!=rid||p.amount_minor!=card.amount_minor||p.state!="RESERVED")return rollback();}
  Statement insert;if(sqlite3_prepare_v2(impl_->db,"INSERT INTO payment_saga(operation_id,phase,updated_at)VALUES(?,'PAYMENTS',?)",-1,&insert.v,nullptr)!=SQLITE_OK)return rollback();sqlite3_bind_text(insert.v,1,oid,-1,SQLITE_TRANSIENT);sqlite3_bind_int64(insert.v,2,now);

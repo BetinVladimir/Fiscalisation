@@ -12,8 +12,9 @@ import (
 )
 
 type HTTPHandler struct {
-	Service       *Service
-	PublicBaseURL string
+	Service                 *Service
+	PublicBaseURL           string
+	ExecutionAuthorizations ExecutionAuthorizationIssuer
 }
 
 func bearer(r *http.Request) string {
@@ -275,6 +276,14 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	p, e := h.Service.AuthenticateTenant(r.Context(), bearer(r))
 	if e != nil {
 		writeError(w, e)
+		return
+	}
+	if path == "/integration/v1/execution-authorizations:dispatch" && r.Method == http.MethodPost {
+		h.dispatchExecutionAuthorization(w, r, p)
+		return
+	}
+	if path == "/integration/v1/execution-authorizations" && r.Method == http.MethodPost {
+		h.issueExecutionAuthorization(w, r, p)
 		return
 	}
 	if path == "/integration/v1/credentials:rotate" && r.Method == http.MethodPost {

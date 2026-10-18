@@ -128,6 +128,10 @@ func executionAuthorizationFromResource(r ResourceRecord) (ExecutionAuthorizatio
 // IssueExecutionAuthorization accepts only a persisted caller-owned session and a
 // signing key. Tenant, operator, routes and sequence authority are never caller maps.
 func (s *Service) IssueExecutionAuthorization(sessionID, clientKey, tenant, actor string, serverSaleIDs ...string) (ExecutionAuthorizationEnvelope, error) {
+	return s.issueExecutionAuthorization(sessionID, clientKey, tenant, actor, nil, serverSaleIDs...)
+}
+
+func (s *Service) issueExecutionAuthorization(sessionID, clientKey, tenant, actor string, commit func(ResourceRecord, ExecutionAuthorizationEnvelope) error, serverSaleIDs ...string) (ExecutionAuthorizationEnvelope, error) {
 	var empty ExecutionAuthorizationEnvelope
 	now := time.Now().UTC()
 	sessionResource, err := s.repo.Resource("workstation_session", sessionID)
@@ -243,7 +247,12 @@ func (s *Service) IssueExecutionAuthorization(sessionID, clientKey, tenant, acto
 		record.Data["issuance_operation_id"] = a.UNPAuthority.OperationID
 		record.Data["issuance_operation_version"] = onlineOperation.Version
 	}
-	if err = s.repo.PutResource(record); err != nil {
+	if commit != nil {
+		err = commit(record, envelope)
+	} else {
+		err = s.repo.PutResource(record)
+	}
+	if err != nil {
 		return empty, err
 	}
 	return envelope, nil

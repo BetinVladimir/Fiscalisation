@@ -21,7 +21,7 @@ with tempfile.TemporaryDirectory(prefix="go-wire-host-") as name:
  args=[os.environ.get("CXX","c++"),"-std=c++17","-Wall","-Wextra","-Werror"]
  if os.environ.get("SANITIZE"): args += ["-fsanitize=address,undefined","-fno-omit-frame-pointer"]
  for inc in [mbed_include,idf/"tests/sync_host",idf/"tests/storage_host",idf/"main",cjson,ssl/"include"]:args += ["-I",inc]
- args += [idf/"main"/f for f in ["durable_storage.cpp","go_json.cpp","go_wire.cpp","intent_processor.cpp","execution_authorization.cpp","canonical_cbor.cpp"]]
+ args += [idf/"main"/f for f in ["durable_storage.cpp","go_json.cpp","go_wire.cpp","intent_processor.cpp","execution_authorization.cpp","payment_reconciliation.cpp","canonical_cbor.cpp"]]
  args += [here/"runtime.cpp",d/"cJSON.o",mbed_library,"-L",ssl/"lib","-lcrypto","-lsqlite3","-o",d/"runtime"]
  run(args)
  run([d/"oracle","command",d/"command.json"]);run([d/"runtime","command",d/"command.sqlite",d/"command.json"])

@@ -1,0 +1,168 @@
+
+> @beeloy/miniposweb@0.1.0 test
+> vitest run --cache=false
+
+
+ RUN  v3.0.7 /Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/miniposweb
+
+ ✓ tests/form-field-composition-current.test.tsx (3 tests) 22ms
+ ✓ tests/header-metrics-current.test.tsx (10 tests) 13ms
+ ✓ tests/header-leave-guard-current.test.tsx (7 tests) 20ms
+ ✓ tests/system-media-current.test.tsx (3 tests) 26ms
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+ ✓ tests/operational-header-current.test.tsx (2 tests) 54ms
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+ ✓ tests/auth-surface-current.test.tsx (4 tests) 33ms
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > live leave intent synchronously rejects retained edit/save/cancel; Stay restores editing
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > live leave intent synchronously rejects retained edit/save/cancel; Stay restores editing
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > live leave intent synchronously rejects retained edit/save/cancel; Stay restores editing
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > live leave intent synchronously rejects retained edit/save/cancel; Stay restores editing
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > live leave intent synchronously rejects retained edit/save/cancel; Stay restores editing
+The current testing environment is not configured to support act(...)
+
+ ✓ tests/management-header-current.test.tsx (4 tests) 156ms
+ ✓ tests/fiscal-operation-result-current.test.tsx (5 tests) 305ms
+ ✓ tests/provider-startup-current.test.tsx (28 tests) 397ms
+ ✓ tests/preference-controls-current.test.tsx (12 tests) 423ms
+ ✓ tests/routeController.test.ts (21 tests) 20ms
+ ✓ tests/cloudRecovery.test.ts (14 tests) 46ms
+ ✓ tests/fiscal-operation-authoring-contract.test.ts (6 tests) 10ms
+ ✓ tests/fiscal-operation-rows.test.ts (9 tests) 6ms
+ ✓ tests/fiscal-operation-catalogues.test.ts (2 tests) 27ms
+ ✓ tests/authTokens.test.ts (12 tests) 3ms
+ ✓ tests/form-field-paper-surface.test.tsx (1 test) 5ms
+ ✓ tests/intentBuilder.test.ts (3 tests) 6ms
+ ✓ tests/reference-recovery.test.ts (2 tests) 19ms
+ ✓ tests/fiscal-operation-real-action-current.test.tsx (2 tests) 110ms
+ ✓ tests/fiscal-operation-total-layout-current.test.tsx (5 tests) 21ms
+ ✓ tests/outbox-recovery.test.ts (2 tests) 17ms
+ ✓ tests/sale-divider-current.test.tsx (1 test) 111ms
+ ✓ tests/app-button-composition-current.test.tsx (9 tests) 181ms
+ ✓ tests/goCanonical.test.ts (2 tests) 217ms
+ ✓ tests/referenceScope.test.ts (8 tests) 2ms
+ ✓ tests/outbox-proof-ui.test.ts (6 tests) 165ms
+ ✓ tests/outboxScope.test.ts (10 tests) 2ms
+ ✓ tests/saleNumber.test.ts (16 tests) 4ms
+ ✓ tests/workTranslations.test.ts (1 test) 49ms
+ ✓ tests/operation-message-current.test.ts (25 tests) 56ms
+ ✓ tests/authTranslations.test.ts (1 test) 8ms
+ ✓ tests/header-layout-current.test.ts (1 test) 2ms
+ ✓ tests/executionAuthorization.test.ts (1 test) 2ms
+ ✓ tests/fiscal-operation-app-checkout-current.test.tsx (3 tests) 7977ms
+   ✓ actual App checkout discount undefined prepares root authority and signs exact money intent then reverses 4616ms
+   ✓ actual App checkout discount 0 prepares root authority and signs exact money intent then reverses 1709ms
+   ✓ actual App checkout discount 0.2 prepares root authority and signs exact money intent then reverses 1650ms
+
+ Test Files  35 passed (35)
+      Tests  241 passed (241)
+   Start at  12:47:23
+   Duration  10.04s (transform 1.59s, setup 0ms, collect 4.97s, tests 10.51s, environment 17.67s, prepare 8.05s)
+

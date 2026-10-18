@@ -5,6 +5,6 @@ import { defineConfig } from "vitest/config";
 // Vitest imports Playwright's global suite during `npm test`.
 export default defineConfig({
   test: {
-    include: ["tests/**/*.test.ts"],
+    include: ["tests/**/*.test.{ts,tsx}"],
   },
 });

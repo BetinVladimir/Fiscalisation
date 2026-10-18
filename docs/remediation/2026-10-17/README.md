@@ -13,6 +13,8 @@
 
 - Следующий проверенный срез: [BluePad, SQLite extraction и route revocation](20_BLUEPAD_SQLITE_AND_REVOCATION.md), [логи и hashes](evidence/bluepad-sqlite-2026-10-18/README.md). IoT/S3/backend PASS; persistent quarantine и trusted ADMIN/MiniPOS flow ещё не закрыты.
 
+- [Объединённый authority/ADMIN/quarantine срез](26_MERGED_AUTHORITY_ADMIN_STATUS.md): IoT/backend/web241/browser11/build/contracts PASS; [evidence](evidence/authority-admin-2026-10-18/README.md). Полный HTTP/UI pipeline, native и HIL остаются открытыми.
+
 ## Активная цель и ускоренное исполнение
 
 2026-10-17 пользователь поставил полную цель: закрыть все разрывы/ошибки, добавить и выполнить тесты, устранить регрессии, подготовить устройство-испытания и MiniPOS к применимой процедуре НАП/СУПТО. [Цель, три параллельных потока и общая приёмка](08_GOAL_AND_FAST_TRACK.md); [подготовка пакета НАП](09_SUPTO_NAP_PREPARATION.md). Сохраняется CASH → CARD/split/recovery, регуляторная дорожка начинается сразу. Пользователь разрешил делегирование; общий backlog, contracts и merged-snapshot gate обязательны. Это расширение цели, не свидетельство уже выполненных исправлений.

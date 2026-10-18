@@ -1,0 +1,4 @@
+ok  	fiscalisation/fiscal-backend/internal/domain	0.678s
+ok  	fiscalisation/fiscal-backend/internal/integration	(cached)
+ok  	fiscalisation/fiscal-backend/internal/api	(cached)
+ok  	fiscalisation/fiscal-backend/internal/mqttclient	(cached)

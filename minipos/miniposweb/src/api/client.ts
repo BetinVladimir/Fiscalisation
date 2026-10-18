@@ -41,6 +41,7 @@ export type Employee = {
 export type AuthTokens = { access_token: string; refresh_token: string; expires_in: number };
 export type VerifyCodeResult = AuthTokens & { onboarding_required: boolean; onboarding_token?: string };
 export type OperatorSession = {
+  session_id: string;
   authenticated: boolean;
   employee: Employee;
   expires_at: string;
@@ -116,6 +117,14 @@ export class MiniPosClient {
       this.token(),
       this.appInstance,
     );
+  }
+  executionIdentity(shift:string){return json<{tenant_id:string;actor_subject:string;source_session_id:string;app_instance_id:string}>(`${this.baseUrl}/execution-authorizations?shift_id=${encodeURIComponent(shift)}`,{headers:{"X-Api-Version":"2026-08-07"}},this.token(),this.appInstance);}
+  executionAuthorization(body:{shift_id:string;client_signing_public_key_der_base64:string;order_id?:string;payments?:SalePayment[]},idempotency:string){return json<{authorization:import('../fiscal/executionAuthorization').AuthorizationEnvelope;canonical_payload?:Record<string,unknown>;transport_token:string;transport_token_expires_at:string}>(`${this.baseUrl}/execution-authorizations`,{method:'POST',headers:{'X-Api-Version':'2026-08-07','Idempotency-Key':idempotency},body:JSON.stringify(body)},this.token(),this.appInstance);}
+  async dispatchExecution(orderId:string,intent:FiscalIntent,signal?:AbortSignal):Promise<FiscalOperation>{
+   const value=await json<Record<string,unknown>>(`${this.baseUrl}/execution-authorizations:dispatch`,{method:'POST',signal,headers:{'X-Api-Version':'2026-08-07','Idempotency-Key':intent.client_operation_id},body:JSON.stringify({order_id:orderId})},this.token(),this.appInstance);
+   if(value.operation_id!==intent.intent_id||value.client_operation_id!==intent.intent_id||value.receipt_session_id!==intent.receipt_session_id||value.sale_id!==intent.server_sale_id||value.register_id!==intent.register_id)throw new Error('FISCAL_OPERATION_IDENTITY_MISMATCH');
+   const state=String(value.state??'UNKNOWN');const reference=typeof value.fiscal_reference==='string'?value.fiscal_reference:undefined;if(state==='FISCALIZED'&&!reference)throw new Error('FISCAL_OPERATION_PROOF_MISSING');
+   return {operation_id:intent.intent_id,state,certainty:state==='FISCALIZED'&&reference?'PROVEN_SUCCESS':'UNKNOWN',fiscal_reference:reference,updated_at:String(value.updated_at??new Date().toISOString())};
   }
   configuration() {
     return json<PosConfiguration>(

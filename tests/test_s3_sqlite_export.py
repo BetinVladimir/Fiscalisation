@@ -26,6 +26,8 @@ def make_database(path):
     db.execute("INSERT INTO operations VALUES(?,?,?,?,?,?,?,?)", ('op-2', 'b'*64, 'MQTT', '{"tenant":"tenant-historical"}', 'COMPLETED', 'Български\n\u0000 exact text', 3, 4))
     db.execute("INSERT INTO receipts VALUES(?,?,?,?,?,?)", ('receipt-1', 'op-1', 'UNKNOWN', '{"amount":"2.00"}', 1, 2))
     db.execute("INSERT INTO payments VALUES(?,?,?,?,?,?,?,?,?,?)", ('pay-1', 'op-1', 'receipt-1', 'APPROVED', 9007199254740993, None, b'\x00\xff\x80', 'Код', 12.25, 2))
+    db.execute("INSERT INTO terminal_payment_guard VALUES(?,?,?)", ('terminal-1', 'op-1', 2))
+    db.execute("INSERT INTO payment_reconciliations VALUES(?,?,?,?,?,?,?,?,?,?,?)", ('reconcile-1','terminal-1','pay-1','op-1','admin','case-1','a'*64,'b'*64,'UNKNOWN','APPROVED',2))
     db.execute("INSERT INTO payment_saga VALUES(?,?,?)", ('op-1', 'PAYMENT_UNCERTAIN', 2))
     db.execute("INSERT INTO payment_saga_members VALUES(?,?,?,?,?)", ('op-1', 'pay-1', 'rev-1', None, 'r-auth'))
     db.execute("INSERT INTO event_outbox(sequence,event_id,operation_id,kind,payload,payload_digest,created_at) VALUES(?,?,?,?,?,?,?)", (9007199254740994, 'event-1', 'op-1', 'operation_received', '{"exact":"payload"}', 'c'*64, 1))

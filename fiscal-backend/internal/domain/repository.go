@@ -674,6 +674,7 @@ func (r *MemoryRepository) CommitEdgeSync(tenant string, ack SyncAck, sales []Sa
 	}
 	oldSales, oldOperations, oldArtifacts, oldOutbox, oldPending, oldAcks := copyEdgeMap(r.sales), copyEdgeMap(r.operations), copyEdgeMap(r.artifacts), copyEdgeMap(r.outbox), copyEdgeMap(r.edgePending), copyEdgeMap(r.syncAcks)
 	oldAudit := append([]AuditEvent(nil), r.audit...)
+	oldResources := copyEdgeMap(r.resources)
 	oldGeneration := r.generation
 	oldConfirmed := append([]byte(nil), r.confirmedSnapshot...)
 	defer func() {
@@ -685,6 +686,7 @@ func (r *MemoryRepository) CommitEdgeSync(tenant string, ack SyncAck, sales []Sa
 			if current, ok := r.syncAcks[key]; ok && current.AckID == ack.AckID {
 				r.sales, r.operations, r.artifacts, r.outbox, r.edgePending, r.syncAcks = oldSales, oldOperations, oldArtifacts, oldOutbox, oldPending, oldAcks
 				r.audit = oldAudit
+				r.resources = oldResources
 				r.generation = oldGeneration
 				r.confirmedSnapshot = oldConfirmed
 			}
@@ -748,6 +750,10 @@ func (r *MemoryRepository) CommitEdgeSync(tenant string, ack SyncAck, sales []Sa
 		if item, ok := r.edgePending[id]; ok && item.Acceptance == nil {
 			delete(r.edgePending, id)
 		}
+	}
+	for _, item := range expected.Reconciliations {
+		r.resources[resourceKey(item.Kind, item.ID)] = item
+		r.appendAuditLocked(tenant, "edge:"+ack.EdgeID, "PAYMENT_RECONCILED", item.Kind, item.ID, "", nil, edgeDeepMap(item.Data))
 	}
 	ackKey := ack.EdgeID
 	if tenant != "" {
@@ -813,11 +819,22 @@ func resourceKey(kind, id string) string { return kind + ":" + id }
 func (r *MemoryRepository) PutResource(v ResourceRecord) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	return r.putResourceLocked(v)
+}
+
+func (r *MemoryRepository) putResourceLocked(v ResourceRecord) error {
 	if old, ok := r.resources[resourceKey(v.Kind, v.ID)]; ok && immutableResourceKind(v.Kind) {
 		if immutableResourceEqual(old, v) {
 			return nil
 		}
 		return errors.New("immutable issued resource conflict")
+	}
+	if v.Kind == "payment_reconciliation_authorization" {
+		pending, ok := r.edgePending[stringAny(v.Data, "issuance_operation_id")]
+		binding, exists := r.resources[resourceKey("issued_binding", stringAny(v.Data, "issuance_binding_id"))]
+		if !ok || !exists || pending.TenantID != v.TenantID || edgeDigest(pending) != stringAny(v.Data, "issuance_pending_digest") || binding.TenantID != v.TenantID || binding.Version != intAny(v.Data, "issuance_binding_version") {
+			return errors.New("reconciliation sources changed during issuance")
+		}
 	}
 	if v.Kind == "execution_authorization" {
 		sources, ok := v.Data["issuance_sources"].(map[string]any)

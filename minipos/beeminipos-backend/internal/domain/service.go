@@ -148,28 +148,30 @@ type Line struct {
 	TaxGroup  string `json:"tax_group"`
 }
 type Order struct {
-	ID                      string         `json:"id"`
-	TenantID                string         `json:"tenant_id"`
-	ExternalID              string         `json:"external_id"`
-	ShiftID                 string         `json:"shift_id"`
-	RegisterID              string         `json:"register_id"`
-	OperatorCode            string         `json:"operator_code"`
-	State                   string         `json:"state"`
-	Lines                   []Line         `json:"lines"`
-	Total                   Money          `json:"total"`
-	Payments                []OrderPayment `json:"payments,omitempty"`
-	FiscalSaleID            string         `json:"fiscal_sale_id,omitempty"`
-	FiscalOperationID       string         `json:"fiscal_operation_id,omitempty"`
-	ReceiptReference        string         `json:"receipt_reference,omitempty"`
-	CheckoutOperationID     string         `json:"checkout_operation_id,omitempty"`
-	ReceiptSessionID        string         `json:"receipt_session_id,omitempty"`
-	ReversalOperationID     string         `json:"reversal_operation_id,omitempty"`
-	ReversalFiscalReference string         `json:"reversal_fiscal_reference,omitempty"`
-	ReversalReasonCode      string         `json:"reversal_reason_code,omitempty"`
-	FiscalVersion           int64          `json:"fiscal_version,omitempty"`
-	Version                 int64          `json:"version"`
-	CreatedAt               time.Time      `json:"created_at"`
-	UpdatedAt               time.Time      `json:"updated_at"`
+	ID                       string         `json:"id"`
+	TenantID                 string         `json:"tenant_id"`
+	ExternalID               string         `json:"external_id"`
+	ShiftID                  string         `json:"shift_id"`
+	RegisterID               string         `json:"register_id"`
+	OperatorCode             string         `json:"operator_code"`
+	State                    string         `json:"state"`
+	Lines                    []Line         `json:"lines"`
+	Total                    Money          `json:"total"`
+	Payments                 []OrderPayment `json:"payments,omitempty"`
+	FiscalRegisterID         string         `json:"fiscal_register_id,omitempty"`
+	ExecutionAuthorizationID string         `json:"execution_authorization_id,omitempty"`
+	FiscalSaleID             string         `json:"fiscal_sale_id,omitempty"`
+	FiscalOperationID        string         `json:"fiscal_operation_id,omitempty"`
+	ReceiptReference         string         `json:"receipt_reference,omitempty"`
+	CheckoutOperationID      string         `json:"checkout_operation_id,omitempty"`
+	ReceiptSessionID         string         `json:"receipt_session_id,omitempty"`
+	ReversalOperationID      string         `json:"reversal_operation_id,omitempty"`
+	ReversalFiscalReference  string         `json:"reversal_fiscal_reference,omitempty"`
+	ReversalReasonCode       string         `json:"reversal_reason_code,omitempty"`
+	FiscalVersion            int64          `json:"fiscal_version,omitempty"`
+	Version                  int64          `json:"version"`
+	CreatedAt                time.Time      `json:"created_at"`
+	UpdatedAt                time.Time      `json:"updated_at"`
 }
 
 type OrderPayment struct {

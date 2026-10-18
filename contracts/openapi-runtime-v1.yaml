@@ -25,6 +25,7 @@ servers:
   - url: http://127.0.0.1:8082
     description: Edge loopback DEV/HIL listener
 paths:
+  /payment-reconciliations:authorize: {"post":{"operationId":"authorizePaymentReconciliation","security":[{"oidcBearer":[]}],"description":"ADMIN only. Exact durable-row bank decision; does not prove fiscalization or release unresolved terminal claims.","requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["operation_id","payment_id","observed_state","evidence_reference","evidence_sha256"],"properties":{"operation_id":{"type":"string","maxLength":128},"payment_id":{"type":"string","maxLength":128},"observed_state":{"type":"string","maxLength":128,"enum":["CARD_APPROVED","CARD_DECLINED","CARD_NOT_SENT","REVERSED","REVERSAL_FAILED"]},"terminal_reference":{"type":"string","maxLength":128},"rrn":{"type":"string","maxLength":128},"auth_code":{"type":"string","maxLength":128},"reversal_reference":{"type":"string","maxLength":128},"reversal_rrn":{"type":"string","maxLength":128},"reversal_auth_code":{"type":"string","maxLength":128},"evidence_reference":{"type":"string","minLength":1,"maxLength":1024},"evidence_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"}}}}}},"responses":{"201":{"description":"Signed single-use decision capability","content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["command","client_operation_id","reconciliation_authorization"],"properties":{"command":{"const":"PAYMENT_RECONCILE"},"client_operation_id":{"type":"string","format":"uuid"},"reconciliation_authorization":{"type":"object","required":["algorithm","key_id","payload","sha256","signature"],"properties":{"algorithm":{"type":"string"},"key_id":{"type":"string"},"payload":{"type":"string"},"sha256":{"type":"string"},"signature":{"type":"string"}}}}}}}},"403":{"description":"ADMIN required"},"409":{"description":"Snapshot or evidence conflict"}}}}
   /execution-authorizations: {"post":{"operationId":"issueExecutionAuthorization","security":[{"oidcBearer":[]}],"parameters":[],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["workstation_session_id","client_signing_public_key_der_base64"],"properties":{"workstation_session_id":{"type":"string","minLength":1},"client_signing_public_key_der_base64":{"type":"string","minLength":1,"pattern":"^[A-Za-z0-9_-]+$"},"server_sale_id":{"type":"string","minLength":1}}}}}},"responses":{"201":{"description":"Successful authenticated operation","content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["algorithm","key_id","payload","sha256","signature"],"properties":{"algorithm":{"type":"string","const":"ES256_DER"},"key_id":{"type":"string","minLength":1},"payload":{"type":"string","minLength":1,"pattern":"^[A-Za-z0-9_-]+$"},"sha256":{"type":"string","minLength":1,"pattern":"^[0-9a-f]{64}$"},"signature":{"type":"string","minLength":1,"pattern":"^[A-Za-z0-9_-]+$"}}}}}}}}}
   /operators:bind-identity: {"post":{"operationId":"bindOperatorActorIdentity","security":[{"oidcBearer":[]}],"parameters":[],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["operator_id","actor_subject","expected_version"],"properties":{"operator_id":{"type":"string","minLength":1},"actor_subject":{"type":"string","minLength":1},"expected_version":{"type":"integer","minimum":1}}}}}},"responses":{"204":{"description":"Successful authenticated operation"}}}}
   /devices/{device_id}/provisioning-deliveries: {"post":{"operationId":"prepareEncryptedProvisioningDelivery","security":[{"oidcBearer":[]}],"parameters":[{"name":"device_id","in":"path","required":true,"schema":{"type":"string","minLength":1}}],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["binding_id","setup_nonce","ssid","wifi_password","fiscal_password"],"properties":{"binding_id":{"type":"string","minLength":1,"format":"uuid"},"setup_nonce":{"type":"string","minLength":1,"pattern":"^[A-Za-z0-9_-]{43}$"},"ssid":{"type":"string","minLength":1,"maxLength":32},"wifi_password":{"type":"string","minLength":8,"maxLength":63},"fiscal_password":{"type":"string","minLength":1,"pattern":"^([0-9]{4}|[0-9]{8})$"}}}}}},"responses":{"201":{"description":"Successful authenticated operation","content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["delivery_id","package_base64","package_sha256","binding_sha256","generation","state"],"properties":{"delivery_id":{"type":"string","minLength":1,"format":"uuid"},"package_base64":{"type":"string","minLength":1,"maxLength":46000},"package_sha256":{"type":"string","minLength":1,"pattern":"^[0-9a-f]{64}$"},"binding_sha256":{"type":"string","minLength":1,"pattern":"^[0-9a-f]{64}$"},"generation":{"type":"integer","minimum":1,"maximum":2147483647},"state":{"type":"string","const":"ISSUED"}}}}}}}}}
@@ -558,6 +559,53 @@ paths:
       responses:
         '200': {description: Lightweight Fiscal cloud route liveness, content: {application/json: {schema: {type: object, additionalProperties: false, required: [status, latency_ms], properties: {status: {const: ok}, latency_ms: {type: integer, minimum: 0}}}}}}
         '503': {$ref: '#/components/responses/Problem'}
+  /minipos/execution-authorizations:dispatch:
+    post:
+      operationId: dispatchMiniPosPreparedExecution
+      parameters: [{$ref: '#/components/parameters/ApiVersion'}, {$ref: '#/components/parameters/AppInstanceId'}, {$ref: '#/components/parameters/IdempotencyKey'}]
+      requestBody:
+        required: true
+        content: {application/json: {schema: {type: object, additionalProperties: false, required: [order_id], properties: {order_id: {type: string, format: uuid}}}}}
+      responses:
+        '202': {description: Exact prepared operation dispatched through the durable MQTT outbox, content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosFiscalOperation'}}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+  /minipos/execution-authorizations:
+    get:
+      operationId: getMiniPosExecutionIdentity
+      description: Returns fiscal identity namespace for an authenticated caller-owned active session and open shift; grants no execution authority.
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/AppInstanceId'
+        - name: shift_id
+          in: query
+          required: true
+          schema: {type: string, format: uuid}
+      responses:
+        '200':
+          description: Server-derived source session and fiscal identity namespace
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosExecutionIdentity'}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+    post:
+      operationId: issueMiniPosExecutionAuthorization
+      description: Issues a root-signed P256-client-bound authorization via an explicitly privileged tenant/source integration credential and ADMIN-configured namespaced actor mapping.
+      parameters:
+        - $ref: '#/components/parameters/ApiVersion'
+        - $ref: '#/components/parameters/AppInstanceId'
+        - $ref: '#/components/parameters/IdempotencyKey'
+      requestBody:
+        required: true
+        content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosExecutionAuthorizationRequest'}}}
+      responses:
+        '201':
+          description: Immutable root authorization and caller-owned fiscal workstation session
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosExecutionAuthorizationResponse'}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
   /minipos/fiscal-local-tokens:
     post:
       operationId: issueMiniPosLocalFiscalToken
@@ -1434,6 +1482,55 @@ components:
         operator_code: {type: string, pattern: '^[0-9A-Za-z]{4}$'}
         active: {type: boolean, const: true}
         status: {type: string, const: ACTIVE}
+    MiniPosExecutionIdentity:
+      type: object
+      additionalProperties: false
+      required: [tenant_id, actor_subject, source_session_id, app_instance_id]
+      properties:
+        tenant_id: {type: string, minLength: 1}
+        actor_subject: {type: string, minLength: 1}
+        source_session_id: {type: string, minLength: 43, maxLength: 64}
+        app_instance_id: {type: string, minLength: 1}
+    MiniPosExecutionAuthorizationRequest:
+      type: object
+      additionalProperties: false
+      required: [shift_id, client_signing_public_key_der_base64]
+      properties:
+        shift_id: {type: string, format: uuid}
+        client_signing_public_key_der_base64: {type: string, minLength: 1, maxLength: 256}
+        order_id: {type: string, format: uuid}
+        payments: {type: array, minItems: 1, maxItems: 10, items: {$ref: '#/components/schemas/MiniPosOfflinePayment'}}
+    MiniPosExecutionAuthorizationResponse:
+      type: object
+      additionalProperties: false
+      required: [authorization, workstation_session, transport_token, transport_token_expires_at]
+      properties:
+        authorization:
+          type: object
+          additionalProperties: false
+          required: [algorithm, key_id, payload, sha256, signature]
+          properties:
+            algorithm: {type: string, const: ES256_DER}
+            key_id: {type: string, minLength: 1}
+            payload: {type: string, minLength: 1}
+            sha256: {type: string, pattern: '^[0-9a-f]{64}$'}
+            signature: {type: string, minLength: 1}
+        workstation_session:
+          type: object
+          additionalProperties: false
+          required: [session_id, tenant_id, workstation_id, operator_id, operator_code, app_instance_id, expires_at, created_at]
+          properties:
+            session_id: {type: string, format: uuid}
+            tenant_id: {type: string, minLength: 1}
+            workstation_id: {type: string, minLength: 1}
+            operator_id: {type: string, minLength: 1}
+            operator_code: {type: string, pattern: '^[A-Za-z0-9]{4}$'}
+            app_instance_id: {type: string, minLength: 1}
+            expires_at: {type: string, format: date-time}
+            created_at: {type: string, format: date-time}
+        transport_token: {type: string, minLength: 1}
+        transport_token_expires_at: {type: string, format: date-time}
+        canonical_payload: {type: object, additionalProperties: true}
     MiniPosOperatorSession:
       type: object
       additionalProperties: false

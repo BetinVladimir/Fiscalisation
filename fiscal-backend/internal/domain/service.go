@@ -965,6 +965,15 @@ func (s *Service) PayForTenant(id string, p PaymentRequest, tenant string) (Oper
 // Adapters expand it into ordered payment/fiscal steps and journal each boundary
 // before I/O, so split tender cannot create multiple physical receipts.
 func (s *Service) FinalizeSaleForTenant(id string, in SaleFinalizeRequest, tenant string) (Operation, error) {
+	return s.finalizeSaleForTenant(id, in, tenant, true)
+}
+
+// PrepareFinalizeSaleForTenant freezes the exact receipt plan without publishing
+// or executing a money command. Local dispatch requires a root-issued ticket.
+func (s *Service) PrepareFinalizeSaleForTenant(id string, in SaleFinalizeRequest, tenant string) (Operation, error) {
+	return s.finalizeSaleForTenant(id, in, tenant, false)
+}
+func (s *Service) finalizeSaleForTenant(id string, in SaleFinalizeRequest, tenant string, dispatch bool) (Operation, error) {
 	sale, err := s.saleForTenantMutation(id, tenant)
 	if err != nil {
 		return Operation{}, err
@@ -999,7 +1008,12 @@ func (s *Service) FinalizeSaleForTenant(id string, in SaleFinalizeRequest, tenan
 	if routeErr != nil {
 		return Operation{}, fmt.Errorf("fiscal device route unavailable: %w", routeErr)
 	}
-	if probeErr := driver.Probe(); probeErr != nil {
+	if probeErr := func() error {
+		if dispatch {
+			return driver.Probe()
+		}
+		return nil
+	}(); probeErr != nil {
 		return Operation{}, fmt.Errorf("fiscal device probe failed: %w", probeErr)
 	}
 	now := time.Now().UTC()
@@ -1007,12 +1021,22 @@ func (s *Service) FinalizeSaleForTenant(id string, in SaleFinalizeRequest, tenan
 	for _, p := range in.Payments {
 		sale.Payments = append(sale.Payments, PaymentRecord{PaymentID: p.PaymentID, Type: p.Type, Amount: p.Amount, CreatedAt: now})
 	}
+	writer, ok := s.repo.(interface {
+		ReserveSaleFinalize(Sale, int64, Operation, *ResourceRecord) (Sale, error)
+	})
+	if !ok {
+		return Operation{}, errors.New("atomic receipt finalization unavailable")
+	}
+	if !dispatch {
+		_, err = writer.ReserveSaleFinalize(sale, sale.Version, op, nil)
+		return op, err
+	}
 	if queued, ok := driver.(durableQueuedDriver); ok {
 		command, prepErr := queued.Prepare(op, sale, PaymentRequest{})
 		if prepErr != nil {
 			return Operation{}, prepErr
 		}
-		sale, err = s.repo.ReserveSalePaymentCommand(id, tenant, sale.Version, op, sale.FiscalDevice, command)
+		sale, err = writer.ReserveSaleFinalize(sale, sale.Version, op, &command)
 		if err != nil {
 			return Operation{}, err
 		}

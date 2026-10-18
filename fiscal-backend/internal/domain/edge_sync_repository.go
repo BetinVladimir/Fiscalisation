@@ -8,6 +8,7 @@ import (
 )
 
 type EdgeSyncExpectation struct {
+	Reconciliations []ResourceRecord
 	Cursor            int64
 	Hash              string
 	SaleVersions      map[string]int64
@@ -42,6 +43,45 @@ func (r *MemoryRepository) validateEdgeSyncLocked(tenant string, ack SyncAck, sa
 		old, ok := r.edgePending[id]
 		if (!ok && digest != "") || (ok && (digest == "" || edgeDigest(old) != digest || (tenant != "" && old.TenantID != tenant))) {
 			return errors.New("concurrent Edge acceptance/result conflict")
+		}
+	}
+	seenReconciliations := map[string]bool{}
+	seenRows := map[string]bool{}
+	for _, item := range expected.Reconciliations {
+		if seenReconciliations[item.ID] {
+			return errors.New("duplicate reconciliation in batch")
+		}
+		seenReconciliations[item.ID] = true
+		if item.Kind != "payment_reconciliation" || item.TenantID != tenant {
+			return errors.New("reconciliation ownership mismatch")
+		}
+		issued, ok := r.resources[resourceKey("payment_reconciliation_authorization", item.ID)]
+		if !ok || issued.TenantID != tenant || edgeDigest(issued) != stringAny(item.Data, "issued_resource_digest") {
+			return errors.New("reconciliation authorization changed")
+		}
+		original, ok := r.edgePending[stringAny(item.Data, "original_operation_id")]
+		if !ok || original.TenantID != tenant || edgeDigest(original) != stringAny(item.Data, "issuance_pending_digest") {
+			return errors.New("reconciliation original snapshot changed")
+		}
+		nextEvent, _ := item.Data["event"].(map[string]any)
+		nextBody, _ := nextEvent["payload"].(map[string]any)
+		rowkey := stringAny(nextBody, "operation_id") + "\n" + stringAny(nextBody, "payment_id") + "\n" + stringAny(nextBody, "old_state")
+		if seenRows[rowkey] {
+			return errors.New("duplicate payment reconciliation row")
+		}
+		seenRows[rowkey] = true
+		for _, prior := range r.resources {
+			if prior.Kind != "payment_reconciliation" || prior.TenantID != tenant {
+				continue
+			}
+			priorEvent, _ := prior.Data["event"].(map[string]any)
+			priorBody, _ := priorEvent["payload"].(map[string]any)
+			if stringAny(priorBody, "payment_id") == stringAny(nextBody, "payment_id") && stringAny(priorBody, "operation_id") == stringAny(nextBody, "operation_id") && stringAny(priorBody, "old_state") == stringAny(nextBody, "old_state") {
+				return errors.New("payment expected row already reconciled")
+			}
+		}
+		if _, ok := r.resources[resourceKey(item.Kind, item.ID)]; ok {
+			return errors.New("reconciliation already applied")
 		}
 	}
 	// Include every staged sale/pending command, not only the current persisted map.
@@ -118,7 +158,7 @@ func (r *MemoryRepository) validateEdgeSyncLocked(tenant string, ack SyncAck, sa
 }
 
 func immutableResourceKind(kind string) bool {
-	return kind == "unp_serial_identity" || kind == "execution_authorization" || kind == "issued_binding" || kind == "execution_authorization_revocation"
+	return kind == "payment_reconciliation_authorization" || kind == "payment_reconciliation" || kind == "delegated_sale_request" || kind == "delegated_shift" || kind == "unp_serial_identity" || kind == "execution_authorization" || kind == "issued_binding" || kind == "execution_authorization_revocation"
 }
 func immutableResourceEqual(a, b ResourceRecord) bool {
 	return a.Kind == b.Kind && a.ID == b.ID && a.TenantID == b.TenantID && edgeDigest(a.Data) == edgeDigest(b.Data)

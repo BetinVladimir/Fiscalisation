@@ -1,0 +1,32 @@
+./scripts/verify-contract-lock.sh
+./scripts/verify-generated-openapi.sh
+ ⚠  Component: "DeviceCommandEnvelope" is never used. at #/components/schemas/DeviceCommandEnvelope
+ ⚠  Component: "DeviceShadow" is never used. at #/components/schemas/DeviceShadow
+ ⚠  Component: "BleControlMessage" is never used. at #/components/schemas/BleControlMessage
+ ⚠  Component: "OrganizationBody" is never used. at #/components/requestBodies/OrganizationBody
+ ⚠  Component: "LocationBody" is never used. at #/components/requestBodies/LocationBody
+ ⚠  Component: "RegisterBody" is never used. at #/components/requestBodies/RegisterBody
+ ⚠  Component: "OperatorBody" is never used. at #/components/requestBodies/OperatorBody
+ ⚠  Component: "DeviceBody" is never used. at #/components/requestBodies/DeviceBody
+ ⚠  Component: "DeviceActivationCommit" is never used. at #/components/schemas/DeviceActivationCommit
+ ⚠  Component: "DeviceActivationCommitAck" is never used. at #/components/schemas/DeviceActivationCommitAck
+ ⚠  Component: "EdgeRuntimeCommand" is never used. at #/components/schemas/EdgeRuntimeCommand
+ ⚠  Component: "ComplianceIntent" is never used. at #/components/schemas/ComplianceIntent
+ ⚠  Component: "ComplianceIntentResult" is never used. at #/components/schemas/ComplianceIntentResult
+ ⚠  Component: "EdgeRuntimeResult" is never used. at #/components/schemas/EdgeRuntimeResult
+ ⚠  Component: "DeviceProbeResult" is never used. at #/components/schemas/DeviceProbeResult
+ ⚠  Component: "EdgeStorageStatus" is never used. at #/components/schemas/EdgeStorageStatus
+ ⚠  Component: "DeviceCommandEnvelope" is never used. at #/components/schemas/DeviceCommandEnvelope
+ ⚠  Component: "EdgeSyncBatch" is never used. at #/components/schemas/EdgeSyncBatch
+ ⚠  Component: "EdgeSyncAcknowledgement" is never used. at #/components/schemas/EdgeSyncAcknowledgement
+generated OpenAPI TypeScript drift gate OK
+./scripts/verify-generated-response-contracts.sh
+generated OpenAPI contracts drift gate OK: canonical + runtime request/response validators match across 2 Go services (S3 uses its own contract tests)
+cd minipos/BeeMiniPOS && npx tsc --noEmit
+cd minipos/BeeMiniPOS && npx tsc --noEmit --skipLibCheck --module esnext --moduleResolution bundler ../../contracts/generated/contract-smoke.ts
+ruby scripts/verify_runtime_openapi.rb
+runtime OpenAPI coverage OK: 69 operations
+ruby scripts/verify_openapi_overlay.rb
+OpenAPI overlay OK: workstation logout, Annex audit filters and 20 reviewed canonical corrections
+ruby scripts/verify_contract_surface.rb
+contract surface OK: 73 canonical + 69 runtime operations; generated TypeScript complete; AsyncAPI 3.0.0

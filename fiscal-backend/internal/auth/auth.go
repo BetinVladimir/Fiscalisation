@@ -109,6 +109,9 @@ func hasAny(c Claims, allowed ...string) bool {
 // Allowed is the centralized least-privilege policy for the public Fiscal API.
 // Object-level tenant checks remain in the handlers/repository.
 func Allowed(c Claims, method, path string) bool {
+	if strings.HasPrefix(path, "/public/v1/payment-reconciliations") {
+		return hasAny(c, "ADMIN")
+	}
 	if strings.HasPrefix(path, "/platform/v1/manufacturing/") {
 		return hasAny(c, "MANUFACTURING_STATION")
 	}
