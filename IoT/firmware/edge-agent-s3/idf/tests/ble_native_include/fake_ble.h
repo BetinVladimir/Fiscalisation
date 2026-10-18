@@ -16,7 +16,7 @@ struct ble_gatt_svc_def{int type;const ble_uuid_t*uuid;void*includes;const ble_g
 struct ble_gap_event{int type;struct{int status;uint16_t conn_handle;}connect;};
 struct ble_hs_adv_fields{int flags{};uint8_t*name{};uint8_t name_len{};int name_is_complete{};ble_uuid128_t*uuids128{};int num_uuids128{};int uuids128_is_complete{};};
 struct ble_gap_adv_params{int conn_mode{};int disc_mode{};};
-struct ble_hs_cfg_t{void(*sync_cb)();};extern ble_hs_cfg_t ble_hs_cfg;
+struct ble_hs_cfg_t{void(*sync_cb)();void(*reset_cb)(int);};extern ble_hs_cfg_t ble_hs_cfg;
 int ble_hs_mbuf_to_flat(os_mbuf*,void*,size_t,uint16_t*);os_mbuf*ble_hs_mbuf_from_flat(const void*,size_t);void os_mbuf_free_chain(os_mbuf*);
 int ble_gatts_notify_custom(uint16_t,uint16_t,os_mbuf*);uint16_t ble_att_mtu(uint16_t);
 int ble_gap_adv_set_fields(const ble_hs_adv_fields*);int ble_gap_adv_rsp_set_fields(const ble_hs_adv_fields*);

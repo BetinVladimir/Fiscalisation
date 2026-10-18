@@ -11,6 +11,8 @@
 - MiniPOS authorization/client proof и доверенная делегация операторской сессии ещё реализуются. MiniPOS order ID не является fiscal sale ID. Реальный Android/iOS USB/COM/BLE HIL, legacy authority fence и внешние требования НАП остаются открытыми.
 - Ключи текущей версии находятся внутри ESP32-S3; внешний ATECC608A не используется.
 
+- Следующий проверенный срез: [BluePad, SQLite extraction и route revocation](20_BLUEPAD_SQLITE_AND_REVOCATION.md), [логи и hashes](evidence/bluepad-sqlite-2026-10-18/README.md). IoT/S3/backend PASS; persistent quarantine и trusted ADMIN/MiniPOS flow ещё не закрыты.
+
 ## Активная цель и ускоренное исполнение
 
 2026-10-17 пользователь поставил полную цель: закрыть все разрывы/ошибки, добавить и выполнить тесты, устранить регрессии, подготовить устройство-испытания и MiniPOS к применимой процедуре НАП/СУПТО. [Цель, три параллельных потока и общая приёмка](08_GOAL_AND_FAST_TRACK.md); [подготовка пакета НАП](09_SUPTO_NAP_PREPARATION.md). Сохраняется CASH → CARD/split/recovery, регуляторная дорожка начинается сразу. Пользователь разрешил делегирование; общий backlog, contracts и merged-snapshot gate обязательны. Это расширение цели, не свидетельство уже выполненных исправлений.

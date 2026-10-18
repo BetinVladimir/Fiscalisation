@@ -30,9 +30,13 @@ class PhysicalProfiles(unittest.TestCase):
  def test_bluepad_is_a_real_binding_derived_central_not_a_readiness_stub(self):
   executor=(MAIN/"profile_executor.cpp").read_text();central=(MAIN/"bluepad_ble_central.cpp").read_text();cmake=(MAIN/"CMakeLists.txt").read_text()
   self.assertNotIn("payment_ready(){/*",executor);self.assertIn("bluepad_ble_ready",executor)
-  for token in ("BLE_GAP_EVENT_CONNECT","BLE_GAP_EVENT_DISCONNECT","ble_gattc_disc_svc_by_uuid",
-                "PURCHASE","GET_REPORT_BY_STAN","VOID_PURCHASE"):
+  for token in ("BLE_GAP_EVENT_CONNECT","BLE_GAP_EVENT_DISCONNECT","ble_gattc_disc_svc_by_uuid"):
    self.assertIn(token,central)
   self.assertIn("bluepad_ble_central.cpp",cmake)
+  # Purchase correlation, receipt tags and asynchronous failures execute the
+  # production central in mandatory bluepad_host/run.py; helper names are not
+  # evidence that unverified lookup/reversal commands are supported.
+  make=(ROOT.parents[3]/"Makefile").read_text()
+  self.assertIn("tests/bluepad_host/run.py",make)
 
 if __name__=="__main__":unittest.main()

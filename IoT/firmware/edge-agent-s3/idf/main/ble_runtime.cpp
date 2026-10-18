@@ -149,6 +149,7 @@ esp_err_t start_host(){
   esp_err_t result=nimble_port_init();if(result!=ESP_OK)return result;
   ble_svc_gap_init();ble_svc_gatt_init();
   if(ble_svc_gap_device_name_set(name)!=0||ble_gatts_count_cfg(services)!=0||ble_gatts_add_svcs(services)!=0)return ESP_FAIL;
+  ble_hs_cfg.reset_cb=[](int){bluepad_ble_on_host_reset();};
   ble_hs_cfg.sync_cb=synchronized;nimble_port_freertos_init(host);
   if(xSemaphoreTake(startup_signal,pdMS_TO_TICKS(5000))!=pdTRUE){startup_timed_out=true;startup_result=ESP_ERR_TIMEOUT;ble_gap_adv_stop();return ESP_ERR_TIMEOUT;}
   return startup_result;

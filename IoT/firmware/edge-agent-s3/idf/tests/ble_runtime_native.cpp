@@ -26,7 +26,8 @@ void nimble_port_run(){}void nimble_port_freertos_deinit(){}void nimble_port_fre
 void ble_svc_gap_init(){}void ble_svc_gatt_init(){}int ble_svc_gap_device_name_set(const char*){return failure_stage==3?1:0;}int ble_gatts_count_cfg(const ble_gatt_svc_def*){return failure_stage==9?1:0;}int ble_gatts_add_svcs(const ble_gatt_svc_def*){return failure_stage==10?1:0;}
 int mbedtls_sha256(const unsigned char*,size_t,unsigned char*out,int){std::memset(out,0,32);return 0;}
 SemaphoreHandle_t xSemaphoreCreateBinary(){static bool semaphore;semaphore=false;return &semaphore;}int xSemaphoreGive(SemaphoreHandle_t s){*s=true;return pdTRUE;}int xSemaphoreTake(SemaphoreHandle_t s,int){return *s?pdTRUE:0;}
-namespace beefiscal::idf{void bluepad_ble_on_host_sync(){}}
+static int central_reset_count;
+namespace beefiscal::idf{void bluepad_ble_on_host_sync(){}void bluepad_ble_on_host_reset(){++central_reset_count;}}
 static esp_err_t sink_fn(const CommandView&,void*){sink_count++;return ESP_OK;}
 static esp_err_t provision_fn(const uint8_t*,size_t,void*){sink_count++;return ESP_OK;}
 static esp_err_t read_source(char*out,size_t*n,void*){assert(*n>=2);memcpy(out,"{}",2);*n=2;return ESP_OK;}
@@ -34,6 +35,7 @@ static void reset(){block_init=false;init_entered=false;release_init=false;fence
 static void connect(){ble_gap_event e{};e.type=BLE_GAP_EVENT_CONNECT;e.connect.status=0;e.connect.conn_handle=1;gap(&e,nullptr);}
 int main(){
  reset();assert(ble_runtime_start({"BeeFiscal-setup"},sink_fn,nullptr)==ESP_OK);assert(adv_size==21&&scan_size==17&&advertising&&hci_calls==1);
+ assert(ble_hs_cfg.reset_cb);const auto prior_resets=central_reset_count;ble_hs_cfg.reset_cb(7);assert(central_reset_count==prior_resets+1);
  const auto original_sink=sink;assert(ble_runtime_start({"replacement"},sink_fn,reinterpret_cast<void*>(1))==ESP_ERR_INVALID_STATE);assert(sink==original_sink&&sink_context==nullptr);
  for(int stage:{1,2,3,4,5,6,7,9,10}){reset();failure_stage=stage;assert(ble_runtime_start({"BeeFiscal-setup"},sink_fn,nullptr)!=ESP_OK);assert(!advertising);}
  reset();sync_now=false;assert(ble_runtime_start({"BeeFiscal-setup"},sink_fn,nullptr)==ESP_ERR_TIMEOUT);ble_hs_cfg.sync_cb();assert(!advertising);assert(ble_publish_event("11111111-1111-4111-8111-111111111111",reinterpret_cast<const uint8_t*>("x"),1)==ESP_ERR_INVALID_STATE);

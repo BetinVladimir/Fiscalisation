@@ -152,6 +152,8 @@ minipos-outbox-test:
 factory-test:
 	cd IoT/device-manufacturing && PYTHONPATH=src python3 -m unittest discover -s tests -v
 iot-test:
+	python3 -m unittest discover -s tests -p 'test_s3_sqlite_export.py' -v
+	python3 IoT/firmware/edge-agent-s3/idf/tests/bluepad_host/run.py
 	python3 IoT/firmware/edge-agent-s3/idf/tests/execution_auth_host/run.py
 	python3 IoT/firmware/edge-agent-s3/idf/tests/authority_host/run.py
 	bash IoT/firmware/edge-agent-s3/idf/tests/run_provisioning_host.sh
@@ -184,3 +186,7 @@ compose-e2e:
 	./scripts/e2e-two-compose.sh
 regression: test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test boundary-test typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test evidence-test web-build native-bundle smart-device-test minipos-outbox-test factory-test iot-test compose-check
 full-regression: regression postgres-integration compose-e2e
+
+.PHONY: nap-local-extraction-test
+nap-local-extraction-test:
+	python3 -m unittest discover -s tests -p 'test_s3_sqlite_export.py' -v

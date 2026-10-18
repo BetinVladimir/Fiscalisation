@@ -66,7 +66,7 @@ Expected LEN bytes: 30 30 32 3A
 - подписки на READ и POWER, wake peer name при power30h и ожидание31h;
 - fragments <=19bytes с ожиданием каждого write completion.
 
-Actual IDF central имеет только configured service/TX/RX, без POWER/WAKE и completion queue. Это расхождение с **локальным SDK-derived profile**, а не claim, что публичный datasheet документирует эти UUID. Полный applicable payment transport/protocol manual не найден среди подтверждённых открытых официальных источников; требуется version/hash SDK/spec от производителя или эквайера. STAN/RRN, lookup, VOID/refund, duplicate receipt и card-approved/fiscal-failed компенсацию подтвердить им. GAP-013/014/019, T-08/T-09.
+Локальный vendor SDK `examples/datecs/BC-50/datecspay-java-sdk_2025-02-28_v9.0.0Src` содержит **Datecs Pay Pinpad Commands v3 (2025)** (`DOC/DatecspayLowLevel.pdf`) и исходники transport/payment workflow. Runtime central приведён к подтверждаемому пути purchase-reference: POWER/WAKE, подтверждённые CCCD и 19-byte write completions, type03/DF03, final01, чтение receipt tags с exact merchant reference, TX_END. Протокол различает final01 и intermediate02 для предыдущей зависшей транзакции. STAN — BCD; UUID не является RRN или STAN. Карточка устройства не подтверждает применимость конкретной банковской программы: остаются HIL и vendor/acquirer подтверждения capabilities, retrieval/VOID и восстановления после UNKNOWN. Подробные страницы, SDK строки, границы и тесты: [BluePad runtime handover](BLUEPAD_CENTRAL_HANDOVER.md).
 
 ## USB Daisy и COM Datecs на S3
 

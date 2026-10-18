@@ -588,23 +588,59 @@ func (r *MemoryRepository) RevokeActivatedDevice(deviceID, tenant, actor string,
 	if !ok || device.TenantID != tenant {
 		return DeviceActivationRequest{}, ErrNotFound
 	}
-	registerKey := resourceKey("register", v.ClaimedRegisterID)
-	register, ok := r.resources[registerKey]
-	if ok && register.TenantID == tenant {
-		if stringField(register.Data, "fiscal_device_id") == deviceID {
-			delete(register.Data, "fiscal_device_id")
-			delete(register.Data, "fiscal_device_active_from")
+	// Revoke every tenant route that still depends on this device, including
+	// adapter and payment references. Issued binding evidence remains immutable.
+	revokedBindings := map[string]bool{}
+	for key, binding := range r.resources {
+		if binding.Kind != "composite_binding" || binding.TenantID != tenant || !oneOf(stringField(binding.Data, "status"), "ACTIVE", "PENDING") {
+			continue
 		}
-		if stringField(register.Data, "payment_terminal_id") == deviceID {
-			delete(register.Data, "payment_terminal_id")
-			delete(register.Data, "payment_terminal_active_from")
+		if stringField(binding.Data, "adapter_device_id") != deviceID && stringField(binding.Data, "fiscal_device_id") != deviceID && stringField(binding.Data, "payment_device_id") != deviceID {
+			continue
+		}
+		binding.Data = cloneMap(binding.Data)
+		binding.Data["status"] = "REVOKED"
+		binding.Data["revoked_at"] = now.Format(time.RFC3339Nano)
+		binding.Data["updated_at"] = now.Format(time.RFC3339Nano)
+		binding.Version++
+		binding.UpdatedAt = now
+		r.resources[key] = binding
+		revokedBindings[binding.ID] = true
+	}
+	affectedRegisters := map[string]bool{}
+	for key, register := range r.resources {
+		if register.Kind != "register" || register.TenantID != tenant {
+			continue
+		}
+		composite := revokedBindings[stringField(register.Data, "composite_binding_id")]
+		adapter := stringField(register.Data, "adapter_device_id") == deviceID
+		fiscal := stringField(register.Data, "fiscal_device_id") == deviceID
+		payment := stringField(register.Data, "payment_terminal_id") == deviceID
+		if !composite && !adapter && !fiscal && !payment {
+			continue
+		}
+		register.Data = cloneMap(register.Data)
+		if composite || adapter {
+			for _, field := range []string{"composite_binding_id", "device_profile", "adapter_device_id", "fiscal_device_id", "fiscal_device_active_from", "payment_terminal_id", "payment_terminal_active_from"} {
+				delete(register.Data, field)
+			}
+		} else {
+			if fiscal {
+				delete(register.Data, "fiscal_device_id")
+				delete(register.Data, "fiscal_device_active_from")
+			}
+			if payment {
+				delete(register.Data, "payment_terminal_id")
+				delete(register.Data, "payment_terminal_active_from")
+			}
 		}
 		register.Version++
 		register.UpdatedAt = now
-		r.resources[registerKey] = register
+		r.resources[key] = register
+		affectedRegisters[register.ID] = true
 	}
 	for sessionID, session := range r.bleSessions {
-		if session.TenantID == tenant && session.FiscalDeviceID == deviceID && !session.Revoked {
+		if session.TenantID == tenant && (session.DeviceID == deviceID || session.FiscalDeviceID == deviceID || affectedRegisters[session.RegisterID]) && !session.Revoked {
 			session.Revoked = true
 			r.bleSessions[sessionID] = session
 		}
