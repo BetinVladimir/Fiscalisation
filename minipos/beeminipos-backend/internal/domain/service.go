@@ -2208,6 +2208,8 @@ func normalizedOrderPayments(payments []map[string]any) []OrderPayment {
 	out := make([]OrderPayment, 0, len(payments))
 	for _, raw := range payments {
 		payment := OrderPayment{}
+		payment.PaymentID, _ = raw["payment_id"].(string)
+		payment.TerminalPolicy, _ = raw["terminal_policy"].(string)
 		payment.Type, _ = raw["type"].(string)
 		switch amount := raw["amount"].(type) {
 		case map[string]any:

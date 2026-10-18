@@ -14,6 +14,7 @@ async function json<T>(
   appInstance?: string,
 ): Promise<T> {
   const headers = new Headers(init.headers);
+  if (!headers.has("X-Api-Version")) headers.set("X-Api-Version", "2026-08-07");
   headers.set("Accept", "application/json");
   if (init.body) headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -172,6 +173,7 @@ export class MiniPosClient {
       `${this.baseUrl}/shifts`,
       {
         method: "POST",
+        headers: { "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({ register_id: register, employee_id: employee }),
       },
       this.token(),
@@ -181,7 +183,7 @@ export class MiniPosClient {
   createOrder(shiftId: string) {
     return json<{ id: string; external_id: string; version: number }>(
       `${this.baseUrl}/orders`,
-      { method: "POST", body: JSON.stringify({ shift_id: shiftId }) },
+      { method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }, body: JSON.stringify({ shift_id: shiftId }) },
       this.token(),
       this.appInstance,
     );

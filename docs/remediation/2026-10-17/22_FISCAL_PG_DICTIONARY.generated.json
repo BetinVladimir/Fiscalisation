@@ -1,0 +1,489 @@
+{
+  "format": "beefiscal-financial-pg-schema-v1",
+  "schema": "public",
+  "tables": [
+    {
+      "name": "fiscal_runtime_artifacts",
+      "columns": [
+        {
+          "name": "tenant_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "body",
+          "type": "bytea",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "sha256",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "tenant_boundary:*:true:public:(tenant_id = app_tenant_key()):(tenant_id = app_tenant_key())"
+      ],
+      "constraints": [
+        "fiscal_runtime_artifacts_pkey:PRIMARY KEY (tenant_id, id)",
+        "fiscal_runtime_artifacts_sha256_check:CHECK ((sha256 ~ '^[0-9a-f]{64}$'::text))"
+      ],
+      "indexes": [
+        "fiscal_runtime_artifacts_pkey:CREATE UNIQUE INDEX fiscal_runtime_artifacts_pkey ON public.fiscal_runtime_artifacts USING btree (tenant_id, id)",
+        "fiscal_runtime_artifacts_tenant_id:CREATE INDEX fiscal_runtime_artifacts_tenant_id ON public.fiscal_runtime_artifacts USING btree (tenant_id, id)"
+      ]
+    },
+    {
+      "name": "fiscal_runtime_operations",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "tenant_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "sale_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "register_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "type",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "fiscal_reference",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "simulated",
+          "type": "boolean",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "error_code",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "original_fiscal_reference",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "reason_code",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "tenant_boundary:*:true:public:(tenant_id = app_tenant_key()):(tenant_id = app_tenant_key())"
+      ],
+      "constraints": [
+        "fiscal_runtime_operations_pkey:PRIMARY KEY (id)",
+        "fiscal_runtime_operations_version_check:CHECK ((version \u003e 0))"
+      ],
+      "indexes": [
+        "fiscal_runtime_operations_pkey:CREATE UNIQUE INDEX fiscal_runtime_operations_pkey ON public.fiscal_runtime_operations USING btree (id)",
+        "fiscal_runtime_operations_tenant_state:CREATE INDEX fiscal_runtime_operations_tenant_state ON public.fiscal_runtime_operations USING btree (tenant_id, state, updated_at)"
+      ]
+    },
+    {
+      "name": "fiscal_runtime_sales",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "tenant_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "external_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "location_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "register_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "operator_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "unp",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "lines",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "payments",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "fiscal_operation_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "receipt_artifact_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fiscal_device_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fiscal_device_serial",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fiscal_device_number",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fiscal_memory_number",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fiscal_device_vendor",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fiscal_device_model",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fiscal_device_firmware",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "tenant_boundary:*:true:public:(tenant_id = app_tenant_key()):(tenant_id = app_tenant_key())"
+      ],
+      "constraints": [
+        "fiscal_runtime_sales_lines_check:CHECK ((jsonb_typeof(lines) = 'array'::text))",
+        "fiscal_runtime_sales_payments_check:CHECK ((jsonb_typeof(payments) = 'array'::text))",
+        "fiscal_runtime_sales_pkey:PRIMARY KEY (id)",
+        "fiscal_runtime_sales_tenant_id_external_id_key:UNIQUE (tenant_id, external_id)",
+        "fiscal_runtime_sales_tenant_id_unp_key:UNIQUE (tenant_id, unp)",
+        "fiscal_runtime_sales_version_check:CHECK ((version \u003e 0))"
+      ],
+      "indexes": [
+        "fiscal_runtime_sales_pkey:CREATE UNIQUE INDEX fiscal_runtime_sales_pkey ON public.fiscal_runtime_sales USING btree (id)",
+        "fiscal_runtime_sales_tenant_device:CREATE INDEX fiscal_runtime_sales_tenant_device ON public.fiscal_runtime_sales USING btree (tenant_id, fiscal_device_id, created_at)",
+        "fiscal_runtime_sales_tenant_id_external_id_key:CREATE UNIQUE INDEX fiscal_runtime_sales_tenant_id_external_id_key ON public.fiscal_runtime_sales USING btree (tenant_id, external_id)",
+        "fiscal_runtime_sales_tenant_id_unp_key:CREATE UNIQUE INDEX fiscal_runtime_sales_tenant_id_unp_key ON public.fiscal_runtime_sales USING btree (tenant_id, unp)",
+        "fiscal_runtime_sales_tenant_location:CREATE INDEX fiscal_runtime_sales_tenant_location ON public.fiscal_runtime_sales USING btree (tenant_id, location_id, created_at)",
+        "fiscal_runtime_sales_tenant_state:CREATE INDEX fiscal_runtime_sales_tenant_state ON public.fiscal_runtime_sales USING btree (tenant_id, state, updated_at)"
+      ]
+    },
+    {
+      "name": "fiscal_runtime_shifts",
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "tenant_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "register_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "operator_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "opened_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "tenant_boundary:*:true:public:(tenant_id = app_tenant_key()):(tenant_id = app_tenant_key())"
+      ],
+      "constraints": [
+        "fiscal_runtime_shifts_pkey:PRIMARY KEY (id)",
+        "fiscal_runtime_shifts_version_check:CHECK ((version \u003e 0))"
+      ],
+      "indexes": [
+        "fiscal_runtime_one_open_shift:CREATE UNIQUE INDEX fiscal_runtime_one_open_shift ON public.fiscal_runtime_shifts USING btree (tenant_id, register_id) WHERE (state = ANY (ARRAY['OPEN'::text, 'CLOSING'::text, 'RECONCILIATION_REQUIRED'::text]))",
+        "fiscal_runtime_shifts_pkey:CREATE UNIQUE INDEX fiscal_runtime_shifts_pkey ON public.fiscal_runtime_shifts USING btree (id)",
+        "fiscal_runtime_shifts_tenant_state:CREATE INDEX fiscal_runtime_shifts_tenant_state ON public.fiscal_runtime_shifts USING btree (tenant_id, state, opened_at)"
+      ]
+    },
+    {
+      "name": "fiscal_runtime_sync_acks",
+      "columns": [
+        {
+          "name": "tenant_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "edge_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "ack_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "committed_through_seq",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "committed_event_hash",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "committed_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "tenant_boundary:*:true:public:(tenant_id = app_tenant_key()):(tenant_id = app_tenant_key())"
+      ],
+      "constraints": [
+        "fiscal_runtime_sync_acks_committed_event_hash_check:CHECK ((committed_event_hash ~ '^[0-9a-f]{64}$'::text))",
+        "fiscal_runtime_sync_acks_committed_through_seq_check:CHECK ((committed_through_seq \u003e 0))",
+        "fiscal_runtime_sync_acks_payload_check:CHECK ((jsonb_typeof(payload) = 'object'::text))",
+        "fiscal_runtime_sync_acks_pkey:PRIMARY KEY (tenant_id, edge_id)"
+      ],
+      "indexes": [
+        "fiscal_runtime_sync_acks_pkey:CREATE UNIQUE INDEX fiscal_runtime_sync_acks_pkey ON public.fiscal_runtime_sync_acks USING btree (tenant_id, edge_id)"
+      ]
+    },
+    {
+      "name": "fiscal_runtime_unp_sequences",
+      "columns": [
+        {
+          "name": "tenant_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "register_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "last_sequence",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "tenant_boundary:*:true:public:(tenant_id = app_tenant_key()):(tenant_id = app_tenant_key())"
+      ],
+      "constraints": [
+        "fiscal_runtime_unp_sequences_last_sequence_check:CHECK ((last_sequence \u003e= 0))",
+        "fiscal_runtime_unp_sequences_pkey:PRIMARY KEY (tenant_id, register_id)"
+      ],
+      "indexes": [
+        "fiscal_runtime_unp_sequences_pkey:CREATE UNIQUE INDEX fiscal_runtime_unp_sequences_pkey ON public.fiscal_runtime_unp_sequences USING btree (tenant_id, register_id)"
+      ]
+    }
+  ]
+}

@@ -28,6 +28,13 @@ func (s *Service) FreezeExecutionOrder(id, shiftID, employee, tenant string, pay
 		return Order{}, err
 	}
 	normalized := normalizedOrderPayments(payments)
+	seen := map[string]bool{}
+	for _, p := range normalized {
+		if !validUUID(p.PaymentID) || seen[p.PaymentID] {
+			return Order{}, errors.New("unique payment UUID required")
+		}
+		seen[p.PaymentID] = true
+	}
 	body, _ := json.Marshal(struct {
 		Lines    []Line
 		Payments []OrderPayment

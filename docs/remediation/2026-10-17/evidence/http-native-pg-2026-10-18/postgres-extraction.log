@@ -1,0 +1,24 @@
+sh scripts/dossier-postgres-integration.sh
+=== RUN   TestPostgresSnapshot
+=== RUN   TestPostgresSnapshot/snapshot_tenant_bigint_blob_no_mutation
+=== RUN   TestPostgresSnapshot/owner_rejected
+=== RUN   TestPostgresSnapshot/non_superuser_owner_rejected
+=== RUN   TestPostgresSnapshot/disabled_rls_rejected
+=== RUN   TestPostgresSnapshot/no_clobber
+=== RUN   TestPostgresSnapshot/schema_drift
+=== RUN   TestPostgresSnapshot/read_only_transaction
+=== RUN   TestPostgresSnapshot/ordinary_export_no_changes
+--- PASS: TestPostgresSnapshot (0.17s)
+    --- PASS: TestPostgresSnapshot/snapshot_tenant_bigint_blob_no_mutation (0.05s)
+    --- PASS: TestPostgresSnapshot/owner_rejected (0.00s)
+    --- PASS: TestPostgresSnapshot/non_superuser_owner_rejected (0.01s)
+    --- PASS: TestPostgresSnapshot/disabled_rls_rejected (0.01s)
+    --- PASS: TestPostgresSnapshot/no_clobber (0.00s)
+    --- PASS: TestPostgresSnapshot/schema_drift (0.02s)
+    --- PASS: TestPostgresSnapshot/read_only_transaction (0.02s)
+    --- PASS: TestPostgresSnapshot/ordinary_export_no_changes (0.02s)
+=== RUN   TestMigrationSourceInventory
+--- PASS: TestMigrationSourceInventory (0.00s)
+PASS
+ok  	fiscalisation/fiscal-backend/internal/dossier	0.601s
+?   	fiscalisation/fiscal-backend/cmd/dossier-export	[no test files]

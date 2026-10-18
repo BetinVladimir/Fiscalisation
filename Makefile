@@ -192,3 +192,7 @@ full-regression: regression postgres-integration compose-e2e
 .PHONY: nap-local-extraction-test
 nap-local-extraction-test:
 	python3 -m unittest discover -s tests -p '*sqlite_export.py' -v
+
+.PHONY: nap-postgres-extraction-test
+nap-postgres-extraction-test:
+	sh scripts/dossier-postgres-integration.sh
