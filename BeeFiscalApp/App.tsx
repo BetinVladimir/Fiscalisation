@@ -1,3 +1,7 @@
+import * as ExpoCrypto from 'expo-crypto';
+import {ProvisioningDialog} from './src/components/ProvisioningDialog';
+import {connectProvisioningDevice} from './src/provisioningBle';
+import {provisionDevice} from './src/provisioningProtocol';
 import {Surface as SafePaperSurface} from 'react-native-paper';
 import {Surface as PaintedPaperSurface} from 'react-native-paper';
 import { compositeSelectionValid } from './src/compositeSelection';
@@ -164,6 +168,8 @@ function AppContent() {
     [deviceReadiness, setDeviceReadiness] = useState<Item | null>(null),
     [deviceActivity, setDeviceActivity] = useState<Item[]>([]),
     [provisioning, setProvisioning] = useState<Item | null>(null),
+    [provisioningOpen,setProvisioningOpen]=useState(false),
+    [provisioningBusy,setProvisioningBusy]=useState(false),
     [bleSession, setBleSession] = useState<Item | null>(null),
     [blueCashActivation, setBlueCashActivation] = useState<Item | null>(null),
     [activationCode, setActivationCode] = useState(""),
@@ -563,29 +569,18 @@ function AppContent() {
   };
   const startProvisioning = async () => {
     if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
-    if (!selected || !canAdminister) {
-      setMessage("Provisioning изисква роля ADMIN");
-      return;
-    }
-    const command = beginDeviceCommand(); if (!command) return;
-    try {
-      const result = await command.call(
-        `/devices/${encodeURIComponent(label(selected.id))}/provisioning-sessions`,
-        { method: "POST", body: "" },
-      );
-      if (!command.live()) return;
-      setProvisioning(result);
-      setMessage(
-        `Provisioning сесия ${label(result.session_id)} • ${label(result.state)}`,
-      );
-    } catch (e) {
-      if (!command.live()) return;
-      setMessage(
-        `Provisioning е отказан: ${e instanceof Error ? e.message : String(e)}`,
-      );
-    } finally {
-      command.finish();
-    }
+    if (!selected || !canAdminister) {setMessage("Настройката изисква роля ADMIN");return;}
+    setProvisioningOpen(true);
+  };
+  const installProvisioning = async (settings:{ssid:string;wifiPassword:string;fiscalPassword:string}) => {
+    if (!currentRender() || !selected || !canAdminister || tab!=="Устройства" || !compositeBinding) return;
+    const deviceID=label(selected.id),deviceKID=label(selected.transaction_signing_kid);
+    if(compositeBinding.adapter_device_id!==deviceID||compositeBinding.register_id!==register||!deviceKID||!compositeBinding.payload_sha256){setMessage("Изберете адаптера и подписаната конфигурация за текущата каса");return;}
+    const command=beginDeviceCommand();if(!command)return;setProvisioningBusy(true);
+    try{
+      const result=await provisionDevice({target:{deviceID,deviceKID,bindingID:label(compositeBinding.id),bindingSHA256:label(compositeBinding.payload_sha256),generation:Number(compositeBinding.generation)},settings,connect:connectProvisioningDevice,live:command.live,call:(path,body)=>command.call(path,{method:'POST',body:JSON.stringify(body)}),sha256:async(bytes)=>{const digest=await ExpoCrypto.digest(ExpoCrypto.CryptoDigestAlgorithm.SHA256,new Uint8Array(bytes));return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('')}});
+      if(!command.live())return;setProvisioning(result);setProvisioningOpen(false);setMessage("Инсталацията е потвърдена от адаптера. Проверете свързаните устройства преди работа.");
+    }catch(error){if(command.live())setMessage(`Настройката не е потвърдена: ${error instanceof Error?error.message:String(error)}`)}finally{settings.wifiPassword='';settings.fiscalPassword='';setProvisioningBusy(false);command.finish();}
   };
   const issueBleSession = async () => {
     if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
@@ -1074,6 +1069,7 @@ function AppContent() {
           onPress={probe}
         >Сквозен probe</AppButton>
       </PaintedPaperSurface>
+    <ProvisioningDialog visible={provisioningOpen && tab=== "Устройства" && Boolean(selected) && canAdminister} busy={provisioningBusy} onCancel={()=>setProvisioningOpen(false)} onSubmit={installProvisioning}/>
     </SafeAreaView></SafePaperSurface>
   );
 }

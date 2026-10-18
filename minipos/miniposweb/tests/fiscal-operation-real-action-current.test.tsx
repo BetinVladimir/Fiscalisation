@@ -1,0 +1,9 @@
+// @vitest-environment jsdom
+import React,{act}from'react';import{createRoot}from'react-dom/client';import{expect,it,vi}from'vitest';
+const state=vi.hoisted(()=>({press:null as null|((event:any)=>void)}));
+vi.mock('react-native',()=>({Platform:{OS:'web'},View:({children,testID}:any)=><div data-testid={testID}>{children}</div>}));
+vi.mock('@beeloy/design-tokens',()=>({touchTarget:{min:48}}));
+vi.mock('react-native-paper',()=>({Text:(p:any)=><span data-testid={p.testID}>{p.children}</span>,Divider:()=><hr/>,Button:(p:any)=>{state.press=p.onPress;return<button data-testid={p.testID} onClick={p.onPress}>{p.children}</button>}}));
+// Actual AppButton implementation is intentionally NOT mocked in this test.
+import{FiscalOperationResult}from'../src/ui/FiscalOperationResult';
+for(const replacement of['owner','operation']as const)it(`actual AppButton retained Paper press cannot mutate replacement ${replacement}`,async()=>{(globalThis as any).IS_REACT_ACT_ENVIRONMENT=true;const host=document.createElement('div'),root=createRoot(host);let owner={},value={operation_id:'A',rows:Array.from({length:31},(_,i)=>i)};const render=()=>root.render(<FiscalOperationResult value={value} language="en" ownerKey={owner}/>);try{await act(async()=>render());await act(async()=>state.press!({}));expect(host.querySelectorAll('[data-testid$=".value"]').length).toBe(20);const retained=state.press!;if(replacement==='owner')owner={};else value={...value,operation_id:'B'};await act(async()=>render());expect(host.querySelectorAll('[data-testid$=".value"]').length).toBe(10);await act(async()=>retained({}));expect(host.querySelectorAll('[data-testid$=".value"]').length).toBe(10);await act(async()=>state.press!({}));expect(host.querySelectorAll('[data-testid$=".value"]').length).toBe(20)}finally{await act(async()=>root.unmount())}});

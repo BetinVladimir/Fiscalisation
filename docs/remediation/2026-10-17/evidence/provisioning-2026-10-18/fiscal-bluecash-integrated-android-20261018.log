@@ -1,0 +1,92 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :bluecash-app:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :bluecash-app:preBuild UP-TO-DATE
+> Task :bluecash-app:preProdDebugBuild UP-TO-DATE
+> Task :bluecash-app:generateProdDebugBuildConfig UP-TO-DATE
+> Task :shared:preBuild UP-TO-DATE
+> Task :shared:preDebugBuild UP-TO-DATE
+> Task :shared:writeDebugAarMetadata UP-TO-DATE
+> Task :bluecash-app:checkProdDebugAarMetadata UP-TO-DATE
+> Task :bluecash-app:generateProdDebugResValues UP-TO-DATE
+> Task :shared:generateDebugResValues UP-TO-DATE
+> Task :shared:generateDebugResources UP-TO-DATE
+> Task :shared:packageDebugResources UP-TO-DATE
+> Task :bluecash-app:mapProdDebugSourceSetPaths UP-TO-DATE
+> Task :bluecash-app:generateProdDebugResources UP-TO-DATE
+> Task :bluecash-app:mergeProdDebugResources UP-TO-DATE
+> Task :bluecash-app:packageProdDebugResources UP-TO-DATE
+> Task :bluecash-app:parseProdDebugLocalResources UP-TO-DATE
+> Task :bluecash-app:createProdDebugCompatibleScreenManifests UP-TO-DATE
+> Task :bluecash-app:extractDeepLinksProdDebug UP-TO-DATE
+> Task :shared:extractDeepLinksDebug UP-TO-DATE
+> Task :shared:processDebugManifest UP-TO-DATE
+> Task :bluecash-app:processProdDebugMainManifest UP-TO-DATE
+> Task :bluecash-app:processProdDebugManifest UP-TO-DATE
+> Task :bluecash-app:processProdDebugManifestForPackage UP-TO-DATE
+> Task :shared:compileDebugLibraryResources UP-TO-DATE
+> Task :shared:parseDebugLocalResources UP-TO-DATE
+> Task :shared:generateDebugRFile UP-TO-DATE
+> Task :bluecash-app:processProdDebugResources UP-TO-DATE
+> Task :shared:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :shared:compileDebugKotlin UP-TO-DATE
+> Task :shared:javaPreCompileDebug UP-TO-DATE
+> Task :shared:compileDebugJavaWithJavac NO-SOURCE
+> Task :shared:bundleLibCompileToJarDebug UP-TO-DATE
+> Task :bluecash-app:javaPreCompileProdDebug UP-TO-DATE
+> Task :bluecash-app:preProdDebugUnitTestBuild UP-TO-DATE
+> Task :bluecash-app:javaPreCompileProdDebugUnitTest UP-TO-DATE
+> Task :shared:bundleLibRuntimeToJarDebug UP-TO-DATE
+> Task :shared:processDebugJavaRes UP-TO-DATE
+> Task :bluecash-app:mergeProdDebugNativeDebugMetadata NO-SOURCE
+> Task :bluecash-app:mergeProdDebugShaders UP-TO-DATE
+> Task :bluecash-app:compileProdDebugShaders NO-SOURCE
+> Task :bluecash-app:generateProdDebugAssets UP-TO-DATE
+> Task :shared:mergeDebugShaders UP-TO-DATE
+> Task :shared:compileDebugShaders NO-SOURCE
+> Task :shared:generateDebugAssets UP-TO-DATE
+> Task :shared:mergeDebugAssets UP-TO-DATE
+> Task :bluecash-app:mergeProdDebugAssets UP-TO-DATE
+> Task :bluecash-app:compressProdDebugAssets UP-TO-DATE
+> Task :bluecash-app:l8DexDesugarLibProdDebug UP-TO-DATE
+> Task :bluecash-app:checkProdDebugDuplicateClasses UP-TO-DATE
+> Task :bluecash-app:desugarProdDebugFileDependencies UP-TO-DATE
+> Task :bluecash-app:mergeExtDexProdDebug UP-TO-DATE
+> Task :shared:bundleLibRuntimeToDirDebug UP-TO-DATE
+> Task :bluecash-app:mergeProdDebugJniLibFolders UP-TO-DATE
+> Task :shared:mergeDebugJniLibFolders UP-TO-DATE
+> Task :shared:mergeDebugNativeLibs NO-SOURCE
+> Task :shared:copyDebugJniLibsProjectOnly UP-TO-DATE
+> Task :bluecash-app:mergeProdDebugNativeLibs NO-SOURCE
+> Task :bluecash-app:mergeLibDexProdDebug UP-TO-DATE
+> Task :bluecash-app:stripProdDebugDebugSymbols NO-SOURCE
+> Task :bluecash-app:validateSigningProdDebug UP-TO-DATE
+> Task :bluecash-app:writeProdDebugAppMetadata UP-TO-DATE
+> Task :bluecash-app:writeProdDebugSigningConfigVersions UP-TO-DATE
+> Task :bluecash-app:compileProdDebugKotlin
+> Task :bluecash-app:compileProdDebugJavaWithJavac UP-TO-DATE
+> Task :bluecash-app:processProdDebugJavaRes UP-TO-DATE
+> Task :bluecash-app:bundleProdDebugClassesToCompileJar
+> Task :bluecash-app:bundleProdDebugClassesToRuntimeJar
+> Task :bluecash-app:dexBuilderProdDebug
+> Task :bluecash-app:mergeProdDebugGlobalSynthetics UP-TO-DATE
+> Task :bluecash-app:mergeProdDebugJavaResource UP-TO-DATE
+> Task :bluecash-app:mergeProjectDexProdDebug
+> Task :bluecash-app:compileProdDebugUnitTestKotlin
+> Task :bluecash-app:compileProdDebugUnitTestJavaWithJavac NO-SOURCE
+> Task :bluecash-app:processProdDebugUnitTestJavaRes UP-TO-DATE
+> Task :bluecash-app:testProdDebugUnitTest
+> Task :bluecash-app:packageProdDebug
+> Task :bluecash-app:createProdDebugApkListingFileRedirect UP-TO-DATE
+> Task :bluecash-app:assembleProdDebug
+
+[Incubating] Problems report is available at: file:///Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 42s
+61 actionable tasks: 8 executed, 53 up-to-date

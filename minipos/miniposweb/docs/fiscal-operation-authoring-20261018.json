@@ -1,0 +1,92 @@
+{
+  "status": "FAST_PASS_SCOPED_PENDING_PARENT_REVIEW",
+  "scope": "MiniPOS Web single result presentation only",
+  "execution": "FAST executed; build/browser/native NOT_RUN",
+  "enSourceKeys": 16,
+  "actualGeneratedNonEN": 24,
+  "matrix": {
+    "primaryPrinter": 36,
+    "declaredExtraCallers": [
+      "sale",
+      "reverse",
+      "uncertain",
+      "rejected"
+    ],
+    "full": 40,
+    "critical": 3
+  },
+  "files": {
+    "src/App.tsx": "6d59ccc8dfa2ea5df6e15969a1e178e541c5899fd25d6db6cfee3d1e1bf63bfd",
+    "src/ui/FiscalOperationResult.tsx": "e91f39b8ec073a7b0921f1549aa0ed78a963533302705c4d2656f2839e8b406c",
+    "src/ui/fiscal-operation-rows.ts": "da1ca5e637532918153872e44351ea2d24abde6b19bfaf5085f08b634c6d6354",
+    "src/ui/fiscal-operation-copy.ts": "9bb36fbd7435737b1ba56319d303ad6608e684791849f5aee81b2ee079d799c8",
+    "src/ui/fiscal-operation-copy.generated.ts": "4e6e7ea9c51364f2a5076aa54677fecb208dfd4842b564f36f89c32d1a965604",
+    "src/ui/fiscal-operation-copy.editorial.json": "29494d2ad900f80ad231d4c7c7913c530b4403dd34599f62f41a9154a987a0ad",
+    "scripts/fiscal-operation-result-source.json": "a30c2410935cda1e75265caed45ecdf94913aa0511f531f26e5f99f9b4b7f5a5",
+    "scripts/translate-fiscal-operation-result.mjs": "f380c2de64450ba977129c39826b853f269aad58a833e69540eb97beb6705819",
+    "scripts/fiscal-result-provenance.mjs": "a20e1efa71ea1a1035ea67675c33a55821a54fec31fa2f8e33de7a99be573c4c",
+    "scripts/fiscal-result-ledger-contract.mjs": "74a22cd686e798acfa1de8b09009b1df932c816ffbdda8a5b2f9afacb2291c1e",
+    "scripts/fiscal-result-static.mjs": "3a5d6a27e5f0c6d431ab21df9722132c5fa6099122d8e56044dbc571cda2fc78",
+    "scripts/build-fiscal-result-web.mjs": "38e8d39da52287e65bd39d9c6adcc4d14c97991cf5e202c406406fd25f984856",
+    "scripts/run-fiscal-result-web.mjs": "c9c18f3190b7551533145d67a6c140ca0dfaa97a08a1d7dde3a5f5ef9a201051",
+    "scripts/verify-fiscal-result-web.mjs": "d09908cf78ee53a614e92ddb2443899919755431f648b3a7ccce9117c047ee8b",
+    "e2e/fiscal-operation-result-cases.ts": "26ad1c44ec3d6aec1fc87f3542bdd31433650a5563576401f1b23947928d7fba",
+    "e2e/fiscal-operation-result-fixture.ts": "b1f44db5d878e8dac9aae9713bcf753e3ae01e3135a6128712e18e3b6796c161",
+    "e2e/fiscal-operation-result.spec.ts": "a5c6aeeab34c4cdef765d52fecc5a45ce527e835961ce450434862044ea87d11",
+    "playwright.fiscal-result.config.ts": "5eb678bc241312cc80b1db87773819330b29da0a00a427e3fdb8fd1ec51e1ff1",
+    "vitest.fiscal-operation.config.ts": "93b8b9fbd34b56179c2daacd8abb847565acf0d745a9966e4e5a9ebc0cedf69f",
+    "tests/fiscal-operation-authoring-contract.test.ts": "762f5f4209664acd4f6bb87375472a5c4e63a073a85e95e18830e97c61bbe679",
+    "tests/fiscal-operation-catalogues.test.ts": "0345ca98efe7f880d18f58ef8f9225ce80eaddb35edc06793bc8024193ffc05a",
+    "tests/fiscal-operation-provenance.test.mjs": "cc344c7807ed887574ceb487002555e9efb1eeca95d9122c5a2b59d67c1dbe3a",
+    "tests/fiscal-operation-real-action-current.test.tsx": "bb0ed112cdbf97462bd0686b5097a92645ebdc02429775ec0e18d7ff0f965058",
+    "tests/fiscal-operation-result-current.test.tsx": "4c40dec801158197f894b8b2f97a821f739bd2a611e679314dfee6723c7e4b15",
+    "tests/fiscal-operation-rows.test.ts": "0d4d5d2f88e329bfb3c7d2321a069f7f2587fb92314276f3177f0a0972328091",
+    "tests/fiscal-operation-verifier.test.mjs": "dac3f6a1349f2da9798476725de3128f748ba8ed6cbe0745e4359b2a35a73872",
+    "scripts/fiscal-result-reporter.mjs": "a1d94cdfe12b862b6e40eeb9e52617c47454c34463582af4963a8e90637702af",
+    "tests/fiscal-operation-reporter.test.mjs": "fce39e69adfe6f81502b18e51a58484115a1739a56233b1ec9e0a81a5f818ecf"
+  },
+  "protectedOriginal": {
+    "src/types.ts": "1ad70af8bb6a7f12d9b8ea3a3ad7312b6b561b1fc7c2c566189de5919edf2695",
+    "src/api/client.ts": "1cf7d8687338bbdfaee7a30d6a7a0ac91d1f9f81b59bfe1cb9364fa308fa96d7",
+    "src/fiscal/routeController.ts": "a3ffab6511f4b3e8aaccb55399a6cc2b1d1a0b859ced294373fe136c7d97af94",
+    "src/storage/outbox.ts": "0bea3c936642f2c1476dbea849a146e0318860b6b84ae16ad831d12337b66187",
+    "src/ui/PreferenceControls.tsx": "c2c5fb10844edd79b23926d5baa66c6c6989f55f9f4f8265070dba9e602b9d81",
+    "src/ui/theme.tsx": "e27fa3e3bc69dc26f24c0eeabea053a670aadef0acd00410191e2a47ffb9e287",
+    "scripts/sync-work-translations.mjs": "b9ffa1a4e46055c5c86c67aed6018a33441be5c930f3c11d2cb7211e3330b530"
+  },
+  "codingPercentScoped": 100,
+  "model": {
+    "session": 25370,
+    "model": "translategemma:12b",
+    "num_ctx": 8192,
+    "num_predict": 4096,
+    "terminal": 0,
+    "unloadHTTP": 200,
+    "log": "/private/tmp/minipos-fiscal-result-translations-20261018.log"
+  },
+  "translationIntegrity": "25catalogues x16keys;24immutable raw hashes verified as data inspection, not test execution",
+  "fast": {
+    "node": 35,
+    "targetedVitest": 23,
+    "existingActionVitest": 74,
+    "total": 132,
+    "runtimeTypes": 0,
+    "e2eTypes": 0,
+    "discoveryFull": 40,
+    "discoveryCritical": 3,
+    "syntax": "PASS",
+    "sourceTransitions": [
+      {
+        "file": "e2e/fiscal-operation-result.spec.ts",
+        "before": "4aef430253b63df38c3b8ebdc79afd06f3f4d395840722f0971bda803080b089",
+        "after": "a5c6aeeab34c4cdef765d52fecc5a45ce527e835961ce450434862044ea87d11"
+      }
+    ],
+    "firstFailures": [
+      "Vitest r1 sandbox EPERM cache",
+      "discovery r1 Node JSON import attribute",
+      "discovery r2 report destination already exists"
+    ],
+    "archive": "/Users/freelancer/Documents/Beeloy/BeeloyBackend/docs/UI-optimization/execution/evidence/minipos-sale-result-fast-20261018"
+  }
+}

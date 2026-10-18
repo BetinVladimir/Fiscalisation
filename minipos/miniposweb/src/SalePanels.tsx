@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FormField as TextInput } from './ui/form-field';
 import { AppButton as Button } from './ui/app-button';
 import { Card, Divider, Text } from "react-native-paper";
-import { View } from "react-native";
+import { Platform, View } from "react-native";
 import type { Product } from "./api/client";
 import { translations } from "./ui/workTranslations.generated";
 import type { Language } from "./ui/PreferenceControls";
@@ -75,7 +75,7 @@ export function PaymentPanel({ cart, total, cardAmount, busy, lastOrderId, langu
         </View>
         <Divider testID={`sale-line-divider-${line.product.id}`}/>
       </View>)}
-      <div className="total"><Text variant="titleLarge" testID="sale-total">{t.total}: {total.toFixed(2)} EUR</Text></div>
+      <View testID="sale-total-container" style={{marginVertical:8,minWidth:0,maxWidth:"100%"}}><Text variant="titleLarge" testID="sale-total" style={{display:"flex",minWidth:0,maxWidth:"100%",flexShrink:1,flexWrap:"wrap",...(Platform.OS==="web"?{overflowWrap:"anywhere"} as any:{})}}>{t.total}: {total.toFixed(2)} EUR</Text></View>
       <TextInput editable={!busy} mode="outlined" label={t.cardRemainder} accessibilityLabel={t.cardRemainder} keyboardType="decimal-pad" value={draft('card')} errorMessage={!cardValid?`${t.cardRemainder}: 0–${Number.isFinite(total)?total.toFixed(2):'—'} EUR`:undefined} onChangeText={value => changeNumber('card',value,2,n=>n<=total,onCardAmount)} testID="sale-card-amount" />
       <Button mode="contained" contentStyle={{ minHeight: 56 }} loading={busy} disabled={busy || !validPayment} onPress={() => { if(actionable()&&validPayment)onCheckout(); }} testID="sale-checkout">{t.checkoutFiscal}</Button>
       {lastOrderId ? <Button mode="outlined" disabled={busy} onPress={() => { if(actionable()&&lastOrderId)onReverse(); }} testID="sale-reverse">{t.reverseLastSale}</Button> : null}

@@ -1,0 +1,18 @@
+{
+  "title": "Fiscal operation result",
+  "operation_id": "Operation ID",
+  "state": "State code",
+  "certainty": "Certainty code",
+  "fiscal_reference": "Fiscal reference",
+  "terminal_reference": "Terminal reference",
+  "error_code": "Error code",
+  "updated_at": "Updated at",
+  "yes": "Yes",
+  "no": "No",
+  "nullValue": "No value",
+  "emptyString": "Empty text",
+  "emptyObject": "Empty object",
+  "emptyArray": "Empty list",
+  "undefinedValue": "Not supplied",
+  "showMore": "Show more fields"
+}

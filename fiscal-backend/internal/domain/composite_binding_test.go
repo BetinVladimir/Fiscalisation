@@ -145,7 +145,7 @@ func TestCompositeBindingPublishesBFPEBeforeAdapterApplyAck(t *testing.T) {
 			t.Fatal(err)
 		}
 	}
-	patch(adapter, map[string]any{"mqtt_uri": "ssl://mqtt.test:8883", "mqtt_client_id": adapter["id"], "ble_advertising_identity": adapter["id"], "transaction_signing_kid": "kid-1", "unp_prefix": "DT000001", "unp_range_start": int64(1), "unp_range_end": int64(1000), "uart_tx_pin": int64(17), "uart_rx_pin": int64(18)})
+	patch(adapter, map[string]any{"mqtt_uri": "ssl://mqtt.test:8883", "mqtt_client_id": adapter["id"], "ble_advertising_identity": "BeeFiscal-S3", "transaction_signing_kid": "kid-1", "unp_prefix": "BOARD001", "unp_range_start": int64(987), "unp_range_end": int64(999), "uart_tx_pin": int64(17), "uart_rx_pin": int64(18)})
 	patch(fiscal, map[string]any{"fiscal_memory_number": "12345678", "fiscal_device_number": "DT000001", "execution": map[string]any{"operator_number": 1, "operator_count": 30, "operator_password_ref": "fiscal-pass", "device_configuration_id": "installation-1", "till_number": 1, "payment_mapping": map[string]any{"CASH": 0, "CARD": 1}}, "uart_baud": int64(115200), "uart_data_bits": int64(8), "uart_parity": "N", "uart_stop_bits": int64(1)})
 	patch(pay, map[string]any{"ble_identity": "bluepad-1", "service_uuid": "service", "tx_characteristic_uuid": "tx", "rx_characteristic_uuid": "rx"})
 	capture.beforePublish = func(envelope []byte) {
@@ -162,6 +162,11 @@ func TestCompositeBindingPublishesBFPEBeforeAdapterApplyAck(t *testing.T) {
 		if json.Unmarshal(canonical, &payload) != nil || payload["schema_version"] != float64(3) {
 			t.Fatal("not schema3")
 		}
+		if payload["mqtt"].(map[string]any)["uri"] != "mqtts://mqtt.test:8883" {
+			t.Fatal("runtime MQTT URI mismatch")
+		}
+		authority := payload["operational_authority"].(map[string]any)
+		if authority["unp_prefix"] != "DT000001" || authority["unp_range_start"] != float64(1) || authority["unp_range_end"] != float64(1000) { t.Fatalf("board/caller authority leaked: %#v", authority) }
 		fiscal := payload["fiscal_endpoint"].(map[string]any)
 		if fiscal["fiscal_device_number"] != "DT000001" || fiscal["fiscal_memory_number"] != "12345678" || fiscal["execution"] == nil {
 			t.Fatal("missing signed execution identity")
@@ -217,7 +222,7 @@ func TestCompositeBindingNeverPublishesBeforeDurableEvidence(t *testing.T) {
 					t.Fatal(err)
 				}
 			}
-			patch(adapter, map[string]any{"mqtt_uri": "ssl://mqtt.test:8883", "mqtt_client_id": adapter["id"], "ble_advertising_identity": adapter["id"], "transaction_signing_kid": "kid-1", "unp_prefix": "DT000001", "unp_range_start": int64(1), "unp_range_end": int64(1000), "uart_tx_pin": int64(17), "uart_rx_pin": int64(18)})
+			patch(adapter, map[string]any{"mqtt_uri": "ssl://mqtt.test:8883", "mqtt_client_id": adapter["id"], "ble_advertising_identity": "BeeFiscal-S3", "transaction_signing_kid": "kid-1", "unp_prefix": "BOARD001", "unp_range_start": int64(987), "unp_range_end": int64(999), "uart_tx_pin": int64(17), "uart_rx_pin": int64(18)})
 			patch(fiscal, map[string]any{"fiscal_memory_number": "12345678", "fiscal_device_number": "DT000001", "execution": map[string]any{"operator_number": 1, "operator_count": 30, "operator_password_ref": "fiscal-pass", "device_configuration_id": "installation-1", "till_number": 1, "payment_mapping": map[string]any{"CASH": 0, "CARD": 1}}, "uart_baud": int64(115200), "uart_data_bits": int64(8), "uart_parity": "N", "uart_stop_bits": int64(1)})
 			patch(pay, map[string]any{"ble_identity": "bluepad-1", "service_uuid": "service", "tx_characteristic_uuid": "tx", "rx_characteristic_uuid": "rx"})
 

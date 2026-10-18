@@ -37,6 +37,7 @@ type DeviceActivationRequest struct {
 	Model              string     `json:"model"`
 	Serial             string     `json:"serial"`
 	FMIN               string     `json:"fmin"`
+	FiscalDeviceID     string     `json:"verified_fiscal_device_id,omitempty"`
 	Firmware           string     `json:"firmware,omitempty"`
 	CapabilityDigest   string     `json:"capability_digest"`
 	State              string     `json:"state"`
@@ -81,6 +82,7 @@ type ConfirmDeviceActivationInput struct {
 	Roles        []string `json:"roles"`
 }
 type DeviceCredential struct {
+	FiscalDeviceID                  string   `json:"-"`
 	CredentialID                    string   `json:"credential_id"`
 	ClientCertificatePEM            string   `json:"client_certificate_pem"`
 	CAChainPEM                      string   `json:"ca_chain_pem"`
@@ -281,6 +283,10 @@ func (s *Service) IssueDeviceActivationCredential(id, requestSecret, nonce, sign
 	if s.deviceCredentialIssuer == nil {
 		return DeviceCredential{}, errors.New("device credential issuer unavailable")
 	}
+	fiscal, e := s.activationFiscalIdentity(v)
+	if e != nil {
+		return DeviceCredential{}, e
+	}
 	credential, e := s.deviceCredentialIssuer.Issue(v)
 	if e != nil {
 		return DeviceCredential{}, e
@@ -294,8 +300,9 @@ func (s *Service) IssueDeviceActivationCredential(id, requestSecret, nonce, sign
 	credential.SPADeploymentDescriptorURL = s.spaDeploymentDescriptorURL
 	credential.SPADeploymentSigningKID = s.spaDeploymentSigningKID
 	credential.SPADeploymentPublicKeyDERBase64 = s.spaDeploymentPublicKeyDERBase64
-	credential.UNPPrefix = v.FMIN
-	credential.UNPRangeStart, credential.UNPRangeEnd, e = s.repo.ReserveUNPRange(v.ClaimedTenantID, v.FMIN, 1000)
+	credential.FiscalDeviceID = fiscal.ID
+	credential.UNPPrefix = stringField(fiscal.Data, "fiscal_device_number")
+	credential.UNPRangeStart, credential.UNPRangeEnd, e = s.repo.ReserveFiscalUNPRange(v.ClaimedTenantID, credential.UNPPrefix, stringField(fiscal.Data, "fiscal_memory_number"), 1000)
 	if e != nil {
 		return DeviceCredential{}, e
 	}
@@ -484,6 +491,7 @@ func (r *MemoryRepository) MarkActivationCredentialIssued(id string, credential 
 	v.CredentialID = credential.CredentialID
 	v.MQTTTLSURI = credential.MQTTTLSURI
 	v.MQTTClientID = v.DeviceInstanceID
+	v.FiscalDeviceID = credential.FiscalDeviceID
 	v.UNPPrefix = credential.UNPPrefix
 	v.UNPRangeStart = credential.UNPRangeStart
 	v.UNPRangeEnd = credential.UNPRangeEnd
@@ -509,6 +517,30 @@ func (r *MemoryRepository) ActivateDeviceRequest(id, credential string, now time
 	if register.ID == "" || register.TenantID != v.ClaimedTenantID || stringField(register.Data, "location_id") != v.ClaimedLocationID {
 		return DeviceActivationRequest{}, errors.New("activation register binding lost")
 	}
+	if v.Model != "EDGE_AGENT_S3" || v.FiscalDeviceID == "" {
+		return DeviceActivationRequest{}, ErrFiscalIdentityProofRequired
+	}
+	if now.After(v.ExpiresAt) {
+		return DeviceActivationRequest{}, errors.New("activation expired")
+	}
+	enrolledMatches := 0
+	for _, record := range r.resources {
+		if record.Kind != "platform_device" || record.TenantID != platformDeviceTenant || stringField(record.Data, "serial") != v.Serial || stringField(record.Data, "tenant_id") != v.ClaimedTenantID || !oneOf(stringField(record.Data, "state"), "ASSIGNED", "DEPLOYED") {
+			continue
+		}
+		canonical, _, _, err := activationPublicKeyJSON(stringField(record.Data, "device_public_key_jwk"))
+		if err != nil || canonical != v.PublicKeyJWK {
+			return DeviceActivationRequest{}, ErrFiscalIdentityProofRequired
+		}
+		enrolledMatches++
+	}
+	if enrolledMatches != 1 {
+		return DeviceActivationRequest{}, ErrFiscalIdentityProofRequired
+	}
+	fiscal := r.resources[resourceKey("device", v.FiscalDeviceID)]
+	if fiscal.TenantID != v.ClaimedTenantID || stringField(fiscal.Data, "kind") != "FISCAL_DEVICE" || stringField(fiscal.Data, "status") != "ACTIVE" || stringField(register.Data, "fiscal_device_id") != fiscal.ID || stringField(fiscal.Data, "fiscal_device_number") != v.UNPPrefix || stringField(fiscal.Data, "fiscal_memory_number") != v.FMIN {
+		return DeviceActivationRequest{}, ErrFiscalIdentityProofRequired
+	}
 	_, transactionKey, _, keyErr := activationPublicKeyJSON(v.PublicKeyJWK)
 	if keyErr != nil {
 		return DeviceActivationRequest{}, keyErr
@@ -517,15 +549,11 @@ func (r *MemoryRepository) ActivateDeviceRequest(id, credential string, now time
 	if keyErr != nil {
 		return DeviceActivationRequest{}, keyErr
 	}
-	device := ResourceRecord{Kind: "device", TenantID: v.ClaimedTenantID, ID: v.DeviceInstanceID, Version: 1, Data: map[string]any{"kind": "SMART_DEVICE", "vendor": v.Vendor, "model": v.Model, "serial": v.Serial, "fiscal_memory_number": v.FMIN, "firmware": v.Firmware, "status": "ACTIVE", "environment": "PROD", "device_key_thumbprint": v.KeyThumbprint, "credential_id": credential, "transaction_signing_public_key": base64.RawURLEncoding.EncodeToString(transactionDER), "transaction_signing_kid": v.KeyThumbprint, "capabilities": v.RequestedRoles, "binding_version": v.BindingVersion, "mqtt_uri": v.MQTTTLSURI, "mqtt_client_id": v.MQTTClientID, "ble_advertising_identity": v.DeviceInstanceID, "unp_prefix": v.UNPPrefix, "unp_range_start": v.UNPRangeStart, "unp_range_end": v.UNPRangeEnd}, CreatedAt: now, UpdatedAt: now}
-	register.Data["fiscal_device_id"] = device.ID
-	register.Data["fiscal_device_active_from"] = now.Format(time.RFC3339Nano)
-	if contains(v.ClaimedRoles, "PAYMENT_TERMINAL") {
-		register.Data["payment_terminal_id"] = device.ID
-		register.Data["payment_terminal_active_from"] = now.Format(time.RFC3339Nano)
-	}
-	register.Version++
-	register.UpdatedAt = now
+	encodedPublic := base64.RawURLEncoding.EncodeToString(transactionDER)
+	kidHash := sha256.Sum256([]byte(encodedPublic))
+	deviceKID := "esp32-p256-" + base64.RawURLEncoding.EncodeToString(kidHash[:12])
+	device := ResourceRecord{Kind: "device", TenantID: v.ClaimedTenantID, ID: v.DeviceInstanceID, Version: 1, Data: map[string]any{"kind": "SMART_DEVICE", "vendor": v.Vendor, "model": v.Model, "serial": v.Serial, "fiscal_memory_number": v.FMIN, "firmware": v.Firmware, "status": "ACTIVE", "environment": "PROD", "device_key_thumbprint": v.KeyThumbprint, "credential_id": credential, "transaction_signing_public_key": base64.RawURLEncoding.EncodeToString(transactionDER), "transaction_signing_kid": deviceKID, "capabilities": v.RequestedRoles, "binding_version": v.BindingVersion, "mqtt_uri": v.MQTTTLSURI, "mqtt_client_id": v.MQTTClientID, "ble_advertising_identity": "BeeFiscal-" + base64.RawURLEncoding.EncodeToString(kidHash[:9]), "unp_prefix": v.UNPPrefix, "unp_range_start": v.UNPRangeStart, "unp_range_end": v.UNPRangeEnd}, CreatedAt: now, UpdatedAt: now}
+	// Route activation belongs exclusively to a device-signed composite apply.
 	r.resources[resourceKey("device", device.ID)] = device
 	r.resources[key] = register
 	v.State = "ACTIVE"

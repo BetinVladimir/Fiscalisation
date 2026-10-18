@@ -1772,6 +1772,15 @@ func (h *Handler) device(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	parts := strings.Split(p, "/")
+	if len(parts) == 3 && parts[1] == "provisioning-deliveries" && strings.HasSuffix(parts[2], ":confirm") {
+		h.confirmProvisioningInstallation(w, r, parts[0], strings.TrimSuffix(parts[2], ":confirm"))
+		return
+	}
+	if len(parts) == 2 && parts[1] == "provisioning-deliveries" {
+		h.provisioningDelivery(w, r, parts[0])
+		return
+	}
+
 	if len(parts) == 1 {
 		if r.Method == "GET" {
 			v, e := h.svc.GetResource("device", parts[0], tenantID(r))

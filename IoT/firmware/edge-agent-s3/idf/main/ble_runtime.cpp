@@ -1,5 +1,7 @@
 #include "edge_runtime_port.h"
 #include "ble_frame_layout.h"
+#include "provisioning_frames.h"
+#include "esp_timer.h"
 #include "freertos/FreeRTOS.h"
 #include "freertos/semphr.h"
 #include "host/ble_att.h"
@@ -20,6 +22,7 @@
 
 namespace beefiscal::idf { namespace {
 CommandSink sink;void* sink_context;const char* name;uint8_t own_addr_type;
+ProvisioningFrames provisioning_frames;ProvisioningReadSource provisioning_info_source,provisioning_status_source;void*provisioning_read_context;
 ProvisioningSink provisioning_sink;void* provisioning_context;bool provisioning_only;
 SemaphoreHandle_t startup_signal;std::atomic<esp_err_t> startup_result{ESP_ERR_INVALID_STATE};std::atomic<bool> initialization_started{false};std::atomic<bool> startup_timed_out{false};
 uint16_t event_value_handle;std::atomic<uint16_t> active_connection{BLE_HS_CONN_HANDLE_NONE};
@@ -33,18 +36,30 @@ static const ble_uuid128_t control_uuid=EDGE_UUID(0x01);
 static const ble_uuid128_t command_uuid=EDGE_UUID(0x02);
 static const ble_uuid128_t event_uuid=EDGE_UUID(0x03);
 static const ble_uuid128_t flow_uuid=EDGE_UUID(0x04);
+static const ble_uuid128_t info_uuid=EDGE_UUID(0x05);
+static const ble_uuid128_t status_uuid=EDGE_UUID(0x06);
 
-int receive_provisioning(uint16_t,uint16_t,ble_gatt_access_ctxt* access,void*){
+int receive_provisioning(uint16_t connection,uint16_t,ble_gatt_access_ctxt* access,void*){
   if(!provisioning_only||!provisioning_sink||access->op!=BLE_GATT_ACCESS_OP_WRITE_CHR)
     return BLE_ATT_ERR_WRITE_NOT_PERMITTED;
-  if(startup_result!=ESP_OK||startup_timed_out)return BLE_ATT_ERR_UNLIKELY;
+  if(startup_result!=ESP_OK||startup_timed_out||connection!=active_connection)return BLE_ATT_ERR_UNLIKELY;
   const size_t size=OS_MBUF_PKTLEN(access->om);
   if(size==0||size>kMaximumIntent||size>512)return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
   auto*payload=static_cast<uint8_t*>(malloc(size));if(!payload)return BLE_ATT_ERR_INSUFFICIENT_RES;
   uint16_t copied=0;const int flattened=ble_hs_mbuf_to_flat(access->om,payload,size,&copied);
-  const esp_err_t result=flattened==0&&copied==size
-    ?provisioning_sink(payload,size,provisioning_context):ESP_ERR_INVALID_SIZE;
+  esp_err_t result=ESP_ERR_INVALID_SIZE;
+  if(flattened==0&&copied==size){
+    if(size==36&&memcmp(payload,"BFRB",4)==0)result=provisioning_sink(payload,size,provisioning_context);
+    else{std::vector<uint8_t>completed;result=provisioning_frames.accept(payload,size,esp_timer_get_time()/1000,completed);
+      if(result==ESP_OK&&!completed.empty())result=provisioning_sink(completed.data(),completed.size(),provisioning_context);}
+  }
   free(payload);return result==ESP_OK?0:BLE_ATT_ERR_UNLIKELY;
+}
+int read_provisioning(uint16_t,uint16_t,ble_gatt_access_ctxt*access,void*arg){
+ if(startup_result!=ESP_OK||startup_timed_out||access->op!=BLE_GATT_ACCESS_OP_READ_CHR)return BLE_ATT_ERR_READ_NOT_PERMITTED;
+ auto source=arg?provisioning_status_source:provisioning_info_source;if(!source)return BLE_ATT_ERR_READ_NOT_PERMITTED;
+ char value[1024]{};size_t size=sizeof(value);if(source(value,&size,provisioning_read_context)!=ESP_OK||size>sizeof(value))return BLE_ATT_ERR_UNLIKELY;
+ return os_mbuf_append(access->om,value,size)==0?0:BLE_ATT_ERR_INSUFFICIENT_RES;
 }
 int receive_command(uint16_t connection,uint16_t,ble_gatt_access_ctxt* access,void*){
   if(access->op!=BLE_GATT_ACCESS_OP_WRITE_CHR||!sink)return BLE_ATT_ERR_WRITE_NOT_PERMITTED;
@@ -69,7 +84,7 @@ int receive_command(uint16_t connection,uint16_t,ble_gatt_access_ctxt* access,vo
           if(mbedtls_sha256(frame_payload.data(),frame_payload.size(),digest,0)==0&&memcmp(digest,frame_digest,32)==0)
             accepted=sink({frame_payload.data(),frame_payload.size(),Ingress::Ble},sink_context);
           else accepted=ESP_ERR_INVALID_CRC;
-          frame_payload.clear();frame_total=0;}}
+          frame_payload.clear();frame_total=0;provisioning_frames.reset();}}
     }
   }
   free(payload);
@@ -77,6 +92,8 @@ int receive_command(uint16_t connection,uint16_t,ble_gatt_access_ctxt* access,vo
 }
 int receive_flow(uint16_t connection,uint16_t,ble_gatt_access_ctxt*,void*){return startup_result==ESP_OK&&!startup_timed_out&&ble_att_mtu(connection)>=kBleMinimumMtu?0:BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;}
 const ble_gatt_chr_def characteristics[]={
+  {.uuid=&info_uuid.u,.access_cb=read_provisioning,.arg=nullptr,.descriptors=nullptr,.flags=BLE_GATT_CHR_F_READ,.min_key_size=0,.val_handle=nullptr,.cpfd=nullptr},
+  {.uuid=&status_uuid.u,.access_cb=read_provisioning,.arg=reinterpret_cast<void*>(1),.descriptors=nullptr,.flags=BLE_GATT_CHR_F_READ,.min_key_size=0,.val_handle=nullptr,.cpfd=nullptr},
   {.uuid=&control_uuid.u,.access_cb=receive_provisioning,.arg=nullptr,.descriptors=nullptr,.flags=BLE_GATT_CHR_F_WRITE,.min_key_size=0,.val_handle=nullptr,.cpfd=nullptr},
   {.uuid=&command_uuid.u,.access_cb=receive_command,.arg=nullptr,.descriptors=nullptr,.flags=BLE_GATT_CHR_F_WRITE|BLE_GATT_CHR_F_WRITE_NO_RSP,.min_key_size=0,.val_handle=nullptr,.cpfd=nullptr},
   {.uuid=&event_uuid.u,.access_cb=nullptr,.arg=nullptr,.descriptors=nullptr,.flags=BLE_GATT_CHR_F_NOTIFY,.min_key_size=0,.val_handle=&event_value_handle,.cpfd=nullptr},
@@ -89,11 +106,11 @@ int advertise();
 int gap(ble_gap_event* event,void*){
   switch(event->type){
     case BLE_GAP_EVENT_CONNECT:
-      if(event->connect.status==0){std::lock_guard<std::mutex> lock(connection_mutex);++connection_generation;active_connection=event->connect.conn_handle;frame_payload.clear();frame_total=0;}
+      if(event->connect.status==0){std::lock_guard<std::mutex> lock(connection_mutex);++connection_generation;active_connection=event->connect.conn_handle;frame_payload.clear();frame_total=0;provisioning_frames.reset();}
       else if(advertise()!=0)startup_result=ESP_FAIL;
       break;
     case BLE_GAP_EVENT_DISCONNECT:
-      {std::lock_guard<std::mutex> lock(connection_mutex);++connection_generation;active_connection=BLE_HS_CONN_HANDLE_NONE;frame_payload.clear();frame_total=0;}
+      {std::lock_guard<std::mutex> lock(connection_mutex);++connection_generation;active_connection=BLE_HS_CONN_HANDLE_NONE;frame_payload.clear();frame_total=0;provisioning_frames.reset();}
       if(advertise()!=0)startup_result=ESP_FAIL;
       break;
     default:break;
@@ -143,9 +160,11 @@ esp_err_t ble_runtime_start(const BleConfig& config,CommandSink value,void* cont
   provisioning_only=false;sink=value;sink_context=context;name=config.advertising_name;
   return start_host();
 }
-esp_err_t ble_provisioning_start(const BleConfig&config,ProvisioningSink value,void*context){
+void ble_provisioning_sources(ProvisioningReadSource info,ProvisioningReadSource status,void*context){provisioning_info_source=info;provisioning_status_source=status;provisioning_read_context=context;}
+esp_err_t ble_provisioning_start(const BleConfig&config,ProvisioningSink value,void*context,ProvisioningReadSource info,ProvisioningReadSource status){
   if(!value||!config.advertising_name||!*config.advertising_name||strlen(config.advertising_name)>kBleScanNameMaximum)return ESP_ERR_INVALID_ARG;
   bool expected=false;if(!initialization_started.compare_exchange_strong(expected,true))return ESP_ERR_INVALID_STATE;
+  ble_provisioning_sources(info,status,context);provisioning_frames.reset();
   provisioning_only=true;provisioning_sink=value;provisioning_context=context;
   sink=nullptr;sink_context=nullptr;name=config.advertising_name;
   return start_host();

@@ -139,6 +139,7 @@ ios-build:
 native-regression: native-bundle android-build ios-build
 smart-device-host-test:
 	python3 SmartDevices/bluecash-app/tests/host/run-datecs-codec.py
+	python3 SmartDevices/bluecash-app/tests/host/run-go-json.py
 smart-device-test: smart-device-host-test
 	cd minipos/BeeMiniPOS/android && ./gradlew -p ../../../SmartDevices :daisy-smart-app:testProdDebugUnitTest :daisy-smart-app:testDemoDebugUnitTest :bluecash-app:testProdDebugUnitTest :bluecash-app:testDemoDebugUnitTest :daisy-smart-app:assembleProdDebug :daisy-smart-app:assembleDemoDebug :bluecash-app:assembleProdDebug :bluecash-app:assembleDemoDebug --no-daemon
 	test -f SmartDevices/daisy-smart-app/build/outputs/apk/prod/debug/daisy-smart-app-prod-debug.apk
@@ -153,6 +154,7 @@ factory-test:
 iot-test:
 	python3 IoT/firmware/edge-agent-s3/idf/tests/execution_auth_host/run.py
 	python3 IoT/firmware/edge-agent-s3/idf/tests/authority_host/run.py
+	bash IoT/firmware/edge-agent-s3/idf/tests/run_provisioning_host.sh
 	python3 IoT/firmware/edge-agent-s3/idf/tests/go_json_host/run.py
 	python3 IoT/firmware/edge-agent-s3/idf/tests/go_wire_host/run.py
 	python3 IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py

@@ -371,18 +371,29 @@ func (s *Service) CreateCompositeBinding(registerID, tenant, profile, adapterID,
 	}
 	var execution map[string]any
 	if s.compositeBindingPublisher != nil {
+		if len(stringField(adapter.Data, "ble_advertising_identity")) > 29 {
+			return nil, errors.New("BLE advertising identity too long")
+		}
+		mqttURI := stringField(adapter.Data, "mqtt_uri")
+		if !strings.HasPrefix(mqttURI, "mqtts://") && !strings.HasPrefix(mqttURI, "ssl://") {
+			return nil, errors.New("TLS MQTT URI required")
+		}
+		if profile == "DATECS_DP150_BLUEPAD50" && (!strings.EqualFold(stringField(fiscal.Data, "vendor"), "DATECS") || strings.ToUpper(stringField(fiscal.Data, "model")) != "DP-150 MX") {
+			return nil, errors.New("unsupported Datecs fiscal endpoint")
+		}
+		if profile == "DAISY_COMPACT_S01" && (!strings.EqualFold(stringField(fiscal.Data, "vendor"), "DAISY") || strings.ToUpper(stringField(fiscal.Data, "model")) != "COMPACT S 01") {
+			return nil, errors.New("unsupported Daisy fiscal endpoint")
+		}
 		var executionErr error
 		execution, executionErr = compositeExecution(fiscal.Data, profile)
 		if executionErr != nil {
 			return nil, executionErr
 		}
-		if !bgFMINPattern.MatchString(stringField(fiscal.Data, "fiscal_memory_number")) || !bgFMINPattern.MatchString(stringField(fiscal.Data, "fiscal_device_number")) || stringField(adapter.Data, "unp_prefix") != stringField(fiscal.Data, "fiscal_device_number") {
+		if !bgFMINPattern.MatchString(stringField(fiscal.Data, "fiscal_memory_number")) || !bgFMINPattern.MatchString(stringField(fiscal.Data, "fiscal_device_number")) {
 			return nil, errors.New("fiscal memory identity mismatch")
 		}
 		if stringField(adapter.Data, "mqtt_uri") == "" || stringField(adapter.Data, "mqtt_client_id") == "" ||
-			stringField(adapter.Data, "ble_advertising_identity") == "" || stringField(adapter.Data, "transaction_signing_kid") == "" ||
-			stringField(adapter.Data, "unp_prefix") == "" || int64Field(adapter.Data, "unp_range_start") < 1 ||
-			int64Field(adapter.Data, "unp_range_end") < int64Field(adapter.Data, "unp_range_start") {
+			stringField(adapter.Data, "ble_advertising_identity") == "" || stringField(adapter.Data, "transaction_signing_kid") == "" {
 			return nil, errors.New("adapter provisioning configuration incomplete")
 		}
 		if profile == "DATECS_DP150_BLUEPAD50" {
@@ -430,7 +441,21 @@ func (s *Service) CreateCompositeBinding(registerID, tenant, profile, adapterID,
 		if s.spaDeploymentDescriptorURL != "" && s.spaDeploymentSigningKID != "" && s.spaDeploymentPublicKeyDERBase64 != "" {
 			localHTTP["deployment_descriptor_url"], localHTTP["deployment_signing_kid"], localHTTP["deployment_public_key_base64"] = s.spaDeploymentDescriptorURL, s.spaDeploymentSigningKID, s.spaDeploymentPublicKeyDERBase64
 		}
-		canonicalValue := map[string]any{"schema_version": 3, "generation": generation, "tenant_id": tenant, "location_id": locationID, "register_id": registerID, "edge_device_id": adapterID, "profile": profile, "ble_advertising_identity": stringField(adapter.Data, "ble_advertising_identity"), "fiscal_endpoint": fiscalEndpoint, "payment_endpoint": paymentEndpoint, "mqtt": map[string]any{"uri": stringField(adapter.Data, "mqtt_uri"), "client_id": stringField(adapter.Data, "mqtt_client_id"), "command_topic": fmt.Sprintf("tenants/%s/devices/%s/commands", tenant, adapterID), "sync_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/batches", tenant, adapterID), "ack_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/acks", tenant, adapterID), "root_ca_ref": "mqtt-ca", "client_certificate_ref": "mqtt-cert", "client_key_ref": "mqtt-key"}, "operational_authority": map[string]any{"command_hmac_ref": "command-hmac", "sync_ack_hmac_ref": "sync-ack-hmac", "transaction_signing_kid": stringField(adapter.Data, "transaction_signing_kid"), "unp_prefix": stringField(adapter.Data, "unp_prefix"), "unp_range_start": int64Field(adapter.Data, "unp_range_start"), "unp_range_end": int64Field(adapter.Data, "unp_range_end")}, "local_http": localHTTP}
+		// The physical fiscal endpoint ledger owns schema3 authority. Adapter
+		// board serial and caller-provided ranges are never authority sources.
+		// Legacy FM leases require an external hardware fence.
+		start, end, reserveErr := s.repo.ReserveFiscalUNPRange(tenant, stringField(fiscal.Data, "fiscal_device_number"), stringField(fiscal.Data, "fiscal_memory_number"), 1000)
+		if reserveErr != nil {
+			return nil, reserveErr
+		}
+		adapter.Data["unp_prefix"] = stringField(fiscal.Data, "fiscal_device_number")
+		adapter.Data["unp_range_start"], adapter.Data["unp_range_end"] = start, end
+		adapter.Version++
+		adapter.UpdatedAt = time.Now().UTC()
+		if err := s.repo.PutResource(adapter); err != nil {
+			return nil, err
+		}
+		canonicalValue := map[string]any{"schema_version": 3, "generation": generation, "tenant_id": tenant, "location_id": locationID, "register_id": registerID, "edge_device_id": adapterID, "profile": profile, "ble_advertising_identity": stringField(adapter.Data, "ble_advertising_identity"), "fiscal_endpoint": fiscalEndpoint, "payment_endpoint": paymentEndpoint, "mqtt": map[string]any{"uri": "mqtts://" + strings.TrimPrefix(strings.TrimPrefix(stringField(adapter.Data, "mqtt_uri"), "mqtts://"), "ssl://"), "client_id": stringField(adapter.Data, "mqtt_client_id"), "command_topic": fmt.Sprintf("tenants/%s/devices/%s/commands", tenant, adapterID), "sync_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/batches", tenant, adapterID), "ack_topic": fmt.Sprintf("tenants/%s/devices/%s/sync/acks", tenant, adapterID), "root_ca_ref": "mqtt-ca", "client_certificate_ref": "mqtt-cert", "client_key_ref": "mqtt-key"}, "operational_authority": map[string]any{"command_hmac_ref": "command-hmac", "sync_ack_hmac_ref": "sync-ack-hmac", "transaction_signing_kid": stringField(adapter.Data, "transaction_signing_kid"), "unp_prefix": stringField(adapter.Data, "unp_prefix"), "unp_range_start": int64Field(adapter.Data, "unp_range_start"), "unp_range_end": int64Field(adapter.Data, "unp_range_end")}, "local_http": localHTTP}
 		canonical, marshalErr := json.Marshal(canonicalValue)
 		if marshalErr != nil {
 			return nil, marshalErr

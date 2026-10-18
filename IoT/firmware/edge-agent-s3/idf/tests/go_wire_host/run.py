@@ -13,7 +13,7 @@ with tempfile.TemporaryDirectory(prefix="go-wire-host-") as name:
  d=pathlib.Path(name);mbed_include,mbed_library=crypto_dependency(d);backend=d/"backend"
  backend.mkdir()
  for f in ["go.mod","go.sum"]:shutil.copy2(repo/"fiscal-backend"/f,backend/f)
- for sub in ["domain","config","mqttclient"]:shutil.copytree(repo/"fiscal-backend/internal"/sub,backend/"internal"/sub)
+ for sub in ["domain","config","mqttclient","provisioningseal"]:shutil.copytree(repo/"fiscal-backend/internal"/sub,backend/"internal"/sub)
  (backend/"cmd/oracle").mkdir(parents=True);shutil.copy2(here/"oracle.go",backend/"cmd/oracle/main.go")
  env=dict(os.environ);env.setdefault("GOCACHE",str(d/"go-cache"))
  run(["go","build","-o",d/"oracle","./cmd/oracle"],cwd=backend,env=env)

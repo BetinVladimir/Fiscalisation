@@ -1,0 +1,174 @@
+
+> beefiscalapp@0.1.0 test
+> node --experimental-strip-types --test src/*.test.ts
+
+TAP version 13
+# (node:53280) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:53280) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/auditFilters.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/package.json.
+# Subtest: audit optional bounds and equal instants across offsets
+ok 1 - audit optional bounds and equal instants across offsets
+  ---
+  duration_ms: 0.604875
+  ...
+# Subtest: audit rejects impossible dates, reversed instants and incomplete timestamps
+ok 2 - audit rejects impossible dates, reversed instants and incomplete timestamps
+  ---
+  duration_ms: 0.183166
+  ...
+# (node:53281) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:53281) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/compositeSelection.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/package.json.
+# Subtest: embedded requires same active BlueCash in all roles
+ok 3 - embedded requires same active BlueCash in all roles
+  ---
+  duration_ms: 0.55825
+  ...
+# Subtest: DP profile requires payment separate from adapter
+ok 4 - DP profile requires payment separate from adapter
+  ---
+  duration_ms: 0.078959
+  ...
+# Subtest: Daisy profile excludes payment and shared adapter
+ok 5 - Daisy profile excludes payment and shared adapter
+  ---
+  duration_ms: 0.059958
+  ...
+# Subtest: unknown profile, inactive or duplicate devices rejected
+ok 6 - unknown profile, inactive or duplicate devices rejected
+  ---
+  duration_ms: 0.127583
+  ...
+# (node:53282) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:53282) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/deviceProfiles.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/package.json.
+# Subtest: MVP1 compatibility matrix exposes the three exact physical profiles
+ok 7 - MVP1 compatibility matrix exposes the three exact physical profiles
+  ---
+  duration_ms: 0.596625
+  ...
+# Subtest: unsupported and mutated hardware combinations fail closed
+ok 8 - unsupported and mutated hardware combinations fail closed
+  ---
+  duration_ms: 0.086916
+  ...
+# (node:53283) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:53283) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/legal.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/package.json.
+# Subtest: privacy policy links follow every selectable legal-site locale
+ok 9 - privacy policy links follow every selectable legal-site locale
+  ---
+  duration_ms: 0.417875
+  ...
+# (node:53284) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:53284) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/oidcRoles.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/package.json.
+# Subtest: role discovery normalizes only recognized access-token roles
+ok 10 - role discovery normalizes only recognized access-token roles
+  ---
+  duration_ms: 1.785042
+  ...
+# Subtest: opaque, malformed and missing role claims fail closed
+ok 11 - opaque, malformed and missing role claims fail closed
+  ---
+  duration_ms: 0.398959
+  ...
+# (node:53285) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:53285) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/pagination.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/package.json.
+# Subtest: collectCursorPages reads subsequent cursor pages
+ok 12 - collectCursorPages reads subsequent cursor pages
+  ---
+  duration_ms: 0.842583
+  ...
+# Subtest: collectCursorPages rejects has_more without a cursor
+ok 13 - collectCursorPages rejects has_more without a cursor
+  ---
+  duration_ms: 0.236834
+  ...
+# (node:53286) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:53286) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/provisioningProtocol.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/package.json.
+# Subtest: real wire frames reconstruct exact ciphertext; no plaintext secret in BLE writes
+ok 14 - real wire frames reconstruct exact ciphertext; no plaintext secret in BLE writes
+  ---
+  duration_ms: 1.725958
+  ...
+# Subtest: lost final write ACK reconnects and proves installation without replay
+ok 15 - lost final write ACK reconnects and proves installation without replay
+  ---
+  duration_ms: 0.972291
+  ...
+# Subtest: new app instance recovers existing install by signed GET without issue or BLE writes
+ok 16 - new app instance recovers existing install by signed GET without issue or BLE writes
+  ---
+  duration_ms: 0.101917
+  ...
+# Subtest: foreign enrolled device rejects before HTTPS credentials or BLE
+ok 17 - foreign enrolled device rejects before HTTPS credentials or BLE
+  ---
+  duration_ms: 0.233041
+  ...
+# Subtest: tampered encrypted response rejects before BLE
+ok 18 - tampered encrypted response rejects before BLE
+  ---
+  duration_ms: 0.605417
+  ...
+# Subtest: auth/navigation invalidation fences subsequent writes and confirmation
+ok 19 - auth/navigation invalidation fences subsequent writes and confirmation
+  ---
+  duration_ms: 0.875792
+  ...
+# Subtest: stale generation proof cannot activate binding
+ok 20 - stale generation proof cannot activate binding
+  ---
+  duration_ms: 0.890041
+  ...
+# Subtest: frames reject incomplete ciphertext or invalid digest
+ok 21 - frames reject incomplete ciphertext or invalid digest
+  ---
+  duration_ms: 0.14975
+  ...
+# (node:53287) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:53287) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/registerFilter.test.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/package.json.
+# Subtest: register filter is omitted when no register is configured
+ok 22 - register filter is omitted when no register is configured
+  ---
+  duration_ms: 0.333667
+  ...
+# Subtest: device context uses only the fiscal and payment device IDs bound to a register
+ok 23 - device context uses only the fiscal and payment device IDs bound to a register
+  ---
+  duration_ms: 0.329542
+  ...
+# Subtest: register filter accepts only an OpenAPI UUID
+ok 24 - register filter accepts only an OpenAPI UUID
+  ---
+  duration_ms: 0.287708
+  ...
+1..24
+# tests 24
+# suites 0
+# pass 24
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 188.412292

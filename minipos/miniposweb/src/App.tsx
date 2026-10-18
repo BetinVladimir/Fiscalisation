@@ -1,3 +1,4 @@
+import {FiscalOperationResult} from './ui/FiscalOperationResult';
 import {AppFrame} from './ui/app-frame';
 import {operationMessage} from './ui/operation-message';
 import { belongsToOutboxScope } from './storage/outboxScope';
@@ -402,7 +403,7 @@ export default function App() {
         name: line.product.name,
         quantity: line.quantity.toFixed(3),
         unit_price: line.product.price,
-        discount: line.discount > 0 ? money(line.discount) : undefined,
+        ...(line.discount > 0 ? {discount: money(line.discount)} : {}),
         tax_group: line.product.tax_group,
       }));
       const safeCard = Math.min(Math.max(cardAmount, 0), total),
@@ -613,7 +614,7 @@ export default function App() {
         <PaperText variant="titleLarge" accessibilityRole="header">{t.diagnostics}</PaperText>
         <PaperText variant="bodyMedium">{t.adapter}: {configuration?.fiscal_adapter_id}{"\n"}{t.register}: {configuration?.fiscal_register_id}{"\n"}{t.generation}: {configuration?.binding_generation}{"\n"}{t.localUrl}: {configuration?.adapter_base_url}</PaperText>
         <PaperButton mode="outlined" disabled={busy || !shift} onPress={printer}>{t.printerTest}</PaperButton>
-        {result ? <PaperText variant="bodySmall" selectable style={{ fontFamily: "monospace" }} testID="sale-result">{JSON.stringify(result, null, 2)}</PaperText> : null}
+        {result ? <FiscalOperationResult value={result} language={language} ownerKey={operationScope} testID="sale-result"/> : null}
       </Card.Content></Card>}
       {view === "outbox" ? <OutboxPanel rows={outboxRows} loading={outboxLoading} error={outboxError} language={language} onRefresh={() => void openOutbox()} /> : view !== "sale" ? managementLoading ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-loading"><Card.Content style={{ gap: 12 }}>
         <ActivityIndicator accessibilityLabel={t.loading} /><PaperText variant="bodyMedium">{t.loading}</PaperText>

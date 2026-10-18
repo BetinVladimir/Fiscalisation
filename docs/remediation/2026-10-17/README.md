@@ -4,6 +4,13 @@
 
 По прямому запросу пользователя отдельный Go-модуль `edge-agent/` удалён из репозитория. Его команды, генераторы и ссылки на тестовые evidence исключаются из действующего контура. Исторические результаты не подтверждают готовность S3. Текущий IoT runtime — `IoT/firmware/edge-agent-s3/idf`; обязательны actual-runtime тесты и сборка этой прошивки. Go oracle в `idf/tests/go_wire_host` использует `fiscal-backend/internal`, а не удалённый модуль, и остаётся применимым. Недостающие эквивалентные проверки S3 остаются OPEN до реализации, а не закрываются удалением reference tests.
 
+## Результаты реализации на 2026-10-18
+
+- Проверенный и отправленный пакет `e66b4f7`: [online/offline authority, MQTT validity, serial-ledger](14_ONLINE_AUTHORITY_AND_MQTT_VALIDITY.md), [логи и build/source hashes](evidence/authority-2026-10-18/README.md). Полные IoT и backend domain/MQTT/API проверки и S3 build завершились exit 0 для этого среза.
+- Следующая незакоммиченная волна: [provisioning, typed S3 activation, BlueCash canonical wire и int64](15_PROVISIONING_AND_BLUECASH_INTEGRATION.md). Полный IoT gate, interop/App/backend, S3 build и Android BlueCash 43 tests/build PASS; [новые логи и hashes](evidence/provisioning-2026-10-18/README.md). Предыдущие hashes не доказывают эту волну.
+- MiniPOS authorization/client proof и доверенная делегация операторской сессии ещё реализуются. MiniPOS order ID не является fiscal sale ID. Реальный Android/iOS USB/COM/BLE HIL, legacy authority fence и внешние требования НАП остаются открытыми.
+- Ключи текущей версии находятся внутри ESP32-S3; внешний ATECC608A не используется.
+
 ## Активная цель и ускоренное исполнение
 
 2026-10-17 пользователь поставил полную цель: закрыть все разрывы/ошибки, добавить и выполнить тесты, устранить регрессии, подготовить устройство-испытания и MiniPOS к применимой процедуре НАП/СУПТО. [Цель, три параллельных потока и общая приёмка](08_GOAL_AND_FAST_TRACK.md); [подготовка пакета НАП](09_SUPTO_NAP_PREPARATION.md). Сохраняется CASH → CARD/split/recovery, регуляторная дорожка начинается сразу. Пользователь разрешил делегирование; общий backlog, contracts и merged-snapshot gate обязательны. Это расширение цели, не свидетельство уже выполненных исправлений.

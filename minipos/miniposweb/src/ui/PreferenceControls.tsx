@@ -2,7 +2,7 @@ import { AppButton as Button } from './app-button';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
 import { useContext, useEffect, useRef, useState } from "react";
 import { List, Surface, useTheme } from "react-native-paper";
-import { ScrollView, View, useWindowDimensions } from "react-native";
+import { Platform, ScrollView, View, useWindowDimensions } from "react-native";
 import { supportedLanguages, translations } from "./authTranslations.generated";
 import { useThemePreference } from "./theme";
 
@@ -80,16 +80,16 @@ export function PreferenceControls({ language, onLanguageChange, testIdPrefix }:
     try { localStorage.setItem("minipos-language", value); } catch { /* private browsing */ }
   };
   return <View style={{ width: "100%", minWidth: 0, flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end", gap: 8 }}>
-    <View style={{position:'relative',zIndex:themeOpen?2:0}}>
-      <Button mode="outlined" onPress={themeOpen?dismissTheme:openTheme} testID={`${testIdPrefix}-theme-open`} accessibilityState={{expanded:themeOpen}}>{t.theme}: {preference === "system" ? t.systemTheme : preference === "dark" ? t.darkTheme : t.lightTheme}</Button>
+    <View testID={`${testIdPrefix}-theme-anchor`} style={{position:'relative',zIndex:themeOpen?2:0,minWidth:0,maxWidth:'100%',flexShrink:1}}>
+      <Button contentStyle={{maxWidth:"100%",flexShrink:1}} labelStyle={{maxWidth:"100%",...(Platform.OS==="web"?{overflowWrap:"anywhere"} as any:{})}} mode="outlined" onPress={themeOpen?dismissTheme:openTheme} testID={`${testIdPrefix}-theme-open`} accessibilityState={{expanded:themeOpen}}>{t.theme}: {preference === "system" ? t.systemTheme : preference === "dark" ? t.darkTheme : t.lightTheme}</Button>
       {themeOpen && <Surface elevation={3} style={{position:'absolute',top:'100%',right:0,zIndex:3,width:menuWidth,maxHeight:menuHeight,backgroundColor:theme.colors.elevation.level3}}>
       <ScrollView accessibilityRole="menu" testID={`${testIdPrefix}-theme-scroll`} style={{maxHeight:menuHeight}} nestedScrollEnabled keyboardShouldPersistTaps="handled">
         {(["system", "light", "dark"] as const).map(value => <List.Item titleNumberOfLines={0} accessibilityRole={'menuitemradio' as never} style={{minHeight:48,borderWidth:1,borderColor:theme.colors.outline,borderRadius:theme.roundness,margin:4}} key={value} accessibilityState={{checked:preference===value}} testID={`${testIdPrefix}-theme-${value}`} title={`${value === "system" ? t.systemTheme : value === "dark" ? t.darkTheme : t.lightTheme}${preference === value ? " ✓" : ""}`} onPress={() => chooseTheme(value)}/>) }
       </ScrollView>
       </Surface>}
     </View>
-    <View style={{position:'relative',zIndex:languageOpen?2:0}}>
-      <Button mode="outlined" onPress={languageOpen?dismissLanguage:openLanguage} testID={`${testIdPrefix}-language-open`} accessibilityState={{expanded:languageOpen}}>{t.language}: {languageLabels[language]}</Button>
+    <View testID={`${testIdPrefix}-language-anchor`} style={{position:'relative',zIndex:languageOpen?2:0,minWidth:0,maxWidth:'100%',flexShrink:1}}>
+      <Button contentStyle={{maxWidth:"100%",flexShrink:1}} labelStyle={{maxWidth:"100%",...(Platform.OS==="web"?{overflowWrap:"anywhere"} as any:{})}} mode="outlined" onPress={languageOpen?dismissLanguage:openLanguage} testID={`${testIdPrefix}-language-open`} accessibilityState={{expanded:languageOpen}}>{t.language}: {languageLabels[language]}</Button>
       {languageOpen && <Surface elevation={3} style={{position:'absolute',top:'100%',right:0,zIndex:3,width:menuWidth,maxHeight:menuHeight,backgroundColor:theme.colors.elevation.level3}}>
       <ScrollView testID={`${testIdPrefix}-language-scroll`} style={{ maxHeight: menuHeight }} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
         <View accessibilityRole="menu">

@@ -1,12 +1,14 @@
 package mqttclient
 
 import (
+	"bytes"
 	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"log"
 	"regexp"
 	"time"
@@ -390,8 +392,13 @@ func (p *Processor) Process(topic string, payload []byte) (string, []byte, error
 		return "", nil, fmt.Errorf("unsupported mqtt topic")
 	}
 	var batch domain.EdgeSyncBatch
-	if err := json.Unmarshal(payload, &batch); err != nil {
+	decoder := json.NewDecoder(bytes.NewReader(payload))
+	decoder.UseNumber()
+	if err := decoder.Decode(&batch); err != nil {
 		return "", nil, fmt.Errorf("invalid sync batch json: %w", err)
+	}
+	if err := decoder.Decode(new(any)); err != io.EOF {
+		return "", nil, fmt.Errorf("sync batch must contain exactly one JSON value")
 	}
 	if batch.EdgeID != parts[2] {
 		return "", nil, fmt.Errorf("mqtt device binding mismatch")

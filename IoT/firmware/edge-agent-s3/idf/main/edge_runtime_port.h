@@ -24,7 +24,9 @@ int mqtt_publish_status(const char*tenant,const char*device,const char*payload,b
 struct BleConfig { const char* advertising_name; };
 esp_err_t ble_runtime_start(const BleConfig&, CommandSink, void*);
 esp_err_t ble_publish_event(const char* message_uuid,const uint8_t*,size_t);
-esp_err_t ble_provisioning_start(const BleConfig&, ProvisioningSink, void*);
+using ProvisioningReadSource = esp_err_t (*)(char*,size_t*,void*);
+void ble_provisioning_sources(ProvisioningReadSource,ProvisioningReadSource,void*);
+esp_err_t ble_provisioning_start(const BleConfig&, ProvisioningSink, void*,ProvisioningReadSource=nullptr,ProvisioningReadSource=nullptr);
 struct UsbCdcIdentity { uint16_t vid; uint16_t pid; uint8_t interface_index; };
 esp_err_t usb_cdc_runtime_start(const UsbCdcIdentity&);
 bool usb_cdc_ready();

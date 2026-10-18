@@ -28,3 +28,6 @@ int mbedtls_sha256(const unsigned char*,size_t,unsigned char*,int);
 using SemaphoreHandle_t=bool*;SemaphoreHandle_t xSemaphoreCreateBinary();int xSemaphoreGive(SemaphoreHandle_t);int xSemaphoreTake(SemaphoreHandle_t,int);
 constexpr int pdTRUE=1;
 #define pdMS_TO_TICKS(ms) (ms)
+
+constexpr int BLE_GATT_ACCESS_OP_READ_CHR=2,BLE_ATT_ERR_READ_NOT_PERMITTED=6,BLE_GATT_CHR_F_READ=8;
+inline int os_mbuf_append(os_mbuf*m,const void*p,size_t n){const auto*b=static_cast<const uint8_t*>(p);m->bytes.insert(m->bytes.end(),b,b+n);return 0;}

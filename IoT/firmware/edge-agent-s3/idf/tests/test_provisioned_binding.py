@@ -80,13 +80,24 @@ class ProvisionedBindingContract(unittest.TestCase):
         self.assertEqual(body.count("nvs_commit"), 1)
         self.assertIn('nvs_set_blob(impl_->h,"previous"', body)
 
-    def test_unprovisioned_runtime_exposes_only_signed_install(self):
-        unprovisioned = APP.index("unprovisioned: only signed binding installation")
-        mqtt = APP.index("mqtt_runtime_start")
-        self.assertLess(unprovisioned, mqtt)
-        self.assertIn("ble_provisioning_start", APP)
-        self.assertIn("store->install(envelope)", APP)
-        self.assertNotIn('BleConfig ble_binding{"BeeFiscal-unprovisioned"}', APP)
+    def test_setup_branch_returns_before_operational_ingress(self):
+        # Startup wiring guard only. Cryptographic admission, NVS failure and
+        # replay behavior are exercised by run_provisioning_host.sh in iot-test.
+        branch = re.search(
+            r"else if\(secure_loaded!=ESP_ERR_NVS_NOT_FOUND.*?\)\{(.*?)\n\s*\}",
+            APP, re.S,
+        )
+        self.assertIsNotNone(branch)
+        setup = branch.group(1)
+        self.assertIn("setup_mode=true", setup)
+        self.assertIn("ble_provisioning_start", setup)
+        self.assertRegex(setup, r"return\s*;")
+        self.assertLess(branch.end(), APP.index("mqtt_runtime_start"))
+        self.assertLess(branch.end(), APP.index("IntentProcessor runtime"))
+        self.assertNotIn("command_queue.start", setup)
+        self.assertNotIn("mqtt_runtime_start", setup)
+        self.assertIn("encrypted_provisioning.install(data,size,setup_nonce,provisioned)", APP)
+        self.assertNotIn("store->install(envelope)", APP)
 
     def test_secrets_are_references_not_values(self):
         self.assertIn('nvs_open("edge-secrets",NVS_READONLY', (ROOT / "main" / "runtime_config.cpp").read_text())
