@@ -23,6 +23,7 @@
     "database/fiscal/017_supto_full_event_model.sql": "9f73205fb0e023dd70bc08ad7b806f49a8b667fa1cc2638e4aa7a61eabf5f1ba",
     "database/fiscal/018_outbound_email_messages.sql": "ff81759ad108f0dad6eb79b656e6f015649ee536cdc6176c90a77426e37cc7b2",
     "database/fiscal/019_audit_immutability.sql": "88ceb3f6e6c1bd3adb30eaa38219cb80fdfb683b1849262fbdcfffd3e6b128a2",
-    "database/fiscal/020_supto_reporting_catalogs.sql": "5d35f469414c360a388a5b46f18554680c75be4578ff2638a8aefd02a6a9efe2"
+    "database/fiscal/020_supto_reporting_catalogs.sql": "5d35f469414c360a388a5b46f18554680c75be4578ff2638a8aefd02a6a9efe2",
+    "database/fiscal/021_audit_predecessor_compatibility.sql": "e440721b5d9ef594aff9b3e802b2e3ec2d60ea7d27f807ea5ac84637eec68d85"
   }
 }
