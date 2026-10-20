@@ -63,7 +63,7 @@ int read_provisioning(uint16_t,uint16_t,ble_gatt_access_ctxt*access,void*arg){
 }
 int receive_command(uint16_t connection,uint16_t,ble_gatt_access_ctxt* access,void*){
   if(access->op!=BLE_GATT_ACCESS_OP_WRITE_CHR||!sink)return BLE_ATT_ERR_WRITE_NOT_PERMITTED;
-  if(startup_result!=ESP_OK||startup_timed_out)return BLE_ATT_ERR_UNLIKELY;
+  if(startup_result!=ESP_OK||startup_timed_out||active_connection==BLE_HS_CONN_HANDLE_NONE||connection!=active_connection)return BLE_ATT_ERR_UNLIKELY;
   if(ble_att_mtu(connection)<kBleMinimumMtu)return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
   const size_t size=OS_MBUF_PKTLEN(access->om);
   if(size<=kFrameHeader||size>512)return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
@@ -75,7 +75,7 @@ int receive_command(uint16_t connection,uint16_t,ble_gatt_access_ctxt* access,vo
     const size_t total=(size_t(payload[20])<<8)|payload[21];
     const size_t offset=(size_t(payload[22])<<8)|payload[23];const bool final=payload[24]==1;
     const size_t body=size-kFrameHeader;
-    if(total&&total<=kMaximumIntent&&offset+body<=total){
+    if(total&&total<=kMaximumIntent&&payload[24]<=1&&offset+body<=total&&final==(offset+body==total)){
       if(offset==0){frame_payload.clear();frame_payload.reserve(total);frame_total=total;
         memcpy(frame_id,payload+4,16);memcpy(frame_digest,payload+25,32);}
       if(frame_total==total&&offset==frame_payload.size()&&memcmp(frame_id,payload+4,16)==0&&
@@ -87,6 +87,7 @@ int receive_command(uint16_t connection,uint16_t,ble_gatt_access_ctxt* access,vo
           frame_payload.clear();frame_total=0;provisioning_frames.reset();}}
     }
   }
+  if(accepted!=ESP_OK){frame_payload.clear();frame_total=0;}
   free(payload);
   return accepted==ESP_OK?0:BLE_ATT_ERR_UNLIKELY;
 }

@@ -48,14 +48,37 @@ int main(){
  reset();mtu=60;assert(ble_runtime_start({"BeeFiscal-setup"},sink_fn,nullptr)==ESP_OK);connect();assert(ble_publish_event("11111111-1111-4111-8111-111111111111",data,1)==ESP_ERR_INVALID_SIZE&&notify_count==0);
  os_mbuf packet;packet.bytes.assign(58,0);ble_gatt_access_ctxt access{BLE_GATT_ACCESS_OP_WRITE_CHR,&packet};assert(receive_command(1,0,&access,nullptr)==BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN&&sink_count==0);
  reset();mtu=23;assert(ble_provisioning_start({"BeeFiscal-setup"},provision_fn,nullptr)==ESP_OK);connect();packet.bytes.assign(512,0);assert(receive_provisioning(1,0,&access,nullptr)!=0&&sink_count==0);packet.bytes.assign(513,0);assert(receive_provisioning(1,0,&access,nullptr)==BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN&&sink_count==0);
- reset();mtu=185;assert(ble_runtime_start({"BeeFiscal-setup"},sink_fn,nullptr)==ESP_OK);
+ reset();mtu=185;assert(ble_runtime_start({"BeeFiscal-setup"},sink_fn,nullptr)==ESP_OK);connect();
  packet.bytes.assign(513,0);assert(receive_command(1,0,&access,nullptr)==BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN&&sink_count==0);
  packet.bytes.assign(512,0);std::memcpy(packet.bytes.data(),"BFF1",4);packet.bytes[20]=1;packet.bytes[21]=199;packet.bytes[24]=1;
+ ble_gap_event initial_disconnect{};initial_disconnect.type=BLE_GAP_EVENT_DISCONNECT;gap(&initial_disconnect,nullptr);
+ assert(receive_command(1,0,&access,nullptr)!=0&&sink_count==0); // no active peripheral connection
+ connect();
+ assert(receive_command(2,0,&access,nullptr)!=0&&sink_count==0); // central/foreign handle
  assert(receive_command(1,0,&access,nullptr)==0&&sink_count==1);
+ ble_gap_event lost{};lost.type=BLE_GAP_EVENT_DISCONNECT;gap(&lost,nullptr);
+ assert(receive_command(1,0,&access,nullptr)!=0&&sink_count==1); // disconnected handle
+ connect();assert(receive_command(1,0,&access,nullptr)==0&&sink_count==2);
  reset();mtu=185;assert(ble_provisioning_start({"BeeFiscal-setup"},provision_fn,nullptr)==ESP_OK);connect();packet.bytes.assign(62,0);memcpy(packet.bytes.data(),"BFPF",4);packet.bytes[23]=1;packet.bytes[60]=1;assert(receive_provisioning(1,0,&access,nullptr)==0&&sink_count==1);
  reset();mtu=61;assert(ble_runtime_start({"BeeFiscal-setup"},sink_fn,nullptr)==ESP_OK);connect();assert(ble_publish_event("11111111-1111-4111-8111-111111111111",data,2)==ESP_OK&&notifications.size()==2&&notifications[0].size()==58);
  reset();mtu=185;assert(ble_runtime_start({"BeeFiscal-setup"},sink_fn,nullptr)==ESP_OK);connect();failure_stage=8;assert(ble_publish_event("11111111-1111-4111-8111-111111111111",data,400)==ESP_FAIL&&notify_count==1);
  frame_payload.assign(3,1);frame_total=10;ble_gap_event disconnected{};disconnected.type=BLE_GAP_EVENT_DISCONNECT;gap(&disconnected,nullptr);assert(frame_payload.empty()&&frame_total==0);
+ // Final marker must exactly match the advertised payload boundary.
+ reset();mtu=185;assert(ble_runtime_start({"BeeFiscal-setup"},sink_fn,nullptr)==ESP_OK);connect();
+ packet.bytes.assign(58,0);memcpy(packet.bytes.data(),"BFF1",4);packet.bytes[21]=2;packet.bytes[24]=1;
+ assert(receive_command(1,0,&access,nullptr)!=0&&sink_count==0); // premature final
+ packet.bytes[21]=1;packet.bytes[24]=0;
+ assert(receive_command(1,0,&access,nullptr)!=0&&sink_count==0); // missing final
+ packet.bytes[24]=2;
+ assert(receive_command(1,0,&access,nullptr)!=0&&sink_count==0); // invalid marker
+ packet.bytes[21]=2;packet.bytes[24]=0;
+ assert(receive_command(1,0,&access,nullptr)==0&&frame_payload.size()==1);
+ packet.bytes[23]=1;packet.bytes[4]=1;packet.bytes[24]=1;
+ assert(receive_command(1,0,&access,nullptr)!=0&&frame_payload.empty()&&frame_total==0); // corrupt continuation discards assembly
+ packet.bytes[4]=0;
+ assert(receive_command(1,0,&access,nullptr)!=0&&sink_count==0); // cannot resume rejected assembly
+ packet.bytes[23]=0;packet.bytes[21]=1;
+ assert(receive_command(1,0,&access,nullptr)==0&&sink_count==1); // fresh command recovers
  // Deterministic concurrent start: first caller owns globals before init blocks.
  reset();block_init=true;esp_err_t first_result=ESP_FAIL;
  std::thread starter([&]{first_result=ble_runtime_start({"first-owner"},sink_fn,reinterpret_cast<void*>(1));});
