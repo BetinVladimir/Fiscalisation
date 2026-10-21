@@ -98,3 +98,5 @@ Mandatory remaining acceptance: complete ESP-IDF target build via the repository
 ## Root Stage B integration verification
 
 Actual Go→strict GCC15 C++/mbedTLS DeviceIdentity/NVS→Go issuer and root domain race PASS. All16 package source hashes match worker-tested sources; existing encrypted provisioning/installer and entropy/DRBG suites PASS with those same source changes. [Raw logs, source/dependency hashes and boundaries](evidence/ble-device-proof-2026-10-21/manifest.json). cJSON provenance is exact source hashes/header1.7.18; its dangling PlatformIO submodule pointer does not establish git-clean provenance. Default time remains unavailable, public command absent. Fresh complete official-IDF target build and physical acceptance remain OPEN until separately evidenced.
+
+IDF CI follow-up: prior run39544238118 compiled firmware but host regression stopped because Python crypto runners require `MBEDTLS_SOURCE_DIR`, while workflow supplied only `MBEDTLS_SOURCE`. Both aliases now point to the exact checked-out vendor source. [Failure evidence](evidence/s3-idf-ci-env-2026-10-21/manifest.json); final corrected full CI acceptance remains pending.

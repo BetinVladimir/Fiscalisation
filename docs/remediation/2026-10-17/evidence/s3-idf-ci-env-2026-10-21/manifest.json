@@ -1,0 +1,7 @@
+{
+  "prior_run": 39544238118,
+  "scope": "host regression blocked by missing MBEDTLS_SOURCE_DIR; no final CI PASS claim",
+  "raw_sha256": "7617a50f4efcc6e12e11be9418e1c71f756fa571ab0bee2458b19c9a66a38b2e",
+  "gzip_sha256": "2e4f9f89377e708faf5a75f5bac02957698893df459358e18112911d5329fa1a",
+  "workflow_sha256": "8cae163de4f075f4a76c2d24fb67b488ad63aea161b3c0337122d1874388c0c5"
+}

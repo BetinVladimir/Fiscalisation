@@ -54,6 +54,7 @@ jobs:
       - name: Native regression with the exact firmware crypto/JSON sources
         env:
           MBEDTLS_SOURCE: ${{ env.IDF_PATH }}/components/mbedtls/mbedtls
+          MBEDTLS_SOURCE_DIR: ${{ env.IDF_PATH }}/components/mbedtls/mbedtls
           CJSON_SOURCE: ${{ env.IDF_PATH }}/components/json/cJSON
           CJSON_SOURCE_DIR: ${{ env.IDF_PATH }}/components/json/cJSON
           OPENSSL_PREFIX: /usr
