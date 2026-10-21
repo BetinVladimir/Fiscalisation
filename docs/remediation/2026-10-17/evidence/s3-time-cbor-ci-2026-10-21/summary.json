@@ -1,0 +1,25 @@
+{
+  "run_url": "https://github.com/BetinVladimir/Fiscalisation/actions/runs/39555577175",
+  "status": "success",
+  "commit": "c9aed74c7fa96d5afcd3ab6f3e81244595b4946a",
+  "verified_source_count": 103,
+  "verified_artifact_count": 7,
+  "sdk_commit": "880a203ae603d08a94d06aa01e0d6761958e5e9e",
+  "artifacts": {
+    "beefiscal_edge_agent_s3.bin": "63247ab7bc0c361efc6e0f339e5a359ab343db2ddf15f39c26adc9c4d2398846",
+    "beefiscal_edge_agent_s3.elf": "20c85778af31366ddede7c3f7e6624896feb81de8ad0533cd02e51b9f673680a",
+    "bootloader/bootloader.bin": "51825e20d078a345e39eb5bdae3a18711a4aaf2891c98e47afd3eccd543ff0fa",
+    "compile_commands.json": "ec6394990684456696321eb607a4e6a84d3cf72355ef69ece06ff3e667db7e9f",
+    "partition_table/partition-table.bin": "bd9ab5aace828042720cde613ccb9840fc22f643f818383aeb2cea4f46c9abc2",
+    "sdkconfig": "cdb7321d6d406c23895b16f68d54b7641fee9c8f1cf07ea96e7d660fb50808e6",
+    "toolchain/cxxflags": "0e11541001cd0b196ade7d68b81bc20b9768149e6df451bd8c47b66939ad58da"
+  },
+  "target_translation_units_checked": [
+    "device_time_anchor.cpp",
+    "time_anchor_core.cpp",
+    "canonical_cbor.cpp",
+    "ble_result_delivery.cpp"
+  ],
+  "raw_logs_published": false,
+  "scope": "full target build and iot-test; no flashing, production time provider, physical HIL or NAP acceptance"
+}

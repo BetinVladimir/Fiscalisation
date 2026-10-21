@@ -43,3 +43,9 @@ Workflow теперь использует один уникальный COMPOSE
 Локально: sh -n PASS, git diff --check PASS; rendered Docker Compose JSON проверен на согласованность credentials/DSN, SQL init mount, socket и HTTP dependency graph; fixture generation PASS. Полный runtime E2E пока не выполнен для этого изменения; нужен actual Ubuntu CI result. Никакое прохождение статической проверки не закрывает E2E acceptance.
 
 Первая версия workflow (`12198cf`, run39555975017) отклонена до запуска jobs: runner temporary path был указан на job env уровне. Исправление `19cb7d0` вычисляет `$RUNNER_TEMP` внутри шага и передаёт путь через GITHUB_ENV; GitHub принял workflow, run39556086939 фактически начал jobs. Это подтверждает валидацию workflow, но не runtime E2E успех.
+
+## Полная S3 повторная проверка: PASS
+
+[Run39555577175](https://github.com/BetinVladimir/Fiscalisation/actions/runs/39555577175) для `c9aed74c7fa96d5afcd3ab6f3e81244595b4946a` завершился SUCCESS: target compile/link, host IoT regression и финальная provenance проверка. Root скачал артефакты, независимо сопоставил все103 source hashes с точными Git blobs этого коммита и все7 artifact hashes с фактическими bytes. В compile_commands присутствуют device_time_anchor.cpp, time_anchor_core.cpp, canonical_cbor.cpp и ble_result_delivery.cpp. Это закрывает ошибку отсутствующего nvs.h и подтверждает target compilation новых модулей, но не включение production provider.
+
+[Обезличенный summary и hashes](evidence/s3-time-cbor-ci-2026-10-21/summary.json). Сборка сохранена локально в ignored `.store-build/s3-idf556-ci-c9aed74-20261021`; BIN SHA256 `63247ab7bc0c361efc6e0f339e5a359ab343db2ddf15f39c26adc9c4d2398846`. Raw logs остаются локально. Устройства не прошивались.

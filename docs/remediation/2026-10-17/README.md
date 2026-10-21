@@ -6,6 +6,9 @@
 
 ## Текущий интеграционный срез — 2026-10-21
 
+- [Актуальные CI результаты и integration bootstrap](65_CI_INTEGRATION_FOLLOWUP.md): полный S3 build c9aed74 и IoT regression PASS, independently checked103 Git sources/7 artifacts; integration E2E остаётся на проверке.
+- [Production trusted-time vertical](66_TRUSTED_TIME_PRODUCTION_VERTICAL.md): реальные lifecycle hooks, source-health/issuer/bootstrap/provider и критерии приёмки; provider пока не включён.
+
 - [Статус native/ADMIN/экспорта и открытые ограничения](28_INTEGRATED_NATIVE_ADMIN_STATUS.md): actual ADMIN HTTP → браузер → S3 processor/SQLite PASS; iOS OS-key → issuer → S3 interoperability PASS. Физический BLE этими стендами не проверен.
 - [Обезличенный evidence ADMIN и S3 authority boundary](evidence/admin-http-2026-10-21/README.md): логи, SHA256 исходников и границы выводов. Authority boundary дополнительно прошёл AddressSanitizer/UndefinedBehaviorSanitizer без ошибок.
 - Независимые профили PostgreSQL: [MiniPOS](24_MINIPOS_POSTGRES_EXTRACTION.md) и [Fiscal](21_FISCAL_POSTGRES_EXTRACTION.md); [миграция audit predecessor](29_AUDIT_PREDECESSOR_MIGRATION.md).
