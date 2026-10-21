@@ -1,0 +1,2 @@
+82f03ad3df158d0164a05f228b2c1ff051ebb1fe95efcfdd4f33f0277af6aeb9  IoT/firmware/edge-agent-s3/idf/main/device_identity.cpp
+67c8aff536831de114e9d6887c1928f13a70465b5aeb53e77f44a650b749e93d  IoT/firmware/edge-agent-s3/idf/tests/provisioning_host/provisioning_native.cpp

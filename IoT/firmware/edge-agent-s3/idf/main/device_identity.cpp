@@ -61,15 +61,15 @@ esp_err_t DeviceIdentity::open(){if(impl_->ok)return ESP_OK;
  if(e==ESP_ERR_NVS_NOT_FOUND){if(mbedtls_ecp_gen_key(MBEDTLS_ECP_DP_SECP256R1,&impl_->key,random,nullptr)!=0){nvs_close(h);
 
  return ESP_FAIL;
- }if(mbedtls_mpi_write_binary(&private_key,scalar,sizeof(scalar))!=0||(e=nvs_set_blob(h,"p256",scalar,sizeof(scalar)))!=ESP_OK||(e=nvs_commit(h))!=ESP_OK){memset(scalar,0,sizeof(scalar));
+ }if(mbedtls_mpi_write_binary(&private_key,scalar,sizeof(scalar))!=0||(e=nvs_set_blob(h,"p256",scalar,sizeof(scalar)))!=ESP_OK||(e=nvs_commit(h))!=ESP_OK){mbedtls_platform_zeroize(scalar,sizeof(scalar));
  nvs_close(h);
 
  return e==ESP_OK?ESP_FAIL:e;
- }}else{if(e!=ESP_OK||z!=sizeof(scalar)||mbedtls_ecp_group_load(&group,MBEDTLS_ECP_DP_SECP256R1)!=0||mbedtls_mpi_read_binary(&private_key,scalar,z)!=0||mbedtls_ecp_mul(&group,&public_key,&private_key,&group.G,random,nullptr)!=0){memset(scalar,0,sizeof(scalar));
+ }}else{if(e!=ESP_OK||z!=sizeof(scalar)||mbedtls_ecp_group_load(&group,MBEDTLS_ECP_DP_SECP256R1)!=0||mbedtls_mpi_read_binary(&private_key,scalar,z)!=0||mbedtls_ecp_mul(&group,&public_key,&private_key,&group.G,random,nullptr)!=0){mbedtls_platform_zeroize(scalar,sizeof(scalar));
  nvs_close(h);
 
  return ESP_ERR_INVALID_CRC;
- }}memset(scalar,0,sizeof(scalar));
+ }}mbedtls_platform_zeroize(scalar,sizeof(scalar));
  nvs_close(h);
 
   mbedtls_pk_context pk;

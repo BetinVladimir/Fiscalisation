@@ -24,6 +24,18 @@ int main(int argc,char**argv){assert(argc==2);const std::string dir=argv[1];auto
  auto bad_tag=read(dir+"/signed-bad-tag.bin");const auto calls=device.calls;assert(open_provisioning_package(bad_tag.data(),bad_tag.size(),issuer.c_str(),expected,Recipient::derive,&device,opened)!=ESP_OK&&device.calls==calls+1&&opened.plaintext.empty());
  // A valid signed package for another private key never decrypts.
  factory_scalar.fill(0);factory_scalar[31]=3;Recipient foreign;assert(foreign.identity.open()==ESP_OK);assert(open_provisioning_package(packet.data(),packet.size(),issuer.c_str(),expected,Recipient::derive,&foreign,opened)!=ESP_OK&&opened.plaintext.empty());
+ // Corrupt stored private scalars must fail closed without replacing identity.
+ const auto durable_before=nvs_durable;
+ for(unsigned char invalid:{static_cast<unsigned char>(0),static_cast<unsigned char>(255)}){
+  factory_scalar.fill(invalid);DeviceIdentity corrupted;
+  assert(corrupted.open()!=ESP_OK&&!corrupted.ready());
+  std::string rejected_signature="stale";
+  assert(corrupted.sign_hash_hex(std::string(64,'a').c_str(),rejected_signature)!=ESP_OK&&rejected_signature.empty());
+  assert(nvs_durable==durable_before&&nvs_pending.empty());
+ }
+ std::copy(scalar.begin(),scalar.end(),factory_scalar.begin());
+ DeviceIdentity reloaded;assert(reloaded.open()==ESP_OK);
+ assert(reloaded.public_key_der_base64url()==device.identity.public_key_der_base64url());
  uint8_t bad_point[65]{},shared[32];bad_point[0]=4;assert(device.identity.provisioning_shared_secret(bad_point,shared)!=ESP_OK);
  auto chunks=frames(packet);assert(chunks.size()>2);ProvisioningFrames assembly;std::vector<uint8_t>completed;uint64_t tick=100;
  for(const auto&f:chunks){assert(assembly.accept(f.data(),f.size(),++tick,completed)==ESP_OK);}assert(completed==packet);
