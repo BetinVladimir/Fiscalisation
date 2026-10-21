@@ -18,6 +18,9 @@
 - Открытые программные требования: [электронные чеки](30_ELECTRONIC_RECEIPT_GAP.md), полный offline equivalence, отзыв автономных разрешений и защищённый BLE; полная программа HIL и внешняя нормативная приёмка также открыты.
 - [Официальная процедура НАП и ограничения актуальности](16_NAP_OFFICIAL_PROCEDURE_RECHECK.md) повторно проверены 2026-10-21. Ключи — внутри NVS ESP32-S3; ATECC608 не используется.
 
+- [Стандартный защищённый BLE: варианты и feasibility](46_BLE_STANDARD_CHANNEL_OPTIONS.md): actual TLS1.3 memory-BIO/Go interoperability и отрицательные проверки сертификатов; Android/iOS пока compile/link, браузер — synthetic WASM, production GATT/authority OPEN.
+- [Первичные нормативные источники и недостающий п.24](49_NAP_PRIMARY_REQUIREMENTS_RECHECK.md): исторические локальные копии помечены; полнота нормативного baseline по дате выпуска остаётся OPEN.
+
 Ниже — исторические срезы; их pending-формулировки не заменяют текущий статус выше.
 
 ## Результаты реализации на 2026-10-18
