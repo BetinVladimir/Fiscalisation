@@ -89,3 +89,5 @@ P0 означает блокер целевого денежного/фиска�
 - [Reliable GATT stream core](52_RELIABLE_GATT_STREAM.md): integrated C↔TS sanitizer/fault tests and Android/iOS compile checks PASS; actual callbacks, TLS and physical HIL OPEN.
 
 - [Source recovery authority](54_SOURCE_RECOVERY_AUTHORITY.md): backend-derived READ, closed-shift recovery, persistence epoch and PostgreSQL whitelist/tender projection; integrated UI169/Node208/Go race/HTTP/contract checks PASS. Source-less legacy migration remains OPEN.
+
+- [BLE callback lifecycle inventory](56_BLE_CALLBACK_LIFECYCLE.md): actual SDK integration points и недостающие lifecycle tests; native provisioning discovery cleanup исправлен, Fiscal UI115/TS PASS, оставшиеся owner/deadline/HIL gates OPEN.

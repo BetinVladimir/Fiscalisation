@@ -46,8 +46,8 @@ export async function connectProvisioningDevice():Promise<ProvisioningLink>{
     });
   });
   const device = await found.connect();
-  await device.discoverAllServicesAndCharacteristics();
   try{
+  await device.discoverAllServicesAndCharacteristics();
   // The default ATT MTU accepts at least 182 bytes after requesting MTU on Android.
   if(Platform.OS==='android')await device.requestMTU(185);
   if(device.mtu<185)throw Error('PROVISIONING_ATT_MTU_TOO_SMALL');

@@ -1,0 +1,21 @@
+{
+  "scope": "Actual native connector with fake BLE SDK; discovery-error cleanup only. No physical/native OS/radio acceptance. Other ownership/deadline gaps remain OPEN.",
+  "logs": {
+    "red.log.gz": {
+      "raw_sha256": "82a7c1be75ef3a84bf8da5b304acfa608760d75782595eab0fd5df9428868a83",
+      "gzip_sha256": "acf180e12372f6915faef1e984dbf3197540e1ce2fcdb38a9eb7b13d5f990832"
+    },
+    "ui-green.log.gz": {
+      "raw_sha256": "d0c4062fef1f212ed0b253bd77a455db2dc7c00d531c32735e8ebc8f24d3c16b",
+      "gzip_sha256": "4118272b58e2371d972c9013958adb068d1038098f38b9c17aa1cadc2867575a"
+    },
+    "ts.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    }
+  },
+  "tested_source_sha256": {
+    "BeeFiscalApp/src/provisioningBle.native.ts": "e40b36991419e67d62e51705569277017298ecb4b1378cce04dbb907f2a1b95d",
+    "BeeFiscalApp/__tests__/provisioning-native-connector-current.test.ts": "6d665aa521f82fe1266a3dec1ec2a938d76d92935d16894fca3e3b884230bcd1"
+  }
+}

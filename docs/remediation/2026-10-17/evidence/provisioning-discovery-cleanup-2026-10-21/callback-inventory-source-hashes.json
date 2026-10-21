@@ -1,0 +1,20 @@
+{
+  "head": "90f35906edb3ee2b02310a5499caa9900b93b43e",
+  "callback_files_unchanged_from_e56db14": true,
+  "files": {
+    "IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp": "6af922dada9ce45cb0111d7b48c9ad186f22355fb2ab767885e94542c136624b",
+    "IoT/firmware/edge-agent-s3/idf/main/bluepad_ble_central.cpp": "cad589fb4448c1d5e0fef668e40b5d2e80361f6662e564bf08a6cda52b3e4dd1",
+    "minipos/BeeMiniPOS/src/nativeBleTransport.ts": "b4b2190ef59f345b2ef3758291f2db94a36f9bdfca2bfd10c029e8c910734738",
+    "minipos/BeeMiniPOS/src/webBle.ts": "d72ae2587a5d3f19bb8953597a654bbe5a2a46df6eda68169f181cca5a09342c",
+    "minipos/miniposweb/src/fiscal/webBleRoute.ts": "f86b622833663de9d5ec7d8edd353dd10432579f536cff1b8c3b62c7aa6659e5",
+    "BeeFiscalApp/src/provisioningBle.native.ts": "da043d13610fba4ee13bf664d593587dce7bf59b16dde0bb0c2d7deb0c62c612",
+    "BeeFiscalApp/src/provisioningBle.web.ts": "016820b14e061b11cf8edddeb4cdfe79822128a92ccbd5b30672d38debc78722",
+    "BeeFiscalApp/src/provisioningProtocol.ts": "02ee29c5fb435790aba91798455a3b725ceb0d335c2b56b48c0be451cff1bbff",
+    "BeeFiscalApp/src/smartDeviceBle.native.ts": "641e9f08fd554e6762aef02f928a8a0fe5e26a0e91de58e188c69f21bf2c7f64",
+    "BeeFiscalApp/src/smartDeviceBle.web.ts": "e12ffe4af4f7d8a42c83706c3610eb127822dc4ee7d5bd73dd7ba4cfbf912aa4",
+    "BeeFiscalApp/src/smartDeviceBle.ts": "bf50f2852ab1de43e980c635effdf03198f691016f171e1d8aaf0e58738f4973"
+  },
+  "inventory_sha256": "e2f4487e5d3c54b91039675937cd209dac622b3e858fe183b93e4aa9fad9c0c9",
+  "code_edited": false,
+  "new_tests_run": false
+}
