@@ -1,3 +1,4 @@
+import {managementForRoles,useManagementAccess} from './src/useManagementAccess';
 import { authIllustrationOpacity, registerDisplayLabel, regulatoryIdentityLabel } from './src/ui/operator-presentation';
 import { apiProblemText } from './src/apiProblemText';
 import { foundationCopy } from '../../../BeeloyBackend/mobile/shared-ui/src/foundation-copy.generated';
@@ -321,7 +322,7 @@ function AppContent() {
   return <MiniPosApp dark={dark} themePreference={themePreference} selectTheme={selectTheme} />;
 }
 
-function MiniPosApp({
+export function MiniPosApp({
   dark,
   themePreference,
   selectTheme,
@@ -438,11 +439,11 @@ function MiniPosApp({
     (prodMode
       ? undefined
       : employees.find((x) => x.id === selectedEmployeeId) || employees[0]);
-  const canManage =
-    !prodMode ||
-    !!operatorEmployee?.roles?.some(
-      (role) => role === "SUPERVISOR" || role === "ADMIN",
-    );
+  const management=useManagementAccess(prodMode,operatorEmployee?.roles,emailAuth.accessToken||'');
+  const canManage=management.canManage;
+  const managementWriteAllowed=management.guard();
+  const showAdmin=admin&&canManage;
+  const refreshEpoch=useRef(0);
   const clearBleLocal = () => {
     ble.current.resetSession();
     setBleBinding(null);
@@ -464,7 +465,7 @@ function MiniPosApp({
     setSaleProjection(projectSourceOrder(next));
   };
   const setLineDiscount = (productId: string, amount: number) => {
-    if (!canManage) {
+    if (!managementWriteAllowed()) {
       setStatus("Отстъпката изисква права на мениджър");
       return;
     }
@@ -479,7 +480,7 @@ function MiniPosApp({
     );
   };
   const setLineDiscountText = (productId: string, value: string) => {
-    if (!canManage) return;
+    if (!managementWriteAllowed()) return;
     const normalized = value.replace(",", ".");
     if (!/^\d*(\.\d{0,2})?$/.test(normalized)) return;
     const line = cart.find((v) => v.product.id === productId);
@@ -503,6 +504,8 @@ function MiniPosApp({
       }).catch(() => {});
   };
   const refresh = async () => {
+    const epoch=++refreshEpoch.current,requestToken=emailAuth.accessToken;
+    const isCurrentRefresh=()=>refreshEpoch.current===epoch&&(!prodMode||requestToken===runtimeAuthToken);
     try {
       const session = prodMode
         ? await call<{
@@ -511,6 +514,8 @@ function MiniPosApp({
             expires_at: string;
           }>("/operator-session")
         : null;
+      if(!isCurrentRefresh())return;
+      if(session){management.synchronizeRoles(session.employee.roles);setOperatorEmployee(session.employee);setSelectedEmployeeId(session.employee.id);}
       const privileged = !!session?.employee.roles?.some(
         (role) =>
           role === "SUPERVISOR" || role === "ADMIN" || role === "AUDITOR",
@@ -525,6 +530,7 @@ function MiniPosApp({
         employeeRequest,
         collectFiscal<FiscalRegisterReference>("/registers"),
       ]);
+      if(!isCurrentRefresh())return;
       setFiscalRegisters(registers.filter((x) => !x.status || x.status === "ACTIVE"));
       setProducts(p.filter((x) => x.active));
       setTaxGroups(groups);
@@ -539,11 +545,14 @@ function MiniPosApp({
       let cfg: Configuration;
       try {
         cfg = await call<Configuration>("/configuration");
+        if(!isCurrentRefresh())return;
       } catch (error) {
+        if(!isCurrentRefresh())return;
         if (error instanceof MiniPosHttpError && error.status === 404) {
           setConfiguration(null);
-          setAdmin(true);
-          setStatus("Настройте POS преди първата продажба");
+          const mayConfigure=managementForRoles(prodMode,session?.employee.roles);
+          setAdmin(mayConfigure);
+          setStatus(mayConfigure?"Настройте POS преди първата продажба":"POS не е конфигуриран. Обърнете се към администратор");
           return;
         }
         throw error;
@@ -563,10 +572,12 @@ function MiniPosApp({
           method: "POST",
           body: "{}",
         });
+        if(!isCurrentRefresh())return;
         await fiscalCall(
           `/workstations/${recoveryRegister}/readiness:refresh`,
           { method: "POST", body: "{}" },
         );
+        if(!isCurrentRefresh())return;
         const startupSession = await fiscalCall<WorkstationSession>(
           `/workstations/${recoveryRegister}/sessions`,
           {
@@ -577,25 +588,30 @@ function MiniPosApp({
             }),
           },
         );
+        if(!isCurrentRefresh())return;
         setWorkstationSession(startupSession);
         const shifts = await call<{ items: Shift[] }>(
           `/shifts?employee_id=${encodeURIComponent(employee.id)}&register_id=${encodeURIComponent(recoveryRegister)}`,
         );
+        if(!isCurrentRefresh())return;
         const recovered =
           shifts.items.find((x) => x.state !== "CLOSED") || null;
         setShift(recovered);
         if (recovered?.state === "OPEN") {
           const journals = await checkoutJournal.current.pending();
+          if(!isCurrentRefresh())return;
           if (journals.length) {
             const durable = journals[0];
             const sale = durable.source_order_id
               ? await call<SourceOrder>(`/orders/${durable.source_order_id}`).then(projectSourceOrder).catch(()=>null)
               : await fiscalCall<FiscalSale>(`/sales/${durable.sale_id}`).catch(()=>null);
+            if(!isCurrentRefresh())return;
             if(sale)setSaleProjection(sale);
             setPendingOrder({id:durable.sale_id,state:'UNKNOWN',version:durable.sale_version,allowed_actions:['READ'],fiscal_operation_id:durable.plan.client_operation_id});
             if(!sale)setStatus('CHECKOUT_SESSION_RECONCILIATION_REQUIRED');
           } else {
             const orders=await collect<SourceOrder>('/orders');
+            if(!isCurrentRefresh())return;
             const current=orders.find(o=>o.shift_id===recovered.id && ['DRAFT','OPEN'].includes(o.state));
             setSaleProjection(current?projectSourceOrder(current):null);
           }
@@ -623,6 +639,8 @@ function MiniPosApp({
         );
       }
     } catch (e) {
+      if(!isCurrentRefresh())return;
+      management.synchronizeRoles(undefined);
       setOperatorEmployee(null);
       setShift(null);
       setStatus(
@@ -633,6 +651,8 @@ function MiniPosApp({
     }
   };
   useEffect(() => {
+    refreshEpoch.current++;
+    if(prodMode){management.synchronizeRoles(undefined);setOperatorEmployee(null);setAdmin(false);}
     if (!emailAuth.accessToken) {
       if (runtimeAuthToken) void revokeActiveBle();
       runtimeAuthToken = "";
@@ -643,11 +663,12 @@ function MiniPosApp({
       setSplitCash("");
       setAdmin(false);
       setStatus("Влезте с персоналния си профил");
-      return;
+      return()=>{refreshEpoch.current++;};
     }
     runtimeAuthToken = emailAuth.accessToken;
     runtimeFiscalToken = emailAuth.accessToken;
     void refresh();
+    return()=>{refreshEpoch.current++;};
   }, [emailAuth.accessToken]);
   useEffect(() => {
     if (!bleBinding) return;
@@ -1084,6 +1105,8 @@ function MiniPosApp({
     }
   };
   const createProduct = async () => {
+    if(!managementWriteAllowed()){setStatus("Нямате право да променяте настройките на POS");return false;}
+    const ownerCurrent=management.scopeGuard();
     try {
       await call("/products", {
         method: "POST",
@@ -1095,17 +1118,22 @@ function MiniPosApp({
           tax_group: pTaxGroup,
         }),
       });
+      if(!ownerCurrent())return false;
       setPName("");
       setPPrice("");
       setPBarcode("");
+      if(!ownerCurrent())return false;
       await refresh();
-      return true;
+      return ownerCurrent();
     } catch (e) {
+      if(!ownerCurrent())return false;
       setStatus(message(e));
       return false;
     }
   };
   const createEmployee = async () => {
+    if(!managementWriteAllowed()){setStatus("Нямате право да променяте настройките на POS");return false;}
+    const ownerCurrent=management.scopeGuard();
     try {
       await call("/employees", {
         method: "POST",
@@ -1115,17 +1143,22 @@ function MiniPosApp({
           operator_code: eCode,
         }),
       });
+      if(!ownerCurrent())return false;
       setEFirst("");
       setELast("");
       setECode("");
+      if(!ownerCurrent())return false;
       await refresh();
-      return true;
+      return ownerCurrent();
     } catch (e) {
+      if(!ownerCurrent())return false;
       setStatus(message(e));
       return false;
     }
   };
   const saveTaxGroup = async (group: Partial<TaxGroup> & { code: string; name: string; rate: string }) => {
+    if(!managementWriteAllowed()){setStatus("Нямате право да променяте настройките на POS");return false;}
+    const ownerCurrent=management.scopeGuard();
     try {
       const body = JSON.stringify({ code: group.code, name: group.name, rate: group.rate, status: group.status || "ACTIVE" });
       if (group.id) {
@@ -1137,14 +1170,18 @@ function MiniPosApp({
       } else {
         await call("/tax-groups", { method: "POST", body });
       }
+      if(!ownerCurrent())return false;
       await refresh();
-      return true;
+      return ownerCurrent();
     } catch (e) {
+      if(!ownerCurrent())return false;
       setStatus(message(e));
       return false;
     }
   };
   const saveConfiguration = async () => {
+    if(!managementWriteAllowed()){setStatus("Нямате право да променяте настройките на POS");return false;}
+    const ownerCurrent=management.scopeGuard();
     if (shift) {
       setStatus("Затворете смяната преди промяна на касовото място");
       return;
@@ -1166,25 +1203,32 @@ function MiniPosApp({
           fiscal_register_id: fiscalRegister,
         }),
       });
+      if(!ownerCurrent())return false;
       setConfiguration(cfg);
       await revokeActiveBle();
+      if(!ownerCurrent())return false;
       setStatus(
         "Точката и касовото място са записани; BLE сесията трябва да се активира отново",
       );
     } catch (e) {
+      if(!ownerCurrent())return false;
       setStatus(message(e));
     }
   };
   const loadReport = async () => {
+    if(!managementWriteAllowed())return;
+    const ownerCurrent=management.scopeGuard();
     try {
       const to = new Date(),
         from = new Date(to.getTime() - 30 * 24 * 60 * 60 * 1000);
       const report = await call<SalesReport>(
         `/reports/sales?from=${encodeURIComponent(from.toISOString())}&to=${encodeURIComponent(to.toISOString())}`,
       );
+      if(!ownerCurrent())return;
       setSalesReport(report);
       setStatus(`Търговски отчет • EUR ${report.gross.amount}`);
     } catch (e) {
+      if(!ownerCurrent())return false;
       setStatus(message(e));
     }
   };
@@ -1280,7 +1324,7 @@ function MiniPosApp({
     <SafePaperSurface testID="app-paper-surface" mode="flat" elevation={0} style={{flex:1,backgroundColor:paperTheme.colors.background}}><SafeAreaView testID="app-root" style={[s.root, { }]}>
       <StatusBar style={dark ? "light" : "dark"} />
       <HeaderLeaveDialog guard={headerLeave} copy={headerLeaveCopy[emailAuth.language]}/>
-      <PaperOperationalHeader testID="app.header" title={admin?uiText.configuration:uiText.sales} back={admin?{label:uiText.openSales,disabled:busy||!!pendingOrder||headerPending,testID:"admin-toggle",onPress:()=>headerLeave.request(()=>setAdmin(false))}:undefined} menu={!admin&&canManage?{label:uiText.openConfiguration,disabled:busy||!!pendingOrder||headerPending,testID:"admin-toggle",onPress:()=>headerLeave.request(()=>setAdmin(true))}:undefined} preferences={target=><><LanguageMenu target={target} language={emailAuth.language} label={uiText.language} onSelect={value=>void emailAuth.setLanguage(value)}/><ThemeMenu target={target} preference={themePreference} text={uiText} onSelect={selectTheme}/></>}/>
+      <PaperOperationalHeader testID="app.header" title={showAdmin?uiText.configuration:uiText.sales} back={showAdmin?{label:uiText.openSales,disabled:busy||!!pendingOrder||headerPending,testID:"admin-toggle",onPress:()=>headerLeave.request(()=>setAdmin(false))}:undefined} menu={!showAdmin&&canManage?{label:uiText.openConfiguration,disabled:busy||!!pendingOrder||headerPending,testID:"admin-toggle",onPress:()=>{if(managementWriteAllowed())headerLeave.request(()=>{if(managementWriteAllowed())setAdmin(true)})}}:undefined} preferences={target=><><LanguageMenu target={target} language={emailAuth.language} label={uiText.language} onSelect={value=>void emailAuth.setLanguage(value)}/><ThemeMenu target={target} preference={themePreference} text={uiText} onSelect={selectTheme}/></>}/>
       <PaintedPaperSurface mode="flat" elevation={0} testID="app-header" style={[s.top, isCompact && s.topCompact, { backgroundColor: paperTheme.colors.surface, borderColor: paperTheme.colors.outlineVariant }]}>
         <View style={s.topIdentity}>
           <PaperText variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
@@ -1366,7 +1410,7 @@ function MiniPosApp({
           </PaperCard.Content>
         </PaperCard>
       ) : null}
-      {admin ? (
+      {showAdmin ? (
         <Admin
           headerLeave={headerLeave}
           reportHeaderPending={(pending:boolean)=>setHeaderChildPending({scope:headerScope,pending})}
@@ -1916,7 +1960,8 @@ export function Admin({
           testID="sales-report-load"
           mode="outlined"
           accessibilityLabel={text.refreshReport}
-          onPress={loadReport}
+          disabled={isWritePending()}
+          onPress={()=>void save(async()=>{await loadReport();return false;})}
         >{text.refreshReport}</PaperButton>
         {salesReport && (
           <View testID="sales-report-result" style={s.report}>
