@@ -59,5 +59,21 @@
     "time_counterfactuals_expected_red": 3,
     "bluepad_scenarios": 38,
     "ble_runtime_runs_per_invocation": 3
+  },
+  "target_compile_only": {
+    "compiler": "xtensa-esp32s3-elf-g++ esp-14.2.0_20260121 GCC14.2.0",
+    "compiler_binary_sha256": "ead8e9ef74832ee73a251ba1aae645737202766687345e52d6e519935f2f4699",
+    "flags": [
+      "-std=gnu++2b",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-c"
+    ],
+    "input": "IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.cpp",
+    "exit_code": 0,
+    "object_sha256": "62bdea948d57412025ba212ea74bde562244770e05ace8fb8b9718c4a2d6bfe3",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope": "Standalone production core compilation only; no host-test macro, no firmware CMake link/runtime/HIL claim"
   }
 }
