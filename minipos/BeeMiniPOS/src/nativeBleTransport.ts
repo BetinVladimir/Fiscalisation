@@ -142,13 +142,29 @@ export class NativeBleTransport implements NativeBleBootstrapContract {
     const result=this.results.wait(messageId,timeoutMs);
     this.active=messageId;this.frames=new FrameAssembler();
     let attempted=false;
-    try {
+    // Observe result rejection immediately: a native write may never settle.
+    // A rejected/timed-out operation invalidates the generation before a late
+    // write can resume and transmit subsequent fragments.
+    const writing=(async()=>{
       for(const frame of frames){
         if(generation!==this.generation||!this.ready)throw Error('BLE_SESSION_CHANGED');
-        attempted=true;await this.write(this.session.command_characteristic_uuid,frame);
+        attempted=true;await this.write(this.session!.command_characteristic_uuid,frame);
       }
-    }catch(error){this.results.reject(messageId,attempted?Error('BLE_OUTCOME_UNKNOWN_AFTER_SEND'):error);}
-    try{return await result;}finally{if(generation===this.generation){this.active=undefined;this.frames=new FrameAssembler();}}
+    })();
+    let writeTimer:ReturnType<typeof setTimeout>|undefined;
+    const boundedWriting=Promise.race([writing,new Promise<never>((_,reject)=>{writeTimer=setTimeout(()=>reject(Error('BLE_WRITE_TIMEOUT')),timeoutMs);})]);
+    try {
+      const [,outcome]=await Promise.all([boundedWriting,result]);
+      return outcome;
+    } catch(error) {
+      if(generation===this.generation)this.resetSession();
+      if(attempted && !(error instanceof Error && /BLE_DISCONNECTED|BLE_SESSION_CHANGED/.test(error.message)))
+        throw Error('BLE_OUTCOME_UNKNOWN_AFTER_SEND');
+      throw error;
+    } finally {
+      clearTimeout(writeTimer);
+      if(generation===this.generation){this.active=undefined;this.frames=new FrameAssembler();}
+    }
   }
   private async write(characteristic: string, raw: Uint8Array) {
     if (!this.deviceId || !this.session) throw new Error("BLE_NOT_CONNECTED");

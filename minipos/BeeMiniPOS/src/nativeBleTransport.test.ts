@@ -17,3 +17,24 @@ test('reconnect fences old callbacks and resets partial assembly',async()=>{cons
 test('malformed and oversized notifications cannot escape callback or consume active operation',async()=>{const x=setup();await x.transport.connectFromUserGesture(session,()=>{});const pending=x.transport.sendComplianceIntentAndWait(intent,id,185,500);await new Promise(r=>setTimeout(r,5));assert.doesNotThrow(()=>x.raw('%%%'));assert.doesNotThrow(()=>x.raw('A'.repeat(1025)));assert.doesNotThrow(()=>x.raw(standard(new Uint8Array(183))));await x.notify(id,{operation_id:id,state:'FISCALIZED',fiscal_reference:'valid'});assert.equal((await pending).fiscal_reference,'valid');});
 test('invalid wait arguments do not strand active operation or send bytes',async()=>{const x=setup();await x.transport.connectFromUserGesture(session,()=>{});await assert.rejects(()=>x.transport.sendComplianceIntentAndWait(intent,id,185,1),/WAIT_INVALID/);assert.equal(x.writes.length,0);const pending=x.transport.sendComplianceIntentAndWait(intent,id,185,500);await new Promise(r=>setTimeout(r,5));await x.notify(id,{operation_id:id,state:'FISCALIZED',fiscal_reference:'valid'});assert.equal((await pending).fiscal_reference,'valid');});
 test('synchronous disconnection during subscription registration removes returned stale listener',async()=>{let removed=0;const device={id:'d',name:'edge-1',mtu:185,async connect(){return this;},async discoverAllServicesAndCharacteristics(){return this;},monitorCharacteristicForService(){throw Error('must not monitor');}};const manager={startDeviceScan(_s:any,_o:any,cb:any){queueMicrotask(()=>cb(null,device));},stopDeviceScan(){},async cancelDeviceConnection(){},onDeviceDisconnected(_id:string,cb:any){cb();return {remove(){removed++;}};}};const transport=new NativeBleTransport(manager,false);await assert.rejects(()=>transport.connectFromUserGesture(session,()=>{}),/SESSION_CHANGED/);assert.equal(removed,1);assert.equal(transport.canSendComplianceIntent,false);});
+
+test('non-settling write times out, fences late completion and requires reconnect',async()=>{
+ const x=setup();await x.transport.connectFromUserGesture(session,()=>{});
+ let release!:()=>void;x.setWrite(()=>new Promise<void>(r=>{release=r;}));
+ const pending=x.transport.sendComplianceIntentAndWait(intent,id,185,100);
+ const observed=pending.then(()=> 'success',e=>String(e.message));
+ const outcome=await Promise.race([observed,new Promise<string>(r=>setTimeout(()=>r('STRANDED'),350))]);
+ assert.match(outcome,/UNKNOWN_AFTER_SEND/);assert.equal(x.transport.canSendComplianceIntent,false);
+ assert.equal(x.writes.length,1);release();await new Promise(r=>setTimeout(r,5));assert.equal(x.writes.length,1);
+ await assert.rejects(()=>x.transport.sendComplianceIntentAndWait({...intent,intent_id:other},other),/NOT_READY/);
+});
+
+test('early result does not cancel the deadline of a hung native write',async()=>{
+ const x=setup();await x.transport.connectFromUserGesture(session,()=>{});
+ let release!:()=>void;x.setWrite(()=>new Promise<void>(r=>{release=r;}));
+ const pending=x.transport.sendComplianceIntentAndWait(intent,id,185,100);
+ const observed=pending.then(()=> 'success',e=>String(e.message));
+ await new Promise(r=>setTimeout(r,5));await x.notify(id,{operation_id:id,state:'FISCALIZED',fiscal_reference:'early'});
+ assert.match(await Promise.race([observed,new Promise<string>(r=>setTimeout(()=>r('STRANDED'),350))]),/UNKNOWN_AFTER_SEND/);
+ assert.equal(x.transport.canSendComplianceIntent,false);release();await new Promise(r=>setTimeout(r,5));assert.equal(x.writes.length,1);
+});
