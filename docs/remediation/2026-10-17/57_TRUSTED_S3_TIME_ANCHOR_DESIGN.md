@@ -1,6 +1,6 @@
 # Trusted S3 time: nonce-bound authority anchor, design for root review
 
-Status: DESIGN ONLY, 2026-10-21. No production provider, endpoint, firmware, contracts, Stage B or CI files changed. Source inventory and hashes are in SOURCE_INVENTORY.json. This closes no runtime/HIL acceptance item. Device private keys remain inside ESP32-S3; ATECC608 is not used.
+Status: protocol and production integration remain DESIGN, 2026-10-21. Phase1 consumer interval API and Phase2 standalone state core are implemented and host-tested as described below. Production provider, endpoint, cryptographic time verifier and device integration remain unavailable. This closes no runtime/HIL acceptance item. Device private keys remain inside ESP32-S3; ATECC608 is not used.
 
 ## Recommendation and decisions
 
@@ -113,3 +113,9 @@ Delivery plan: isolate interval Stage B API/test correction first (root approval
 ## Root implementation checkpoint
 
 Only Phase1 is accepted and integrated: B now uses inclusive bounds, checks the whole interval at admission/publication and forbids either endpoint moving backwards before publication. Exact host time is [t,t]; production default remains unavailable. Actual Go↔C++/mbedTLS runner PASS40 interval cases plus existing tests. Original scalar-midpoint and removed-monotonic-check counterfactuals are RED. [Evidence](evidence/ble-time-bounds-2026-10-21/root-manifest.json). Inventory above describes the pre-Phase1 snapshot. Remaining wire/bootstrap/clock-health policy is a design proposal requiring implementation review, not an enabled provider. Existing std::time execution/token consumers remain OPEN.
+
+## Phase2: independently verified interval state core
+
+Implemented time_anchor_core.h/.cpp as a standalone core, with no production verifier/provider or runtime wiring. Request ownership binds scope, current boot nonce, request nonce, checked sequence and opaque local ticket. An expired or foreign reply cannot cancel a newer request or refresh an old anchor. Healthy old authority survives refresh only until its original deadline. Boot/binding retirement, monotonic clock loss/backwards and verified disjoint samples fail closed. The bounded recent nonce ring detects repeated output without exhausting the device after128 lifetime requests. Actual fresh boot entropy and server clock-health evidence remain required.
+
+Root GCC15 verification passes5229 independent Python Fraction oracle cases,10050 refreshes, lifecycle/fault tests and three disposable RED mutations. max_rtt_ms limits conservative real elapsed, including drift; the raw-measured-within/adjusted-exceeds boundary is tested. Production compilation excludes the host permit factory and denies raw permit construction. `make time-anchor-test` is now a prerequisite of `make iot-test`. This does not enable trusted UTC, root issuance, certificate installation, actual time-source health or TLS/GATT runtime. Keys remain inside ESP32-S3 NVS; ATECC is unused.

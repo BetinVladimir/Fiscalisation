@@ -171,7 +171,10 @@ iot-build-verify:
 BLE_STREAM_EVIDENCE_DIR ?= $(CURDIR)/.build/ble-stream-evidence
 ble-stream-test:
 	python3 IoT/common-modules/ble-stream/reproduce.py --repo "$(CURDIR)" --evidence "$(BLE_STREAM_EVIDENCE_DIR)"
-iot-test:
+time-anchor-test:
+	python3 IoT/firmware/edge-agent-s3/idf/tests/time_anchor_host/run_oracle.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/time_anchor_host/run_counterfactuals.py
+iot-test: time-anchor-test
 	bash IoT/firmware/edge-agent-s3/idf/tests/run_identity_entropy_host.sh
 	python3 IoT/firmware/edge-agent-s3/idf/tests/terminal_guard_host/run.py
 	python3 -m unittest discover -s tests -p '*sqlite_export.py' -v
