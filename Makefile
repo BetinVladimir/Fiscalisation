@@ -112,6 +112,7 @@ beefiscalapp-e2e:
 	cd BeeFiscalApp && npm run test:e2e
 
 evidence-test:
+	ruby scripts/tests/release_npm_inventory_test.rb
 	ruby scripts/generate_release_evidence.rb /tmp/beeloy-release-evidence-test
 	ruby scripts/verify_release_evidence.rb /tmp/beeloy-release-evidence-test
 	./scripts/test-release-evidence-signing.sh

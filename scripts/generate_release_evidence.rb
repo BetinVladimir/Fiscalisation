@@ -14,8 +14,14 @@ FileUtils.mkdir_p(output)
   FileUtils.rm_f(output.join(name))
 end
 
+# Explicit inputs: a missing client lock must not silently shrink signed evidence.
+go_inputs = %w[fiscal-backend/go.sum minipos/beeminipos-backend/go.sum].freeze
+npm_inputs = %w[BeeFiscalApp/package-lock.json minipos/BeeMiniPOS/package-lock.json minipos/miniposweb/package-lock.json].freeze
+inventory_inputs = (go_inputs + npm_inputs).freeze
+inventory_inputs.each { |path| abort "missing required inventory input: #{path}" unless ROOT.join(path).file? }
 components = {}
-Dir[ROOT.join("{fiscal-backend,minipos/beeminipos-backend}/go.sum")].sort.each do |path|
+go_inputs.each do |relative|
+  path = ROOT.join(relative)
   File.foreach(path) do |line|
     name, version = line.split
     next unless name && version && !version.end_with?("/go.mod")
@@ -23,13 +29,24 @@ Dir[ROOT.join("{fiscal-backend,minipos/beeminipos-backend}/go.sum")].sort.each d
     components[["golang", name, version]] = {"type" => "library", "name" => name, "version" => version, "purl" => "pkg:golang/#{name}@#{version}"}
   end
 end
-Dir[ROOT.join("{minipos/BeeMiniPOS,BeeFiscalApp}/package-lock.json")].sort.each do |path|
-  lock = JSON.parse(File.read(path))
-  (lock["packages"] || {}).each do |key, value|
-    next unless key.start_with?("node_modules/") && value["version"]
-    name = key.sub("node_modules/", "")
+npm_inputs.each do |relative|
+  lock = JSON.parse(ROOT.join(relative).read)
+  abort "#{relative}: unsupported lockfileVersion (requires 2 or 3)" unless [2, 3].include?(lock["lockfileVersion"])
+  abort "#{relative}: packages inventory must be an object" unless lock["packages"].is_a?(Hash)
+  lock["packages"].each do |key, value|
+    next unless key.start_with?("node_modules/")
+    abort "#{relative}: invalid package entry #{key}" unless value.is_a?(Hash)
+    # Local/workspace links are source dependencies, not registry identities.
+    next if value["link"] == true
     version = value["version"]
-    components[["npm", name, version]] = {"type" => "library", "name" => name, "version" => version, "purl" => "pkg:npm/#{name.gsub("@", "%40")}@#{version}"}
+    abort "#{relative}: missing package version for #{key}" unless version.is_a?(String) && !version.empty?
+    # Nested install paths do not form part of an npm identity. Explicit name
+    # is the real package identity for npm aliases, not the alias install path.
+    name = value.fetch("name", key.split("node_modules/").last)
+    abort "#{relative}: invalid npm identity for #{key}" unless name.is_a?(String) && name.match?(/\A(?:@[A-Za-z0-9._~-]+\/)?[A-Za-z0-9._~-]+\z/)
+    encode = ->(part) { part.b.bytes.map { |byte| byte.chr.match?(/[A-Za-z0-9._~-]/) ? byte.chr : "%%%02X" % byte }.join }
+    purl_name = name.split("/").map { |part| encode.call(part) }.join("/")
+    components[["npm", name, version]] = {"type" => "library", "name" => name, "version" => version, "purl" => "pkg:npm/#{purl_name}@#{encode.call(version)}"}
   end
 end
 Dir[ROOT.join("compose.*.yaml")].sort.each do |path|
@@ -52,7 +69,11 @@ serial_hex = Digest::SHA256.hexdigest(components.keys.sort.inspect)[0, 32]
 serial = "urn:uuid:#{serial_hex[0, 8]}-#{serial_hex[8, 4]}-#{serial_hex[12, 4]}-#{serial_hex[16, 4]}-#{serial_hex[20, 12]}"
 sbom = {
   "bomFormat" => "CycloneDX", "specVersion" => "1.6", "serialNumber" => serial, "version" => 1,
-  "metadata" => {"timestamp" => created_at, "component" => {"type" => "application", "name" => "beeloy-fiscalisation-mvp", "version" => "2026-08-07"}},
+  "metadata" => {"timestamp" => created_at, "component" => {"type" => "application", "name" => "beeloy-fiscalisation-mvp", "version" => "2026-08-07"}, "properties" => [
+    {"name" => "beeloy:inventory:coverage", "value" => "PARTIAL_LOCKFILE_INVENTORY"},
+    {"name" => "beeloy:inventory:inputs", "value" => JSON.generate(inventory_inputs)},
+    {"name" => "beeloy:inventory:excluded", "value" => "BlueCash Gradle/Maven/native dependencies; IoT ESP-IDF/components/toolchain; linked local sources; built image contents"}
+  ]},
   "components" => components.values.sort_by { |c| [c["type"], c["name"], c["version"]] }
 }
 sbom_path = output.join("sbom.cdx.json")
@@ -62,7 +83,7 @@ sbom_sha256 = Digest::SHA256.file(sbom_path).hexdigest
 evidence_files = Dir[
   ROOT.join("contracts/**/*.{yaml,md}"), ROOT.join("database/**/*.sql"), ROOT.join("compose.*.yaml"),
   ROOT.join("TOOLCHAIN.md"), ROOT.join("MVP_GATES.md"), ROOT.join("IMPLEMENTATION_STATUS.md")
-].select { |path| File.file?(path) }.sort
+].concat(inventory_inputs.map { |path| ROOT.join(path).to_s }).select { |path| File.file?(path) }.uniq.sort
 hashes = evidence_files.to_h { |path| [Pathname.new(path).relative_path_from(ROOT).to_s, Digest::SHA256.file(path).hexdigest] }
 git_head, = Open3.capture2("git", "rev-parse", "HEAD", chdir: ROOT.to_s)
 git_status, = Open3.capture2("git", "status", "--porcelain", "--untracked-files=normal", chdir: ROOT.to_s)
