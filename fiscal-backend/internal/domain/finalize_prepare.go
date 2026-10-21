@@ -8,6 +8,9 @@ import (
 func (r *MemoryRepository) ReserveSaleFinalize(next Sale, expected int64, op Operation, command *ResourceRecord) (Sale, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return *new(Sale), err
+	}
 	old, ok := r.sales[next.ID]
 	if !ok || old.TenantID != next.TenantID {
 		return Sale{}, ErrNotFound

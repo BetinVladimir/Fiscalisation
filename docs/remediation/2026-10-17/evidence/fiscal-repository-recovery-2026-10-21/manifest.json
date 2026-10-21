@@ -1,0 +1,58 @@
+{
+  "base_commit": "90b98cc",
+  "source_sha256": {
+    "fiscal-backend/internal/api/handler.go": "5c3c7a6d3d2b3e0a21e51eb19bdd106c19a60c740454d1927c8727204dd8b609",
+    "fiscal-backend/internal/api/repository_availability.go": "7b86fa9e9797720aa41512ed0c495f9b18e336bd4c531b2d88b84bce2c2f86e8",
+    "fiscal-backend/internal/api/repository_availability_test.go": "e6e77abeffa9b875a45a9bbced27e349f3393f3a57bd690c99d0ce7977e2da28",
+    "fiscal-backend/internal/domain/activation.go": "0b0f2c856f9ec7631440908cbcb9e80abace84016daa72ec4f9dbd087ab4dae8",
+    "fiscal-backend/internal/domain/delegated_execution.go": "70b19f6dfc444c20fa36ab1ac6a094595f0789f9dc3b365f84fc9132152d6518",
+    "fiscal-backend/internal/domain/delegated_reconciliation.go": "f691845ad7ee961e0b4a5d0dceab4ef981dfb0bd45c5fe818038f812778288e0",
+    "fiscal-backend/internal/domain/edge_sync.go": "4aa416bda236bd00bdcc5c3eb86ac06d0982a14533f8be3560382ccbd5cfe762",
+    "fiscal-backend/internal/domain/edge_sync_repository.go": "acc22432a16c7d35269ab75857fafe659e999a13f4fd80c95aad9c9d797bbf67",
+    "fiscal-backend/internal/domain/edge_sync_v2_test.go": "3f205d170454db457c50e1a34ca9eca4cfa7391573ebba02eddb69af0b5fb8f9",
+    "fiscal-backend/internal/domain/finalize_prepare.go": "d94c2b8c5bb975e66f1a6438a3acf21d526b97d8728e3927b51572bc987fcb51",
+    "fiscal-backend/internal/domain/repository.go": "e4435ed94e879ebf78d5129a0c35b15611b41ea59a12c266191969c61bc606a5",
+    "fiscal-backend/internal/domain/repository_recovery.go": "48e93ac740632406d8fb33d735fcad5e550b40d6a4fd18866e7c3112f0839d0a",
+    "fiscal-backend/internal/domain/repository_recovery_test.go": "ffa6941a05e04e88a712e48aa80b0e470a95d1114848c5f8e849898f420f1ae0",
+    "fiscal-backend/internal/domain/unp_allocator.go": "c7adefa8a5d660a7e17de4655312e11cbccd0da57b70541846a74acf49b28a25",
+    "fiscal-backend/internal/domain/unp_allocator_test.go": "2414a53b9430ad000e40bc4bda5f800af8f9d5c1291e631bb39b786bbf016f5d"
+  },
+  "logs": {
+    "root-full": {
+      "file": "root-full.log.gz",
+      "exit_code": 0,
+      "raw_sha256": "eae243a3062b9c88f38da6fc2cc5373f7d22900be31dbd97cd3a7ad45d6cc785",
+      "gzip_sha256": "09e4283a327181480af395a9759f6310956cbe8128e9d850fa94bfc8d24d2f3d"
+    },
+    "root-race": {
+      "file": "root-race.log.gz",
+      "exit_code": 0,
+      "raw_sha256": "db92329c89b0668506a47fab98f15331dcbca9bf65aeee6277053f5e6be1c13a",
+      "gzip_sha256": "3aacbb03b751d49dae528ee5c4e542f706fd4401213dfa94e83ca71d7cde87c6"
+    },
+    "root-postgres": {
+      "file": "root-postgres.log.gz",
+      "exit_code": 0,
+      "raw_sha256": "914534975c9cae4d25197d4ca5c49c536abdab507617610faf5c4ef563a3e008",
+      "gzip_sha256": "0936da93ad343c2b546a2b587d4dc367e52da3c19b496f9d84b36c74aaf1e524"
+    },
+    "red-stale-response-and-replay": {
+      "file": "red-stale-response-and-replay.log.gz",
+      "exit_code": 1,
+      "raw_sha256": "dfd5f1e5e5d780b1a7325e539cc3a0f41d8711e1cc133046fc31beca2accfeb9",
+      "gzip_sha256": "78eb4a667ec381924705590d7cfb2783a7a3dde2af75052cc82ae6b7923ea805"
+    },
+    "red-healthy-remote-refresh": {
+      "file": "red-healthy-remote-refresh.log.gz",
+      "exit_code": 1,
+      "raw_sha256": "0407f4d68c071a9c9a9fc4874e4b5905f4d52012d7a8cc7e076e0a0dbc7f0dd8",
+      "gzip_sha256": "6bedc5537df1d822db9cd899ad5894ae443040226000ac8279c7a6aea2a70b42"
+    }
+  },
+  "scope": [
+    "Full Fiscal backend and domain/API race PASS on integrated source.",
+    "Actual PostgreSQL gate PASS: existing typed projection/audit/persistence integration with disposable synthetic data.",
+    "Save/COMMIT failure cases use deterministic plain/versioned/delta fault stores; actual PostgreSQL failover is not simulated by the ordinary integration gate.",
+    "No physical fiscal devices, key migration or NAP acceptance."
+  ]
+}

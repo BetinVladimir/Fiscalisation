@@ -56,6 +56,10 @@ func (s *Service) SyncBatch(v EdgeSyncBatch) (SyncAck, error) {
 }
 
 func (s *Service) SyncBatchForTenant(tenant string, v EdgeSyncBatch) (SyncAck, error) {
+	if err := s.PersistenceReady(); err != nil {
+		return SyncAck{}, err
+	}
+
 	if len(s.bleSigningKey) < 16 || v.EdgeID == "" || v.SchemaVersion != "2026-08-07" || len(v.Events) < 1 || len(v.Events) > 100 || v.FirstSeq < 1 || v.LastSeq < v.FirstSeq || int64(len(v.Events)) != v.LastSeq-v.FirstSeq+1 {
 		return SyncAck{}, errors.New("invalid sync batch")
 	}

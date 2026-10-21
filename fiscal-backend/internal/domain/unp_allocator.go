@@ -14,6 +14,9 @@ var ErrFiscalUNPIdentityConflict = errors.New("FISCAL_UNP_IDENTITY_CONFLICT")
 func (r *MemoryRepository) ReserveFiscalUNPRange(tenant, serial, fm string, count int64) (int64, int64, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return *new(int64), *new(int64), err
+	}
 	if tenant == "" || !bgFMINPattern.MatchString(serial) || !bgFMINPattern.MatchString(fm) || count < 1 || count > 10000 {
 		return 0, 0, errors.New("invalid fiscal UNP reservation")
 	}
@@ -25,6 +28,7 @@ func (r *MemoryRepository) ReserveFiscalUNPRange(tenant, serial, fm string, coun
 		return 0, 0, errors.New("UNP range exhausted")
 	}
 	key := tenant + "\n" + serial
+	oldRestorationEpoch := r.restorationEpoch
 	oldCounter, hadCounter := r.unp[key]
 	oldIdentity, hadIdentity := r.resources[resourceKey(identity.Kind, identity.ID)]
 	r.unp[key] = high + count
@@ -32,7 +36,7 @@ func (r *MemoryRepository) ReserveFiscalUNPRange(tenant, serial, fm string, coun
 	if err = r.persistLocked(); err != nil {
 		// persistLocked normally reloads durable state; restore locally as well when
 		// the store is simultaneously unavailable for reload.
-		if r.unp[key] == high+count {
+		if r.unp[key] == high+count && r.restorationEpoch == oldRestorationEpoch {
 			if hadCounter {
 				r.unp[key] = oldCounter
 			} else {

@@ -18,6 +18,7 @@
 - Открытые программные требования: [электронные чеки](30_ELECTRONIC_RECEIPT_GAP.md), полный offline equivalence, отзыв автономных разрешений и защищённый BLE; полная программа HIL и внешняя нормативная приёмка также открыты.
 - [Официальная процедура НАП и ограничения актуальности](16_NAP_OFFICIAL_PROCEDURE_RECHECK.md) повторно проверены 2026-10-21. Ключи — внутри NVS ESP32-S3; ATECC608 не используется.
 
+- [Fiscal persistence recovery](51_FISCAL_REPOSITORY_RECOVERY.md): confirmed snapshot, uncertain-write barrier, UNP continuity, request availability epoch and replay ownership; full backend/race/actual PostgreSQL PASS, real failover OPEN.
 - [HTTP session ownership](47_HTTP_SESSION_OWNERSHIP.md) и [синхронный отзыв BLE authority](50_BLE_AUTHORITY_RETIREMENT.md): request/route ownership, old-bearer revoke, double-connect и logout context; scoped software evidence с отдельными browser/native/HIL ограничениями.
 - [Официальная сборка ESP-IDF5.5.6](48_S3_IDF556_BUILD_FEASIBILITY.md): полный app/bootloader/partition build, 94 source hashes, 12 gate tests и полный IoT regression PASS; runtime/HIL и remote CI OPEN.
 - [Стандартный защищённый BLE: варианты и feasibility](46_BLE_STANDARD_CHANNEL_OPTIONS.md): actual TLS1.3 memory-BIO/Go interoperability и отрицательные проверки сертификатов; Android/iOS пока compile/link, браузер — synthetic WASM, production GATT/authority OPEN.

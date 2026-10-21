@@ -202,7 +202,7 @@ func newHandler(s *domain.Service, c config.Config, integrationHandler http.Hand
 		m.Handle("/platform/v1/integration-metrics", integrationHandler)
 	}
 	oidc := auth.NewOIDCVerifier(c.OIDCIssuer, c.OIDCAudience, c.OIDCJWKSURL)
-	business := auth.MiddlewareWithOIDCAndRevocation(c.AuthHMACKey, oidc, revoked, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, enforceSuccessResponses(fiscalIdempotency(s, m))))))
+	business := auth.MiddlewareWithOIDCAndRevocation(c.AuthHMACKey, oidc, revoked, rateLimit(600, time.Minute, recoverer(version(c.APIVersion, enforceSuccessResponses(repositoryAvailability(s, fiscalIdempotency(s, m)))))))
 	pingLimiter := &requestLimiter{limit: 120, window: time.Minute, now: time.Now, entries: make(map[string]rateWindow)}
 	pingRoute := pingLimiter.middlewareAll(http.HandlerFunc(h.ping))
 	root := http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
@@ -580,7 +580,7 @@ func fiscalIdempotency(s *domain.Service, next http.Handler) http.Handler {
 		}
 		cw := &fiscalCapturedResponse{header: make(http.Header)}
 		r = r.WithContext(context.WithValue(r.Context(), fiscalIdempotencyOwnerKey{}, true))
-		next.ServeHTTP(cw, r)
+		repositoryAvailability(s, next).ServeHTTP(cw, r)
 		if cw.status == 0 {
 			cw.status = http.StatusOK
 		}
@@ -1937,9 +1937,11 @@ func (h *Handler) replay(w http.ResponseWriter, r *http.Request, b []byte) bool 
 func (h *Handler) saveReplay(w http.ResponseWriter, r *http.Request, b []byte, status int, v any) {
 	out, _ := json.Marshal(v)
 	k := replayKey(r)
-	if e := h.svc.PutReplay(k, domain.ReplayRecord{Hash: fiscalIdempotencyFingerprint(r, b), Status: status, Body: out, ContentType: "application/json"}); e != nil {
-		problem(w, 500, "IDEMPOTENCY_PERSIST_FAILED")
-		return
+	if owner, _ := r.Context().Value(fiscalIdempotencyOwnerKey{}).(bool); !owner {
+		if e := h.svc.PutReplay(k, domain.ReplayRecord{Hash: fiscalIdempotencyFingerprint(r, b), Status: status, Body: out, ContentType: "application/json"}); e != nil {
+			problem(w, 500, "IDEMPOTENCY_PERSIST_FAILED")
+			return
+		}
 	}
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(status)
@@ -1947,9 +1949,11 @@ func (h *Handler) saveReplay(w http.ResponseWriter, r *http.Request, b []byte, s
 }
 func (h *Handler) saveEmptyReplay(w http.ResponseWriter, r *http.Request, b []byte, status int) {
 	k := replayKey(r)
-	if e := h.svc.PutReplay(k, domain.ReplayRecord{Hash: fiscalIdempotencyFingerprint(r, b), Status: status, Body: []byte{}}); e != nil {
-		problem(w, 500, "IDEMPOTENCY_PERSIST_FAILED")
-		return
+	if owner, _ := r.Context().Value(fiscalIdempotencyOwnerKey{}).(bool); !owner {
+		if e := h.svc.PutReplay(k, domain.ReplayRecord{Hash: fiscalIdempotencyFingerprint(r, b), Status: status, Body: []byte{}}); e != nil {
+			problem(w, 500, "IDEMPOTENCY_PERSIST_FAILED")
+			return
+		}
 	}
 	w.WriteHeader(status)
 }

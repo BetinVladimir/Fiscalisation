@@ -401,6 +401,9 @@ var uuidPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-
 func (r *MemoryRepository) PutActivationChallenge(v DeviceActivationChallenge) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return err
+	}
 	if _, ok := r.activationChallenges[v.ID]; ok {
 		return errors.New("activation challenge conflict")
 	}
@@ -410,6 +413,9 @@ func (r *MemoryRepository) PutActivationChallenge(v DeviceActivationChallenge) e
 func (r *MemoryRepository) ConsumeChallengeAndCreateActivation(challengeID, nonceHash string, v DeviceActivationRequest) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return err
+	}
 	c, ok := r.activationChallenges[challengeID]
 	if !ok || c.ConsumedAt != nil || time.Now().UTC().After(c.ExpiresAt) || c.DeviceInstanceID != v.DeviceInstanceID || !hmac.Equal([]byte(c.NonceHash), []byte(nonceHash)) {
 		return errors.New("activation challenge invalid")
@@ -426,8 +432,14 @@ func (r *MemoryRepository) ConsumeChallengeAndCreateActivation(challengeID, nonc
 	return r.persistLocked()
 }
 func (r *MemoryRepository) ActivationRequest(id string) (DeviceActivationRequest, error) {
+	if err := r.ensurePersistenceReady(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
+	if err := r.persistenceReadableLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	v, ok := r.activationRequests[id]
 	if !ok {
 		return DeviceActivationRequest{}, ErrNotFound
@@ -435,8 +447,14 @@ func (r *MemoryRepository) ActivationRequest(id string) (DeviceActivationRequest
 	return v, nil
 }
 func (r *MemoryRepository) ActivationRequestByCode(hash string) (DeviceActivationRequest, error) {
+	if err := r.ensurePersistenceReady(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
+	if err := r.persistenceReadableLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	for _, v := range r.activationRequests {
 		if hmac.Equal([]byte(v.UserCodeHash), []byte(hash)) {
 			return v, nil
@@ -447,6 +465,9 @@ func (r *MemoryRepository) ActivationRequestByCode(hash string) (DeviceActivatio
 func (r *MemoryRepository) ConfirmActivationRequest(id, codeHash, tenant, location, register string, roles []string, actor string, now time.Time) (DeviceActivationRequest, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	v, ok := r.activationRequests[id]
 	if !ok {
 		return DeviceActivationRequest{}, ErrNotFound
@@ -480,6 +501,9 @@ func (r *MemoryRepository) ConfirmActivationRequest(id, codeHash, tenant, locati
 func (r *MemoryRepository) MarkActivationCredentialIssued(id string, credential DeviceCredential, now time.Time) (DeviceActivationRequest, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	v, ok := r.activationRequests[id]
 	if !ok {
 		return DeviceActivationRequest{}, ErrNotFound
@@ -503,6 +527,9 @@ func (r *MemoryRepository) MarkActivationCredentialIssued(id string, credential 
 func (r *MemoryRepository) ActivateDeviceRequest(id, credential string, now time.Time) (DeviceActivationRequest, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	v, ok := r.activationRequests[id]
 	if !ok {
 		return DeviceActivationRequest{}, ErrNotFound
@@ -566,6 +593,9 @@ func (r *MemoryRepository) ActivateDeviceRequest(id, credential string, now time
 func (r *MemoryRepository) RevokeActivatedDevice(deviceID, tenant, actor string, now time.Time) (DeviceActivationRequest, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	var id string
 	var v DeviceActivationRequest
 	for candidateID, candidate := range r.activationRequests {

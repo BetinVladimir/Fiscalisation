@@ -193,6 +193,9 @@ func (s *Service) IssueDelegatedExecutionAuthorization(p DelegatedExecutionPrinc
 func (r *MemoryRepository) CommitDelegatedAuthorization(record ResourceRecord, key, hash string, body []byte) (ReplayRecord, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return *new(ReplayRecord), err
+	}
 	if existing, ok := r.replays[key]; ok {
 		if existing.Hash != hash || existing.Pending || existing.Status != 201 {
 			return ReplayRecord{}, errors.New("delegated request identity conflict")

@@ -80,3 +80,5 @@ Baseline ограничение: первоначальное shutil-копир�
 ## Интеграция в репозиторий
 
 Build entrypoint, SDK/config lock, негативные тесты и CI workflow приняты в коммите `925c64f`. Это закрывает программный путь сборки и локальную проверку происхождения артефактов; предыдущие разделы сохраняют историю экспериментов. Удалённый CI, target runtime/HIL и production BLE security остаются OPEN.
+
+Проверенные BIN/ELF и provenance также сохранены локально в игнорируемом `.store-build/s3-idf556-verified-c63abbed-20261021/`; все artifact hashes и 94 исходника сверены перед переносом. Это архив software candidate без flash/HIL приёмки и без полного signed release/flash bundle. Стандартный новый build directory остаётся свободным.

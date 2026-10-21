@@ -8,7 +8,7 @@ import (
 )
 
 type EdgeSyncExpectation struct {
-	Reconciliations []ResourceRecord
+	Reconciliations   []ResourceRecord
 	Cursor            int64
 	Hash              string
 	SaleVersions      map[string]int64
@@ -167,6 +167,9 @@ func immutableResourceEqual(a, b ResourceRecord) bool {
 func (r *MemoryRepository) BindOperatorIdentity(id, subject, tenant, actor string, expected int64) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return err
+	}
 	key := resourceKey("operator", id)
 	old, ok := r.resources[key]
 	if !ok || old.TenantID != tenant || old.Version != expected {

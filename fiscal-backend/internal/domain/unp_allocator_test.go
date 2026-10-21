@@ -161,6 +161,9 @@ func TestFiscalUNPAllocatorSaveAndReloadFailureRollsBack(t *testing.T) {
 			}
 			store.saveFail = false
 			store.loadFail = false
+			if _, _, err := r.ReserveFiscalUNPRange("tenant", "AB123456", "12345678", 10); !errors.Is(err, ErrRepositoryUnavailable) {
+				t.Fatal("first authoritative refresh must require retry", err)
+			}
 			start, _, err := r.ReserveFiscalUNPRange("tenant", "AB123456", "12345678", 10)
 			if err != nil || start != 1 {
 				t.Fatal(start, err)

@@ -434,15 +434,33 @@ func TestOfflineFinalizeV2CommitFailureRollsBackMemoryAndPersistence(t *testing.
 			if _, err = f.svc.SyncBatchForTenant("tenant-1", batch); err == nil {
 				t.Fatal("failed commit ACKed")
 			}
-			if got, _ := f.repo.LastSyncAck("tenant-1", "adapter-1"); got.CommittedThroughSeq != 1 {
-				t.Fatal("dirty ACK survived")
-			}
-			if len(f.repo.Sales("tenant-1")) != 0 || len(f.repo.AuditEvents("tenant-1")) != beforeAudit || len(f.repo.PendingOutbox(time.Now().Add(time.Hour))) != 0 {
-				t.Fatal("dirty projection survived")
-			}
-			pending, _ := f.repo.EdgePendingCommand(f.accepted.OperationID, "tenant-1")
-			if pending.ResultDigest != "" {
-				t.Fatal("dirty result survived")
+			if loadFailure {
+				if _, ok := f.repo.LastSyncAck("tenant-1", "adapter-1"); ok {
+					t.Fatal("uncertain ACK exposed as authoritative")
+				}
+				if len(f.repo.Sales("tenant-1")) != 0 || len(f.repo.AuditEvents("tenant-1")) != 0 || len(f.repo.PendingOutbox(time.Now().Add(time.Hour))) != 0 {
+					t.Fatal("unavailable repository exposed projections")
+				}
+				if _, err := f.repo.EdgePendingCommand(f.accepted.OperationID, "tenant-1"); !errors.Is(err, ErrRepositoryUnavailable) {
+					t.Fatal("uncertain pending state exposed", err)
+				}
+				f.repo.mu.Lock()
+				badSnapshot := f.repo.syncAcks["tenant-1\nadapter-1"].CommittedThroughSeq != 1 || len(f.repo.audit) != beforeAudit || len(f.repo.sales) != 0 || f.repo.edgePending[f.accepted.OperationID].ResultDigest != ""
+				f.repo.mu.Unlock()
+				if badSnapshot {
+					t.Fatal("confirmed snapshot was not restored")
+				}
+			} else {
+				if got, _ := f.repo.LastSyncAck("tenant-1", "adapter-1"); got.CommittedThroughSeq != 1 {
+					t.Fatal("dirty ACK survived")
+				}
+				if len(f.repo.Sales("tenant-1")) != 0 || len(f.repo.AuditEvents("tenant-1")) != beforeAudit || len(f.repo.PendingOutbox(time.Now().Add(time.Hour))) != 0 {
+					t.Fatal("dirty projection survived")
+				}
+				pending, _ := f.repo.EdgePendingCommand(f.accepted.OperationID, "tenant-1")
+				if pending.ResultDigest != "" {
+					t.Fatal("dirty result survived")
+				}
 			}
 			reopened, _ := NewPersistentRepository(f.store)
 			if len(reopened.Sales("tenant-1")) != 0 {
@@ -450,6 +468,11 @@ func TestOfflineFinalizeV2CommitFailureRollsBackMemoryAndPersistence(t *testing.
 			}
 			fault.saveFail = false
 			fault.loadFail = false
+			if loadFailure {
+				if _, err = f.svc.SyncBatchForTenant("tenant-1", batch); !errors.Is(err, ErrRepositoryUnavailable) {
+					t.Fatal("recovery retry fence absent", err)
+				}
+			}
 			if _, err = f.svc.SyncBatchForTenant("tenant-1", batch); err != nil {
 				t.Fatal(err)
 			}

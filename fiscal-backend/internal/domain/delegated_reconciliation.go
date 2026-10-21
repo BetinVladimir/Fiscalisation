@@ -39,6 +39,9 @@ func (s *Service) BindReconciliationAdministrator(in ReconciliationAdministrator
 func (r *MemoryRepository) bindReconciliationAdministrator(in ReconciliationAdministratorBinding, tenant, administrator, actor string) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return err
+	}
 	operator, ok := r.resources[resourceKey("operator", in.OperatorID)]
 	if !ok || operator.TenantID != tenant || stringAny(operator.Data, "actor_subject") != actor || stringAny(operator.Data, "external_system_id") != in.ExternalSystemID || stringAny(operator.Data, "external_source_id") != in.SourceOperatorID {
 		return errors.New("operator mapping changed")
