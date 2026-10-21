@@ -58,7 +58,7 @@ Actual PostgreSQL integration verifies two-tenant isolation, snapshot state befo
 
 Use store namespace plus tenant plus operation/sale ID for reconciliation. Runtime sale ID and fiscal_operation_id can link to backend operation; receipt_artifact_id links to tenant-scoped runtime bytea artifact. Original fiscal reference/reversal references must retain their meanings. S3 client_operation_id, BlueCash operation_id and MiniPOS checkout/order IDs are joined only through explicit actual payload associations, not equal-looking strings. Local event sequence, backend ACK sequence, UNP counter and row version are independent counters. UNKNOWN cannot become success through export. See doc19 for local/mobile/browser inventory.
 
-Still OPEN: MiniPOS independent PostgreSQL executable exporter; complete legacy/reporting tables and secret-safe resource/audit extraction; external artifact/object bodies and retention gaps; cross-store reconciliation implementation; captured source/build identity and externally authenticated provenance; operational read-only account provisioning and replica-lag declaration; real capture rehearsals and dossier/legal review. Hybrid N5/N6 remains incomplete until these are addressed.
+Still OPEN: MiniPOS stores beyond doc24's seven-table allowlisted profile; complete legacy/reporting tables and secret-safe resource/audit extraction; external artifact/object bodies and retention gaps; cross-store reconciliation implementation; captured source/build identity and externally authenticated provenance; operational read-only account provisioning and replica-lag declaration; real capture rehearsals and dossier/legal review. Hybrid N5/N6 remains incomplete until these are addressed.
 
 ## Integrated verification — 2026-10-18
 

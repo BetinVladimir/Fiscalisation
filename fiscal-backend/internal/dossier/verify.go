@@ -25,11 +25,19 @@ func Verify(directory string) error {
 	if err = json.Unmarshal(raw, &m); err != nil {
 		return err
 	}
-	if m.Format != "beefiscal-financial-pg-extract-v1" || m.Tenant == "" {
+	profileName := "fiscal"
+	if m.Format == "beefiscal-evidence-pg-extract-v1" {
+		profileName = "fiscal-evidence"
+	}
+	if m.Format == "beeminipos-financial-pg-extract-v1" {
+		profileName = "minipos"
+	}
+	p, _ := selectProfile(profileName)
+	if m.Format != p.archiveFormat || m.Tenant == "" {
 		return errors.New("invalid manifest")
 	}
 	expected := map[string]bool{"dictionary.json": true}
-	for _, name := range Tables {
+	for _, name := range p.tables {
 		expected[name+".jsonl"] = true
 	}
 	if len(m.Files) != len(expected) {
@@ -42,6 +50,7 @@ func Verify(directory string) error {
 	if len(entries) != len(expected)+1 {
 		return errors.New("extra/missing archive artifact")
 	}
+	coverage := map[string]int64{}
 	var contract Contract
 	for name, meta := range m.Files {
 		if !expected[name] || strings.ContainsAny(name, "/\\") {
@@ -77,12 +86,19 @@ func Verify(directory string) error {
 			return errors.New("row count mismatch")
 		}
 	}
-	if contract.Schema != m.Schema || contract.Format != "beefiscal-financial-pg-schema-v1" || len(contract.Tables) != len(Tables) {
+	if contract.Schema != m.Schema || contract.Format != p.schemaFormat || len(contract.Tables) != len(p.tables) {
 		return errors.New("dictionary mismatch")
 	}
 	for i, t := range contract.Tables {
-		if t.Name != Tables[i] {
+		if t.Name != p.tables[i] {
 			return errors.New("table inventory mismatch")
+		}
+		if p.columns != nil {
+			want, _ := json.Marshal(p.exportColumns(t))
+			got, _ := json.Marshal(t.ExportColumns)
+			if string(want) != string(got) {
+				return errors.New("projection inventory mismatch")
+			}
 		}
 		body, e := readRegular(filepath.Join(directory, t.Name+".jsonl"))
 		if e != nil {
@@ -96,9 +112,23 @@ func Verify(directory string) error {
 			if e = json.Unmarshal([]byte(line), &row); e != nil {
 				return e
 			}
-			if len(row) != len(t.Columns) {
+			if len(row) != len(p.exportColumns(t)) {
 				return errors.New("column count mismatch")
 			}
+			if p.name == "fiscal-evidence" {
+				key, e := evidenceProjectRow(t.Name, p.exportColumns(t), row)
+				if e != nil {
+					return e
+				}
+				coverage[key]++
+			}
+		}
+	}
+	if p.name == "fiscal-evidence" {
+		a, _ := json.Marshal(coverage)
+		b, _ := json.Marshal(m.Coverage)
+		if string(a) != string(b) {
+			return errors.New("evidence coverage inventory mismatch")
 		}
 	}
 	return nil

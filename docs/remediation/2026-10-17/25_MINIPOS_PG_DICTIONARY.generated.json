@@ -1,0 +1,779 @@
+{
+  "format": "beeminipos-financial-pg-schema-v1",
+  "schema": "public",
+  "tables": [
+    {
+      "name": "minipos_runtime_checkout_hashes",
+      "export_columns": [
+        "replay_key",
+        "organization_id",
+        "request_hash"
+      ],
+      "columns": [
+        {
+          "name": "replay_key",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "organization_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "request_hash",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "organization_boundary:*:true:public:(organization_id = app_organization_key()):(organization_id = app_organization_key())"
+      ],
+      "constraints": [
+        "minipos_runtime_checkout_hashes_pkey:PRIMARY KEY (replay_key)",
+        "minipos_runtime_checkout_hashes_request_hash_check:CHECK ((length(request_hash) = 64))"
+      ],
+      "indexes": [
+        "minipos_runtime_checkout_hashes_pkey:CREATE UNIQUE INDEX minipos_runtime_checkout_hashes_pkey ON public.minipos_runtime_checkout_hashes USING btree (replay_key)"
+      ]
+    },
+    {
+      "name": "minipos_runtime_checkout_results",
+      "export_columns": [
+        "replay_key",
+        "organization_id",
+        "order_id",
+        "state",
+        "version",
+        "fiscal_sale_id",
+        "fiscal_operation_id",
+        "fiscal_reference"
+      ],
+      "columns": [
+        {
+          "name": "replay_key",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "organization_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "order_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "fiscal_sale_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fiscal_operation_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "fiscal_reference",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "organization_boundary:*:true:public:(organization_id = app_organization_key()):(organization_id = app_organization_key())"
+      ],
+      "constraints": [
+        "minipos_runtime_checkout_results_payload_check:CHECK ((jsonb_typeof(payload) = 'object'::text))",
+        "minipos_runtime_checkout_results_pkey:PRIMARY KEY (replay_key)",
+        "minipos_runtime_checkout_results_version_check:CHECK ((version \u003e 0))"
+      ],
+      "indexes": [
+        "minipos_runtime_checkout_results_pkey:CREATE UNIQUE INDEX minipos_runtime_checkout_results_pkey ON public.minipos_runtime_checkout_results USING btree (replay_key)",
+        "minipos_runtime_checkout_results_tenant:CREATE INDEX minipos_runtime_checkout_results_tenant ON public.minipos_runtime_checkout_results USING btree (organization_id, order_id)"
+      ]
+    },
+    {
+      "name": "minipos_runtime_employees",
+      "export_columns": [
+        "id",
+        "organization_id",
+        "first_name",
+        "last_name",
+        "operator_code",
+        "active",
+        "status",
+        "version",
+        "created_at",
+        "updated_at"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "organization_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "first_name",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "last_name",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "operator_code",
+          "type": "character(4)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "roles",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "organization_boundary:*:true:public:(organization_id = app_organization_key()):(organization_id = app_organization_key())"
+      ],
+      "constraints": [
+        "minipos_employee_active_matches_status:CHECK ((active = (status = 'ACTIVE'::text)))",
+        "minipos_employee_status_valid:CHECK ((status = ANY (ARRAY['ACTIVE'::text, 'INACTIVE'::text])))",
+        "minipos_runtime_employees_organization_id_operator_code_key:UNIQUE (organization_id, operator_code)",
+        "minipos_runtime_employees_pkey:PRIMARY KEY (id)",
+        "minipos_runtime_employees_roles_check:CHECK ((jsonb_typeof(roles) = 'array'::text))",
+        "minipos_runtime_employees_version_check:CHECK ((version \u003e 0))"
+      ],
+      "indexes": [
+        "minipos_runtime_employee_operator_code_ci:CREATE UNIQUE INDEX minipos_runtime_employee_operator_code_ci ON public.minipos_runtime_employees USING btree (organization_id, lower((operator_code)::text))",
+        "minipos_runtime_employees_organization_id_operator_code_key:CREATE UNIQUE INDEX minipos_runtime_employees_organization_id_operator_code_key ON public.minipos_runtime_employees USING btree (organization_id, operator_code)",
+        "minipos_runtime_employees_pkey:CREATE UNIQUE INDEX minipos_runtime_employees_pkey ON public.minipos_runtime_employees USING btree (id)"
+      ]
+    },
+    {
+      "name": "minipos_runtime_orders",
+      "export_columns": [
+        "id",
+        "organization_id",
+        "external_id",
+        "shift_id",
+        "register_id",
+        "operator_code",
+        "state",
+        "total",
+        "currency",
+        "lines",
+        "fiscal_sale_id",
+        "fiscal_operation_id",
+        "fiscal_version",
+        "version",
+        "created_at",
+        "updated_at",
+        "reversal_operation_id",
+        "reversal_fiscal_reference",
+        "reversal_reason_code",
+        "fiscal_reference",
+        "payments"
+      ],
+      "json_projections": {
+        "lines": [
+          "line_id",
+          "product_id",
+          "name",
+          "quantity",
+          "unit_price.amount",
+          "unit_price.currency",
+          "discount.amount",
+          "discount.currency",
+          "tax_group"
+        ],
+        "payments": [
+          "payment_id",
+          "type",
+          "amount.amount",
+          "amount.currency",
+          "terminal_policy"
+        ]
+      },
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "organization_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "external_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "shift_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "register_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "operator_code",
+          "type": "character(4)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "total",
+          "type": "numeric(18,2)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "currency",
+          "type": "character(3)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "lines",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "fiscal_sale_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fiscal_operation_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fiscal_version",
+          "type": "bigint",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "reversal_operation_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "reversal_fiscal_reference",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "reversal_reason_code",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "fiscal_reference",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "payments",
+          "type": "jsonb",
+          "nullable": false,
+          "default": "'[]'::jsonb"
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "organization_boundary:*:true:public:(organization_id = app_organization_key()):(organization_id = app_organization_key())"
+      ],
+      "constraints": [
+        "minipos_final_order_has_fiscal_reference:CHECK (((state \u003c\u003e ALL (ARRAY['COMPLETED'::text, 'REVERSED'::text])) OR (fiscal_reference IS NOT NULL))) NOT VALID",
+        "minipos_order_reversal_reason:CHECK (((reversal_reason_code IS NULL) OR (reversal_reason_code = ANY (ARRAY['OPERATOR_ERROR'::text, 'CUSTOMER_RETURN'::text, 'CUSTOMER_COMPLAINT'::text, 'TAX_BASE_REDUCTION'::text]))))",
+        "minipos_reversed_order_has_evidence:CHECK (((state \u003c\u003e 'REVERSED'::text) OR ((reversal_operation_id IS NOT NULL) AND (reversal_fiscal_reference IS NOT NULL) AND (reversal_reason_code IS NOT NULL))))",
+        "minipos_runtime_orders_currency_check:CHECK ((currency = 'EUR'::bpchar))",
+        "minipos_runtime_orders_lines_check:CHECK ((jsonb_typeof(lines) = 'array'::text))",
+        "minipos_runtime_orders_organization_id_external_id_key:UNIQUE (organization_id, external_id)",
+        "minipos_runtime_orders_payments_array:CHECK ((jsonb_typeof(payments) = 'array'::text))",
+        "minipos_runtime_orders_pkey:PRIMARY KEY (id)",
+        "minipos_runtime_orders_total_check:CHECK ((total \u003e= (0)::numeric))",
+        "minipos_runtime_orders_version_check:CHECK ((version \u003e 0))"
+      ],
+      "indexes": [
+        "minipos_runtime_orders_organization_id_external_id_key:CREATE UNIQUE INDEX minipos_runtime_orders_organization_id_external_id_key ON public.minipos_runtime_orders USING btree (organization_id, external_id)",
+        "minipos_runtime_orders_pkey:CREATE UNIQUE INDEX minipos_runtime_orders_pkey ON public.minipos_runtime_orders USING btree (id)",
+        "minipos_runtime_orders_tenant_state:CREATE INDEX minipos_runtime_orders_tenant_state ON public.minipos_runtime_orders USING btree (organization_id, state, updated_at)"
+      ]
+    },
+    {
+      "name": "minipos_runtime_products",
+      "export_columns": [
+        "id",
+        "organization_id",
+        "sku",
+        "name",
+        "unit",
+        "amount",
+        "currency",
+        "tax_group",
+        "active",
+        "status",
+        "version",
+        "created_at",
+        "updated_at",
+        "barcode"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "organization_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "sku",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "unit",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "amount",
+          "type": "numeric(18,2)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "currency",
+          "type": "character(3)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "tax_group",
+          "type": "character(1)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "active",
+          "type": "boolean",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "barcode",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "organization_boundary:*:true:public:(organization_id = app_organization_key()):(organization_id = app_organization_key())"
+      ],
+      "constraints": [
+        "minipos_product_active_matches_status:CHECK ((active = (status = 'ACTIVE'::text)))",
+        "minipos_product_status_valid:CHECK ((status = ANY (ARRAY['ACTIVE'::text, 'INACTIVE'::text])))",
+        "minipos_runtime_products_amount_check:CHECK ((amount \u003e= (0)::numeric))",
+        "minipos_runtime_products_currency_check:CHECK ((currency = 'EUR'::bpchar))",
+        "minipos_runtime_products_organization_id_sku_key:UNIQUE (organization_id, sku)",
+        "minipos_runtime_products_pkey:PRIMARY KEY (id)",
+        "minipos_runtime_products_version_check:CHECK ((version \u003e 0))"
+      ],
+      "indexes": [
+        "minipos_runtime_product_sku_ci:CREATE UNIQUE INDEX minipos_runtime_product_sku_ci ON public.minipos_runtime_products USING btree (organization_id, lower(sku))",
+        "minipos_runtime_products_organization_id_sku_key:CREATE UNIQUE INDEX minipos_runtime_products_organization_id_sku_key ON public.minipos_runtime_products USING btree (organization_id, sku)",
+        "minipos_runtime_products_pkey:CREATE UNIQUE INDEX minipos_runtime_products_pkey ON public.minipos_runtime_products USING btree (id)",
+        "minipos_runtime_products_tenant_barcode:CREATE UNIQUE INDEX minipos_runtime_products_tenant_barcode ON public.minipos_runtime_products USING btree (organization_id, barcode) WHERE (barcode IS NOT NULL)"
+      ]
+    },
+    {
+      "name": "minipos_runtime_shifts",
+      "export_columns": [
+        "id",
+        "organization_id",
+        "register_id",
+        "employee_id",
+        "state",
+        "version",
+        "opened_at",
+        "closed_at",
+        "created_at",
+        "updated_at",
+        "z_operation_id",
+        "z_fiscal_reference"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "organization_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "register_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "employee_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "state",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "opened_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "closed_at",
+          "type": "timestamp with time zone",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "z_operation_id",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "z_fiscal_reference",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "close_error",
+          "type": "text",
+          "nullable": true,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "organization_boundary:*:true:public:(organization_id = app_organization_key()):(organization_id = app_organization_key())"
+      ],
+      "constraints": [
+        "minipos_runtime_shifts_pkey:PRIMARY KEY (id)",
+        "minipos_runtime_shifts_version_check:CHECK ((version \u003e 0))"
+      ],
+      "indexes": [
+        "minipos_one_active_shift:CREATE UNIQUE INDEX minipos_one_active_shift ON public.minipos_runtime_shifts USING btree (organization_id, register_id) WHERE (state \u003c\u003e 'CLOSED'::text)",
+        "minipos_runtime_shifts_pkey:CREATE UNIQUE INDEX minipos_runtime_shifts_pkey ON public.minipos_runtime_shifts USING btree (id)"
+      ]
+    },
+    {
+      "name": "minipos_runtime_tax_groups",
+      "export_columns": [
+        "id",
+        "organization_id",
+        "code",
+        "name",
+        "rate",
+        "status",
+        "version",
+        "created_at",
+        "updated_at"
+      ],
+      "columns": [
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "organization_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "code",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "name",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "rate",
+          "type": "numeric(5,2)",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "status",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "minipos_runtime_tax_groups_tenant:*:true:public:(organization_id = current_setting('app.organization_id'::text, true)):(organization_id = current_setting('app.organization_id'::text, true))"
+      ],
+      "constraints": [
+        "minipos_runtime_tax_groups_code_check:CHECK ((code = ANY (ARRAY['A'::text, 'B'::text, 'C'::text, 'D'::text, 'E'::text, 'F'::text, 'G'::text, 'H'::text])))",
+        "minipos_runtime_tax_groups_name_check:CHECK ((btrim(name) \u003c\u003e ''::text))",
+        "minipos_runtime_tax_groups_organization_id_code_key:UNIQUE (organization_id, code)",
+        "minipos_runtime_tax_groups_pkey:PRIMARY KEY (id)",
+        "minipos_runtime_tax_groups_rate_check:CHECK (((rate \u003e= (0)::numeric) AND (rate \u003c= (100)::numeric)))",
+        "minipos_runtime_tax_groups_status_check:CHECK ((status = ANY (ARRAY['ACTIVE'::text, 'INACTIVE'::text])))",
+        "minipos_runtime_tax_groups_version_check:CHECK ((version \u003e 0))"
+      ],
+      "indexes": [
+        "minipos_runtime_tax_groups_organization_id_code_key:CREATE UNIQUE INDEX minipos_runtime_tax_groups_organization_id_code_key ON public.minipos_runtime_tax_groups USING btree (organization_id, code)",
+        "minipos_runtime_tax_groups_pkey:CREATE UNIQUE INDEX minipos_runtime_tax_groups_pkey ON public.minipos_runtime_tax_groups USING btree (id)"
+      ]
+    }
+  ]
+}

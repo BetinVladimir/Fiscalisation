@@ -13,8 +13,9 @@ import (
 )
 
 func main() {
+	profile := flag.String("profile", "fiscal", "explicit independent profile: fiscal, minipos or fiscal-evidence")
 	verify := flag.String("verify", "", "verify archive inventory/hashes without DB access")
-	schema := flag.String("schema", "fiscal", "explicit deployed schema: fiscal or public")
+	schema := flag.String("schema", "fiscal", "explicit deployed schema: fiscal, minipos or public")
 	tenant := flag.String("tenant", "", "tenant ID")
 	output := flag.String("output", "", "new output directory/file")
 	contract := flag.String("contract", "", "reviewed dictionary JSON")
@@ -29,12 +30,12 @@ func main() {
 		fmt.Println("ARCHIVE_INTEGRITY_VERIFIED; provenance not authenticated")
 		return
 	}
-	if err := run(*schema, *tenant, *output, *contract, *source, *inspect); err != nil {
+	if err := run(*profile, *schema, *tenant, *output, *contract, *source, *inspect); err != nil {
 		fmt.Fprintln(os.Stderr, "Export refused:", err)
 		os.Exit(1)
 	}
 }
-func run(schema, tenant, output, contract, source string, inspect bool) error {
+func run(profile, schema, tenant, output, contract, source string, inspect bool) error {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Minute)
 	defer cancel()
 	conn, err := pgx.Connect(ctx, os.Getenv("DOSSIER_DATABASE_URL"))
@@ -48,7 +49,7 @@ func run(schema, tenant, output, contract, source string, inspect bool) error {
 			return e
 		}
 		defer tx.Rollback(ctx)
-		value, e := dossier.Inspect(ctx, tx, schema)
+		value, e := dossier.InspectProfile(ctx, tx, schema, profile)
 		if e != nil {
 			return e
 		}
@@ -75,5 +76,5 @@ func run(schema, tenant, output, contract, source string, inspect bool) error {
 	if err = json.Unmarshal(raw, &value); err != nil {
 		return err
 	}
-	return dossier.Export(ctx, conn, dossier.Options{Schema: schema, Tenant: tenant, Output: output, SourceCommit: source, Contract: value})
+	return dossier.Export(ctx, conn, dossier.Options{Profile: profile, Schema: schema, Tenant: tenant, Output: output, SourceCommit: source, Contract: value})
 }

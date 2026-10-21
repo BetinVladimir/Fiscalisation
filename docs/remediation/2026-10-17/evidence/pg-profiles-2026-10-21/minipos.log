@@ -1,0 +1,31 @@
+=== RUN   TestAuditPredecessorForwardMigration
+    audit_predecessor_test.go:21: requires disposable Fiscal PostgreSQL runner
+--- SKIP: TestAuditPredecessorForwardMigration (0.00s)
+=== RUN   TestAuditPredecessorMigrationRefusesHistoricalConflict
+    audit_predecessor_test.go:119: requires disposable Fiscal PostgreSQL runner
+--- SKIP: TestAuditPredecessorMigrationRefusesHistoricalConflict (0.00s)
+=== RUN   TestFiscalEvidencePostgres
+    evidence_test.go:18: actual disposable migrated PostgreSQL required; use dossier-evidence-postgres-integration.sh
+--- SKIP: TestFiscalEvidencePostgres (0.00s)
+=== RUN   TestPostgresSnapshot
+    export_test.go:19: requires disposable migrated PostgreSQL; see scripts/dossier-postgres-integration.sh
+--- SKIP: TestPostgresSnapshot (0.00s)
+=== RUN   TestMigrationSourceInventory
+--- PASS: TestMigrationSourceInventory (0.00s)
+=== RUN   TestMiniPOSPostgresSnapshot
+=== RUN   TestMiniPOSPostgresSnapshot/consistent_snapshot_precision_secret_projection_and_isolation
+=== RUN   TestMiniPOSPostgresSnapshot/ordinary_export_no_mutation
+=== RUN   TestMiniPOSPostgresSnapshot/schema_and_rls_drift
+=== RUN   TestMiniPOSPostgresSnapshot/owner_no_clobber_readonly
+=== RUN   TestMiniPOSPostgresSnapshot/malformed_known_money_refused
+--- PASS: TestMiniPOSPostgresSnapshot (2.05s)
+    --- PASS: TestMiniPOSPostgresSnapshot/consistent_snapshot_precision_secret_projection_and_isolation (0.87s)
+    --- PASS: TestMiniPOSPostgresSnapshot/ordinary_export_no_mutation (0.13s)
+    --- PASS: TestMiniPOSPostgresSnapshot/schema_and_rls_drift (0.17s)
+    --- PASS: TestMiniPOSPostgresSnapshot/owner_no_clobber_readonly (0.18s)
+    --- PASS: TestMiniPOSPostgresSnapshot/malformed_known_money_refused (0.11s)
+=== RUN   TestMiniPOSMigrationSourceInventory
+--- PASS: TestMiniPOSMigrationSourceInventory (0.00s)
+PASS
+ok  	fiscalisation/fiscal-backend/internal/dossier	4.214s
+?   	fiscalisation/fiscal-backend/cmd/dossier-export	[no test files]

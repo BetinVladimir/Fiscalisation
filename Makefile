@@ -196,3 +196,11 @@ nap-local-extraction-test:
 .PHONY: nap-postgres-extraction-test
 nap-postgres-extraction-test:
 	sh scripts/dossier-postgres-integration.sh
+
+.PHONY: nap-minipos-postgres-extraction-test
+nap-minipos-postgres-extraction-test:
+	sh scripts/dossier-minipos-postgres-integration.sh
+
+.PHONY: nap-evidence-postgres-extraction-test
+nap-evidence-postgres-extraction-test:
+	sh scripts/dossier-evidence-postgres-integration.sh

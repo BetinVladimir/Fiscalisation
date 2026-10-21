@@ -27,13 +27,17 @@ type Column struct {
 	Default  *string `json:"default"`
 }
 type Table struct {
-	Name        string   `json:"name"`
-	Columns     []Column `json:"columns"`
-	RLS         bool     `json:"rls"`
-	ForceRLS    bool     `json:"force_rls"`
-	Policies    []string `json:"policies"`
-	Constraints []string `json:"constraints"`
-	Indexes     []string `json:"indexes"`
+	EvidenceRules   map[string]EvidenceRule `json:"evidence_rules,omitempty"`
+	ExcludedKinds   []string                `json:"excluded_kinds,omitempty"`
+	Name            string                  `json:"name"`
+	ExportColumns   []string                `json:"export_columns,omitempty"`
+	JSONProjections map[string][]string     `json:"json_projections,omitempty"`
+	Columns         []Column                `json:"columns"`
+	RLS             bool                    `json:"rls"`
+	ForceRLS        bool                    `json:"force_rls"`
+	Policies        []string                `json:"policies"`
+	Constraints     []string                `json:"constraints"`
+	Indexes         []string                `json:"indexes"`
 }
 type Contract struct {
 	Format string  `json:"format"`
@@ -45,32 +49,41 @@ type File struct {
 	Rows   int64  `json:"rows"`
 }
 type Manifest struct {
-	Format                  string          `json:"format"`
-	Tenant                  string          `json:"tenant"`
-	Schema                  string          `json:"schema"`
-	Snapshot                string          `json:"snapshot"`
-	CapturedAt              string          `json:"captured_at"`
-	SourceCommit            string          `json:"source_commit_declared"`
-	ProvenanceAuthenticated bool            `json:"provenance_authenticated"`
-	Files                   map[string]File `json:"files"`
-	Excluded                []string        `json:"excluded"`
+	Coverage                map[string]int64 `json:"coverage,omitempty"`
+	Format                  string           `json:"format"`
+	Tenant                  string           `json:"tenant"`
+	Schema                  string           `json:"schema"`
+	Snapshot                string           `json:"snapshot"`
+	CapturedAt              string           `json:"captured_at"`
+	SourceCommit            string           `json:"source_commit_declared"`
+	ProvenanceAuthenticated bool             `json:"provenance_authenticated"`
+	Files                   map[string]File  `json:"files"`
+	Excluded                []string         `json:"excluded"`
 }
 type Options struct {
 	Schema, Tenant, Output, SourceCommit string
+	Profile                              string
 	Contract                             Contract
 }
 
 func identifier(s string) string { return pgx.Identifier{s}.Sanitize() }
-func validSchema(s string) bool  { return s == "fiscal" || s == "public" }
+func validSchema(s string) bool  { return s == "fiscal" || s == "minipos" || s == "public" }
 func digest(b []byte) string     { h := sha256.Sum256(b); return hex.EncodeToString(h[:]) }
 
 // Inspect is for a clean database created from reviewed migrations, not live-schema acceptance.
 func Inspect(ctx context.Context, tx pgx.Tx, schema string) (Contract, error) {
-	c := Contract{Format: "beefiscal-financial-pg-schema-v1", Schema: schema}
+	return InspectProfile(ctx, tx, schema, "fiscal")
+}
+func InspectProfile(ctx context.Context, tx pgx.Tx, schema, name string) (Contract, error) {
+	p, err := selectProfile(name)
+	if err != nil {
+		return Contract{}, err
+	}
+	c := Contract{Format: p.schemaFormat, Schema: schema}
 	if !validSchema(schema) {
 		return c, errors.New("explicit fiscal/public schema required")
 	}
-	for _, name := range Tables {
+	for _, name := range p.tables {
 		t := Table{Name: name, Columns: []Column{}, Policies: []string{}, Constraints: []string{}, Indexes: []string{}}
 		var owner bool
 		err := tx.QueryRow(ctx, `select relrowsecurity,relforcerowsecurity,relowner=(select oid from pg_roles where rolname=current_user) from pg_class where oid=to_regclass($1) and relkind='r'`, schema+"."+name).Scan(&t.RLS, &t.ForceRLS, &owner)
@@ -128,6 +141,28 @@ func Inspect(ctx context.Context, tx pgx.Tx, schema string) (Contract, error) {
 				return c, err
 			}
 		}
+		if p.columns != nil {
+			t.ExportColumns = append([]string(nil), p.exportColumns(t)...)
+			if p.name == "fiscal-evidence" {
+				t.EvidenceRules = evidenceRules()
+				t.ExcludedKinds = append([]string(nil), excludedEvidenceKinds...)
+			}
+			if t.Name == "minipos_runtime_orders" {
+				t.JSONProjections = map[string][]string{
+					"lines":    {"line_id", "product_id", "name", "quantity", "unit_price.amount", "unit_price.currency", "discount.amount", "discount.currency", "tax_group"},
+					"payments": {"payment_id", "type", "amount.amount", "amount.currency", "terminal_policy"},
+				}
+			}
+			present := map[string]bool{}
+			for _, col := range t.Columns {
+				present[col.Name] = true
+			}
+			for _, col := range t.ExportColumns {
+				if !present[col] {
+					return c, fmt.Errorf("missing allowlisted column %s.%s", t.Name, col)
+				}
+			}
+		}
 		c.Tables = append(c.Tables, t)
 	}
 	return c, nil
@@ -137,6 +172,10 @@ func Export(ctx context.Context, conn *pgx.Conn, o Options) (err error) {
 	return export(ctx, conn, o, nil)
 }
 func export(ctx context.Context, conn *pgx.Conn, o Options, afterSnapshot func() error) (err error) {
+	p, profileErr := selectProfile(o.Profile)
+	if profileErr != nil {
+		return profileErr
+	}
 	if o.Tenant == "" || strings.TrimSpace(o.Tenant) != o.Tenant || o.SourceCommit == "" || o.Output == "" {
 		return errors.New("tenant, source commit and output required")
 	}
@@ -155,14 +194,14 @@ func export(ctx context.Context, conn *pgx.Conn, o Options, afterSnapshot func()
 	if unsafe {
 		return errors.New("superuser/BYPASSRLS connection refused")
 	}
-	if _, err = tx.Exec(ctx, `select set_config('app.tenant_id',$1,true),set_config('TimeZone','UTC',true),set_config('DateStyle','ISO, YMD',true),set_config('bytea_output','hex',true),set_config('extra_float_digits','3',true),set_config('row_security','on',true)`, o.Tenant); err != nil {
+	if _, err = tx.Exec(ctx, `select set_config($2,$1,true),set_config('TimeZone','UTC',true),set_config('DateStyle','ISO, YMD',true),set_config('bytea_output','hex',true),set_config('extra_float_digits','3',true),set_config('row_security','on',true)`, o.Tenant, p.setting); err != nil {
 		return err
 	}
 	// Prevent concurrent DDL between dictionary comparison and row reads.
 	if !validSchema(o.Schema) {
 		return errors.New("explicit fiscal/public schema required")
 	}
-	for _, name := range Tables {
+	for _, name := range p.tables {
 		if _, err = tx.Exec(ctx, "LOCK TABLE "+identifier(o.Schema)+"."+identifier(name)+" IN ACCESS SHARE MODE"); err != nil {
 			return err
 		}
@@ -171,7 +210,7 @@ func export(ctx context.Context, conn *pgx.Conn, o Options, afterSnapshot func()
 	if err = tx.QueryRow(ctx, `select pg_current_snapshot()::text,transaction_timestamp()::text`).Scan(&snapshot, &at); err != nil {
 		return err
 	}
-	actual, err := Inspect(ctx, tx, o.Schema)
+	actual, err := InspectProfile(ctx, tx, o.Schema, p.name)
 	if err != nil {
 		return err
 	}
@@ -201,7 +240,10 @@ func export(ctx context.Context, conn *pgx.Conn, o Options, afterSnapshot func()
 		return err
 	}
 	defer os.RemoveAll(stage)
-	manifest := Manifest{Format: "beefiscal-financial-pg-extract-v1", Tenant: o.Tenant, Schema: o.Schema, Snapshot: snapshot, CapturedAt: at, SourceCommit: o.SourceCommit, Files: map[string]File{}, Excluded: []string{"generic resources and credentials", "audit/outbox/replay payloads pending secret-safe export contract", "legacy/reporting typed tables", "outbound email and auth stores", "external artifact object bodies", "MiniPOS PostgreSQL", "S3/BlueCash/browser/native stores"}}
+	manifest := Manifest{Format: p.archiveFormat, Tenant: o.Tenant, Schema: o.Schema, Snapshot: snapshot, CapturedAt: at, SourceCommit: o.SourceCommit, Files: map[string]File{}, Excluded: p.excluded}
+	if p.name == "fiscal-evidence" {
+		manifest.Coverage = map[string]int64{}
+	}
 	write := func(name string, body []byte, count int64) error {
 		if err := os.WriteFile(filepath.Join(stage, name), body, 0600); err != nil {
 			return err
@@ -214,11 +256,19 @@ func export(ctx context.Context, conn *pgx.Conn, o Options, afterSnapshot func()
 	}
 	for _, t := range actual.Tables {
 		columns := []string{}
-		for _, col := range t.Columns {
-			columns = append(columns, identifier(col.Name)+"::text")
+		for _, col := range p.exportColumns(t) {
+			expression := identifier(col) + "::text"
+			if p.name == "fiscal-evidence" {
+				expression = evidenceExpression(t.Name, col)
+			}
+			columns = append(columns, expression)
 		}
 		// Tenant predicate is defense in depth; RLS remains enabled and forced.
-		query := "select " + strings.Join(columns, ",") + " from " + identifier(o.Schema) + "." + identifier(t.Name) + " where tenant_id::text=$1 order by " + strings.Join(columns, ", ") + " nulls first"
+		order := []string{}
+		for i := range columns {
+			order = append(order, fmt.Sprintf("%d", i+1))
+		}
+		query := "select " + strings.Join(columns, ",") + " from " + identifier(o.Schema) + "." + identifier(t.Name) + " where " + identifier(p.tenantColumn) + "::text=$1 order by " + strings.Join(order, ", ") + " nulls first"
 		rows, e := tx.Query(ctx, query, o.Tenant)
 		if e != nil {
 			return e
@@ -240,6 +290,23 @@ func export(ctx context.Context, conn *pgx.Conn, o Options, afterSnapshot func()
 			}
 			if e = rows.Scan(targets...); e != nil {
 				break
+			}
+			for i, column := range p.exportColumns(t) {
+				cells[i], e = p.project(t.Name, column, cells[i])
+				if e != nil {
+					break
+				}
+			}
+			if e != nil {
+				break
+			}
+			if p.name == "fiscal-evidence" {
+				var key string
+				key, e = evidenceProjectRow(t.Name, p.exportColumns(t), cells)
+				if e != nil {
+					break
+				}
+				manifest.Coverage[key]++
 			}
 			var body []byte
 			body, e = json.Marshal(cells)
