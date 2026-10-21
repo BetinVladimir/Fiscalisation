@@ -139,7 +139,10 @@ android-build:
 ios-build:
 	cd minipos/BeeMiniPOS/ios && pod install
 	cd minipos/BeeMiniPOS/ios && xcodebuild -workspace BeeMiniPOS.xcworkspace -scheme BeeMiniPOS -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
-native-regression: native-bundle android-build ios-build
+.PHONY: native-interop-runner-test
+native-interop-runner-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s minipos/BeeMiniPOS/tests/native-authority-interop -p 'test_*.py' -v
+native-regression: native-interop-runner-test native-bundle android-build ios-build
 smart-device-host-test:
 	python3 SmartDevices/bluecash-app/tests/host/run-datecs-codec.py
 	python3 SmartDevices/bluecash-app/tests/host/run-go-json.py

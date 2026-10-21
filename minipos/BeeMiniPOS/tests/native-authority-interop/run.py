@@ -4,17 +4,20 @@ Requires a booted simulator/emulator with the test app installed. No OS mocks.
 The separate test apps expose prepare/sign only in their test executables.
 """
 import argparse,base64,json,os,pathlib,subprocess,time
+from instrumentation import validate_android_output
 app=pathlib.Path(__file__).resolve().parents[2]
 p=argparse.ArgumentParser();p.add_argument('platform',choices=['ios','android']);p.add_argument('--device',required=True);p.add_argument('--output',type=pathlib.Path,required=True);p.add_argument('--repo',type=pathlib.Path,default=app.parents[1]);p.add_argument('--online',action='store_true');p.add_argument('--adb',default=str(pathlib.Path.home()/'Library/Android/sdk/platform-tools/adb'));a=p.parse_args();a.output.mkdir(parents=True,exist_ok=True)
-def run(args,**kw):return subprocess.run([str(x) for x in args],check=True,**kw)
-def read(args):return subprocess.check_output([str(x) for x in args],text=True)
+def run(args,**kw):
+ kw.setdefault("timeout",600)
+ return subprocess.run([str(x) for x in args],check=True,**kw)
+def read(args):return subprocess.check_output([str(x) for x in args],text=True,timeout=120)
 scope={'backend':'https://native-authority-test.beeloy.local','tenant':'tenant-1','actorSubject':'subject-1','appInstance':'app-1','sessionID':'native-test-session-'+a.platform}
 # This is the exact executionScopeID encoding for this ASCII-only fixture.
 scope_id=json.dumps(list(scope.values()),separators=(',',':'))
 (a.output/'scope.json').write_text(json.dumps(scope)); evidence_path=a.output/'native-evidence.json'
 def native(message=''):
  if a.platform=='ios':
-  bundle='com.beeloy.native-provider-test';subprocess.run(['xcrun','simctl','terminate',a.device,bundle],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL)
+  bundle='com.beeloy.native-provider-test';subprocess.run(['xcrun','simctl','terminate',a.device,bundle],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=30)
   container=pathlib.Path(read(['xcrun','simctl','get_app_container',a.device,bundle,'data']).strip());output=container/'Documents/native-authority-evidence.json'
   output.unlink(missing_ok=True)
   args=['xcrun','simctl','launch',a.device,bundle,'--authority-scope',scope_id]
@@ -26,10 +29,12 @@ def native(message=''):
   evidence=json.loads(output.read_text())
  else:
   package='expo.modules.beeloyexecutioncrypto.test'
+  # Never let a missing/zero-test run reuse an old same-scope prepare result.
+  run([a.adb,'-s',a.device,'exec-out','run-as',package,'rm','-f','files/native-authority-evidence.json'],timeout=30)
   args=[a.adb,'-s',a.device,'shell','am','instrument','-w','-e','class','expo.modules.beeloyexecutioncrypto.ExecutionKeyStoreTest#authorityInterop','-e','authority_scope',scope_id]
   if message:args+=['-e','authority_message',message]
   args+=[package+'/androidx.test.runner.AndroidJUnitRunner'];result=read(args)
-  if 'FAILURES!!!' in result or 'INSTRUMENTATION_FAILED' in result:raise RuntimeError(result)
+  validate_android_output(result)
   evidence=json.loads(read([a.adb,'-s',a.device,'exec-out','run-as',package,'cat','files/native-authority-evidence.json']))
  if evidence['message']!=message:raise RuntimeError('STALE_OS_EVIDENCE')
  evidence_path.write_text(json.dumps(evidence));return evidence
