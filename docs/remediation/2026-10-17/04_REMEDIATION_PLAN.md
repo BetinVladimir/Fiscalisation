@@ -10,7 +10,20 @@
 
 [Навигация](README.md) · [GAP register](02_GAP_REGISTER.md) · [Тестовая спецификация](05_TESTS_AND_ACCEPTANCE.md)
 
-Цель этапа: сделать целевые runtime paths совместимыми, восстанавливаемыми и проверяемыми программно. **Изменения ниже — задания на следующий этап, не выполненные исправления.** Оценка сроков до фиксации exact device/SDK profiles ненадёжна; использовать зависимости и gates. Все GAP в реестре OPEN.
+Цель этапа: сделать целевые runtime paths совместимыми, восстанавливаемыми и проверяемыми программно. Перечень ниже сохраняет исходный backlog исследования; он не является текущим отчётом о выполнении. Начальный срез помечал все GAP OPEN. Последующие ограниченные исправления и evidence перечислены в актуальном checkpoint ниже и [навигации](README.md); закрытие отдельного теста не закрывает автоматически весь GAP. Оценка сроков до фиксации exact device/SDK profiles ненадёжна; использовать зависимости и gates.
+
+## Проверяемый checkpoint — 2026-10-21
+
+| Направление | Подтверждено | Следующий обязательный результат |
+|---|---|---|
+| S3 build | Full official IDF5.5.6 CI c9aed74 SUCCESS;103 Git source hashes/7 artifact hashes независимо сверены; [evidence](65_CI_INTEGRATION_FOLLOWUP.md) | Новый target build после последующих firmware changes; physical boot/resource/electrical HIL отдельно |
+| Result transport | Typed int64 encoder/strict JSON bridge, actual delivery ownership; root fresh producer12/Go/Mini/browser66 +16negative gates PASS; [самодостаточный CI](67_SELF_CONTAINED_TRANSPORT_CI.md) | Ubuntu/GitHub выполнение нового clean dependency gate; это ещё не защищённый on-air BLE |
+| Integration CI | Фактические topology/start/health steps run39557126955 PASS после исправления fixtures/loopback networks | Enrollment получил HTTP400; установить первопричину и выполнить полный E2E/session concurrency, не ослабляя contract/persistence checks |
+| Trusted time | Actual device/root crypto и interval core проверены; [production contract](66_TRUSTED_TIME_PRODUCTION_VERTICAL.md) | Реальные lifecycle hooks с owner ABA/static teardown tests, затем provider/bootstrap/issuer и проверенный UTC health source; пока provider не включён |
+| Native apps | Отдельные OS-key/harness результаты сохраняются с исходным scope | Actual application APK/IPA/BlueCash artifacts с точным entrypoint/dependency/source hash и затем phone/device HIL |
+| НАП | Проверены конкретные первичные поправки/публикации с явно ограниченным покрытием | Полная актуальная ст.118 и применимый N18/electronic-receipt режим, профильное внешнее подтверждение; current MF PDF bytes/hash ещё не получены |
+
+Ключи текущей версии остаются внутри ESP32-S3/NVS. ATECC608A/608, I²C/Qwiic и удалённый Go edge-agent в эти зависимости не возвращаются. Общий PRE_HIL_SOFTWARE_READY и внешняя приёмка не заявлены.
 
 ## Принятое решение — вариант 2, 2026-10-17
 
