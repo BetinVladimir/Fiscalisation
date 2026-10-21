@@ -11,3 +11,11 @@ Root strict GCC tests PASS: independent hexadecimal typed-reader vectors; actual
 ## Remaining integration
 
 Reply owner propagation through actual queue→processor→delivery→publisher is a separate reviewed package. Root full vertical verification and exact-source S3 CI are still required after that integration. No authenticated BLE channel, TLS, trusted-time provider, physical device or НАП acceptance is established here. Keys remain in ESP32-S3 NVS; ATECC608 is unused.
+
+## Reply origin integrated and root host-verified
+
+BleReplyOwner is an ephemeral by-value delivery context captured at guarded BFF1 admission, copied by both queue paths and forwarded through all four processor result branches. The actual app delivery body is now a shared production function; publisher requires an explicit owner and rejects missing/stale ownership without falling back to the current connection. Strict UUID dash/hex validation precedes frame allocation. No origin is persisted in receipt plans, journal rows, signed payloads or NVS.
+
+Root GCC actual Go issuer→real CBOR/BFF1→CommandQueue→authorization→IntentProcessor/SQLite→production delivery→publisher passes13 scenarios. The same13 pass ASan/UBSan under Clang. Queued/executing A may finish durably after reset/reuse by B, but B receives no A notification. Missing owner and SDK notify failure do not alter stored financial outcomes or repeat device execution. Both queue wait paths, duplicate/unavailable results, actual signed reconciliation, HTTP non-BLE behavior and no unsolicited recover_pending result are covered. Root GCC native BLE three runs, actual reconciliation callback interop and44 Python checks pass. [Hash-only evidence](evidence/ble-origin-root-2026-10-21/manifest.json).
+
+Exact-source full IDF/host/provenance gate must run after this change. Legacy OPEN_MVP/BFF1 response authentication, standard TLS/GATT channel, trusted time provider, real-device/HIL and applicable НАП acceptance remain OPEN. Generation tokens isolate local lifetimes and do not authenticate peers. The separate queue timeout policy still waits for worker completion to avoid dangling result pointers; this change does not make that wait a hard deadline.

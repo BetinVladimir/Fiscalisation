@@ -1,0 +1,48 @@
+{
+  "scope": "Root host verification only; exact-source full target/HIL/channel authentication remain pending",
+  "source_sha256": {
+    "IoT/firmware/edge-agent-s3/idf/main/edge_runtime_port.h": "d65a442767020c69a2db4aa525bbf935c4448c87211631a2750a005b5bbeea7d",
+    "IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp": "d5d13ba76c40c42707773dd2036c48d0918efa9fea9f5528db241910fd60f4d3",
+    "IoT/firmware/edge-agent-s3/idf/main/command_queue.cpp": "0bb593568886a9d4a8a4618fc7ea3a79731813e338ff323a2e4bac8f4991aa04",
+    "IoT/firmware/edge-agent-s3/idf/main/intent_processor.h": "233198840aa20609398f2e60eeb539be3f67d65b0fff363d138577896944865e",
+    "IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp": "61cf571bee07a4d2128eaa74f3c359a70e3ef1d647dd95bcdb8aee75199bfca0",
+    "IoT/firmware/edge-agent-s3/idf/main/app_main.cpp": "0340b02a39410bbdb08d7bbce3a2033db0eea346afecda327585367361b9535a",
+    "IoT/firmware/edge-agent-s3/idf/main/ble_result_delivery.h": "e575fd8a4dee948c152d863ca1b6d013c6df7f9e260d01a6a062a65671fe132d",
+    "IoT/firmware/edge-agent-s3/idf/main/ble_result_delivery.cpp": "896fd7a5ed55d588c94631d55f4cb90113e37ac351e2bd21aa0f166693a04144",
+    "IoT/firmware/edge-agent-s3/idf/main/CMakeLists.txt": "95601516903b5fd6d2223a9673395c6fc03fd1ef378e7e2715926bd6b4f31dc6"
+  },
+  "passed_runs": [
+    {
+      "local_log": "fiscal-ble-origin-root-20261021.log",
+      "sha256": "fd49de11eb21a3b7d57f91d821ba7a8add1bbdb356fe3b4e4302b86cea5da83d",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-ble-origin-sanitized-root-20261021.log",
+      "sha256": "1bae4cf55dd6d9ada6430f5c05c0a40ffa222d6ad247a2e90591f11a3e57e32b",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-ble-origin-native-root-20261021.log",
+      "sha256": "cac257eadb70b9dd119f024dc87dedc0d67e8b09de7ad1ea683e23a5c4c42575",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-ble-origin-reconciliation-root-20261021.log",
+      "sha256": "8615e36b8b2fd4b8c683c9722e00f5ba0130a1fd50c2fead4770f44055e77047",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-ble-origin-static-root-20261021.log",
+      "sha256": "fde427285f9053b7fcbd495ca6446138daaf0d47cf5431259180d00153a73230",
+      "exit_code": 0
+    }
+  ],
+  "cases": {
+    "actual_vertical_gcc": 13,
+    "actual_vertical_asan_ubsan_clang": 13,
+    "native_ble_runs": 3,
+    "python_checks": 44
+  },
+  "raw_logs_and_fixtures": "Local only; no private issuer/PoP fixture keys or raw logs published"
+}

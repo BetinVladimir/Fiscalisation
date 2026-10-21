@@ -1,3 +1,4 @@
+#include "ble_result_delivery.h"
 #include "edge_runtime_port.h"
 #include "durable_storage.h"
 #include "provisioned_binding.h"
@@ -197,35 +198,6 @@ esp_err_t command(const beefiscal::idf::CommandView& view,void* context) {
   return value?value->accept(view):ESP_ERR_INVALID_STATE;
 
 }
-esp_err_t result(const char*operation_id,const char*json,beefiscal::idf::Ingress ingress,void*){
-  if(ingress!=beefiscal::idf::Ingress::Ble)return ESP_OK;
-
-  cJSON*root=cJSON_Parse(json);
-
- if(!root)return ESP_ERR_INVALID_ARG;
-
-  auto*state=cJSON_GetObjectItemCaseSensitive(root,"state");
-
-  if(cJSON_IsString(state)){
-    if(strcmp(state->valuestring,"COMMITTED")==0)cJSON_SetValuestring(state,"FISCALIZED");
-
-    else if(strcmp(state->valuestring,"RECOVERY_REQUIRED")==0)cJSON_SetValuestring(state,"FISCAL_RESULT_UNKNOWN");
-
-    else if(strcmp(state->valuestring,"COMPENSATED")==0)cJSON_SetValuestring(state,"REJECTED");
-
-  }
-  uint8_t*encoded=nullptr;
- size_t size=0;
- esp_err_t e=beefiscal::idf::canonical_json_to_cbor(root,&encoded,&size);
- cJSON_Delete(root);
-
-  if(e==ESP_OK)e=beefiscal::idf::ble_publish_event(operation_id,encoded,size);
-
-  free(encoded);
-
-  return e;
-
-}
 esp_err_t provision(const uint8_t*data,size_t size,void*){
  if(!setup_mode||!data)return ESP_ERR_INVALID_STATE;
 
@@ -325,7 +297,7 @@ extern "C" void app_main(void) {
   static beefiscal::idf::ProfileExecutor physical_executor(binding,physical_io,&storage);
 
   static beefiscal::idf::IntentProcessor runtime(storage,binding,physical_executor,
-    secrets.command_hmac_key,result,nullptr);
+    secrets.command_hmac_key,beefiscal::idf::deliver_ble_result,nullptr);
 
   processor=&runtime;
 

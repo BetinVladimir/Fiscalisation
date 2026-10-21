@@ -4,6 +4,7 @@ idf_component_register(
     "edge_crypto.cpp"
     "mqtt_runtime.cpp"
     "ble_runtime.cpp"
+    "ble_result_delivery.cpp"
     "usb_cdc_runtime.cpp"
     "durable_storage.cpp"
     "provisioned_binding.cpp"

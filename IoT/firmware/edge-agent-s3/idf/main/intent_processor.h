@@ -25,7 +25,7 @@ struct ExecutionResult{ExecutionCertainty certainty{ExecutionCertainty::Rejected
 class ReceiptExecutor{public:virtual~ReceiptExecutor()=default;
   virtual bool ready()=0;virtual ExecutionResult execute(const ReceiptPlan&)=0;
   virtual ExecutionResult recover(const RecoveryItem&)=0;};
-using ResultSink=esp_err_t(*)(const char* operation_id,const char* result_json,Ingress,void*);
+using ResultSink=esp_err_t(*)(const char* operation_id,const char* result_json,Ingress,BleReplyOwner,void*);
 class IntentProcessor final{
  public:IntentProcessor(DurableStorage&,const CompositeBinding&,ReceiptExecutor&,
   const std::string& command_hmac_key,ResultSink=nullptr,void* = nullptr,
@@ -34,6 +34,6 @@ class IntentProcessor final{
  private:DurableStorage&storage_;const CompositeBinding&binding_;ReceiptExecutor&executor_;
   CommandClock command_clock_{};
   std::string command_hmac_key_;ExecutionAuthorizationTrust authorization_trust_{};bool explicit_authorization_trust_{};ResultSink result_sink_{};void*result_context_{};
-  esp_err_t decode(const CommandView&,ReceiptPlan&);esp_err_t execute(ReceiptPlan&,Ingress);
+  esp_err_t decode(const CommandView&,ReceiptPlan&);esp_err_t execute(ReceiptPlan&,Ingress,BleReplyOwner);
 };
 }

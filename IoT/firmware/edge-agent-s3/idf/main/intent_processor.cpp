@@ -397,7 +397,7 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
   }
   return total > 0 ? authorize() : ESP_ERR_INVALID_ARG;
 }
-esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
+esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress, BleReplyOwner ble_reply) {
   if(ingress==Ingress::Mqtt&&!command_valid_now(p.command_issued,p.command_expires,command_clock_))return ESP_ERR_INVALID_STATE;
   const int64_t at = now();
   std::string event = "received-" + p.operation_id;
@@ -425,7 +425,7 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
   if (reserved.status == ReservationStatus::Duplicate) {
     if (result_sink_ && !reserved.prior_result.empty())
       result_sink_(p.operation_id.c_str(), reserved.prior_result.c_str(),
-                   ingress, result_context_);
+                   ingress, ble_reply, result_context_);
     return ESP_OK;
   }
   if (reserved.status == ReservationStatus::PayloadConflict)
@@ -442,7 +442,7 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
     storage_.set_operation_state(p.operation_id.c_str(), "RECOVERY_REQUIRED",
                                  unavailable.c_str(), at);
     if (result_sink_)
-      result_sink_(p.operation_id.c_str(), unavailable.c_str(), ingress,
+      result_sink_(p.operation_id.c_str(), unavailable.c_str(), ingress, ble_reply,
                    result_context_);
     return ESP_ERR_INVALID_STATE;
   }
@@ -467,7 +467,7 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress) {
       p.canonical_payload.c_str(), result.c_str(), cash_payments, eid.c_str(),
       "RECEIPT_RESULT", hash(result.data(), result.size()).c_str(), now());
   if (stored == ESP_OK && result_sink_)
-    result_sink_(p.operation_id.c_str(), result.c_str(), ingress,
+    result_sink_(p.operation_id.c_str(), result.c_str(), ingress, ble_reply,
                  result_context_);
   return stored;
 }
@@ -482,12 +482,12 @@ esp_err_t IntentProcessor::accept(const CommandView &v) {
   if(!parsed||go_json::contains_nul(root))return ESP_ERR_INVALID_ARG;
   for(const auto&f:root.fields)if(f.first=="command"&&f.second.kind==go_json::Value::Kind::String&&f.second.text=="PAYMENT_RECONCILE") {
     const auto applied=apply_payment_reconciliation(root,binding_,storage_,explicit_authorization_trust_?&authorization_trust_:nullptr);
-    if(applied==ESP_OK&&result_sink_){const auto*id=go_json::field(root,"client_operation_id");OperationRecord saved;if(id&&id->kind==go_json::Value::Kind::String&&storage_.operation(id->text.c_str(),saved)==ESP_OK&&!saved.result_payload.empty())result_sink_(saved.operation_id.c_str(),saved.result_payload.c_str(),v.ingress,result_context_);}
+    if(applied==ESP_OK&&result_sink_){const auto*id=go_json::field(root,"client_operation_id");OperationRecord saved;if(id&&id->kind==go_json::Value::Kind::String&&storage_.operation(id->text.c_str(),saved)==ESP_OK&&!saved.result_payload.empty())result_sink_(saved.operation_id.c_str(),saved.result_payload.c_str(),v.ingress,v.ble_reply,result_context_);}
     return applied;
   }
   ReceiptPlan p;
   esp_err_t e = decode(v, p);
-  return e == ESP_OK ? execute(p, v.ingress) : e;
+  return e == ESP_OK ? execute(p, v.ingress, v.ble_reply) : e;
 }
 esp_err_t IntentProcessor::recover_pending() {
   esp_err_t result = ESP_OK;

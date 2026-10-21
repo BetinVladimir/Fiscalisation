@@ -123,7 +123,7 @@ int receive_command(uint16_t connection,uint16_t,ble_gatt_access_ctxt* access,vo
          memcmp(frame_digest,payload+25,32)==0){frame_payload.insert(frame_payload.end(),payload+kFrameHeader,payload+size);
         accepted=ESP_OK;if(final&&frame_payload.size()==frame_total){uint8_t digest[32]{};
           if(mbedtls_sha256(frame_payload.data(),frame_payload.size(),digest,0)==0&&memcmp(digest,frame_digest,32)==0)
-            accepted=sink({frame_payload.data(),frame_payload.size(),Ingress::Ble},sink_context);
+            accepted=sink({frame_payload.data(),frame_payload.size(),Ingress::Ble,{connection,generation}},sink_context);
           else accepted=ESP_ERR_INVALID_CRC;
           frame_payload.clear();frame_total=0;provisioning_frames.reset();}}
     }
@@ -243,16 +243,24 @@ esp_err_t ble_provisioning_start(const BleConfig&config,ProvisioningSink value,v
   sink=nullptr;sink_context=nullptr;name=config.advertising_name;
   return start_host();
 }
-esp_err_t ble_publish_event(const char*uuid,const uint8_t* data,size_t size){
+esp_err_t ble_publish_event(BleReplyOwner owner,const char*uuid,const uint8_t* data,size_t size){
   if(!uuid||strlen(uuid)!=36||!data||size==0||size>kMaximumIntent)return ESP_ERR_INVALID_ARG;
-  if(startup_result!=ESP_OK||startup_timed_out)return ESP_ERR_INVALID_STATE;
-  if(active_connection==BLE_HS_CONN_HANDLE_NONE)return ESP_ERR_INVALID_STATE;
-  uint16_t connection;uint32_t generation;
-  {std::lock_guard<std::mutex> lock(connection_mutex);connection=active_connection;generation=connection_generation;}
-  if(connection==BLE_HS_CONN_HANDLE_NONE)return ESP_ERR_INVALID_STATE;
+  const uint16_t connection=owner.connection;const uint32_t generation=owner.generation;
+  // Never replace a stale/missing request owner with the current connection.
+  // Delivery failure cannot undo a command already admitted to the journal.
+  {std::lock_guard<std::mutex>lock(connection_mutex);
+    if(!owner.valid()||!same_owner_locked(connection,generation))return ESP_ERR_INVALID_STATE;}
   const size_t body_capacity=ble_frame_body_capacity(ble_att_mtu(connection));
   if(!body_capacity)return ESP_ERR_INVALID_SIZE;
-  uint8_t id[16]{},digest[32]{};size_t p=0;for(size_t i=0;i<36;i++){if(uuid[i]=='-')continue;char pair[3]={uuid[i],uuid[++i],0};char*end=nullptr;unsigned long v=strtoul(pair,&end,16);if(!end||*end||p>=16)return ESP_ERR_INVALID_ARG;id[p++]=v;}if(p!=16||mbedtls_sha256(data,size,digest,0)!=0)return ESP_FAIL;
+  uint8_t id[16]{},digest[32]{};size_t hex_index=0;
+  for(size_t i=0;i<36;i++){
+    if(i==8||i==13||i==18||i==23){if(uuid[i]!='-')return ESP_ERR_INVALID_ARG;continue;}
+    const char c=uuid[i];const int value=c>='0'&&c<='9'?c-'0':c>='a'&&c<='f'?c-'a'+10:c>='A'&&c<='F'?c-'A'+10:-1;
+    if(value<0)return ESP_ERR_INVALID_ARG;
+    if(hex_index%2==0)id[hex_index/2]=uint8_t(value<<4);else id[hex_index/2]|=uint8_t(value);
+    ++hex_index;
+  }
+  if(mbedtls_sha256(data,size,digest,0)!=0)return ESP_FAIL;
   for(size_t offset=0;offset<size;offset+=body_capacity){if(startup_result!=ESP_OK||startup_timed_out||generation_exhausted||active_connection!=connection||connection_generation!=generation)return ESP_ERR_INVALID_STATE;size_t body=std::min(body_capacity,size-offset);std::vector<uint8_t>frame(kFrameHeader+body);memcpy(frame.data(),"BFF1",4);memcpy(frame.data()+4,id,16);frame[20]=size>>8;frame[21]=size;frame[22]=offset>>8;frame[23]=offset;frame[24]=offset+body==size;memcpy(frame.data()+25,digest,32);memcpy(frame.data()+kFrameHeader,data+offset,body);os_mbuf*packet=ble_hs_mbuf_from_flat(frame.data(),frame.size());if(!packet)return ESP_ERR_NO_MEM;{std::lock_guard<std::mutex> lock(connection_mutex);if(!same_owner_locked(connection,generation)){os_mbuf_free_chain(packet);return ESP_ERR_INVALID_STATE;}if(ble_gatts_notify_custom(connection,event_value_handle,packet)!=0)return ESP_FAIL;}}
   return ESP_OK;
 }
