@@ -1,4 +1,4 @@
-import { decodeStrict, encodeCanonical } from "./cbor.ts";
+import { encodeCanonical } from "./cbor.ts";
 import { BleResultWaiters } from "./bleResult.ts";
 import type { BleFiscalResult } from "./bleResult.ts";
 import { base64urlEncode, randomBytes } from "./portableCrypto.ts";
@@ -23,22 +23,18 @@ export type BleSessionPackage = {
   protocol_version: string;
   security_mode: "OPEN_MVP" | "X25519_AES_GCM";
 };
-type Characteristic = {
-  writeValueWithResponse?(v: BufferSource): Promise<void>;
-  writeValue?(v: BufferSource): Promise<void>;
-  startNotifications(): Promise<Characteristic>;
-  addEventListener(type: string, listener: (e: any) => void): void;
-};
-type Device = {
-  name?: string | null;
-  gatt?: {
-    connect(): Promise<{
-      getPrimaryService(
-        uuid: string,
-      ): Promise<{ getCharacteristic(uuid: string): Promise<Characteristic> }>;
-    }>;
-    disconnect?(): void;
-  };
+import { BrowserGattOwner } from "./browserGatt.ts";
+import { uuidString } from "./bleFrames.ts";
+type Connection = {
+  owner: BrowserGattOwner;
+  command?: any;
+  ready: boolean;
+  session: BleSessionPackage;
+  expected?: string;
+  frames: FrameAssembler;
+  results: BleResultWaiters;
+  busy: boolean;
+  clearExpected?: () => void;
 };
 export function webBluetoothSupported() {
   return (
@@ -48,123 +44,243 @@ export function webBluetoothSupported() {
   );
 }
 export class WebBleBootstrap {
-  private device?: Device;
-  private command?: Characteristic;
-  private event?: Characteristic;
-  private ready = false;
-  private results = new BleResultWaiters();
-  private frames = new FrameAssembler();
+  private connection?: Connection;
   get canSendComplianceIntent() {
-    return this.ready;
+    return (
+      !!this.connection?.ready &&
+      !this.connection.owner.closed &&
+      Date.parse(this.connection.session.expires_at) > Date.now()
+    );
   }
   prepareSessionPublicKey() {
     return base64urlEncode(randomBytes(32));
   }
   resetSession() {
-    this.results.cancelAll();
-    this.device?.gatt?.disconnect?.();
-    this.device = undefined;
-    this.command = undefined;
-    this.event = undefined;
-    this.ready = false;
-    this.results = new BleResultWaiters();
+    const connection = this.connection;
+    this.connection = undefined;
+    if (connection) {
+      connection.ready = false;
+      connection.expected = undefined;
+      connection.frames = new FrameAssembler();
+      connection.results.cancelAll();
+      connection.owner.close();
+    }
+  }
+  private live(connection: Connection) {
+    connection.owner.guard();
+    if (this.connection !== connection) throw new Error("BLE_DISCONNECTED");
+    const expiry = Date.parse(connection.session.expires_at);
+    if (!Number.isFinite(expiry) || expiry <= Date.now())
+      throw new Error("BLE_ROUTE_PACKAGE_EXPIRED");
   }
   async connectFromUserGesture(
     session: BleSessionPackage,
     onEvent: (raw: Uint8Array) => void,
+    signal?: AbortSignal,
   ) {
     if (!webBluetoothSupported()) throw new Error("WEB_BLUETOOTH_UNAVAILABLE");
+    if (this.connection && !this.connection.owner.closed)
+      throw new Error("BLE_CONNECTION_IN_PROGRESS");
     if (session.security_mode !== "OPEN_MVP")
       throw new Error("BLE_SECURITY_MODE_UNSUPPORTED");
-    if (new Date(session.expires_at).getTime() <= Date.now())
-      throw new Error("BLE_ROUTE_PACKAGE_EXPIRED");
-    const advertisingIdentity = authorizedAdvertisingIdentity(
+    const identity = authorizedAdvertisingIdentity(
       session.advertising_identity,
       session.edge_id,
     );
-    this.device = (await (navigator as any).bluetooth.requestDevice({
-      filters: [{ services: [session.service_uuid] }],
-    })) as Device;
-    if (!matchesAdvertisingIdentity(this.device, advertisingIdentity)) {
-      this.device.gatt?.disconnect?.();
-      this.device = undefined;
-      throw new Error("BLE_ADVERTISING_IDENTITY_MISMATCH");
-    }
-    const server = await this.device.gatt?.connect();
-    if (!server) throw new Error("BLE_GATT_UNAVAILABLE");
-    const service = await server.getPrimaryService(session.service_uuid);
-    this.command = await service.getCharacteristic(
-      session.command_characteristic_uuid,
-    );
-    this.event = await service.getCharacteristic(
-      session.event_characteristic_uuid,
-    );
-    await this.event.startNotifications();
-    this.event.addEventListener("characteristicvaluechanged", (e) => {
-      const value = e.target?.value as DataView | undefined;
-      if (!value) return;
-      const frame = new Uint8Array(
-        value.buffer,
-        value.byteOffset,
-        value.byteLength,
-      );
-      void this.frames
-        .accept(frame)
-        .then((done) => {
-          if (!done) return;
-          this.results.accept(done.id, done.payload);
-          onEvent(done.payload);
-        })
-        .catch(() => {});
+    const owner = new BrowserGattOwner();
+    const connection: Connection = {
+      owner,
+      session: { ...session },
+      ready: false,
+      results: new BleResultWaiters(),
+      frames: new FrameAssembler(),
+      busy: false,
+    };
+    this.connection = connection;
+    owner.onClose(() => {
+      connection.ready = false;
+      connection.expected = undefined;
+      connection.frames = new FrameAssembler();
+      connection.results.cancelAll();
     });
-    this.ready = true;
-    return { state: "OPEN_READY" as const, ready: Promise.resolve() };
+    owner.bind(signal);
+    try {
+      this.live(connection);
+      const device: any = await owner.wait(
+        (navigator as any).bluetooth.requestDevice({
+          filters: [{ services: [session.service_uuid] }],
+        }),
+      );
+      this.live(connection);
+      if (!matchesAdvertisingIdentity(device, identity))
+        throw new Error("BLE_ADVERTISING_IDENTITY_MISMATCH");
+      owner.claim(device);
+      const setupDeadline = owner.timer(30_000, "BLE_SETUP_TIMEOUT");
+      const server: any = await owner.step(() => device.gatt.connect());
+      this.live(connection);
+      const service: any = await owner.step(() =>
+        server.getPrimaryService(session.service_uuid),
+      );
+      this.live(connection);
+      connection.command = await owner.step(() =>
+        service.getCharacteristic(session.command_characteristic_uuid),
+      );
+      this.live(connection);
+      const event: any = await owner.step(() =>
+        service.getCharacteristic(session.event_characteristic_uuid),
+      );
+      this.live(connection);
+      owner.listen(event, "characteristicvaluechanged", (e) => {
+        if (
+          owner.closed ||
+          this.connection !== connection ||
+          !connection.expected
+        )
+          return;
+        try {
+          this.live(connection);
+        } catch (error) {
+          owner.close(error);
+          return;
+        }
+        const value = e.target?.value as DataView | undefined;
+        if (!value || value.byteLength < 58 || value.byteLength > 512) return;
+        const frame = new Uint8Array(
+          value.buffer,
+          value.byteOffset,
+          value.byteLength,
+        ).slice();
+        const expected = connection.expected,
+          assembler = connection.frames;
+        if (uuidString(frame.slice(4, 20)) !== expected) return;
+        void assembler
+          .accept(frame)
+          .then((done) => {
+            if (
+              !done ||
+              owner.closed ||
+              this.connection !== connection ||
+              connection.frames !== assembler ||
+              connection.expected !== expected
+            )
+              return;
+            connection.expected = undefined;
+            connection.clearExpected?.();
+            connection.clearExpected = undefined;
+            connection.frames = new FrameAssembler();
+            connection.results.accept(done.id, done.payload);
+            onEvent(done.payload);
+          })
+          .catch(() => {});
+      });
+      await owner.step(() => event.startNotifications());
+      this.live(connection);
+      setupDeadline();
+      connection.ready = true;
+      return { state: "OPEN_READY" as const, ready: Promise.resolve() };
+    } catch (error) {
+      owner.close(error);
+      connection.results.cancelAll();
+      throw error;
+    }
+  }
+  private async send(
+    intent: unknown,
+    messageId: string,
+    mtu: number,
+    connection: Connection,
+  ) {
+    this.live(connection);
+    // This is a legacy offer, not a browser MTU negotiation. Rejected writes are
+    // terminal: never downsize/rechunk/resubmit a possibly accepted fiscal intent.
+    if (!Number.isInteger(mtu) || mtu < 61 || mtu > 515)
+      throw new Error("BLE_MTU_TOO_SMALL");
+    const frames = await frameMessage(encodeCanonical(intent), messageId, mtu);
+    this.live(connection);
+    connection.clearExpected?.();
+    connection.expected = messageId;
+    connection.frames = new FrameAssembler();
+    for (const frame of frames) {
+      this.live(connection);
+      if (!connection.command?.writeValueWithResponse)
+        throw new Error("BLE_WRITE_UNSUPPORTED");
+      await connection.owner.step(
+        () => connection.command.writeValueWithResponse(frame),
+        5_000,
+      );
+      this.live(connection);
+    }
+    return { messageId, chunks: frames.length };
+  }
+  private begin(signal?: AbortSignal) {
+    const connection = this.connection;
+    if (!connection || !this.canSendComplianceIntent)
+      throw new Error("BLE_NOT_READY");
+    this.live(connection);
+    if (connection.busy) throw new Error("BLE_OPERATION_IN_PROGRESS");
+    connection.busy = true;
+    const remove = connection.owner.bind(signal);
+    return { connection, remove };
   }
   async sendComplianceIntent(
     intent: unknown,
-    _messageId: string,
-    _attMtu = 185,
+    messageId: string,
+    mtu = 185,
+    signal?: AbortSignal,
   ) {
-    if (!this.ready) throw new Error("BLE_NOT_READY");
-    const frames = await frameMessage(
-      encodeCanonical(intent),
-      _messageId,
-      _attMtu,
-    );
-    for (const frame of frames) await this.write(this.command, frame);
-    return { messageId: _messageId, chunks: frames.length };
+    const { connection, remove } = this.begin(signal);
+    const deadline = connection.owner.timer(30_000, "BLE_SEND_TIMEOUT");
+    try {
+      const result = await this.send(intent, messageId, mtu, connection);
+      // Bound unsolicited result retention after the no-wait API returns.
+      if (connection.expected === messageId)
+        connection.clearExpected = connection.owner.timer(
+          30_000,
+          "BLE_RESULT_TIMEOUT",
+        );
+      return result;
+    } catch (error) {
+      connection.owner.close(error);
+      throw error;
+    } finally {
+      deadline();
+      remove();
+      connection.busy = false;
+    }
   }
   async sendComplianceIntentAndWait(
     intent: unknown,
     messageId: string,
-    _attMtu = 185,
+    mtu = 185,
     timeoutMs = 30_000,
+    signal?: AbortSignal,
   ) {
-    const result = this.results.wait(messageId, timeoutMs);
+    if (!Number.isInteger(timeoutMs) || timeoutMs < 100 || timeoutMs > 120_000)
+      throw new Error("BLE_RESULT_WAIT_INVALID");
+    const { connection, remove } = this.begin(signal);
     try {
-      await this.sendComplianceIntent(intent, messageId);
-    } catch (e) {
-      this.results.reject(messageId, e);
+      const result = connection.results.wait(messageId, timeoutMs);
+      // Observe both immediately: an early result must not complete a hung write.
+      const combined = Promise.all([
+        this.send(intent, messageId, mtu, connection),
+        result,
+      ]);
+      const [, value] = await connection.owner.wait(
+        combined,
+        timeoutMs,
+        "BLE_RESULT_TIMEOUT",
+      );
+      this.live(connection);
+      return value;
+    } catch (error) {
+      connection.owner.close(error);
+      throw error;
+    } finally {
+      connection.results.cancelAll();
+      connection.expected = undefined;
+      connection.frames = new FrameAssembler();
+      connection.busy = false;
+      remove();
     }
-    return result;
-  }
-  private async write(
-    characteristic: Characteristic | undefined,
-    value: Uint8Array,
-  ) {
-    if (!characteristic) throw new Error("BLE_NOT_CONNECTED");
-    const data = value as unknown as BufferSource;
-    if (characteristic.writeValueWithResponse)
-      await characteristic.writeValueWithResponse(data);
-    else if (characteristic.writeValue) await characteristic.writeValue(data);
-    else throw new Error("BLE_WRITE_UNSUPPORTED");
-  }
-}
-function operationId(raw: Uint8Array) {
-  try {
-    const value = decodeStrict<Partial<BleFiscalResult>>(raw);
-    return typeof value.operation_id === "string" ? value.operation_id : "";
-  } catch {
-    return "";
   }
 }

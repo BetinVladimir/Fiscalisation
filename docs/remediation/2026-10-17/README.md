@@ -97,3 +97,5 @@ P0 означает блокер целевого денежного/фиска�
 - [Device-side BLE certificate proof](53_BLE_SERVER_CERTIFICATE_ISSUANCE.md): integrated same-NVS-key single-hash proof, root/context verification, guarded installer/cache and Go↔C++ interop PASS. Production trusted time, public transport and fresh IDF target build remain OPEN.
 
 - [S3 GCC/CI portability](58_S3_CI_PORTABILITY.md): полный локальный IoT GCC gate PASS; исправлены harness-only compiler failures и сохранение CI diagnostics с явным pipefail. Исправленный remote gate требует отдельной проверки.
+
+- [Browser BLE lifecycle](59_BROWSER_BLE_LIFECYCLE.md): actual classes/64 lifecycle cases, root PWA362/Mini234/TS and full Vite/Expo web compile PASS. Negotiated ATT, TLS/new stream, native and physical gates OPEN.

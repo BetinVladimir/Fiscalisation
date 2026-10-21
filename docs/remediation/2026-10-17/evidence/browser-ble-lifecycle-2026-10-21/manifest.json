@@ -1,0 +1,249 @@
+{
+  "scope": "actual browser transport lifecycle with fake SDK; root PWA362/Mini234/TS and full Vite/Expo web compile PASS; working AppFrame/header changes present outside this package, release freeze/native/radio/TLS remain OPEN",
+  "logs": {
+    "worker-PLAN.md.gz": {
+      "raw_sha256": "ca7e8f61ab50060ade9e1356b2bc1c8b520e115e78cc63843caf9756f9ebb89e",
+      "gzip_sha256": "1de4e376ea8fc76bea55d4b5861ca88e611a4695db8610f515b828ab525576c9"
+    },
+    "worker-RESULTS.md.gz": {
+      "raw_sha256": "6f928298acbf8e22f97069688e5177091f757491efb648e093765e7574c7577b",
+      "gzip_sha256": "bd54345b08011cf0fad75d7e6d1f573a20f8eb635e24b5e51b75939880f88fce"
+    },
+    "worker-TESTED_SOURCE.json.gz": {
+      "raw_sha256": "3569e977f37f6966b3c291f7ca75f0bdc06ea2f8dae51ddb898f2462492baa6f",
+      "gzip_sha256": "84e5d7d2dfd1d6d439790392f0d43e744793509a93cfe296ea2a64b12bfa09bc"
+    },
+    "worker-apply-check.log.gz": {
+      "raw_sha256": "19eaf43821a7660ec323a87c8457bf74823beb296c39f5e01aa8a683aa50f061",
+      "gzip_sha256": "f21d30fe6bd64a86d62575c5a04bfa13e12337d2c93fe480e2ed1ce0b3f7ee94"
+    },
+    "worker-ORIGINAL_SOURCE.json.gz": {
+      "raw_sha256": "ee7c65ccbbe97060c791d9d25c048eec11edd363f848c0c8ab160a39aeda908b",
+      "gzip_sha256": "a73ce9026d28cae5230987f98f1d6479c4ca4a92d59a5ee857a44d4d2bc1a987"
+    },
+    "worker-original-red.log.gz": {
+      "raw_sha256": "59bd1abc052f6c43b3cccb9f53b663425cb61d98af31d9b97d04cec014326333",
+      "gzip_sha256": "a63f6bc5367d35691e6fbf217c46810e741b473e88da14d6776c98319f3bf240"
+    },
+    "worker-stable-id-counterfactual-red.log.gz": {
+      "raw_sha256": "0b774b986318e842d8682e9e5f2bc9ba444f3871ef7334f0b69ca6ceac6fdb52",
+      "gzip_sha256": "e11383ad25f9dabb1d3ec970209edf48739710de1097135d81f35b9106761054"
+    },
+    "worker-stable-id-restored-green.log.gz": {
+      "raw_sha256": "51fc3c5260f54a4f5893a70a47716b4c91bfe3a0b5b8e55c0c823fe9b249675b",
+      "gzip_sha256": "5ec16bf069cc3d17899352789f67366af640ae1dc4845ee3d82b29a6fa5c2db5"
+    },
+    "worker-counterfactual.json.gz": {
+      "raw_sha256": "205600d2c58e01b25e96695c9424bc92ff8a73606ec5bc03a208e957b005620a",
+      "gzip_sha256": "c99a37e9a70cfcfa19d547145f3b3520ef662e9b1abed046f9445e9329a912da"
+    },
+    "worker-preference-and-lifecycle-rerun.log.gz": {
+      "raw_sha256": "b8d9479ba566e1781271753259e4be36bc8111410df1eff5f3f6dfa7aa2629df",
+      "gzip_sha256": "78a8b2ef213ad76ca3403ddf9107a988218bd750383a8b5dc6d1b18183984d9a"
+    },
+    "worker-pwa-full-focus-flake.log.gz": {
+      "raw_sha256": "a5a854be830e42775ca8dbb9601b86eaa4ae377c67da1c18d03202d68eb06fb9",
+      "gzip_sha256": "e4e2741792e9c44eab065932bcc4c7a2b410a5e722ce057a5f58cf98bbcba8c6"
+    },
+    "worker-pwa-full-final.log.gz": {
+      "raw_sha256": "1f096406a9758881e24290595dae60d604d0c6a9ac392d39911858717cd268b3",
+      "gzip_sha256": "8b812f7e1af7d08d5997546a9efeb3936e206b18bea5259c425db08f49152790"
+    },
+    "worker-mini-full-final.log.gz": {
+      "raw_sha256": "580a81e24a5a58af4bac2da539673d5cca45bc3c3eadc338fa75b828e3072732",
+      "gzip_sha256": "ac6959de49fb40db45ddd902e484b486909d6ae37617f0204900e8e54204a8be"
+    },
+    "worker-mini-ts-final.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    "worker-pwa-ts-final.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    "worker-pwa-build-final.log.gz": {
+      "raw_sha256": "f0d4bc6c38a44241c9be04a337d6c1f8046127880b4b4ed33fc69eb75a41b86b",
+      "gzip_sha256": "e415d09ec36f629168f940b9d66fd624806a2bb3f7ae447135c933c048ec0a9b"
+    },
+    "worker-mini-build-final.log.gz": {
+      "raw_sha256": "b449b4a91a938872945611e1cc115a03af10e1e54e19dce1a72e4c6b1e933ff7",
+      "gzip_sha256": "022093a462f7c0143d9f11d9b72954786f39cf28e27c2d8b8149a43922973c12"
+    },
+    "worker-mini-transport-browser-build.log.gz": {
+      "raw_sha256": "384185986dac48cf573bc2ca96a956d47067170c2fb51f5e652ff3282f89a42d",
+      "gzip_sha256": "b569d9260d170ae3fca5821fc8654b956e733034a0b83928f4a65c30ac58a3af"
+    },
+    "worker-EVIDENCE_SHA256.json.gz": {
+      "raw_sha256": "78d7cf744510a5458ccff3f609ab108dd13bd26213f7db2c0ce0de6e8c0337eb",
+      "gzip_sha256": "04cb692fa76d04653f7d01c24ef3cac06f46b80fcfe7398e85923050ae82a259"
+    },
+    "root-pwa-tests-final.log.gz": {
+      "raw_sha256": "bceab17214d690914701d76a1678f1b2a46ef49d1625fee90a85de8650bb1ff8",
+      "gzip_sha256": "db33e5fe034d075f34f2f9aa5d88b7173209047c5074722328df083c12a61d05"
+    },
+    "root-pwa-ts-final.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    "root-mini-tests.log.gz": {
+      "raw_sha256": "66876463ccf7cabb71a3cbdae86d76cbd776595e72e16d1136790395de0d9f75",
+      "gzip_sha256": "f976c4b9f26120f6768046254877019a3cb296cf6936e19b97227768ddb298eb"
+    },
+    "root-mini-ts.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    "root-pwa-build.log.gz": {
+      "raw_sha256": "0597ef44440846803fa6ca4cca4681f0920c6c6f26e5e915c656521aa90096b3",
+      "gzip_sha256": "501d51177c3034b3008bd23d60fe19e65533731545393a903d3d95c9cdd32d01"
+    },
+    "root-mini-build.log.gz": {
+      "raw_sha256": "86ed1a2c0554658f096e608d98302d8be7aa5fb2ab2bf035f9592a0f04ef4854",
+      "gzip_sha256": "31aace67fb7cbbc55f872c212af3d9154cec6d24a3c9ebafa4b7aa436c8aa18b"
+    }
+  },
+  "tested_source_sha256": {
+    "minipos/BeeMiniPOS/src/browserGatt.ts": "52e6c56e781ff6aa55b8d083eac29556e5a6b6e2f76d95678cbf03fa49193ac6",
+    "minipos/BeeMiniPOS/src/webBle.ts": "fa03105cf5b7665a4cfa88337399945f48a42548d42ccf8ae9f961acb372ef99",
+    "minipos/miniposweb/src/fiscal/browserGatt.ts": "52e6c56e781ff6aa55b8d083eac29556e5a6b6e2f76d95678cbf03fa49193ac6",
+    "minipos/miniposweb/src/fiscal/webBleRoute.ts": "a84b1c0af7efbd16bbf0a40f095ef46100ab96e14c1b136d98fdee1cb53dfcc8",
+    "minipos/miniposweb/tests/webBleLifecycle.test.ts": "248732a838f41437d90a79f0c426858ad8f71eda33f643fb228b02bfd8325fd9"
+  },
+  "working_context_sha256": {
+    "minipos/miniposweb/package.json": "44deb9de507972d51f3327280c78a875d64d0c7eddc6bd001b04665f7f6801cf",
+    "minipos/miniposweb/package-lock.json": "1ca503f86a03c2d0e7a868406011e8d3618f4274cbd2fe8d64a1ee1de3ddbaad",
+    "minipos/miniposweb/vite.config.ts": "1873aac0ad7591f6555ab4730236ef2ffb07442f199d048f062a8f3410bca30c",
+    "minipos/miniposweb/index.html": "8002da4acfe4828a1f688ed10e95103822bf325cb78cc9189c7c48299206f4e4",
+    "minipos/BeeMiniPOS/App.tsx": "7d98f5fd60a562df47c342dbc754161eda6740a9dcd6eb82aadaf495f85ac473",
+    "minipos/BeeMiniPOS/package.json": "9b92520030ed078ae37e8f512832cead597e5ac1c953a1f5cddcef5a3aea980b",
+    "minipos/BeeMiniPOS/package-lock.json": "2b6bed742d6a7bfba74b71a6de2045a261e73a501ce3feec13606e1e52b980d0"
+  },
+  "artifacts": {
+    "pwa": {
+      "local_archive": ".store-build/browser-ble-working-20261021/pwa",
+      "files": {
+        "index.html": {
+          "sha256": "6785f7776b1fc3e7cd47ce59cb6b746d76a2ebbc64666c053c812381e1cb9496",
+          "bytes": 597
+        },
+        "assets/Roboto_400Regular-BHeBnKzs.ttf": {
+          "sha256": "4e147ab64b9fdf6d89d01f6b8c3ca0b3cddc59d608a8e2218f9a2504b5c98e14",
+          "bytes": 168260
+        },
+        "assets/index-C6dLjiPT.js": {
+          "sha256": "a8458d67ea066e2664bf5194c0d0c953b9e2866716723777b7b0c3b0dc7c5c99",
+          "bytes": 877771
+        },
+        "assets/Roboto_700Bold-BKtbn9Wi.ttf": {
+          "sha256": "ec685a46105296fe46c8744da4a11cf8118ba6c11271941766f7a546df6aa7c7",
+          "bytes": 167336
+        },
+        "assets/index-Bw1sPtsr.css": {
+          "sha256": "9d4b4e3866eed1265632ac0eeadda678714be56630611dd65c07a877fad710eb",
+          "bytes": 9091
+        },
+        "assets/Roboto_500Medium-CFKDKRMh.ttf": {
+          "sha256": "9d0d55a303bfd13b79a87721f65185e93f235e2d77fe398b2dca67ac519915f5",
+          "bytes": 168644
+        }
+      }
+    },
+    "mini": {
+      "local_archive": ".store-build/browser-ble-working-20261021/mini",
+      "files": {
+        "favicon.ico": {
+          "sha256": "92a3575402f36bb566689b108b5090eef551095c3b1c4b9ba2e5e8c772f9cae0",
+          "bytes": 14510
+        },
+        "index.html": {
+          "sha256": "7e4bd035d57a9efacbb9cddd8bdac7842386ffbbed1c6f670c7faf874b74fcbd",
+          "bytes": 1219
+        },
+        "metadata.json": {
+          "sha256": "aa5f19cc84d41c0f8c70ececb2bc82e863227ea1e121632aca879eb616056991",
+          "bytes": 49
+        },
+        "_expo/static/js/web/AppEntry-2c5402d1fb6ffb185c0fb251e40c60e5.js": {
+          "sha256": "f0481417c0ae098f04f46e74a08a0b77f160c4bbaed4328ae918f14127ecbf5c",
+          "bytes": 1593727
+        },
+        "assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png": {
+          "sha256": "c345a69bb21458f024a923ff123c39b20ea3dcfbae1be88fed46ab6d132206fa",
+          "bytes": 2253083
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_400Regular.8a36205bd9b83e03af0591a004bc97f4.ttf": {
+          "sha256": "4e147ab64b9fdf6d89d01f6b8c3ca0b3cddc59d608a8e2218f9a2504b5c98e14",
+          "bytes": 168260
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_100Thin.66209ae01f484e46679622dd607fcbc5.ttf": {
+          "sha256": "67248f7e8c6edb3ce7ef73b0f00a534a7f42c1116cef63ce21b2035b5e979a06",
+          "bytes": 168488
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_300Light.881e150ab929e26d1f812c4342c15a7c.ttf": {
+          "sha256": "c576c50642271bcdbfffed04f92dc8d6a981daf300914d0a20c8a5a5a57015c7",
+          "bytes": 167000
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_300Light_Italic.5788d5ce921d7a9b4fa0eaa9bf7fec8d.ttf": {
+          "sha256": "a48406226854d34fe99642a524a43b2fd26a7dbeca802d5100a8a98d20e1b73d",
+          "bytes": 173172
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_900Black.d6a6f8878adb0d8e69f9fa2e0b622924.ttf": {
+          "sha256": "5ace0d0833ab83ff18ea94e4a7745f919c458ae4eabc298218226df4275ccd4d",
+          "bytes": 168060
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_100Thin_Italic.7bcadd0675fe47d69c2d8aaef683416f.ttf": {
+          "sha256": "28ce251a99cd57d00a98225a8fcb66b60b69daf10b0947c7ec4ed503c22affef",
+          "bytes": 172860
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_700Bold_Italic.fd6e9700781c4aaae877999d09db9e09.ttf": {
+          "sha256": "61df597f73c91f238cbe88fe3c536702d120d048b79b25fa0f4f7818fd123a6f",
+          "bytes": 171508
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_900Black_Italic.c3332e3b8feff748ecb0c6cb75d65eae.ttf": {
+          "sha256": "8b2f87fb08ff4b5d62e753c750fe3291813586501fa14dd258b1ad0bfba533ae",
+          "bytes": 174108
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_500Medium.68ea4734cf86bd544650aee05137d7bb.ttf": {
+          "sha256": "9d0d55a303bfd13b79a87721f65185e93f235e2d77fe398b2dca67ac519915f5",
+          "bytes": 168644
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_400Regular_Italic.cebd892d1acfcc455f5e52d4104f2719.ttf": {
+          "sha256": "99e4a85061136e99e052929ed0d85e36384fba5c34b773139a8f64339c609943",
+          "bytes": 170504
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_500Medium_Italic.c16d19c2c0fd1278390a82fc245f4923.ttf": {
+          "sha256": "d3f317c97f4003892cb969bcfce8de3dc9d67fbf96fdafa68b2e3595317b0d94",
+          "bytes": 173416
+        },
+        "assets/node_modules/@expo-google-fonts/roboto/Roboto_700Bold.b8e42971dec8d49207a8c8e2b919a6ac.ttf": {
+          "sha256": "ec685a46105296fe46c8744da4a11cf8118ba6c11271941766f7a546df6aa7c7",
+          "bytes": 167336
+        },
+        "assets/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.6e435534bd35da5fef04168860a9b8fa.ttf": {
+          "sha256": "61e8aba5a4e981fe22cf7c8e8bcdbea00476e75c62c37f01bf7ee33361d68428",
+          "bytes": 1307660
+        },
+        "assets/assets/header-icons/translate.f6163e74783e9370018280b29663ae2b.png": {
+          "sha256": "618d0a6d544378511d24b9d99e488a6ff133ee6bd26b3a67a7fd1b2b80b49fa0",
+          "bytes": 2045
+        },
+        "assets/assets/header-icons/weather-sunny.f1c18bac91da89b3ade0d14dcc9b2b8b.png": {
+          "sha256": "2efdbe25855d4f4dda72d5a2e90d47f9df3abefdc4feb56b0fb6bbf9f460a08b",
+          "bytes": 2243
+        },
+        "assets/assets/header-icons/weather-night.e724a5179dee946b07c2cacb05ab4916.png": {
+          "sha256": "cf74114e26fee4daf83cb00d59ae0673930c2e973cff121c20d6fcc8309eb821",
+          "bytes": 2776
+        },
+        "assets/assets/header-icons/menu.b3c6c9e69cdf7b53f1e82738321e1689.png": {
+          "sha256": "27c5c46155291d447e3ed6c14b796c2e556fe8f155d1736ce1278691848ba59b",
+          "bytes": 255
+        },
+        "assets/assets/header-icons/arrow-left.7a909a318d6db16fec2e49b2e0cd7a67.png": {
+          "sha256": "48e4f11ff6366372837b986c9023e7205c991866083a9856ac1d7756678670c0",
+          "bytes": 728
+        }
+      }
+    }
+  }
+}
