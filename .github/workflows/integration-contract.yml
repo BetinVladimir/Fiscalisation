@@ -29,7 +29,7 @@ jobs:
     timeout-minutes: 20
     env:
       COMPOSE_PROJECT_NAME: fiscal_contract_${{ github.run_id }}_${{ github.run_attempt }}
-      COMPOSE_FILE: compose.fiscalisation.yaml:compose.fiscalisation.dev.yaml:compose.fiscalisation.e2e.yaml
+      COMPOSE_FILE: compose.fiscalisation.yaml:compose.fiscalisation.dev.yaml:compose.fiscalisation.e2e.yaml:compose.fiscalisation.integration-ci.yaml
       FISCAL_DB_PASSWORD: dev-fiscal-writer-password
       FISCAL_RLS_DB_PASSWORD: dev-fiscal-rls-password
       AUTH_HMAC_KEY: server2server-e2e-signing-key-32-bytes
@@ -46,6 +46,10 @@ jobs:
           fixture_dir="$RUNNER_TEMP/fiscal-contract-init"
           python3 scripts/prepare-fiscal-pg-fixture.py --source database/fiscal --output "$fixture_dir" --namespace fiscal
           echo "FISCAL_E2E_INIT_DIR=$fixture_dir" >> "$GITHUB_ENV"
+      - name: Validate rendered disposable integration topology
+        run: |
+          python3 scripts/tests/test_integration_ci_topology.py
+          docker compose config --format json | python3 scripts/verify-integration-ci-topology.py
       - name: Start Fiscal integration stack including HTTP entrypoint
         run: docker compose up -d --build caddy
       - name: Wait for Fiscal

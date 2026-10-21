@@ -1,0 +1,9 @@
+# Disposable host-driven integration CI only. Keep the backend on its internal
+# network/Unix DB socket; give only the two host entrypoints a routable bridge.
+services:
+  postgres:
+    networks: !override [dbroute, private]
+    ports: !override ["127.0.0.1:5433:5432"]
+  caddy:
+    networks: !override [dbroute, ingress]
+    ports: !override ["127.0.0.1:8080:80"]
