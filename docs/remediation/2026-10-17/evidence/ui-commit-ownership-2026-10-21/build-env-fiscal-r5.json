@@ -1,0 +1,9 @@
+{
+  "CI": "1",
+  "EXPO_NO_DOTENV": "1",
+  "EXPO_NO_TELEMETRY": "1",
+  "NODE_ENV": "production",
+  "APP_VARIANT": "production",
+  "EXPO_PUBLIC_APP_ENV": "prod",
+  "EXPO_PUBLIC_FISCAL_API_URL": "http://fiscal-admin.test/public/v1"
+}

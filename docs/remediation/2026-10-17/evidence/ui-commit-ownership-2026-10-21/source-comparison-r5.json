@@ -1,0 +1,19 @@
+{
+  "baseline_files": 451,
+  "production_helpers_updated": [
+    "BeeFiscalApp/src/ui/app-button.tsx",
+    "BeeFiscalApp/src/ui/app-pressable.tsx",
+    "BeeFiscalApp/src/ui/use-current-action.ts",
+    "minipos/BeeMiniPOS/src/ui/app-button.tsx",
+    "minipos/BeeMiniPOS/src/ui/app-pressable.tsx"
+  ],
+  "other_production_inputs_match_current_root": true,
+  "test_only_differences": [
+    "BeeFiscalApp/jest.ui.config.cjs",
+    "BeeFiscalApp/src/ui/__tests__/language-controls-current.test.tsx",
+    "minipos/BeeMiniPOS/jest.ui.config.cjs",
+    "minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx",
+    "minipos/BeeMiniPOS/e2e/header-logout.mjs"
+  ],
+  "harness_sha256": "0a60b018812ea112fe7e76f84a87f45b7e0801aa87b669562e2eeeeabbae499b"
+}

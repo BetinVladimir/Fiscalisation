@@ -1,12 +1,11 @@
-import { useEffect, useRef } from 'react';
+import { useLayoutEffect, useRef } from 'react';
 
 /** Reject retained callbacks and admit only one command before React commits busy state. */
 export function useCurrentAction() {
-  const mounted = useRef(false), snapshot = {}, latest = useRef(snapshot), admitted = useRef<object | null>(null);
-  latest.current = snapshot;
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const snapshot = {}, committed = useRef<object | null>(null), admitted = useRef<object | null>(null);
+  useLayoutEffect(() => { committed.current = snapshot; return () => { if (committed.current === snapshot) committed.current = null; }; });
   return () => {
-    if (!mounted.current || latest.current !== snapshot || admitted.current === snapshot) return false;
+    if (committed.current !== snapshot || admitted.current === snapshot) return false;
     admitted.current = snapshot; return true;
   };
 }

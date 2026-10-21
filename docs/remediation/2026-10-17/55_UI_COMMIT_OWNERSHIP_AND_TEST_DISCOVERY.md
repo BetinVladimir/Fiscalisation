@@ -1,0 +1,9 @@
+# UI actions: committed ownership and test discovery
+
+2026-10-21. Fixed AppButton/AppPressable in both apps and Fiscal useCurrentAction. Render-time ref assignment previously exposed speculative handlers before React commit, invalidated the still-visible committed action during a suspended render, and let a retained button wrapper forward to a different newly committed handler. Actual React concurrent/Suspense tests reproduce these failures. Publication now occurs in useLayoutEffect; only the exact committed snapshot may dispatch, and cleanup invalidates it synchronously. Single-admission behavior of useCurrentAction remains.
+
+Jest discovery now includes existing src/ui/__tests__ suites in both apps. Fiscal previously included only auth-screen there, MiniPOS none. The newly executed language-controls suite required actual current Paper Header/IconButton/Text mocks and per-test mock reset; its multiline/ownership assertions remain. Existing historical authored-only comments do not override current runner evidence.
+
+[Manifest and raw logs](evidence/ui-commit-ownership-2026-10-21/manifest.json): Fiscal UI112, MiniPOS UI157 and both TypeScript PASS before subsequent MP004 integration. Fresh actual r5 browser bundles pass six scoped OTP/manager/cashier/config404/dirty-logout/current401/MiniPOS stale401 cases, using response-consumption checks and zero financial writes. Fiscal stale401 and MiniPOS theme-menu remain OPEN as in doc50. React tests mock Paper/native surfaces; browser tests use synthetic API fixtures. These results do not prove full financial/native/HIL or WCAG acceptance.
+
+This package changes action ownership and test discovery, not touch dimensions; UI-FISC-004 and other explicit matrix gaps remain OPEN. No App.tsx, user header/decorative assets or generated dist changes are accepted by this package. Device keys remain ESP32-S3/NVS; ATECC608A/608 is unused.
