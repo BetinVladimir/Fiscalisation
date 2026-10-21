@@ -15,5 +15,5 @@ with tempfile.TemporaryDirectory(prefix='reconciliation-host-') as td:
  for mode in ['valid','signature','tenant','terminal','binding','expired','future','alias','row','admin-fault','outbox-fault']:
   run([d/'test',fixture,d/'key.pem',d/(mode+'.sqlite'),mode,os.environ.get('RECONCILIATION_EVENT_OUTPUT',str(d/'event.json'))])
  backend=pathlib.Path(os.environ.get('FISCAL_REPO_ROOT',str(i.parents[3])))/'fiscal-backend'
- env=dict(os.environ,PAYMENT_RECONCILIATION_HOST_BINARY=str(d/'test'),GOCACHE=os.environ.get('GOCACHE','/private/tmp/fiscal-reconciliation-go-cache'))
+ env=dict(os.environ,PAYMENT_RECONCILIATION_HOST_BINARY=str(d/'test'),GOCACHE=os.environ.get('GOCACHE',str(d/'go-cache')))
  subprocess.run(['go','test','./internal/domain','-run','TestPaymentReconciliationActualFirmwareInterop','-count=1','-v'],cwd=backend,env=env,check=True)

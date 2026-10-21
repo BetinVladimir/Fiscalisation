@@ -1,6 +1,6 @@
 # MP026 Stage C — read-only inventory callbacks
 
-2026-10-21. Код и режимы устройств не изменены; Stage C реализация остановлена по запросу root. Целевая база e56db144b26eb480f295525a98608e3b989e3209; текущий HEAD и hashes прочитанных файлов записаны отдельно. Здесь описано состояние исходников, а не результат новых runtime/HIL тестов. Ключи остаются ESP32-S3/NVS, ATECC608A/608 не используется.
+Исторический inventory от 2026-10-21: на этом этапе код не менялся; Stage C был остановлен по запросу root. Последующее ограниченное исправление peripheral reset и его проверки описаны ниже; полная Stage C интеграция остаётся открытой. Целевая база e56db144b26eb480f295525a98608e3b989e3209; текущий HEAD и hashes прочитанных файлов записаны отдельно. Здесь описано состояние исходников, а не результат новых runtime/HIL тестов. Ключи остаются ESP32-S3/NVS, ATECC608A/608 не используется.
 
 ## S3 peripheral: actual callbacks
 
@@ -57,3 +57,11 @@
 После inventory исправлен `BeeFiscalApp/src/provisioningBle.native.ts`: service discovery перенесён под существующий try/catch, чтобы уже подключённое устройство закрывалось при ошибке. Actual connector/fake SDK RED: discovery rejects без cancel; GREEN: тот же error возвращается после cancel. Дополнительно small-MTU cleanup и успешный setup→owner disconnect. Полный configured Fiscal UI26suites/115tests и TypeScript PASS. [Evidence и точные source hashes](evidence/provisioning-discovery-cleanup-2026-10-21/manifest.json).
 
 Inventory source hashes описывают предыдущий срез; native connector после fix имеет отдельный новый hash. Ни generation/deadline/abort safety, ни физическая утечка/закрытие на Android/iOS этим тестом не приняты. Эти требования из inventory остаются OPEN.
+
+## Peripheral host-reset correction, 2026-10-21
+
+Implemented retirement under the connection mutex: inactive handle, checked generation increment/permanent overflow fence, clearing BFF/provisioning assembly and unavailable readiness until a fresh host sync. BluePad reset fanout occurs exactly once after unlocking. Pinned NimBLE advertising callback ownership is represented by immutable integer tokens inherited into the connection/disconnect callback. In-flight access captures ownership before flattening and rechecks before sink admission; read/flow and pending notify paths check active ownership. Startup timeout cannot be revived by reset/sync.
+
+Root actual native harness passes reset, old GAP callbacks, reused handles, paused command/provisioning ingress, notify mbuf ownership and reset/connect/disconnect overflow cases. Root BluePad38 scenarios pass. Worker isolated tests also report ASan/UBSan and original/overflow mutation RED; these are separate from root target/HIL acceptance. Firmware target compile and physical radio tests remain required.
+
+OPEN: an SDK raw access invocation starting only after numeric handle reuse has no historical generation argument; actual callback ordering is a pinned SDK assumption, not authenticated peer identity. An already admitted financial operation is not cancelled by connection retirement. Current CommandView/queue/result callback retain only ingress, so a late result whose publisher starts after reconnect can select a new BLE owner. Full end-to-end result origin propagation is required before claiming complete session isolation. Legacy OPEN_MVP framing is still unauthenticated; this correction does not enable TLS or the new stream protocol.
