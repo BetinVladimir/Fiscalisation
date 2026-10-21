@@ -20,17 +20,18 @@ Status: software checks below PASS on2026-10-21. Overall device/release/legal ac
 | Fiscal dossier profile | PASS | Actual PG snapshot, RLS, drift and source inventory |
 | MiniPOS dossier profile | PASS | Separate actual PG profile |
 | Fiscal evidence dossier profile | PASS | Separate actual PG audit/evidence profile |
+| Two-product `make compose-e2e` | PASS | Synthetic payment/reversal/restart/outage/export/backup-restore/autonomous DB flows |
 | Backend `go test ./...` | PASS | Generic tests; conditional database skips are not database acceptance |
 | Fixture preparer tests |6 PASS | Required scripts, source preservation, namespace mapping, fail-closed inputs |
 | Product boundary fixture tests |4 PASS /16 assertions | Generated fixture wiring |
 | Presentation build/report guards |26 PASS |6 Python +20 Node tests; separate UI scope |
 
-The initial generic Go run was blocked by sandbox cache/listener restrictions; the authorized rerun passed. Earlier integration failures exposed shared audit cleanup and stale migration inventories; these were fixed and the final actual PostgreSQL runs passed. Raw final logs are linked above. Full Compose validation and remaining ordinary browser regressions are tracked independently and are not claimed by this package.
+The initial generic Go run was blocked by sandbox cache/listener restrictions; the authorized rerun passed. Earlier integration failures exposed shared audit cleanup and stale migration inventories; these were fixed and the final actual PostgreSQL runs passed. Raw final logs are linked above. The subsequent full Compose run passed and is included in evidence; remaining ordinary browser regressions are tracked independently.
 
 ## Remaining acceptance work
 
 1. Review migration022 with the owner of canonical BeeloyDB: external consumers must accept text reference columns; assess locking, rollout/recovery and existing public-only database conversion. Execute against a restored representative database before deployment. The disposable fixture adapter is not a production migrator.
 2. Add reviewed catalog profiles for all typed projection tables/views before claiming a complete schema dictionary. Resolve diagnostic categories and absent metadata instead of treating a diagnostic row as full event-model coverage. Country-profile fallback compatibility remains a limitation.
-3. Validate full two-product Compose flows and backup/restore after these namespace changes. Continue ordinary browser/native regressions and produce final app/firmware artifacts.
+3. Preserve the now-passing two-product Compose and backup/restore regression gate. Continue ordinary browser/native regressions and produce final app/firmware artifacts.
 4. Close authenticated/encrypted BLE result/session, offline revocation/equivalence and electronic receipt gaps; complete real Datecs COM, Daisy USB, BluePad BLE and Android/iOS HIL. Keys remain inside ESP32-S3 NVS, with no ATECC module requirement.
 5. Complete applicable НАП evidence and external review; none of the checks here constitutes hardware, vendor or legal approval.

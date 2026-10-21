@@ -37,6 +37,13 @@
       "raw_sha256": "cb01b456d016853ecebe6255600b01fdb8753cc1d87c2dabcdd401e23dbd28e7",
       "gzip_sha256": "cd39c8946f61a0e32a18e7856dcacdd745391d19aaf12dc6c33b5e26eddce9d3",
       "terminal_exit_code": 0
+    },
+    "two-compose": {
+      "file": "two-compose.log.gz",
+      "raw_sha256": "5bb7c9364ff6d88ce818bab0cc537fd438d57d9bc5dbef6f7019b71cd0f60201",
+      "gzip_sha256": "2b9331662d97b5af2e70cbba6075080251505cecc6815563d12a4a034fc0933c",
+      "terminal_exit_code": 0,
+      "source_commit": "4775200"
     }
   },
   "source_sha256": {
