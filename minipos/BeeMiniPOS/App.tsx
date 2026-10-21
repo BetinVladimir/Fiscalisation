@@ -1,3 +1,12 @@
+import { authIllustrationOpacity, registerDisplayLabel, regulatoryIdentityLabel } from './src/ui/operator-presentation';
+import { apiProblemText } from './src/apiProblemText';
+import { foundationCopy } from '../../../BeeloyBackend/mobile/shared-ui/src/foundation-copy.generated';
+import { operationalLabel } from './src/ui/operational-copy';
+import {ThemeMenu,LanguageMenu} from './src/ui/HeaderPreferenceMenus';
+import {headerIcons} from './src/ui/header-icons';
+import {useHeaderLeaveGuard,HeaderLeaveDialog} from './src/ui/useHeaderLeaveGuard';
+import {headerLeaveCopy} from './src/ui/header-leave-copy';
+import {PaperOperationalHeader,useHeaderMetrics} from './src/ui/PaperOperationalHeader';
 import {Surface as SafePaperSurface} from 'react-native-paper';
 import {Surface as PaintedPaperSurface} from 'react-native-paper';
 import { AppButton as PaperButton } from './src/ui/app-button';
@@ -7,7 +16,7 @@ import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-v
 import { FormField as TextInput } from './src/ui/form-field';
 import { AuthForm } from './src/ui/auth-form';
 import { StatusBar } from "expo-status-bar";
-import { useContext, useEffect, useId, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useLayoutEffect, useId, useMemo, useRef, useState } from "react";
 import { Linking, Platform, ScrollView as NativeScrollView, StyleSheet, useWindowDimensions, View } from "react-native";
 import {
   Badge as PaperBadge,
@@ -26,10 +35,15 @@ import { WebBleBootstrap, webBluetoothSupported } from "./src/webBle.ts";
 import type { BleSessionPackage } from "./src/webBle.ts";
 import { validateBleDeploymentAuthority } from "./src/bleDeployment.ts";
 import { getRandomBytes } from "expo-crypto";
-import { configureRandomSource } from "./src/portableCrypto.ts";
+import { configureRandomSource, base64urlEncode, hash256 } from "./src/portableCrypto.ts";
 import { ConnectivityController, pingFiscal } from "./src/connectivity.ts";
-import { bleFinalizeIntent, newCheckoutPlan } from "./src/checkoutPlan.ts";
+import { newCheckoutPlan } from "./src/checkoutPlan.ts";
 import { CheckoutJournal } from "./src/checkoutJournal.ts";
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import nativeExecutionProvider from './src/nativeExecutionProvider';
+import { NativeExecutionAuthority, buildAuthorizedFinalizeIntent, executionScopeID } from './src/nativeExecutionAuthority.ts';
+import { NativeExecutionManager } from './src/nativeExecutionManager.ts';
+import { projectSourceOrder, type SourceOrder } from './src/sourceOrders.ts';
 import {
   createNativeBleBootstrap,
   requestNativeBlePermissions,
@@ -101,6 +115,7 @@ type FiscalSaleLine = {
   tax_group: string;
 };
 type FiscalSale = {
+  source_order_id?: string;
   sale_id: string;
   external_id: string;
   register_id: string;
@@ -164,6 +179,10 @@ type Configuration = {
   location_address: string;
   workstation_name: string;
   fiscal_register_id: string;
+  location_id?: string;
+  fiscal_adapter_id?: string;
+  binding_generation?: number;
+  adapter_base_url?: string;
   version: number;
 };
 type SalesReport = {
@@ -198,11 +217,11 @@ const fiscalDeviceId = process.env.EXPO_PUBLIC_FISCAL_DEVICE_ID || "";
 const appInstanceId =
   process.env.EXPO_PUBLIC_APP_INSTANCE_ID ||
   "00000000-0000-4000-8000-000000000001";
-const uuid = () =>
-  "xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx".replace(/[xy]/g, (c) => {
-    const r = Math.floor(Math.random() * 16);
-    return (c === "x" ? r : (r & 3) | 8).toString(16);
-  });
+const uuid = () => {
+  const bytes = getRandomBytes(16); bytes[6] = (bytes[6] & 15) | 64; bytes[8] = (bytes[8] & 63) | 128;
+  const hex = [...bytes].map(v => v.toString(16).padStart(2, '0')).join('');
+  return `${hex.slice(0,8)}-${hex.slice(8,12)}-${hex.slice(12,16)}-${hex.slice(16,20)}-${hex.slice(20)}`;
+};
 // The HTTP idempotency key is the end-to-end client operation identity. It is
 // generated before the first send and reused by fiscalCall across REST retries.
 const key = () => uuid();
@@ -214,17 +233,6 @@ class MiniPosHttpError extends Error {
     super(message);
     this.name = "MiniPosHttpError";
   }
-}
-function responseErrorMessage(text: string, fallback: string) {
-  if (!text) return fallback;
-  try {
-    const problem = JSON.parse(text) as { detail?: unknown; title?: unknown };
-    if (typeof problem.detail === "string" && problem.detail.trim())
-      return problem.detail;
-    if (typeof problem.title === "string" && problem.title.trim())
-      return problem.title;
-  } catch {}
-  return text;
 }
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   const r = await fetchWithTimeout(apiBase + path, {
@@ -245,7 +253,7 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
   if (!r.ok)
     throw new MiniPosHttpError(
       r.status,
-      responseErrorMessage(text, `HTTP ${r.status}`),
+      apiProblemText(text, `HTTP ${r.status}`),
     );
   return text ? JSON.parse(text) : ({} as T);
 }
@@ -279,7 +287,7 @@ async function fiscalCall<T>(path: string, init: RequestInit = {}): Promise<T> {
   const text = await r.text();
   if (r.status === 401 && prodMode) runtimeUnauthorized?.();
   if (!r.ok)
-    throw new FiscalHttpError(r.status, text || `Fiscal HTTP ${r.status}`);
+    throw new FiscalHttpError(r.status, apiProblemText(text, `Fiscal HTTP ${r.status}`));
   return text ? JSON.parse(text) : ({} as T);
 }
 class FiscalHttpError extends Error {
@@ -345,10 +353,12 @@ function MiniPosApp({
   const [status, setStatus] = useState("Зареждане…"),
     [search, setSearch] = useState(""),
     [splitCash, setSplitCash] = useState(""),
-    [busy, setBusy] = useState(false),
+    [busy, setBusyState] = useState(false),
     [admin, setAdmin] = useState(false),
     [mobilePosView, setMobilePosView] = useState<"catalog" | "cart">("catalog"),
     [pendingOrder, setPendingOrder] = useState<Order | null>(null);
+  const navigationBusy=useRef(false);
+  const setBusy=(value:boolean)=>{navigationBusy.current=value;setBusyState(value);};
   useEffect(() => setStatus(uiText.ready), [uiText]);
   const [pName, setPName] = useState(""),
     [pPrice, setPPrice] = useState(""),
@@ -377,6 +387,16 @@ function MiniPosApp({
       (ActiveBleBinding & BleSessionPackage & { device_id: string }) | null
     >(null),
     [bleReady, setBleReady] = useState(false);
+
+  const executionAuthority = useRef(new NativeExecutionAuthority(nativeExecutionProvider, AsyncStorage));
+  const nativeAuthToken = emailAuth.accessToken || devAuthToken;
+  const executionManager = useMemo(() => shift?.id && nativeAuthToken ? new NativeExecutionManager(executionAuthority.current, AsyncStorage, call, {backend:apiBase,token:nativeAuthToken,appInstance:appInstanceId,shiftID:shift.id},uuid) : undefined, [shift?.id,nativeAuthToken]);
+  const previousExecutionManager = useRef<NativeExecutionManager | undefined>(undefined);
+  useEffect(() => {
+    const previous=previousExecutionManager.current;previousExecutionManager.current=executionManager;
+    if(previous && previous!==executionManager)void previous.revoke();
+    if(executionManager)void executionManager.issue().catch(error=>{if(error instanceof MiniPosHttpError && [401,403].includes(error.status))setStatus(message(error));});
+  },[executionManager]);
 
   const cart = useMemo<CartLine[]>(
     () =>
@@ -428,42 +448,14 @@ function MiniPosApp({
     discountAmount?: string,
   ) => {
     if (!saleProjection) return;
-    const line = saleProjection.lines.find((v) => v.product_code === productId);
-    if (!line) return;
-    if (quantity <= 0) {
-      setSaleProjection(
-        await fiscalCall<FiscalSale>(
-          `/sales/${saleProjection.sale_id}/lines/${line.line_id}:cancel`,
-          {
-            method: "POST",
-            headers: { "If-Match": String(saleProjection.version) },
-            body: "{}",
-          },
-        ),
-      );
-      return;
-    }
-    setSaleProjection(
-      await fiscalCall<FiscalSale>(
-        `/sales/${saleProjection.sale_id}/lines/${line.line_id}`,
-        {
-          method: "PATCH",
-          headers: { "If-Match": String(saleProjection.version) },
-          body: JSON.stringify({
-            ...line,
-            quantity: quantity.toFixed(3),
-            ...(discountAmount && Number(discountAmount) > 0
-              ? {
-                  discount: {
-                    amount: Number(discountAmount).toFixed(2),
-                    currency: "EUR",
-                  },
-                }
-              : { discount: undefined }),
-          }),
-        },
-      ),
-    );
+    if (!saleProjection.source_order_id) throw new Error('LEGACY_ROOT_CART_RECONCILIATION_REQUIRED');
+    const line=saleProjection.lines.find(v=>v.product_code===productId);if(!line)return;
+    const {product_code,...sourceLine}=line;
+    const next=await call<SourceOrder>(`/orders/${saleProjection.source_order_id}/lines/${line.line_id}`, {
+      method:quantity<=0?'DELETE':'PATCH',headers:{'If-Match':String(saleProjection.version)},
+      ...(quantity<=0?{}:{body:JSON.stringify({...sourceLine,product_id:product_code,quantity:quantity.toFixed(3),...(discountAmount&&Number(discountAmount)>0?{discount:{amount:Number(discountAmount).toFixed(2),currency:'EUR'}}:{discount:undefined})})})
+    });
+    setSaleProjection(projectSourceOrder(next));
   };
   const setLineDiscount = (productId: string, amount: number) => {
     if (!canManage) {
@@ -590,24 +582,16 @@ function MiniPosApp({
           const journals = await checkoutJournal.current.pending();
           if (journals.length) {
             const durable = journals[0];
-            const sale = await fiscalCall<FiscalSale>(
-              `/sales/${durable.sale_id}`,
-            ).catch(() => null);
-            if (sale) {
-              setSaleProjection(sale);
-              setPendingOrder({
-                id: durable.sale_id,
-                state: "UNKNOWN",
-                version: durable.sale_version,
-                allowed_actions: ["READ"],
-                fiscal_operation_id: durable.plan.client_operation_id,
-              });
-            }
+            const sale = durable.source_order_id
+              ? await call<SourceOrder>(`/orders/${durable.source_order_id}`).then(projectSourceOrder).catch(()=>null)
+              : await fiscalCall<FiscalSale>(`/sales/${durable.sale_id}`).catch(()=>null);
+            if(sale)setSaleProjection(sale);
+            setPendingOrder({id:durable.sale_id,state:'UNKNOWN',version:durable.sale_version,allowed_actions:['READ'],fiscal_operation_id:durable.plan.client_operation_id});
+            if(!sale)setStatus('CHECKOUT_SESSION_RECONCILIATION_REQUIRED');
           } else {
-            const sales = await fiscalCall<{ items: FiscalSale[] }>(
-              `/sales?operator_id=${encodeURIComponent(employee.operator_code)}&register_id=${encodeURIComponent(recoveryRegister)}&state=OPEN`,
-            ).catch(() => ({ items: [] }));
-            setSaleProjection(sales.items[0] || null);
+            const orders=await collect<SourceOrder>('/orders');
+            const current=orders.find(o=>o.shift_id===recovered.id && ['DRAFT','OPEN'].includes(o.state));
+            setSaleProjection(current?projectSourceOrder(current):null);
           }
         }
         if (recovered?.state !== "OPEN") {
@@ -702,60 +686,13 @@ function MiniPosApp({
         );
         return;
       }
-      let session = workstationSession;
-      if (!saleProjection) {
-        await fiscalCall(`/workstations/${activeRegisterId}/clock-sync`, {
-          method: "POST",
-          body: "{}",
-        });
-        await fiscalCall(
-          `/workstations/${activeRegisterId}/readiness:refresh`,
-          { method: "POST", body: "{}" },
-        );
-      }
-      if (!session || new Date(session.expires_at).getTime() <= Date.now()) {
-        session = await fiscalCall<WorkstationSession>(
-          `/workstations/${activeRegisterId}/sessions`,
-          {
-            method: "POST",
-            body: JSON.stringify({
-              operator_code: selectedEmployee.operator_code,
-              app_instance_id: appInstanceId,
-            }),
-          },
-        );
-        setWorkstationSession(session);
-      }
-      const line: FiscalSaleLine = {
-        line_id: uuid(),
-        product_code: p.id,
-        name: p.name,
-        quantity: "1.000",
-        unit_price: p.price,
-        tax_group: p.tax_group,
-      };
-      const next = saleProjection
-        ? await fiscalCall<FiscalSale>(
-            `/sales/${saleProjection.sale_id}/lines`,
-            {
-              method: "POST",
-              headers: { "If-Match": String(saleProjection.version) },
-              body: JSON.stringify(line),
-            },
-          )
-        : await fiscalCall<FiscalSale>("/sales:open-with-line", {
-            method: "POST",
-            body: JSON.stringify({
-              client_sale_surrogate_id: uuid(),
-              workstation_id: activeRegisterId,
-              operator_session_id: session.session_id,
-              line,
-            }),
-          });
-      setSaleProjection(next);
-      setStatus(
-        `Продажбата е отворена • УНП ${next.regulatory_identifiers[0]?.value || next.unp}`,
-      );
+      if(saleProjection && !saleProjection.source_order_id)throw new Error('LEGACY_ROOT_CART_RECONCILIATION_REQUIRED');
+      let order:SourceOrder;
+      if(saleProjection)order=await call<SourceOrder>(`/orders/${saleProjection.source_order_id}`);
+      else order=await call<SourceOrder>('/orders',{method:'POST',body:JSON.stringify({shift_id:shift.id})});
+      const next=await call<SourceOrder>(`/orders/${order.id}/lines`,{method:'POST',headers:{'If-Match':String(order.version)},body:JSON.stringify({line_id:uuid(),product_id:p.id,name:p.name,quantity:'1.000',unit_price:p.price,tax_group:p.tax_group})});
+      setSaleProjection(projectSourceOrder(next));
+      setStatus('Артикулът е приет • фискална продажба ще бъде подготвена при плащане');
     } catch (e) {
       setStatus(`Артикулът не е приет: ${message(e)}`);
     } finally {
@@ -974,137 +911,58 @@ function MiniPosApp({
                 terminal_policy: type === "CARD" ? "AUTO_IF_AVAILABLE" : "NONE",
               },
             ];
-      if (!saleProjection) throw new Error("Липсва приета продажба");
-      let sale = saleProjection;
-      let last: FiscalOperation | undefined;
-      const stored = await checkoutJournal.current.load(sale.sale_id);
-      const checkoutPlan =
-        stored?.plan || newCheckoutPlan(uuid, payments, total);
-      recoveryOperationId = checkoutPlan.client_operation_id;
-      if (stored && stored.sale_version !== sale.version)
-        throw new Error("CHECKOUT_RECONCILIATION_REQUIRED");
-      await checkoutJournal.current.save({
-        sale_id: sale.sale_id,
-        sale_version: sale.version,
-        plan: checkoutPlan,
-        created_at: new Date().toISOString(),
-      });
-      const cloud = await fiscalCloudReachable(`/sales/${sale.sale_id}`);
-      connectivity.current.observe(cloud, Boolean(bleReady && bleBinding));
-      if (!cloud) {
-        await new Promise((r) => setTimeout(r, 1000));
-        connectivity.current.observe(
-          await fiscalCloudReachable(""),
-          Boolean(bleReady && bleBinding),
-        );
-        await new Promise((r) => setTimeout(r, 1000));
-        connectivity.current.observe(
-          await fiscalCloudReachable(""),
-          Boolean(bleReady && bleBinding),
-        );
+      if(!saleProjection?.source_order_id)throw new Error('LEGACY_ROOT_CART_RECONCILIATION_REQUIRED');
+      if(!executionManager)throw new Error('AUTHENTICATED_SESSION_REQUIRED');
+      const sale=saleProjection,sourceID=sale.source_order_id!;
+      let stored=await checkoutJournal.current.load(sale.sale_id);
+      let intent:Record<string,unknown>;
+      const sourceSessionHash=base64urlEncode(hash256(new TextEncoder().encode(nativeAuthToken)));
+      if(stored?.signed_intent){
+        if(stored.source_order_id!==sourceID||stored.source_session_hash!==sourceSessionHash)throw new Error('CHECKOUT_SESSION_RECONCILIATION_REQUIRED');
+        // Stored monetary bytes are immutable. A pending outcome is resolved through read/reconcile, never rebuilt.
+        throw new Error('CHECKOUT_RECONCILIATION_REQUIRED');
+      }else{
+        if(stored && (stored.phase!=='AUTHORIZING'||stored.source_order_id!==sourceID||stored.source_session_hash!==sourceSessionHash))throw new Error('CHECKOUT_SESSION_RECONCILIATION_REQUIRED');
+        let prepared:Awaited<ReturnType<NativeExecutionManager['issue']>>|undefined;
+        let sourceAvailable=false;
+        try{await call('/configuration');sourceAvailable=true;}catch(error){if(error instanceof MiniPosHttpError)throw error;}
+        const plan=stored?.plan??newCheckoutPlan(uuid,payments,total);
+        if(sourceAvailable){
+          if(!stored){stored={sale_id:sale.sale_id,source_order_id:sourceID,sale_version:sale.version,plan,created_at:new Date().toISOString(),phase:'AUTHORIZING',authorization_request_key:uuid(),source_session_hash:sourceSessionHash};await checkoutJournal.current.save(stored);}
+          // Persist before issuance. A lost prepare response can only retry this exact request, never lease another UNP.
+          prepared=await executionManager.issue({id:sourceID,payments:plan.payments},stored.authorization_request_key);
+        }else if(stored)throw new Error('AUTHORIZATION_PREPARE_RECONCILIATION_REQUIRED');
+        const context=prepared?.context??await executionManager.restore();
+        if(!context)throw new Error('EXECUTION_AUTHORIZATION_REQUIRED');
+        const assigned=context.claims.unp_authority;
+        const executionPlan={...plan,...(assigned?{client_operation_id:assigned.operation_id,receipt_session_id:assigned.receipt_session_id}:{})};
+        const route={tenant_id:context.claims.tenant_id,location_id:configuration?.location_id??'',register_id:activeRegisterId,edge_id:configuration?.fiscal_adapter_id??'',binding_version:configuration?.binding_generation??0};
+        intent=await buildAuthorizedFinalizeIntent(executionAuthority.current,context,executionPlan,route,{external_id:sale.external_id,lines:sale.lines.map(({product_code,...line})=>line)},prepared?.canonicalPayload);
+        const signed={sale_id:sale.sale_id,source_order_id:sourceID,sale_version:stored?.sale_version??sale.version,plan:executionPlan,created_at:stored?.created_at??new Date().toISOString(),signed_intent:intent,execution_scope:executionScopeID(context.scope),phase:'SIGNED' as const,authorization_request_key:stored?.authorization_request_key,source_session_hash:sourceSessionHash};
+        await checkoutJournal.current.save(signed);stored=signed;
       }
-      const useBle =
-        Boolean(bleReady && bleBinding) && connectivity.current.useBle();
-      if (useBle) {
-        const intent = bleFinalizeIntent(checkoutPlan, bleBinding!, sale, {
-          operator_code: selectedEmployee.operator_code,
-          app_instance_id: appInstanceId,
-          expected_version: sale.version,
-        });
-        const local = await ble.current.sendComplianceIntentAndWait(
-          intent,
-          checkoutPlan.client_operation_id,
-        );
-        last = {
-          operation_id: local.operation_id,
-          type: "FISCAL_SALE",
-          state:
-            local.state === "FISCALIZED"
-              ? "FISCALIZED"
-              : local.state === "FISCAL_RESULT_UNKNOWN"
-                ? "UNKNOWN"
-                : "FAILED",
-          fiscal_reference: local.fiscal_reference,
-        };
-        if (local.state === "FISCAL_RESULT_UNKNOWN") {
-          setPendingOrder({
-            id: sale.sale_id,
-            state: "UNKNOWN",
-            version: sale.version,
-            allowed_actions: ["READ"],
-            fiscal_operation_id: local.operation_id,
-          });
-          throw new Error("UNKNOWN: RECONCILE");
-        }
-        if (local.state !== "FISCALIZED") {
-          await checkoutJournal.current.remove(sale.sale_id);
-          throw new CheckoutFinalError(local.error_code || "PAYMENT_REJECTED");
-        }
-        sale = { ...sale, state: "COMPLETED" };
-        setSaleProjection(sale);
-      } else {
-        try {
-          last = await fiscalCall<FiscalOperation>(
-            `/sales/${sale.sale_id}:finalize`,
-            {
-              method: "POST",
-              headers: {
-                "If-Match": String(sale.version),
-                "Idempotency-Key": checkoutPlan.client_operation_id,
-              },
-              body: JSON.stringify(checkoutPlan),
-            },
-          );
-        } catch (e) {
-          if (!(bleReady && bleBinding) || e instanceof FiscalHttpError)
-            throw e;
-          const intent = bleFinalizeIntent(checkoutPlan, bleBinding, sale, {
-            operator_code: selectedEmployee.operator_code,
-            app_instance_id: appInstanceId,
-            expected_version: sale.version,
-          });
-          const local = await ble.current.sendComplianceIntentAndWait(
-            intent,
-            checkoutPlan.client_operation_id,
-          );
-          last = {
-            operation_id: local.operation_id,
-            type: "FISCAL_SALE",
-            state:
-              local.state === "FISCALIZED"
-                ? "FISCALIZED"
-                : local.state === "FISCAL_RESULT_UNKNOWN"
-                  ? "UNKNOWN"
-                  : "FAILED",
-            fiscal_reference: local.fiscal_reference,
-          };
-        }
-        if (last.state === "UNKNOWN") {
-          setPendingOrder({
-            id: sale.sale_id,
-            state: "UNKNOWN",
-            version: sale.version,
-            allowed_actions: ["READ"],
-            fiscal_operation_id: last.operation_id,
-          });
-          throw new Error("UNKNOWN: RECONCILE");
-        }
-        if (last.state === "FAILED") {
-          await checkoutJournal.current.remove(sale.sale_id);
-          throw new CheckoutFinalError("PAYMENT_REJECTED");
-        }
-        sale = await fiscalCall<FiscalSale>(`/sales/${sale.sale_id}`);
-        setSaleProjection(sale);
+      recoveryOperationId=String(intent.intent_id);
+      let last:FiscalOperation|undefined;
+      // CLOUD dispatch uses the root's existing prepared plan. BLE retries exactly the same signed operation.
+      if(intent.server_sale_id){
+        try{
+          const operation=await call<Record<string,unknown>>('/execution-authorizations:dispatch',{method:'POST',headers:{'Idempotency-Key':String(intent.intent_id)},body:JSON.stringify({order_id:sourceID})});
+          if(operation.operation_id!==intent.intent_id||operation.client_operation_id!==intent.intent_id||operation.receipt_session_id!==intent.receipt_session_id||operation.sale_id!==intent.server_sale_id||operation.register_id!==intent.register_id)throw new Error('FISCAL_OPERATION_IDENTITY_MISMATCH');
+          last=operation as unknown as FiscalOperation;
+        }catch(error){if(error instanceof MiniPosHttpError)throw error;}
       }
-      if (sale.state !== "COMPLETED")
-        throw new Error("Плащането не е завършено");
-      setPendingOrder(null);
-      await checkoutJournal.current.remove(sale.sale_id);
-      setSaleProjection(null);
-      setSplitCash("");
-      setStatus(
-        `Успешен фискален бон • ${last?.fiscal_reference || last?.operation_id} • EUR ${total.toFixed(2)}`,
-      );
+      if(!last){
+        if(!bleReady||!bleBinding)throw new Error('CHECKOUT_OUTCOME_UNCONFIRMED');
+        if(bleBinding.tenant_id!==intent.tenant_id||bleBinding.location_id!==intent.location_id||bleBinding.register_id!==intent.register_id||bleBinding.edge_id!==intent.edge_device_id||bleBinding.binding_version!==intent.binding_generation)throw new Error('BLE_EXECUTION_ROUTE_MISMATCH');
+        const local=await ble.current.sendComplianceIntentAndWait(intent,String(intent.intent_id));
+        last={operation_id:local.operation_id,type:'FISCAL_SALE',state:local.state==='FISCALIZED'?'FISCALIZED':local.state==='FISCAL_RESULT_UNKNOWN'?'UNKNOWN':'FAILED',fiscal_reference:local.fiscal_reference};
+      }
+      if(last.state!=='FISCALIZED'||!last.fiscal_reference){
+        setPendingOrder({id:sale.sale_id,state:'UNKNOWN',version:sale.version,allowed_actions:['READ'],fiscal_operation_id:recoveryOperationId});
+        throw new Error('UNKNOWN: RECONCILE');
+      }
+      setPendingOrder(null);await checkoutJournal.current.remove(sale.sale_id);setSaleProjection(null);setSplitCash('');
+      setStatus(`Успешен фискален бон • ${last.fiscal_reference} • EUR ${total.toFixed(2)}`);
     } catch (e) {
       if (
         saleProjection &&
@@ -1137,15 +995,9 @@ function MiniPosApp({
     try {
       if (!pendingOrder.fiscal_operation_id)
         throw new Error("Липсва operation ID");
-      const operation = await fiscalCall<FiscalOperation>(
-        `/operations/${pendingOrder.fiscal_operation_id}`,
-      );
-      if (operation.state === "UNKNOWN")
-        await fiscalCall(`/operations/${operation.operation_id}:reconcile`, {
-          method: "POST",
-          body: "{}",
-        });
-      const sale = await fiscalCall<FiscalSale>(`/sales/${pendingOrder.id}`);
+      const sourceID=saleProjection?.source_order_id;
+      const operation=sourceID?await call<FiscalOperation>(`/orders/${sourceID}/operations/${pendingOrder.fiscal_operation_id}`):await fiscalCall<FiscalOperation>(`/operations/${pendingOrder.fiscal_operation_id}`);
+      const sale=sourceID?projectSourceOrder(await call<SourceOrder>(`/orders/${sourceID}`)):await fiscalCall<FiscalSale>(`/sales/${pendingOrder.id}`);
       setSaleProjection(sale);
       if (sale.state === "COMPLETED") {
         await checkoutJournal.current.remove(pendingOrder.id);
@@ -1278,6 +1130,7 @@ function MiniPosApp({
     }
   };
   const logoutOperator = async () => {
+    await executionManager?.revoke();
     if (shift) {
       setStatus("Затворете смяната преди изход");
       return;
@@ -1307,6 +1160,10 @@ function MiniPosApp({
       setStatus(message(e)),
     );
   };
+  const headerScope=JSON.stringify([emailAuth.accessToken,activeRegisterId]);
+  const [headerChildPending,setHeaderChildPending]=useState<{scope:string;pending:boolean}|null>(null);
+  const headerPending=headerChildPending?.scope===headerScope&&headerChildPending.pending;
+  const headerLeave=useHeaderLeaveGuard(headerScope,()=>navigationBusy.current||!!pendingOrder);
   if (!emailAuth.accessToken)
     return (
       <SafePaperSurface testID="app-paper-surface" mode="flat" elevation={0} style={{flex:1,backgroundColor:paperTheme.colors.background}}><SafeAreaView testID="app-root" style={[s.root, s.authRoot, { }]}>
@@ -1315,19 +1172,12 @@ function MiniPosApp({
           accessibilityIgnoresInvertColors
           source={require("../imgs/background.png")}
           resizeMode="cover"
-          style={[s.authBackground,{borderRadius:0}]}
+          style={[s.authBackground,{borderRadius:0,opacity:authIllustrationOpacity(dark)}]}
           accessible={false}
           accessibilityElementsHidden
           importantForAccessibility="no-hide-descendants"
         />
-        <View style={s.authHeader}>
-          <ThemeMenu preference={themePreference} text={uiText} onSelect={selectTheme} />
-          <LanguageMenu
-            language={emailAuth.language}
-            label={uiText.language}
-            onSelect={(value) => void emailAuth.setLanguage(value)}
-          />
-        </View>
+        <PaperOperationalHeader testID="auth.header" title={uiText.signIn} preferences={target=><><LanguageMenu target={target} language={emailAuth.language} label={uiText.language} onSelect={value=>void emailAuth.setLanguage(value)}/><ThemeMenu target={target} preference={themePreference} text={uiText} onSelect={selectTheme}/></>}/>
         <NativeScrollView
           style={s.authScroll}
           contentContainerStyle={s.authScrollContent}
@@ -1360,7 +1210,7 @@ function MiniPosApp({
             <PaperLegalLink testID="operator-onboarding-privacy" label={legalText.privacy} url={`https://legal.beeloy.org/${emailAuth.language}/privacy`} />
             <PaperButton testID="operator-onboarding-create" mode="contained" contentStyle={s.authButtonContent} loading={emailAuth.busy} disabled={emailAuth.busy||!companyName||!companyAddress||!taxIdentifier||!currentUserName||!legalAccepted} onPress={()=>void emailAuth.onboard({company_name:companyName,address:companyAddress,tax_identifier:taxIdentifier,full_name:currentUserName,accepted_terms_version:"b2b-2026-09-28"})}>{uiText.createCompany}</PaperButton>
           </> : null}
-          {emailAuth.error ? <PaperHelperText nativeID={authErrorId} accessibilityRole="alert" testID="operator-login-error" type="error" visible accessibilityLiveRegion="polite">{emailAuth.error}</PaperHelperText> : null}
+          {emailAuth.error ? <PaperHelperText nativeID={authErrorId} accessibilityRole="alert" testID="operator-login-error" type="error" visible accessibilityLiveRegion="polite">{foundationCopy[emailAuth.language].error}</PaperHelperText> : null}
           </PaperCard.Content>
           </PaperCard>
         </AuthForm>
@@ -1370,12 +1220,13 @@ function MiniPosApp({
   return (
     <SafePaperSurface testID="app-paper-surface" mode="flat" elevation={0} style={{flex:1,backgroundColor:paperTheme.colors.background}}><SafeAreaView testID="app-root" style={[s.root, { }]}>
       <StatusBar style={dark ? "light" : "dark"} />
+      <HeaderLeaveDialog guard={headerLeave} copy={headerLeaveCopy[emailAuth.language]}/>
+      <PaperOperationalHeader testID="app.header" title={admin?uiText.configuration:uiText.sales} back={admin?{label:uiText.openSales,disabled:busy||!!pendingOrder||headerPending,testID:"admin-toggle",onPress:()=>headerLeave.request(()=>setAdmin(false))}:undefined} menu={!admin&&canManage?{label:uiText.openConfiguration,disabled:busy||!!pendingOrder||headerPending,testID:"admin-toggle",onPress:()=>headerLeave.request(()=>setAdmin(true))}:undefined} preferences={target=><><LanguageMenu target={target} language={emailAuth.language} label={uiText.language} onSelect={value=>void emailAuth.setLanguage(value)}/><ThemeMenu target={target} preference={themePreference} text={uiText} onSelect={selectTheme}/></>}/>
       <PaintedPaperSurface mode="flat" elevation={0} testID="app-header" style={[s.top, isCompact && s.topCompact, { backgroundColor: paperTheme.colors.surface, borderColor: paperTheme.colors.outlineVariant }]}>
         <View style={s.topIdentity}>
-          <PaperText variant="headlineSmall" style={{ color: paperTheme.colors.onSurface }}>BeeMiniPOS</PaperText>
           <PaperText variant="bodySmall" style={{ color: paperTheme.colors.onSurfaceVariant }}>
             {configuration?.location_name || "1 точка"} •{" "}
-            {configuration?.workstation_name || "каса 01"} • {activeRegisterId}{" "}
+            {configuration?.workstation_name || "каса 01"}{registerDisplayLabel(fiscalRegisters,activeRegisterId) ? ` • ${registerDisplayLabel(fiscalRegisters,activeRegisterId)}` : ""}{" "}
             •{" "}
             {selectedEmployee
               ? `${selectedEmployee.first_name} ${selectedEmployee.last_name}`
@@ -1389,8 +1240,8 @@ function MiniPosApp({
               testID="operator-logout"
               mode="outlined"
               accessibilityLabel={uiText.logout}
-              disabled={!!shift}
-              onPress={() => void logoutOperator()}
+              disabled={!!shift||busy||!!pendingOrder||headerPending}
+              onPress={() => headerLeave.request(()=>void logoutOperator())}
             >{uiText.logout}</PaperButton>
           ) : null}
           <PaperButton
@@ -1402,24 +1253,6 @@ function MiniPosApp({
             disabled={busy || bleReady}
             onPress={connectBle}
           >{bleReady ? uiText.bleConnected : uiText.connectBle}</PaperButton>
-          {canManage ? (
-            <PaperButton
-              testID="admin-toggle"
-              mode="outlined"
-              accessibilityLabel={admin ? uiText.openSales : uiText.openConfiguration}
-              onPress={() => setAdmin((v) => !v)}
-            >{admin ? uiText.sales : uiText.configuration}</PaperButton>
-          ) : null}
-          <ThemeMenu
-            preference={themePreference}
-            text={uiText}
-            onSelect={selectTheme}
-          />
-          <LanguageMenu
-            language={emailAuth.language}
-            label={uiText.language}
-            onSelect={(value) => void emailAuth.setLanguage(value)}
-          />
           <PaperButton
             testID="shift-toggle"
             mode={shift?.allowed_actions?.includes("RECONCILE") ? "contained-tonal" : shift ? "outlined" : "contained"}
@@ -1476,6 +1309,9 @@ function MiniPosApp({
       ) : null}
       {admin ? (
         <Admin
+          headerLeave={headerLeave}
+          reportHeaderPending={(pending:boolean)=>setHeaderChildPending({scope:headerScope,pending})}
+          savedConfiguration={configuration}
           compact={isPhone}
           production={prodMode}
           products={products}
@@ -1588,7 +1424,7 @@ function MiniPosApp({
                 accessibilityLiveRegion="polite"
               >
                 <PaperText variant="bodyMedium">
-                  УНП:{" "}
+                  {regulatoryIdentityLabel(emailAuth.language)}:{" "}
                   {saleProjection.regulatory_identifiers[0]?.value ||
                     saleProjection.unp}
                 </PaperText>
@@ -1734,7 +1570,7 @@ function MiniPosApp({
               s.dotBad,
           ]}
         />
-        <PaperText variant="bodyMedium" style={[s.status, { color: paperTheme.colors.onSurfaceVariant }]}>{uiText.statusLabel}: {status}</PaperText>
+        <PaperText variant="bodyMedium" style={[s.status, { color: paperTheme.colors.onSurfaceVariant }]}>{uiText.statusLabel}: {operationalLabel(emailAuth.language,status)}</PaperText>
       </PaintedPaperSurface>
     </SafeAreaView></SafePaperSurface>
   );
@@ -1768,225 +1604,29 @@ function PaperLegalLink({ testID, label, url }: { testID: string; label: string;
   </View>;
 }
 
-const menuBackgroundLocks = new WeakMap<HTMLElement, { count: number; originallyInert: boolean }>();
-
-function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", selected: string) {
-  useEffect(() => {
-    if (Platform.OS !== "web") return;
-    const trigger = document.querySelector<HTMLElement>(`[data-testid="${prefix}-menu-open"]`);
-    trigger?.setAttribute("aria-expanded", String(visible));
-    trigger?.setAttribute("aria-haspopup", "menu");
-    if (!visible) return;
-    // Paper's portal menu/backdrop is outside app-root. Match blocked pointer
-    // interaction with blocked background keyboard and assistive-tech access.
-    const background = document.querySelector<HTMLElement>('[data-testid="app-root"]');
-    if (background) {
-      const lock = menuBackgroundLocks.get(background) || { count: 0, originallyInert: background.hasAttribute("inert") };
-      lock.count += 1;
-      menuBackgroundLocks.set(background, lock);
-      background.setAttribute("inert", "");
-    }
-    const configure = () => {
-      const items=Array.from(document.querySelectorAll<HTMLElement>(`[data-testid^="${prefix}-"][role^="menuitem"]`));
-      const active=items.find(item=>item===document.activeElement||item.contains(document.activeElement));
-      items.forEach(item => {
-        item.setAttribute("role", "menuitemradio");
-        item.setAttribute("aria-checked", String(item.dataset.testid === `${prefix}-${selected}`));
-        item.tabIndex = active ? item === active ? 0 : -1 : item.dataset.testid === `${prefix}-${selected}` ? 0 : -1;
-      });
-    };
-    configure();
-    const observer = new MutationObserver(configure);
-    observer.observe(document.body, { childList: true, subtree: true });
-    const onKeyDown = (event: KeyboardEvent) => {
-      if (!["ArrowDown", "ArrowUp", "Home", "End", "Tab"].includes(event.key)) return;
-      const items = Array.from(document.querySelectorAll<HTMLElement>(`[role^="menuitem"][data-testid^="${prefix}-"]`))
-        .filter(item => item.getClientRects().length > 0);
-      const current = items.findIndex(item => item === document.activeElement || item.contains(document.activeElement));
-      if (!items.length) return;
-      if (event.key === "Tab") {
-        const close = items[0].closest('[data-testid$="-view"]')?.parentElement?.querySelector<HTMLElement>('button[aria-label]');
-        if (!close || (current < 0 && document.activeElement !== close)) return;
-        event.preventDefault();
-        const destination = current >= 0 ? close : (items.find(item => item.tabIndex === 0) || items[0]);
-        destination.focus();
-        destination.scrollIntoView({ block: "nearest", inline: "nearest" });
-        return;
-      }
-      if (current < 0) return;
-      event.preventDefault();
-      const next = event.key === "Home" ? 0 : event.key === "End" ? items.length - 1
-        : (current + (event.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
-      items.forEach((item, index) => { item.tabIndex = index === next ? 0 : -1; });
-      items[next].focus();
-      items[next].scrollIntoView({ block: "nearest", inline: "nearest" });
-    };
-    document.addEventListener("keydown", onKeyDown);
-    return () => {
-      observer.disconnect(); document.removeEventListener("keydown", onKeyDown);
-      if (background) {
-        const lock = menuBackgroundLocks.get(background);
-        if (lock && --lock.count === 0) {
-          if (!lock.originallyInert) background.removeAttribute("inert");
-          menuBackgroundLocks.delete(background);
-        }
-      }
-    };
-  }, [visible, prefix, selected]);
-}
-
-function PaperMenuChoice({ testID, title, onPress }: { testID: string; title: string; onPress: () => void }) {
-  const theme = useTheme(),mounted=useRef(false),snapshot={},latest=useRef(snapshot);latest.current=snapshot;
-  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
-  return <PaperList.Item testID={testID} title={title} titleNumberOfLines={0} titleMaxFontSizeMultiplier={0}
-    accessibilityRole="menuitem" accessibilityLabel={title}
-    style={{ minHeight: 48, minWidth: 0, margin: 4, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: theme.roundness }}
-    onPress={()=>{if(mounted.current&&latest.current===snapshot)onPress();}} />;
-}
-
-function ThemeMenu({
-  preference,
-  text,
-  onSelect,
-}: {
-  preference: ThemePreference;
-  text: Translation;
-  onSelect: (value: ThemePreference) => void;
-}) {
-  const [visible, setVisible] = useState(false);
-  usePaperMenuKeyboard(visible, "theme", preference);
-  const { width, height } = useWindowDimensions();
-  const insets = useContext(SafeAreaInsetsContext) ?? { top: 0, bottom: 0, left: 0, right: 0 };
-  const menuHeight = Math.max(0, Math.min(420, height - insets.top - insets.bottom - 64));
-  const menuWidth = Math.max(0, Math.min(320, width - insets.left - insets.right - 32));
-  const labels: Record<ThemePreference, string> = {
-    system: text.systemTheme,
-    light: text.lightTheme,
-    dark: text.darkTheme,
-  };
-  const choose = (value: ThemePreference) => {
-    setVisible(false);
-    onSelect(value);
-  };
-
-  return (
-    <PaperMenu
-      statusBarHeight={0}
-      contentStyle={{ maxHeight: menuHeight, width: menuWidth, overflow: "hidden" }}
-      overlayAccessibilityLabel={text.back}
-      visible={visible}
-      onDismiss={() => setVisible(false)}
-      anchor={
-        <PaperButton
-          testID="theme-menu-open"
-          mode="contained-tonal"
-          contentStyle={s.themeButtonContent}
-          onPress={() => setVisible(true)}
-        >
-          {text.theme}: {labels[preference]}
-        </PaperButton>
-      }
-    >
-      <NativeScrollView accessibilityRole="menu" testID="theme-menu-scroll" style={{maxHeight: menuHeight}} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
-      <PaperMenuChoice
-        testID="theme-system"
-        title={`${text.systemTheme}${preference === "system" ? ` • ${text.selected}` : ""}`}
-        onPress={() => choose("system")}
-      />
-      <PaperMenuChoice
-        testID="theme-light"
-        title={`${text.lightTheme}${preference === "light" ? ` • ${text.selected}` : ""}`}
-        onPress={() => choose("light")}
-      />
-      <PaperMenuChoice
-        testID="theme-dark"
-        title={`${text.darkTheme}${preference === "dark" ? ` • ${text.selected}` : ""}`}
-        onPress={() => choose("dark")}
-      />
-      </NativeScrollView>
-    </PaperMenu>
-  );
-}
-
-function LanguageMenu({
-  language,
-  label,
-  onSelect,
-}: {
-  language: Language;
-  label: string;
-  onSelect: (value: Language) => void;
-}) {
-  const text = useTranslation();
-  const [visible, setVisible] = useState(false);
-  usePaperMenuKeyboard(visible, "language", language);
-  const { width, height } = useWindowDimensions();
-  const insets = useContext(SafeAreaInsetsContext) ?? { top: 0, bottom: 0, left: 0, right: 0 };
-  const menuHeight = Math.max(0, Math.min(420, height - insets.top - insets.bottom - 64));
-  const menuWidth = Math.max(0, Math.min(320, width - insets.left - insets.right - 32));
-  const labels: Record<Language, string> = {
-    bg: "Български", hr: "Hrvatski", cs: "Čeština", da: "Dansk", nl: "Nederlands",
-    en: "English", et: "Eesti", fi: "Suomi", fr: "Français", de: "Deutsch",
-    el: "Ελληνικά", hu: "Magyar", ga: "Gaeilge", it: "Italiano", lv: "Latviešu",
-    lt: "Lietuvių", mt: "Malti", pl: "Polski", pt: "Português", ro: "Română",
-    sk: "Slovenčina", sl: "Slovenščina", es: "Español", sv: "Svenska", ru: "Русский",
-  };
-  const choose = (value: Language) => {
-    setVisible(false);
-    onSelect(value);
-  };
-
-  return (
-    <PaperMenu
-      statusBarHeight={0}
-      overlayAccessibilityLabel={text.back}
-      visible={visible}
-      onDismiss={() => setVisible(false)}
-      contentStyle={{ maxHeight: menuHeight, width: menuWidth, overflow: "hidden" }}
-      anchor={
-        <PaperButton
-          testID="language-menu-open"
-          mode="contained-tonal"
-          contentStyle={s.themeButtonContent}
-          onPress={() => setVisible(true)}
-        >
-          {label}: {labels[language]}
-        </PaperButton>
-      }
-    >
-      <NativeScrollView accessibilityRole="menu" testID="language-menu-scroll" style={{ maxHeight: menuHeight }} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
-        {supportedLanguages.map((value) => (
-          <PaperMenuChoice
-            key={value}
-            testID={`language-${value}`}
-            title={`${labels[value]}${language === value ? ` • ${text.selected}` : ""}`}
-            onPress={() => choose(value)}
-          />
-        ))}
-      </NativeScrollView>
-    </PaperMenu>
-  );
-}
-
-function ReferenceChoices({items,value,onChange,emptyLabel,onEmpty}:{items:FiscalRegisterReference[];value:string;onChange:(value:string)=>void;emptyLabel:string;onEmpty:()=>void}) {
+function ReferenceChoices({items,value,onChange,emptyLabel,onEmpty,disabled=false}:{disabled?:boolean;items:FiscalRegisterReference[];value:string;onChange:(value:string)=>void;emptyLabel:string;onEmpty:()=>void}) {
   const text = useTranslation();
   const [query,setQuery]=useState("");
   const visible=items.filter((item)=>`${item.code || ""} ${item.name || ""}`.toLowerCase().includes(query.trim().toLowerCase()));
-  if (!items.length) return <View style={s.stackCompact}><PaperText variant="bodyMedium">{emptyLabel}</PaperText><PaperButton mode="outlined" onPress={onEmpty}>Заполнить справочник кассовых мест</PaperButton></View>;
+  if (!items.length) return <View style={s.stackCompact}><PaperText variant="bodyMedium">{emptyLabel}</PaperText><PaperButton mode="outlined" disabled={disabled} onPress={()=>{if(!disabled)onEmpty();}}>Заполнить справочник кассовых мест</PaperButton></View>;
   return <View style={s.stackCompact}>
-    <TextInput placeholder="Поиск кассового места" value={query} onChangeText={setQuery}/>
+    <TextInput editable={!disabled} placeholder="Поиск кассового места" value={query} onChangeText={setQuery}/>
     {visible.map((item) => <PaperButton
       key={item.id}
+      disabled={disabled}
       testID={`register-choice-${item.id}`}
       mode={item.id === value ? "contained-tonal" : "outlined"}
       accessibilityState={{ selected: item.id === value }}
-      onPress={() => onChange(item.id)}
+      onPress={() => {if(!disabled)onChange(item.id);}}
     >{`${item.code || item.name || "Кассовое место"}${item.id === value ? ` • ${text.selected}` : ""}`}</PaperButton>)}
     {!visible.length ? <PaperText variant="bodyMedium">Совпадений нет.</PaperText> : null}
   </View>;
 }
 
-function Admin({
+export function Admin({
+  headerLeave,
+  reportHeaderPending,
+  savedConfiguration,
   compact,
   production,
   products,
@@ -2012,12 +1652,31 @@ function Admin({
     [taxCode, setTaxCode] = useState(""),
     [taxName, setTaxName] = useState(""),
     [taxRate, setTaxRate] = useState("");
+  const draft=useRef({values:{...values},tax:[taxCode,taxName,taxRate]}),baseline=useRef({values:{...values},tax:['','','']});
+  const writePending=useRef<object|null>(null),writeOwner=useRef<object|null>(null);
+  const draftOwner=useMemo(()=>({}),[headerLeave.register]);
+  const draftRender={},committedDraftRender=useRef<object|null>(null);
+  useLayoutEffect(()=>{committedDraftRender.current=draftRender;return()=>{if(committedDraftRender.current===draftRender)committedDraftRender.current=null;};});
+  const isWritePending=()=>writeOwner.current===draftOwner&&Boolean(writePending.current);
+  const ownsDraftRender=()=>committedDraftRender.current===draftRender&&writeOwner.current===draftOwner;
+  useLayoutEffect(()=>{writeOwner.current=draftOwner;writePending.current=null;return()=>{if(writeOwner.current===draftOwner){writeOwner.current=null;writePending.current=null;}};},[draftOwner]);
+  useLayoutEffect(()=>{draft.current={values:{...values},tax:[taxCode,taxName,taxRate]};});
+  useLayoutEffect(()=>headerLeave.register({dirty:()=>JSON.stringify(draft.current)!==JSON.stringify(baseline.current),pending:()=>isWritePending(),discard:()=>{for(const [key,value] of Object.entries(baseline.current.values)){const setter=setters['set'+key[0].toUpperCase()+key.slice(1)];if(setter)setter(value);}setTaxCode(baseline.current.tax[0]);setTaxName(baseline.current.tax[1]);setTaxRate(baseline.current.tax[2]);draft.current={values:{...baseline.current.values},tax:[...baseline.current.tax]};}}),[headerLeave.register]);
+  useLayoutEffect(()=>{if(!savedConfiguration)return;for(const [key,field] of [['locationName','location_name'],['locationAddress','location_address'],['workstationName','workstation_name'],['configuredRegister','fiscal_register_id']]){const value=savedConfiguration[field];if(typeof value==='string'&&draft.current.values[key]===value)baseline.current.values[key]=value;}},[savedConfiguration]);
+  const editValue=(key:string,setter:(value:string)=>void)=>(value:string)=>{if(!ownsDraftRender()||writePending.current||!headerLeave.canEdit())return;draft.current.values[key]=value;setter(value);};
+  const editTax=(index:number,setter:(value:string)=>void)=>(value:string)=>{if(!ownsDraftRender()||writePending.current||!headerLeave.canEdit())return;draft.current.tax[index]=value;setter(value);};
+  const save=async(action:()=>Promise<unknown>,onSuccess?:()=>void)=>{if(writePending.current||!ownsDraftRender()||!headerLeave.canEdit())return false;const ticket={},owner=writeOwner.current;writePending.current=ticket;reportHeaderPending(true);try{const result=await action();if(writeOwner.current!==owner)return false;if(result)onSuccess?.();return result;}finally{if(writePending.current===ticket){writePending.current=null;if(writeOwner.current===owner)reportHeaderPending(false);}}};
+  const navigate=(screen:typeof catalogScreen)=>{if(ownsDraftRender()&&headerLeave.canEdit())headerLeave.request(()=>setCatalogScreen(screen));};
   const editTaxGroup = (group?: TaxGroup) => {
+    if(!ownsDraftRender()||writePending.current||!headerLeave.canEdit())return;
+    headerLeave.request(()=>{
+    baseline.current.tax=[group?.code||"",group?.name||"",group?.rate||""];draft.current.tax=[...baseline.current.tax];
     setEditingTaxGroup(group || null);
     setTaxCode(group?.code || "");
     setTaxName(group?.name || "");
     setTaxRate(group?.rate || "");
     setCatalogScreen("tax-group-edit");
+    });
   };
   const loadOrders = async () => {
     try {
@@ -2030,32 +1689,32 @@ function Admin({
     void loadOrders();
   }, []);
   if (catalogScreen !== "home") return <ScrollView contentContainerStyle={[s.admin, compact && s.adminCompact]}>
-    <PaperButton testID="admin-catalog-back" mode="outlined" contentStyle={{ minHeight: 48 }} onPress={() => setCatalogScreen("home")}>← {text.back}</PaperButton>
+    <PaperButton testID="admin-catalog-back" disabled={isWritePending()} mode="outlined" contentStyle={{ minHeight: 48 }} onPress={() => navigate("home")}>← {text.back}</PaperButton>
     {catalogScreen === "products" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <View style={s.screenHeading}>
         <PaperText variant="titleLarge" accessibilityRole="header">{text.products}</PaperText>
-        <PaperButton testID="product-add" mode="contained" onPress={() => setCatalogScreen("product-new")}>{text.addProduct}</PaperButton>
+        <PaperButton testID="product-add" disabled={isWritePending()} mode="contained" onPress={() => navigate("product-new")}>{text.addProduct}</PaperButton>
       </View>
       {products.map((p: Product) => <PaperList.Item titleNumberOfLines={0} descriptionNumberOfLines={0} titleMaxFontSizeMultiplier={0} descriptionMaxFontSizeMultiplier={0} key={p.id} title={p.name} description={`€ ${p.price.amount} • ${text.vat} ${p.tax_group}`} />)}
     </PaperCard.Content></PaperCard> : null}
     {catalogScreen === "product-new" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <PaperText variant="titleLarge" accessibilityRole="header">{text.newProduct}</PaperText>
-      <TextInput label={text.name} testID="product-name" style={s.search} placeholder={text.name} value={values.pName} onChangeText={setters.setPName}/>
-      <TextInput label={text.barcode} testID="product-barcode" style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={setters.setPBarcode}/>
-      <TextInput label={text.priceEur} testID="product-price" style={s.search} placeholder={text.priceEur} keyboardType="decimal-pad" value={values.pPrice} onChangeText={setters.setPPrice}/>
+      <TextInput editable={!isWritePending()} label={text.name} testID="product-name" style={s.search} placeholder={text.name} value={values.pName} onChangeText={editValue("pName",setters.setPName)}/>
+      <TextInput editable={!isWritePending()} label={text.barcode} testID="product-barcode" style={s.search} placeholder={text.barcode} value={values.pBarcode} onChangeText={editValue("pBarcode",setters.setPBarcode)}/>
+      <TextInput editable={!isWritePending()} label={text.priceEur} testID="product-price" style={s.search} placeholder={text.priceEur} keyboardType="decimal-pad" value={values.pPrice} onChangeText={editValue("pPrice",setters.setPPrice)}/>
       <PaperText variant="titleMedium">{text.vatGroup}</PaperText>
       {taxGroups.filter((group: TaxGroup) => group.status === "ACTIVE").map((group: TaxGroup) => <PaperButton
         key={group.id} mode={values.pTaxGroup === group.code ? "contained-tonal" : "outlined"}
         accessibilityState={{ selected: values.pTaxGroup === group.code }}
-        onPress={() => setters.setPTaxGroup(group.code)}
+        disabled={isWritePending()} onPress={() => editValue("pTaxGroup",setters.setPTaxGroup)(group.code)}
       >{`${group.code} • ${group.name} • ${group.rate}%${values.pTaxGroup === group.code ? ` • ${text.selected}` : ""}`}</PaperButton>)}
-      {!taxGroups.some((group: TaxGroup) => group.status === "ACTIVE") ? <PaperButton mode="outlined" onPress={() => setCatalogScreen("tax-groups")}>{text.configureTaxGroups}</PaperButton> : null}
-      <PaperButton testID="product-create" mode="contained" disabled={!values.pTaxGroup} onPress={async () => { if (await createProduct()) setCatalogScreen("products"); }}>{text.save}</PaperButton>
+      {!taxGroups.some((group: TaxGroup) => group.status === "ACTIVE") ? <PaperButton mode="outlined" onPress={() => navigate("tax-groups")}>{text.configureTaxGroups}</PaperButton> : null}
+      <PaperButton testID="product-create" mode="contained" disabled={!values.pTaxGroup||isWritePending()} onPress={() => void save(createProduct,()=>{baseline.current.values={...draft.current.values,pName:"",pPrice:"",pBarcode:""};setCatalogScreen("products");})}>{text.save}</PaperButton>
     </PaperCard.Content></PaperCard> : null}
     {catalogScreen === "tax-groups" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <View style={s.screenHeading}>
         <PaperText variant="titleLarge" accessibilityRole="header">{text.taxGroups}</PaperText>
-        <PaperButton testID="tax-group-add" mode="contained" onPress={() => editTaxGroup()}>{text.newTaxGroup}</PaperButton>
+        <PaperButton testID="tax-group-add" disabled={isWritePending()} mode="contained" onPress={() => editTaxGroup()}>{text.newTaxGroup}</PaperButton>
       </View>
       {taxGroups.map((group: TaxGroup) => <PaperList.Item key={group.id} title={`${group.code} • ${group.name}`}
         description={`${group.rate}% • ${group.status === "ACTIVE" ? text.active : text.inactive}`}
@@ -2066,24 +1725,24 @@ function Admin({
     </PaperCard.Content></PaperCard> : null}
     {catalogScreen === "tax-group-edit" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <PaperText variant="titleLarge" accessibilityRole="header">{editingTaxGroup ? text.editTaxGroup : text.newTaxGroup}</PaperText>
-      <TextInput label={text.taxCode} testID="tax-group-code" style={s.search} placeholder={text.taxCode} maxLength={1} autoCapitalize="characters" value={taxCode} onChangeText={setTaxCode}/>
-      <TextInput label={text.name} testID="tax-group-name" style={s.search} placeholder={text.name} value={taxName} onChangeText={setTaxName}/>
-      <TextInput label={text.taxRate} testID="tax-group-rate" style={s.search} placeholder={text.taxRate} keyboardType="decimal-pad" value={taxRate} onChangeText={setTaxRate}/>
-      <PaperButton testID="tax-group-save" mode="contained" onPress={async () => { const saved = await saveTaxGroup({ ...editingTaxGroup, code: taxCode, name: taxName, rate: taxRate, status: editingTaxGroup?.status || "ACTIVE" }); if (saved) setCatalogScreen("tax-groups"); }}>{text.save}</PaperButton>
+      <TextInput editable={!isWritePending()} label={text.taxCode} testID="tax-group-code" style={s.search} placeholder={text.taxCode} maxLength={1} autoCapitalize="characters" value={taxCode} onChangeText={editTax(0,setTaxCode)}/>
+      <TextInput editable={!isWritePending()} label={text.name} testID="tax-group-name" style={s.search} placeholder={text.name} value={taxName} onChangeText={editTax(1,setTaxName)}/>
+      <TextInput editable={!isWritePending()} label={text.taxRate} testID="tax-group-rate" style={s.search} placeholder={text.taxRate} keyboardType="decimal-pad" value={taxRate} onChangeText={editTax(2,setTaxRate)}/>
+      <PaperButton testID="tax-group-save" mode="contained" disabled={isWritePending()} onPress={() => void save(()=>saveTaxGroup({ ...editingTaxGroup, code: taxCode, name: taxName, rate: taxRate, status: editingTaxGroup?.status || "ACTIVE" }),()=>{baseline.current.tax=[...draft.current.tax];setCatalogScreen("tax-groups");})}>{text.save}</PaperButton>
     </PaperCard.Content></PaperCard> : null}
     {catalogScreen === "employees" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <View style={s.screenHeading}>
         <PaperText variant="titleLarge" accessibilityRole="header">{text.employees}</PaperText>
-        <PaperButton testID="employee-add" mode="contained" onPress={() => setCatalogScreen("employee-new")}>{text.addEmployee}</PaperButton>
+        <PaperButton testID="employee-add" disabled={isWritePending()} mode="contained" onPress={() => navigate("employee-new")}>{text.addEmployee}</PaperButton>
       </View>
       {employees.map((e: Employee) => <PaperList.Item titleNumberOfLines={0} descriptionNumberOfLines={0} titleMaxFontSizeMultiplier={0} descriptionMaxFontSizeMultiplier={0} key={e.id} title={`${e.first_name} ${e.last_name}`} description={e.operator_code} />)}
     </PaperCard.Content></PaperCard> : null}
     {catalogScreen === "employee-new" ? <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
       <PaperText variant="titleLarge" accessibilityRole="header">{text.newEmployee}</PaperText>
-      <TextInput label={text.firstName} testID="employee-first-name" style={s.search} placeholder={text.firstName} value={values.eFirst} onChangeText={setters.setEFirst}/>
-      <TextInput label={text.lastName} testID="employee-last-name" style={s.search} placeholder={text.lastName} value={values.eLast} onChangeText={setters.setELast}/>
-      <TextInput label={text.operatorCode} testID="employee-code" style={s.search} placeholder={text.operatorCode} maxLength={4} value={values.eCode} onChangeText={setters.setECode}/>
-      <PaperButton testID="employee-create" mode="contained" onPress={async () => { if (await createEmployee()) setCatalogScreen("employees"); }}>{text.save}</PaperButton>
+      <TextInput editable={!isWritePending()} label={text.firstName} testID="employee-first-name" style={s.search} placeholder={text.firstName} value={values.eFirst} onChangeText={editValue("eFirst",setters.setEFirst)}/>
+      <TextInput editable={!isWritePending()} label={text.lastName} testID="employee-last-name" style={s.search} placeholder={text.lastName} value={values.eLast} onChangeText={editValue("eLast",setters.setELast)}/>
+      <TextInput editable={!isWritePending()} label={text.operatorCode} testID="employee-code" style={s.search} placeholder={text.operatorCode} maxLength={4} value={values.eCode} onChangeText={editValue("eCode",setters.setECode)}/>
+      <PaperButton testID="employee-create" mode="contained" disabled={isWritePending()} onPress={() => void save(createEmployee,()=>{baseline.current.values={...draft.current.values,eFirst:"",eLast:"",eCode:""};setCatalogScreen("employees");})}>{text.save}</PaperButton>
     </PaperCard.Content></PaperCard> : null}
   </ScrollView>;
   const reverse = async (order: Order) => {
@@ -2117,9 +1776,9 @@ function Admin({
     <ScrollView testID="admin-editors" contentContainerStyle={[s.admin, compact && s.adminCompact]}>
       <PaperText variant="headlineSmall" accessibilityRole="header">{text.configuration}</PaperText>
       <View style={[s.screenHeading, s.stackCompact]}>
-        <PaperButton testID="admin-products" mode="outlined" onPress={() => setCatalogScreen("products")}>{text.products} ({products.length})</PaperButton>
-        <PaperButton testID="admin-tax-groups" mode="outlined" onPress={() => setCatalogScreen("tax-groups")}>{text.taxGroups} ({taxGroups.length})</PaperButton>
-        <PaperButton testID="admin-employees" mode="outlined" onPress={() => setCatalogScreen("employees")}>{text.employees} ({employees.length})</PaperButton>
+        <PaperButton testID="admin-products" disabled={isWritePending()} mode="outlined" onPress={() => navigate("products")}>{text.products} ({products.length})</PaperButton>
+        <PaperButton testID="admin-tax-groups" disabled={isWritePending()} mode="outlined" onPress={() => navigate("tax-groups")}>{text.taxGroups} ({taxGroups.length})</PaperButton>
+        <PaperButton testID="admin-employees" disabled={isWritePending()} mode="outlined" onPress={() => navigate("employees")}>{text.employees} ({employees.length})</PaperButton>
       </View>
       <PaperCard testID="reversal-editor" mode="outlined"><PaperCard.Content style={s.managementContent}>
         <PaperText variant="titleLarge" accessibilityRole="header">{text.reversal}</PaperText>
@@ -2156,38 +1815,40 @@ function Admin({
       </PaperCard.Content></PaperCard>
       <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>
         <PaperText variant="titleLarge" accessibilityRole="header">{text.locationWorkstation}</PaperText>
-        <TextInput label={text.locationName}
+        <TextInput editable={!isWritePending()} label={text.locationName}
           testID="config-location-name"
           accessibilityLabel={text.locationName}
           style={s.search}
           placeholder={text.locationName}
           value={values.locationName}
-          onChangeText={setters.setLocationName}
+          onChangeText={editValue("locationName",setters.setLocationName)}
         />
-        <TextInput label={text.address}
+        <TextInput editable={!isWritePending()} label={text.address}
           style={s.search}
           placeholder={text.address}
           value={values.locationAddress}
-          onChangeText={setters.setLocationAddress}
+          onChangeText={editValue("locationAddress",setters.setLocationAddress)}
         />
-        <TextInput label={text.workstationName}
+        <TextInput editable={!isWritePending()} label={text.workstationName}
           style={s.search}
           placeholder={text.workstationName}
           value={values.workstationName}
-          onChangeText={setters.setWorkstationName}
+          onChangeText={editValue("workstationName",setters.setWorkstationName)}
         />
         <ReferenceChoices
+          disabled={isWritePending()}
           items={fiscalRegisters}
           value={values.configuredRegister}
-          onChange={setters.setConfiguredRegister}
+          onChange={editValue("configuredRegister",setters.setConfiguredRegister)}
           emptyLabel="Нет доступных кассовых мест."
-          onEmpty={() => void Linking.openURL(process.env.EXPO_PUBLIC_BEEFISCAL_ADMIN_URL || "beefiscal://admin/registers")}
+          onEmpty={() => {if(ownsDraftRender()&&headerLeave.canEdit())headerLeave.request(()=>void Linking.openURL(process.env.EXPO_PUBLIC_BEEFISCAL_ADMIN_URL || "beefiscal://admin/registers"));}}
         />
         <PaperButton
           testID="config-save"
+          disabled={isWritePending()}
           mode="contained"
           accessibilityLabel={text.saveConfiguration}
-          onPress={saveConfiguration}
+          onPress={()=>void save(saveConfiguration)}
         >{text.saveConfiguration}</PaperButton>
       </PaperCard.Content></PaperCard>
       <PaperCard mode="outlined"><PaperCard.Content style={s.managementContent}>

@@ -55,3 +55,12 @@ test("pending checkout is recovered after process restart with operation correla
     "00000000-0000-4000-8000-000000000001",
   );
 });
+test('journal refuses operation/payload replacement and preserves signed bytes across restart',async()=>{
+ const store=new Memory(),journal=new CheckoutJournal(store);
+ const signed={...entry,source_order_id:'source-1',execution_scope:'scope',signed_intent:{intent_id:entry.plan.client_operation_id,receipt_session_id:entry.plan.receipt_session_id,execution_authorization:{payload:'same'},client_proof:{signature:'DER'},canonical_payload:{server_sale_id:null}}};
+ await journal.save(signed);await assert.rejects(()=>journal.save({...signed,signed_intent:{...signed.signed_intent,client_proof:{signature:'changed'}}}),/IMMUTABLE/);
+ await assert.rejects(()=>journal.save({...signed,plan:{...signed.plan,client_operation_id:'new-operation'}}),/IMMUTABLE/);
+ assert.deepEqual((await new CheckoutJournal(store).load(entry.sale_id))?.signed_intent,signed.signed_intent);
+});
+test('concurrent writers cannot replace the first operation',async()=>{const store=new Memory(),one=new CheckoutJournal(store),two=new CheckoutJournal(store);const results=await Promise.allSettled([one.save(entry),two.save({...entry,plan:{...entry.plan,client_operation_id:'replacement'}})]);assert.equal(results.filter(r=>r.status==='fulfilled').length,1);assert.equal((await one.load(entry.sale_id))?.plan.client_operation_id,entry.plan.client_operation_id);});
+test('ambiguous authorization preparation survives restart and permits only one signed transition',async()=>{const store=new Memory(),journal=new CheckoutJournal(store);const pending={...entry,source_order_id:'source',phase:'AUTHORIZING' as const,authorization_request_key:'prepare-same-request',source_session_hash:'same-session'};await journal.save(pending);assert.equal((await new CheckoutJournal(store).load(entry.sale_id))?.authorization_request_key,'prepare-same-request');await assert.rejects(()=>journal.save({...pending,authorization_request_key:'second-prepare'}),/IMMUTABLE/);const plan={...entry.plan,client_operation_id:'root-op',receipt_session_id:'root-receipt'};await journal.save({...pending,phase:'SIGNED',plan,execution_scope:'scope',signed_intent:{intent_id:'root-op',receipt_session_id:'root-receipt',execution_authorization:{payload:'root'},client_proof:{signature:'DER'}}});assert.equal((await journal.load(entry.sale_id))?.plan.client_operation_id,'root-op');await assert.rejects(()=>journal.save(pending),/IMMUTABLE|JSON_REQUIRED/);});

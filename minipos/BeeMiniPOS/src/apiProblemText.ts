@@ -1,0 +1,2 @@
+/** Backend problem documents are data, never a ready-to-render UI string. */
+export function apiProblemText(text:string,fallback:string){try{const p=JSON.parse(text) as unknown;if(!p||typeof p!=='object'||Array.isArray(p))return fallback;for(const key of['detail','title']as const){const v=(p as Record<string,unknown>)[key];if(typeof v==='string'&&v.trim()&&!/^[\s]*[\[{<]/.test(v))return v;}return fallback;}catch{return fallback;}}

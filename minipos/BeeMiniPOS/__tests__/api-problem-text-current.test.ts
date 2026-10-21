@@ -1,0 +1,3 @@
+import{apiProblemText}from'../src/apiProblemText';
+test.each(['{"code":"PRIVATE_ERROR","context":{"token":"private"}}','["PRIVATE_ERROR"]','"PRIVATE_ERROR"','{"detail":{"sql":"private"}}','{"detail":"{\\"token\\":\\"private\\"}"}','<html>private trace</html>'])('raw backend response never becomes a UI string: %s',body=>{expect(apiProblemText(body,'HTTP 503')).toBe('HTTP 503');});
+test('human problem detail survives without changing transport status or action contracts',()=>{expect(apiProblemText('{"detail":"Close the shift before changing the register."}','HTTP 409')).toBe('Close the shift before changing the register.');});

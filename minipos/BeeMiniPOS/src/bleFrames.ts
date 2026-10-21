@@ -18,6 +18,7 @@ export async function frameMessage(
 ) {
   if (!payload.length || payload.length > MAX)
     throw new Error("BLE_INTENT_TOO_LARGE");
+  if(!Number.isInteger(attMtu)||attMtu<61||attMtu>517)throw new Error("BLE_MTU_TOO_SMALL");
   const capacity = attMtu - 3 - HEADER;
   if (capacity < 1) throw new Error("BLE_MTU_TOO_SMALL");
   const id = uuidBytes(messageId),
@@ -53,11 +54,12 @@ export class FrameAssembler {
       final = frame[24] === 1,
       digest = frame.slice(25, 57),
       body = frame.slice(57);
-    if (!total || total > MAX || offset + body.length > total)
+    if (!total || total > MAX || frame[24]>1 || offset + body.length > total || final !== (offset+body.length===total))
       throw new Error("BLE_FRAME_BOUNDS");
     let state = this.states.get(id);
     if (!state) {
       if (offset !== 0) throw new Error("BLE_FRAME_ORDER");
+      if(this.states.size>=4)throw new Error("BLE_FRAME_CAPACITY");
       state = { total, digest, next: 0, parts: [] };
       this.states.set(id, state);
     }
