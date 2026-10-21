@@ -1,0 +1,50 @@
+{
+  "base_commit": "dc29774",
+  "scope": "Prepared Android full-App synthetic-API harness guards and real loopback parser tests; no native build/device run",
+  "sources": {
+    "BeeFiscalApp/e2e/native-mvp-build.mjs": "badeb738308abc86a53e76b18e15ec7725e3881c5153d3d49c1099e347c6f988",
+    "BeeFiscalApp/e2e/native-mvp-fixture.mjs": "e80e35bcd6d30176badd755b66da8e473127b89b9d2e6d3d87410fa6257100ad",
+    "BeeFiscalApp/e2e/native-mvp-fixture.test.mjs": "cd92a843fa8eb371626e3c0de3944c58e202968d8dc6a640378ffca0cd679ce7",
+    "BeeFiscalApp/e2e/native-mvp-guards.mjs": "f91ddc536786d7bc44bf011929f26f18eb7dcfad49728e1eb4715f54087a6221",
+    "BeeFiscalApp/e2e/native-mvp-guards.test.mjs": "324e43ae2f6ba3a51d3f9a53225bb70c3e2160aa00e6cef8a00547dbf14515da",
+    "BeeFiscalApp/e2e/native-mvp-inputs.test.mjs": "9cd1c22fa4c1e843cad4714470ac0fb6553c2974cf258f74d93e17327a5dd7e2",
+    "BeeFiscalApp/e2e/native-mvp-prepare.mjs": "62eb8fe48f35de3453ff530dc2bd1e869273f25d098b6895d6e3ac940c4d9928",
+    "BeeFiscalApp/e2e/native-mvp-provenance.mjs": "2219364a8d7396e70c8bf7067f173ecd3f84d5b9659279bead99ee9731bd9c9f",
+    "BeeFiscalApp/e2e/native-mvp-runner.mjs": "0e674fc71a574c4be03669624cd279b00c4ef67d8ad69984ccb3bcdffd8ff1c3",
+    "BeeFiscalApp/e2e/native-mvp-server.mjs": "96121fff44d9907292b62a5b97be3149bd455bea922d85b7a9b9d43640e46979",
+    "BeeFiscalApp/e2e/native-mvp-server.test.mjs": "f48f3d72d5911800661490458c601353bb8b0a72f5942ffd56db82434820230f",
+    "BeeFiscalApp/e2e/native-reports-mvp-fixture.mjs": "d9954447ea75c121b5139c99fb80184aa612c49196f56897357ee0b7eef4dc52",
+    "BeeFiscalApp/e2e/native-reports-mvp-fixture.test.mjs": "2986b858635ea47e97e4947a2e18722a5e9a6f880eab2ec4e95976c82db24274",
+    "BeeFiscalApp/e2e/native-reports-mvp-runner.mjs": "34d2276fa5767fea5037222a470864487f2acd84fa2959e3f1128a544205cf97",
+    "BeeFiscalApp/e2e/native/mvp-auth-device-en.yaml": "36920ab234704d6a65054d4471a08fb4e1ec28a293b3b139652c82e057128433",
+    "BeeFiscalApp/e2e/native/mvp-reports-en.yaml": "e9346dbc8716fabc480ed1b36d181bdb3bc6c4a348e132389f7a60f99cbe44e2",
+    "minipos/BeeMiniPOS/e2e/native-mvp-build.mjs": "788e27102cea7649ddf7737cc4dc69c7ff392454787fd21d913df49e365654d5",
+    "minipos/BeeMiniPOS/e2e/native-mvp-fixture.mjs": "071de6109e67087d2fc1c9a381c477164c55ccafb1778e60976c0f610bc8640b",
+    "minipos/BeeMiniPOS/e2e/native-mvp-fixture.test.mjs": "1770d800f16168ffc43d8a1875afa6503911ddf3350a21c711e003447a706aaa",
+    "minipos/BeeMiniPOS/e2e/native-mvp-guards.mjs": "f91ddc536786d7bc44bf011929f26f18eb7dcfad49728e1eb4715f54087a6221",
+    "minipos/BeeMiniPOS/e2e/native-mvp-guards.test.mjs": "324e43ae2f6ba3a51d3f9a53225bb70c3e2160aa00e6cef8a00547dbf14515da",
+    "minipos/BeeMiniPOS/e2e/native-mvp-inputs.mjs": "e19838d316d719f6134f5a286bed5c669eaa4d581871148a285b5911a9fa07ad",
+    "minipos/BeeMiniPOS/e2e/native-mvp-inputs.test.mjs": "3f34e2eeeacadbcc69b6bc745a30475955b060b1f8ed854d69edefacf0172ab5",
+    "minipos/BeeMiniPOS/e2e/native-mvp-prepare.mjs": "436617b651da695c386e0b0a7111016ca3495b24211a4ed075c32bc5f710db08",
+    "minipos/BeeMiniPOS/e2e/native-mvp-provenance.mjs": "efb738c60b446ac3025a978bd70dbd930bde1095a664a8bbcd7a0ddc55a41fb2",
+    "minipos/BeeMiniPOS/e2e/native-mvp-runner.mjs": "83ce8a0e030a3775ff08cc3abf41be0d0a19bfe7f7e9bc3dd760970a6514c573",
+    "minipos/BeeMiniPOS/e2e/native-mvp-server.mjs": "96121fff44d9907292b62a5b97be3149bd455bea922d85b7a9b9d43640e46979",
+    "minipos/BeeMiniPOS/e2e/native-mvp-server.test.mjs": "f48f3d72d5911800661490458c601353bb8b0a72f5942ffd56db82434820230f",
+    "minipos/BeeMiniPOS/e2e/native/mvp-auth-device-en.yaml": "89fdf5fbf047119fc3a9fcf1ff28f2e725210b67fba94e095fc7dbe6f94f36db",
+    "Makefile": "b7e9d2f484d6c77392a3bb946cedad1ac1b44535a241dacf29b3641e20922425"
+  },
+  "logs": {
+    "all-tests": {
+      "file": "all-tests.log.gz",
+      "raw_sha256": "bccd767126e170fc9200626fa57066bb967d2e003c15cd567d5bf466cb0caaab",
+      "gzip_sha256": "8efc0a148e7023b6879af7055c361e6aba981b8c309e2ce3fdb21ecc82a15a21",
+      "terminal_exit_code": 0
+    },
+    "loopback-server": {
+      "file": "loopback-server.log.gz",
+      "raw_sha256": "8a394f8f380aaffe32680cdde66f3bd9cf1e28cf3ad43900e539bc36ef55d69f",
+      "gzip_sha256": "e85db115f47368870a732fe06543c199ccfa08eb23f89628223b264db88f8aab",
+      "terminal_exit_code": 0
+    }
+  }
+}

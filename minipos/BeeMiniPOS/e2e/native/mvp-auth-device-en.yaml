@@ -1,0 +1,137 @@
+appId: ${APP_ID}
+---
+- launchApp:
+    clearState: true
+- extendedWaitUntil:
+    visible:
+      id: "operator-login-email"
+    timeout: 30000
+- tapOn:
+    id: "language-menu-open"
+- assertVisible:
+    id: "language-menu-scroll"
+- takeScreenshot: language-menu
+- repeat:
+    times: 4
+    commands:
+      - runFlow:
+          when:
+            notVisible:
+              id: "language-en"
+          commands:
+            - swipe:
+                from:
+                  id: "language-menu-scroll"
+                direction: UP
+- assertVisible:
+    id: "language-en"
+- tapOn:
+    id: "language-en"
+- tapOn:
+    id: "theme-menu-open"
+- tapOn:
+    id: "theme-${THEME}"
+- takeScreenshot: guest
+- tapOn:
+    id: "operator-login-email"
+- inputText: "qa@example.test"
+- hideKeyboard
+- tapOn:
+    id: "operator-login-start"
+- assertVisible: "Something went wrong. Please try again."
+- assertNotVisible: ".*PRIVATE_BACKEND_FAILURE.*|.*PRIVATE_SQL_TABLE.*"
+- assertVisible: "qa@example.test"
+- takeScreenshot: auth-error
+- tapOn:
+    id: "operator-login-start"
+- tapOn:
+    id: "operator-login-code"
+- inputText: "000000"
+- hideKeyboard
+- tapOn:
+    id: "operator-login-verify"
+- assertVisible: "Something went wrong. Please try again."
+- assertNotVisible: ".*PRIVATE_INVALID_OTP.*"
+- tapOn:
+    id: "operator-login-code"
+- eraseText: 6
+- inputText: "123456"
+- hideKeyboard
+- tapOn:
+    id: "operator-login-verify"
+- extendedWaitUntil:
+    visible: "Coffee"
+    timeout: 30000
+- assertVisible: ".*R01.*"
+- assertNotVisible: ".*00000000-0000-4000-8000-000000000001.*"
+- takeScreenshot: shell
+- assertVisible:
+    id: "operator-logout"
+    enabled: true
+- tapOn:
+    id: "admin-toggle"
+- assertVisible:
+    id: "admin-editors"
+- takeScreenshot: device
+- tapOn:
+    id: "admin-toggle"
+- tapOn:
+    id: "shift-toggle"
+- assertVisible:
+    id: "operator-logout"
+    enabled: false
+- takeScreenshot: shift
+- tapOn:
+    id: "product-coffee"
+- tapOn:
+    id: "mobile-view-cart"
+- assertVisible: ".*Coffee.*"
+- assertVisible: ".*UNP:.*"
+- assertNotVisible: ".*УНП:.*"
+- assertVisible: "€ 2.50"
+- takeScreenshot: cart
+- repeat:
+    times: 4
+    commands:
+      - runFlow:
+          when:
+            notVisible:
+              id: "sale-pay"
+          commands:
+            - swipe:
+                from:
+                  id: "cart-scroll"
+                direction: UP
+- assertVisible:
+    id: "sale-pay"
+- tapOn:
+    id: "sale-pay"
+- extendedWaitUntil:
+    visible: ".*TEST-RECEIPT-NOT-FISCAL.*"
+    timeout: 30000
+- takeScreenshot: sale
+- tapOn:
+    id: "shift-toggle"
+- extendedWaitUntil:
+    visible: ".*TEST-Z-NOT-FISCAL.*"
+    timeout: 30000
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "operator-logout"
+    timeout: 30000
+- takeScreenshot: resumed
+- tapOn:
+    id: "operator-logout"
+- extendedWaitUntil:
+    visible:
+      id: "operator-login-email"
+    timeout: 30000
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "operator-login-email"
+    timeout: 30000
+- takeScreenshot: signed-out

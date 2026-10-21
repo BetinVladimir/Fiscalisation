@@ -193,7 +193,7 @@ compose-check:
 	MINIPOS_DB_PASSWORD=test MINIPOS_RLS_DB_PASSWORD=test-rls AUTH_HMAC_KEY=production-minipos-auth-key-at-least-32-bytes MINIPOS_RABBITMQ_URL=amqps://fiscal:rabbit-password@rabbit.example.test/ FISCAL_PUBLIC_BASE_URL=https://fiscal.example.test/public/v1 FISCAL_OAUTH_TOKEN_URL=https://id.example.test/token FISCAL_OAUTH_CLIENT_ID=minipos FISCAL_OAUTH_CLIENT_SECRET=production-client-secret FISCAL_SYSTEM_TOKEN=production-fiscal-system-token-at-least-32-bytes FISCAL_CREDENTIAL_ENCRYPTION_KEY_BASE64=MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY= FISCAL_CREDENTIAL_KEK_ID=fiscal-kek-2026-01 WEBHOOK_VERIFICATION_KEY=production-webhook-key-at-least-32-bytes LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM=test-private-key LOCAL_FISCAL_TOKEN_SIGNING_KID=local-2026-01 MINIPOS_SITE=https://pos.example.test MINIPOS_CORS_ALLOWED_ORIGINS=https://pos.example.test MINIPOS_SMTP_HOST=smtp.example.test MINIPOS_SMTP_USER=minipos-smtp-user MINIPOS_SMTP_PASSWORD=production-smtp-password MINIPOS_SMTP_FROM=noreply@example.test DAP_MINIO_ROOT_USER=dap-admin DAP_MINIO_ROOT_PASSWORD=production-minio-password-at-least-32-bytes docker compose -f compose.minipos.yaml -f compose.minipos.prod.yaml config >/dev/null
 compose-e2e:
 	./scripts/e2e-two-compose.sh
-regression: test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test boundary-test typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test evidence-test web-build native-bundle smart-device-test minipos-outbox-test factory-test iot-test compose-check
+regression: test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test boundary-test typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test evidence-test native-harness-test web-build native-bundle smart-device-test minipos-outbox-test factory-test iot-test compose-check
 full-regression: regression postgres-integration compose-e2e
 
 .PHONY: nap-local-extraction-test
@@ -220,3 +220,7 @@ pg-fixture-preparation-test:
 presentation-build-test:
 	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s BeeFiscalApp/scripts -p 'test_build_device_data_presentation.py' -v
 	cd BeeFiscalApp && node --experimental-strip-types --test e2e/presentation-build-guard.test.mjs e2e/verify-device-data-readable.test.mjs
+
+.PHONY: native-harness-test
+native-harness-test:
+	node --test BeeFiscalApp/e2e/native*.test.mjs minipos/BeeMiniPOS/e2e/native*.test.mjs
