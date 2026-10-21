@@ -1,5 +1,5 @@
 HIL_RUBY ?= ruby
-.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-external-verifier-test supto-hil-verifier-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test smart-device-host-test minipos-outbox-test factory-test iot-test compose-check compose-e2e regression full-regression
+.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-external-verifier-test supto-hil-verifier-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test smart-device-host-test minipos-outbox-test factory-test iot-test iot-build iot-build-check iot-build-verify iot-build-script-test compose-check compose-e2e regression full-regression
 deps:
 	cd minipos/BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
 	cd BeeFiscalApp && npm ci --cache /tmp/beefiscalapp-npm-cache --no-audit --no-fund
@@ -158,6 +158,16 @@ minipos-outbox-test:
 	cd minipos/miniposweb && npx playwright test -c playwright.outbox-idb.config.mjs
 factory-test:
 	cd IoT/device-manufacturing && PYTHONPATH=src python3 -m unittest discover -s tests -v
+S3_BUILD_DIR ?= $(CURDIR)/.build/s3-idf556
+S3_BUILD_SCRIPT := IoT/firmware/edge-agent-s3/idf/tools/build_idf.py
+iot-build-script-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s IoT/firmware/edge-agent-s3/idf/tests -p test_official_build_gate.py -v
+iot-build-check:
+	python3 $(S3_BUILD_SCRIPT) check
+iot-build:
+	python3 $(S3_BUILD_SCRIPT) build --build-dir "$(S3_BUILD_DIR)"
+iot-build-verify:
+	python3 $(S3_BUILD_SCRIPT) verify --build-dir "$(S3_BUILD_DIR)"
 iot-test:
 	bash IoT/firmware/edge-agent-s3/idf/tests/run_identity_entropy_host.sh
 	python3 IoT/firmware/edge-agent-s3/idf/tests/terminal_guard_host/run.py

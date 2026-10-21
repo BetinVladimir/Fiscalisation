@@ -66,3 +66,6 @@ login.sh
 # Python test/build caches
 __pycache__/
 *.py[cod]
+
+# Official ESP-IDF firmware build output
+/.build/s3-idf556/

@@ -44,12 +44,24 @@ must also be checked against camera/PSRAM wiring.
 
 В текущей версии ключи хранятся во внутренней NVS ESP32-S3. Внешний модуль ATECC608A/ATECC608 не используется: подключение по I²C, Qwiic/STEMMA QT и выделение GPIO для него не требуются.
 
-Основная прошивка текущего стенда — **ESP-IDF в `idf/`**. Команды для неё:
+Основная прошивка текущего стенда — **ESP-IDF в `idf/`**. Для неё используется официальный ESP-IDF **5.5.6**; прежний `idf/platformio.ini` удалён, поскольку PlatformIO6.10 не поддерживает этот build path. Соседний Arduino skeleton и его PlatformIO-конфигурация сохранены.
+
+Из корня репозитория, после подготовки официального окружения:
 
 ```bash
-pio run -d IoT/firmware/edge-agent-s3/idf
-pio run -d IoT/firmware/edge-agent-s3/idf -t upload
+make iot-build-script-test
+make iot-build-check
+make iot-build S3_BUILD_DIR=/absolute/physical/path/to/new-s3-build
+make iot-build-verify S3_BUILD_DIR=/absolute/physical/path/to/new-s3-build
 ```
+
+Build directory должен быть новым/пустым и находиться вне `idf/`. Сборка ничего не устанавливает и не прошивает. `provenance.json` публикуется только после успешной полной сборки и проверок SDK, toolchain, source/config, USB component и binary hashes. Это проверка согласованности артефакта, не подписанная release attestation; verify применяется в том же build workspace.
+
+Точный SDK commit, vendor mbedTLS3.6.7/framework tree, поддерживаемый Xtensa compiler, CMake3.31.10, официальный Ninja1.12.1 и неизменяемый USB CDC ACM2.3.0 закреплены в `idf/tools/build.lock.json`. Экспортировать `IDF_PATH`, `IDF_TOOLS_PATH`, `IDF_PYTHON_ENV_PATH` и PATH официальных инструментов. SDK должен быть чистым checkout с точными recursive submodules. Build-affecting Python tools закреплены в `idf/tools/requirements.build.txt`; остальные Python requirements устанавливаются из SDK с сохранённым `idf/tools/espidf.constraints.v5.5.txt`; копия constraints должна быть в `IDF_TOOLS_PATH/espidf.constraints.v5.5.txt`. Образец полной изолированной подготовки — `.github/workflows/s3-idf.yml`; глобальные PlatformIO/SDK не обновляются.
+
+Пути SDK/project/build должны быть физическими, без пробелов и symlink aliases. На macOS не использовать `/tmp`/`/private/tmp` для этих трёх каталогов из-за особенности response-file путей ESP-IDF5.5.6. Caches и tools можно хранить отдельно в `/tmp`.
+
+Board-настройки сохранены явно: ESP32-S3,8MB flash, `partitions_8mb.csv`, SD CLK39/CMD38/D040. Приложение использует официальный C++23 (`gnu++2b`), удовлетворяющий его CMake minimum17; host tests на C++17 не заменяют runtime/HIL проверку C++23. Включена **поддержка библиотеки TLS1.3**; защищённый BLE-канал, pin/binding/PoP и reliable GATT ещё не считаются реализованными. Рабочие ключи остаются NVS ESP32-S3, ATECC608A/608 не используется.
 
 Команды из раздела Build выше запускают соседний Arduino skeleton. Номера ниже — **GPIO ESP32-S3**, а не порядковые номера контактов гребёнки. Для конкретной camera-платы сначала проверить её схему: камера, SD и PSRAM могут занимать эти выводы.
 
