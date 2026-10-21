@@ -1,0 +1,9 @@
+# S3: GCC host portability and CI evidence retention
+
+2026-10-21. Full local `CXX=g++-15 CC=gcc-15 make iot-test` PASS after all discovered compiler failures were corrected. This is a host gate using the reviewed upstream mbedTLS3.6.7, not physical S3 acceptance or a completed Ubuntu vendor-source CI gate.
+
+Actual Ubuntu run39545821577 passed full official-IDF firmware compile/provenance, then failed in SQLite authority host harness under strict GCC indentation diagnostics. Local GCC15 reproduction found further harness-only issues before waiting for repeated remote SDK builds: canonical JSON loop indentation; receipt harness indentation and missing explicit `<algorithm>`; tender recovery adjacent guards. All assertions, command counts, warnings-as-errors and financial semantics remain intact. The final single full IoT run exited0, including Datecs/Daisy/DatecsPay/protocol tests. Canonical JSON oracle verifies2055 cases. Earlier failed runs remain retained.
+
+Workflow now preserves a compiled software candidate only when its compile/verify step succeeded, even if a later host gate fails. Diagnostics upload runs always. A retained candidate does not imply successful overall CI. Host logging uses explicit `shell: bash` and `set -euo pipefail` before `make iot-test | tee`; a test of the actual workflow script replacing only the command with `false` confirms exit1 propagates. No continue-on-error or warning suppression was introduced.
+
+[Raw logs, tested source/dependency hashes and failure-propagation evidence](evidence/s3-gcc-ci-portability-2026-10-21/manifest.json). Corrected remote firmware+host+final provenance result and retained artifact hashes must be inspected separately before target acceptance. No flashing/device/HIL/НАП approval occurred. Keys remain ESP32-S3 NVS; ATECC608 is unused.

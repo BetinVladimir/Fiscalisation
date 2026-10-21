@@ -47,6 +47,7 @@ jobs:
       - name: Test fail-closed build and provenance gates
         run: make iot-build-script-test
       - name: Compile and verify full firmware (no flash)
+        id: firmware-build
         run: |
           make iot-build
           make iot-build-verify
@@ -58,10 +59,14 @@ jobs:
           CJSON_SOURCE: ${{ env.IDF_PATH }}/components/json/cJSON
           CJSON_SOURCE_DIR: ${{ env.IDF_PATH }}/components/json/cJSON
           OPENSSL_PREFIX: /usr
-        run: make iot-test
+        shell: bash
+        run: |
+          set -euo pipefail
+          make iot-test 2>&1 | tee "$RUNNER_TEMP/s3-iot-host.log"
       - name: Verify final artifact provenance after regressions
         run: make iot-build-verify
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: ${{ always() && steps.firmware-build.outcome == 'success' }}
         with:
           name: s3-idf556-software-candidate
           if-no-files-found: error
@@ -75,3 +80,12 @@ jobs:
             ${{ env.S3_BUILD_DIR }}/beefiscal_edge_agent_s3.elf
             ${{ env.S3_BUILD_DIR }}/bootloader/bootloader.bin
             ${{ env.S3_BUILD_DIR }}/partition_table/partition-table.bin
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: s3-idf556-diagnostics
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/s3-iot-host.log
+            ${{ env.S3_BUILD_DIR }}/build.log
+            ${{ env.S3_BUILD_DIR }}/provenance.json

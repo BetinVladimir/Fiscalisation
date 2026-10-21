@@ -95,3 +95,5 @@ P0 означает блокер целевого денежного/фиска�
 - Legacy source-less recovery дополнен уникальным server linkage для signed journal и scoped redacted export; [54](54_SOURCE_RECOVERY_AUTHORITY.md). Root Node234/UI175/TS PASS. Записи без доказательств остаются quarantined.
 
 - [Device-side BLE certificate proof](53_BLE_SERVER_CERTIFICATE_ISSUANCE.md): integrated same-NVS-key single-hash proof, root/context verification, guarded installer/cache and Go↔C++ interop PASS. Production trusted time, public transport and fresh IDF target build remain OPEN.
+
+- [S3 GCC/CI portability](58_S3_CI_PORTABILITY.md): полный локальный IoT GCC gate PASS; исправлены harness-only compiler failures и сохранение CI diagnostics с явным pipefail. Исправленный remote gate требует отдельной проверки.

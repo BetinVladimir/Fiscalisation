@@ -29,7 +29,8 @@ int main(int argc,char**argv){assert(argc==3);std::string mode=argv[1],path=argv
  if(mode=="query-declined"){io.answer=PaymentCertainty::Declined;want=ExecutionCertainty::Rejected;}
  if(mode=="query-race")io.during_query=[&](){sql(path,"UPDATE payments SET rrn='concurrent-rrn' WHERE payment_id='card-1';");};
  if(mode=="query-unknown")io.answer=PaymentCertainty::Unknown;
- if(mode=="foreign-query")io.foreign=true;if(mode=="conflict-query")io.conflict=true;
+ if(mode=="foreign-query")io.foreign=true;
+ if(mode=="conflict-query")io.conflict=true;
  if(mode=="query-fault")sql(path,"CREATE TRIGGER fault BEFORE UPDATE ON payments BEGIN SELECT RAISE(ABORT,'fault');END;");
  if(mode=="operation-fault")sql(path,"CREATE TRIGGER fault BEFORE UPDATE ON operations BEGIN SELECT RAISE(ABORT,'fault');END;");
  if(mode.find("reversal-")==0){set("REVERSAL_UNKNOWN","COMPENSATING");queries=1;}

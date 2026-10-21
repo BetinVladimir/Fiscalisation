@@ -1,0 +1,57 @@
+{
+  "scope": "full local GCC15 IoT gate PASS after actual harness portability fixes; upstream mbedTLS3.6.7 host dependency, corrected Ubuntu vendor gate not yet accepted",
+  "logs": {
+    "fiscal-idf-ci-failure-39545821577.log.gz": {
+      "raw_sha256": "e534b983512fca0b993f2119a484ed65316e543adb72badad853f63b68242123",
+      "gzip_sha256": "0cde00023e7132560f62eabfac9170e18f554d6dbde44dba0eef9fd22a72e185"
+    },
+    "fiscal-authority-gcc-root-red-20261021.log.gz": {
+      "raw_sha256": "4cf4b15a7e7fbea7706b0cd3b8f14b33ba0a851e20683c82dfbb6549861e2b87",
+      "gzip_sha256": "24f1ff5040a612a81cad565f8150a16281af4b18ac472bdd6e1bd9fd087a17ad"
+    },
+    "fiscal-authority-gcc-root-green-20261021.log.gz": {
+      "raw_sha256": "7290b052c28229d39e00b9cbcd8e54c47f798d94f0cdf1bc3696214fc4d32298",
+      "gzip_sha256": "e584545f6f30c8d4de131208596589d937dd21db4cb701f4ad1f31ca26bb769d"
+    },
+    "fiscal-go-json-gcc-root-green-20261021.log.gz": {
+      "raw_sha256": "06b134a90989d6ff939cdeea33dc36986278fe766513a95a7d7281f612dca69d",
+      "gzip_sha256": "a444c9cc79f56996663a9b1b9ba4c639ce1b58a949f5ce116e8e8fe97af36457"
+    },
+    "fiscal-iot-gcc-root-20261021.log.gz": {
+      "raw_sha256": "067db66a5226bc7bfc6fadfbaebd7e868b4ad11320fd6642ba7bed21c4180092",
+      "gzip_sha256": "6fa44152d18f91de432fd1044ac907925c8d699fe803e5b54a6ba7c36a9e850c"
+    },
+    "fiscal-iot-gcc-root-r2-20261021.log.gz": {
+      "raw_sha256": "cca641e8bfb275c055fb7663d07b45f8e88329d76e083bc14ba357f252e3f184",
+      "gzip_sha256": "5f5a68cc70caea0ca4e70fb340b915c49fcf999b647848ad7c8e26210c7b4948"
+    },
+    "fiscal-iot-gcc-tail-root-20261021.log.gz": {
+      "raw_sha256": "3ab43d58b035e26516e1e4a548c5f5cf9b03a5d6e23e1f0da463dd578e553349",
+      "gzip_sha256": "d2a043831b3cb72b8fd4ed2bfb2352beef591f42931562135eddec64fb77fd29"
+    },
+    "fiscal-iot-gcc-final-tail-root-20261021.log.gz": {
+      "raw_sha256": "175249db3eb388fa6fec5d4c8ae35993b6572323e2b6efbb32796f2d8dbc9bc7",
+      "gzip_sha256": "da06f6080dd95b156f695696367ff8afb4326b579dc2d61e2cafb16fdd1a738f"
+    },
+    "fiscal-iot-gcc-root-final-20261021.log.gz": {
+      "raw_sha256": "acbf4569524b8604ef91f84eefcf9c3620ab0b1a4d61085aada3063751ea0212",
+      "gzip_sha256": "335e8aaa7dbc9005280d460c323f70961453e23424aa95d8adde2d24c0685f4f"
+    },
+    "fiscal-pipefail-evidence-20261021.json.gz": {
+      "raw_sha256": "ff97e82809fb08bada17ebda5a9f8e280a7ee0020252907814cd65830a49c936",
+      "gzip_sha256": "6436fc5046984ce95e1d4c00b505d84e2ade7264546b1e327be5988b40be18f7"
+    }
+  },
+  "source_sha256": {
+    ".github/workflows/s3-idf.yml": "d0e07e751ba90c5b4aca5b9434d6d058ad2f0b69ef47ce7d0bb4a970843acc0f",
+    "Makefile": "94f8b20d28679445ac56fb5e507c229feaab8bd0ff33c6f03c06039b3ef4c833",
+    "IoT/firmware/edge-agent-s3/idf/tests/authority_host/runtime.cpp": "3f2bd6a88c7a19c9ccf143d8f18aba907a16b2fd9cd06f2ac3ded37a72d41819",
+    "IoT/firmware/edge-agent-s3/idf/tests/go_json_host/test.cpp": "5337623108163bf4aa9c4e6eec84d721b8395d4e0c3c726b7a2fa29893bfa514",
+    "IoT/firmware/edge-agent-s3/idf/tests/receipt_host/runtime.cpp": "ecdb3e9256f08f8ef963b4ff08086286a6c599a8fc5ceac11a29d3b81277563a",
+    "IoT/firmware/edge-agent-s3/idf/tests/saga_host/recovery_native.cpp": "4a19009632a3c8a280a35b97dc2bf268b7adaa32f16cbfdb339ba8e00f44fd38"
+  },
+  "crypto_source": {
+    "upstream_commit": "068ff080b369adfac81509f9b57b2afabaf82dc5",
+    "host_library_sha256": "caf20f61567a5c0f89881bef853f440eac0033fb4cb31e2bb3137dddaae0c637"
+  }
+}

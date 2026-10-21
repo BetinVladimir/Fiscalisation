@@ -15,7 +15,9 @@ int main(int argc,char**argv){assert(argc==2);std::ifstream f(argv[1]);std::stri
  if(line[0]=='F'){uint64_t bits=std::stoull(input,nullptr,16);double n;std::memcpy(&n,&bits,8);v=Value::number_value(n);Value parsed;std::string roundtrip;assert(beefiscal::go_json::parse(expected.data(),expected.size(),parsed,e));assert(encode(parsed,roundtrip,e)&&roundtrip==expected);}
  else{v=parse(input);if(line[0]=='E'||line[0]=='B')typed(v,line[0]=='B');}
  assert(encode(v,o,e));if(line[0]=='E'||line[0]=='B'||line[0]=='P'||line[0]=='C'){if(hash(o)!=expected){std::cerr<<"hash mismatch "<<line[0]<<" "<<o<<"\n";return 1;}}
- else if(o!=expected){std::cerr<<"mismatch "<<input<<" expected "<<expected<<" got "<<o<<"\n";return 1;}++count;}
+ else if(o!=expected){std::cerr<<"mismatch "<<input<<" expected "<<expected<<" got "<<o<<"\n";return 1;}
+ ++count;
+ }
  assert(count>2000);
  assert(encode(Value::string(std::string("a\0b",3)),o,e)&&o=="\"a\\u0000b\"");
  assert(encode(Value::string(std::string("\xff\xc0\xaf",3)),o,e)&&o=="\"\\ufffd\\ufffd\\ufffd\"");
