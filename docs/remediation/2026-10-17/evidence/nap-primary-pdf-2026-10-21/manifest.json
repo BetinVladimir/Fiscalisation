@@ -1,0 +1,24 @@
+{
+  "requested_url": "https://nra.bg/wps/wcm/connect/nra.bg25863/6e2bcfb7-8035-445d-901f-e7f49a3d772e/Naredba_H-18_26022021.pdf?CACHEID=ROOTWORKSPACE.Z18_PPGAHG8009LJC0&MOD=AJPERES",
+  "retrieved_utc": "2026-10-21T04:50:38.935978+00:00",
+  "method": "curl --fail --location; system TLS verification enabled, exit0",
+  "http_status": 200,
+  "response_headers_allowlist": {
+    "date": "Wed, 21 Oct 2026 04:49:02 GMT",
+    "etag": "\"982152912\"",
+    "content-length": "4864059",
+    "content-type": "application/pdf"
+  },
+  "artifact": "docs/SUPTO/sources/N18_NRA_consolidated_2025-05-23_retrieved_2026-10-21.pdf",
+  "bytes": 4864059,
+  "sha256": "5760c3038a8912c9ad4816d5d71784c143b6a52ac00866c96711ce8b96f2e273",
+  "pdf_pages": 314,
+  "printed_title_amendment_coverage": "DV42/23.05.2025",
+  "visual_review_printed_pages": [
+    1,
+    279,
+    280,
+    288
+  ],
+  "scope": "Retained exact official consolidated candidate only; full current amendments/effective-date/applicability baseline through21.10.2026 remains OPEN."
+}
