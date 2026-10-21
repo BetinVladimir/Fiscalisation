@@ -42,6 +42,8 @@ TimeAnchorError TimeAnchorCore::start_boot(const TimeAnchorScope& scope){
 }
 TimeAnchorError TimeAnchorCore::change_binding(const TimeAnchorScope& scope){std::lock_guard<std::mutex> lock(mutex_);retire(false);has_published_=false;if(!boot_ready_)return TimeAnchorError::Unavailable;if(!valid_scope(scope)){boot_ready_=false;return TimeAnchorError::InvalidScope;}scope_=scope;return TimeAnchorError::Ok;}
 void TimeAnchorCore::invalidate(){std::lock_guard<std::mutex> lock(mutex_);retire(false);boot_ready_=false;has_published_=false;boot_nonce_={};}
+bool TimeAnchorCore::is_current_request(const TimeAnchorRequest& r){std::lock_guard<std::mutex> lock(mutex_);return boot_ready_&&!quarantined_&&r.owner_==this&&r.ticket_&&r.ticket_==pending_.ticket_&&r.scope==scope_&&r.boot_nonce==boot_nonce_&&r.request_nonce==pending_.request_nonce&&r.sequence==pending_.sequence;}
+void TimeAnchorCore::retire_request_if_current(const TimeAnchorRequest& r){std::lock_guard<std::mutex> lock(mutex_);if(r.owner_==this&&r.ticket_&&r.ticket_==pending_.ticket_)pending_={};}
 TimeAnchorError TimeAnchorCore::begin_request(TimeAnchorRequest& out){
  std::lock_guard<std::mutex> lock(mutex_);out={};pending_={};
  if(!boot_ready_||quarantined_)return TimeAnchorError::Unavailable;

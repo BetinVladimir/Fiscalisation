@@ -21,6 +21,8 @@ struct TimeAnchorPolicy {int64_t max_rtt_ms=5000,max_holdover_ms=30000,max_uncer
 struct TimeAnchorBounds {int64_t lower_us{},upper_us{};};
 enum class TimeAnchorError {Ok,Unavailable,InvalidPolicy,InvalidScope,ClockFault,NonceFault,SequenceExhausted,StaleTicket,InvalidSample,RoundTripExceeded,Expired,WidthExceeded,Arithmetic,Disjoint};
 class TimeAnchorCore;
+class DeviceTimeAnchorRequestSigner;
+class DeviceTimeAnchorCoordinator;
 class DeviceTimeAnchorVerifier; // Future strict cryptographic verifier; not implemented here.
 struct TimeAnchorRequest {
  TimeAnchorScope scope;TimeNonce boot_nonce{},request_nonce{};int64_t sequence{};
@@ -55,6 +57,9 @@ class TimeAnchorCore final {
  TimeAnchorError accept(const VerifiedTimeAnchorPermit&); // m1 after future verifier; no raw time setter.
  TimeAnchorError bounds(TimeAnchorBounds&); // Inclusive µs; outputs cleared on failure.
  private:
+ friend class DeviceTimeAnchorRequestSigner;friend class DeviceTimeAnchorVerifier;friend class DeviceTimeAnchorCoordinator;
+ bool is_current_request(const TimeAnchorRequest&);
+ void retire_request_if_current(const TimeAnchorRequest&);
 #if defined(BEEFISCAL_TIME_ANCHOR_HOST_TEST)
  friend class TimeAnchorHostPermitFactory;
 #endif

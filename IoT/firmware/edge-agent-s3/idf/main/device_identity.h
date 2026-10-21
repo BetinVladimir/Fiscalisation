@@ -4,6 +4,8 @@
 #include <string>
 #include "esp_err.h"
 namespace beefiscal::idf{
+class DeviceTimeAnchorRequestSigner;
+class PreparedDeviceTimeRequestPermit;
 class BLEServerCertificateProofSigner;
 struct VerifiedBLECertificateProofPermit;
 class DeviceIdentity final{
@@ -18,6 +20,11 @@ class DeviceIdentity final{
   esp_err_t local_tls_key_pem(std::string&)const;
   std::string public_key_der_base64url()const;std::string kid()const;
  private:
+#if defined(BEEFISCAL_TIME_ANCHOR_CRYPTO_HOST_TEST)
+  friend class DeviceTimeAnchorCryptoTestFaults;
+#endif
+  friend class DeviceTimeAnchorRequestSigner;
+  esp_err_t sign_time_anchor_request(const PreparedDeviceTimeRequestPermit&,uint8_t signature[64])const;
   friend class BLEServerCertificateProofSigner;
   esp_err_t sign_ble_certificate_proof(const VerifiedBLECertificateProofPermit&,uint8_t signature[64])const;
   struct Impl;Impl*impl_;

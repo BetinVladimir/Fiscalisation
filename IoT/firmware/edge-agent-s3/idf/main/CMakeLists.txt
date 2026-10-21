@@ -16,6 +16,8 @@ idf_component_register(
     "canonical_cbor.cpp"
     "device_identity.cpp"
     "ble_certificate_proof.cpp"
+    "device_time_anchor.cpp"
+    "time_anchor_core.cpp"
     "provisioned_network.cpp"
     "encrypted_provisioning.cpp"
     "provisioning_crypto.cpp"
