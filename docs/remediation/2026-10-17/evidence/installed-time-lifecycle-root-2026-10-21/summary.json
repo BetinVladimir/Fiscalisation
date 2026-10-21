@@ -1,0 +1,33 @@
+{
+  "patch_sha256": "d66255a38036873ac587d16b904bfa231e0230859998ff2e6c641c276380e861",
+  "sources": {
+    "IoT/firmware/edge-agent-s3/idf/main/device_identity.cpp": "097ce092fea8cec9a7e589214e2ac7483227cfa68ed725605970afd1fcf71183",
+    "IoT/firmware/edge-agent-s3/idf/main/device_time_anchor.cpp": "30a7432c543e57c83d6e75a226ac49023ace2197a32900c690d1cedb5981ed21",
+    "IoT/firmware/edge-agent-s3/idf/main/device_time_anchor.h": "ea678547b8655b7d1e9c3d213cd93696c5dccc3a749129e9a8aa86d9cd6ef004",
+    "IoT/firmware/edge-agent-s3/idf/main/encrypted_provisioning.cpp": "a1180c76126295b183932cf97223b1a25d6050a1749a4f68fe9dd239811d7762",
+    "IoT/firmware/edge-agent-s3/idf/main/installed_authority_guard.h": "b0a3027dc56eb41c70125803b51909e5173660cf60271fec67a39b0ea1bc8e1e",
+    "IoT/firmware/edge-agent-s3/idf/main/installed_authority_lifecycle.h": "5859341c0149c0e5e3ee60bb98d8cc79fc9f231e19b8d72c9c7979b07209f923",
+    "IoT/firmware/edge-agent-s3/idf/main/provisioned_binding.cpp": "36948270e134c40271c243f1d3a7158934b1a529ebfa63b14e9ae2262f44d4f2",
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_proof_host/nvs.h": "99af71a589d5b59ffb0f8a9eb5e18190a9d8e077d3a5c267686643b18f752bdd",
+    "IoT/firmware/edge-agent-s3/idf/tests/time_anchor_crypto_host/LIFECYCLE.md": "a2f6ca0c4124201d6e39326949ca794d1dce41d6cf069c742fbb37d0520ce4be",
+    "IoT/firmware/edge-agent-s3/idf/tests/time_anchor_crypto_host/crypto_native.cpp": "66397285f50fbcf0022dc36c9e29c4727a677a7ea114ae0b8895c6dcfcef0c91",
+    "fiscal-backend/internal/domain/time_anchor_crypto_interop_test.go": "895afddf28f4adb7f793493f38f1841dbb07d14442a2cbe689a0631706e235b8",
+    "scripts/run-ble-certificate-crypto.py": "c05030f9f3d00a320b84a965b3980672245ee8a9c4abe038fff1bf075d8716fa"
+  },
+  "root_test_log_sha256": {
+    "gcc_actual18": "21a78ebb72fa70aabb9bb4f2c990ad07a691b3c1c353f1a08a7c63c9c5aa0fb5",
+    "asan_ubsan_actual18": "d4321ac02ee2e02a86b0fb67cc24b742b7b43de1ce3b9aba873e0a2099f14f81",
+    "ble_proof_regression": "a435a53d6f52fd0634650c33ed296f7e3a67fabef0e6a6cff8299cb343d7ec7e",
+    "identity_entropy_budget": "04ea954fac0a79f1dc4d10075e3d8e591adb1554a0c452f4523b276558bd3de5",
+    "orchestrator8": "1742cc5879bc94dca5d51b20de78bef0f8966d5fc885c7e132af7fd8509c5650"
+  },
+  "root_results": "GCC18, Clang ASan/UBSan18, inherited BLE proof, Identity entropy/DRBG, orchestrator8 PASS",
+  "worker_only_counterfactuals": [
+    "missing close hook",
+    "missing sticky quarantine",
+    "missing coordinator destructor retirement",
+    "bypassed identity scalar readback"
+  ],
+  "scope": "actual host prerequisite only; production time provider/bootstrap/issuer/root health and target rebuild/HIL remain OPEN",
+  "raw_logs_published": false
+}

@@ -1,6 +1,6 @@
 # Trusted S3 time: nonce-bound authority anchor, design for root review
 
-Status: protocol and production integration remain DESIGN, 2026-10-21. Phase1 consumer interval API and Phase2 standalone state core are implemented and host-tested as described below. Production provider, endpoint, cryptographic time verifier and device integration remain unavailable. This closes no runtime/HIL acceptance item. Device private keys remain inside ESP32-S3; ATECC608 is not used.
+Status: production vertical remains incomplete, 2026-10-21. Phase1 interval API, Phase2 core and actual device/root cryptographic verifier are implemented and tested; see [crypto implementation](63_DEVICE_TIME_CRYPTO_IMPLEMENTATION.md) and [actual lifecycle hooks](68_INSTALLED_TIME_LIFECYCLE.md). Production provider, endpoint/issuer/health, bootstrap relay and target/HIL acceptance of later changes remain OPEN. Historical design sections below do not override those implementation checkpoints. Device keys stay inside ESP32-S3/NVS; ATECC608 is unused.
 
 ## Recommendation and decisions
 

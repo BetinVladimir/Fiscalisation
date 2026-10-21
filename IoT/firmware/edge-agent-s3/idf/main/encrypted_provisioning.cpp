@@ -1,5 +1,6 @@
 #include "encrypted_provisioning.h"
 #include "installed_authority_guard.h"
+#include "installed_authority_lifecycle.h"
 #include "cJSON.h"
 #include "nvs.h"
 #include "mbedtls/platform_util.h"
@@ -138,6 +139,7 @@ esp_err_t EncryptedProvisioning::install(const uint8_t*p,size_t n,const uint8_t 
  uint64_t floor=std::max<int64_t>(validator_.generation(),loaded==ESP_OK?previous.binding.generation:0);previous.clear();ProvisioningSubject subject{identity_.kid(),issuer_kid_,floor,{}};memcpy(subject.setup_nonce,nonce,32);
  auto e=decode(p,n,subject,out);
  if(e!=ESP_OK)return e;
+ InstalledAuthorityMutation mutation;
  nvs_handle_t h{};e=nvs_open("edge-provision",NVS_READWRITE,&h);
  if(e==ESP_OK){e=nvs_set_blob(h,"active",p,n);
  if(e==ESP_OK)e=nvs_commit(h);
@@ -145,6 +147,6 @@ esp_err_t EncryptedProvisioning::install(const uint8_t*p,size_t n,const uint8_t 
  return e;}
  const auto digest=out.binding.payload_sha256;out.clear();e=load(out);
  if(e!=ESP_OK||out.binding.payload_sha256!=digest){out.clear();
- return e==ESP_OK?ESP_ERR_INVALID_CRC:e;}return ESP_OK;
+ return e==ESP_OK?ESP_ERR_INVALID_CRC:e;}mutation.confirm();return ESP_OK;
 }
 }

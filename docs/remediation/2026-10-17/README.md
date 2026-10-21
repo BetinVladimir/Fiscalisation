@@ -6,6 +6,8 @@
 
 ## Текущий интеграционный срез — 2026-10-21
 
+- [Реальные time lifecycle hooks](68_INSTALLED_TIME_LIFECYCLE.md): NVS mutation/readback/quarantine, owner ABA/static lifetime, root actual18 + ASan/UBSan18 PASS; provider и remote target gate пока OPEN.
+
 - [Самодостаточный transport CI](67_SELF_CONTAINED_TRANSPORT_CI.md): root clean Node/npm + actual producer/Go/MiniPOS/browser66 PASS; Linux CI ожидает проверки.
 
 - [Актуальные CI результаты и integration bootstrap](65_CI_INTEGRATION_FOLLOWUP.md): полный S3 build c9aed74 и IoT regression PASS, independently checked103 Git sources/7 artifacts; integration E2E остаётся на проверке.

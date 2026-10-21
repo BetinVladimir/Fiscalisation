@@ -1,4 +1,5 @@
 #include "device_identity.h"
+#include "installed_authority_lifecycle.h"
 #include "esp_random.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/ctr_drbg.h"
@@ -59,9 +60,11 @@ struct DeviceIdentity::Impl{mbedtls_ecp_keypair key;
  }~Impl(){mbedtls_ctr_drbg_free(&rng);mbedtls_ecp_keypair_free(&key);
  }};
 
-DeviceIdentity::DeviceIdentity():impl_(new Impl){}DeviceIdentity::~DeviceIdentity(){delete impl_;
+DeviceIdentity::DeviceIdentity():impl_(new Impl){}DeviceIdentity::~DeviceIdentity(){InstalledAuthorityMutation mutation;delete impl_;mutation.confirm();
  }
-esp_err_t DeviceIdentity::open(){std::lock_guard<std::mutex> lock(impl_->mutex);if(impl_->ok)return ESP_OK;
+esp_err_t DeviceIdentity::open(){InstalledAuthorityGuard installed(installed_authority_mutex());
+ {std::lock_guard<std::mutex> lock(impl_->mutex);if(impl_->ok)return ESP_OK;}
+ InstalledAuthorityMutation mutation;std::lock_guard<std::mutex> lock(impl_->mutex);
  if(!impl_->rng_ready){
   static constexpr unsigned char personalization[]="beefiscal-device-identity-v1";
   mbedtls_ctr_drbg_set_prediction_resistance(&impl_->rng,MBEDTLS_CTR_DRBG_PR_OFF);
@@ -87,7 +90,13 @@ esp_err_t DeviceIdentity::open(){std::lock_guard<std::mutex> lock(impl_->mutex);
  nvs_close(h);
 
  return e==ESP_OK?ESP_FAIL:e;
- }}else{if(e!=ESP_OK||z!=sizeof(scalar)||mbedtls_ecp_group_load(&group,MBEDTLS_ECP_DP_SECP256R1)!=0||mbedtls_mpi_read_binary(&private_key,scalar,z)!=0||mbedtls_ecp_mul(&group,&public_key,&private_key,&group.G,Impl::random,impl_)!=0){mbedtls_platform_zeroize(scalar,sizeof(scalar));
+ }
+ uint8_t persisted[32]{};size_t persisted_size=sizeof(persisted);
+ e=nvs_get_blob(h,"p256",persisted,&persisted_size);
+ const bool verified=e==ESP_OK&&persisted_size==sizeof(scalar)&&memcmp(persisted,scalar,sizeof(scalar))==0;
+ mbedtls_platform_zeroize(persisted,sizeof(persisted));
+ if(!verified){mbedtls_platform_zeroize(scalar,sizeof(scalar));nvs_close(h);return e==ESP_OK?ESP_ERR_INVALID_CRC:e;}
+ }else{if(e!=ESP_OK||z!=sizeof(scalar)||mbedtls_ecp_group_load(&group,MBEDTLS_ECP_DP_SECP256R1)!=0||mbedtls_mpi_read_binary(&private_key,scalar,z)!=0||mbedtls_ecp_mul(&group,&public_key,&private_key,&group.G,Impl::random,impl_)!=0){mbedtls_platform_zeroize(scalar,sizeof(scalar));
  nvs_close(h);
 
  return ESP_ERR_INVALID_CRC;
@@ -115,7 +124,7 @@ esp_err_t DeviceIdentity::open(){std::lock_guard<std::mutex> lock(impl_->mutex);
 
  mbedtls_sha256((uint8_t*)impl_->public_der.data(),impl_->public_der.size(),d,0);
  impl_->kid="esp32-p256-"+b64(d,12);
- impl_->ok=true;
+ impl_->ok=true;mutation.confirm();
 
  return ESP_OK;
  }

@@ -281,6 +281,9 @@ func TestTimeAnchorActualCryptoInterop(t *testing.T) {
 	encoded, _ := json.Marshal(responses)
 	write("responses.json", encoded)
 	run("verify")
+	for _, mode := range []string{"life-success", "life-legacy-aba", "life-legacy-anchor", "life-write", "life-commit", "life-readback", "life-legacy-commit", "life-legacy-readback", "life-invalid", "life-commit-race", "life-registry-race", "life-identity-open", "life-identity-aba", "life-identity-commit", "life-identity-readback", "life-verified-aba", "life-owner-aba", "life-static-exit"} {
+		run(mode)
+	}
 }
 
 func mustJSON(value any) []byte {
