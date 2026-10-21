@@ -49,3 +49,7 @@ N0/N1/N2 стартуют сразу; N3–N7 пополняются при пр
 ## N5/N6: технический локальный комплект S3
 
 Добавлены [read-only extractor и инструкция](17_S3_SQLITE_EXTRACTION.md), [generated dictionary фактической SQLite-схемы](18_S3_SQLITE_DICTIONARY.generated.md), executable source `scripts/export_s3_sqlite.py` и all-table roundtrip/negative tests `tests/test_s3_sqlite_export.py`. Это локальная техническая часть N5/N6: acquired quiescent S3 copy → exact typed rows/schema/count/hash inventory, без чтения NVS-ключей и без изменения runtime/schema. Cloud PostgreSQL, Android BlueCash, web/native stores, вложенные JSON dictionaries, cross-store reconciliation и физический provenance/acquisition rehearsal остаются OPEN. Общий статус PREPARATION_OPEN и внешние legal/submission gates не меняются.
+
+## Первичные источники — уточнение2026-10-21
+
+См. [проверку49](49_NAP_PRIMARY_REQUIREMENTS_RECHECK.md): успешно прочитаны официальный consolidated candidate, опубликованные поправки2024/2025 и рабочие альтернативные страницы процедуры. Выявлено отсутствие electronic-receipt п.24 в локальной исторической копии Annex29. Полнота законодательства по21.10.2026 и применимость остаются OPEN; статусы подготовки/подачи не повышаются.

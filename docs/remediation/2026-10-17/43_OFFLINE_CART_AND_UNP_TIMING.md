@@ -24,3 +24,7 @@ Status: OPEN. The accepted source-first boundary remains in [ADR-SUPTO-001](../.
 - Real synchronization tests: duplicate/out-of-order acknowledgments, lost source response, foreign tenant/session, payload/reference mismatch, partial receipt import and repeated restart. Exactly one source/root sale association, purchase, fiscal receipt and journal completion.
 
 Physical devices, offline revocation/equivalence and the applicable external НАП review remain separate acceptance gates. ESP32-S3 keys remain internal NVS; ATECC608 is unused.
+
+## Primary-source follow-up2026-10-21
+
+[Review49](49_NAP_PRIMARY_REQUIREMENTS_RECHECK.md) verifies the available official consolidated candidate, Annex29 points8/9.1 on printed pages279–280. The timing/readiness gap remains OPEN; source-first architecture does not establish an exception. Full legislative currency at the release date remains a separate unresolved gate.
