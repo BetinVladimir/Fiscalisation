@@ -178,13 +178,19 @@ G0–G4 описывают полную программу, включая hardw
 | Пакет | Интегрированный результат | Следующее обязательное доказательство |
 |---|---|---|
 | Persistence uncertainty/replay | [51](51_FISCAL_REPOSITORY_RECOVERY.md), 4e7b971: barrier/epoch/UNP/replay, backend/race/actualPG PASS | Реальный failover/power-loss и deployment contract |
-| Source recovery | [54](54_SOURCE_RECOVERY_AUTHORITY.md), bb91423: backend READ, CLOSED shift, journal queue/cart preservation, typedPG/payment proof; UI169/Node208/Go race/HTTP/drift PASS | Source-less legacy: unique signed linkage либо сохранённая quarantine и операторская сверка; без financial retry |
+| Source recovery | [54](54_SOURCE_RECOVERY_AUTHORITY.md), bb91423: backend READ, CLOSED shift, journal queue/cart preservation, typedPG/payment proof; UI169/Node208/Go race/HTTP/drift PASS | 129e96f: unique signed linkage и scoped export реализованы; source-less без достаточных фактов остаётся quarantine/операторская сверка, без financial retry |
 | Reliable BLE stream | [52](52_RELIABLE_GATT_STREAM.md), ebd8056/e81a3f3: C↔TS35fault, sanitizer/counterfactuals, actual UbuntuCI PASS | StageC настоящие SDK callbacks/subscription/ownership/timers; затем TLS/PoP/peer verification и HIL |
-| BLE server certificate | [53](53_BLE_SERVER_CERTIFICATE_ISSUANCE.md),2551f54: service-only issuer/durable exact replay, GoTLS/profile verification PASS | Actual S3 same-NVS-key proof, guarded installed binding, trusted time, installation/renewal/revocation и runtime channel |
+| BLE server certificate | [53](53_BLE_SERVER_CERTIFICATE_ISSUANCE.md),2551f54: service-only issuer/durable exact replay, GoTLS/profile verification PASS | 4686a00: actual same-NVS-key proof/installed binding guard реализованы; trusted time provider, installation/renewal/revocation и runtime channel остаются OPEN |
 | UI ownership | [55](55_UI_COMMIT_OWNERSHIP_AND_TEST_DISCOVERY.md),af73dee: committed callbacks и расширенное обнаружение тестов | Открытые browser cases из50 и оставшаяся статическая/физическая UI приёмка |
 
-Текущий параллельный контур: L1 — device proof и согласованное installed-authority владение; L2 — source-less legacy recovery; интегратор — SDK callback inventory, общий snapshot и evidence. Не смешивать historical candidate logs с принятой интеграцией; каждый следующий пакет повторяет релевантные проверки в общем дереве.
+Обновлённый параллельный контур: L1 — purpose-bound trusted-time wire verifier/request proof; L2 — end-to-end BLE reply origin через actual queue/processor; L3 — актуальные официальные НАП/ЗДДС источники; интегратор — обязательные gates и S3 build provenance. Не смешивать historical candidate logs с принятой интеграцией; каждый следующий пакет повторяет релевантные проверки в общем дереве.
 
 Trusted time: успешный SNTP и значение wall clock не считаются аутентифицированным временем. До nonce-bound подписанного time anchor текущего boot (либо другого проверенного authority источника) новая purpose-bound S3 подпись fail closed. Root-signed challenge без свежего device nonce не доказывает свежесть времени после cold boot. Наличие ключа в NVS не добавляет аппаратную защиту часов. Ключи остаются внутри ESP32-S3; ATECC608A/608 не используется.
 
 Пункты first-sale UNP timing/offline commercial drafts ([43](43_OFFLINE_CART_AND_UNP_TIMING.md)), electronic receipts ([30](30_ELECTRONIC_RECEIPT_GAP.md)), автономный отзыв, итоговые Android/iOS/BlueCash сборки, физические USB/COM/BLE испытания и полный применимый НАП dossier сохраняются OPEN. Узкие PASS выше не заменяют эти требования.
+
+### Последующие интегрированные пакеты
+
+- b988208 / [57](57_TRUSTED_S3_TIME_ANCHOR_DESIGN.md): interval state core,5229 independent Fraction cases,10050refresh, three RED mutations; mandatory make time-anchor-test. Это foundation: production verifier/provider ещё отсутствует, trusted UTC не включён.
+- 15216f9 / [56](56_BLE_CALLBACK_LIFECYCLE.md): peripheral host reset retires handle/generation/assembly, checked overflow, ingress/notify fences; root GCC runtime и38BluePad cases PASS. Полная session isolation требует сохранения delivery owner через CommandView→queue→processor→result. Late result не должен выбирать current connection.
+- b905c46/15216f9 / [58](58_S3_CI_PORTABILITY.md): actual dependency paths и переносимый Go cache для CI harness. Полный Ubuntu S3 build+regression+provenance должен пройти на одном проверенном source snapshot; промежуточная компиляция не закрывает gate.
