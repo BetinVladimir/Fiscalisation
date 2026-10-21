@@ -14,7 +14,9 @@ void bs_init(bs_stream*s,int server,const uint8_t gen[8],uint16_t cap,uint16_t c
 size_t bs_info(bs_stream*s,uint8_t out[20]){if(!s->server||s->phase==BS_CLOSED)return 0;head(s,out,0,0);p16(out+16,s->cap);p16(out+18,s->capacity);return 20;}
 static void ack(bs_stream*s,uint64_t now,int immediate){if(!s->pending_ack)s->ack_due=now+(immediate?0:25);if(immediate)s->ack_due=now;s->pending_ack=1;}
 int bs_feed(bs_stream*s,const uint8_t*f,size_t n,uint64_t now){
- if(s->phase==BS_CLOSED)return -9;if(!f||n>BS_FRAME)return fail(s,-2);if(!clock_ok(s,now))return -7;
+ if(s->phase==BS_CLOSED)return -9;
+ if(!f||n>BS_FRAME)return fail(s,-2);
+ if(!clock_ok(s,now))return -7;
  if(n>=12&&!(s->phase==BS_INIT&&!s->server)&&memcmp(f+4,s->gen,8))return 0;
  if(n<16||n>BS_FRAME||f[0]!=0x42||f[1]!=0x53||f[2]!=1||f[3]>6)return fail(s,-2);
  uint8_t type=f[3];uint32_t off=u32(f+12);
@@ -33,7 +35,9 @@ int bs_feed(bs_stream*s,const uint8_t*f,size_t n,uint64_t now){
 size_t bs_write(bs_stream*s,const uint8_t*p,size_t n,uint64_t now){if(s->phase!=BS_OPEN||!p||!n)return 0;if(!clock_ok(s,now))return 0;if(s->end>BS_MAX||n>BS_MAX-s->end){fail(s,-5);return 0;}size_t free=BS_CAP-(s->end-s->acked);if(n>free)n=free;for(size_t i=0;i<n;i++)s->tx[(s->end+(uint32_t)i)%BS_CAP]=p[i];s->end+=(uint32_t)n;return n;}
 size_t bs_read(bs_stream*s,uint8_t*p,size_t n,uint64_t now){if(s->phase!=BS_OPEN||!p)return 0;if(!clock_ok(s,now))return 0;size_t available=s->next-s->read;if(n>available)n=available;for(size_t i=0;i<n;i++){p[i]=s->rx[(s->read+(uint32_t)i)%BS_CAP];s->rx[(s->read+(uint32_t)i)%BS_CAP]=0;}s->read+=(uint32_t)n;uint64_t lim=(uint64_t)s->read+s->capacity;s->limit=lim>BS_MAX?BS_MAX:(uint32_t)lim;if(n)ack(s,now,0);return n;}
 size_t bs_next(bs_stream*s,uint8_t out[BS_FRAME],uint64_t now){
- if(s->phase==BS_CLOSED)return 0;if(!clock_ok(s,now)||s->local)return 0;size_t n=0;uint8_t type=0;
+ if(s->phase==BS_CLOSED)return 0;
+ if(!clock_ok(s,now)||s->local)return 0;
+ size_t n=0;uint8_t type=0;
  if(s->pending_close){type=5;s->pending_close=0;head(s,out,type,0);p16(out+16,s->reason);n=18;}
  else if(s->pending_closeack){type=6;s->pending_closeack=0;head(s,out,type,0);p16(out+16,s->reason);n=18;}
  else if(s->pending_openack){type=2;s->pending_openack=0;head(s,out,type,0);p16(out+16,s->selected);p16(out+18,s->capacity);n=20;s->phase=BS_OPEN;}

@@ -1,0 +1,13 @@
+{
+  "logs": {
+    "ci-before-compile.log": {
+      "raw_sha256": "7460a35e6257e2ea6aaecfca5d6f0f631ae505b63ff92468228a2b75c4902f88",
+      "gzip_sha256": "7bdefa09057fe85b936698b0d11541e4f480b233a2fcbfe3c0c164002e2492ea"
+    },
+    "local-after-make.log": {
+      "raw_sha256": "775d11fc7dfcd33ef96f3f12fb11a607dcbde7eb1bd53638dca477a0c29716f4",
+      "gzip_sha256": "a3076ce9b3ed2a6d05b611545ecfb047ad10cc3831d173ebadfa66b76124c6f7"
+    }
+  },
+  "source_sha256": "2f50772b3a62eb8e632721780e3bef72fa015f872d194b6c77d675b80ec2437c"
+}

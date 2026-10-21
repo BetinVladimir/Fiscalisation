@@ -196,3 +196,7 @@ Integrated C↔TS reproduction PASS with ASan/UBSan, 35 fault cases, six semanti
 ## Regression and CI entrypoint
 
 `make ble-stream-test` is now a root regression prerequisite and passed locally. Dedicated `.github/workflows/ble-stream.yml` runs mandatory sanitizer/C↔TS fault tests on Node22.14.0 and retains evidence on failure. Workflow YAML and Make expansion checked locally; remote execution remains OPEN. Optional app compiler checks do not imply app bundler acceptance. [Entrypoint log and source hashes](evidence/gatt-stream-stage-b-2026-10-21/entrypoint/manifest.json).
+
+### GCC CI portability follow-up
+
+First actual Ubuntu CI run39544110964 rejected two adjacent C guards under `-Werror=misleading-indentation`; this is a failed run, not acceptance. Split those statements without changing semantics or disabling warnings. GCC15 strict compile and full local Make sanitizer/fault reproduction PASS afterward. [Before/after evidence](evidence/gatt-stream-stage-b-2026-10-21/gcc-portability/manifest.json). Remote rerun required.
