@@ -14,6 +14,8 @@
 
 ## Проверяемый checkpoint — 2026-10-21
 
+Практический пошаговый маршрут полного закрытия — [единый подробный план для слабой модели](70_FULL_PRE_HIL_REMEDIATION_PLAN_FOR_SMALL_MODEL.md). Он сохраняет исходные requirements и отделяет software readiness от physical/НАП acceptance.
+
 | Направление | Подтверждено | Следующий обязательный результат |
 |---|---|---|
 | S3 build | Full official IDF5.5.6 CI c9aed74 SUCCESS;103 Git source hashes/7 artifact hashes независимо сверены; [evidence](65_CI_INTEGRATION_FOLLOWUP.md) | Новый target build после последующих firmware changes; physical boot/resource/electrical HIL отдельно |

@@ -6,6 +6,8 @@
 
 ## Текущий интеграционный срез — 2026-10-21
 
+- **[Единый подробный pre-HIL план для слабой модели](70_FULL_PRE_HIL_REMEDIATION_PLAN_FOR_SMALL_MODEL.md)**:40карточек, подкарточки, все36GAP/27T/45UI, матрицы тестов, команды и точный readiness gate.
+
 - [Actual native builds](69_NATIVE_APPLICATION_BUILD_CHECKPOINT.md): BlueCash APK +43JUnit PASS и source/artifact hashes проверены; MiniPOS/FiscalApp full APK/IPA ещё OPEN.
 
 - [Реальные time lifecycle hooks](68_INSTALLED_TIME_LIFECYCLE.md): NVS mutation/readback/quarantine, owner ABA/static lifetime, root actual18 + ASan/UBSan18 PASS; provider и remote target gate пока OPEN.
