@@ -1,0 +1,1 @@
+{"name":"@beeloy/reliable-gatt-stream","version":"0.0.0-stage-b","private":true,"type":"module","exports":{".":"./stream.ts"},"engines":{"node":">=22.14.0"}}

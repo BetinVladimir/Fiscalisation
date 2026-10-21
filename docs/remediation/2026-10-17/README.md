@@ -85,3 +85,5 @@ P0 означает блокер целевого денежного/фиска�
 Закрывать GAP следует ссылкой на изменение, исполняемый тест, immutable build hash и evidence. Само наличие функции, README-статуса или JSON trace со значением PASS недостаточно. Новые исходные тесты в этом этапе не добавлялись: пользователь запросил документацию без изменения кода.
 
 - [BLE certificate issuance foundation](53_BLE_SERVER_CERTIFICATE_ISSUANCE.md): integrated backend/race/actual mbedTLS profile PASS; device signer, trusted time and runtime channel remain OPEN.
+
+- [Reliable GATT stream core](52_RELIABLE_GATT_STREAM.md): integrated C↔TS sanitizer/fault tests and Android/iOS compile checks PASS; actual callbacks, TLS and physical HIL OPEN.

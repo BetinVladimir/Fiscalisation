@@ -1,0 +1,36 @@
+{
+  "stage": "B only; actual callbacks/TLS/auth/HIL OPEN",
+  "source_sha256": {
+    "stream.h": "cd85b0380bd07d94e80d5c73701c065a6276c134c2820e546073bf792da78f33",
+    "stream.c": "d407f5202edf9e3b4bd1360e30e171402baf5f1e8cc694f47596a13ce3d22fd8",
+    "stream.ts": "cdfbf05757d942473eacede671db0da11a2fd85efa6cfa7597782d608cf96099",
+    "driver.c": "c861143922f997a07af763e6fa26b8746a438e1a366fecfd8768fb7eaff3b271",
+    "boundary.c": "af1a573a38daf2e3a6dede5126671fd93c0a0a97b1f793e40991e252bd4bf332",
+    "test.mjs": "4f055b79d36b4d13107cdc07c58f001db40264b7eaddaf59f9001ae652271ffa",
+    "counterfactuals.py": "6d8b8304fdf75554c548418f997d5b6bf129c1ef3e8604488590017ffc29b75d",
+    "reproduce.py": "3ab809a350839eeb53fe92a6fca1193d437a73450a61844969e1fe0014cbb5cc",
+    "cross_compile.py": "d281df5b04d493d31945fc835a5c03d765ea3e2b7ed52d52358bd6bc72d61393"
+  },
+  "host": "macOS-26.7.1-arm64-arm-64bit",
+  "logs": {
+    "BeeMiniPOS-typescript.log": "43114626f62b3f571c20de84a1491f54c6455106467040cf8062b71b3a37f7ad",
+    "SDK-deadline-expected-red.log": "ef1d3c5e75192a503a59430df9770cbd2b5b3ae464f49fb291bcded6e202cc2d",
+    "TX-ring-bound-expected-red.log": "50e7b5705443a7d95fcd1e9e78050c01520dcb2f9974f5b80b60e693920c18e1",
+    "boundary-compile.log": "e45395104d07a282961578efb4a15f5c9ebedff1e9e1b9317ef2731e7ab519e4",
+    "boundary-unsafe-compile.log": "40f9e1d27078aa47323f5bc65a3cff096895a4584236fb77dd4792b90eab43c8",
+    "boundary-unsafe-counterfactual-red.log": "633d9f4c7d3e2f613c9c106d1517d10e7947ed292d1ba79db8c6395837987eb2",
+    "boundary-unsafe-counterfactual-result.json": "a35e6ffe69e5fd221918792901d5a678420549bddaa3744efcc1197f7e97f616",
+    "boundary.log": "3345224bcbdbfe7cbe091095e6af03db368a883566c57d72df3bfcf9aba9055d",
+    "compile.log": "3401c01c4d865df65522963699647f6e583b6c9afed6c49ae7a128f0c5e200b7",
+    "counterfactual-results.json": "5f5334807699bd6db4b8d9af1daedc8c7321b5b868cf611d78ca99c87b682046",
+    "counterfactuals.log": "3f2a50e8c704d65572b28bf6b9f74f81196fbeb797509f33d348b7b316cbbc7d",
+    "cross-compile.log": "e32b6dd47148f3013bd7c12dfe4b476da33cdbf1e2b1ae8139e23adfd8ca8951",
+    "descriptor-bound-expected-red.log": "7c8854380d0268e12391b0b93d562f9880b17a0a3d88a2f5ded6b2dd6d86152c",
+    "direct-api-boundary-pre-fix-red.log": "f62b7e19730bb092cd7d72f09196834ee7edc317685c082a5ea262320465fd78",
+    "duplex.log": "1b0a26e1a21a70bbdde78b1f6fa66ad1e4844e3e0f60ec9dbecdb352a159f4f5",
+    "duplicate-suppression-expected-red.log": "198f6dffde6c15c438c89231e5910a67bd4c921e666ad1cae29f91e291bac676",
+    "future-ACK-rejection-expected-red.log": "3197cdadb8995e60684f131ec3bf968bad2ae6f6afe3365becee039c1092e2d3",
+    "generation-fence-expected-red.log": "cbb88e1957eb393b9aa4ef7518abc3ff27179cd9338326cbf5524ad5f33577c4",
+    "miniposweb-typescript.log": "6d411613a49b34930807a325b5e24ba1c871e2c158178f7671636f02e17619bf"
+  }
+}

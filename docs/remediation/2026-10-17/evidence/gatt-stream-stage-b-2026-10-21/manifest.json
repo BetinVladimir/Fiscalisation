@@ -1,0 +1,29 @@
+{
+  "scope": "Stage B only; MP026 incomplete",
+  "files": {
+    "BeeMiniPOS-typescript.log.gz": "870222bb10c9d5227f6995ad4867f12e0629e42440daf1fcbabaa4f6dd495965",
+    "SDK-deadline-expected-red.log.gz": "ec2d498e47727acb3f1a5f2edc0fd94504fc4b09f3d24efe4ee811c5f5a5693d",
+    "SOURCE_OBSERVATIONS_SHA256SUMS": "553f115e2120b66b8969b28a73bde3ac62859204cc513709517f004e7ea8c2a5",
+    "TX-ring-bound-expected-red.log.gz": "0352be2dc6d19773fef5432194b0b8164ad20b2adf191bd828403a2073a6cbff",
+    "UUID_UNIQUENESS.txt": "caaf9826549da126bc4f848edef13e022386b2c4bc780cbfc237dfdc28acb988",
+    "boundary-compile.log.gz": "f64f520a427de26dc397d26e6c22b2a98fc1572a2639a039b1dabba798235e55",
+    "boundary-unsafe-compile.log.gz": "124fd81ca5953215083940199d3f7c2118c61001d66ea502495d0defb0bbdc0f",
+    "boundary-unsafe-counterfactual-red.log.gz": "8e16e0351d53d231264c19f58895c7ddee2f970558879dd55d4b3899e7441648",
+    "boundary-unsafe-counterfactual-result.json": "a35e6ffe69e5fd221918792901d5a678420549bddaa3744efcc1197f7e97f616",
+    "boundary.log.gz": "590ef205817c49098d1654054d57fd0c5ea8790b07adc3e3136c005e2ad4bdb8",
+    "compile.log.gz": "d31bb3c56842f97c80b42ebae68620b70d9f17f5ca81b5ff1f6f45e293004712",
+    "counterfactual-results.json": "5f5334807699bd6db4b8d9af1daedc8c7321b5b868cf611d78ca99c87b682046",
+    "counterfactuals.log.gz": "816855b761c8dde863bfaa658db2a77356d0fa7beccacffe2f0181351033155d",
+    "cross-compile.log.gz": "50827865d6d902b6ea3b67b7f78b1c1889ce6b774ce00f67665d08f9d5a789f5",
+    "descriptor-bound-expected-red.log.gz": "57d567477a2d9586d18921f64f542d8de76c4dcfd1625b7140f634bf592dd34e",
+    "direct-api-boundary-pre-fix-red.log.gz": "7b26c600d88cbfab6e82cf7ba04dd15ea46c3d2d1a78f26232cd3ddc205061c0",
+    "duplex.log.gz": "8cca8a6ba6501c0f180ccc26a85b0ab7815f870bf4e9479d8177dff3552ed019",
+    "duplicate-suppression-expected-red.log.gz": "e5ca5fe66f6fa46a74344ce11462ef2f12f7a0088dcae7c4ed7fc5a0e37bfe3d",
+    "future-ACK-rejection-expected-red.log.gz": "82f4923f3e852186d5ad92880f7eee3ca4539de6d1dd6e9697f605ac929ebf80",
+    "generation-fence-expected-red.log.gz": "00ce104a3a8f8c66287f2bab7a895d95a2488454b2a56a06197f21208bafa4f1",
+    "miniposweb-typescript.log.gz": "81563db694b6f19c37bb2bf6d42ecd6242f4b4f217117d2477b94a1d7d5a5b81",
+    "tested-run-manifest.json": "c013d5710df7c5a4e87ad53c06319a09108097efa799a25ee762289f65a0cb82"
+  },
+  "private_keys_included": false,
+  "binary_images_included": false
+}

@@ -1,0 +1,99 @@
+{
+  "scope": "Stage B transport core only; callbacks/TLS/auth/HIL OPEN",
+  "logs": {
+    "SDK-deadline-expected-red.log.gz": {
+      "raw_sha256": "ef8c5c816b35fbdb76886a62754b0cbec9ce1a2a57f33b7a5bbdf03e4837df55",
+      "gzip_sha256": "5ba81bc8484c30278202a4762e1bc1c056d41bec7be92744f80219fca9e1b2eb"
+    },
+    "duplex.log.gz": {
+      "raw_sha256": "5aef335cbe51a9fb12e5d693328c5eeae160f3fd241c848c088848036692913b",
+      "gzip_sha256": "475824d0a3c000c879494fe0746c494c4e8b1cc709e5cc9261d820342a4d6c1b"
+    },
+    "BeeMiniPOS-typescript.log.gz": {
+      "raw_sha256": "442c15f2ba85480ece60bc217d206b2ec84b2ac67b03078f5dda30acac044312",
+      "gzip_sha256": "798765ce79f786334dea28b5c686b94c6e6c1c7e94ae980dc3f97ad90fa77336"
+    },
+    "boundary-unsafe-counterfactual-red.log.gz": {
+      "raw_sha256": "f6fb3ec707b65e187267c814d0fab1c88f7bad7cf7635ff8a5409f8e82169fd1",
+      "gzip_sha256": "7e4d481b9d4400658b9364c6ca77aef00656a9f29e2ebd38070f709555a2f453"
+    },
+    "duplicate-suppression-expected-red.log.gz": {
+      "raw_sha256": "e48cc0fe6658588ecbe1a7992176b8d0d90db56614719ed013806f7fa9fc64e1",
+      "gzip_sha256": "d35041747a64548416575e6feddd9c9c52003d1d909d2561173ba5a2abdf85e1"
+    },
+    "boundary-unsafe-counterfactual-result.json.gz": {
+      "raw_sha256": "a35e6ffe69e5fd221918792901d5a678420549bddaa3744efcc1197f7e97f616",
+      "gzip_sha256": "77dcc61a7c0af82989d0842e19dcc6413c86b8d17b42007ec7a13a3c5ac44ac4"
+    },
+    "generation-fence-expected-red.log.gz": {
+      "raw_sha256": "2309f02295030b7ea1d9b760627cd64b23bb902480f086a1753f43371cd80fce",
+      "gzip_sha256": "4f3b6752d5f9866a135ed709cb965c7a124526290d0c259e4600eeea3db8743c"
+    },
+    "compile.log.gz": {
+      "raw_sha256": "3401c01c4d865df65522963699647f6e583b6c9afed6c49ae7a128f0c5e200b7",
+      "gzip_sha256": "eb78f13088bafc1561d1f3976e7a382679be72870ed4d2ea7d28454555f7d9bd"
+    },
+    "future-ACK-rejection-expected-red.log.gz": {
+      "raw_sha256": "fc9c14984245f1c966caf61b01732df63bb5647d67966e72bc14f6c9778b1b88",
+      "gzip_sha256": "2383cd678ea89da2a998902d588fc99dbaf7f4be5c081deebb827ce895a515e7"
+    },
+    "boundary.log.gz": {
+      "raw_sha256": "3345224bcbdbfe7cbe091095e6af03db368a883566c57d72df3bfcf9aba9055d",
+      "gzip_sha256": "2d97827d7bf69a13ee76731fcd2f89a7ff85c6435cd59ca96d7f38045cbb2b8f"
+    },
+    "boundary-unsafe-compile.log.gz": {
+      "raw_sha256": "40f9e1d27078aa47323f5bc65a3cff096895a4584236fb77dd4792b90eab43c8",
+      "gzip_sha256": "73143c6e6972960172798af1fe2daf78e9bc6b794e117cac41da90239093a6e6"
+    },
+    "boundary-compile.log.gz": {
+      "raw_sha256": "e45395104d07a282961578efb4a15f5c9ebedff1e9e1b9317ef2731e7ab519e4",
+      "gzip_sha256": "879d180b6ddd03174e7e09f6c77ed2bfe910cd3d16aedbc43eec1ebc42a77ccf"
+    },
+    "TX-ring-bound-expected-red.log.gz": {
+      "raw_sha256": "511b7a1543f0fc12d9817ad35eedf155c11a6de12e31f68ff3e864ef8ea77cc0",
+      "gzip_sha256": "a459293094f06cf40a1392cbeb1a98d9547742436d0bc8d59975bd84292bfd89"
+    },
+    "manifest.json.gz": {
+      "raw_sha256": "06701c907d6260119d3757f4742a9ffdb1b75f2d38be8daa8830a12600445f3f",
+      "gzip_sha256": "bef9dada79d53ae7270b3575970e943507e92d94d27c928989e98d98d7c63377"
+    },
+    "miniposweb-typescript.log.gz": {
+      "raw_sha256": "b530eb6eb4c617f391596426d5e7b3537cd2e8a4c2ed62d2a25636c469dbfc32",
+      "gzip_sha256": "5c09ffb006477de10588fd4e49bd0260c85d63066f32ef4e911c4704af101c16"
+    },
+    "descriptor-bound-expected-red.log.gz": {
+      "raw_sha256": "ac5474a41aeefb3749bfcfb22eb003da597e5916f40d34128d5683fed93344b0",
+      "gzip_sha256": "bba0830cddd4118032fbcdc975e6bb0b3d767b4049fac829956cafb869669026"
+    },
+    "counterfactuals.log.gz": {
+      "raw_sha256": "3f2a50e8c704d65572b28bf6b9f74f81196fbeb797509f33d348b7b316cbbc7d",
+      "gzip_sha256": "58dc53b925948575edbfa82a71e2cdf42d59fc1b74f6bc2570da0f9ba5d6a153"
+    },
+    "counterfactual-results.json.gz": {
+      "raw_sha256": "5f5334807699bd6db4b8d9af1daedc8c7321b5b868cf611d78ca99c87b682046",
+      "gzip_sha256": "52467e34b27c659a1ab438cbef4acbb2fd8109ce2f9e9f4598a49e9ae1f3b321"
+    },
+    "fiscal-gatt-stream-root-run-20261021.log.gz": {
+      "raw_sha256": "b2443af171880f9825299b42b647b09e66b9de28f7c46bddf93306b81b027271",
+      "gzip_sha256": "051d58e95892bf0bb2a086377268dcd1a95ab4eff8a70aa06ebcdb07bf2e6b2a"
+    },
+    "fiscal-gatt-stream-root-cross-20261021.log.gz": {
+      "raw_sha256": "cd01b0a57cf7dbb2cc7a2a22b8ed763f2686c1109dcf6199cac9ca5fe0141eb6",
+      "gzip_sha256": "d2ae8361ef92027e948662c6e96083d121efa48ed9a38d08b9e943514a0da971"
+    }
+  },
+  "sources": {
+    "IoT/common-modules/ble-stream/test.mjs": "4f055b79d36b4d13107cdc07c58f001db40264b7eaddaf59f9001ae652271ffa",
+    "IoT/common-modules/ble-stream/reproduce.py": "3ab809a350839eeb53fe92a6fca1193d437a73450a61844969e1fe0014cbb5cc",
+    "IoT/common-modules/ble-stream/cross_compile.py": "d281df5b04d493d31945fc835a5c03d765ea3e2b7ed52d52358bd6bc72d61393",
+    "IoT/common-modules/ble-stream/counterfactuals.py": "6d8b8304fdf75554c548418f997d5b6bf129c1ef3e8604488590017ffc29b75d",
+    "IoT/common-modules/ble-stream/stream.h": "cd85b0380bd07d94e80d5c73701c065a6276c134c2820e546073bf792da78f33",
+    "IoT/common-modules/ble-stream/README.md": "bfa3b1a62ebaa4a875aa9148f7a450acd578b3fce9d2a8f987edcd54f3637820",
+    "IoT/common-modules/ble-stream/stream.ts": "cdfbf05757d942473eacede671db0da11a2fd85efa6cfa7597782d608cf96099",
+    "IoT/common-modules/ble-stream/.gitignore": "8dba3603b03af105954dca4fe227162f40a2b8e6e39107d533d220d55a141060",
+    "IoT/common-modules/ble-stream/package.json": "689186c30deb2356f65546e5c95fb5781c9a5dc5c1a95e187ca0a4fd3066a93a",
+    "IoT/common-modules/ble-stream/boundary.c": "af1a573a38daf2e3a6dede5126671fd93c0a0a97b1f793e40991e252bd4bf332",
+    "IoT/common-modules/ble-stream/driver.c": "c861143922f997a07af763e6fa26b8746a438e1a366fecfd8768fb7eaff3b271",
+    "IoT/common-modules/ble-stream/stream.c": "d407f5202edf9e3b4bd1360e30e171402baf5f1e8cc694f47596a13ce3d22fd8"
+  }
+}

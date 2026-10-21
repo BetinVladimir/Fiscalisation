@@ -1,0 +1,38 @@
+[
+  {
+    "mutation": "duplicate-suppression",
+    "expected": "RED assertion",
+    "exit": 1,
+    "test_filter": "duplicate suppression"
+  },
+  {
+    "mutation": "future-ACK-rejection",
+    "expected": "RED assertion",
+    "exit": 1,
+    "test_filter": "queued/unsent"
+  },
+  {
+    "mutation": "generation-fence",
+    "expected": "RED assertion",
+    "exit": 1,
+    "test_filter": "16 descriptor"
+  },
+  {
+    "mutation": "SDK-deadline",
+    "expected": "RED assertion",
+    "exit": 1,
+    "test_filter": "16 descriptor"
+  },
+  {
+    "mutation": "TX-ring-bound",
+    "expected": "RED assertion",
+    "exit": 1,
+    "test_filter": "TX ring cap"
+  },
+  {
+    "mutation": "descriptor-bound",
+    "expected": "RED assertion",
+    "exit": 1,
+    "test_filter": "16 descriptor"
+  }
+]
