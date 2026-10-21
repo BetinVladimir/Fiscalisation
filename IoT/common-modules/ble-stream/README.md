@@ -13,3 +13,5 @@ Core calls are serialized by the future adapter. `bs_next`/`take` reserves one l
 CLOSE/CLOSE_ACK are exactly18bytes.20bytes is the minimum negotiated maximum ATT-value size, not a minimum size for every frame; DATA may be17bytes. Control frames INFO/OPEN/OPEN_ACK/ACK are20bytes. Service UUID reservation is in doc52. Transport constants/descriptors/rings are bounded and independent of fiscal operation idempotency.
 
 No secure mode, financial sink, private key provider, BLE SDK integration or TLS implementation is enabled. Full doc52 contract and outstanding gates govern adoption. Test-only driver `O`/`LIMIT` fast-forward public test state to prove32-bit arithmetic boundaries without transmitting4GiB; those commands do not exist in the library API.
+
+`make ble-stream-test` is included in root `regression`. Dedicated `ble-stream.yml` CI runs the sanitizer/fault core on Node22.14.0 and uploads logs even on failure. This CI does not install application dependencies: optional app TypeScript compiler checks remain explicitly OPEN when absent; runtime C↔TS tests are mandatory. App bundling/native/runtime adoption remains Stage C.

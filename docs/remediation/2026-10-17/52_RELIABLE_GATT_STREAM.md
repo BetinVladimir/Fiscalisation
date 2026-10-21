@@ -192,3 +192,7 @@ Boundary notes for Stage C: the serialized adapter must provide current monotoni
 ## Root integrated verification — 2026-10-21
 
 Integrated C↔TS reproduction PASS with ASan/UBSan, 35 fault cases, six semantic counterfactuals and the SIZE_MAX unsafe-expression counterfactual. Android arm64, iOS arm64 device and simulator C compile checks PASS; these are compilation checks, not mobile runtime tests. [Root evidence and tested source hashes](evidence/gatt-stream-stage-b-2026-10-21/root/manifest.json). Actual GATT callbacks, packaged clients, TLS, authenticated admission and physical HIL remain OPEN.
+
+## Regression and CI entrypoint
+
+`make ble-stream-test` is now a root regression prerequisite and passed locally. Dedicated `.github/workflows/ble-stream.yml` runs mandatory sanitizer/C↔TS fault tests on Node22.14.0 and retains evidence on failure. Workflow YAML and Make expansion checked locally; remote execution remains OPEN. Optional app compiler checks do not imply app bundler acceptance. [Entrypoint log and source hashes](evidence/gatt-stream-stage-b-2026-10-21/entrypoint/manifest.json).
