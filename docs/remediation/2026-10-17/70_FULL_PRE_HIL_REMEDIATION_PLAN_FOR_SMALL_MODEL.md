@@ -96,11 +96,36 @@ reviewer_result: ''
 
 ## 6. Карточки исполнения
 
+**Уточнение путей после ревью:** в каждой P00…P39 перечислены существующие файлы для actual implementation, тестов и contracts/build/docs. Существование каждого пути проверено по текущему дереву. Новые пути явно помечены `proposed` и не созданы этим документом. `IoT/common-drivers` исправлен на фактический `IoT/common-modules`; для дополнительных профилей используется существующее написание `termol` в имени каталога.
+
+Пути являются стартовым impact map, не безусловным allowlist массовых правок. До редактирования найти symbol и actual caller через `rg -n`, записать точный scope Pxx.n; при переходе в новый caller добавить его путь в task record и этот plan. Не исправлять tests путём удаления assert и не заменять integration generic mock. Shared файлы из разных карточек меняет один владелец за раз.
+
 ### P00 — Зафиксировать фактический baseline и не потерять чужие изменения
 
 **Зависимости:** нет. **Трассировка:** GAP-028/030; T-15/22/23.
 
-**Где читать/менять:** `git status; Makefile; TOOLCHAIN.md; .github/workflows; docs/remediation/2026-10-17`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [Makefile](/Users/freelancer/Documents/Beeloy/Fiscalisation/Makefile)
+- [TOOLCHAIN.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/TOOLCHAIN.md)
+
+**Тесты/gates — существующие файлы:**
+
+- [scripts/verify_readiness_documentation.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify_readiness_documentation.rb)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [.github/workflows/s3-idf.yml](/Users/freelancer/Documents/Beeloy/Fiscalisation/.github/workflows/s3-idf.yml)
+- [.github/workflows/integration-contract.yml](/Users/freelancer/Documents/Beeloy/Fiscalisation/.github/workflows/integration-contract.yml)
+- [docs/remediation/2026-10-17/70_FULL_PRE_HIL_REMEDIATION_PLAN_FOR_SMALL_MODEL.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/70_FULL_PRE_HIL_REMEDIATION_PLAN_FOR_SMALL_MODEL.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/execution/P00.1.md` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -121,7 +146,31 @@ reviewer_result: ''
 
 **Зависимости:** P00. **Трассировка:** GAP-030/034; T-23; все UI.
 
-**Где читать/менять:** `02_GAP_REGISTER.md; 05_TESTS_AND_ACCEPTANCE.md; contracts/*.json; docs/SUPTO; этот план`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [contracts/ui-acceptance-matrix.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/contracts/ui-acceptance-matrix.json)
+- [contracts/bg-requirements-trace.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/contracts/bg-requirements-trace.json)
+- [contracts/mvp-acceptance-v1.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/contracts/mvp-acceptance-v1.json)
+- [contracts/roadmap-stage-acceptance.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/contracts/roadmap-stage-acceptance.json)
+
+**Тесты/gates — существующие файлы:**
+
+- [scripts/verify_readiness_documentation.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify_readiness_documentation.rb)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/02_GAP_REGISTER.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/02_GAP_REGISTER.md)
+- [docs/remediation/2026-10-17/05_TESTS_AND_ACCEPTANCE.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/05_TESTS_AND_ACCEPTANCE.md)
+- [docs/remediation/2026-10-17/04_REMEDIATION_PLAN.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/04_REMEDIATION_PLAN.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/execution/required-cases.v1.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/execution/task-inventory.v1.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -142,7 +191,30 @@ reviewer_result: ''
 
 **Зависимости:** P00. **Трассировка:** GAP-009…014/029/032/033; T-05…08/24/25.
 
-**Где читать/менять:** `03_DEVICE_PROTOCOLS.md; IoT/protocol-abstraction; IoT/common-drivers; SmartDevices; idf/main/provisioned_binding.cpp`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/provisioned_binding.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/provisioned_binding.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp)
+- [BeeFiscalApp/src/deviceProfiles.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/deviceProfiles.ts)
+- [IoT/protocol-abstraction/src/ProtocolFactory.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/src/ProtocolFactory.cpp)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/protocol-abstraction/tests/ProtocolFacadeTest.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/tests/ProtocolFacadeTest.cpp)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/03_DEVICE_PROTOCOLS.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/03_DEVICE_PROTOCOLS.md)
+- [IoT/firmware/edge-agent-s3/README.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/README.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/profiles/registry.v1.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/profiles/profile.schema.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -163,7 +235,75 @@ reviewer_result: ''
 
 **Зависимости:** P00,P01. **Трассировка:** T-16/18/19/20; integration run39557126955 failure.
 
-**Где читать/менять:** `database/fiscal; scripts/prepare-fiscal-pg-fixture.py; fiscal-backend/internal/integration; compose.fiscalisation.integration-ci.yaml; .github/workflows/integration-contract.yml`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [scripts/prepare-fiscal-pg-fixture.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/prepare-fiscal-pg-fixture.py)
+- [scripts/e2e-server2server.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/e2e-server2server.sh)
+- [.github/workflows/integration-contract.yml](/Users/freelancer/Documents/Beeloy/Fiscalisation/.github/workflows/integration-contract.yml)
+- [compose.fiscalisation.integration-ci.yaml](/Users/freelancer/Documents/Beeloy/Fiscalisation/compose.fiscalisation.integration-ci.yaml)
+- [fiscal-backend/internal/integration/service.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/service.go)
+- [fiscal-backend/internal/integration/http.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/http.go)
+- [fiscal-backend/internal/integration/rabbit.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/rabbit.go)
+- [fiscal-backend/internal/integration/appauth.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/appauth.go)
+
+**Тесты/gates — существующие файлы:**
+
+- [scripts/test_prepare_fiscal_pg_fixture.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/test_prepare_fiscal_pg_fixture.py)
+- [scripts/tests/test_integration_ci_topology.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/tests/test_integration_ci_topology.py)
+- [fiscal-backend/internal/integration/service_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/service_test.go)
+- [fiscal-backend/internal/integration/appauth_postgres_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/appauth_postgres_test.go)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [database/README.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/database/README.md)
+- [docs/remediation/2026-10-17/65_CI_INTEGRATION_FOLLOWUP.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/65_CI_INTEGRATION_FOLLOWUP.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/fixtures/fiscal-integration-canonical/provenance.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/fixtures/fiscal-integration-canonical/fixture.sql` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/prepare-integration-pg-fixture.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/canonical_fixture_postgres_test.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+**Внешние canonical inputs — только чтение/сверка provenance, не править в рамках этой карточки Fiscalisation:**
+
+Trusted revision/closure определить по D04; наличие файлов само по себе не подтверждает пригодность версии. Если нужна product migration в BeeloyDB, оформить отдельную reviewed задачу, не исправлять её копированием упрощённой схемы в backend.
+
+- [BeeloyDB/scripts/canonical-baseline-loader.js](/Users/freelancer/Documents/Beeloy/BeeloyDB/scripts/canonical-baseline-loader.js)
+- [BeeloyDB/scripts/canonical-migration-loader.js](/Users/freelancer/Documents/Beeloy/BeeloyDB/scripts/canonical-migration-loader.js)
+- [BeeloyDB/migrations/sqls/canonical-baseline-v1.json](/Users/freelancer/Documents/Beeloy/BeeloyDB/migrations/sqls/canonical-baseline-v1.json)
+- [BeeloyDB/model/fiscal/tables/external_systems.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/external_systems.sql)
+- [BeeloyDB/model/fiscal/tables/external_system_credentials.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/external_system_credentials.sql)
+- [BeeloyDB/model/fiscal/tables/external_system_audit_log.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/external_system_audit_log.sql)
+- [BeeloyDB/model/fiscal/tables/tenant_source_bindings.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/tenant_source_bindings.sql)
+- [BeeloyDB/model/fiscal/tables/external_enrollment_challenges.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/external_enrollment_challenges.sql)
+- [BeeloyDB/model/fiscal/tables/tenant_integration_credentials.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/tenant_integration_credentials.sql)
+- [BeeloyDB/model/fiscal/tables/tenant_user_memberships.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/tenant_user_memberships.sql)
+- [BeeloyDB/model/fiscal/tables/app_auth_challenges.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/app_auth_challenges.sql)
+- [BeeloyDB/model/fiscal/tables/app_auth_sessions.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/app_auth_sessions.sql)
+- [BeeloyDB/model/fiscal/tables/app_issued_tokens.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/app_issued_tokens.sql)
+- [BeeloyDB/model/fiscal/tables/fiscal_email_outbox.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/fiscal_email_outbox.sql)
+- [BeeloyDB/model/fiscal/tables/integration_commands.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/integration_commands.sql)
+- [BeeloyDB/model/fiscal/tables/integration_command_outbox.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/integration_command_outbox.sql)
+- [BeeloyDB/model/fiscal/tables/integration_resources.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/integration_resources.sql)
+- [BeeloyDB/model/fiscal/tables/integration_change_journal.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/integration_change_journal.sql)
+- [BeeloyDB/model/fiscal/tables/integration_idempotency_replays.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/integration_idempotency_replays.sql)
+- [BeeloyDB/model/fiscal/tables/integration_security_events.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/integration_security_events.sql)
+- [BeeloyDB/model/fiscal/tables/enrollment_conflict_decisions.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/enrollment_conflict_decisions.sql)
+- [BeeloyDB/model/fiscal/tables/webhook_deliveries.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/webhook_deliveries.sql)
+- [BeeloyDB/model/fiscal/tables/webhook_delivery_attempts.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/webhook_delivery_attempts.sql)
+- [BeeloyDB/model/fiscal/tables/integration_retention_runs.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/integration_retention_runs.sql)
+- [BeeloyDB/model/fiscal/tables/integration_command_outbox_archive.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/integration_command_outbox_archive.sql)
+- [BeeloyDB/model/fiscal/tables/integration_commands_archive.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/integration_commands_archive.sql)
+- [BeeloyDB/model/fiscal/tables/webhook_delivery_attempts_archive.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/webhook_delivery_attempts_archive.sql)
+- [BeeloyDB/model/fiscal/tables/webhook_deliveries_archive.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/tables/webhook_deliveries_archive.sql)
+- [BeeloyDB/model/fiscal/functions/integration_journal_immutable.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/functions/integration_journal_immutable.sql)
+- [BeeloyDB/model/fiscal/functions/archive_integration_operational_rows.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/functions/archive_integration_operational_rows.sql)
+- [BeeloyDB/model/fiscal/triggers/integration_change_journal__integration_change_journal_no_update.sql](/Users/freelancer/Documents/Beeloy/BeeloyDB/model/fiscal/triggers/integration_change_journal__integration_change_journal_no_update.sql)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -186,7 +326,32 @@ reviewer_result: ''
 
 **Зависимости:** P03. **Трассировка:** GAP-016…020/024/028; T-10/11/13/15/16.
 
-**Где читать/менять:** `database/fiscal; database/minipos; fiscal-backend/internal/persistence; minipos/beeminipos-backend; scripts/e2e-two-compose.sh`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [fiscal-backend/internal/persistence/postgres.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/persistence/postgres.go)
+- [fiscal-backend/internal/persistence/migrations.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/persistence/migrations.go)
+- [minipos/beeminipos-backend/internal/persistence/postgres.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/persistence/postgres.go)
+- [minipos/beeminipos-backend/internal/persistence/order_projection.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/persistence/order_projection.go)
+- [database/fiscal/002_tenant_rls.sql](/Users/freelancer/Documents/Beeloy/Fiscalisation/database/fiscal/002_tenant_rls.sql)
+- [database/fiscal/022_runtime_typed_projection.sql](/Users/freelancer/Documents/Beeloy/Fiscalisation/database/fiscal/022_runtime_typed_projection.sql)
+- [database/minipos/002_tenant_rls.sql](/Users/freelancer/Documents/Beeloy/Fiscalisation/database/minipos/002_tenant_rls.sql)
+
+**Тесты/gates — существующие файлы:**
+
+- [fiscal-backend/internal/persistence/postgres_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/persistence/postgres_test.go)
+- [fiscal-backend/internal/persistence/postgres_fixture_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/persistence/postgres_fixture_test.go)
+- [fiscal-backend/internal/persistence/unp_allocator_integration_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/persistence/unp_allocator_integration_test.go)
+- [minipos/beeminipos-backend/internal/persistence/postgres_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/persistence/postgres_test.go)
+- [minipos/beeminipos-backend/internal/persistence/order_recovery_integration_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/persistence/order_recovery_integration_test.go)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [scripts/e2e-two-compose.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/e2e-two-compose.sh)
+- [database/README.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/database/README.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -208,7 +373,38 @@ reviewer_result: ''
 
 **Зависимости:** P02,P04. **Трассировка:** GAP-001/002/024/025/035; T-01/12/13/26.
 
-**Где читать/менять:** `fiscal-backend/internal/mqttclient; fiscal-backend/internal/domain/admin.go; idf/main/mqtt_runtime.cpp; SmartDevices BlueCashMqtt.kt; broker config`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [fiscal-backend/internal/mqttclient/client.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/mqttclient/client.go)
+- [fiscal-backend/internal/domain/admin.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/admin.go)
+- [IoT/firmware/edge-agent-s3/idf/main/mqtt_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/mqtt_runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/sync_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/sync_runtime.cpp)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashMqtt.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashMqtt.kt)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashSyncWire.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashSyncWire.kt)
+
+**Тесты/gates — существующие файлы:**
+
+- [fiscal-backend/internal/mqttclient/client_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/mqttclient/client_test.go)
+- [IoT/firmware/edge-agent-s3/idf/tests/run_native_mqtt.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_native_mqtt.sh)
+- [IoT/firmware/edge-agent-s3/idf/tests/run_sync_host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_sync_host.sh)
+- [SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashSyncWireTest.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashSyncWireTest.kt)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [compose.fiscalisation.yaml](/Users/freelancer/Documents/Beeloy/Fiscalisation/compose.fiscalisation.yaml)
+- [compose.fiscalisation.dev.yaml](/Users/freelancer/Documents/Beeloy/Fiscalisation/compose.fiscalisation.dev.yaml)
+
+**Если меняется public API/DTO — source и generated consumers:**
+
+- [docs/integration-kit/openapi.yaml](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/openapi.yaml)
+- [docs/integration-kit/package.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/package.json)
+- [docs/integration-kit/generate-go-validator.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/generate-go-validator.mjs)
+- [docs/integration-kit/typescript/types.generated.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/typescript/types.generated.ts) — generated output; только штатная генерация.
+- [fiscal-backend/internal/integration/resource_schemas_gen.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/resource_schemas_gen.go) — generated output; только штатная генерация.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -230,7 +426,33 @@ reviewer_result: ''
 
 **Зависимости:** P02,P04. **Трассировка:** GAP-003/004/005/031; T-02/03/22.
 
-**Где читать/менять:** `IoT/device-manufacturing; idf/main/device_identity.cpp; encrypted_provisioning.cpp; provisioned_binding.cpp; BeeFiscalApp/src/provisioningProtocol.ts; smartDeviceBle*`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/device_identity.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/device_identity.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/encrypted_provisioning.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/encrypted_provisioning.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/provisioned_binding.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/provisioned_binding.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/provisioning_crypto.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/provisioning_crypto.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/app_main.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/app_main.cpp)
+- [BeeFiscalApp/src/provisioningProtocol.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/provisioningProtocol.ts)
+- [BeeFiscalApp/src/provisioningBle.native.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/provisioningBle.native.ts)
+- [BeeFiscalApp/src/provisioningBle.web.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/provisioningBle.web.ts)
+- [BeeFiscalApp/src/smartDeviceBle.native.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/smartDeviceBle.native.ts)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/run_provisioning_host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_provisioning_host.sh)
+- [IoT/firmware/edge-agent-s3/idf/tests/run_identity_entropy_host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_identity_entropy_host.sh)
+- [BeeFiscalApp/src/provisioningProtocol.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/provisioningProtocol.test.ts)
+- [IoT/device-manufacturing/tests/test_bundle.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/device-manufacturing/tests/test_bundle.py)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [IoT/device-manufacturing/src/beefiscal_factory/registration_client.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/device-manufacturing/src/beefiscal_factory/registration_client.py)
+- [docs/remediation/2026-10-17/15_PROVISIONING_AND_BLUECASH_INTEGRATION.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/15_PROVISIONING_AND_BLUECASH_INTEGRATION.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -252,7 +474,33 @@ reviewer_result: ''
 
 **Зависимости:** P06. **Трассировка:** GAP-005…008/030; T-03/04/23/25; docs56/59/61.
 
-**Где читать/менять:** `idf/main/ble_runtime.cpp; ble_frame_layout.h; command_queue.*; minipos/BeeMiniPOS/src/webBle.ts; browserGatt.ts; nativeBleTransport.ts; miniposweb/src/fiscal`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/ble_frame_layout.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_frame_layout.h)
+- [IoT/firmware/edge-agent-s3/idf/main/ble_result_delivery.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_result_delivery.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/command_queue.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/command_queue.cpp)
+- [minipos/BeeMiniPOS/src/webBle.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/webBle.ts)
+- [minipos/BeeMiniPOS/src/browserGatt.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/browserGatt.ts)
+- [minipos/BeeMiniPOS/src/nativeBleTransport.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/nativeBleTransport.ts)
+- [minipos/miniposweb/src/fiscal/webBleRoute.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/miniposweb/src/fiscal/webBleRoute.ts)
+- [minipos/miniposweb/src/fiscal/browserGatt.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/miniposweb/src/fiscal/browserGatt.ts)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/run_native_ble.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_native_ble.sh)
+- [IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py)
+- [minipos/BeeMiniPOS/src/nativeBleTransport.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/nativeBleTransport.test.ts)
+- [minipos/miniposweb/tests/webBleLifecycle.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/miniposweb/tests/webBleLifecycle.test.ts)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/CMakeLists.txt](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/CMakeLists.txt)
+- [docs/remediation/2026-10-17/56_BLE_CALLBACK_LIFECYCLE.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/56_BLE_CALLBACK_LIFECYCLE.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -274,7 +522,31 @@ reviewer_result: ''
 
 **Зависимости:** P07. **Трассировка:** GAP-007/008/017/025; T-03/11/14/20.
 
-**Где читать/менять:** `idf/main/command_queue.cpp; command_queue.h; actual HTTP/BLE ingress; runtime host harness`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/command_queue.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/command_queue.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/command_queue.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/command_queue.h)
+- [IoT/firmware/edge-agent-s3/idf/main/local_http_server.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/local_http_server.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py)
+- [IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/tests/run_native_saga.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_native_saga.sh)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/38_HTTP_TOTAL_DEADLINES.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/38_HTTP_TOTAL_DEADLINES.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/command_queue_host/queue_deadline_native.cpp` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/command_queue_host/run.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -296,7 +568,52 @@ reviewer_result: ''
 
 **Зависимости:** P04,P06,P07. **Трассировка:** GAP-004/008/025; T-02/10/18/20; docs57/60/66/68.
 
-**Где читать/менять:** `docs60/63/66/68; idf/main/device_time_anchor.*; time_anchor_core.*; app_main.cpp; backend domain; новые runtime/monitor adapters`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/device_time_anchor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/device_time_anchor.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/device_time_anchor.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/device_time_anchor.h)
+- [IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.h)
+- [IoT/firmware/edge-agent-s3/idf/main/installed_authority_lifecycle.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/installed_authority_lifecycle.h)
+- [IoT/firmware/edge-agent-s3/idf/main/device_identity.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/device_identity.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/startup_entropy.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/startup_entropy.h)
+- [IoT/firmware/edge-agent-s3/idf/main/app_main.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/app_main.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/local_token_validator.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/local_token_validator.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/execution_authorization.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/execution_authorization.cpp)
+- [fiscal-backend/internal/domain/ble_server_challenge.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/ble_server_challenge.go)
+- [fiscal-backend/internal/domain/ble_server_ca.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/ble_server_ca.go)
+- [BeeFiscalApp/src/provisioningBle.native.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/provisioningBle.native.ts)
+- [BeeFiscalApp/src/provisioningProtocol.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/provisioningProtocol.ts)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/time_anchor_crypto_host/crypto_native.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/time_anchor_crypto_host/crypto_native.cpp)
+- [fiscal-backend/internal/domain/time_anchor_crypto_interop_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/time_anchor_crypto_interop_test.go)
+- [scripts/verify-device-time-anchor-crypto-host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify-device-time-anchor-crypto-host.sh)
+- [scripts/run-ble-certificate-crypto.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/run-ble-certificate-crypto.py)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/60_DEVICE_TIME_PROOF_VERIFIER_CONTRACT.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/60_DEVICE_TIME_PROOF_VERIFIER_CONTRACT.md)
+- [docs/remediation/2026-10-17/66_TRUSTED_TIME_PRODUCTION_VERTICAL.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/66_TRUSTED_TIME_PRODUCTION_VERTICAL.md)
+- [IoT/firmware/edge-agent-s3/idf/main/CMakeLists.txt](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/CMakeLists.txt)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/device_time_runtime.h` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/device_time_runtime.cpp` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/time_nonce_source.h` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/time_nonce_source.cpp` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/authorityclock/clock.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/authorityclock/linux_monitor.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/authorityclock/policy.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/device_time_anchor.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/api/device_time_anchor.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -319,7 +636,46 @@ reviewer_result: ''
 
 **Зависимости:** P07,P09. **Трассировка:** GAP-004/008/027; UI-MP-026/UI-FISC-012; T-04/18/23.
 
-**Где читать/менять:** `IoT/common-modules/ble-stream; idf/main/ble_certificate_proof.*; ble_runtime.cpp; backend ble_server*; actual native/browser transports`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/device_identity.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/device_identity.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/app_main.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/app_main.cpp)
+- [IoT/common-modules/ble-stream/stream.c](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/ble-stream/stream.c)
+- [IoT/common-modules/ble-stream/driver.c](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/ble-stream/driver.c)
+- [IoT/common-modules/ble-stream/boundary.c](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/ble-stream/boundary.c)
+- [IoT/common-modules/ble-stream/stream.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/ble-stream/stream.ts)
+- [fiscal-backend/internal/domain/ble_server_ca.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/ble_server_ca.go)
+- [fiscal-backend/internal/domain/ble_server_challenge.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/ble_server_challenge.go)
+- [fiscal-backend/internal/domain/ble_server_repository.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/ble_server_repository.go)
+- [minipos/BeeMiniPOS/src/nativeBleTransport.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/nativeBleTransport.ts)
+- [minipos/BeeMiniPOS/src/webBle.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/webBle.ts)
+- [minipos/miniposweb/src/fiscal/webBleRoute.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/miniposweb/src/fiscal/webBleRoute.ts)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/common-modules/ble-stream/reproduce.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/ble-stream/reproduce.py)
+- [IoT/common-modules/ble-stream/counterfactuals.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/ble-stream/counterfactuals.py)
+- [fiscal-backend/internal/domain/ble_server_tls_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/ble_server_tls_test.go)
+- [fiscal-backend/internal/domain/ble_server_ca_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/ble_server_ca_test.go)
+- [scripts/verify-ble-certificate-proof-host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify-ble-certificate-proof-host.sh)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/46_BLE_STANDARD_CHANNEL_OPTIONS.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/46_BLE_STANDARD_CHANNEL_OPTIONS.md)
+- [docs/remediation/2026-10-17/52_RELIABLE_GATT_STREAM.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/52_RELIABLE_GATT_STREAM.md)
+- [docs/remediation/2026-10-17/53_BLE_SERVER_CERTIFICATE_ISSUANCE.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/53_BLE_SERVER_CERTIFICATE_ISSUANCE.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_tls_channel.h` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_tls_channel.cpp` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/bleTlsChannel.ts` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -341,7 +697,37 @@ reviewer_result: ''
 
 **Зависимости:** P04,P07. **Трассировка:** GAP-008/026/027; UI-MP-014/016/017/020/028; T-04/14/18.
 
-**Где читать/менять:** `BeeFiscalApp/src; minipos/BeeMiniPOS/src/requestAuthFence.ts; nativeExecutionManager.ts; nativeExecutionAuthority.ts; App.tsx; PWA routes`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [BeeFiscalApp/App.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/App.tsx)
+- [minipos/BeeMiniPOS/App.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/App.tsx)
+- [BeeFiscalApp/src/requestAuthFence.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/requestAuthFence.ts)
+- [BeeFiscalApp/src/emailOtpAuth.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/emailOtpAuth.ts)
+- [BeeFiscalApp/src/http.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/http.ts)
+- [BeeFiscalApp/src/smartDeviceBle.native.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/smartDeviceBle.native.ts)
+- [minipos/BeeMiniPOS/src/requestAuthFence.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/requestAuthFence.ts)
+- [minipos/BeeMiniPOS/src/useManagementAccess.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/useManagementAccess.ts)
+- [minipos/BeeMiniPOS/src/nativeExecutionManager.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/nativeExecutionManager.ts)
+- [minipos/BeeMiniPOS/src/nativeExecutionAuthority.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/nativeExecutionAuthority.ts)
+- [minipos/BeeMiniPOS/src/http.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/http.ts)
+- [minipos/BeeMiniPOS/src/emailAuth.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/emailAuth.ts)
+
+**Тесты/gates — существующие файлы:**
+
+- [BeeFiscalApp/src/requestAuthFence.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/requestAuthFence.test.ts)
+- [minipos/BeeMiniPOS/src/requestAuthFence.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/requestAuthFence.test.ts)
+- [minipos/BeeMiniPOS/src/nativeExecutionManager.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/nativeExecutionManager.test.ts)
+- [minipos/BeeMiniPOS/src/nativeExecutionAuthority.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/nativeExecutionAuthority.test.ts)
+- [minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/47_HTTP_SESSION_OWNERSHIP.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/47_HTTP_SESSION_OWNERSHIP.md)
+- [docs/remediation/2026-10-17/55_UI_COMMIT_OWNERSHIP_AND_TEST_DISCOVERY.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/55_UI_COMMIT_OWNERSHIP_AND_TEST_DISCOVERY.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -363,7 +749,37 @@ reviewer_result: ''
 
 **Зависимости:** P04,P05,P10. **Трассировка:** GAP-015/016/025; T-10/13/18.
 
-**Где читать/менять:** `idf/main/intent_processor.cpp; execution_authorization.cpp; receipt_saga.*; backend prepare/dispatch; nativeExecutionAuthority.ts`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/execution_authorization.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/execution_authorization.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/local_token_validator.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/local_token_validator.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/money_plan.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/money_plan.h)
+- [IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp)
+- [fiscal-backend/internal/domain/execution_authorization.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/execution_authorization.go)
+- [fiscal-backend/internal/domain/composite_execution.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/composite_execution.go)
+- [minipos/beeminipos-backend/internal/domain/execution_prepare.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/execution_prepare.go)
+- [minipos/BeeMiniPOS/src/nativeExecutionAuthority.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/nativeExecutionAuthority.ts)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/run_money_host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_money_host.sh)
+- [IoT/firmware/edge-agent-s3/idf/tests/execution_auth_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/execution_auth_host/run.py)
+- [IoT/firmware/edge-agent-s3/idf/tests/authority_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/authority_host/run.py)
+- [fiscal-backend/internal/domain/authorization_actor_contract_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/authorization_actor_contract_test.go)
+- [minipos/BeeMiniPOS/src/nativeExecutionAuthority.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/nativeExecutionAuthority.test.ts)
+
+**Если меняется public API/DTO — source и generated consumers:**
+
+- [docs/integration-kit/openapi.yaml](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/openapi.yaml)
+- [docs/integration-kit/package.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/package.json)
+- [docs/integration-kit/generate-go-validator.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/generate-go-validator.mjs)
+- [docs/integration-kit/typescript/types.generated.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/typescript/types.generated.ts) — generated output; только штатная генерация.
+- [fiscal-backend/internal/integration/resource_schemas_gen.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/resource_schemas_gen.go) — generated output; только штатная генерация.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -385,7 +801,35 @@ reviewer_result: ''
 
 **Зависимости:** P02,P04,P12,P37. **Трассировка:** GAP-016; UI-MP-005; T-10/17; docs43.
 
-**Где читать/менять:** `docs43; docs/decisions/ADR-SUPTO-001-thin-pos.md; MiniPOS App.add; source order service; Fiscal sale preparation; S3 UNP allocator`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [minipos/BeeMiniPOS/App.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/App.tsx)
+- [minipos/BeeMiniPOS/src/sourceOrders.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/sourceOrders.ts)
+- [minipos/beeminipos-backend/internal/domain/native_order_lines.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/native_order_lines.go)
+- [minipos/beeminipos-backend/internal/domain/execution_prepare.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/execution_prepare.go)
+- [fiscal-backend/internal/domain/unp_allocator.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/unp_allocator.go)
+- [fiscal-backend/internal/domain/delegated_sale_prepare.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/delegated_sale_prepare.go)
+- [fiscal-backend/internal/domain/service.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/service.go)
+- [IoT/firmware/edge-agent-s3/idf/main/authority_unp.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/authority_unp.h)
+- [IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp)
+
+**Тесты/gates — существующие файлы:**
+
+- [fiscal-backend/internal/domain/open_sale_supto_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/open_sale_supto_test.go)
+- [fiscal-backend/internal/domain/unp_allocator_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/unp_allocator_test.go)
+- [fiscal-backend/internal/persistence/unp_allocator_integration_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/persistence/unp_allocator_integration_test.go)
+- [minipos/beeminipos-backend/internal/domain/native_order_lines_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/native_order_lines_test.go)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/decisions/ADR-SUPTO-001-thin-pos.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/decisions/ADR-SUPTO-001-thin-pos.md)
+- [docs/remediation/2026-10-17/43_OFFLINE_CART_AND_UNP_TIMING.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/43_OFFLINE_CART_AND_UNP_TIMING.md)
+- [database/fiscal/013_supto_identifier_foundation.sql](/Users/freelancer/Documents/Beeloy/Fiscalisation/database/fiscal/013_supto_identifier_foundation.sql)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -407,7 +851,39 @@ reviewer_result: ''
 
 **Зависимости:** P10,P12,P13. **Трассировка:** GAP-016/023/027; UI-MP-013/027; T-14/17.
 
-**Где читать/менять:** `MiniPOS App.add; sourceOrders.ts; checkoutJournal/outbox; native execution manager; MiniPOS backend import`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [minipos/BeeMiniPOS/App.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/App.tsx)
+- [minipos/BeeMiniPOS/src/sourceOrders.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/sourceOrders.ts)
+- [minipos/BeeMiniPOS/src/checkoutJournal.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/checkoutJournal.ts)
+- [minipos/BeeMiniPOS/src/checkoutRecovery.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/checkoutRecovery.ts)
+- [minipos/BeeMiniPOS/src/nativeExecutionManager.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/nativeExecutionManager.ts)
+- [minipos/beeminipos-backend/internal/domain/native_order_lines.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/native_order_lines.go)
+- [minipos/beeminipos-backend/internal/domain/service.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/service.go)
+- [minipos/beeminipos-backend/internal/persistence/order_projection.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/persistence/order_projection.go)
+
+**Тесты/gates — существующие файлы:**
+
+- [minipos/BeeMiniPOS/src/checkoutJournal.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/checkoutJournal.test.ts)
+- [minipos/BeeMiniPOS/src/checkoutRecovery.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/checkoutRecovery.test.ts)
+- [minipos/BeeMiniPOS/src/nativeExecutionManager.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/nativeExecutionManager.test.ts)
+- [minipos/beeminipos-backend/internal/domain/native_order_lines_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/native_order_lines_test.go)
+- [minipos/miniposweb/tests/outbox-recovery.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/miniposweb/tests/outbox-recovery.test.ts)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/43_OFFLINE_CART_AND_UNP_TIMING.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/43_OFFLINE_CART_AND_UNP_TIMING.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/offlineCommercialDraft.ts` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/offlineCommercialDraft.test.ts` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/offline_order_import.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/offline_order_import_test.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -429,7 +905,28 @@ reviewer_result: ''
 
 **Зависимости:** P04,P12. **Трассировка:** GAP-017/018/019/023; T-09/11/12/25.
 
-**Где читать/менять:** `idf/main/durable_storage.*; receipt_saga.*; SmartDevices SQLite storage; source/Fiscal outbox`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/durable_storage.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/durable_storage.h)
+- [IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/AndroidJournal.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/AndroidJournal.kt)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt)
+- [fiscal-backend/internal/persistence/postgres.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/persistence/postgres.go)
+- [minipos/beeminipos-backend/internal/persistence/postgres.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/persistence/postgres.go)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/run_storage_host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_storage_host.sh)
+- [IoT/firmware/edge-agent-s3/idf/tests/run_saga_storage_host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_saga_storage_host.sh)
+- [IoT/firmware/edge-agent-s3/idf/tests/run_tender_recovery_host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_tender_recovery_host.sh)
+- [IoT/firmware/edge-agent-s3/idf/tests/storage_host/runtime_storage_test.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/storage_host/runtime_storage_test.cpp)
+- [SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngineTest.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngineTest.kt)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -451,7 +948,34 @@ reviewer_result: ''
 
 **Зависимости:** P15. **Трассировка:** GAP-016/019/020/021; T-09/11/17; docs51/54.
 
-**Где читать/менять:** `idf/main/receipt_saga.cpp; IntentProcessor::recover_pending; recovery snapshot; terminal guard; Fiscal repository recovery`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/payment_reconciliation.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/payment_reconciliation.cpp)
+- [fiscal-backend/internal/domain/repository_recovery.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/repository_recovery.go)
+- [fiscal-backend/internal/domain/payment_reconciliation.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/payment_reconciliation.go)
+- [minipos/beeminipos-backend/internal/domain/recovery_readiness.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/recovery_readiness.go)
+- [minipos/beeminipos-backend/internal/domain/recovery_snapshot.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/recovery_snapshot.go)
+- [minipos/beeminipos-backend/internal/domain/checkout_lookup.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/checkout_lookup.go)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/terminal_guard_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/terminal_guard_host/run.py)
+- [IoT/firmware/edge-agent-s3/idf/tests/reconciliation_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/reconciliation_host/run.py)
+- [IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py)
+- [fiscal-backend/internal/domain/repository_recovery_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/repository_recovery_test.go)
+- [minipos/beeminipos-backend/internal/domain/recovery_snapshot_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/recovery_snapshot_test.go)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/RECOVERY_SNAPSHOT_SHAPE.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/RECOVERY_SNAPSHOT_SHAPE.md)
+- [docs/remediation/2026-10-17/54_SOURCE_RECOVERY_AUTHORITY.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/54_SOURCE_RECOVERY_AUTHORITY.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -473,7 +997,33 @@ reviewer_result: ''
 
 **Зависимости:** P02,P07,P12,P15. **Трассировка:** GAP-013/014/019; T-08/09/25.
 
-**Где читать/менять:** `idf/main/bluepad_ble_central.*; IoT/common-drivers datecs-pay; SmartDevices Datecs pinpad bridge; vendor SDK fixtures`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/bluepad_ble_central.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/bluepad_ble_central.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/bluepad_ble_central.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/bluepad_ble_central.h)
+- [IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp)
+- [IoT/common-modules/datecspay/DatecsPay.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/datecspay/DatecsPay.cpp)
+- [IoT/common-modules/datecspay/DatecsPay.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/datecspay/DatecsPay.h)
+- [IoT/common-modules/datecspay/DatecsPayBleProfile.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/datecspay/DatecsPayBleProfile.h)
+- [IoT/common-modules/datecspay/DatecsPayBleTransport.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/datecspay/DatecsPayBleTransport.h)
+- [IoT/protocol-abstraction/src/DatecsPayTerminalAdapter.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/src/DatecsPayTerminalAdapter.cpp)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsPinpadProtocol.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsPinpadProtocol.kt)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsAndroidPorts.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsAndroidPorts.kt)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/bluepad_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/bluepad_host/run.py)
+- [IoT/common-modules/datecspay/tests/DatecsPayTest.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/datecspay/tests/DatecsPayTest.cpp)
+- [SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/DatecsPinpadProtocolTest.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/DatecsPinpadProtocolTest.kt)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/BLUEPAD_CENTRAL_HANDOVER.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/BLUEPAD_CENTRAL_HANDOVER.md)
+- [docs/remediation/2026-10-17/BLUEPAD_ADMIN_RECONCILIATION.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/BLUEPAD_ADMIN_RECONCILIATION.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -495,7 +1045,31 @@ reviewer_result: ''
 
 **Зависимости:** P15,P16,P17. **Трассировка:** GAP-019/020/024; T-09/11/13/25.
 
-**Где читать/менять:** `receipt_saga.*; reversal executor; payment checkpoints; backend payment/reconciliation; MiniPOS split UI`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/payment_reconciliation.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/payment_reconciliation.cpp)
+- [fiscal-backend/internal/domain/receipt_saga.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/receipt_saga.go)
+- [fiscal-backend/internal/domain/payment_reconciliation.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/payment_reconciliation.go)
+- [minipos/beeminipos-backend/internal/fiscalintegration/payment_reconciliation.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/fiscalintegration/payment_reconciliation.go)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py)
+- [IoT/firmware/edge-agent-s3/idf/tests/run_tender_recovery_host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_tender_recovery_host.sh)
+- [fiscal-backend/internal/domain/payment_reconciliation_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/payment_reconciliation_test.go)
+- [SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngineTest.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngineTest.kt)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/GAP024_REVERSAL_HANDOVER.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/GAP024_REVERSAL_HANDOVER.md)
+- [docs/remediation/2026-10-17/BLUEPAD_DURABLE_QUARANTINE.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/BLUEPAD_DURABLE_QUARANTINE.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -517,7 +1091,35 @@ reviewer_result: ''
 
 **Зависимости:** P05,P15. **Трассировка:** GAP-002/022/023/025; T-12/13/25.
 
-**Где читать/менять:** `idf/main/go_json.cpp; go_wire.cpp; sync_runtime.*; backend sync/ACK validators; BlueCash sync`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/go_json.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/go_json.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/go_wire.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/go_wire.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/sync_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/sync_runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp)
+- [fiscal-backend/internal/domain/edge_sync.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/edge_sync.go)
+- [fiscal-backend/internal/domain/edge_sync_v2.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/edge_sync_v2.go)
+- [fiscal-backend/internal/domain/edge_sync_repository.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/edge_sync_repository.go)
+- [fiscal-backend/internal/domain/edge_sync_server_authority.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/edge_sync_server_authority.go)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashSyncWire.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashSyncWire.kt)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/CanonicalJson.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/CanonicalJson.kt)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/go_json_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/go_json_host/run.py)
+- [IoT/firmware/edge-agent-s3/idf/tests/go_wire_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/go_wire_host/run.py)
+- [IoT/firmware/edge-agent-s3/idf/tests/run_sync_host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_sync_host.sh)
+- [fiscal-backend/internal/domain/edge_sync_v2_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/edge_sync_v2_test.go)
+- [fiscal-backend/internal/mqttclient/sync_int64_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/mqttclient/sync_int64_test.go)
+- [SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashSyncWireTest.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashSyncWireTest.kt)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/GAP022_CANONICAL_SYNC_HANDOVER.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/GAP022_CANONICAL_SYNC_HANDOVER.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -539,7 +1141,44 @@ reviewer_result: ''
 
 **Зависимости:** P10,P12,P15. **Трассировка:** GAP-021/024/036; UI-MP-013; T-13/14/17/27.
 
-**Где читать/менять:** `idf/main/canonical_cbor.cpp; ble_result_delivery.cpp; intent_processor.cpp; MiniPOS cbor/bleResult; BlueCash result serialization; source order GET`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/canonical_cbor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/canonical_cbor.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/ble_result_delivery.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_result_delivery.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp)
+- [minipos/BeeMiniPOS/src/cbor.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/cbor.ts)
+- [minipos/BeeMiniPOS/src/bleResult.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/bleResult.ts)
+- [minipos/BeeMiniPOS/src/cloudCheckoutConfirmation.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/cloudCheckoutConfirmation.ts)
+- [minipos/BeeMiniPOS/src/checkoutJournal.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/checkoutJournal.ts)
+- [minipos/miniposweb/src/fiscal/webBleRoute.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/miniposweb/src/fiscal/webBleRoute.ts)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashCanonicalCbor.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashCanonicalCbor.kt)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/cbor_encoder_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/cbor_encoder_host/run.py)
+- [IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py)
+- [minipos/BeeMiniPOS/src/cborDelivery.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/cborDelivery.test.ts)
+- [minipos/BeeMiniPOS/src/cloudCheckoutConfirmation.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/cloudCheckoutConfirmation.test.ts)
+- [minipos/miniposweb/tests/webBleLifecycle.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/miniposweb/tests/webBleLifecycle.test.ts)
+- [SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashCanonicalCborTest.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashCanonicalCborTest.kt)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/64_TYPED_CBOR_RESULT_ENCODER.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/64_TYPED_CBOR_RESULT_ENCODER.md)
+- [tests/ble-transport/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/ble-transport/run.py)
+
+**Если меняется public API/DTO — source и generated consumers:**
+
+- [docs/integration-kit/openapi.yaml](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/openapi.yaml)
+- [docs/integration-kit/package.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/package.json)
+- [docs/integration-kit/generate-go-validator.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/generate-go-validator.mjs)
+- [docs/integration-kit/typescript/types.generated.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/typescript/types.generated.ts) — generated output; только штатная генерация.
+- [fiscal-backend/internal/integration/resource_schemas_gen.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/resource_schemas_gen.go) — generated output; только штатная генерация.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -561,7 +1200,39 @@ reviewer_result: ''
 
 **Зависимости:** P04,P05,P18,P19,P20. **Трассировка:** GAP-024/026/028/035; T-13/15/16/19/26.
 
-**Где читать/менять:** `MiniPOS backend orders/operations; fiscal-backend domain; integration worker/Rabbit; public APIs`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [minipos/beeminipos-backend/internal/domain/service.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/service.go)
+- [minipos/beeminipos-backend/internal/domain/execution_prepare.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/execution_prepare.go)
+- [minipos/beeminipos-backend/internal/domain/checkout_lookup.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/checkout_lookup.go)
+- [minipos/beeminipos-backend/internal/domain/recovery_snapshot.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/recovery_snapshot.go)
+- [minipos/beeminipos-backend/internal/api/order_operation.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/api/order_operation.go)
+- [minipos/beeminipos-backend/internal/api/order_recovery.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/api/order_recovery.go)
+- [minipos/beeminipos-backend/internal/persistence/order_projection.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/persistence/order_projection.go)
+- [fiscal-backend/internal/domain/delegated_execution.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/delegated_execution.go)
+- [fiscal-backend/internal/domain/composite_execution.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/composite_execution.go)
+- [fiscal-backend/internal/integration/operations.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/operations.go)
+- [fiscal-backend/internal/integration/rabbit.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/rabbit.go)
+
+**Тесты/gates — существующие файлы:**
+
+- [minipos/beeminipos-backend/internal/api/order_operation_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/api/order_operation_test.go)
+- [minipos/beeminipos-backend/internal/api/order_recovery_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/api/order_recovery_test.go)
+- [minipos/beeminipos-backend/internal/persistence/order_recovery_integration_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/persistence/order_recovery_integration_test.go)
+- [fiscal-backend/internal/domain/delegated_execution_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/delegated_execution_test.go)
+- [scripts/e2e-two-compose.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/e2e-two-compose.sh)
+
+**Если меняется public API/DTO — source и generated consumers:**
+
+- [docs/integration-kit/openapi.yaml](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/openapi.yaml)
+- [docs/integration-kit/package.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/package.json)
+- [docs/integration-kit/generate-go-validator.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/generate-go-validator.mjs)
+- [docs/integration-kit/typescript/types.generated.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/typescript/types.generated.ts) — generated output; только штатная генерация.
+- [fiscal-backend/internal/integration/resource_schemas_gen.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/resource_schemas_gen.go) — generated output; только штатная генерация.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -583,7 +1254,34 @@ reviewer_result: ''
 
 **Зависимости:** P11,P13,P14,P20,P21. **Трассировка:** GAP-026/027; T-14/17/18; все UI.
 
-**Где читать/менять:** `contracts/ui-acceptance-matrix.json; BeeFiscalApp/App.tsx; minipos/BeeMiniPOS/App.tsx; miniposweb; actual browser/native tests`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [minipos/BeeMiniPOS/App.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/App.tsx)
+- [BeeFiscalApp/App.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/App.tsx)
+- [BeeFiscalApp/src/screens/OperationsScreen.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/screens/OperationsScreen.tsx)
+- [BeeFiscalApp/src/screens/DevicesScreen.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/screens/DevicesScreen.tsx)
+- [BeeFiscalApp/src/screens/ReportsScreen.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/screens/ReportsScreen.tsx)
+- [BeeFiscalApp/src/screens/AdministrationScreen.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/screens/AdministrationScreen.tsx)
+- [BeeFiscalApp/src/screens/AuditScreen.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/screens/AuditScreen.tsx)
+- [BeeFiscalApp/src/components/FiscalControls.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/src/components/FiscalControls.tsx)
+- [minipos/BeeMiniPOS/src/useManagementAccess.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/useManagementAccess.ts)
+
+**Тесты/gates — существующие файлы:**
+
+- [minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx)
+- [minipos/BeeMiniPOS/e2e/web-interaction.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/e2e/web-interaction.mjs)
+- [minipos/miniposweb/tests/webBleLifecycle.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/miniposweb/tests/webBleLifecycle.test.ts)
+- [scripts/test_verify_ui_acceptance.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/test_verify_ui_acceptance.rb)
+- [scripts/verify_ui_acceptance.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify_ui_acceptance.rb)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [contracts/ui-acceptance-matrix.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/contracts/ui-acceptance-matrix.json)
+- [docs/remediation/2026-10-17/39_UI_STATIC_ACCEPTANCE_REVIEW.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/39_UI_STATIC_ACCEPTANCE_REVIEW.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -606,7 +1304,27 @@ reviewer_result: ''
 
 **Зависимости:** P02. **Трассировка:** GAP-009…012; T-05/06/07/25.
 
-**Где читать/менять:** `idf/main/uart_runtime.*; IoT/common-drivers; IoT/protocol-abstraction; SmartDevices fiscal driver`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/serial_exchange.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/serial_exchange.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/serial_exchange.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/serial_exchange.h)
+- [IoT/firmware/edge-agent-s3/idf/main/uart_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/uart_runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp)
+- [IoT/protocol-abstraction/src/FrameCodec.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/src/FrameCodec.cpp)
+- [IoT/protocol-abstraction/src/CommandPayload.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/src/CommandPayload.cpp)
+- [IoT/protocol-abstraction/src/CommandRegistry.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/src/CommandRegistry.cpp)
+- [IoT/common-modules/datecs/DatecsProtocol.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/datecs/DatecsProtocol.cpp)
+- [IoT/common-modules/daisy/DaisyProtocol.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/daisy/DaisyProtocol.cpp)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh)
+- [IoT/protocol-abstraction/tests/RuntimeCodecVendorTest.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/tests/RuntimeCodecVendorTest.cpp)
+- [IoT/protocol-abstraction/tests/FrameCodecTest.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/tests/FrameCodecTest.cpp)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -628,7 +1346,35 @@ reviewer_result: ''
 
 **Зависимости:** P02,P23. **Трассировка:** GAP-009/011/012/021; T-05…07/25.
 
-**Где читать/менять:** `idf/main/usb_cdc_runtime.cpp; Daisy runtime driver/codec; USB CDC managed component; Daisy fixtures`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/usb_cdc_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/usb_cdc_runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/profile_orchestrator.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_orchestrator.cpp)
+- [IoT/common-modules/daisy/DaisyProtocol.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/daisy/DaisyProtocol.cpp)
+- [IoT/common-modules/daisy/DaisyProtocol.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/daisy/DaisyProtocol.h)
+- [IoT/common-modules/daisy/DaisyPrinter.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/daisy/DaisyPrinter.cpp)
+- [IoT/protocol-abstraction/src/DaisyFiscalAdapter.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/src/DaisyFiscalAdapter.cpp)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/common-modules/daisy/tests/DaisyProtocolTest.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/daisy/tests/DaisyProtocolTest.cpp)
+- [IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh)
+- [IoT/protocol-abstraction/tests/RuntimeCodecVendorTest.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/tests/RuntimeCodecVendorTest.cpp)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/idf_component.yml](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/idf_component.yml)
+- [IoT/firmware/edge-agent-s3/idf/dependencies.lock](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/dependencies.lock)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/usb_cdc_host/usb_lifecycle_native.cpp` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/usb_cdc_host/run.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -650,7 +1396,29 @@ reviewer_result: ''
 
 **Зависимости:** P02,P23. **Трассировка:** GAP-010…012/021/029; T-05…07/25.
 
-**Где читать/менять:** `idf UART Datecs runtime; common datecs driver; SmartDevices bluecash-app/shared-sdk; Datecs Binder SDK`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/uart_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/uart_runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/serial_exchange.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/serial_exchange.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp)
+- [IoT/common-modules/datecs/DatecsProtocol.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/datecs/DatecsProtocol.cpp)
+- [IoT/common-modules/datecs/DatecsProtocol.h](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/datecs/DatecsProtocol.h)
+- [IoT/common-modules/datecs/DatecsPrinter.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/datecs/DatecsPrinter.cpp)
+- [IoT/protocol-abstraction/src/DatecsFiscalAdapter.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/src/DatecsFiscalAdapter.cpp)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsProtocol.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsProtocol.kt)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsAndroidPorts.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsAndroidPorts.kt)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/VendorAdapters.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/VendorAdapters.kt)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/common-modules/datecs/tests/DatecsProtocolTest.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/datecs/tests/DatecsProtocolTest.cpp)
+- [IoT/protocol-abstraction/tests/RuntimeCodecVendorTest.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/tests/RuntimeCodecVendorTest.cpp)
+- [SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/DatecsProtocolTest.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/DatecsProtocolTest.kt)
+- [SmartDevices/bluecash-app/tests/host/DatecsCodecVendorHost.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/tests/host/DatecsCodecVendorHost.kt)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -672,7 +1440,42 @@ reviewer_result: ''
 
 **Зависимости:** P02,P15,P17,P23,P24,P25. **Трассировка:** GAP-009…025/030; T-25.
 
-**Где читать/менять:** `Предлагаемые новые tests/iot-device-emulation/{transports,devices,fixtures,scenarios}; existing idf/tests/*_host; Makefile`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/profile_orchestrator.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_orchestrator.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/uart_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/uart_runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/usb_cdc_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/usb_cdc_runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/bluepad_ble_central.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/bluepad_ble_central.cpp)
+- [Makefile](/Users/freelancer/Documents/Beeloy/Fiscalisation/Makefile)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/receipt_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/receipt_host/run.py)
+- [IoT/firmware/edge-agent-s3/idf/tests/bluepad_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/bluepad_host/run.py)
+- [IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/04_REMEDIATION_PLAN.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/04_REMEDIATION_PLAN.md)
+- [docs/remediation/2026-10-17/05_TESTS_AND_ACCEPTANCE.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/05_TESTS_AND_ACCEPTANCE.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/run.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/transports/uart_mock.cpp` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/transports/usb_host_mock.cpp` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/transports/ble_sdk_mock.cpp` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/devices/datecs_model.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/devices/daisy_model.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/devices/bluepad_model.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/scenarios/required-cases.v1.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -695,7 +1498,32 @@ reviewer_result: ''
 
 **Зависимости:** P26. **Трассировка:** GAP-030/032/033; T-23/24/25.
 
-**Где читать/менять:** `Предлагаемый versioned device registry/schema; driver capability inventory; CI; Makefile`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [Makefile](/Users/freelancer/Documents/Beeloy/Fiscalisation/Makefile)
+- [.github/workflows/iot-protocols.yml](/Users/freelancer/Documents/Beeloy/Fiscalisation/.github/workflows/iot-protocols.yml)
+- [.github/workflows/s3-idf.yml](/Users/freelancer/Documents/Beeloy/Fiscalisation/.github/workflows/s3-idf.yml)
+- [IoT/protocol-abstraction/src/ProtocolFactory.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/src/ProtocolFactory.cpp)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/protocol-abstraction/tests/ProtocolFacadeTest.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/tests/ProtocolFacadeTest.cpp)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/03_DEVICE_PROTOCOLS.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/03_DEVICE_PROTOCOLS.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/profiles/registry.v1.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/profiles/profile.schema.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/check_coverage.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/test_registry.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/README.md` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -717,7 +1545,27 @@ reviewer_result: ''
 
 **Зависимости:** P12,P18,P21,P24,P25. **Трассировка:** GAP-012/019/020/024; T-07/09/10/13/17.
 
-**Где читать/менять:** `Fiscal domain; MiniPOS shift/reversal screens; ReceiptExecutor; vendor profiles; report projections`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [fiscal-backend/internal/domain/service.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/service.go)
+- [fiscal-backend/internal/domain/receipt_saga.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/receipt_saga.go)
+- [fiscal-backend/internal/domain/payment_reconciliation.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/payment_reconciliation.go)
+- [minipos/beeminipos-backend/internal/domain/service.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/service.go)
+- [IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp)
+- [minipos/BeeMiniPOS/App.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/App.tsx)
+
+**Тесты/gates — существующие файлы:**
+
+- [fiscal-backend/internal/domain/receipt_saga_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/receipt_saga_test.go)
+- [fiscal-backend/internal/domain/payment_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/payment_test.go)
+- [minipos/beeminipos-backend/internal/domain/shift_close_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/shift_close_test.go)
+- [minipos/beeminipos-backend/internal/domain/order_actions_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/domain/order_actions_test.go)
+- [IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -739,7 +1587,45 @@ reviewer_result: ''
 
 **Зависимости:** P02,P20,P21,P28,P37. **Трассировка:** docs30; Annex29.24; T-07/13/17/18.
 
-**Где читать/менять:** `docs30; device capability profile; Fiscal artifact/delivery/outbox API; MiniPOS/Fiscal UI; export`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp)
+- [fiscal-backend/internal/domain/exports.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/exports.go)
+- [fiscal-backend/internal/integration/email.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/email.go)
+- [fiscal-backend/internal/dossier/export.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/dossier/export.go)
+- [minipos/BeeMiniPOS/App.tsx](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/App.tsx)
+
+**Тесты/gates — существующие файлы:**
+
+- [fiscal-backend/internal/domain/exports_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/exports_test.go)
+- [fiscal-backend/internal/dossier/export_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/dossier/export_test.go)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/30_ELECTRONIC_RECEIPT_GAP.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/30_ELECTRONIC_RECEIPT_GAP.md)
+- [contracts/bg-requirements-trace.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/contracts/bg-requirements-trace.json)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/electronic_receipt.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/electronic_receipt_test.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/api/electronic_receipt.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/api/electronic_receipt_test.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/persistence/electronic_receipt.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/persistence/electronic_receipt_integration_test.go` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+**Если меняется public API/DTO — source и generated consumers:**
+
+- [docs/integration-kit/openapi.yaml](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/openapi.yaml)
+- [docs/integration-kit/package.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/package.json)
+- [docs/integration-kit/generate-go-validator.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/generate-go-validator.mjs)
+- [docs/integration-kit/typescript/types.generated.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/integration-kit/typescript/types.generated.ts) — generated output; только штатная генерация.
+- [fiscal-backend/internal/integration/resource_schemas_gen.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/resource_schemas_gen.go) — generated output; только штатная генерация.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -761,7 +1647,33 @@ reviewer_result: ''
 
 **Зависимости:** P04,P15,P19,P21,P29. **Трассировка:** GAP-016/018/022/025; T-11/12/16/18/22.
 
-**Где читать/менять:** `docs17…29/35/37; Fiscal/BlueCash/S3 export; SUPTO dictionaries; immutable audit; release dossier`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [fiscal-backend/internal/dossier/export.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/dossier/export.go)
+- [fiscal-backend/internal/domain/exports.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/exports.go)
+- [fiscal-backend/internal/persistence/postgres.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/persistence/postgres.go)
+- [IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/AndroidJournal.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/AndroidJournal.kt)
+
+**Тесты/gates — существующие файлы:**
+
+- [fiscal-backend/internal/dossier/export_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/dossier/export_test.go)
+- [fiscal-backend/internal/dossier/audit_predecessor_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/dossier/audit_predecessor_test.go)
+- [fiscal-backend/internal/domain/exports_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/exports_test.go)
+- [scripts/dossier-evidence-postgres-integration.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/dossier-evidence-postgres-integration.sh)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [database/fiscal/017_supto_full_event_model.sql](/Users/freelancer/Documents/Beeloy/Fiscalisation/database/fiscal/017_supto_full_event_model.sql)
+- [database/fiscal/019_audit_immutability.sql](/Users/freelancer/Documents/Beeloy/Fiscalisation/database/fiscal/019_audit_immutability.sql)
+- [database/fiscal/020_supto_reporting_catalogs.sql](/Users/freelancer/Documents/Beeloy/Fiscalisation/database/fiscal/020_supto_reporting_catalogs.sql)
+- [database/fiscal/021_audit_predecessor_compatibility.sql](/Users/freelancer/Documents/Beeloy/Fiscalisation/database/fiscal/021_audit_predecessor_compatibility.sql)
+- [docs/remediation/2026-10-17/17_S3_SQLITE_EXTRACTION.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/17_S3_SQLITE_EXTRACTION.md)
+- [docs/remediation/2026-10-17/19_BLUECASH_SQLITE_EXTRACTION.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/19_BLUECASH_SQLITE_EXTRACTION.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -783,7 +1695,41 @@ reviewer_result: ''
 
 **Зависимости:** P00,P06,P10,P11,P22. **Трассировка:** GAP-027/029/030/033; T-04/22; UI-BUILD-001.
 
-**Где читать/менять:** `BeeFiscalApp; minipos/BeeMiniPOS; SmartDevices; native-mvp prepare/build scripts; Gradle/Pod locks; docs41/69`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [Makefile](/Users/freelancer/Documents/Beeloy/Fiscalisation/Makefile)
+- [minipos/BeeMiniPOS/e2e/native-mvp-prepare.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/e2e/native-mvp-prepare.mjs)
+- [minipos/BeeMiniPOS/e2e/native-mvp-build.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/e2e/native-mvp-build.mjs)
+- [minipos/BeeMiniPOS/e2e/native-mvp-inputs.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/e2e/native-mvp-inputs.mjs)
+- [minipos/BeeMiniPOS/e2e/native-mvp-provenance.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/e2e/native-mvp-provenance.mjs)
+- [minipos/BeeMiniPOS/package.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/package.json)
+- [minipos/BeeMiniPOS/package-lock.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/package-lock.json)
+- [BeeFiscalApp/package.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/package.json)
+- [BeeFiscalApp/package-lock.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/package-lock.json)
+- [SmartDevices/bluecash-app/build.gradle.kts](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/build.gradle.kts)
+- [SmartDevices/gradle/wrapper/gradle-wrapper.properties](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/gradle/wrapper/gradle-wrapper.properties)
+- [minipos/BeeMiniPOS/ios/Podfile](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/ios/Podfile)
+- [minipos/BeeMiniPOS/ios/Podfile.lock](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/ios/Podfile.lock)
+
+**Тесты/gates — существующие файлы:**
+
+- [minipos/BeeMiniPOS/e2e/native-mvp-inputs.test.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/e2e/native-mvp-inputs.test.mjs)
+- [minipos/BeeMiniPOS/e2e/native-mvp-guards.test.mjs](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/e2e/native-mvp-guards.test.mjs)
+- [SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngineTest.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngineTest.kt)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/41_NATIVE_HARNESS_PREPARATION.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/41_NATIVE_HARNESS_PREPARATION.md)
+- [docs/remediation/2026-10-17/69_NATIVE_APPLICATION_BUILD_CHECKPOINT.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/69_NATIVE_APPLICATION_BUILD_CHECKPOINT.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/ios/Podfile` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/ios/Podfile.lock` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -806,7 +1752,29 @@ reviewer_result: ''
 
 **Зависимости:** P02,P06,P31. **Трассировка:** GAP-004/031; T-02/21/22.
 
-**Где читать/менять:** `IoT/device-manufacturing; idf partitions/build tools; edge-agent-s3/README.md; factory runbook`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/device-manufacturing/src/beefiscal_factory/flash_manifest.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/device-manufacturing/src/beefiscal_factory/flash_manifest.py)
+- [IoT/device-manufacturing/src/beefiscal_factory/bundle.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/device-manufacturing/src/beefiscal_factory/bundle.py)
+- [IoT/device-manufacturing/src/beefiscal_factory/cli.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/device-manufacturing/src/beefiscal_factory/cli.py)
+- [IoT/device-manufacturing/src/beefiscal_factory/evidence.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/device-manufacturing/src/beefiscal_factory/evidence.py)
+- [IoT/firmware/edge-agent-s3/idf/tools/build_idf.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tools/build_idf.py)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/device-manufacturing/tests/test_flash_manifest.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/device-manufacturing/tests/test_flash_manifest.py)
+- [IoT/device-manufacturing/tests/test_bundle.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/device-manufacturing/tests/test_bundle.py)
+- [IoT/device-manufacturing/tests/test_evidence.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/device-manufacturing/tests/test_evidence.py)
+- [IoT/firmware/edge-agent-s3/idf/tests/test_official_build_gate.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/test_official_build_gate.py)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [IoT/firmware/edge-agent-s3/README.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/README.md)
+- [IoT/firmware/edge-agent-s3/idf/tools/build.lock.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tools/build.lock.json)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -829,7 +1797,30 @@ reviewer_result: ''
 
 **Зависимости:** P01,P27,P30,P31,P32. **Трассировка:** GAP-030/031/034; T-22/23; docs31.
 
-**Где читать/менять:** `docs31; release manifest/SBOM/verifiers; idf/tools/build_idf.py; CI artifacts`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [scripts/generate_release_evidence.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/generate_release_evidence.rb)
+- [scripts/verify_release_evidence.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify_release_evidence.rb)
+- [scripts/verify_hil_evidence.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify_hil_evidence.rb)
+- [scripts/external_evidence.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/external_evidence.rb)
+- [IoT/firmware/edge-agent-s3/idf/tools/build_idf.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tools/build_idf.py)
+- [.github/workflows/s3-idf.yml](/Users/freelancer/Documents/Beeloy/Fiscalisation/.github/workflows/s3-idf.yml)
+
+**Тесты/gates — существующие файлы:**
+
+- [scripts/tests/release_npm_inventory_test.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/tests/release_npm_inventory_test.rb)
+- [scripts/tests/verify_external_evidence_test.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/tests/verify_external_evidence_test.rb)
+- [scripts/tests/verify_hil_evidence_test.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/tests/verify_hil_evidence_test.rb)
+- [scripts/test-release-evidence-signing.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/test-release-evidence-signing.sh)
+- [IoT/firmware/edge-agent-s3/idf/tests/test_official_build_gate.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/test_official_build_gate.py)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/31_RELEASE_DEPENDENCY_INVENTORY.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/31_RELEASE_DEPENDENCY_INVENTORY.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -851,7 +1842,33 @@ reviewer_result: ''
 
 **Зависимости:** P04,P05,P06,P09,P10,P11,P12,P29,P33. **Трассировка:** T-18/19/20/23; UI-MP-020/026/028; GAP-004/008/034/035.
 
-**Где читать/менять:** `backend auth/API; broker/mTLS; BLE bootstrap/TLS; mobile key stores; SQLite/export; release tooling`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [fiscal-backend/internal/auth/oidc.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/auth/oidc.go)
+- [fiscal-backend/internal/integration/http.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/integration/http.go)
+- [fiscal-backend/internal/api/execution_authorization.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/api/execution_authorization.go)
+- [minipos/beeminipos-backend/internal/api/execution_authorization.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/beeminipos-backend/internal/api/execution_authorization.go)
+- [IoT/firmware/edge-agent-s3/idf/main/execution_authorization.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/execution_authorization.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/local_token_validator.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/local_token_validator.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp)
+- [minipos/BeeMiniPOS/src/requestAuthFence.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/requestAuthFence.ts)
+
+**Тесты/gates — существующие файлы:**
+
+- [fiscal-backend/internal/auth/oidc_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/auth/oidc_test.go)
+- [fiscal-backend/internal/domain/operator_security_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/operator_security_test.go)
+- [fiscal-backend/internal/domain/authorization_actor_contract_test.go](/Users/freelancer/Documents/Beeloy/Fiscalisation/fiscal-backend/internal/domain/authorization_actor_contract_test.go)
+- [IoT/firmware/edge-agent-s3/idf/tests/authority_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/authority_host/run.py)
+- [minipos/BeeMiniPOS/src/requestAuthFence.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/requestAuthFence.test.ts)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [compose.fiscalisation.yaml](/Users/freelancer/Documents/Beeloy/Fiscalisation/compose.fiscalisation.yaml)
+- [contracts/ui-acceptance-matrix.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/contracts/ui-acceptance-matrix.json)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -873,7 +1890,35 @@ reviewer_result: ''
 
 **Зависимости:** P08,P15,P19,P26,P31. **Трассировка:** GAP-007/008/025/030; T-11/12/20/23/25.
 
-**Где читать/менять:** `S3 queue/buffers/SQLite/NVS/SD; clients outbox; broker/backend PG; native memory; soak runners`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/main/command_queue.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/command_queue.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/bluepad_ble_central.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/bluepad_ble_central.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/durable_storage.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/sync_runtime.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/sync_runtime.cpp)
+- [IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.cpp)
+- [SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt)
+- [minipos/BeeMiniPOS/src/checkoutJournal.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/checkoutJournal.ts)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/idf/tests/run_storage_host.sh](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/run_storage_host.sh)
+- [IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py)
+- [minipos/BeeMiniPOS/src/checkoutJournal.test.ts](/Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/BeeMiniPOS/src/checkoutJournal.test.ts)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/68_INSTALLED_TIME_LIFECYCLE.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/68_INSTALLED_TIME_LIFECYCLE.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/scenarios/resource-budgets.v1.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/iot-device-emulation/scenarios/soak.v1.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -895,7 +1940,27 @@ reviewer_result: ''
 
 **Зависимости:** P02,P27. **Трассировка:** GAP-032/033; T-24/25.
 
-**Где читать/менять:** `Tremol BG profile; Daisy Smart app; Eltrade/Wiseasy docs; SmartDevices capabilities/UI`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/common-modules/termol/TremolProtocol.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/termol/TremolProtocol.cpp)
+- [IoT/common-modules/termol/TremolPrinter.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/common-modules/termol/TremolPrinter.cpp)
+- [IoT/protocol-abstraction/src/TremolFiscalAdapter.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/src/TremolFiscalAdapter.cpp)
+- [IoT/protocol-abstraction/src/ProtocolFactory.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/src/ProtocolFactory.cpp)
+- [SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy/DaisySmartStub.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy/DaisySmartStub.kt)
+
+**Тесты/gates — существующие файлы:**
+
+- [IoT/protocol-abstraction/tests/ProtocolFacadeTest.cpp](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/protocol-abstraction/tests/ProtocolFacadeTest.cpp)
+- [SmartDevices/daisy-smart-app/src/test/kotlin/com/beeloy/fiscal/daisy/DaisySmartStubTest.kt](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/daisy-smart-app/src/test/kotlin/com/beeloy/fiscal/daisy/DaisySmartStubTest.kt)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/03_DEVICE_PROTOCOLS.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/03_DEVICE_PROTOCOLS.md)
+- [SmartDevices/README.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/README.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -916,7 +1981,27 @@ reviewer_result: ''
 
 **Зависимости:** P00,P02; выполняется параллельно. **Трассировка:** Annex29/BG trace; docs09/16/30/49; T-18/22.
 
-**Где читать/менять:** `docs/SUPTO; docs09/16/30/49; contracts/bg-requirements-trace.json; primary source register`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [docs/remediation/2026-10-17/09_SUPTO_NAP_PREPARATION.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/09_SUPTO_NAP_PREPARATION.md)
+- [docs/remediation/2026-10-17/16_NAP_OFFICIAL_PROCEDURE_RECHECK.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/16_NAP_OFFICIAL_PROCEDURE_RECHECK.md)
+- [docs/remediation/2026-10-17/49_NAP_PRIMARY_REQUIREMENTS_RECHECK.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/49_NAP_PRIMARY_REQUIREMENTS_RECHECK.md)
+- [docs/remediation/2026-10-17/30_ELECTRONIC_RECEIPT_GAP.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/30_ELECTRONIC_RECEIPT_GAP.md)
+- [contracts/bg-requirements-trace.json](/Users/freelancer/Documents/Beeloy/Fiscalisation/contracts/bg-requirements-trace.json)
+- [docs/SUPTO/index.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/SUPTO/index.md)
+
+**Тесты/gates — существующие файлы:**
+
+- [scripts/verify_legal_evidence.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify_legal_evidence.rb)
+- [scripts/verify_readiness_documentation.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify_readiness_documentation.rb)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/43_OFFLINE_CART_AND_UNP_TIMING.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/43_OFFLINE_CART_AND_UNP_TIMING.md)
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -939,7 +2024,36 @@ reviewer_result: ''
 
 **Зависимости:** P01…P37 для всех обязательных profiles. **Трассировка:** Все GAP/T/UI; отдельный итоговый manifest.
 
-**Где читать/менять:** `Makefile; current CI; requirement/case inventory; release/evidence manifest`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [Makefile](/Users/freelancer/Documents/Beeloy/Fiscalisation/Makefile)
+- [.github/workflows/s3-idf.yml](/Users/freelancer/Documents/Beeloy/Fiscalisation/.github/workflows/s3-idf.yml)
+- [.github/workflows/integration-contract.yml](/Users/freelancer/Documents/Beeloy/Fiscalisation/.github/workflows/integration-contract.yml)
+- [.github/workflows/ble-certificate-crypto.yml](/Users/freelancer/Documents/Beeloy/Fiscalisation/.github/workflows/ble-certificate-crypto.yml)
+- [tests/ble-transport/run.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/ble-transport/run.py)
+- [scripts/run-ble-certificate-crypto.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/run-ble-certificate-crypto.py)
+- [scripts/verify_release_evidence.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify_release_evidence.rb)
+
+**Тесты/gates — существующие файлы:**
+
+- [tests/ble-transport/test_gates.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/tests/ble-transport/test_gates.py)
+- [scripts/tests/test_ble_certificate_crypto_gate.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/tests/test_ble_certificate_crypto_gate.py)
+- [scripts/tests/verify_external_evidence_test.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/tests/verify_external_evidence_test.rb)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/70_FULL_PRE_HIL_REMEDIATION_PLAN_FOR_SMALL_MODEL.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/70_FULL_PRE_HIL_REMEDIATION_PLAN_FOR_SMALL_MODEL.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/run-pre-hil-software-gate.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify-pre-hil-evidence.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/tests/test_pre_hil_gate.py` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/execution/pre-hil-candidate.v1.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
@@ -962,7 +2076,32 @@ reviewer_result: ''
 
 **Зависимости:** P32,P33,P38. **Трассировка:** T-02/04/21/22/25; G3/G4 hardware portion.
 
-**Где читать/менять:** `HIL runbook/profile matrix; device inventory; factory manifests; report templates; safe read-only probes`. Точные существующие имена проверить через `rg --files`/`rg`, не создавать второй параллельный runtime.
+**Точные пути для этой карточки.** Ниже список точек изменения по найденному RED, а не утверждение, что каждый файл сейчас содержит ошибку. Уже проверенные исправления сохранять; менять только затронутый инвариант.
+
+**Исправление/integration — существующие файлы:**
+
+- [IoT/firmware/edge-agent-s3/README.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/README.md)
+- [IoT/device-manufacturing/README.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/device-manufacturing/README.md)
+- [SmartDevices/README.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices/README.md)
+- [scripts/verify_hil_evidence.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/verify_hil_evidence.rb)
+
+**Тесты/gates — существующие файлы:**
+
+- [scripts/tests/verify_hil_evidence_test.rb](/Users/freelancer/Documents/Beeloy/Fiscalisation/scripts/tests/verify_hil_evidence_test.rb)
+- [IoT/device-manufacturing/tests/test_flash_manifest.py](/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/device-manufacturing/tests/test_flash_manifest.py)
+
+**Контракты/build/docs — читать и обновлять согласованно:**
+
+- [docs/remediation/2026-10-17/05_TESTS_AND_ACCEPTANCE.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/05_TESTS_AND_ACCEPTANCE.md)
+- [docs/remediation/2026-10-17/03_DEVICE_PROTOCOLS.md](/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/03_DEVICE_PROTOCOLS.md)
+
+**Новые файлы — ПРЕДЛАГАЕТСЯ, пока отсутствуют:**
+
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/HIL_FIRST_CONNECTION_RUNBOOK.md` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/execution/hardware-inventory.v1.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+- `/Users/freelancer/Documents/Beeloy/Fiscalisation/docs/remediation/2026-10-17/execution/hil-required-cases.v1.json` — proposed path; создать после contract/design review, подключить к actual caller и сборке. Не существует на момент уточнения путей.
+
+Generated outputs (если затронуты) обновлять штатным генератором из source contract; не редактировать вручную. Новую database migration добавлять отдельным reviewed файлом с актуальным номером, а не переписывать уже применённую migration только ради CI.
 
 **Доработки и порядок:**
 
