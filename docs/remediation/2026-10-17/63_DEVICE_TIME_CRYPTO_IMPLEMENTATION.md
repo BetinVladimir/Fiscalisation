@@ -9,3 +9,9 @@ Root existing BLE certificate proof regression PASS, including40 interval cases;
 ## Explicit remaining gates
 
 No runtime provider, startup entropy adapter, server AuthorityClock health monitor, real root issuer, bootstrap route/relay or existing execution/local-token time migration is enabled. Coordinator trusted boot/binding/invalidate calls were tested directly. Actual installer/key/trust lifecycle callbacks are not wired; installed A→B→A without those hooks is not covered. Key/trust rotation, real monotonic drift/sleep policy, standard TLS/GATT, physical HIL and applicable НАП review remain OPEN. Production compiled root trust is immutable; override exists only under the explicit crypto-host-test macro. Device private keys remain ESP32-S3 NVS; ATECC608 is unused.
+
+## Mandatory fresh native gate
+
+The existing ble-certificate crypto orchestrator now requires a tenth time-anchor phase using the same freshly fetched/built pinned upstream mbedTLS and checked cJSON as profile/proof phases. It requires the actual Go test RUN/PASS, both native success markers, linked-library hashes, and explicit real-crypto host profile without the synthetic core permit factory. Missing/skip/zero-test/ambiguous markers or stale libraries fail closed. Eight unit tests pass, including actual execution of a mode0644 POSIX runner via /bin/sh.
+
+Root full fresh gate PASS, run20261021T061444Z-223af406622f:10 phases and270 unchanged source inputs. [Hash-only evidence](evidence/time-crypto-mandatory-gate-2026-10-21/manifest.json). This is an actual local fresh-source result; new remote job acceptance must be checked separately. Production provider/issuer/lifecycle/HIL/legal gates remain OPEN.

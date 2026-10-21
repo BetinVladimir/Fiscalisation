@@ -1,9 +1,9 @@
 name: BLE certificate native crypto gate
 on:
   pull_request:
-    paths: ['IoT/firmware/edge-agent-s3/idf/**', 'fiscal-backend/**', 'scripts/*ble*certificate*', 'scripts/tests/test_ble_certificate_crypto_gate.py', 'Makefile', '.github/workflows/ble-certificate-crypto.yml']
+    paths: ['IoT/firmware/edge-agent-s3/idf/**', 'fiscal-backend/**', 'scripts/*ble*certificate*', 'scripts/verify-device-time-anchor-crypto-host.sh', 'scripts/tests/test_ble_certificate_crypto_gate.py', 'Makefile', '.github/workflows/ble-certificate-crypto.yml']
   push:
-    paths: ['IoT/firmware/edge-agent-s3/idf/**', 'fiscal-backend/**', 'scripts/*ble*certificate*', 'scripts/tests/test_ble_certificate_crypto_gate.py', 'Makefile', '.github/workflows/ble-certificate-crypto.yml']
+    paths: ['IoT/firmware/edge-agent-s3/idf/**', 'fiscal-backend/**', 'scripts/*ble*certificate*', 'scripts/verify-device-time-anchor-crypto-host.sh', 'scripts/tests/test_ble_certificate_crypto_gate.py', 'Makefile', '.github/workflows/ble-certificate-crypto.yml']
   workflow_dispatch:
 permissions:
   contents: read
@@ -24,7 +24,7 @@ jobs:
         with:
           go-version-file: fiscal-backend/go.mod
           cache-dependency-path: fiscal-backend/go.sum
-      - name: Mandatory actual C++/mbedTLS proof and certificate profile
+      - name: Mandatory actual C++/mbedTLS proof, certificate profile and time-anchor crypto
         run: make ble-certificate-crypto-test BLE_CERTIFICATE_CRYPTO_EVIDENCE_DIR="$RUNNER_TEMP/ble-certificate-crypto-evidence"
       - name: Record workflow result
         if: always()
@@ -38,5 +38,7 @@ jobs:
           path: |
             ${{ runner.temp }}/ble-certificate-crypto-evidence/**/*.log
             ${{ runner.temp }}/ble-certificate-crypto-evidence/**/*manifest.json
+            ${{ runner.temp }}/ble-certificate-crypto-evidence/**/time-anchor.log
+            ${{ runner.temp }}/ble-certificate-crypto-evidence/**/time-anchor-build-manifest.json
             ${{ runner.temp }}/ble-certificate-crypto-evidence/manifest.json
             ${{ runner.temp }}/ble-certificate-crypto-evidence/workflow-manifest.json

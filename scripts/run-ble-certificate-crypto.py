@@ -8,6 +8,7 @@ import json
 import os
 from pathlib import Path
 import platform
+import re
 import shutil
 import subprocess
 import sys
@@ -22,7 +23,7 @@ CJSON = {
     "cJSON.h": "0578cc29132912edbc88f83207a8fc76e5db3db0605497e909a9384ef3cc474b",
 }
 PHASES = ("preflight", "mbedtls-source", "framework-source", "cjson-source", "configure",
-          "build", "profile", "proof", "source-recheck")
+          "build", "profile", "proof", "time-anchor", "source-recheck")
 PROFILE_MARKERS = (
     "=== RUN   TestBLEServerProfileIsSeparatePurposeAndEnrolledKeyBound",
     "--- PASS: TestBLEServerProfileIsSeparatePurposeAndEnrolledKeyBound",
@@ -36,6 +37,14 @@ PROOF_MARKERS = (
     "=== RUN   TestBLECertificateActualFirmwareProofInterop",
     "--- PASS: TestBLECertificateActualFirmwareProofInterop",
     "PASS actual DeviceIdentity/NVS singlehash proof, strict root/context/int64/time/cache/fault/restart and both concurrent installers",
+)
+
+TIME_ANCHOR_TEST = "TestTimeAnchorActualCryptoInterop"
+TIME_ANCHOR_MARKERS = (
+    "=== RUN   " + TIME_ANCHOR_TEST,
+    "--- PASS: " + TIME_ANCHOR_TEST,
+    "PASS actual DeviceIdentity purpose-bound request singlehash signing",
+    "PASS actual root DER low/highS, signed hostile context/integer vectors, unsigned preservation, returned-packet replacement, replay/expiry/boot/binding, default-no-root/no-autoboot",
 )
 
 class GateError(RuntimeError):
@@ -52,17 +61,48 @@ def require_native_cases(log: str, markers: tuple[str, ...]) -> None:
     if "[no tests to run]" in log or "--- SKIP:" in log or any(marker not in log for marker in markers):
         raise GateError("native test absent, skipped or required case evidence missing")
 
+def require_time_anchor_cases(log: str) -> None:
+    require_native_cases(log, TIME_ANCHOR_MARKERS)
+    # Exit zero alone also covers missing Go -run matches and optional-env skips.
+    # Require the actual top-level test start/completion, rather than substrings
+    # quoted in diagnostics or output from an unrelated test.
+    for pattern in (r"^=== RUN   " + TIME_ANCHOR_TEST + r"$",
+                    r"^--- PASS: " + TIME_ANCHOR_TEST + r" \(.*\)$"):
+        if len(re.findall(pattern, log, re.MULTILINE)) != 1:
+            raise GateError("actual time-anchor Go test start/completion absent or ambiguous")
+
+def require_native_manifest(produced: dict, libraries: dict, *, time_anchor=False) -> None:
+    if produced.get("libraries_sha256") != libraries:
+        raise GateError("native binary library linkage evidence mismatch")
+    if not re.fullmatch(r"[0-9a-f]{64}", str(produced.get("binary_sha256", ""))):
+        raise GateError("native binary build evidence absent")
+    if time_anchor:
+        flags = produced.get("compile_flags", [])
+        if (produced.get("synthetic_core_permit_factory") is not False
+                or produced.get("host_test_root_injection") is not True
+                or "-DBEEFISCAL_TIME_ANCHOR_CRYPTO_HOST_TEST" not in flags
+                or any("BEEFISCAL_TIME_ANCHOR_HOST_TEST" in flag for flag in flags)
+                or produced.get("cjson_sources_sha256") != CJSON):
+            raise GateError("time-anchor actual crypto build contract mismatch")
+
+def native_command(repo: Path, script: str, *, time_anchor=False) -> list[str]:
+    command = [str(repo / script)]
+    # Newly added checked-in shell fixture may have mode 0644. Execute its
+    # reviewed POSIX shell contents without depending on an executable bit.
+    return ["/bin/sh", *command] if time_anchor else command
+
 def source_files(repo: Path) -> list[Path]:
     idf = repo / "IoT/firmware/edge-agent-s3/idf"
     paths = list((idf / "main").glob("*.cpp")) + list((idf / "main").glob("*.h"))
     paths += [idf / "main/CMakeLists.txt"]
-    for folder in ("ble_proof_host", "entropy_host", "provisioning_host", "money_host", "ble_server_certificate"):
+    for folder in ("ble_proof_host", "entropy_host", "provisioning_host", "money_host", "ble_server_certificate", "time_anchor_crypto_host"):
         paths += [p for p in (idf / "tests" / folder).rglob("*") if p.is_file()]
     paths += list((repo / "fiscal-backend").rglob("*.go"))
     paths += [repo / name for name in (
         "fiscal-backend/go.mod", "fiscal-backend/go.sum", "Makefile",
         "scripts/run-ble-certificate-crypto.py", "scripts/tests/test_ble_certificate_crypto_gate.py",
         "scripts/verify-ble-server-certificate-profile.sh", "scripts/verify-ble-certificate-proof-host.sh",
+        "scripts/verify-device-time-anchor-crypto-host.sh",
         ".github/workflows/ble-certificate-crypto.yml")]
     return sorted(set(paths))
 
@@ -78,7 +118,7 @@ class Gate:
                          "GIT_TERMINAL_PROMPT": "0", "GOTOOLCHAIN": "local"})
         self.data = {"gate": "ble-certificate-native-crypto-v1", "run_id": self.run_id,
                      "status": "FAILED", "host": platform.platform(),
-                     "scope": "host native proof/profile only; trusted-time anchor, full IDF target and hardware remain OPEN",
+                     "scope": "host native proof/profile/time-anchor crypto only; production authority clock/provider, full IDF target and hardware remain OPEN",
                      "phases": {name: {"status": "NOT_RUN", "exit_code": None, "commands": []} for name in PHASES},
                      "dependency_sources": {}, "source_sha256": {}, "tools": {}, "build": {}}
         self.current = None
@@ -191,19 +231,24 @@ class Gate:
                 self.data["build"] = {"cmake_cache_sha256": sha(build / "CMakeCache.txt"),
                     "libraries_sha256": {name: sha(build / "library" / name) for name in ("libmbedtls.a", "libmbedx509.a", "libmbedcrypto.a")}}
                 self.env.update(MBEDTLS_SOURCE_DIR=str(source), MBEDTLS_BUILD_DIR=str(build), CJSON_SOURCE_DIR=str(cjson))
-                def native(name, script, markers):
-                    self.env["BLE_CRYPTO_BUILD_MANIFEST"] = str(self.output / (name + "-build-manifest.json"))
-                    self.run([str(self.repo / script)], cwd=self.repo, timeout=240)
+                def native(name, script, markers, *, time_anchor=False):
+                    manifest_env = "TIME_ANCHOR_CRYPTO_BUILD_MANIFEST" if time_anchor else "BLE_CRYPTO_BUILD_MANIFEST"
+                    self.env.pop("TIME_ANCHOR_CRYPTO_BUILD_MANIFEST", None)
+                    self.env.pop("BLE_CRYPTO_BUILD_MANIFEST", None)
+                    self.env[manifest_env] = str(self.output / (name + "-build-manifest.json"))
+                    command = native_command(self.repo, script, time_anchor=time_anchor)
+                    self.run(command, cwd=self.repo, timeout=240)
                     self.log.flush()
-                    require_native_cases((self.output / (name + ".log")).read_text(), markers)
+                    native_log = (self.output / (name + ".log")).read_text()
+                    if time_anchor: require_time_anchor_cases(native_log)
+                    else: require_native_cases(native_log, markers)
                     manifest_path = self.output / (name + "-build-manifest.json")
                     produced = json.loads(manifest_path.read_text())
-                    if produced.get("libraries_sha256") != self.data["build"]["libraries_sha256"]:
-                        raise GateError("native binary library linkage evidence mismatch")
-                    if not produced.get("binary_sha256"):
-                        raise GateError("native binary build evidence absent")
+                    require_native_manifest(produced, self.data["build"]["libraries_sha256"], time_anchor=time_anchor)
+                    self.data["phases"][name]["build_manifest_sha256"] = sha(manifest_path)
                 self.phase("profile", lambda: native("profile", "scripts/verify-ble-server-certificate-profile.sh", PROFILE_MARKERS))
                 self.phase("proof", lambda: native("proof", "scripts/verify-ble-certificate-proof-host.sh", PROOF_MARKERS))
+                self.phase("time-anchor", lambda: native("time-anchor", "scripts/verify-device-time-anchor-crypto-host.sh", TIME_ANCHOR_MARKERS, time_anchor=True))
                 def recheck():
                     self.clean_git(source, MBEDTLS_COMMIT)
                     self.clean_git(framework, FRAMEWORK_COMMIT)
