@@ -9,8 +9,8 @@ minipos_e2e = File.read(File.join(root, "compose.minipos.e2e.yaml"))
 abort "Compose product names must be independent" unless fiscal.include?("name: beefiscal-") && minipos.include?("name: beeminipos-")
 abort "MiniPOS Compose crossed into Fiscal private services" if minipos.match?(/^\s{2}fiscal-backend:/) || minipos.include?("database/fiscal")
 abort "Fiscal Compose crossed into MiniPOS private services" if fiscal.match?(/^\s{2}beeminipos-backend:/) || fiscal.include?("database/minipos")
-abort "MiniPOS database ownership drift" unless minipos.include?("/minipos?sslmode=disable") && minipos_e2e.include?("./database/minipos:/docker-entrypoint-initdb.d:ro")
-abort "Fiscal database ownership drift" unless fiscal.include?("/fiscal?sslmode=disable") && fiscal_e2e.include?("./database/fiscal:/docker-entrypoint-initdb.d:ro")
+abort "MiniPOS database ownership drift" unless minipos.include?("/minipos?sslmode=disable") && minipos_e2e.include?("${MINIPOS_E2E_INIT_DIR:?run scripts/e2e-two-compose.sh}:/docker-entrypoint-initdb.d:ro")
+abort "Fiscal database ownership drift" unless fiscal.include?("/fiscal?sslmode=disable") && fiscal_e2e.include?("${FISCAL_E2E_INIT_DIR:?run scripts/e2e-two-compose.sh}:/docker-entrypoint-initdb.d:ro")
 # Base environments use externally managed canonical schemas. Only isolated E2E
 # PostgreSQL instances bootstrap this repository's compatibility fixtures.
 abort "MiniPOS E2E crossed into Fiscal schema" if minipos_e2e.include?("database/fiscal")

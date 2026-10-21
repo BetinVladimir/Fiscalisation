@@ -1,6 +1,6 @@
 {
   "format": "beefiscal-financial-pg-schema-v1",
-  "schema": "public",
+  "schema": "fiscal",
   "tables": [
     {
       "name": "fiscal_runtime_artifacts",
@@ -40,8 +40,8 @@
         "fiscal_runtime_artifacts_sha256_check:CHECK ((sha256 ~ '^[0-9a-f]{64}$'::text))"
       ],
       "indexes": [
-        "fiscal_runtime_artifacts_pkey:CREATE UNIQUE INDEX fiscal_runtime_artifacts_pkey ON public.fiscal_runtime_artifacts USING btree (tenant_id, id)",
-        "fiscal_runtime_artifacts_tenant_id:CREATE INDEX fiscal_runtime_artifacts_tenant_id ON public.fiscal_runtime_artifacts USING btree (tenant_id, id)"
+        "fiscal_runtime_artifacts_pkey:CREATE UNIQUE INDEX fiscal_runtime_artifacts_pkey ON fiscal.fiscal_runtime_artifacts USING btree (tenant_id, id)",
+        "fiscal_runtime_artifacts_tenant_id:CREATE INDEX fiscal_runtime_artifacts_tenant_id ON fiscal.fiscal_runtime_artifacts USING btree (tenant_id, id)"
       ]
     },
     {
@@ -148,8 +148,8 @@
         "fiscal_runtime_operations_version_check:CHECK ((version \u003e 0))"
       ],
       "indexes": [
-        "fiscal_runtime_operations_pkey:CREATE UNIQUE INDEX fiscal_runtime_operations_pkey ON public.fiscal_runtime_operations USING btree (id)",
-        "fiscal_runtime_operations_tenant_state:CREATE INDEX fiscal_runtime_operations_tenant_state ON public.fiscal_runtime_operations USING btree (tenant_id, state, updated_at)"
+        "fiscal_runtime_operations_pkey:CREATE UNIQUE INDEX fiscal_runtime_operations_pkey ON fiscal.fiscal_runtime_operations USING btree (id)",
+        "fiscal_runtime_operations_tenant_state:CREATE INDEX fiscal_runtime_operations_tenant_state ON fiscal.fiscal_runtime_operations USING btree (tenant_id, state, updated_at)"
       ]
     },
     {
@@ -308,12 +308,12 @@
         "fiscal_runtime_sales_version_check:CHECK ((version \u003e 0))"
       ],
       "indexes": [
-        "fiscal_runtime_sales_pkey:CREATE UNIQUE INDEX fiscal_runtime_sales_pkey ON public.fiscal_runtime_sales USING btree (id)",
-        "fiscal_runtime_sales_tenant_device:CREATE INDEX fiscal_runtime_sales_tenant_device ON public.fiscal_runtime_sales USING btree (tenant_id, fiscal_device_id, created_at)",
-        "fiscal_runtime_sales_tenant_id_external_id_key:CREATE UNIQUE INDEX fiscal_runtime_sales_tenant_id_external_id_key ON public.fiscal_runtime_sales USING btree (tenant_id, external_id)",
-        "fiscal_runtime_sales_tenant_id_unp_key:CREATE UNIQUE INDEX fiscal_runtime_sales_tenant_id_unp_key ON public.fiscal_runtime_sales USING btree (tenant_id, unp)",
-        "fiscal_runtime_sales_tenant_location:CREATE INDEX fiscal_runtime_sales_tenant_location ON public.fiscal_runtime_sales USING btree (tenant_id, location_id, created_at)",
-        "fiscal_runtime_sales_tenant_state:CREATE INDEX fiscal_runtime_sales_tenant_state ON public.fiscal_runtime_sales USING btree (tenant_id, state, updated_at)"
+        "fiscal_runtime_sales_pkey:CREATE UNIQUE INDEX fiscal_runtime_sales_pkey ON fiscal.fiscal_runtime_sales USING btree (id)",
+        "fiscal_runtime_sales_tenant_device:CREATE INDEX fiscal_runtime_sales_tenant_device ON fiscal.fiscal_runtime_sales USING btree (tenant_id, fiscal_device_id, created_at)",
+        "fiscal_runtime_sales_tenant_id_external_id_key:CREATE UNIQUE INDEX fiscal_runtime_sales_tenant_id_external_id_key ON fiscal.fiscal_runtime_sales USING btree (tenant_id, external_id)",
+        "fiscal_runtime_sales_tenant_id_unp_key:CREATE UNIQUE INDEX fiscal_runtime_sales_tenant_id_unp_key ON fiscal.fiscal_runtime_sales USING btree (tenant_id, unp)",
+        "fiscal_runtime_sales_tenant_location:CREATE INDEX fiscal_runtime_sales_tenant_location ON fiscal.fiscal_runtime_sales USING btree (tenant_id, location_id, created_at)",
+        "fiscal_runtime_sales_tenant_state:CREATE INDEX fiscal_runtime_sales_tenant_state ON fiscal.fiscal_runtime_sales USING btree (tenant_id, state, updated_at)"
       ]
     },
     {
@@ -384,9 +384,9 @@
         "fiscal_runtime_shifts_version_check:CHECK ((version \u003e 0))"
       ],
       "indexes": [
-        "fiscal_runtime_one_open_shift:CREATE UNIQUE INDEX fiscal_runtime_one_open_shift ON public.fiscal_runtime_shifts USING btree (tenant_id, register_id) WHERE (state = ANY (ARRAY['OPEN'::text, 'CLOSING'::text, 'RECONCILIATION_REQUIRED'::text]))",
-        "fiscal_runtime_shifts_pkey:CREATE UNIQUE INDEX fiscal_runtime_shifts_pkey ON public.fiscal_runtime_shifts USING btree (id)",
-        "fiscal_runtime_shifts_tenant_state:CREATE INDEX fiscal_runtime_shifts_tenant_state ON public.fiscal_runtime_shifts USING btree (tenant_id, state, opened_at)"
+        "fiscal_runtime_one_open_shift:CREATE UNIQUE INDEX fiscal_runtime_one_open_shift ON fiscal.fiscal_runtime_shifts USING btree (tenant_id, register_id) WHERE (state = ANY (ARRAY['OPEN'::text, 'CLOSING'::text, 'RECONCILIATION_REQUIRED'::text]))",
+        "fiscal_runtime_shifts_pkey:CREATE UNIQUE INDEX fiscal_runtime_shifts_pkey ON fiscal.fiscal_runtime_shifts USING btree (id)",
+        "fiscal_runtime_shifts_tenant_state:CREATE INDEX fiscal_runtime_shifts_tenant_state ON fiscal.fiscal_runtime_shifts USING btree (tenant_id, state, opened_at)"
       ]
     },
     {
@@ -447,7 +447,7 @@
         "fiscal_runtime_sync_acks_pkey:PRIMARY KEY (tenant_id, edge_id)"
       ],
       "indexes": [
-        "fiscal_runtime_sync_acks_pkey:CREATE UNIQUE INDEX fiscal_runtime_sync_acks_pkey ON public.fiscal_runtime_sync_acks USING btree (tenant_id, edge_id)"
+        "fiscal_runtime_sync_acks_pkey:CREATE UNIQUE INDEX fiscal_runtime_sync_acks_pkey ON fiscal.fiscal_runtime_sync_acks USING btree (tenant_id, edge_id)"
       ]
     },
     {
@@ -482,7 +482,7 @@
         "fiscal_runtime_unp_sequences_pkey:PRIMARY KEY (tenant_id, register_id)"
       ],
       "indexes": [
-        "fiscal_runtime_unp_sequences_pkey:CREATE UNIQUE INDEX fiscal_runtime_unp_sequences_pkey ON public.fiscal_runtime_unp_sequences USING btree (tenant_id, register_id)"
+        "fiscal_runtime_unp_sequences_pkey:CREATE UNIQUE INDEX fiscal_runtime_unp_sequences_pkey ON fiscal.fiscal_runtime_unp_sequences USING btree (tenant_id, register_id)"
       ]
     }
   ]

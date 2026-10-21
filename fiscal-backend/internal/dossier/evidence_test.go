@@ -41,7 +41,7 @@ func TestFiscalEvidencePostgres(t *testing.T) {
 		{"operator", "foreign-operator", "foreign-evidence", `{"code":"B001","first_name":"FOREIGN_SECRET","roles":["CASHIER"]}`},
 	}
 	for _, r := range resources {
-		_, err = admin.Exec(ctx, `insert into public.fiscal_runtime_resources(kind,id,tenant_id,version,data,created_at,updated_at,payload) values($1,$2,$3,1,$4::jsonb,now(),now(),'{"duplicate":"RAW_RESOURCE_PAYLOAD_SECRET"}') on conflict(kind,id) do update set data=excluded.data,version=1`, r.kind, r.id, r.tenant, r.data)
+		_, err = admin.Exec(ctx, `insert into fiscal.fiscal_runtime_resources(kind,id,tenant_id,version,data,created_at,updated_at,payload) values($1,$2,$3,1,$4::jsonb,now(),now(),'{"duplicate":"RAW_RESOURCE_PAYLOAD_SECRET"}') on conflict(kind,id) do update set data=excluded.data,version=1`, r.kind, r.id, r.tenant, r.data)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -58,7 +58,7 @@ func TestFiscalEvidencePostgres(t *testing.T) {
 	}
 	for _, a := range audits {
 		payload := `{"event_id":"` + a.id + `","tenant_id":"` + a.tenant + `","actor_id":"admin-1","action":"` + a.action + `","object_type":"` + a.kind + `","object_id":"object-evidence","unp":"DT000001-A001-0000001","previous_hash":"` + strings.Repeat("a", 64) + `","before":` + a.before + `,"after":` + a.after + `,"private_key":"ROOT_AUDIT_SECRET"}`
-		_, err = admin.Exec(ctx, `insert into public.fiscal_runtime_audit(event_id,tenant_id,actor_id,action,object_type,object_id,occurred_at,event_hash,payload) values($1,$2,'admin-1',$3,$4,'object-evidence',now(),$5,$6::jsonb) on conflict(event_id) do nothing`, a.id, a.tenant, a.action, a.kind, strings.Repeat("b", 64), payload)
+		_, err = admin.Exec(ctx, `insert into fiscal.fiscal_runtime_audit(event_id,tenant_id,actor_id,action,object_type,object_id,occurred_at,event_hash,payload) values($1,$2,'admin-1',$3,$4,'object-evidence',now(),$5,$6::jsonb) on conflict(event_id) do nothing`, a.id, a.tenant, a.action, a.kind, strings.Repeat("b", 64), payload)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -67,7 +67,7 @@ func TestFiscalEvidencePostgres(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	contract, err := InspectProfile(ctx, tx, "public", "fiscal-evidence")
+	contract, err := InspectProfile(ctx, tx, "fiscal", "fiscal-evidence")
 	tx.Rollback(ctx)
 	if err != nil {
 		t.Fatal(err)
@@ -86,7 +86,7 @@ func TestFiscalEvidencePostgres(t *testing.T) {
 		t.Fatal("evidence dictionary drift")
 	}
 	options := func(out string) Options {
-		return Options{Profile: "fiscal-evidence", Schema: "public", Tenant: "tenant-evidence", Output: out, SourceCommit: "synthetic-fixture", Contract: contract}
+		return Options{Profile: "fiscal-evidence", Schema: "fiscal", Tenant: "tenant-evidence", Output: out, SourceCommit: "synthetic-fixture", Contract: contract}
 	}
 	t.Run("secrets_pruned_before_transport_and_immutable_evidence_retained", func(t *testing.T) {
 		// Direct SQL expression test checks the DB-returned bytes before any Go redaction.
@@ -100,7 +100,7 @@ func TestFiscalEvidencePostgres(t *testing.T) {
 				t.Fatal(e)
 			}
 			tx.Exec(ctx, `select set_config('app.tenant_id','tenant-evidence',true)`)
-			rows, e := tx.Query(ctx, "select "+evidenceExpression(table, column)+" from public."+table)
+			rows, e := tx.Query(ctx, "select "+evidenceExpression(table, column)+" from fiscal."+table)
 			if e != nil {
 				tx.Rollback(ctx)
 				t.Fatal(e)
@@ -168,7 +168,7 @@ func TestFiscalEvidencePostgres(t *testing.T) {
 		out := filepath.Join(t.TempDir(), "snapshot")
 		concurrentID := fmt.Sprintf("audit-concurrent-%d", time.Now().UnixNano())
 		err := export(ctx, reader, options(out), func() error {
-			_, e := admin.Exec(ctx, `update public.fiscal_runtime_resources set version=2 where kind='operator' and id='operator-evidence';insert into public.fiscal_runtime_audit(event_id,tenant_id,actor_id,action,object_type,object_id,occurred_at,event_hash,payload) values('`+concurrentID+`','tenant-evidence','admin-1','OPERATOR_CHANGED','operator','operator-evidence',now(),repeat('c',64),'{"after":{"code":"A001"}}') on conflict do nothing`)
+			_, e := admin.Exec(ctx, `update fiscal.fiscal_runtime_resources set version=2 where kind='operator' and id='operator-evidence';insert into fiscal.fiscal_runtime_audit(event_id,tenant_id,actor_id,action,object_type,object_id,occurred_at,event_hash,payload) values('`+concurrentID+`','tenant-evidence','admin-1','OPERATOR_CHANGED','operator','operator-evidence',now(),repeat('c',64),'{"after":{"code":"A001"}}') on conflict do nothing`)
 			return e
 		})
 		if err != nil {
@@ -184,7 +184,7 @@ func TestFiscalEvidencePostgres(t *testing.T) {
 		}
 	})
 	t.Run("unknown_kinds_never_expand_raw_data", func(t *testing.T) {
-		_, err := admin.Exec(ctx, `insert into public.fiscal_runtime_resources(kind,id,tenant_id,version,data,created_at,updated_at) values('newer_unreviewed','brand-new','tenant-evidence',1,'{"access_token":"BRAND_NEW_SECRET"}',now(),now()) on conflict do nothing`)
+		_, err := admin.Exec(ctx, `insert into fiscal.fiscal_runtime_resources(kind,id,tenant_id,version,data,created_at,updated_at) values('newer_unreviewed','brand-new','tenant-evidence',1,'{"access_token":"BRAND_NEW_SECRET"}',now(),now()) on conflict do nothing`)
 		if err != nil {
 			t.Fatal(err)
 		}
@@ -198,11 +198,11 @@ func TestFiscalEvidencePostgres(t *testing.T) {
 		}
 	})
 	t.Run("malformed_allowlisted_value_fails_without_contents", func(t *testing.T) {
-		_, err := admin.Exec(ctx, `update public.fiscal_runtime_resources set data=jsonb_set(data,'{code}','{"private_key":"MALFORMED_KEY_SECRET"}') where kind='operator' and id='operator-evidence'`)
+		_, err := admin.Exec(ctx, `update fiscal.fiscal_runtime_resources set data=jsonb_set(data,'{code}','{"private_key":"MALFORMED_KEY_SECRET"}') where kind='operator' and id='operator-evidence'`)
 		if err != nil {
 			t.Fatal(err)
 		}
-		defer admin.Exec(ctx, `update public.fiscal_runtime_resources set data=jsonb_set(data,'{code}','"A001"') where kind='operator' and id='operator-evidence'`)
+		defer admin.Exec(ctx, `update fiscal.fiscal_runtime_resources set data=jsonb_set(data,'{code}','"A001"') where kind='operator' and id='operator-evidence'`)
 		out := filepath.Join(t.TempDir(), "bad-type")
 		err = Export(ctx, reader, options(out))
 		if err == nil || strings.Contains(err.Error(), "MALFORMED_KEY_SECRET") {
@@ -213,16 +213,16 @@ func TestFiscalEvidencePostgres(t *testing.T) {
 		}
 	})
 	t.Run("schema_drift_and_readonly", func(t *testing.T) {
-		_, err := admin.Exec(ctx, `alter table public.fiscal_runtime_resources add column dossier_drift text`)
+		_, err := admin.Exec(ctx, `alter table fiscal.fiscal_runtime_resources add column dossier_drift text`)
 		if err != nil {
 			t.Fatal(err)
 		}
 		if err = Export(ctx, reader, options(filepath.Join(t.TempDir(), "drift"))); err == nil {
 			t.Fatal("drift accepted")
 		}
-		admin.Exec(ctx, `alter table public.fiscal_runtime_resources drop column dossier_drift`)
+		admin.Exec(ctx, `alter table fiscal.fiscal_runtime_resources drop column dossier_drift`)
 		err = export(ctx, reader, options(filepath.Join(t.TempDir(), "readonly")), func() error {
-			_, e := reader.Exec(ctx, `update public.fiscal_runtime_resources set version=3 where id='operator-evidence'`)
+			_, e := reader.Exec(ctx, `update fiscal.fiscal_runtime_resources set version=3 where id='operator-evidence'`)
 			if e == nil {
 				t.Fatal("write allowed")
 			}
@@ -233,10 +233,10 @@ func TestFiscalEvidencePostgres(t *testing.T) {
 		}
 	})
 	t.Run("audit_is_append_only_actual_db_and_export_no_changes", func(t *testing.T) {
-		if _, err := admin.Exec(ctx, `update public.fiscal_runtime_audit set actor_id='other' where event_id='audit-operator'`); err == nil {
+		if _, err := admin.Exec(ctx, `update fiscal.fiscal_runtime_audit set actor_id='other' where event_id='audit-operator'`); err == nil {
 			t.Fatal("actual audit mutable")
 		}
-		query := `select md5(string_agg(row_to_json(t)::text,'' order by kind,id)) from public.fiscal_runtime_resources t`
+		query := `select md5(string_agg(row_to_json(t)::text,'' order by kind,id)) from fiscal.fiscal_runtime_resources t`
 		var before, after string
 		admin.QueryRow(ctx, query).Scan(&before)
 		if err := Export(ctx, reader, options(filepath.Join(t.TempDir(), "unchanged"))); err != nil {

@@ -20,7 +20,7 @@ class ProductBoundaryFixtureTest < Minitest::Test
     _,err,status=verify;assert status.success?,err
   end
   def test_missing_e2e_schema_bootstrap_fails
-    change("compose.minipos.e2e.yaml","./database/minipos:/docker-entrypoint-initdb.d:ro","./empty:/docker-entrypoint-initdb.d:ro")
+    change("compose.minipos.e2e.yaml","${MINIPOS_E2E_INIT_DIR:?run scripts/e2e-two-compose.sh}:/docker-entrypoint-initdb.d:ro","./empty:/docker-entrypoint-initdb.d:ro")
     _,err,status=verify;refute status.success?;assert_includes err,"database ownership drift"
   end
   def test_cross_product_e2e_schema_fails

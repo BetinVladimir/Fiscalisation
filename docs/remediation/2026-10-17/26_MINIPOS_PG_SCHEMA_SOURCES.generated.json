@@ -1,5 +1,5 @@
 {
-  "scope": "actual MiniPOS migration inputs; PostgreSQL16.10 public-schema disposable fixture",
+  "scope": "Original migration inputs for disposable PostgreSQL16.10 minipos namespace fixture; pre-022 DDL mapped only by reviewed fixture preparer; not external BeeloyDB migration acceptance",
   "sha256": {
     "database/minipos/001_init.sql": "654c8ec0c50d2c0df10a8d9447bdbb76270021e089d8cc4224d2e63567ced7de",
     "database/minipos/002_tenant_rls.sql": "f7dc3ee706d92dd3122e0e8fa88b1504f6827ec9e731e042a0f241660114adc6",
@@ -17,5 +17,9 @@
     "database/minipos/012_order_line_discount.sql": "0ee28ccdbdbfe87c9e07058681847ed0e06aad9f95ad614556c7e75d1d59964d",
     "database/minipos/013_local_adapter_configuration.sql": "cffd6d64b16f9e1f5003f72c714b36a72685cfecbf45fabaeb3c7969b47b1095",
     "database/minipos/014_tax_groups.sql": "48184e914778072d168a5720b660e090e41d20d193ab5f2b83f8b339fd8068ed"
+  },
+  "fixture_preparer": {
+    "path": "scripts/prepare-fiscal-pg-fixture.py",
+    "sha256": "d144b6cab337676e95e71ffdc982ee27c7b263e5bcd440b0725dab84f94bc330"
   }
 }

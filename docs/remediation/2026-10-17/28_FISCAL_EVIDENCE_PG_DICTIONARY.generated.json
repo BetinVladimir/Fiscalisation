@@ -1,6 +1,6 @@
 {
   "format": "beefiscal-evidence-pg-schema-v1",
-  "schema": "public",
+  "schema": "fiscal",
   "tables": [
     {
       "evidence_rules": {
@@ -978,9 +978,9 @@
         "fiscal_runtime_audit_pkey:PRIMARY KEY (event_id)"
       ],
       "indexes": [
-        "fiscal_runtime_audit_pkey:CREATE UNIQUE INDEX fiscal_runtime_audit_pkey ON public.fiscal_runtime_audit USING btree (event_id)",
-        "fiscal_runtime_audit_tenant_chain:CREATE INDEX fiscal_runtime_audit_tenant_chain ON public.fiscal_runtime_audit USING btree (tenant_id, occurred_at, event_id, previous_hash, event_hash)",
-        "fiscal_runtime_audit_tenant_time:CREATE INDEX fiscal_runtime_audit_tenant_time ON public.fiscal_runtime_audit USING btree (tenant_id, occurred_at, event_id)"
+        "fiscal_runtime_audit_pkey:CREATE UNIQUE INDEX fiscal_runtime_audit_pkey ON fiscal.fiscal_runtime_audit USING btree (event_id)",
+        "fiscal_runtime_audit_tenant_chain:CREATE INDEX fiscal_runtime_audit_tenant_chain ON fiscal.fiscal_runtime_audit USING btree (tenant_id, occurred_at, event_id, previous_hash, event_hash)",
+        "fiscal_runtime_audit_tenant_time:CREATE INDEX fiscal_runtime_audit_tenant_time ON fiscal.fiscal_runtime_audit USING btree (tenant_id, occurred_at, event_id)"
       ]
     },
     {
@@ -1944,11 +1944,11 @@
         "fiscal_runtime_resources_version_check:CHECK ((version \u003e 0))"
       ],
       "indexes": [
-        "fiscal_runtime_device_serial_per_tenant:CREATE UNIQUE INDEX fiscal_runtime_device_serial_per_tenant ON public.fiscal_runtime_resources USING btree (tenant_id, lower((data -\u003e\u003e 'serial'::text))) WHERE (kind = 'device'::text)",
-        "fiscal_runtime_one_organization_per_tenant:CREATE UNIQUE INDEX fiscal_runtime_one_organization_per_tenant ON public.fiscal_runtime_resources USING btree (tenant_id) WHERE (kind = 'organization'::text)",
-        "fiscal_runtime_resource_code_per_tenant_kind:CREATE UNIQUE INDEX fiscal_runtime_resource_code_per_tenant_kind ON public.fiscal_runtime_resources USING btree (tenant_id, kind, lower((data -\u003e\u003e 'code'::text))) WHERE (kind = ANY (ARRAY['location'::text, 'register'::text, 'operator'::text]))",
-        "fiscal_runtime_resources_pkey:CREATE UNIQUE INDEX fiscal_runtime_resources_pkey ON public.fiscal_runtime_resources USING btree (kind, id)",
-        "fiscal_runtime_resources_tenant_kind:CREATE INDEX fiscal_runtime_resources_tenant_kind ON public.fiscal_runtime_resources USING btree (tenant_id, kind, updated_at)"
+        "fiscal_runtime_device_serial_per_tenant:CREATE UNIQUE INDEX fiscal_runtime_device_serial_per_tenant ON fiscal.fiscal_runtime_resources USING btree (tenant_id, lower((data -\u003e\u003e 'serial'::text))) WHERE (kind = 'device'::text)",
+        "fiscal_runtime_one_organization_per_tenant:CREATE UNIQUE INDEX fiscal_runtime_one_organization_per_tenant ON fiscal.fiscal_runtime_resources USING btree (tenant_id) WHERE (kind = 'organization'::text)",
+        "fiscal_runtime_resource_code_per_tenant_kind:CREATE UNIQUE INDEX fiscal_runtime_resource_code_per_tenant_kind ON fiscal.fiscal_runtime_resources USING btree (tenant_id, kind, lower((data -\u003e\u003e 'code'::text))) WHERE (kind = ANY (ARRAY['location'::text, 'register'::text, 'operator'::text]))",
+        "fiscal_runtime_resources_pkey:CREATE UNIQUE INDEX fiscal_runtime_resources_pkey ON fiscal.fiscal_runtime_resources USING btree (kind, id)",
+        "fiscal_runtime_resources_tenant_kind:CREATE INDEX fiscal_runtime_resources_tenant_kind ON fiscal.fiscal_runtime_resources USING btree (tenant_id, kind, updated_at)"
       ]
     }
   ]

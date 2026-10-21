@@ -1,5 +1,5 @@
 {
-  "scope": "actual migration input files for public-schema PostgreSQL16.10 fixture; no live database credentials",
+  "scope": "Original migration inputs for disposable PostgreSQL16.10 fiscal namespace fixture; pre-022 DDL mapped only by reviewed fixture preparer; not external BeeloyDB migration acceptance",
   "sha256": {
     "database/fiscal/001_init.sql": "92ef16c29fca29bcc31fff0c7960b62d2ce1315d37de9cd09a3991ff027b46f0",
     "database/fiscal/002_tenant_rls.sql": "c5960ab96596ab2ad8cbe0875d8b458690feacf5fe99e9d6d78c7d32ba0cd739",
@@ -24,6 +24,11 @@
     "database/fiscal/018_outbound_email_messages.sql": "ff81759ad108f0dad6eb79b656e6f015649ee536cdc6176c90a77426e37cc7b2",
     "database/fiscal/019_audit_immutability.sql": "88ceb3f6e6c1bd3adb30eaa38219cb80fdfb683b1849262fbdcfffd3e6b128a2",
     "database/fiscal/020_supto_reporting_catalogs.sql": "5d35f469414c360a388a5b46f18554680c75be4578ff2638a8aefd02a6a9efe2",
-    "database/fiscal/021_audit_predecessor_compatibility.sql": "e440721b5d9ef594aff9b3e802b2e3ec2d60ea7d27f807ea5ac84637eec68d85"
+    "database/fiscal/021_audit_predecessor_compatibility.sql": "e440721b5d9ef594aff9b3e802b2e3ec2d60ea7d27f807ea5ac84637eec68d85",
+    "database/fiscal/022_runtime_typed_projection.sql": "5422a429c7ce11cde64d3a83e554b77eb968d5fc258b07a9552cde94b1572b68"
+  },
+  "fixture_preparer": {
+    "path": "scripts/prepare-fiscal-pg-fixture.py",
+    "sha256": "d144b6cab337676e95e71ffdc982ee27c7b263e5bcd440b0725dab84f94bc330"
   }
 }

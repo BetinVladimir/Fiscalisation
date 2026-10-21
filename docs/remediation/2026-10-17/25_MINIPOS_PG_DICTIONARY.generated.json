@@ -1,6 +1,6 @@
 {
   "format": "beeminipos-financial-pg-schema-v1",
-  "schema": "public",
+  "schema": "minipos",
   "tables": [
     {
       "name": "minipos_runtime_checkout_hashes",
@@ -39,7 +39,7 @@
         "minipos_runtime_checkout_hashes_request_hash_check:CHECK ((length(request_hash) = 64))"
       ],
       "indexes": [
-        "minipos_runtime_checkout_hashes_pkey:CREATE UNIQUE INDEX minipos_runtime_checkout_hashes_pkey ON public.minipos_runtime_checkout_hashes USING btree (replay_key)"
+        "minipos_runtime_checkout_hashes_pkey:CREATE UNIQUE INDEX minipos_runtime_checkout_hashes_pkey ON minipos.minipos_runtime_checkout_hashes USING btree (replay_key)"
       ]
     },
     {
@@ -121,8 +121,8 @@
         "minipos_runtime_checkout_results_version_check:CHECK ((version \u003e 0))"
       ],
       "indexes": [
-        "minipos_runtime_checkout_results_pkey:CREATE UNIQUE INDEX minipos_runtime_checkout_results_pkey ON public.minipos_runtime_checkout_results USING btree (replay_key)",
-        "minipos_runtime_checkout_results_tenant:CREATE INDEX minipos_runtime_checkout_results_tenant ON public.minipos_runtime_checkout_results USING btree (organization_id, order_id)"
+        "minipos_runtime_checkout_results_pkey:CREATE UNIQUE INDEX minipos_runtime_checkout_results_pkey ON minipos.minipos_runtime_checkout_results USING btree (replay_key)",
+        "minipos_runtime_checkout_results_tenant:CREATE INDEX minipos_runtime_checkout_results_tenant ON minipos.minipos_runtime_checkout_results USING btree (organization_id, order_id)"
       ]
     },
     {
@@ -227,9 +227,9 @@
         "minipos_runtime_employees_version_check:CHECK ((version \u003e 0))"
       ],
       "indexes": [
-        "minipos_runtime_employee_operator_code_ci:CREATE UNIQUE INDEX minipos_runtime_employee_operator_code_ci ON public.minipos_runtime_employees USING btree (organization_id, lower((operator_code)::text))",
-        "minipos_runtime_employees_organization_id_operator_code_key:CREATE UNIQUE INDEX minipos_runtime_employees_organization_id_operator_code_key ON public.minipos_runtime_employees USING btree (organization_id, operator_code)",
-        "minipos_runtime_employees_pkey:CREATE UNIQUE INDEX minipos_runtime_employees_pkey ON public.minipos_runtime_employees USING btree (id)"
+        "minipos_runtime_employee_operator_code_ci:CREATE UNIQUE INDEX minipos_runtime_employee_operator_code_ci ON minipos.minipos_runtime_employees USING btree (organization_id, lower((operator_code)::text))",
+        "minipos_runtime_employees_organization_id_operator_code_key:CREATE UNIQUE INDEX minipos_runtime_employees_organization_id_operator_code_key ON minipos.minipos_runtime_employees USING btree (organization_id, operator_code)",
+        "minipos_runtime_employees_pkey:CREATE UNIQUE INDEX minipos_runtime_employees_pkey ON minipos.minipos_runtime_employees USING btree (id)"
       ]
     },
     {
@@ -429,9 +429,9 @@
         "minipos_runtime_orders_version_check:CHECK ((version \u003e 0))"
       ],
       "indexes": [
-        "minipos_runtime_orders_organization_id_external_id_key:CREATE UNIQUE INDEX minipos_runtime_orders_organization_id_external_id_key ON public.minipos_runtime_orders USING btree (organization_id, external_id)",
-        "minipos_runtime_orders_pkey:CREATE UNIQUE INDEX minipos_runtime_orders_pkey ON public.minipos_runtime_orders USING btree (id)",
-        "minipos_runtime_orders_tenant_state:CREATE INDEX minipos_runtime_orders_tenant_state ON public.minipos_runtime_orders USING btree (organization_id, state, updated_at)"
+        "minipos_runtime_orders_organization_id_external_id_key:CREATE UNIQUE INDEX minipos_runtime_orders_organization_id_external_id_key ON minipos.minipos_runtime_orders USING btree (organization_id, external_id)",
+        "minipos_runtime_orders_pkey:CREATE UNIQUE INDEX minipos_runtime_orders_pkey ON minipos.minipos_runtime_orders USING btree (id)",
+        "minipos_runtime_orders_tenant_state:CREATE INDEX minipos_runtime_orders_tenant_state ON minipos.minipos_runtime_orders USING btree (organization_id, state, updated_at)"
       ]
     },
     {
@@ -559,10 +559,10 @@
         "minipos_runtime_products_version_check:CHECK ((version \u003e 0))"
       ],
       "indexes": [
-        "minipos_runtime_product_sku_ci:CREATE UNIQUE INDEX minipos_runtime_product_sku_ci ON public.minipos_runtime_products USING btree (organization_id, lower(sku))",
-        "minipos_runtime_products_organization_id_sku_key:CREATE UNIQUE INDEX minipos_runtime_products_organization_id_sku_key ON public.minipos_runtime_products USING btree (organization_id, sku)",
-        "minipos_runtime_products_pkey:CREATE UNIQUE INDEX minipos_runtime_products_pkey ON public.minipos_runtime_products USING btree (id)",
-        "minipos_runtime_products_tenant_barcode:CREATE UNIQUE INDEX minipos_runtime_products_tenant_barcode ON public.minipos_runtime_products USING btree (organization_id, barcode) WHERE (barcode IS NOT NULL)"
+        "minipos_runtime_product_sku_ci:CREATE UNIQUE INDEX minipos_runtime_product_sku_ci ON minipos.minipos_runtime_products USING btree (organization_id, lower(sku))",
+        "minipos_runtime_products_organization_id_sku_key:CREATE UNIQUE INDEX minipos_runtime_products_organization_id_sku_key ON minipos.minipos_runtime_products USING btree (organization_id, sku)",
+        "minipos_runtime_products_pkey:CREATE UNIQUE INDEX minipos_runtime_products_pkey ON minipos.minipos_runtime_products USING btree (id)",
+        "minipos_runtime_products_tenant_barcode:CREATE UNIQUE INDEX minipos_runtime_products_tenant_barcode ON minipos.minipos_runtime_products USING btree (organization_id, barcode) WHERE (barcode IS NOT NULL)"
       ]
     },
     {
@@ -677,8 +677,8 @@
         "minipos_runtime_shifts_version_check:CHECK ((version \u003e 0))"
       ],
       "indexes": [
-        "minipos_one_active_shift:CREATE UNIQUE INDEX minipos_one_active_shift ON public.minipos_runtime_shifts USING btree (organization_id, register_id) WHERE (state \u003c\u003e 'CLOSED'::text)",
-        "minipos_runtime_shifts_pkey:CREATE UNIQUE INDEX minipos_runtime_shifts_pkey ON public.minipos_runtime_shifts USING btree (id)"
+        "minipos_one_active_shift:CREATE UNIQUE INDEX minipos_one_active_shift ON minipos.minipos_runtime_shifts USING btree (organization_id, register_id) WHERE (state \u003c\u003e 'CLOSED'::text)",
+        "minipos_runtime_shifts_pkey:CREATE UNIQUE INDEX minipos_runtime_shifts_pkey ON minipos.minipos_runtime_shifts USING btree (id)"
       ]
     },
     {
@@ -771,8 +771,8 @@
         "minipos_runtime_tax_groups_version_check:CHECK ((version \u003e 0))"
       ],
       "indexes": [
-        "minipos_runtime_tax_groups_organization_id_code_key:CREATE UNIQUE INDEX minipos_runtime_tax_groups_organization_id_code_key ON public.minipos_runtime_tax_groups USING btree (organization_id, code)",
-        "minipos_runtime_tax_groups_pkey:CREATE UNIQUE INDEX minipos_runtime_tax_groups_pkey ON public.minipos_runtime_tax_groups USING btree (id)"
+        "minipos_runtime_tax_groups_organization_id_code_key:CREATE UNIQUE INDEX minipos_runtime_tax_groups_organization_id_code_key ON minipos.minipos_runtime_tax_groups USING btree (organization_id, code)",
+        "minipos_runtime_tax_groups_pkey:CREATE UNIQUE INDEX minipos_runtime_tax_groups_pkey ON minipos.minipos_runtime_tax_groups USING btree (id)"
       ]
     }
   ]

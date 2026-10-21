@@ -29,23 +29,23 @@ func TestMiniPOSPostgresSnapshot(t *testing.T) {
 	}
 	defer reader.Close(ctx)
 	// All credentials and records are disposable test fixtures, never acquired production data.
-	_, err = admin.Exec(ctx, `insert into public.minipos_runtime_orders(id,organization_id,external_id,shift_id,register_id,operator_code,state,total,currency,lines,version,created_at,updated_at,payload,payments,fiscal_sale_id,fiscal_operation_id,fiscal_version) values
+	_, err = admin.Exec(ctx, `insert into minipos.minipos_runtime_orders(id,organization_id,external_id,shift_id,register_id,operator_code,state,total,currency,lines,version,created_at,updated_at,payload,payments,fiscal_sale_id,fiscal_operation_id,fiscal_version) values
  ('mini-a','org-a','external-a','shift-a','register-a','A001','UNKNOWN',9007199254740993.17,'EUR','[{"line_id":"line-a","name":"Български","quantity":"1.000","unit_price":{"amount":"9007199254740993.17","currency":"EUR","credential":"NESTED_SECRET"},"tax_group":"A","credential":"LINE_SECRET"}]',9007199254740993,now(),now(),'{"credential":"PAYLOAD_SECRET","receipt_session_id":"not-projected"}','[{"payment_id":"pay-a","type":"CARD","amount":{"amount":"9007199254740993.17","currency":"EUR","credential":"PAYMENT_MONEY_SECRET"},"terminal_policy":"REQUIRED","credential":"PAYMENT_SECRET"}]','fiscal-sale-a','client-operation-a',9223372036854775807),
  ('mini-b','org-b','external-b','shift-b','register-b','B001','UNKNOWN',1.01,'EUR','[]',1,now(),now(),'{"foreign":"FOREIGN_ORG_SECRET"}','[]',null,null,null)
  on conflict(id) do update set state=excluded.state,total=excluded.total,version=excluded.version,lines=excluded.lines,payments=excluded.payments,payload=excluded.payload`)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = admin.Exec(ctx, `insert into public.minipos_runtime_checkout_results(replay_key,organization_id,order_id,state,version,fiscal_sale_id,fiscal_operation_id,payload) values('checkout-a','org-a','mini-a','UNKNOWN',9007199254740993,'fiscal-sale-a','client-operation-a','{"credential":"CHECKOUT_PAYLOAD_SECRET"}') on conflict(replay_key) do update set state=excluded.state`)
+	_, err = admin.Exec(ctx, `insert into minipos.minipos_runtime_checkout_results(replay_key,organization_id,order_id,state,version,fiscal_sale_id,fiscal_operation_id,payload) values('checkout-a','org-a','mini-a','UNKNOWN',9007199254740993,'fiscal-sale-a','client-operation-a','{"credential":"CHECKOUT_PAYLOAD_SECRET"}') on conflict(replay_key) do update set state=excluded.state`)
 	if err != nil {
 		t.Fatal(err)
 	}
-	_, err = admin.Exec(ctx, `insert into public.minipos_runtime_products(id,organization_id,sku,name,unit,amount,currency,tax_group,active,status,version,created_at,updated_at,payload) values('product-a','org-a','sku-a','Товар','pcs',9007199254740993.17,'EUR','A',true,'ACTIVE',1,now(),now(),'{"credential":"PRODUCT_PAYLOAD_SECRET"}') on conflict do nothing;
- insert into public.minipos_runtime_tax_groups(id,organization_id,code,name,rate,status,version,created_at,updated_at,payload) values('tax-a','org-a','A','Tax',20.25,'ACTIVE',1,now(),now(),'{"credential":"TAX_PAYLOAD_SECRET"}') on conflict do nothing;
- insert into public.minipos_runtime_employees(id,organization_id,first_name,last_name,operator_code,roles,active,status,version,created_at,updated_at,payload) values('employee-a','org-a','Иван','Иванов','A001','["ROLE_SECRET"]',true,'ACTIVE',1,now(),now(),'{"credential":"EMPLOYEE_PAYLOAD_SECRET"}') on conflict do nothing;
- insert into public.minipos_runtime_shifts(id,organization_id,register_id,employee_id,state,version,opened_at,created_at,updated_at,close_error,payload) values('shift-a','org-a','register-a','employee-a','OPEN',1,now(),now(),now(),'ERROR_SECRET','{"credential":"SHIFT_PAYLOAD_SECRET"}') on conflict do nothing;
- insert into public.minipos_runtime_checkout_hashes(replay_key,organization_id,request_hash) values('checkout-a','org-a',repeat('a',64)) on conflict do nothing;
- insert into public.minipos_runtime_api_replays(replay_key,organization_id,method,path,request_hash,status,payload) values('private-replay','org-a','POST','/private',repeat('b',64),200,'{"credential":"API_REPLAY_SECRET"}') on conflict do nothing`)
+	_, err = admin.Exec(ctx, `insert into minipos.minipos_runtime_products(id,organization_id,sku,name,unit,amount,currency,tax_group,active,status,version,created_at,updated_at,payload) values('product-a','org-a','sku-a','Товар','pcs',9007199254740993.17,'EUR','A',true,'ACTIVE',1,now(),now(),'{"credential":"PRODUCT_PAYLOAD_SECRET"}') on conflict do nothing;
+ insert into minipos.minipos_runtime_tax_groups(id,organization_id,code,name,rate,status,version,created_at,updated_at,payload) values('tax-a','org-a','A','Tax',20.25,'ACTIVE',1,now(),now(),'{"credential":"TAX_PAYLOAD_SECRET"}') on conflict do nothing;
+ insert into minipos.minipos_runtime_employees(id,organization_id,first_name,last_name,operator_code,roles,active,status,version,created_at,updated_at,payload) values('employee-a','org-a','Иван','Иванов','A001','["ROLE_SECRET"]',true,'ACTIVE',1,now(),now(),'{"credential":"EMPLOYEE_PAYLOAD_SECRET"}') on conflict do nothing;
+ insert into minipos.minipos_runtime_shifts(id,organization_id,register_id,employee_id,state,version,opened_at,created_at,updated_at,close_error,payload) values('shift-a','org-a','register-a','employee-a','OPEN',1,now(),now(),now(),'ERROR_SECRET','{"credential":"SHIFT_PAYLOAD_SECRET"}') on conflict do nothing;
+ insert into minipos.minipos_runtime_checkout_hashes(replay_key,organization_id,request_hash) values('checkout-a','org-a',repeat('a',64)) on conflict do nothing;
+ insert into minipos.minipos_runtime_api_replays(replay_key,organization_id,method,path,request_hash,status,payload) values('private-replay','org-a','POST','/private',repeat('b',64),200,'{"credential":"API_REPLAY_SECRET"}') on conflict do nothing`)
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -53,7 +53,7 @@ func TestMiniPOSPostgresSnapshot(t *testing.T) {
 	if err != nil {
 		t.Fatal(err)
 	}
-	contract, err := InspectProfile(ctx, tx, "public", "minipos")
+	contract, err := InspectProfile(ctx, tx, "minipos", "minipos")
 	tx.Rollback(ctx)
 	if err != nil {
 		t.Fatal(err)
@@ -72,7 +72,7 @@ func TestMiniPOSPostgresSnapshot(t *testing.T) {
 		t.Fatal("committed MiniPOS dictionary drift")
 	}
 	options := func(out string) Options {
-		return Options{Profile: "minipos", Schema: "public", Tenant: "org-a", Output: out, SourceCommit: "synthetic-minipos-fixture", Contract: contract}
+		return Options{Profile: "minipos", Schema: "minipos", Tenant: "org-a", Output: out, SourceCommit: "synthetic-minipos-fixture", Contract: contract}
 	}
 	readRows := func(t *testing.T, out, table string) []map[string]*string {
 		t.Helper()
@@ -106,7 +106,7 @@ func TestMiniPOSPostgresSnapshot(t *testing.T) {
 	t.Run("consistent_snapshot_precision_secret_projection_and_isolation", func(t *testing.T) {
 		out := filepath.Join(t.TempDir(), "snapshot")
 		err := export(ctx, reader, options(out), func() error {
-			_, e := admin.Exec(ctx, `update public.minipos_runtime_orders set state='FISCALIZED',version=version+1 where id='mini-a';update public.minipos_runtime_checkout_results set state='FISCALIZED' where replay_key='checkout-a'`)
+			_, e := admin.Exec(ctx, `update minipos.minipos_runtime_orders set state='FISCALIZED',version=version+1 where id='mini-a';update minipos.minipos_runtime_checkout_results set state='FISCALIZED' where replay_key='checkout-a'`)
 			return e
 		})
 		if err != nil {
@@ -159,7 +159,7 @@ func TestMiniPOSPostgresSnapshot(t *testing.T) {
 		}
 	})
 	t.Run("ordinary_export_no_mutation", func(t *testing.T) {
-		query := `select md5(string_agg(row_to_json(t)::text,'' order by id)) from public.minipos_runtime_orders t`
+		query := `select md5(string_agg(row_to_json(t)::text,'' order by id)) from minipos.minipos_runtime_orders t`
 		var before, after string
 		admin.QueryRow(ctx, query).Scan(&before)
 		if err := Export(ctx, reader, options(filepath.Join(t.TempDir(), "unchanged"))); err != nil {
@@ -171,18 +171,18 @@ func TestMiniPOSPostgresSnapshot(t *testing.T) {
 		}
 	})
 	t.Run("schema_and_rls_drift", func(t *testing.T) {
-		if _, err := admin.Exec(ctx, `alter table public.minipos_runtime_orders add column dossier_drift text`); err != nil {
+		if _, err := admin.Exec(ctx, `alter table minipos.minipos_runtime_orders add column dossier_drift text`); err != nil {
 			t.Fatal(err)
 		}
 		out := filepath.Join(t.TempDir(), "drift")
 		if err := Export(ctx, reader, options(out)); err == nil {
 			t.Fatal("schema drift accepted")
 		}
-		admin.Exec(ctx, `alter table public.minipos_runtime_orders drop column dossier_drift`)
-		if _, err := admin.Exec(ctx, `alter table public.minipos_runtime_orders disable row level security`); err != nil {
+		admin.Exec(ctx, `alter table minipos.minipos_runtime_orders drop column dossier_drift`)
+		if _, err := admin.Exec(ctx, `alter table minipos.minipos_runtime_orders disable row level security`); err != nil {
 			t.Fatal(err)
 		}
-		defer admin.Exec(ctx, `alter table public.minipos_runtime_orders enable row level security`)
+		defer admin.Exec(ctx, `alter table minipos.minipos_runtime_orders enable row level security`)
 		if err := Export(ctx, reader, options(filepath.Join(t.TempDir(), "rls"))); err == nil {
 			t.Fatal("RLS drift accepted")
 		}
@@ -201,7 +201,7 @@ func TestMiniPOSPostgresSnapshot(t *testing.T) {
 			t.Fatal("output overwritten")
 		}
 		err := export(ctx, reader, options(filepath.Join(t.TempDir(), "readonly")), func() error {
-			_, e := reader.Exec(ctx, `update public.minipos_runtime_orders set version=1 where id='mini-a'`)
+			_, e := reader.Exec(ctx, `update minipos.minipos_runtime_orders set version=1 where id='mini-a'`)
 			if e == nil {
 				t.Fatal("write allowed")
 			}
@@ -212,10 +212,10 @@ func TestMiniPOSPostgresSnapshot(t *testing.T) {
 		}
 	})
 	t.Run("malformed_known_money_refused", func(t *testing.T) {
-		if _, err := admin.Exec(ctx, `update public.minipos_runtime_orders set payments='[{"type":"CARD","amount":{"amount":{"secret":"MALFORMED_SECRET"},"currency":"EUR"}}]' where id='mini-a'`); err != nil {
+		if _, err := admin.Exec(ctx, `update minipos.minipos_runtime_orders set payments='[{"type":"CARD","amount":{"amount":{"secret":"MALFORMED_SECRET"},"currency":"EUR"}}]' where id='mini-a'`); err != nil {
 			t.Fatal(err)
 		}
-		defer admin.Exec(ctx, `update public.minipos_runtime_orders set payments='[]' where id='mini-a'`)
+		defer admin.Exec(ctx, `update minipos.minipos_runtime_orders set payments='[]' where id='mini-a'`)
 		out := filepath.Join(t.TempDir(), "bad-money")
 		if err := Export(ctx, reader, options(out)); err == nil {
 			t.Fatal("malformed known field accepted")

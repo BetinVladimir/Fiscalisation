@@ -6,14 +6,18 @@ run_id="$(date -u +%Y%m%d%H%M%S)-$$"
 network="beeloy_pg_it_$run_id"
 fiscal_db="beeloy_fiscal_pg_it_$run_id"
 minipos_db="beeloy_minipos_pg_it_$run_id"
+fixture=$(mktemp -d "${TMPDIR:-/tmp}/beeloy-pg-fixture.XXXXXX")
 postgres_image=postgres:16.10
 go_image=golang:1.26.3
 
 cleanup() {
   docker rm -f "$fiscal_db" "$minipos_db" >/dev/null 2>&1 || true
   docker network rm "$network" >/dev/null 2>&1 || true
+  rm -rf "$fixture"
 }
 trap cleanup EXIT INT TERM
+python3 "$root/scripts/prepare-fiscal-pg-fixture.py" --source "$root/database/fiscal" --output "$fixture/fiscal" --namespace fiscal
+python3 "$root/scripts/prepare-fiscal-pg-fixture.py" --source "$root/database/minipos" --output "$fixture/minipos" --namespace minipos
 
 wait_postgres() {
   container=$1
@@ -31,7 +35,7 @@ wait_schema() {
   container=$1
   marker=$2
   attempts=0
-  until [ "$(docker exec "$container" psql -At -U postgres -d app -c "select to_regclass('public.$marker') is not null" 2>/dev/null || true)" = "t" ]; do
+  until [ "$(docker exec "$container" psql -At -U postgres -d app -c "select to_regclass('$3.$marker') is not null" 2>/dev/null || true)" = "t" ]; do
     attempts=$((attempts+1))
     if [ "$attempts" -ge 60 ]; then
       docker logs "$container" >&2 || true
@@ -66,18 +70,18 @@ docker network create "$network" >/dev/null
 docker run -d --name "$fiscal_db" --network "$network" \
   -e POSTGRES_PASSWORD=test -e POSTGRES_DB=app -e FISCAL_RLS_DB_PASSWORD=test-reader \
   --tmpfs /var/lib/postgresql/data:rw,size=256m \
-  -v "$root/database/fiscal:/docker-entrypoint-initdb.d:ro" \
+  -v "$fixture/fiscal:/docker-entrypoint-initdb.d:ro" \
   "$postgres_image" >/dev/null
 docker run -d --name "$minipos_db" --network "$network" \
   -e POSTGRES_PASSWORD=test -e POSTGRES_DB=app -e MINIPOS_RLS_DB_PASSWORD=test-reader \
   --tmpfs /var/lib/postgresql/data:rw,size=256m \
-  -v "$root/database/minipos:/docker-entrypoint-initdb.d:ro" \
+  -v "$fixture/minipos:/docker-entrypoint-initdb.d:ro" \
   "$postgres_image" >/dev/null
 
 wait_postgres "$fiscal_db"
 wait_postgres "$minipos_db"
-wait_schema "$fiscal_db" fiscal_runtime_operations
-wait_schema "$minipos_db" minipos_runtime_orders
+wait_schema "$fiscal_db" fiscal_runtime_operations fiscal
+wait_schema "$minipos_db" minipos_runtime_orders minipos
 # The official image briefly exposes its initialization server before shutting
 # it down and exec'ing the long-lived server. A schema marker alone can race
 # that transition, so require a stable SQL window before any assertions.
@@ -125,10 +129,15 @@ if docker exec "$minipos_db" psql -v ON_ERROR_STOP=1 -U postgres -d app -q -c \
   exit 1
 fi
 
+# Only this disposable runner marks a template eligible for per-test cloning.
+docker exec "$fiscal_db" psql -U postgres -d app -v ON_ERROR_STOP=1 -c \
+  "COMMENT ON DATABASE app IS 'beefiscal-disposable-integration-template-v1'" >/dev/null
+
 fiscal_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$fiscal_db")
 minipos_ip=$(docker inspect -f '{{range .NetworkSettings.Networks}}{{.IPAddress}}{{end}}' "$minipos_db")
 
 docker run --rm --network "$network" -v "$root:/src:ro" -w /src/fiscal-backend \
+  -e "PG_INTEGRATION_ISOLATED_DATABASES=1" \
   -e "PG_INTEGRATION_URL=postgres://postgres:test@$fiscal_ip:5432/app?sslmode=disable" \
   -e "PG_RLS_INTEGRATION_URL=postgres://beefiscal_tenant:test-reader@$fiscal_ip:5432/app?sslmode=disable" \
   "$go_image" go test ./internal/persistence

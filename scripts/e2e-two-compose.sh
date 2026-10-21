@@ -25,6 +25,8 @@ auth_token=$(AUTH_KEY="$auth_key" AUTH_ISSUER="$auth_issuer" ruby -rjson -ropens
 fiscal_backup=/tmp/beeloy-fiscal-backup-$$.dump
 minipos_backup=/tmp/beeloy-minipos-backup-$$.dump
 canonical_xlsx=/tmp/beeloy-canonical-export-$$.xlsx
+fixture=$(mktemp -d "${TMPDIR:-/tmp}/beeloy-e2e-pg-fixture.XXXXXX")
+export FISCAL_E2E_INIT_DIR="$fixture/fiscal" MINIPOS_E2E_INIT_DIR="$fixture/minipos"
 
 fiscal_compose() {
   APP_ENV=dev FISCAL_HTTP_PORT="$fiscal_publish_port" FISCAL_HTTPS_PORT=0 FISCAL_DB_PASSWORD="$fiscal_secret" FISCAL_RLS_DB_PASSWORD="$fiscal_rls_secret" FISCAL_DB_PORT="$fiscal_db_port" FISCAL_UPSTREAM="${fiscal_upstream:-fiscal-backend:8080}" WEBHOOK_SIGNING_KEY="$webhook_key" BLE_SIGNING_KEY="$ble_key" AUTH_HMAC_KEY="$auth_key" SIMULATOR_CARD_TERMINAL_AVAILABLE=true docker compose -p "$fiscal_project" -f "$root/compose.fiscalisation.yaml" -f "$root/compose.fiscalisation.dev.yaml" -f "$root/compose.fiscalisation.e2e.yaml" "$@"
@@ -38,6 +40,7 @@ cleanup() {
   minipos_compose down -v --remove-orphans >/dev/null 2>&1 || true
   docker network rm "$shared_ingress" >/dev/null 2>&1 || true
   rm -f "$fiscal_backup" "$minipos_backup" "$canonical_xlsx"
+  rm -rf "$fixture"
 }
 failed() {
   status=$?
@@ -52,6 +55,8 @@ failed() {
   exit "$status"
 }
 trap failed EXIT INT TERM
+python3 "$root/scripts/prepare-fiscal-pg-fixture.py" --source "$root/database/fiscal" --output "$FISCAL_E2E_INIT_DIR" --namespace fiscal
+python3 "$root/scripts/prepare-fiscal-pg-fixture.py" --source "$root/database/minipos" --output "$MINIPOS_E2E_INIT_DIR" --namespace minipos
 
 wait_http() {
   url=$1
@@ -313,26 +318,26 @@ restore_started=$(date +%s)
 fiscal_compose exec -T postgres pg_dump -U fiscal -d fiscal --format=custom > "$fiscal_backup"
 fiscal_compose exec -T postgres createdb -U fiscal fiscal_restore
 fiscal_compose exec -T postgres pg_restore -U fiscal -d fiscal_restore --exit-on-error < "$fiscal_backup"
-fiscal_rows=$(fiscal_compose exec -T postgres psql -U fiscal -d fiscal_restore -Atc 'select count(*) from fiscal_runtime_sales')
+fiscal_rows=$(fiscal_compose exec -T postgres psql -U fiscal -d fiscal_restore -Atc 'select count(*) from fiscal.fiscal_runtime_sales')
 test "$fiscal_rows" -gt 0
-fiscal_mode=$(fiscal_compose exec -T postgres psql -U fiscal -d fiscal_restore -Atc 'select storage_mode from fiscal_state_meta where singleton=true')
+fiscal_mode=$(fiscal_compose exec -T postgres psql -U fiscal -d fiscal_restore -Atc 'select storage_mode from fiscal.fiscal_state_meta where singleton=true')
 test "$fiscal_mode" = 2
-fiscal_periodized=$(fiscal_compose exec -T postgres psql -U fiscal -d fiscal_restore -Atc "select count(*) from fiscal_runtime_resources where kind='export_periods' and data->'periods'->0->>'official_currency'='BGN' and data->'periods'->1->>'official_currency'='EUR'")
+fiscal_periodized=$(fiscal_compose exec -T postgres psql -U fiscal -d fiscal_restore -Atc "select count(*) from fiscal.fiscal_runtime_resources where kind='export_periods' and data->'periods'->0->>'official_currency'='BGN' and data->'periods'->1->>'official_currency'='EUR'")
 test "$fiscal_periodized" -gt 0
-fiscal_period_artifacts=$(fiscal_compose exec -T postgres psql -U fiscal -d fiscal_restore -Atc "select count(*) from fiscal_runtime_artifacts where tenant_id='e2e-tenant'")
+fiscal_period_artifacts=$(fiscal_compose exec -T postgres psql -U fiscal -d fiscal_restore -Atc "select count(*) from fiscal.fiscal_runtime_artifacts where tenant_id='e2e-tenant'")
 test "$fiscal_period_artifacts" -ge 2
 minipos_compose exec -T postgres pg_dump -U minipos -d minipos --format=custom > "$minipos_backup"
 minipos_compose exec -T postgres createdb -U minipos minipos_restore
 minipos_compose exec -T postgres pg_restore -U minipos -d minipos_restore --exit-on-error < "$minipos_backup"
-minipos_rows=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc 'select count(*) from minipos_runtime_orders')
+minipos_rows=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc 'select count(*) from minipos.minipos_runtime_orders')
 test "$minipos_rows" -gt 0
-minipos_reversals=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc "select count(*) from minipos_runtime_orders where state='REVERSED' and fiscal_reference is not null and reversal_operation_id is not null and reversal_fiscal_reference is not null and reversal_reason_code='CUSTOMER_RETURN'")
+minipos_reversals=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc "select count(*) from minipos.minipos_runtime_orders where state='REVERSED' and fiscal_reference is not null and reversal_operation_id is not null and reversal_fiscal_reference is not null and reversal_reason_code='CUSTOMER_RETURN'")
 test "$minipos_reversals" -gt 0
-minipos_payment_evidence=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc "select count(*) from minipos_runtime_orders where jsonb_array_length(payments)>0")
+minipos_payment_evidence=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc "select count(*) from minipos.minipos_runtime_orders where jsonb_array_length(payments)>0")
 test "$minipos_payment_evidence" -ge 3
-minipos_z_links=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc "select count(*) from minipos_runtime_shifts where state='CLOSED' and z_operation_id is not null and z_fiscal_reference is not null")
+minipos_z_links=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc "select count(*) from minipos.minipos_runtime_shifts where state='CLOSED' and z_operation_id is not null and z_fiscal_reference is not null")
 test "$minipos_z_links" -gt 0
-minipos_mode=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc 'select storage_mode from minipos_state_meta where singleton=true')
+minipos_mode=$(minipos_compose exec -T postgres psql -U minipos -d minipos_restore -Atc 'select storage_mode from minipos.minipos_state_meta where singleton=true')
 test "$minipos_mode" = 2
 restore_elapsed=$(($(date +%s)-restore_started))
 test "$restore_elapsed" -lt 120

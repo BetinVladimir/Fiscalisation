@@ -59,7 +59,7 @@ supto-full-acceptance: regression postgres-integration compose-e2e supto-softwar
 boundary-test:
 	ruby scripts/verify_product_boundary.rb
 	ruby scripts/tests/product_boundary_fixture_test.rb
-postgres-integration:
+postgres-integration: typed-projection-test pg-fixture-preparation-test
 	./scripts/postgres-integration.sh
 typecheck:
 	cd minipos/BeeMiniPOS && npx tsc --noEmit
@@ -210,3 +210,12 @@ nap-minipos-postgres-extraction-test:
 .PHONY: nap-evidence-postgres-extraction-test
 nap-evidence-postgres-extraction-test:
 	sh scripts/dossier-evidence-postgres-integration.sh
+
+.PHONY: typed-projection-test pg-fixture-preparation-test presentation-build-test
+typed-projection-test:
+	./scripts/typed-projection-postgres-integration.sh
+pg-fixture-preparation-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_prepare_fiscal_pg_fixture.py' -v
+presentation-build-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s BeeFiscalApp/scripts -p 'test_build_device_data_presentation.py' -v
+	cd BeeFiscalApp && node --experimental-strip-types --test e2e/presentation-build-guard.test.mjs e2e/verify-device-data-readable.test.mjs

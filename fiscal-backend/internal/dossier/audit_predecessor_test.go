@@ -32,14 +32,14 @@ func TestAuditPredecessorForwardMigration(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer func() {
-		_, _ = conn.Exec(ctx, "set search_path=public")
+		_, _ = conn.Exec(ctx, "set search_path=fiscal,public")
 		_, _ = conn.Exec(ctx, "drop schema "+quoted+" cascade")
 	}()
 	if _, err = conn.Exec(ctx, "set search_path="+quoted+",public"); err != nil {
 		t.Fatal(err)
 	}
 	// Clone the migrated physical table, then rehearse the actual old migration.
-	if _, err = conn.Exec(ctx, `create table fiscal_runtime_audit (like public.fiscal_runtime_audit including all);alter table fiscal_runtime_audit drop constraint if exists fiscal_audit_predecessor_consistent;alter table fiscal_runtime_audit drop column previous_hash`); err != nil {
+	if _, err = conn.Exec(ctx, `create table fiscal_runtime_audit (like fiscal.fiscal_runtime_audit including all);alter table fiscal_runtime_audit drop constraint if exists fiscal_audit_predecessor_consistent;alter table fiscal_runtime_audit drop column previous_hash`); err != nil {
 		t.Fatal(err)
 	}
 	migrations := filepath.Join("..", "..", "..", "database", "fiscal")
@@ -131,13 +131,13 @@ func TestAuditPredecessorMigrationRefusesHistoricalConflict(t *testing.T) {
 	}
 	defer func() {
 		_, _ = conn.Exec(ctx, "rollback")
-		_, _ = conn.Exec(ctx, "set search_path=public")
+		_, _ = conn.Exec(ctx, "set search_path=fiscal,public")
 		_, _ = conn.Exec(ctx, "drop schema "+quoted+" cascade")
 	}()
 	if _, err = conn.Exec(ctx, "set search_path="+quoted+",public"); err != nil {
 		t.Fatal(err)
 	}
-	if _, err = conn.Exec(ctx, `create table fiscal_runtime_audit (like public.fiscal_runtime_audit including all);alter table fiscal_runtime_audit drop constraint if exists fiscal_audit_predecessor_consistent;alter table fiscal_runtime_audit drop column previous_hash`); err != nil {
+	if _, err = conn.Exec(ctx, `create table fiscal_runtime_audit (like fiscal.fiscal_runtime_audit including all);alter table fiscal_runtime_audit drop constraint if exists fiscal_audit_predecessor_consistent;alter table fiscal_runtime_audit drop column previous_hash`); err != nil {
 		t.Fatal(err)
 	}
 	old, err := os.ReadFile("../../../database/fiscal/019_audit_immutability.sql")
