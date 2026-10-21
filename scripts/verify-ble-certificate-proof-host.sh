@@ -24,5 +24,14 @@ trap 'rm -rf "$work"' EXIT HUP INT TERM
  "$idf/main/provisioned_binding.cpp" "$idf/main/encrypted_provisioning.cpp" \
  "$idf/main/provisioning_crypto.cpp" "$idf/main/go_json.cpp" "$work/cjson.o" \
  "$MBEDTLS_BUILD_DIR/library/libmbedx509.a" "$MBEDTLS_BUILD_DIR/library/libmbedcrypto.a" -o "$work/proof-native"
+if [ -n "${BLE_CRYPTO_BUILD_MANIFEST:-}" ]; then
+ python3 - "$work/proof-native" "$work/cjson.o" <<'PYMANIFEST'
+import hashlib,json,os,pathlib,sys
+build=pathlib.Path(os.environ['MBEDTLS_BUILD_DIR']);cjson=pathlib.Path(os.environ['CJSON_SOURCE_DIR'])
+digest=lambda p:hashlib.sha256(p.read_bytes()).hexdigest()
+data={'binary_sha256':digest(pathlib.Path(sys.argv[1])),'compiler':os.environ.get('CXX','c++'),'compile_flags':['-std=c++17','-Wall','-Wextra','-Werror','-pthread','-DBEEFISCAL_BLE_PROOF_HOST_TEST'],'host_test_root_injection':True,'linked_libraries':['libmbedx509.a','libmbedcrypto.a'],'libraries_sha256':{name:digest(build/'library'/name) for name in ['libmbedtls.a','libmbedx509.a','libmbedcrypto.a']},'cjson_object_sha256':digest(pathlib.Path(sys.argv[2])),'cjson_sources_sha256':{name:digest(cjson/name) for name in ['cJSON.c','cJSON.h']}}
+pathlib.Path(os.environ['BLE_CRYPTO_BUILD_MANIFEST']).write_text(json.dumps(data,indent=2)+'\n')
+PYMANIFEST
+fi
 cd "$repo/fiscal-backend"
 BLE_CERTIFICATE_PROOF_HOST_BINARY="$work/proof-native" go test ./internal/domain -run '^TestBLECertificateActualFirmwareProofInterop$' -count=1 -v -timeout=90s

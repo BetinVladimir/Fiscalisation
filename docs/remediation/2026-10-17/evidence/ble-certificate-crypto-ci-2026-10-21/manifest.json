@@ -1,0 +1,57 @@
+{
+  "scope": "root fresh official-source9phase native gate PASS; remote workflow not yet accepted",
+  "logs": {
+    "source-recheck.log.gz": {
+      "raw_sha256": "ddc194f855de8717503a926fd2b2e5aa5253904a235781e9b6535f6bb2a21148",
+      "gzip_sha256": "37f7b10270ebaaf94d8c87b00f54a9c8eb9e5c49a561d0b1a0df1c570bb90c18"
+    },
+    "profile-build-manifest.json.gz": {
+      "raw_sha256": "69619290dc1c4ba20e249c54ef5df8cfdcebbe6d0b50cbec59e3a1c1ef83728e",
+      "gzip_sha256": "475680f95b9071c2efff298063de3563c86335d4812d0355576629d6562c20ff"
+    },
+    "preflight.log.gz": {
+      "raw_sha256": "4d86d3dcb0024f9cacfe41a048fea91fa973f915392b437c7b88c7d014f86f51",
+      "gzip_sha256": "49ccd7483c7d647ace7d49ac4ab0e39dc0ce2f639981f68db32baa283e14de57"
+    },
+    "configure.log.gz": {
+      "raw_sha256": "a6ad1187afad8954d5bc2a3faee7455eaa2e160c7c517c94650062683a4d77cf",
+      "gzip_sha256": "552b91a4afa3737f308429617b0d6bb0623a37654636a8001707f43a64f18cd1"
+    },
+    "proof.log.gz": {
+      "raw_sha256": "6ba62b006ca21d7905245fa3c956d2f2841c70178c37a6782403166b13185ef2",
+      "gzip_sha256": "4b0c8ab74fb2b8ba531c5c41a53358367cc954d72c758daeecd5248175a84537"
+    },
+    "profile.log.gz": {
+      "raw_sha256": "a254440e28e3158f54718d576a2445ef9bab2ac2a1610bddb5fd05585eb7dc13",
+      "gzip_sha256": "f8ad0e30c255251acdfff365fdeac83e4f7925886fe3c84340e924660324b50d"
+    },
+    "framework-source.log.gz": {
+      "raw_sha256": "9a7dda489fcb46654e71187ab90678462b231527aa038d4e301919c9cfd2fbe7",
+      "gzip_sha256": "adefeecc7c6434faa9871c242ad6c26dce789e05724bc8e51f67e401f2298efb"
+    },
+    "mbedtls-source.log.gz": {
+      "raw_sha256": "33343a9bc70966a9f0511dd2874628404c19a480abac2e0bb9d59bc4cb2fbe58",
+      "gzip_sha256": "b035555a83d99921f09f5b122b6deccebb1e477585d5836a08142ff3dc79d79f"
+    },
+    "proof-build-manifest.json.gz": {
+      "raw_sha256": "d2aac9ca187c00388784016a412ee635c456a3c0f9d9c05d3ed318438d095fbb",
+      "gzip_sha256": "3416ffeba1aa3c2f2cee7439d777fbfd006083476945170cd85801b2e84f6bab"
+    },
+    "run-manifest.json.gz": {
+      "raw_sha256": "203988558cbce6d49edd4dc49386466558d0f80a8765d052f8f73be6fdc8dedc",
+      "gzip_sha256": "aa7f7eb4164c89a355e1ffbf1d0710ccd497728c82df9fd49be3d824bbfda2d1"
+    },
+    "cjson-source.log.gz": {
+      "raw_sha256": "bc445dfebf33af6903a7514909b2156194a6ec8251705295a91b035a7462911a",
+      "gzip_sha256": "56debff7300bbe769ddbe5bc50b6cdad68d00b91ff740414c9d994766f693ac6"
+    },
+    "build.log.gz": {
+      "raw_sha256": "6e73d8ccde930a73ee3a1f08b8a86d57fa8adad3f1e6b9268c66f3d695c49812",
+      "gzip_sha256": "6aa1c1f67c3c5a4be33be7d8f3581b14896c6d27d1d0507872e9decc3d470381"
+    },
+    "fiscal-ble-crypto-root-20261021.log.gz": {
+      "raw_sha256": "b7fa56e693493f5476db1c9b7c6afcfce90d257597ff303ea3ab648ac211543b",
+      "gzip_sha256": "f8f54737eeddba6f19fb79cb909ab3667e616697b44ea5ba9cc580c2ff993d64"
+    }
+  }
+}
