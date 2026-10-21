@@ -196,3 +196,5 @@ Trusted time: успешный SNTP и значение wall clock не счит
 - b905c46/15216f9 / [58](58_S3_CI_PORTABILITY.md): actual dependency paths и переносимый Go cache для CI harness. Полный Ubuntu S3 build+regression+provenance должен пройти на одном проверенном source snapshot; промежуточная компиляция не закрывает gate.
 
 Next accepted trusted-time implementation contract: [60](60_DEVICE_TIME_PROOF_VERIFIER_CONTRACT.md). Actual NVS-key request proof and strict root response verification are developed in isolation before integration; no raw time setter, unsigned cancellation or automatic provider enable. Actual signature interoperability must run without the synthetic core permit factory.
+
+Integrated8893283/973a136 ([61](61_TYPED_CBOR_AND_BLE_REPLY_ORIGIN.md)): direct typed CBOR command authorization and end-to-end ephemeral reply origin, root actual13-case GCC+ASan/UBSan vertical PASS; full exact-source S3 gate pending. Authenticated GATT/TLS remains OPEN. Next result-encoding dependency is [62](62_TYPED_CBOR_RESULT_ENCODER_CONTRACT.md): exact int64 wire/strict JSON bridge/client bigint acceptance; no global safe53 relaxation.
