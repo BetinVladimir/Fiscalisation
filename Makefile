@@ -58,6 +58,7 @@ supto-full-acceptance: regression postgres-integration compose-e2e supto-softwar
 	ruby scripts/verify_supto_full_acceptance.rb
 boundary-test:
 	ruby scripts/verify_product_boundary.rb
+	ruby scripts/tests/product_boundary_fixture_test.rb
 postgres-integration:
 	./scripts/postgres-integration.sh
 typecheck:
