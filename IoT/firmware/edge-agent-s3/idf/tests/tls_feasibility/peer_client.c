@@ -1,0 +1,7 @@
+/* Independent Go server drives the real mbedTLS client's EKU verifier. */
+#include "engine.c"
+#include <unistd.h>
+static char *read_file(const char*path){FILE*f=fopen(path,"rb");if(!f)return NULL;fseek(f,0,SEEK_END);long n=ftell(f);rewind(f);if(n<1||n>65536){fclose(f);return NULL;}char*p=calloc((size_t)n+1,1);if(!p){fclose(f);return NULL;}if(fread(p,1,n,f)!=(size_t)n){free(p);p=NULL;}fclose(f);return p;}
+int main(int argc,char**argv){if(argc!=4)return 20;char*ca=read_file(argv[1]);if(!ca)return 21;struct endpoint*c=channel_new(0,ca,NULL,argv[2]);free(ca);if(!c)return 22;int negative=!strcmp(argv[3],"client-only");unsigned char b[8192];int result=23;
+ for(int i=0;i<10000;i++){int r=channel_step(c),n=channel_drain(c,b,sizeof b);if(n&&write(1,b,n)!=n){result=24;break;}if(r<0){uint32_t flags=mbedtls_ssl_get_verify_result(&c->ssl);if(negative&&r==MBEDTLS_ERR_SSL_BAD_CERTIFICATE&&flags==MBEDTLS_X509_BADCERT_EXT_KEY_USAGE){fprintf(stderr,"PASS actual C client rejects independent Go ClientAuth-only server error=-%x flags=%x\n",-r,(unsigned)flags);result=0;}else{fprintf(stderr,"FAIL client error=-%x flags=%x\n",-r,(unsigned)flags);result=25;}break;}if(r==1){if(negative){fprintf(stderr,"FAIL client accepted forbidden EKU\n");result=15;break;}const unsigned char msg[]="actual C client independent Go server";r=channel_write(c,msg,sizeof(msg)-1);n=channel_drain(c,b,sizeof b);result=r==(int)sizeof(msg)-1&&write(1,b,n)==n?0:26;break;}n=read(0,b,sizeof b);if(n<=0||channel_feed(c,b,n)<0){result=27;break;}}
+ channel_free(c);return result;}
