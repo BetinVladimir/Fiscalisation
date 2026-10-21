@@ -6,6 +6,8 @@
 
 ## Текущий интеграционный срез — 2026-10-21
 
+- [Actual native builds](69_NATIVE_APPLICATION_BUILD_CHECKPOINT.md): BlueCash APK +43JUnit PASS и source/artifact hashes проверены; MiniPOS/FiscalApp full APK/IPA ещё OPEN.
+
 - [Реальные time lifecycle hooks](68_INSTALLED_TIME_LIFECYCLE.md): NVS mutation/readback/quarantine, owner ABA/static lifetime, root actual18 + ASan/UBSan18 PASS; provider и remote target gate пока OPEN.
 
 - [Самодостаточный transport CI](67_SELF_CONTAINED_TRANSPORT_CI.md): root clean Node/npm + actual producer/Go/MiniPOS/browser66 PASS; Linux CI ожидает проверки.

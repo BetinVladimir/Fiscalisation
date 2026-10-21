@@ -148,7 +148,7 @@ smart-device-host-test:
 	python3 SmartDevices/bluecash-app/tests/host/run-datecs-codec.py
 	python3 SmartDevices/bluecash-app/tests/host/run-go-json.py
 smart-device-test: smart-device-host-test
-	cd minipos/BeeMiniPOS/android && ./gradlew -p ../../../SmartDevices :daisy-smart-app:testProdDebugUnitTest :daisy-smart-app:testDemoDebugUnitTest :bluecash-app:testProdDebugUnitTest :bluecash-app:testDemoDebugUnitTest :daisy-smart-app:assembleProdDebug :daisy-smart-app:assembleDemoDebug :bluecash-app:assembleProdDebug :bluecash-app:assembleDemoDebug --no-daemon
+	cd SmartDevices && ./gradlew :daisy-smart-app:testProdDebugUnitTest :daisy-smart-app:testDemoDebugUnitTest :bluecash-app:testProdDebugUnitTest :bluecash-app:testDemoDebugUnitTest :daisy-smart-app:assembleProdDebug :daisy-smart-app:assembleDemoDebug :bluecash-app:assembleProdDebug :bluecash-app:assembleDemoDebug --no-daemon
 	test -f SmartDevices/daisy-smart-app/build/outputs/apk/prod/debug/daisy-smart-app-prod-debug.apk
 	test -f SmartDevices/daisy-smart-app/build/outputs/apk/demo/debug/daisy-smart-app-demo-debug.apk
 	test -f SmartDevices/bluecash-app/build/outputs/apk/prod/debug/bluecash-app-prod-debug.apk
