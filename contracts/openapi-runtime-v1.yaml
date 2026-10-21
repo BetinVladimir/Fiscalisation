@@ -796,6 +796,21 @@ paths:
           description: Authoritative MiniPOS order state and permitted actions
           content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosOrderRuntimeState'}}}
         '404': {$ref: '#/components/responses/Problem'}
+  /minipos/orders/{order_id}/recovery:
+    get:
+      operationId: getMiniPosOrderRecoveryPermission
+      description: Read-only recovery capability from persisted source association, authorized by tenant, shift actor and active operator session. READ never authorizes prepare, dispatch or payment retry; an absent association remains refreshable without a fabricated client grant.
+      parameters:
+        - $ref: '#/components/parameters/OrderId'
+        - $ref: '#/components/parameters/ApiVersion'
+      responses:
+        '200':
+          description: Bound recovery read permission, including terminal orders awaiting client journal confirmation
+          content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosOrderRecoveryPermission'}}}
+        '401': {$ref: '#/components/responses/Problem'}
+        '403': {$ref: '#/components/responses/Problem'}
+        '404': {$ref: '#/components/responses/Problem'}
+        '503': {$ref: '#/components/responses/Problem'}
   /minipos/orders/{order_id}/operations/{client_operation_id}:
     get:
       operationId: getMiniPosCheckoutOperation
@@ -1718,6 +1733,23 @@ components:
             shift_id: {type: string, format: uuid}
             lines: {type: array, items: {$ref: '#/components/schemas/MiniPosOfflineLine'}}
             total: {$ref: '#/components/schemas/Money'}
+    MiniPosOrderRecoveryPermission:
+      type: object
+      additionalProperties: false
+      required: [order_id, shift_id, register_id, operator_code, external_id, order_version, state, allowed_actions, client_operation_id, receipt_session_id, fiscal_sale_id, fiscal_register_id]
+      properties:
+        order_id: {type: string, minLength: 1}
+        shift_id: {type: string, minLength: 1}
+        register_id: {type: string, minLength: 1}
+        operator_code: {type: string, minLength: 1}
+        external_id: {type: string}
+        order_version: {type: integer, minimum: 1}
+        state: {type: string}
+        allowed_actions: {type: array, items: {type: string, enum: [READ]}}
+        client_operation_id: {type: string}
+        receipt_session_id: {type: string}
+        fiscal_sale_id: {type: string}
+        fiscal_register_id: {type: string}
     MiniPosOrderRuntimeState:
       type: object
       additionalProperties: true

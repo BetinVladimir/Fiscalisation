@@ -1,0 +1,26 @@
+{
+  "scope": "persistence only; actual recovery endpoint depends on MP004 atomic API/domain patch",
+  "tested_source_sha256": {
+    "minipos/beeminipos-backend/internal/persistence/postgres.go": "b58138c1023f3bf4b380fd2ebefd5cbdb0fbad5609e963b6b1c62745e0e927c8",
+    "minipos/beeminipos-backend/internal/persistence/order_projection.go": "157954040686556c28ef5f5817277f582bc47393b2414c6660df672dffc91137",
+    "minipos/beeminipos-backend/internal/persistence/order_recovery_integration_test.go": "c46e8d1da9ccb4f83150d86d270529edd5842ca9afbf58baf3a4eac9078e76f9"
+  },
+  "required_MP004_dependency_sha256": {
+    "minipos/beeminipos-backend/internal/domain/service.go": "06b3de160f25d43f317deffc34cb1d1c5f0c51005d06f20ac58420d694f8699b",
+    "minipos/beeminipos-backend/internal/domain/recovery_readiness.go": "43fb1661791dcf1bb95b15cca730c6a803213c8a320ce6e77e5a2912952f51ac",
+    "minipos/beeminipos-backend/internal/api/handler.go": "a3185de91c1e02fe866482ceca5761b1665efed06bdf4d46e3df2ba7a0bb139c",
+    "minipos/beeminipos-backend/internal/api/order_recovery.go": "39fdb56ecec6509cd72e5dd522e2ea6f30610dc098b499f281d5fdd1d9eea3f5",
+    "minipos/beeminipos-backend/internal/api/response_contracts_gen.go": "f2672289842743f05cc617f885ffd3c0fd9f70a54ccbad0e63aa493966f89100"
+  },
+  "baseline_postgres_go_sha256": "161e4506406843412d4dc7d6935ddd1536c337bbd12a55432e6f6e3eb185c874",
+  "postgres": "16.10 Debian aarch64 64-bit",
+  "docker_image_id": "sha256:7a7cfe206186b6f357c1deb5796c46d6abe084496d6973186395865624ced574",
+  "container_cleanup": {
+    "name": "fiscal-typed-order-recovery-20261021",
+    "removed": true,
+    "verified_absent": true,
+    "at_utc": "2026-10-21T04:30:26.011974+00:00"
+  },
+  "private_keys_included": false,
+  "production_database_or_device_used": false
+}

@@ -1,0 +1,73 @@
+{
+  "scope": "Integrated MiniPOS recovery+typed projection; UI169 Node208 TS full Go race actualHTTP and contract drift PASS; actualPG agent tested8dependency hashes matched. Existing unrelated AppFrame/header working changes were present during UI tests and excluded from commit.",
+  "logs": {
+    "ui-final.log.gz": {
+      "raw_sha256": "503b923ba477809f9a9b00fa46a54b3bb9c12caaae56422b7b48f501312e6efb",
+      "gzip_sha256": "b84a4b0eb2ef4a849c8b9cf6ff2561045f5e75f55d5fac24204acda463e3dc4c"
+    },
+    "node.log.gz": {
+      "raw_sha256": "b55b1897b8c26a471120f155d3603092470a77f4e6bbb5ab42749472d864c093",
+      "gzip_sha256": "dab9f409607606e1cd968681fce1892cf52bed718cc477bad4f4716badf6abfd"
+    },
+    "ts.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    "go-race-final.log.gz": {
+      "raw_sha256": "4eba490ef0492b29b82fea7b1e3b8162d8d9d48ca57e34ba7402367c490875b8",
+      "gzip_sha256": "2f7ef543192a6d84a1f382f50f859f7a311f65b0917f976c0606e9d29430f85f"
+    },
+    "contract-types.log.gz": {
+      "raw_sha256": "4deea1246b86a2554a888ece6216cc7e6adce76a7046ed648c33d623be9a45fb",
+      "gzip_sha256": "3c43bbbc16194c9e6cd793243b8dcb8d25ad95fe3531770f18a781bd3a00e816"
+    },
+    "contract-api.log.gz": {
+      "raw_sha256": "f3d4a7d8cdb30d0a4e451361bc03b1260137a4c25c32c8ca58b72866dd406d6b",
+      "gzip_sha256": "b4ccc6d76060d814f95cfd0db1a246373a73753bbd1eeb5381a66bb8368b8880"
+    }
+  },
+  "staged_source_sha256": {
+    "contracts/generated/openapi-runtime-v1.d.ts": "2fef453655919baf5db786eca850606ce6127a794c530a2f9f2c0944f4e86857",
+    "contracts/openapi-runtime-v1.yaml": "6e0f350e740977ec87d682d7f85f151c26aea4d6962ab36455a5d37a11d16960",
+    "minipos/BeeMiniPOS/App.tsx": "78349a2bb0cb47bdb913144c77dccbcbf86eb0931ec1004bd0e0dff21ad23fea",
+    "minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx": "57a787eb2712d4ea2039bb3d14a7d327c619c52b85a945c6afd788b66bcc4467",
+    "minipos/BeeMiniPOS/src/checkoutJournal.test.ts": "751b4c51672c3cd6ffceb7c0baefb57781a32b908d2148304bea56773cdf0b60",
+    "minipos/BeeMiniPOS/src/checkoutJournal.ts": "22c3b304a31a8b7d0b4b3d9299b3bc5cb3fbc7c482bb2b35b4382ea2f4526167",
+    "minipos/BeeMiniPOS/src/checkoutRecovery.test.ts": "e2188ac621ef33b0ccf56bb33176c7e71f2dbbcad454b10bde63f6b285ed11bb",
+    "minipos/BeeMiniPOS/src/checkoutRecovery.ts": "509b77075137567c4846bacd36e8e981936386e83761369a5b7f5b336f162382",
+    "minipos/BeeMiniPOS/src/cloudCheckoutApp.test.ts": "b42549629e01de56998828ce7fd722a729d079c8f1d69dab680de1f224164073",
+    "minipos/beeminipos-backend/internal/api/handler.go": "a3185de91c1e02fe866482ceca5761b1665efed06bdf4d46e3df2ba7a0bb139c",
+    "minipos/beeminipos-backend/internal/api/order_recovery.go": "39fdb56ecec6509cd72e5dd522e2ea6f30610dc098b499f281d5fdd1d9eea3f5",
+    "minipos/beeminipos-backend/internal/api/order_recovery_node_test.go": "638ce39e81e92123ddd4a3390984b88cda536460d22429133aae4b3c70eb5b1b",
+    "minipos/beeminipos-backend/internal/api/order_recovery_readiness_test.go": "b0f195a7305e1f9056f8f12b595923dbd781e6fb7d12f846006357f0c5e9fdf6",
+    "minipos/beeminipos-backend/internal/api/order_recovery_test.go": "515fc293453287cdadf43185a59f63efe7ce6f71624957307426dfa550d248a2",
+    "minipos/beeminipos-backend/internal/api/response_contracts_gen.go": "f2672289842743f05cc617f885ffd3c0fd9f70a54ccbad0e63aa493966f89100",
+    "minipos/beeminipos-backend/internal/domain/recovery_readiness.go": "43fb1661791dcf1bb95b15cca730c6a803213c8a320ce6e77e5a2912952f51ac",
+    "minipos/beeminipos-backend/internal/domain/service.go": "06b3de160f25d43f317deffc34cb1d1c5f0c51005d06f20ac58420d694f8699b",
+    "minipos/beeminipos-backend/internal/persistence/order_projection.go": "157954040686556c28ef5f5817277f582bc47393b2414c6660df672dffc91137",
+    "minipos/beeminipos-backend/internal/persistence/order_recovery_integration_test.go": "c46e8d1da9ccb4f83150d86d270529edd5842ca9afbf58baf3a4eac9078e76f9",
+    "minipos/beeminipos-backend/internal/persistence/postgres.go": "b58138c1023f3bf4b380fd2ebefd5cbdb0fbad5609e963b6b1c62745e0e927c8"
+  },
+  "working_source_sha256": {
+    "contracts/generated/openapi-runtime-v1.d.ts": "2fef453655919baf5db786eca850606ce6127a794c530a2f9f2c0944f4e86857",
+    "contracts/openapi-runtime-v1.yaml": "6e0f350e740977ec87d682d7f85f151c26aea4d6962ab36455a5d37a11d16960",
+    "minipos/BeeMiniPOS/App.tsx": "abc8b9f4078a55e8b1cc1c15bdfd33b4086aeb2713f87859cd32d220be2afceb",
+    "minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx": "57a787eb2712d4ea2039bb3d14a7d327c619c52b85a945c6afd788b66bcc4467",
+    "minipos/BeeMiniPOS/src/checkoutJournal.test.ts": "751b4c51672c3cd6ffceb7c0baefb57781a32b908d2148304bea56773cdf0b60",
+    "minipos/BeeMiniPOS/src/checkoutJournal.ts": "22c3b304a31a8b7d0b4b3d9299b3bc5cb3fbc7c482bb2b35b4382ea2f4526167",
+    "minipos/BeeMiniPOS/src/checkoutRecovery.test.ts": "e2188ac621ef33b0ccf56bb33176c7e71f2dbbcad454b10bde63f6b285ed11bb",
+    "minipos/BeeMiniPOS/src/checkoutRecovery.ts": "509b77075137567c4846bacd36e8e981936386e83761369a5b7f5b336f162382",
+    "minipos/BeeMiniPOS/src/cloudCheckoutApp.test.ts": "b42549629e01de56998828ce7fd722a729d079c8f1d69dab680de1f224164073",
+    "minipos/beeminipos-backend/internal/api/handler.go": "a3185de91c1e02fe866482ceca5761b1665efed06bdf4d46e3df2ba7a0bb139c",
+    "minipos/beeminipos-backend/internal/api/order_recovery.go": "39fdb56ecec6509cd72e5dd522e2ea6f30610dc098b499f281d5fdd1d9eea3f5",
+    "minipos/beeminipos-backend/internal/api/order_recovery_node_test.go": "638ce39e81e92123ddd4a3390984b88cda536460d22429133aae4b3c70eb5b1b",
+    "minipos/beeminipos-backend/internal/api/order_recovery_readiness_test.go": "b0f195a7305e1f9056f8f12b595923dbd781e6fb7d12f846006357f0c5e9fdf6",
+    "minipos/beeminipos-backend/internal/api/order_recovery_test.go": "515fc293453287cdadf43185a59f63efe7ce6f71624957307426dfa550d248a2",
+    "minipos/beeminipos-backend/internal/api/response_contracts_gen.go": "f2672289842743f05cc617f885ffd3c0fd9f70a54ccbad0e63aa493966f89100",
+    "minipos/beeminipos-backend/internal/domain/recovery_readiness.go": "43fb1661791dcf1bb95b15cca730c6a803213c8a320ce6e77e5a2912952f51ac",
+    "minipos/beeminipos-backend/internal/domain/service.go": "06b3de160f25d43f317deffc34cb1d1c5f0c51005d06f20ac58420d694f8699b",
+    "minipos/beeminipos-backend/internal/persistence/order_projection.go": "157954040686556c28ef5f5817277f582bc47393b2414c6660df672dffc91137",
+    "minipos/beeminipos-backend/internal/persistence/order_recovery_integration_test.go": "c46e8d1da9ccb4f83150d86d270529edd5842ca9afbf58baf3a4eac9078e76f9",
+    "minipos/beeminipos-backend/internal/persistence/postgres.go": "b58138c1023f3bf4b380fd2ebefd5cbdb0fbad5609e963b6b1c62745e0e927c8"
+  }
+}

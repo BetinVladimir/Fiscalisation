@@ -1,0 +1,100 @@
+{
+  "kind": "SYNTHETIC_SOURCE_RECOVERY_ACCEPTANCE",
+  "physical_devices": false,
+  "files": {
+    "contracts/openapi-runtime-v1.yaml": {
+      "baseline_sha256": "d21c47241323915eb67d17d924eb2261915edf416c43991c338e9d18f7640397",
+      "candidate_sha256": "6e0f350e740977ec87d682d7f85f151c26aea4d6962ab36455a5d37a11d16960"
+    },
+    "contracts/generated/openapi-runtime-v1.d.ts": {
+      "baseline_sha256": "26c28938c1d81af508153e9b3a2baa49c2500b1db443a088c49b720e979fa3bf",
+      "candidate_sha256": "2fef453655919baf5db786eca850606ce6127a794c530a2f9f2c0944f4e86857"
+    },
+    "minipos/beeminipos-backend/internal/api/response_contracts_gen.go": {
+      "baseline_sha256": "d86c6e980857b06d6a883ca03deb102949bd5e81cb42e2cfb8c4f004ef7b9cc5",
+      "candidate_sha256": "f2672289842743f05cc617f885ffd3c0fd9f70a54ccbad0e63aa493966f89100"
+    },
+    "minipos/beeminipos-backend/internal/api/handler.go": {
+      "baseline_sha256": "f8e50d00d4f10a8403e9bad44d2fe5bee65a68aa4d821b4e36b63e9a288bb1d9",
+      "candidate_sha256": "a3185de91c1e02fe866482ceca5761b1665efed06bdf4d46e3df2ba7a0bb139c"
+    },
+    "minipos/beeminipos-backend/internal/api/order_recovery.go": {
+      "baseline_sha256": null,
+      "candidate_sha256": "39fdb56ecec6509cd72e5dd522e2ea6f30610dc098b499f281d5fdd1d9eea3f5"
+    },
+    "minipos/beeminipos-backend/internal/api/order_recovery_test.go": {
+      "baseline_sha256": null,
+      "candidate_sha256": "515fc293453287cdadf43185a59f63efe7ce6f71624957307426dfa550d248a2"
+    },
+    "minipos/beeminipos-backend/internal/api/order_recovery_readiness_test.go": {
+      "baseline_sha256": null,
+      "candidate_sha256": "b0f195a7305e1f9056f8f12b595923dbd781e6fb7d12f846006357f0c5e9fdf6"
+    },
+    "minipos/beeminipos-backend/internal/api/order_recovery_node_test.go": {
+      "baseline_sha256": null,
+      "candidate_sha256": "638ce39e81e92123ddd4a3390984b88cda536460d22429133aae4b3c70eb5b1b"
+    },
+    "minipos/beeminipos-backend/internal/domain/service.go": {
+      "baseline_sha256": "265f4f075df8a00e5f28f93d927cebfeb0bd6a300315161a3bd2c5de66285121",
+      "candidate_sha256": "06b3de160f25d43f317deffc34cb1d1c5f0c51005d06f20ac58420d694f8699b"
+    },
+    "minipos/beeminipos-backend/internal/domain/recovery_readiness.go": {
+      "baseline_sha256": null,
+      "candidate_sha256": "43fb1661791dcf1bb95b15cca730c6a803213c8a320ce6e77e5a2912952f51ac"
+    },
+    "minipos/BeeMiniPOS/App.tsx": {
+      "baseline_sha256": "37e99c81b2b0165582fcfbbcab1dc3d52c60ae145e900390cc52ba2d2d368080",
+      "candidate_sha256": "abc8b9f4078a55e8b1cc1c15bdfd33b4086aeb2713f87859cd32d220be2afceb"
+    },
+    "minipos/BeeMiniPOS/src/checkoutJournal.ts": {
+      "baseline_sha256": "6e591457872e5ceba330595530c52083a147ef6d4c45fb9e60810041c6b834bf",
+      "candidate_sha256": "22c3b304a31a8b7d0b4b3d9299b3bc5cb3fbc7c482bb2b35b4382ea2f4526167"
+    },
+    "minipos/BeeMiniPOS/src/checkoutJournal.test.ts": {
+      "baseline_sha256": "32d46cec2f459772c0249b6b41e319b5f71acfa56458c540522261baccb32e30",
+      "candidate_sha256": "751b4c51672c3cd6ffceb7c0baefb57781a32b908d2148304bea56773cdf0b60"
+    },
+    "minipos/BeeMiniPOS/src/checkoutRecovery.ts": {
+      "baseline_sha256": null,
+      "candidate_sha256": "509b77075137567c4846bacd36e8e981936386e83761369a5b7f5b336f162382"
+    },
+    "minipos/BeeMiniPOS/src/checkoutRecovery.test.ts": {
+      "baseline_sha256": null,
+      "candidate_sha256": "e2188ac621ef33b0ccf56bb33176c7e71f2dbbcad454b10bde63f6b285ed11bb"
+    },
+    "minipos/BeeMiniPOS/src/cloudCheckoutApp.test.ts": {
+      "baseline_sha256": "6a41b826297ebaf621ca0a525bca08d120b4e6f78e570356b55626d9b7aadce6",
+      "candidate_sha256": "b42549629e01de56998828ce7fd722a729d079c8f1d69dab680de1f224164073"
+    },
+    "minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx": {
+      "baseline_sha256": "f76a6c3449b75bac6b968829d7182a2a3074804e22cf94dbf8cffc710826acde",
+      "candidate_sha256": "57a787eb2712d4ea2039bb3d14a7d327c619c52b85a945c6afd788b66bcc4467"
+    }
+  },
+  "gates": {
+    "node": "208/208 PASS",
+    "ui": "19 configured suites 160/160 PASS; parent expanded UI discovery not included",
+    "typescript": "PASS",
+    "generated_types": "PASS",
+    "generated_contracts": "PASS",
+    "backend_race": "PASS full go test -race ./... with MINIPOS_RECOVERY_NODE_INTEROP=1",
+    "epoch_race": "RED without final epoch fence; GREEN with fence, both successful and uncertain mutation cases"
+  },
+  "open": [
+    "source-less legacy journal needs explicit migration/manual reconciliation; no guessed root lookup",
+    "browser/HIL/device certification not established by this synthetic package"
+  ],
+  "evidence": {
+    "tsc-current.log.gz": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837",
+    "readiness-red.log.gz": "7b5b3cd2aca2f4087132dda7740a965f42fbf9cd0a7a58cfbb5ab4f48a311daf",
+    "epoch-race-red.log.gz": "385ff614648046e3b86a9d62afe7255b830821a0d80987d2c34886446aa1f2ed",
+    "ui-full-current.log.gz": "9c715575d4185adf9b3c53a04f5f1377442a9e2418497a4beeec8b15ec90b117",
+    "app-red.log.gz": "2f2e7e713776790b65111442bebfac925c495c7c3ee4f039cfe812d24c7242f5",
+    "epoch-race.log.gz": "6c96e5dbc7966318f894a29cd3ab362ec307896df98b4237711d830b781c8e1b",
+    "node-current.log.gz": "b2d7caa792b0ae7bbc56c2d76814a0c466b7c8139846f521db5a2b5fca10d0ae",
+    "generated-types-current.log.gz": "7fc933ffe5e74a2af9fdcfb4e7651e0989fef5b47358db1337d7f85e70b05d63",
+    "generated-api-current.log.gz": "b4ccc6d76060d814f95cfd0db1a246373a73753bbd1eeb5381a66bb8368b8880",
+    "api-red.log.gz": "14d6138c3700886c8a7afe28b0f400a35092bbdecef0b2a21396b1fe10169e0c",
+    "go-race-current.log.gz": "0f07d18dad95daebe0de36963313c0edd27b1af5a388267a4f0264b4931506fa"
+  }
+}

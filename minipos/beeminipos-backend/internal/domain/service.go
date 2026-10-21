@@ -250,6 +250,7 @@ type Service struct {
 	confirmedSnapshot          []byte
 	snapshotEstablished        bool
 	persistenceRecoveryPending bool
+	recoveryReadEpoch          uint64
 	fiscalReadiness            func(tenant, register string) bool
 }
 
@@ -393,6 +394,7 @@ func (s *Service) nextID(_ string) string {
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }
 func (s *Service) persistLocked() error {
+	s.recoveryReadEpoch++
 	if s.persistenceRecoveryPending {
 		// An error may mean COMMIT succeeded. Never overwrite authoritative
 		// state from fallback memory; refresh first, then require a retry.

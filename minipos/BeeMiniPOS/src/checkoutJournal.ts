@@ -3,7 +3,9 @@ import {validateCloudOperation,type CloudCheckoutOperation} from "./cloudCheckou
 import { canonical } from "./goCanonical.ts";
 import type { CheckoutPlan } from "./checkoutPlan.ts";
 
+export type SourceRecoveryContext={shift_id:string;register_id:string;operator_code:string;external_id:string};
 export type DurableCheckout = {
+  source_context?: SourceRecoveryContext;
   sale_id: string;
   sale_version: number;
   plan: CheckoutPlan;
@@ -29,6 +31,10 @@ function validateCloudObservation(v:DurableCheckout){
  if(!v.signed_intent||o.state!=='FISCALIZED'||typeof o.fiscal_reference!=='string'||!o.fiscal_reference.trim())throw Error('CHECKOUT_CLOUD_OBSERVATION_INVALID');
  validateCloudOperation(o,{operationID:v.plan.client_operation_id,receiptSessionID:v.plan.receipt_session_id,fiscalSaleID:v.signed_intent.server_sale_id as string,fiscalRegisterID:v.signed_intent.register_id as string});
 }
+function validateSourceContext(v:DurableCheckout){
+ const c=v.source_context;if(!c)return;
+ if(!v.source_order_id||[c.shift_id,c.register_id,c.operator_code,c.external_id].some(value=>typeof value!=='string'||!value.trim())||(v.signed_intent&&(v.signed_intent.client_sale_surrogate_id!==c.external_id||v.signed_intent.operator_code!==c.operator_code)))throw Error('CHECKOUT_SOURCE_CONTEXT_INVALID');
+}
 export class CheckoutJournal {
   // The journal freezes the exact receipt/payment plan before either REST or
   // BLE is attempted. Corrupt or conflicting recovery data fails closed.
@@ -44,11 +50,12 @@ export class CheckoutJournal {
   private async write(v: DurableCheckout) {
     if (!v.sale_id || !v.plan.client_operation_id)
       throw new Error("CHECKOUT_JOURNAL_INVALID");
+    validateSourceContext(v);
     validateCloudObservation(v);
     const saved = await this.load(v.sale_id);
     if(saved?.cloud_observation&&(!v.cloud_observation||canonical(saved.cloud_observation)!==canonical(v.cloud_observation)))throw Error("CHECKOUT_JOURNAL_IMMUTABLE");
     const preparing = saved?.phase === 'AUTHORIZING' && v.phase === 'SIGNED' && !saved.signed_intent && saved.authorization_request_key && saved.authorization_request_key === v.authorization_request_key && saved.source_session_hash === v.source_session_hash && canonical(saved.plan.payments) === canonical(v.plan.payments) && canonical(saved.plan.expected_total) === canonical(v.plan.expected_total);
-    if (saved && ((!preparing && canonical(saved.plan) !== canonical(v.plan)) || saved.sale_version !== v.sale_version || saved.source_order_id !== v.source_order_id || (saved.signed_intent && canonical(saved.signed_intent) !== canonical(v.signed_intent)) || saved.authorization_request_key !== v.authorization_request_key || saved.source_session_hash !== v.source_session_hash))
+    if (saved && ((!preparing && canonical(saved.plan) !== canonical(v.plan)) || saved.sale_version !== v.sale_version || saved.source_order_id !== v.source_order_id || canonical(saved.source_context??null)!==canonical(v.source_context??null) || (saved.signed_intent && canonical(saved.signed_intent) !== canonical(v.signed_intent)) || saved.authorization_request_key !== v.authorization_request_key || saved.source_session_hash !== v.source_session_hash))
       throw new Error("CHECKOUT_JOURNAL_IMMUTABLE");
     if (v.signed_intent && (v.signed_intent.intent_id !== v.plan.client_operation_id || v.signed_intent.receipt_session_id !== v.plan.receipt_session_id || !v.execution_scope || !v.signed_intent.execution_authorization || !v.signed_intent.client_proof))
       throw new Error("CHECKOUT_SIGNED_INTENT_INVALID");
@@ -66,6 +73,7 @@ export class CheckoutJournal {
         !Array.isArray(v.plan?.payments)
       )
         throw new Error();
+      validateSourceContext(v);
       validateCloudObservation(v);
       return v;
     } catch {

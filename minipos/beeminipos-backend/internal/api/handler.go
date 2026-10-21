@@ -1074,6 +1074,11 @@ func (h *handler) order(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	p := strings.Split(strings.Trim(r.URL.Path[i+len("/orders/"):], "/"), "/")
+	if len(p) == 2 && p[1] == "recovery" && r.Method == http.MethodGet {
+		h.orderRecovery(w, r, p[0])
+		return
+	}
+
 	if len(p) > 0 && !h.authorizeOrder(w, r, p[0]) {
 		return
 	}
@@ -1081,6 +1086,7 @@ func (h *handler) order(w http.ResponseWriter, r *http.Request) {
 		h.mutateNativeOrderLine(w, r, p[0], p[2])
 		return
 	}
+
 	if len(p) == 3 && p[1] == "operations" && r.Method == http.MethodGet {
 		h.orderOperation(w, r, p[0], p[2])
 		return

@@ -1,3 +1,4 @@
+import {recoverCheckoutReadOnly} from './src/checkoutRecovery';
 import {RequestAuthFence} from './src/requestAuthFence';
 import {managementForRoles,useManagementAccess} from './src/useManagementAccess';
 import { authIllustrationOpacity, registerDisplayLabel, regulatoryIdentityLabel } from './src/ui/operator-presentation';
@@ -396,12 +397,17 @@ export function MiniPosApp({
   const executionAuthority = useRef(new NativeExecutionAuthority(nativeExecutionProvider, AsyncStorage));
   const nativeAuthToken = emailAuth.accessToken || devAuthToken;
   const executionManager = useMemo(() => shift?.id && nativeAuthToken ? new NativeExecutionManager(executionAuthority.current, AsyncStorage, call, {backend:apiBase,token:nativeAuthToken,appInstance:appInstanceId,shiftID:shift.id},uuid) : undefined, [shift?.id,nativeAuthToken]);
+  const recoveryQuarantine=useRef<string|null>(null);
+  useLayoutEffect(()=>{recoveryQuarantine.current=pendingOrder?.id??null;},[pendingOrder]);
   const checkoutInFlight=useRef<object|null>(null);
   const checkoutCart=useRef<FiscalSale|null>(saleProjection);
   useLayoutEffect(()=>{checkoutCart.current=saleProjection;},[saleProjection]);
   const cloudCheckoutOwner=useRef<object|null>(null);
   const cloudCheckoutContext=useMemo(()=>({}),[nativeAuthToken,shift?.id,configuration?.id,configuration?.version]);
   useLayoutEffect(()=>{cloudCheckoutOwner.current=cloudCheckoutContext;checkoutInFlight.current=null;setBusy(false);return()=>{if(cloudCheckoutOwner.current===cloudCheckoutContext)cloudCheckoutOwner.current=null;};},[cloudCheckoutContext]);
+  const recoveryContext=useMemo(()=>({}),[cloudCheckoutContext,pendingOrder?.id]);
+  const committedRecoveryContext=useRef<object|null>(null);
+  useLayoutEffect(()=>{committedRecoveryContext.current=recoveryContext;return()=>{if(committedRecoveryContext.current===recoveryContext)committedRecoveryContext.current=null;};},[recoveryContext]);
   const previousExecutionManager = useRef<NativeExecutionManager | undefined>(undefined);
   useEffect(() => {
     const previous=previousExecutionManager.current;previousExecutionManager.current=executionManager;
@@ -566,6 +572,10 @@ export function MiniPosApp({
         setOperatorEmployee(session.employee);
         setSelectedEmployeeId(session.employee.id);
       } else setSelectedEmployeeId((v) => v || employee?.id || "");
+      const journals=await checkoutJournal.current.pending();
+      if(!isCurrentRefresh())return;
+      const durableRecovery=journals[0];
+      if(durableRecovery){recoveryQuarantine.current=durableRecovery.sale_id;setPendingOrder({id:durableRecovery.sale_id,state:'UNKNOWN',version:durableRecovery.sale_version,allowed_actions:[],fiscal_operation_id:durableRecovery.plan.client_operation_id});}
       let cfg: Configuration;
       try {
         cfg = await call<Configuration>("/configuration");
@@ -621,29 +631,23 @@ export function MiniPosApp({
         const recovered =
           shifts.items.find((x) => x.state !== "CLOSED") || null;
         setShift(recovered);
-        if (recovered?.state === "OPEN") {
-          const journals = await checkoutJournal.current.pending();
+        if(durableRecovery){
+          const source=durableRecovery.source_order_id?await call<SourceOrder>(`/orders/${encodeURIComponent(durableRecovery.source_order_id)}`).catch(()=>null):null;
           if(!isCurrentRefresh())return;
-          if (journals.length) {
-            const durable = journals[0];
-            const sale = durable.source_order_id
-              ? await call<SourceOrder>(`/orders/${durable.source_order_id}`).then(projectSourceOrder).catch(()=>null)
-              : await fiscalCall<FiscalSale>(`/sales/${durable.sale_id}`).catch(()=>null);
-            if(!isCurrentRefresh())return;
-            if(sale)setSaleProjection(sale);
-            setPendingOrder({id:durable.sale_id,state:'UNKNOWN',version:durable.sale_version,allowed_actions:['READ'],fiscal_operation_id:durable.plan.client_operation_id});
-            if(!sale)setStatus('CHECKOUT_SESSION_RECONCILIATION_REQUIRED');
-          } else {
-            const orders=await collect<SourceOrder>('/orders');
-            if(!isCurrentRefresh())return;
-            const current=orders.find(o=>o.shift_id===recovered.id && ['DRAFT','OPEN'].includes(o.state));
-            setSaleProjection(current?projectSourceOrder(current):null);
+          const cart=checkoutCart.current;
+          if(!cart||cart.source_order_id===durableRecovery.source_order_id){
+            const visible=source&&source.id===durableRecovery.source_order_id&&source.register_id===recoveryRegister&&source.operator_code===employee.operator_code?projectSourceOrder(source):null;
+            setSaleProjection(visible);
           }
+          setStatus(durableRecovery.source_order_id?'CHECKOUT_SESSION_RECONCILIATION_REQUIRED':'LEGACY_SOURCE_RECOVERY_REQUIRED');
+          return;
         }
-        if (recovered?.state !== "OPEN") {
-          setSaleProjection(null);
-          setSplitCash("");
-        }
+        if(recovered?.state==='OPEN'){
+          const orders=await collect<SourceOrder>('/orders');
+          if(!isCurrentRefresh())return;
+          const current=orders.find(o=>o.shift_id===recovered.id&&['DRAFT','OPEN'].includes(o.state));
+          setSaleProjection(current?projectSourceOrder(current):null);
+        }else{setSaleProjection(null);setSplitCash('');}
         setStatus(
           recovered?.state === "BLOCKED_RECONCILIATION"
             ? "Z-отчетът изисква сверяване • продажбите са блокирани"
@@ -749,7 +753,7 @@ export function MiniPosApp({
     setSearch("");
   };
   const toggleShift = async () => {
-    if (busy) return;
+    if (busy||recoveryQuarantine.current) return;
     const opening = !shift;
     setBusy(true);
     try {
@@ -857,6 +861,7 @@ export function MiniPosApp({
     }finally{if(connectFlight.current===ticket){connectFlight.current=null;if(currentAuth())setBusy(false);}}
   };
   const checkout = async (type: "CASH" | "CARD" | "SPLIT") => {
+    if(recoveryQuarantine.current)return;
     if (
       busy ||
       !shift ||
@@ -942,7 +947,7 @@ export function MiniPosApp({
         try{await call('/configuration');sourceAvailable=true;}catch(error){if(error instanceof MiniPosHttpError)throw error;}
         const plan=stored?.plan??newCheckoutPlan(uuid,payments,total);
         if(sourceAvailable){
-          if(!stored){stored={sale_id:sale.sale_id,source_order_id:sourceID,sale_version:sale.version,plan,created_at:new Date().toISOString(),phase:'AUTHORIZING',authorization_request_key:uuid(),source_session_hash:sourceSessionHash};await checkoutJournal.current.save(stored);}
+          if(!stored){stored={source_context:{shift_id:shift.id,register_id:sale.register_id,operator_code:sale.operator_id,external_id:sale.external_id},sale_id:sale.sale_id,source_order_id:sourceID,sale_version:sale.version,plan,created_at:new Date().toISOString(),phase:'AUTHORIZING',authorization_request_key:uuid(),source_session_hash:sourceSessionHash};await checkoutJournal.current.save(stored);}
           // Persist before issuance. A lost prepare response can only retry this exact request, never lease another UNP.
           prepared=await executionManager.issue({id:sourceID,payments:plan.payments},stored.authorization_request_key);
         }else if(stored)throw new Error('AUTHORIZATION_PREPARE_RECONCILIATION_REQUIRED');
@@ -952,7 +957,7 @@ export function MiniPosApp({
         const executionPlan={...plan,...(assigned?{client_operation_id:assigned.operation_id,receipt_session_id:assigned.receipt_session_id}:{})};
         const route={tenant_id:context.claims.tenant_id,location_id:configuration?.location_id??'',register_id:activeRegisterId,edge_id:configuration?.fiscal_adapter_id??'',binding_version:configuration?.binding_generation??0};
         intent=await buildAuthorizedFinalizeIntent(executionAuthority.current,context,executionPlan,route,{external_id:sale.external_id,lines:sale.lines.map(({product_code,...line})=>line)},prepared?.canonicalPayload);
-        const signed={sale_id:sale.sale_id,source_order_id:sourceID,sale_version:stored?.sale_version??sale.version,plan:executionPlan,created_at:stored?.created_at??new Date().toISOString(),signed_intent:intent,execution_scope:executionScopeID(context.scope),phase:'SIGNED' as const,authorization_request_key:stored?.authorization_request_key,source_session_hash:sourceSessionHash};
+        const signed={source_context:stored?.source_context,sale_id:sale.sale_id,source_order_id:sourceID,sale_version:stored?.sale_version??sale.version,plan:executionPlan,created_at:stored?.created_at??new Date().toISOString(),signed_intent:intent,execution_scope:executionScopeID(context.scope),phase:'SIGNED' as const,authorization_request_key:stored?.authorization_request_key,source_session_hash:sourceSessionHash};
         await checkoutJournal.current.save(signed);stored=signed;
       }
       recoveryOperationId=String(intent.intent_id);
@@ -994,7 +999,7 @@ export function MiniPosApp({
         last={operation_id:local.operation_id,type:'FISCAL_SALE',state:local.state==='FISCALIZED'?'FISCALIZED':local.state==='FISCAL_RESULT_UNKNOWN'?'UNKNOWN':'FAILED',fiscal_reference:local.fiscal_reference};
       }
       if(last.state!=='FISCALIZED'||!last.fiscal_reference){
-        setPendingOrder({id:sale.sale_id,state:'UNKNOWN',version:sale.version,allowed_actions:['READ'],fiscal_operation_id:recoveryOperationId});
+        setPendingOrder({id:sale.sale_id,state:'UNKNOWN',version:sale.version,allowed_actions:[],fiscal_operation_id:recoveryOperationId});
         throw new Error('UNKNOWN: RECONCILE');
       }
       setPendingOrder(null);await checkoutJournal.current.remove(sale.sale_id);projectionOwned=null;checkoutCart.current=null;setSaleProjection(null);setSplitCash('');
@@ -1011,7 +1016,7 @@ export function MiniPosApp({
           id: saleProjection.sale_id,
           state: "UNKNOWN",
           version: saleProjection.version,
-          allowed_actions: ["READ"],
+          allowed_actions: [],
           fiscal_operation_id:
             recoveryOperationId || saleProjection.fiscal_operation_id,
         });
@@ -1023,57 +1028,34 @@ export function MiniPosApp({
   };
   const reconcile = async () => {
     if (!pendingOrder || busy) return;
-    if (!pendingOrder.allowed_actions?.includes("READ")) {
-      setStatus("Проверката е блокирана: backend не я разрешава");
-      return;
-    }
-    const owner=cloudCheckoutOwner.current;
-    const current=()=>owner!==null&&cloudCheckoutOwner.current===owner&&nativeAuthToken===runtimeAuthToken;
+    const owner=cloudCheckoutContext,recoveryOwner=recoveryContext;
+    const current=()=>cloudCheckoutOwner.current===owner&&committedRecoveryContext.current===recoveryOwner&&nativeAuthToken===runtimeAuthToken;
     if(!current())return;
     if(checkoutInFlight.current)return;
     const ticket={};checkoutInFlight.current=ticket;
     setBusy(true);
     try {
-      if (!pendingOrder.fiscal_operation_id)
-        throw new Error("Липсва operation ID");
       const durable=await checkoutJournal.current.load(pendingOrder.id);
-      const signed=durable?.signed_intent;
-      if(durable?.source_order_id&&signed&&typeof signed.server_sale_id==='string'&&signed.server_sale_id){
-        const original=durable.source_order_id===saleProjection?.source_order_id?saleProjection:undefined;
-        const expected={sourceOrderID:durable.source_order_id,shiftID:shift?.id??'',sourceRegisterID:original?.register_id??shift?.register_id??'',operatorCode:signed.operator_code as string,externalID:signed.client_sale_surrogate_id as string,sourceVersion:durable.sale_version,operationID:durable.plan.client_operation_id,receiptSessionID:durable.plan.receipt_session_id,fiscalSaleID:signed.server_sale_id,fiscalRegisterID:signed.register_id as string,total:durable.plan.expected_total,payments:durable.plan.payments};
-        const confirmed=await confirmCloudCheckout({read:call,expected,journal:checkoutJournal.current,live:current,observed:durable.cloud_observation});
+      if(!current())return;
+      if(!durable)throw Error('CHECKOUT_JOURNAL_REQUIRED');
+      const confirmed=await recoverCheckoutReadOnly({read:call,durable,scope:{fiscalRegisterID:activeRegisterId,operatorCode:selectedEmployee?.operator_code??''},journal:checkoutJournal.current,live:current,onPermission:permission=>{
+        if(current())setPendingOrder({...pendingOrder,version:permission.order_version,allowed_actions:permission.allowed_actions,fiscal_operation_id:permission.client_operation_id||undefined});
+      }});
+      if(!current())return;
+      if(confirmed.kind==='DENIED'){
+        setStatus('Няма разрешение за проверка; опитайте отново по-късно. Плащането не е повторено');
+      }else if(confirmed.kind==='PENDING'){
+        if(!checkoutCart.current||checkoutCart.current.source_order_id===durable.source_order_id)setSaleProjection(projectSourceOrder(confirmed.order));
+        setPendingOrder({...pendingOrder,version:confirmed.order.version,allowed_actions:confirmed.permission.allowed_actions,fiscal_operation_id:confirmed.permission.client_operation_id});
+        setStatus('Резултатът остава непотвърден • не повтаряйте плащането');
+      }else{
+        const remaining=await checkoutJournal.current.pending();
         if(!current())return;
-        if(confirmed.kind==='PENDING'){
-          setSaleProjection(projectSourceOrder(confirmed.order));
-          setPendingOrder({...pendingOrder,version:confirmed.order.version,allowed_actions:confirmed.order.allowed_actions??[]});
-          setStatus('Резултатът остава непотвърден • не повтаряйте плащането');
-        }else{
-          setPendingOrder(null);setSaleProjection(null);setSplitCash('');
-          setStatus(confirmed.kind==='FAILED'?'Фискализацията е окончателно отказана. За нов опит създайте нова продажба.':`Фискалният резултат е потвърден • ${confirmed.operation.operation_id}`);
-        }
-        return;
+        const next=remaining[0];recoveryQuarantine.current=next?.sale_id??null;
+        setPendingOrder(next?{id:next.sale_id,state:'UNKNOWN',version:next.sale_version,allowed_actions:[],fiscal_operation_id:next.plan.client_operation_id}:null);
+        if(!checkoutCart.current||checkoutCart.current.source_order_id===durable.source_order_id){checkoutCart.current=null;setSaleProjection(null);setSplitCash('');}
+        setStatus(confirmed.kind==='FAILED'?'Фискализацията е окончателно отказана. За нов опит създайте нова продажба.':`Фискалният резултат е потвърден • ${confirmed.operation.operation_id}`);
       }
-      const sourceID=saleProjection?.source_order_id;
-      const operation=sourceID?await call<FiscalOperation>(`/orders/${sourceID}/operations/${pendingOrder.fiscal_operation_id}`):await fiscalCall<FiscalOperation>(`/operations/${pendingOrder.fiscal_operation_id}`);
-      const sale=sourceID?projectSourceOrder(await call<SourceOrder>(`/orders/${sourceID}`)):await fiscalCall<FiscalSale>(`/sales/${pendingOrder.id}`);
-      setSaleProjection(sale);
-      if (sale.state === "COMPLETED") {
-        await checkoutJournal.current.remove(pendingOrder.id);
-        setPendingOrder(null);
-        setSaleProjection(null);
-        setStatus(
-          `Фискалният резултат е потвърден • ${operation.operation_id}`,
-        );
-      } else if (sale.state === "FAILED" || sale.state === "CANCELLED") {
-        await checkoutJournal.current.remove(pendingOrder.id);
-        setPendingOrder(null);
-        setStatus(
-          `Продажбата е ${sale.state}; нов опит е разрешен само като нова продажба`,
-        );
-      } else
-        setStatus(
-          `Резултатът още се проверява • ${sale.state} • ${operation.operation_id}`,
-        );
     } catch (e) {
       if(!current())return;
       setStatus(
@@ -1355,7 +1337,7 @@ export function MiniPosApp({
                   ? uiText.closeShift
                   : uiText.openShift
             }
-            disabled={busy}
+            disabled={busy||!!pendingOrder}
             contentStyle={{ minHeight: 48 }}
             onPress={toggleShift}
           >{shift?.allowed_actions?.includes("RECONCILE")
@@ -1386,7 +1368,7 @@ export function MiniPosApp({
               {pendingOrder.allowed_actions?.join(", ") || uiText.noActions}
             </PaperText>
           </View>
-          {pendingOrder.allowed_actions?.includes("READ") ? (
+          {(
             <PaperButton
               testID="reconcile-start"
               mode="contained"
@@ -1395,7 +1377,7 @@ export function MiniPosApp({
               contentStyle={{ minHeight: 48 }}
               onPress={reconcile}
             >{uiText.checkResult}</PaperButton>
-          ) : null}
+          )}
           </PaperCard.Content>
         </PaperCard>
       ) : null}

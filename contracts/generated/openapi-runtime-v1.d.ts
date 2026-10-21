@@ -988,6 +988,23 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/minipos/orders/{order_id}/recovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read-only recovery capability from persisted source association, authorized by tenant, shift actor and active operator session. READ never authorizes prepare, dispatch or payment retry; an absent association remains refreshable without a fabricated client grant. */
+        get: operations["getMiniPosOrderRecoveryPermission"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/minipos/orders/{order_id}/operations/{client_operation_id}": {
         parameters: {
             query?: never;
@@ -1895,6 +1912,20 @@ export interface components {
             shift_id: string;
             lines: components["schemas"]["MiniPosOfflineLine"][];
             total: components["schemas"]["Money"];
+        };
+        MiniPosOrderRecoveryPermission: {
+            order_id: string;
+            shift_id: string;
+            register_id: string;
+            operator_code: string;
+            external_id: string;
+            order_version: number;
+            state: string;
+            allowed_actions: "READ"[];
+            client_operation_id: string;
+            receipt_session_id: string;
+            fiscal_sale_id: string;
+            fiscal_register_id: string;
         };
         MiniPosOrderRuntimeState: {
             checkout_confirmation?: components["schemas"]["MiniPosCheckoutConfirmation"];
@@ -4252,6 +4283,34 @@ export interface operations {
                 };
             };
             404: components["responses"]["Problem"];
+        };
+    };
+    getMiniPosOrderRecoveryPermission: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path: {
+                order_id: components["parameters"]["OrderId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Bound recovery read permission, including terminal orders awaiting client journal confirmation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosOrderRecoveryPermission"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
         };
     };
     getMiniPosCheckoutOperation: {

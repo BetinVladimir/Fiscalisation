@@ -87,3 +87,5 @@ P0 означает блокер целевого денежного/фиска�
 - [BLE certificate issuance foundation](53_BLE_SERVER_CERTIFICATE_ISSUANCE.md): integrated backend/race/actual mbedTLS profile PASS; device signer, trusted time and runtime channel remain OPEN.
 
 - [Reliable GATT stream core](52_RELIABLE_GATT_STREAM.md): integrated C↔TS sanitizer/fault tests and Android/iOS compile checks PASS; actual callbacks, TLS and physical HIL OPEN.
+
+- [Source recovery authority](54_SOURCE_RECOVERY_AUTHORITY.md): backend-derived READ, closed-shift recovery, persistence epoch and PostgreSQL whitelist/tender projection; integrated UI169/Node208/Go race/HTTP/contract checks PASS. Source-less legacy migration remains OPEN.
