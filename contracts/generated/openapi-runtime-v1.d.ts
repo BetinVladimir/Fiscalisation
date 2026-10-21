@@ -1897,6 +1897,17 @@ export interface components {
             total: components["schemas"]["Money"];
         };
         MiniPosOrderRuntimeState: {
+            checkout_confirmation?: components["schemas"]["MiniPosCheckoutConfirmation"];
+            shift_id?: string;
+            register_id?: string;
+            operator_code?: string;
+            external_id?: string;
+            fiscal_sale_id?: string;
+            fiscal_operation_id?: string;
+            checkout_operation_id?: string;
+            receipt_session_id?: string;
+            fiscal_version?: number;
+            total?: components["schemas"]["Money"];
             /** Format: uuid */
             id: string;
             /** @enum {string} */
@@ -1906,6 +1917,13 @@ export interface components {
             allowed_actions: ("ADD_LINE" | "CHECKOUT" | "READ" | "RECEIPT" | "REVERSE")[];
         } & {
             [key: string]: unknown;
+        };
+        /** @description Safe commitment to the immutable server-prepared tender plan. Private payment and execution authorization fields remain redacted. Digest is lowercase SHA256 of canonical UTF-8 JSON of the ordered normalized payment array; each item includes type and amount (amount/currency), with nonempty payment_id and terminal_policy only. No provider/card metadata is included. */
+        MiniPosCheckoutConfirmation: {
+            /** @constant */
+            version: 1;
+            root_register_id: string;
+            payments_sha256: string;
         };
         MiniPosTender: {
             /** Format: uuid */

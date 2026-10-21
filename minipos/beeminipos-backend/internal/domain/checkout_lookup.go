@@ -15,6 +15,11 @@ type CheckoutLookup struct {
 func (s *Service) ApplyValidatedCheckoutLookup(tenant string, expected Order, proof CheckoutLookup) (Order, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
+	switch proof.State {
+	case "RECEIVED", "VALIDATED", "ROUTED", "ACCEPTED_BY_EDGE", "EXECUTING", "FISCALIZED", "FAILED", "UNKNOWN", "RECONCILING", "SYNCED", "CANCELLED":
+	default:
+		return Order{}, errors.New("invalid checkout operation state")
+	}
 	current, ok := s.orders[expected.ID]
 	if !ok || tenant == "" || current.TenantID != tenant || current.CheckoutOperationID != proof.OperationID || current.ReceiptSessionID != proof.ReceiptSessionID || FiscalRegisterForOrder(current) != proof.RegisterID || proof.SaleID == "" || proof.Version < 1 || (current.FiscalSaleID != "" && current.FiscalSaleID != proof.SaleID) {
 		return Order{}, errors.New("checkout lookup association conflict")
@@ -37,8 +42,11 @@ func (s *Service) ApplyValidatedCheckoutLookup(tenant string, expected Order, pr
 	if proof.Version < current.FiscalVersion {
 		return Order{}, errors.New("stale fiscal operation proof")
 	}
-	if proof.Version == current.FiscalVersion && current.FiscalVersion > 0 && proof.State == "FISCALIZED" && current.State != "COMPLETED" {
+	if proof.Version == current.FiscalVersion && current.FiscalVersion > 0 && ((proof.State == "FISCALIZED" && current.State != "COMPLETED") || ((proof.State == "FAILED" || proof.State == "CANCELLED") && current.State != "FAILED")) {
 		return Order{}, errors.New("conflicting same-version checkout proof")
+	}
+	if (proof.State == "FAILED" || proof.State == "CANCELLED") && proof.FiscalReference != "" {
+		return Order{}, errors.New("conflicting failed checkout proof")
 	}
 	if proof.Version == current.FiscalVersion && current.FiscalSaleID == proof.SaleID {
 		return current, nil
@@ -48,6 +56,9 @@ func (s *Service) ApplyValidatedCheckoutLookup(tenant string, expected Order, pr
 	if proof.State == "FISCALIZED" {
 		current.State = "COMPLETED"
 		current.ReceiptReference = proof.FiscalReference
+	} else if proof.State == "FAILED" || proof.State == "CANCELLED" {
+		current.State = "FAILED"
+		current.ReceiptReference = ""
 	}
 	current.FiscalVersion = proof.Version
 	current.Version++

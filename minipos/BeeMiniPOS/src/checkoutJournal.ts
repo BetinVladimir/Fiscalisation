@@ -1,4 +1,5 @@
 import AsyncStorage from "@react-native-async-storage/async-storage";
+import {validateCloudOperation,type CloudCheckoutOperation} from "./cloudCheckoutConfirmation.ts";
 import { canonical } from "./goCanonical.ts";
 import type { CheckoutPlan } from "./checkoutPlan.ts";
 
@@ -13,6 +14,7 @@ export type DurableCheckout = {
   phase?: "AUTHORIZING" | "SIGNED";
   authorization_request_key?: string;
   source_session_hash?: string;
+  cloud_observation?: CloudCheckoutOperation;
 };
 export interface CheckoutStore {
   getItem(key: string): Promise<string | null>;
@@ -22,6 +24,11 @@ export interface CheckoutStore {
 }
 const prefix = "beeminipos:checkout:v1:";
 const writes = new Map<string, Promise<void>>();
+function validateCloudObservation(v:DurableCheckout){
+ const o=v.cloud_observation;if(!o)return;
+ if(!v.signed_intent||o.state!=='FISCALIZED'||typeof o.fiscal_reference!=='string'||!o.fiscal_reference.trim())throw Error('CHECKOUT_CLOUD_OBSERVATION_INVALID');
+ validateCloudOperation(o,{operationID:v.plan.client_operation_id,receiptSessionID:v.plan.receipt_session_id,fiscalSaleID:v.signed_intent.server_sale_id as string,fiscalRegisterID:v.signed_intent.register_id as string});
+}
 export class CheckoutJournal {
   // The journal freezes the exact receipt/payment plan before either REST or
   // BLE is attempted. Corrupt or conflicting recovery data fails closed.
@@ -37,7 +44,9 @@ export class CheckoutJournal {
   private async write(v: DurableCheckout) {
     if (!v.sale_id || !v.plan.client_operation_id)
       throw new Error("CHECKOUT_JOURNAL_INVALID");
+    validateCloudObservation(v);
     const saved = await this.load(v.sale_id);
+    if(saved?.cloud_observation&&(!v.cloud_observation||canonical(saved.cloud_observation)!==canonical(v.cloud_observation)))throw Error("CHECKOUT_JOURNAL_IMMUTABLE");
     const preparing = saved?.phase === 'AUTHORIZING' && v.phase === 'SIGNED' && !saved.signed_intent && saved.authorization_request_key && saved.authorization_request_key === v.authorization_request_key && saved.source_session_hash === v.source_session_hash && canonical(saved.plan.payments) === canonical(v.plan.payments) && canonical(saved.plan.expected_total) === canonical(v.plan.expected_total);
     if (saved && ((!preparing && canonical(saved.plan) !== canonical(v.plan)) || saved.sale_version !== v.sale_version || saved.source_order_id !== v.source_order_id || (saved.signed_intent && canonical(saved.signed_intent) !== canonical(v.signed_intent)) || saved.authorization_request_key !== v.authorization_request_key || saved.source_session_hash !== v.source_session_hash))
       throw new Error("CHECKOUT_JOURNAL_IMMUTABLE");
@@ -57,6 +66,7 @@ export class CheckoutJournal {
         !Array.isArray(v.plan?.payments)
       )
         throw new Error();
+      validateCloudObservation(v);
       return v;
     } catch {
       throw new Error("CHECKOUT_JOURNAL_CORRUPT");

@@ -47,7 +47,7 @@ func recoveryHandler(t *testing.T, mutate func(*fiscalintegration.FiscalOperatio
 	if len(edit) > 0 {
 		edit[0](&order)
 	}
-	data, _ := json.Marshal(map[string]any{"orders": map[string]domain.Order{recoveryOrderID: order}, "shifts": map[string]domain.Shift{"shift": {ID: "shift", TenantID: "tenant-a", EmployeeID: "employee"}}, "employees": map[string]domain.Employee{"employee": {ID: "employee", TenantID: "tenant-a", Active: true, Status: "ACTIVE"}}})
+	data, _ := json.Marshal(map[string]any{"orders": map[string]domain.Order{recoveryOrderID: order}, "shifts": map[string]domain.Shift{order.ShiftID: {ID: order.ShiftID, TenantID: "tenant-a", EmployeeID: "employee"}}, "employees": map[string]domain.Employee{"employee": {ID: "employee", TenantID: "tenant-a", Active: true, Status: "ACTIVE"}}})
 	svc, err := domain.NewPersistentService("https://unused", "2026-08-07", &apiStore{b: data})
 	if err != nil {
 		t.Fatal(err)
@@ -200,5 +200,55 @@ func TestCloudLookupReturnsEffectivePriorProofAfterUnknownRead(t *testing.T) {
 	var result fiscalintegration.FiscalOperation
 	if err := json.Unmarshal(w.Body.Bytes(), &result); err != nil || result.State != "FISCALIZED" || result.FiscalReference != "prior-proven-receipt" || result.Version != 2 {
 		t.Fatal(result, err)
+	}
+}
+
+func TestCloudOperationLookupMakesFinalFailureAuthoritativeForSourceReload(t *testing.T) {
+	for _, state := range []string{"FAILED", "CANCELLED"} {
+		t.Run(state, func(t *testing.T) {
+			h, token, calls := recoveryHandler(t, func(op *fiscalintegration.FiscalOperation) { op.State = state; op.FiscalReference = "" }, nil, func(order *domain.Order) {
+				order.Version = 4
+				order.ShiftID = "00000000-0000-4000-8000-000000000024"
+				order.Lines = []domain.Line{}
+				order.Total = domain.Money{Amount: "2.50", Currency: "EUR"}
+				order.CreatedAt = time.Now().UTC()
+				order.UpdatedAt = order.CreatedAt
+			})
+			read := func(path string) *httptest.ResponseRecorder {
+				r := httptest.NewRequest("GET", "/public/v1/minipos/orders/"+recoveryOrderID+path, nil)
+				r.Header.Set("Authorization", "Bearer "+token)
+				r.Header.Set("X-App-Instance-Id", "instance")
+				r.Header.Set("X-Api-Version", "2026-08-07")
+				w := httptest.NewRecorder()
+				h.ServeHTTP(w, r)
+				return w
+			}
+			for attempt := 0; attempt < 2; attempt++ {
+				operation := read("/operations/" + recoveryOperationID)
+				if operation.Code != 200 {
+					t.Fatal("operation lookup failed", operation.Code, operation.Body.String())
+				}
+				response := read("")
+				if response.Code != 200 {
+					t.Fatal("source reload failed", response.Code, response.Body.String())
+				}
+				var order domain.Order
+				if err := json.Unmarshal(response.Body.Bytes(), &order); err != nil {
+					t.Fatal(err)
+				}
+				if order.State != "FAILED" || order.FiscalOperationID != recoveryOperationID || order.CheckoutOperationID != recoveryOperationID || order.ReceiptSessionID != recoverySessionID || order.FiscalSaleID != "sale" || order.ReceiptReference != "" || order.FiscalVersion != 1 || order.Version != 5 {
+					t.Fatal("source failure was not durable/idempotent", order)
+				}
+				var payload struct {
+					AllowedActions []string `json:"allowed_actions"`
+				}
+				if err := json.Unmarshal(response.Body.Bytes(), &payload); err != nil || len(payload.AllowedActions) != 0 {
+					t.Fatal("failed source order remains payable", response.Body.String(), err)
+				}
+			}
+			if *calls != 2 {
+				t.Fatal("lookup dispatched unexpected upstream commands", *calls)
+			}
+		})
 	}
 }

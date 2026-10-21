@@ -159,3 +159,92 @@ func TestValidatedLookupRetainsPriorSuccessWhenReadIsUnknown(t *testing.T) {
 		t.Fatal(got, err)
 	}
 }
+
+func TestValidatedLookupProjectsFinalRejectionAndReplays(t *testing.T) {
+	for _, state := range []string{"FAILED", "CANCELLED"} {
+		t.Run(state, func(t *testing.T) {
+			s, order, proof := lookupFixture()
+			proof.State = state
+			proof.FiscalReference = ""
+			result, err := s.ApplyValidatedCheckoutLookup("tenant", order, proof)
+			if err != nil || result.State != "FAILED" || result.FiscalVersion != proof.Version || result.FiscalSaleID != "sale" || result.FiscalOperationID != "op" || result.ReceiptReference != "" {
+				t.Fatal("negative source proof not projected", result, err)
+			}
+			again, err := s.ApplyValidatedCheckoutLookup("tenant", result, proof)
+			if err != nil || again.Version != result.Version {
+				t.Fatal("negative proof replay changed state", again, err)
+			}
+		})
+	}
+}
+func TestValidatedLookupNegativeProofCannotReplaceSuccess(t *testing.T) {
+	for _, state := range []string{"COMPLETED", "REVERSED"} {
+		for _, failure := range []string{"FAILED", "CANCELLED", "UNKNOWN"} {
+			t.Run(state+failure, func(t *testing.T) {
+				s, order, proof := lookupFixture()
+				order.State = state
+				order.ReceiptReference = "receipt17"
+				order.FiscalSaleID = "sale"
+				order.FiscalVersion = 4
+				s.orders[order.ID] = order
+				proof.State = failure
+				proof.FiscalReference = ""
+				proof.Version = 3
+				got, err := s.ApplyValidatedCheckoutLookup("tenant", order, proof)
+				if err != nil || got.State != state || got.ReceiptReference != "receipt17" || got.Version != order.Version || got.FiscalVersion != 4 {
+					t.Fatal("positive source proof regressed", got, err)
+				}
+			})
+		}
+	}
+}
+func TestValidatedLookupRejectionConflictsAndRollback(t *testing.T) {
+	for _, scenario := range []string{"stale", "same-version", "receipt", "persistence"} {
+		t.Run(scenario, func(t *testing.T) {
+			s, order, proof := lookupFixture()
+			proof.State = "FAILED"
+			proof.FiscalReference = ""
+			if scenario == "stale" {
+				order.FiscalVersion = proof.Version + 1
+			}
+			if scenario == "same-version" {
+				order.FiscalVersion = proof.Version
+			}
+			if scenario == "receipt" {
+				proof.FiscalReference = "unexplained-receipt"
+			}
+			s.orders[order.ID] = order
+			if scenario == "persistence" {
+				store := &memoryStore{}
+				s.store = store
+				if err := s.persistLocked(); err != nil {
+					t.Fatal(err)
+				}
+				store.fail = true
+			}
+			if _, err := s.ApplyValidatedCheckoutLookup("tenant", order, proof); err == nil {
+				t.Fatal("accepted invalid negative proof", scenario)
+			}
+			got := s.orders[order.ID]
+			if got.State != order.State || got.Version != order.Version || got.FiscalVersion != order.FiscalVersion || got.FiscalSaleID != order.FiscalSaleID {
+				t.Fatal("conflict changed persisted source", got)
+			}
+		})
+	}
+}
+
+func TestValidatedLookupRejectsUnsupportedOperationState(t *testing.T) {
+	for _, state := range []string{"", "DONE", "SUCCESS", "FISCAL_RESULT_UNKNOWN"} {
+		t.Run(state, func(t *testing.T) {
+			s, order, proof := lookupFixture()
+			proof.State = state
+			if _, err := s.ApplyValidatedCheckoutLookup("tenant", order, proof); err == nil {
+				t.Fatal("undefined operation state accepted")
+			}
+			got := s.orders[order.ID]
+			if got.State != order.State || got.Version != order.Version || got.FiscalVersion != order.FiscalVersion || got.FiscalSaleID != order.FiscalSaleID {
+				t.Fatal("undefined state changed source", got)
+			}
+		})
+	}
+}

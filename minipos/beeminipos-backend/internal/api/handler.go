@@ -1275,6 +1275,23 @@ func publicOrder(order domain.Order) map[string]any {
 	delete(result, "payments")
 	delete(result, "fiscal_register_id")
 	delete(result, "execution_authorization_id")
+	// Expose a commitment to the prepared tender plan, never its private fields.
+	if order.FiscalRegisterID != "" && order.CheckoutOperationID != "" && len(order.Payments) > 0 {
+		payments := make([]map[string]any, 0, len(order.Payments))
+		for _, payment := range order.Payments {
+			item := map[string]any{"type": payment.Type, "amount": map[string]string{"amount": payment.Amount.Amount, "currency": payment.Amount.Currency}}
+			if payment.PaymentID != "" {
+				item["payment_id"] = payment.PaymentID
+			}
+			if payment.TerminalPolicy != "" {
+				item["terminal_policy"] = payment.TerminalPolicy
+			}
+			payments = append(payments, item)
+		}
+		encoded, _ := json.Marshal(payments)
+		digest := sha256.Sum256(encoded)
+		result["checkout_confirmation"] = map[string]any{"version": 1, "root_register_id": order.FiscalRegisterID, "payments_sha256": hex.EncodeToString(digest[:])}
+	}
 	return result
 }
 func problem(w http.ResponseWriter, s int, d string) {
