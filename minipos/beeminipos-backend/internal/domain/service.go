@@ -454,7 +454,7 @@ func (s *Service) restoreLocked() {
 		b = []byte("{}")
 	}
 	var x snapshot
-	if err != nil || len(b) == 0 || json.Unmarshal(b, &x) != nil {
+	if err != nil || len(b) == 0 || (!authoritativeEmpty && !validRecoverySnapshotShape(b, s.confirmedSnapshot)) || json.Unmarshal(b, &x) != nil {
 		s.persistenceRecoveryPending = true
 		// A storage outage can affect both Save and its recovery read. Restore
 		// the last acknowledged state rather than expose the failed mutation.

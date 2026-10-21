@@ -1,0 +1,32 @@
+{
+  "base_commit": "97888e8",
+  "sources": {
+    "minipos/beeminipos-backend/internal/domain/service.go": "265f4f075df8a00e5f28f93d927cebfeb0bd6a300315161a3bd2c5de66285121",
+    "minipos/beeminipos-backend/internal/domain/recovery_snapshot.go": "44107821b27058b9e6f307b9fa18ed6f5e80f9c4ef4d3e93bac9216e6adad379",
+    "minipos/beeminipos-backend/internal/domain/recovery_snapshot_test.go": "20670748f0b83c8b4a04db61ea33142fd8165179b15399499761d2682089f336"
+  },
+  "logs": {
+    "backend": {
+      "raw_sha256": "98f5310cf1503da84c07953a25b9e0f2415e12cd274bfe01b385fe2e68567f4a",
+      "expected_failure": false
+    },
+    "race": {
+      "raw_sha256": "31a8a845616cbe4f78acb4561b8e095a33be0e21f8a4258994deef60758876ed",
+      "expected_failure": false
+    },
+    "focused": {
+      "raw_sha256": "90750b5096f68fde138afaa13f8b93ad10142478dddb0f6a599561c1297e9549",
+      "expected_failure": false
+    },
+    "postgres": {
+      "raw_sha256": "ee660d8cf47b56644b1ee7a27571827581f0084a0a623ebe640a3a9c5c60b2f9",
+      "expected_failure": false
+    },
+    "red": {
+      "raw_sha256": "810259945947743eec8bd5e6a4135ceb5df652d90e68be935ab662beb3cd6dff",
+      "expected_failure": true
+    }
+  },
+  "results": "13 shape cases; complete backend, domain/API race and actual disposable PostgreSQL regression PASS",
+  "limits": "Recovery only; constructor acceptance unchanged. Structural shape is not evidence that an arbitrary structurally valid full snapshot is true. No live PostgreSQL outage injection."
+}
