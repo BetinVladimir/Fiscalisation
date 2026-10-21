@@ -97,6 +97,7 @@ security-test:
 	ruby scripts/verify_security_regression.rb
 	./scripts/verify_sensitive_data.sh
 ui-acceptance-test:
+	ruby scripts/test_verify_ui_acceptance.rb
 	ruby scripts/verify_ui_acceptance.rb
 handover-test:
 	ruby scripts/verify_handover.rb
