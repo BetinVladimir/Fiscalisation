@@ -38,7 +38,7 @@ Digest фиксирует порядок и нормализованные по�
 1. Annex №29 п.8/п.9: готовность и UNP при первом вводе информации о продаже. Принятая source-first архитектура ADR-SUPTO-001 не отменяет этот срок; данный checkout patch его не исправляет.
 2. Полный offline BLE цикл: новый source cart сейчас требует source backend; cached grant используется только при checkout существующей корзины. Нужен отдельный проект ранней идентичности/резервирования с полномочиями S3.
 3. Криптографически подтверждённый ответ BLE устройства и долговечное offline завершение с последующей cloud синхронизацией. Существующая BLE политика не заменяется фиктивной проверкой подлинности.
-4. Отдельный обнаруженный путь webhook persistence rollback (`applyFiscalEventLinkedForTenant`) требует самостоятельного исправления и fault-injection теста. Данный пакет не меняет этот путь.
+4. Дополнительное восстановление webhook persistence реализовано отдельно: [отказы Save/Load и ambiguous COMMIT](WEBHOOK_PERSISTENCE_RECOVERY.md), root backend/race PASS. Structural snapshot validation и реальные сетевые отказы PostgreSQL остаются отдельными границами. Данный CLOUD DTO пакет сам этот путь не меняет.
 5. Физические Datex/Daisy/POS, Android/iOS сборки и HIL, BLE/MQTT эквивалентность и доказательства для НАП остаются предметом следующих этапов.
 
 ## Root integration evidence

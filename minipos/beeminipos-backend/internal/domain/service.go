@@ -227,28 +227,30 @@ type ReversalResult struct {
 // Fiscal API. It never allocates regulatory identifiers or implements device
 // commands; those decisions stay inside the fiscalization boundary.
 type Service struct {
-	mu                sync.RWMutex
-	products          map[string]Product
-	taxGroups         map[string]TaxGroup
-	employees         map[string]Employee
-	identityBindings  map[string]IdentityBinding
-	operatorSessions  map[string]OperatorSessionRecord
-	shifts            map[string]Shift
-	orders            map[string]Order
-	checkouts         map[string]Order
-	checkoutHashes    map[string]string
-	apiReplays        map[string]APIReplay
-	webhookInbox      map[string]WebhookInboxRecord
-	configurations    map[string]Configuration
-	fiscal, version   string
-	client            *http.Client
-	authToken         string
-	authProvider      AccessTokenProvider
-	store             Store
-	sequence          uint64
-	generation        int64
-	confirmedSnapshot []byte
-	fiscalReadiness   func(tenant, register string) bool
+	mu                         sync.RWMutex
+	products                   map[string]Product
+	taxGroups                  map[string]TaxGroup
+	employees                  map[string]Employee
+	identityBindings           map[string]IdentityBinding
+	operatorSessions           map[string]OperatorSessionRecord
+	shifts                     map[string]Shift
+	orders                     map[string]Order
+	checkouts                  map[string]Order
+	checkoutHashes             map[string]string
+	apiReplays                 map[string]APIReplay
+	webhookInbox               map[string]WebhookInboxRecord
+	configurations             map[string]Configuration
+	fiscal, version            string
+	client                     *http.Client
+	authToken                  string
+	authProvider               AccessTokenProvider
+	store                      Store
+	sequence                   uint64
+	generation                 int64
+	confirmedSnapshot          []byte
+	snapshotEstablished        bool
+	persistenceRecoveryPending bool
+	fiscalReadiness            func(tenant, register string) bool
 }
 
 func (s *Service) SetFiscalReadinessCheck(v func(tenant, register string) bool) {
@@ -316,6 +318,7 @@ func NewPersistentService(f, v string, store Store) (*Service, error) {
 		return nil, e
 	}
 	s.confirmedSnapshot = append([]byte(nil), b...)
+	s.snapshotEstablished = len(b) > 0
 	if len(b) > 0 {
 		var x snapshot
 		if e = json.Unmarshal(b, &x); e != nil {
@@ -390,6 +393,12 @@ func (s *Service) nextID(_ string) string {
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }
 func (s *Service) persistLocked() error {
+	if s.persistenceRecoveryPending {
+		// An error may mean COMMIT succeeded. Never overwrite authoritative
+		// state from fallback memory; refresh first, then require a retry.
+		s.restoreLocked()
+		return errors.New("persistence outcome uncertain; authoritative recovery and retry required")
+	}
 	if s.store == nil {
 		return nil
 	}
@@ -402,6 +411,7 @@ func (s *Service) persistLocked() error {
 		if err == nil {
 			s.generation = generation
 			s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
+			s.snapshotEstablished = true
 			return nil
 		}
 		s.restoreLocked()
@@ -412,6 +422,7 @@ func (s *Service) persistLocked() error {
 		if err == nil {
 			s.generation = generation
 			s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
+			s.snapshotEstablished = true
 			return nil
 		}
 		s.restoreLocked()
@@ -421,24 +432,49 @@ func (s *Service) persistLocked() error {
 		s.restoreLocked()
 		return err
 	}
+	s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
+	s.snapshotEstablished = true
 	return nil
 }
 func (s *Service) restoreLocked() {
 	var b []byte
 	var err error
+	generation := s.generation
 	if versioned, ok := s.store.(VersionedStore); ok {
-		b, s.generation, err = versioned.LoadVersioned()
+		b, generation, err = versioned.LoadVersioned()
 	} else {
 		b, err = s.store.Load()
 	}
-	if err != nil || len(b) == 0 {
-		return
+	// Store.Load(nil,nil) denotes an authoritative initially empty store.
+	// Versioned stores must also report generation zero. Empty cannot erase
+	// any acknowledged nonempty snapshot.
+	loadedNonempty := len(b) > 0
+	authoritativeEmpty := err == nil && len(b) == 0 && !s.snapshotEstablished && generation == 0
+	if authoritativeEmpty {
+		b = []byte("{}")
 	}
-	s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
 	var x snapshot
-	if json.Unmarshal(b, &x) != nil {
-		return
+	if err != nil || len(b) == 0 || json.Unmarshal(b, &x) != nil {
+		s.persistenceRecoveryPending = true
+		// A storage outage can affect both Save and its recovery read. Restore
+		// the last acknowledged state rather than expose the failed mutation.
+		b = s.confirmedSnapshot
+		generation = s.generation
+		if len(b) == 0 {
+			b = []byte("{}")
+		}
+		x = snapshot{}
+		if json.Unmarshal(b, &x) != nil {
+			return
+		}
+	} else {
+		s.persistenceRecoveryPending = false
+		if loadedNonempty {
+			s.snapshotEstablished = true
+		}
 	}
+	s.generation = generation
+	s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
 	s.products, s.taxGroups, s.employees, s.identityBindings, s.operatorSessions, s.shifts, s.orders = x.Products, x.TaxGroups, x.Employees, x.IdentityBindings, x.OperatorSessions, x.Shifts, x.Orders
 	if s.identityBindings == nil {
 		s.identityBindings = map[string]IdentityBinding{}
