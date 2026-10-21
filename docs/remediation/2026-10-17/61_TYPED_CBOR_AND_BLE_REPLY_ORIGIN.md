@@ -23,3 +23,9 @@ Exact-source full IDF/host/provenance gate must run after this change. Legacy OP
 Next accepted encoder follow-up is [62](62_TYPED_CBOR_RESULT_ENCODER_CONTRACT.md). Existing persisted result JSON already carries exact int64 amounts; its cJSON/valueint32 bridge can prevent valid result delivery. The new typed encoder/strict result bridge is developed separately and must prove actual client bigint compatibility. This document does not mark that follow-up complete.
 
 Full exact-source S3 gate accepted for973a136: [run39552477296](https://github.com/BetinVladimir/Fiscalisation/actions/runs/39552477296) SUCCESS. Root downloaded/verified all7 artifacts and101 Git source hashes; full Make command coverage and actual13 BLE origin/typed CBOR markers checked. [Reviewed provenance](evidence/s3-cbor-origin-ci-2026-10-21/manifest.json). Local ignored software candidate: `.store-build/s3-idf556-ci-973a136-20261021`. This closes the software target gate for these two packages only; remaining channel/provider/encoder/HIL/legal gates stay OPEN.
+
+## Dispatch parse lifetime, 2026-10-21
+
+IntentProcessor::accept now ends the ADMIN detection parse scope before ordinary sale decode/execution. Previously the first full typed tree remained alive while decode created another typed tree plus business cJSON projection. This change releases the redundant tree on the ordinary path and preserves the complete ADMIN validation/result path. It does not remove the second parse, establish a maximum heap budget or replace target resource/HIL measurements.
+
+Root GCC15 actual Go-issued authorization → command queue → processor → SQLite → CBOR/delivery regression: all13 scenarios PASS, including live/reset/missing-owner/HTTP/recovery and signed ADMIN live/reset. Local raw log SHA256 `cc5d42a12c68ffe66756f21fbaa136654ec38381f4a1086961ea244a2260e5c4`; raw logs retained locally. Target rebuild remains mandatory after this source change.

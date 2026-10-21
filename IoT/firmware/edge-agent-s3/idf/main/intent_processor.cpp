@@ -475,15 +475,19 @@ esp_err_t IntentProcessor::accept(const CommandView &v) {
   // ADMIN decisions are independently signed, fixed-row capabilities; they do
   // not enter the sale decoder and never invoke a physical device executor.
   if (!v.data || !v.size || v.size > 32768) return ESP_ERR_INVALID_ARG;
-  go_json::Value root; std::string error;
-  bool parsed=false;
-  if(v.ingress==Ingress::Ble)parsed=canonical_cbor_to_value(v.data,v.size,root)==ESP_OK;
-  else parsed=go_json::parse((const char*)v.data,v.size,root,error);
-  if(!parsed||go_json::contains_nul(root))return ESP_ERR_INVALID_ARG;
-  for(const auto&f:root.fields)if(f.first=="command"&&f.second.kind==go_json::Value::Kind::String&&f.second.text=="PAYMENT_RECONCILE") {
-    const auto applied=apply_payment_reconciliation(root,binding_,storage_,explicit_authorization_trust_?&authorization_trust_:nullptr);
-    if(applied==ESP_OK&&result_sink_){const auto*id=go_json::field(root,"client_operation_id");OperationRecord saved;if(id&&id->kind==go_json::Value::Kind::String&&storage_.operation(id->text.c_str(),saved)==ESP_OK&&!saved.result_payload.empty())result_sink_(saved.operation_id.c_str(),saved.result_payload.c_str(),v.ingress,v.ble_reply,result_context_);}
-    return applied;
+  {
+    // Release the ADMIN-dispatch parse before sale decoding/execution; keeping
+    // both typed trees alive increases peak heap on the S3.
+    go_json::Value root; std::string error;
+    bool parsed=false;
+    if(v.ingress==Ingress::Ble)parsed=canonical_cbor_to_value(v.data,v.size,root)==ESP_OK;
+    else parsed=go_json::parse((const char*)v.data,v.size,root,error);
+    if(!parsed||go_json::contains_nul(root))return ESP_ERR_INVALID_ARG;
+    for(const auto&f:root.fields)if(f.first=="command"&&f.second.kind==go_json::Value::Kind::String&&f.second.text=="PAYMENT_RECONCILE") {
+      const auto applied=apply_payment_reconciliation(root,binding_,storage_,explicit_authorization_trust_?&authorization_trust_:nullptr);
+      if(applied==ESP_OK&&result_sink_){const auto*id=go_json::field(root,"client_operation_id");OperationRecord saved;if(id&&id->kind==go_json::Value::Kind::String&&storage_.operation(id->text.c_str(),saved)==ESP_OK&&!saved.result_payload.empty())result_sink_(saved.operation_id.c_str(),saved.result_payload.c_str(),v.ingress,v.ble_reply,result_context_);}
+      return applied;
+    }
   }
   ReceiptPlan p;
   esp_err_t e = decode(v, p);
