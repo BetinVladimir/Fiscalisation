@@ -25,6 +25,28 @@ servers:
   - url: http://127.0.0.1:8082
     description: Edge loopback DEV/HIL listener
 paths:
+  /minipos/orders/{order_id}/lines/{line_id}:
+    parameters: [{$ref: '#/components/parameters/OrderId'}, {$ref: '#/components/parameters/LineId'}, {$ref: '#/components/parameters/ApiVersion'}, {$ref: '#/components/parameters/IdempotencyKey'}, {$ref: '#/components/parameters/IfMatch'}]
+    patch:
+      operationId: updateMiniPosSourceOrderLine
+      description: Owned source order only. Requires current version and an editable, never-prepared order; nonzero discounts require SUPERVISOR or ADMIN.
+      security: [{oidcBearer: []}]
+      requestBody: {required: true, content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosOfflineLine'}}}}
+      responses:
+        '200': {description: Updated source order, content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosEditableOrder'}}}}
+        '403': {$ref: '#/components/responses/Problem'}
+        '409': {$ref: '#/components/responses/Problem'}
+        '428': {$ref: '#/components/responses/Problem'}
+    delete:
+      operationId: deleteMiniPosSourceOrderLine
+      description: Remove an owned source line before fiscal preparation. Exact version and editable state checked atomically; no financial side effects.
+      security: [{oidcBearer: []}]
+      responses:
+        '200': {description: Updated source order, content: {application/json: {schema: {$ref: '#/components/schemas/MiniPosEditableOrder'}}}}
+        '409': {$ref: '#/components/responses/Problem'}
+        '428': {$ref: '#/components/responses/Problem'}
+  /payment-reconciliations:bind-administrator: {"post":{"operationId":"bindReconciliationAdministrator","security":[{"oidcBearer":[]}],"description":"Explicit ADMIN mapping for delegated bank decision authority; never inferred from sale authority.","requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["operator_id","external_system_id","source_operator_id","identity_issuer","identity_subject","enabled","expected_version"],"properties":{"operator_id":{"type":"string","minLength":1},"external_system_id":{"type":"string","minLength":1},"source_operator_id":{"type":"string","minLength":1},"identity_issuer":{"type":"string","minLength":1},"identity_subject":{"type":"string","minLength":1},"enabled":{"type":"boolean"},"expected_version":{"type":"integer","minimum":0}}}}}},"responses":{"204":{"description":"Administrator mapping persisted"},"403":{"description":"ADMIN required"},"409":{"description":"Mapping identity or version conflict"}}}}
+  /minipos/payment-reconciliations:authorize: {"post":{"operationId":"authorizeMiniPosPaymentReconciliation","security":[{"oidcBearer":[]}],"description":"Requires authenticated and persisted source ADMIN, active caller-owned app session/shift, explicit root delegation capability and persisted root ADMIN mapping. Does not prove fiscalization.","requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["shift_id","decision"],"properties":{"shift_id":{"type":"string","minLength":1},"decision":{"type":"object","additionalProperties":false,"required":["operation_id","payment_id","observed_state","evidence_reference","evidence_sha256"],"properties":{"operation_id":{"type":"string","maxLength":128},"payment_id":{"type":"string","maxLength":128},"observed_state":{"type":"string","maxLength":128,"enum":["CARD_APPROVED","CARD_DECLINED","CARD_NOT_SENT","REVERSED","REVERSAL_FAILED"]},"terminal_reference":{"type":"string","maxLength":128},"rrn":{"type":"string","maxLength":128},"auth_code":{"type":"string","maxLength":128},"reversal_reference":{"type":"string","maxLength":128},"reversal_rrn":{"type":"string","maxLength":128},"reversal_auth_code":{"type":"string","maxLength":128},"evidence_reference":{"type":"string","minLength":1,"maxLength":1024},"evidence_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"}}}}}}}},"responses":{"201":{"description":"Signed single-use decision capability","content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["command","client_operation_id","reconciliation_authorization"],"properties":{"command":{"const":"PAYMENT_RECONCILE"},"client_operation_id":{"type":"string","format":"uuid"},"reconciliation_authorization":{"type":"object","required":["algorithm","key_id","payload","sha256","signature"],"properties":{"algorithm":{"type":"string"},"key_id":{"type":"string"},"payload":{"type":"string"},"sha256":{"type":"string"},"signature":{"type":"string"}}}}}}}},"401":{"description":"Caller session inactive"},"403":{"description":"Administrator authority denied"}}}}
   /payment-reconciliations:authorize: {"post":{"operationId":"authorizePaymentReconciliation","security":[{"oidcBearer":[]}],"description":"ADMIN only. Exact durable-row bank decision; does not prove fiscalization or release unresolved terminal claims.","requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["operation_id","payment_id","observed_state","evidence_reference","evidence_sha256"],"properties":{"operation_id":{"type":"string","maxLength":128},"payment_id":{"type":"string","maxLength":128},"observed_state":{"type":"string","maxLength":128,"enum":["CARD_APPROVED","CARD_DECLINED","CARD_NOT_SENT","REVERSED","REVERSAL_FAILED"]},"terminal_reference":{"type":"string","maxLength":128},"rrn":{"type":"string","maxLength":128},"auth_code":{"type":"string","maxLength":128},"reversal_reference":{"type":"string","maxLength":128},"reversal_rrn":{"type":"string","maxLength":128},"reversal_auth_code":{"type":"string","maxLength":128},"evidence_reference":{"type":"string","minLength":1,"maxLength":1024},"evidence_sha256":{"type":"string","pattern":"^[0-9a-f]{64}$"}}}}}},"responses":{"201":{"description":"Signed single-use decision capability","content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["command","client_operation_id","reconciliation_authorization"],"properties":{"command":{"const":"PAYMENT_RECONCILE"},"client_operation_id":{"type":"string","format":"uuid"},"reconciliation_authorization":{"type":"object","required":["algorithm","key_id","payload","sha256","signature"],"properties":{"algorithm":{"type":"string"},"key_id":{"type":"string"},"payload":{"type":"string"},"sha256":{"type":"string"},"signature":{"type":"string"}}}}}}}},"403":{"description":"ADMIN required"},"409":{"description":"Snapshot or evidence conflict"}}}}
   /execution-authorizations: {"post":{"operationId":"issueExecutionAuthorization","security":[{"oidcBearer":[]}],"parameters":[],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["workstation_session_id","client_signing_public_key_der_base64"],"properties":{"workstation_session_id":{"type":"string","minLength":1},"client_signing_public_key_der_base64":{"type":"string","minLength":1,"pattern":"^[A-Za-z0-9_-]+$"},"server_sale_id":{"type":"string","minLength":1}}}}}},"responses":{"201":{"description":"Successful authenticated operation","content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["algorithm","key_id","payload","sha256","signature"],"properties":{"algorithm":{"type":"string","const":"ES256_DER"},"key_id":{"type":"string","minLength":1},"payload":{"type":"string","minLength":1,"pattern":"^[A-Za-z0-9_-]+$"},"sha256":{"type":"string","minLength":1,"pattern":"^[0-9a-f]{64}$"},"signature":{"type":"string","minLength":1,"pattern":"^[A-Za-z0-9_-]+$"}}}}}}}}}
   /operators:bind-identity: {"post":{"operationId":"bindOperatorActorIdentity","security":[{"oidcBearer":[]}],"parameters":[],"requestBody":{"required":true,"content":{"application/json":{"schema":{"type":"object","additionalProperties":false,"required":["operator_id","actor_subject","expected_version"],"properties":{"operator_id":{"type":"string","minLength":1},"actor_subject":{"type":"string","minLength":1},"expected_version":{"type":"integer","minimum":1}}}}}},"responses":{"204":{"description":"Successful authenticated operation"}}}}
@@ -1686,6 +1708,16 @@ components:
         type: {type: string, enum: [CASH, CARD, CHEQUE, VOUCHER, DEFERRED, NHIF, INTERNAL_CONSUMPTION, COUPON]}
         amount: {$ref: '#/components/schemas/Money'}
         terminal_policy: {type: string, enum: [REQUIRED, AUTO_IF_AVAILABLE, NONE]}
+    MiniPosEditableOrder:
+      allOf:
+        - {$ref: '#/components/schemas/MiniPosOrderRuntimeState'}
+        - type: object
+          required: [external_id, shift_id, lines, total]
+          properties:
+            external_id: {type: string, minLength: 1}
+            shift_id: {type: string, format: uuid}
+            lines: {type: array, items: {$ref: '#/components/schemas/MiniPosOfflineLine'}}
+            total: {$ref: '#/components/schemas/Money'}
     MiniPosOrderRuntimeState:
       type: object
       additionalProperties: true

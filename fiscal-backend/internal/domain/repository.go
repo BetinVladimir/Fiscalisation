@@ -830,6 +830,28 @@ func (r *MemoryRepository) putResourceLocked(v ResourceRecord) error {
 		return errors.New("immutable issued resource conflict")
 	}
 	if v.Kind == "payment_reconciliation_authorization" {
+		if stringAny(v.Data, "delegated_system_id") != "" {
+			sources, ok := v.Data["delegated_issuance_sources"].(map[string]any)
+			if !ok || len(sources) != 4 {
+				return errors.New("delegated reconciliation sources required")
+			}
+			for key, version := range sources {
+				source, exists := r.resources[key]
+				if !exists || source.TenantID != v.TenantID || source.Version != intAny(map[string]any{"version": version}, "version") {
+					return errors.New("delegated reconciliation authority changed during issuance")
+				}
+			}
+			mapping := r.resources[resourceKey("reconciliation_admin_binding", stringAny(v.Data, "delegated_admin_binding_id"))]
+			if mapping.Data["enabled"] != true {
+				return errors.New("delegated administrator revoked")
+			}
+			session := r.resources[resourceKey("workstation_session", stringAny(v.Data, "delegated_session_id"))]
+			expiry, e := time.Parse(time.RFC3339Nano, stringAny(session.Data, "expires_at"))
+			if e != nil || !time.Now().Before(expiry) || session.Data["revoked"] == true {
+				return errors.New("delegated administrator session inactive")
+			}
+		}
+
 		pending, ok := r.edgePending[stringAny(v.Data, "issuance_operation_id")]
 		binding, exists := r.resources[resourceKey("issued_binding", stringAny(v.Data, "issuance_binding_id"))]
 		if !ok || !exists || pending.TenantID != v.TenantID || edgeDigest(pending) != stringAny(v.Data, "issuance_pending_digest") || binding.TenantID != v.TenantID || binding.Version != intAny(v.Data, "issuance_binding_version") {

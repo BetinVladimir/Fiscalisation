@@ -278,6 +278,10 @@ func (h *HTTPHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		writeError(w, e)
 		return
 	}
+	if path == "/integration/v1/payment-reconciliations:authorize" && r.Method == http.MethodPost {
+		h.authorizePaymentReconciliation(w, r, p)
+		return
+	}
 	if path == "/integration/v1/execution-authorizations:dispatch" && r.Method == http.MethodPost {
 		h.dispatchExecutionAuthorization(w, r, p)
 		return

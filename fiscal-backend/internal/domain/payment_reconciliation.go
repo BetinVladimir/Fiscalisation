@@ -183,7 +183,13 @@ func (s *Service) paymentReconciliationContext(operation, payment, tenant string
 	return p, row, issued, binding, nil
 }
 func (s *Service) IssuePaymentReconciliation(in PaymentReconciliationRequest, tenant, actor string, administrator bool) (PaymentReconciliationCommand, error) {
+	return s.issuePaymentReconciliation(in, tenant, actor, administrator, time.Time{}, nil)
+}
+func (s *Service) issuePaymentReconciliation(in PaymentReconciliationRequest, tenant, actor string, administrator bool, expiry time.Time, commit func(ResourceRecord, PaymentReconciliationCommand) error) (PaymentReconciliationCommand, error) {
 	var empty PaymentReconciliationCommand
+	if !validExecutionActor(actor) {
+		return empty, errors.New("actor identity exceeds supported 256-byte wire contract")
+	}
 	if !administrator || tenant == "" || actor == "" || in.EvidenceReference == "" || len(in.EvidenceReference) > 1024 || !validSHA256(in.EvidenceSHA256) {
 		return empty, errors.New("ADMIN identity and immutable acquirer evidence required")
 	}
@@ -221,6 +227,12 @@ func (s *Service) IssuePaymentReconciliation(in PaymentReconciliationRequest, te
 	now := time.Now().UTC()
 	terminal, _ := binding["payment_endpoint"].(map[string]any)
 	grant := PaymentReconciliationGrant{"PAYMENT_RECONCILIATION", 1, "payment.reconcile", id, tenant, stringAny(binding, "location_id"), p.RegisterID, p.DeviceID, stringAny(terminal, "device_id"), p.Acceptance.BindingSHA256, p.Acceptance.Generation, actor, in.EvidenceReference, in.EvidenceSHA256, now.Unix(), now.Add(5 * time.Minute).Unix(), expected, observed}
+	if !expiry.IsZero() && expiry.Unix() < grant.Exp {
+		grant.Exp = expiry.Unix()
+	}
+	if grant.Exp <= grant.NBF {
+		return empty, errors.New("reconciliation source session expired")
+	}
 	raw, e := edgeCanonical(grant)
 	if e != nil {
 		return empty, e
@@ -236,10 +248,16 @@ func (s *Service) IssuePaymentReconciliation(in PaymentReconciliationRequest, te
 	digest := sha256.Sum256(raw)
 	envelope := ExecutionAuthorizationEnvelope{"ES256_DER", kid, base64.RawURLEncoding.EncodeToString(raw), hex.EncodeToString(digest[:]), sig}
 	record := ResourceRecord{Kind: "payment_reconciliation_authorization", ID: id, TenantID: tenant, Version: 1, Data: map[string]any{"envelope": asMap(envelope), "issuance_pending_digest": edgeDigest(p), "issuance_operation_id": p.OperationID, "issuance_binding_id": issued.ID, "issuance_binding_version": issued.Version}, CreatedAt: now, UpdatedAt: now}
-	if e = s.repo.PutResource(record); e != nil {
+	command := PaymentReconciliationCommand{"PAYMENT_RECONCILE", id, envelope}
+	if commit != nil {
+		e = commit(record, command)
+	} else {
+		e = s.repo.PutResource(record)
+	}
+	if e != nil {
 		return empty, e
 	}
-	return PaymentReconciliationCommand{"PAYMENT_RECONCILE", id, envelope}, nil
+	return command, nil
 }
 
 // The device journal proves application of a previously issued exact decision.

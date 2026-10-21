@@ -67,7 +67,13 @@ func main() {
 	const rawCredential = "tenant_live_40000000-0000-4000-8000-000000000002.test-only-secret"
 	svc, e := domain.NewPersistentService("http://127.0.0.1:1/public/v1", "2026-08-07", &fileStore{path: filepath.Join(dir, "source.snapshot.json")})
 	must(e)
-	employee, e := svc.CreateEmployee(domain.Employee{TenantID: company, FirstName: "Pipeline", LastName: "Cashier", OperatorCode: "A001", Roles: []string{"CASHIER"}})
+	roles := []string{"CASHIER"}
+	scopes := "execution_authorizations:issue"
+	if os.Getenv("RECONCILIATION_HTTP_PIPELINE") == "YES" {
+		roles = []string{"ADMIN"}
+		scopes += ",payment_reconciliations:authorize"
+	}
+	employee, e := svc.CreateEmployee(domain.Employee{TenantID: company, FirstName: "Pipeline", LastName: "Cashier", OperatorCode: "A001", Roles: roles})
 	must(e)
 	_, e = svc.BindEmployeeIdentity(company, employee.ID, subject, issuer)
 	must(e)
@@ -101,7 +107,7 @@ func main() {
 	must(e)
 	mac := hmac.New(sha256.New, []byte("abcdef0123456789abcdef0123456789"))
 	mac.Write([]byte(rawCredential))
-	_, e = db.Exec(`insert into fiscal.tenant_integration_credentials(credential_id,binding_id,secret_hash,scopes,status,expires_at)values($1,$2,$3,array['execution_authorizations:issue'],'ACTIVE',now()+interval '1 hour')`, credential, binding, mac.Sum(nil))
+	_, e = db.Exec(`insert into fiscal.tenant_integration_credentials(credential_id,binding_id,secret_hash,scopes,status,expires_at)values($1,$2,$3,string_to_array($4,','),'ACTIVE',now()+interval '1 hour')`, credential, binding, mac.Sum(nil), scopes)
 	must(e)
 	_, e = db.Exec(`insert into minipos.organizations(id,name,fiscal_external_id,status)values($1,'Pipeline',$2,'ACTIVE')`, company, tenant)
 	must(e)
@@ -125,7 +131,7 @@ func main() {
 	must(e)
 	der, e := x509.MarshalECPrivateKey(key)
 	must(e)
-	claims := map[string]any{"sub": subject, "iss": issuer, "tenant_id": company, "roles": []string{"CASHIER"}, "scope": "fiscal.base", "exp": time.Now().Add(30 * time.Minute).Unix()}
+	claims := map[string]any{"sub": subject, "iss": issuer, "tenant_id": company, "roles": roles, "scope": "fiscal.base", "exp": time.Now().Add(30 * time.Minute).Unix()}
 	header, _ := json.Marshal(map[string]string{"alg": "HS256", "typ": "JWT"})
 	body, _ := json.Marshal(claims)
 	unsigned := base64.RawURLEncoding.EncodeToString(header) + "." + base64.RawURLEncoding.EncodeToString(body)

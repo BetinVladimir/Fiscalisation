@@ -32,6 +32,8 @@ export function HeaderLeaveDialog({guard,copy}:{guard:ReturnType<typeof useHeade
  const maxHeight=Math.max(0,metrics.height-insets.top-insets.bottom-32);
  const width=Math.max(0,Math.min(560,metrics.width-insets.left-insets.right-24));
  const wrap={minWidth:0,flexShrink:1,...(Platform.OS==='web'?{whiteSpace:'normal' as const,overflowWrap:'anywhere' as const}:{})}; 
+ // Mount the Paper portal only for an active confirmation; a closed dialog must not leave a full-page overlay.
+ if(!guard.visible)return null;
  return <Portal><Dialog testID="header.leave.dialog" visible={guard.visible} onDismiss={guard.stay} style={{maxHeight,width,alignSelf:'center',marginHorizontal:0,marginVertical:16}}>
  <ScrollView testID="header.leave.scroll" style={{maxHeight,flexShrink:1}} contentContainerStyle={{paddingBottom:8}} keyboardShouldPersistTaps="handled" nestedScrollEnabled>
  <Dialog.Title style={wrap}>{copy.cancelTitle}</Dialog.Title><Dialog.Content><Text style={wrap}>{copy.cancelMessage}</Text></Dialog.Content>

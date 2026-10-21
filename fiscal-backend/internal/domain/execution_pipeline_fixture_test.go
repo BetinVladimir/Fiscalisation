@@ -30,6 +30,10 @@ func TestExecutionHTTPPipelineFixture(t *testing.T) {
 	const tenant = "10000000-0000-4000-8000-000000000001"
 	const system = "20000000-0000-4000-8000-000000000001"
 	f := newOfflineV2Fixture(t)
+	admin := os.Getenv("RECONCILIATION_HTTP_PIPELINE") == "YES"
+	if admin {
+		f = newReconciliationFixtureForTenant(t, tenant)
+	}
 	snapshot := bytes.ReplaceAll(f.store.b, []byte(`"tenant-1"`), []byte(`"`+tenant+`"`))
 	store := &testStore{b: snapshot}
 	repo, e := NewPersistentRepository(store)
@@ -50,6 +54,13 @@ func TestExecutionHTTPPipelineFixture(t *testing.T) {
 	svc := NewService(repo, NewSimulator(true))
 	svc.SetDeviceCredentialIssuer(f.issuer)
 	svc.SetBLESigningKey("test-only-readiness-secret-32bytes")
+	if admin {
+		f.repo, f.svc, f.store = repo, svc, store
+		svc.SetRequireHardwareSyncSignatures(true)
+		if _, err := svc.SyncBatchForTenant(tenant, f.batch(1, nil, f.accepted, f.result)); err != nil {
+			t.Fatal(err)
+		}
+	}
 	actor, _ := DelegatedActorSubject(system, source.Issuer, source.Subject)
 	for _, kind := range []string{"operator", "register"} {
 		id, external := "operator-1", source.Employee
@@ -65,6 +76,11 @@ func TestExecutionHTTPPipelineFixture(t *testing.T) {
 		r.Version++
 		if e = repo.PutResource(r); e != nil {
 			t.Fatal(e)
+		}
+	}
+	if admin {
+		if err := svc.BindReconciliationAdministrator(ReconciliationAdministratorBinding{"operator-1", system, source.Employee, source.Issuer, source.Subject, true, 0}, tenant, "test-root-admin"); err != nil {
+			t.Fatal(err)
 		}
 	}
 	if _, _, e = repo.ReserveFiscalUNPRange(tenant, "AB123456", "12345678", 1000); e != nil {
@@ -87,6 +103,13 @@ func TestExecutionHTTPPipelineFixture(t *testing.T) {
 		}
 	}
 	issued, _ = repo.Resource("issued_binding", hash)
+	if admin {
+		decision := reconciliationInput(f)
+		body, _ := json.Marshal(decision)
+		if err := os.WriteFile(filepath.Join(dir, "reconciliation-decision.json"), body, 0600); err != nil {
+			t.Fatal(err)
+		}
+	}
 	setup, _ := json.Marshal(map[string]any{"binding": issued.Data["canonical_payload"], "binding_sha256": hash, "tenant": tenant, "system": system})
 	if e = os.WriteFile(filepath.Join(dir, "root-setup.json"), setup, 0600); e != nil {
 		t.Fatal(e)

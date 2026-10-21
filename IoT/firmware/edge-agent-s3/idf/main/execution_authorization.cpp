@@ -1,3 +1,4 @@
+#include "authority_limits.h"
 #include "execution_authorization.h"
 #include "authority_unp.h"
 #include "mbedtls/base64.h"
@@ -40,7 +41,7 @@ esp_err_t verify_execution_authorization(const V&command,const CompositeBinding&
  if(!eq(authorization,"tenant_id",b.tenant_id)||!eq(authorization,"location_id",b.location_id)||!eq(authorization,"register_id",b.register_id)||!eq(authorization,"edge_device_id",b.edge_device_id)||!eq(authorization,"fiscal_device_id",b.fiscal.device_id)||!eq(authorization,"fiscal_device_number",b.fiscal.fiscal_device_number)||!eq(authorization,"fiscal_memory_number",b.fiscal.fiscal_memory_number)||!eq(authorization,"binding_sha256",b.payload_sha256)||!integer(authorization,"binding_generation",generation)||generation!=b.generation)return reject();
  const auto*authority=field(authorization,"authority");int64_t start{},end{};if(!authority||!eq(*authority,"binding_sha256",b.payload_sha256)||!eq(*authority,"unp_prefix",b.authority.unp_prefix)||!integer(*authority,"range_start",start)||!integer(*authority,"range_end",end)||start!=b.authority.unp_range_start||end!=b.authority.unp_range_end)return reject();
  VerifiedExecutionAuthorization candidate;candidate.authorization_sha256=actual;
- if(!text(authorization,"authorization_id",candidate.authorization_id,36)||!text(authorization,"workstation_session_id",candidate.workstation_session_id,256)||!text(authorization,"actor_subject",candidate.actor_id,256)||!text(authorization,"app_instance_id",candidate.app_instance_id,256)||!text(authorization,"operator_id",candidate.operator_id,256)||!text(authorization,"operator_code",candidate.operator_code,4)||candidate.operator_code.size()!=4)return reject();
+ if(!text(authorization,"authorization_id",candidate.authorization_id,36)||!text(authorization,"workstation_session_id",candidate.workstation_session_id,256)||!text(authorization,"actor_subject",candidate.actor_id,kAuthorityActorMaxBytes)||!text(authorization,"app_instance_id",candidate.app_instance_id,256)||!text(authorization,"operator_id",candidate.operator_id,256)||!text(authorization,"operator_code",candidate.operator_code,4)||candidate.operator_code.size()!=4)return reject();
  // The prefix identifies the fiscal device; the signed authorization identifies its operator.
  if(b.authority.unp_prefix.size()!=8)return reject();
  std::string operation,receipt,payload_hash,action;if(!text(command,"intent_id",operation,36)||!text(command,"receipt_session_id",receipt,36)||!text(command,"payload_sha256",payload_hash,64)||!text(command,"action",action,32)||!alias(command,"client_operation_id",operation)||!alias(command,"operation_id",operation)||!alias(command,"command_type",action))return reject();

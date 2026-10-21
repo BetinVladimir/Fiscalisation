@@ -1,0 +1,15 @@
+?   	fiscalisation/fiscal-backend/cmd/dossier-export	[no test files]
+?   	fiscalisation/fiscal-backend/cmd/execution-pipeline-oracle	[no test files]
+?   	fiscalisation/fiscal-backend/cmd/fiscal-backend	[no test files]
+ok  	fiscalisation/fiscal-backend/integration	(cached)
+ok  	fiscalisation/fiscal-backend/internal/api	(cached)
+ok  	fiscalisation/fiscal-backend/internal/auth	0.895s
+ok  	fiscalisation/fiscal-backend/internal/config	(cached)
+ok  	fiscalisation/fiscal-backend/internal/domain	(cached)
+ok  	fiscalisation/fiscal-backend/internal/dossier	(cached)
+ok  	fiscalisation/fiscal-backend/internal/integration	(cached)
+ok  	fiscalisation/fiscal-backend/internal/mqttclient	(cached)
+ok  	fiscalisation/fiscal-backend/internal/persistence	(cached)
+ok  	fiscalisation/fiscal-backend/internal/provisioningseal	(cached)
+ok  	fiscalisation/fiscal-backend/internal/startup	(cached)
+ok  	fiscalisation/fiscal-backend/internal/webhook	(cached)

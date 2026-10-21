@@ -36,10 +36,10 @@ sources.each do |relative, routes|
   routes.each { |route| abort "runtime route disappeared: #{route}" unless source.include?(route) }
 end
 
-abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 69
-# Four reviewed additions to the 65-operation base: signed ADMIN decision,
-# source identity/issuance and exact prepared-plan dispatch.
-%w[authorizePaymentReconciliation dispatchMiniPosPreparedExecution getMiniPosExecutionIdentity issueMiniPosExecutionAuthorization].each do |id|
+abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 73
+# Eight reviewed additions to the 65-operation base: execution authorization,
+# source line PATCH/DELETE and explicit delegated ADMIN binding/issuance.
+%w[authorizePaymentReconciliation dispatchMiniPosPreparedExecution getMiniPosExecutionIdentity issueMiniPosExecutionAuthorization updateMiniPosSourceOrderLine deleteMiniPosSourceOrderLine bindReconciliationAdministrator authorizeMiniPosPaymentReconciliation].each do |id|
   abort "reviewed authorization operation missing: #{id}" unless operations.include?(id)
 end
 puts "runtime OpenAPI coverage OK: #{operations.length} operations"

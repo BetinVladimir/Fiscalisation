@@ -72,6 +72,7 @@ func NewWithIntegrations(s *domain.Service, c config.Config, email *emailauth.Se
 	m.HandleFunc("/public/v1/minipos/operator-session", h.operatorSession)
 	m.HandleFunc("/public/v1/minipos/fiscal-local-tokens", h.localFiscalToken)
 	m.HandleFunc("/public/v1/minipos/execution-authorizations", h.executionAuthorization)
+	m.HandleFunc("/public/v1/minipos/payment-reconciliations:authorize", h.authorizePaymentReconciliation)
 	m.HandleFunc("/public/v1/minipos/execution-authorizations:dispatch", h.dispatchExecutionAuthorization)
 	m.HandleFunc("/public/v1/minipos/fiscal-route-health", h.fiscalRouteHealth)
 	m.HandleFunc("/public/v1/minipos/shifts", h.shifts)
@@ -1076,6 +1077,10 @@ func (h *handler) order(w http.ResponseWriter, r *http.Request) {
 	if len(p) > 0 && !h.authorizeOrder(w, r, p[0]) {
 		return
 	}
+	if len(p) == 3 && p[1] == "lines" && (r.Method == http.MethodPatch || r.Method == http.MethodDelete) {
+		h.mutateNativeOrderLine(w, r, p[0], p[2])
+		return
+	}
 	if len(p) == 3 && p[1] == "operations" && r.Method == http.MethodGet {
 		h.orderOperation(w, r, p[0], p[2])
 		return
@@ -1381,7 +1386,7 @@ func cors(allowed string, next http.Handler) http.Handler {
 				w.Header().Set("Vary", "Origin")
 			}
 			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Idempotency-Key, If-Match, X-Api-Version, X-App-Instance-Id")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
 		}
 		if r.Method == "OPTIONS" {
 			if !wildcard && (origin == "" || !set[origin]) {

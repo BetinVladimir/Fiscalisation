@@ -1,3 +1,4 @@
+#include "authority_limits.h"
 #include "payment_reconciliation.h"
 #include "go_wire.h"
 
@@ -46,7 +47,7 @@ esp_err_t verify_payment_reconciliation(const V&command,const CompositeBinding&b
  int64_t version,generation,nbf,exp;if(!integer(grant,"version",version)||version!=1||!eq(grant,"kind","PAYMENT_RECONCILIATION")||!eq(grant,"scope","payment.reconcile")||!integer(grant,"nbf",nbf)||!integer(grant,"exp",exp)||nbf<1700000000||exp<=nbf||exp-nbf>300||trust.now<nbf||trust.now>=exp)return reject();
  if(!binding.payment.present||binding.payment.device_id.empty()||!eq(grant,"tenant_id",binding.tenant_id)||!eq(grant,"location_id",binding.location_id)||!eq(grant,"register_id",binding.register_id)||!eq(grant,"edge_device_id",binding.edge_device_id)||!eq(grant,"terminal_id",binding.payment.device_id)||!eq(grant,"binding_sha256",binding.payload_sha256)||!integer(grant,"binding_generation",generation)||generation!=binding.generation)return reject();
  VerifiedPaymentReconciliation candidate;candidate.evidence.authorization_sha256=actual;
- if(!text(grant,"reconciliation_id",candidate.evidence.reconciliation_id,36)||candidate.evidence.reconciliation_id.size()!=36||!text(grant,"actor_id",candidate.evidence.actor_id,128)||!text(grant,"evidence_reference",candidate.evidence.evidence_reference,1024)||!text(grant,"evidence_sha256",candidate.evidence.evidence_sha256,64)||candidate.evidence.evidence_sha256.size()!=64||!eq(command,"client_operation_id",candidate.evidence.reconciliation_id))return reject();
+ if(!text(grant,"reconciliation_id",candidate.evidence.reconciliation_id,36)||candidate.evidence.reconciliation_id.size()!=36||!text(grant,"actor_id",candidate.evidence.actor_id,kAuthorityActorMaxBytes)||!text(grant,"evidence_reference",candidate.evidence.evidence_reference,1024)||!text(grant,"evidence_sha256",candidate.evidence.evidence_sha256,64)||candidate.evidence.evidence_sha256.size()!=64||!eq(command,"client_operation_id",candidate.evidence.reconciliation_id))return reject();
  for(char c:candidate.evidence.evidence_sha256)if(!((c>='0'&&c<='9')||(c>='a'&&c<='f')))return reject();
  for(const char*alias:{"intent_id","operation_id"}){auto*p=lookup(command,alias);if(p&&!eq(command,alias,candidate.evidence.reconciliation_id))return reject();}for(const char*alias:{"action","command_type"}){auto*p=lookup(command,alias);if(p&&!eq(command,alias,"PAYMENT_RECONCILE"))return reject();}
  const auto*a=lookup(grant,"expected");const auto*b=lookup(grant,"observed");if(!a||!b||!row(*a,candidate.expected)||!row(*b,candidate.observed))return reject();candidate.evidence.terminal_id=binding.payment.device_id;out=std::move(candidate);return ESP_OK;

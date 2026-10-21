@@ -12,7 +12,14 @@ import (
 	"encoding/json"
 	"errors"
 	"time"
+	"unicode/utf8"
 )
+
+const executionActorMaxBytes = 256
+
+func validExecutionActor(actor string) bool {
+	return actor != "" && len(actor) <= executionActorMaxBytes && utf8.ValidString(actor)
+}
 
 const executionAuthorizationDomain = "BEELOY-EXECUTION-AUTHORIZATION-V1\n"
 const executionIntentProofDomain = "BEELOY-EXECUTION-INTENT-PROOF-V1\n"
@@ -133,6 +140,9 @@ func (s *Service) IssueExecutionAuthorization(sessionID, clientKey, tenant, acto
 
 func (s *Service) issueExecutionAuthorization(sessionID, clientKey, tenant, actor string, commit func(ResourceRecord, ExecutionAuthorizationEnvelope) error, serverSaleIDs ...string) (ExecutionAuthorizationEnvelope, error) {
 	var empty ExecutionAuthorizationEnvelope
+	if !validExecutionActor(actor) {
+		return empty, errors.New("actor identity exceeds supported 256-byte wire contract")
+	}
 	now := time.Now().UTC()
 	sessionResource, err := s.repo.Resource("workstation_session", sessionID)
 	if err != nil || sessionResource.TenantID != tenant || tenant == "" || actor == "" || stringField(sessionResource.Data, "actor_subject") != actor {

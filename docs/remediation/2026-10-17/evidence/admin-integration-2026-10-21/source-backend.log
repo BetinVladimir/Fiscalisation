@@ -1,0 +1,12 @@
+ok  	fiscalisation/beeminipos-backend/cmd/beeminipos-backend	(cached)
+?   	fiscalisation/beeminipos-backend/cmd/execution-pipeline-oracle	[no test files]
+ok  	fiscalisation/beeminipos-backend/internal/api	(cached)
+ok  	fiscalisation/beeminipos-backend/internal/auth	(cached)
+ok  	fiscalisation/beeminipos-backend/internal/config	(cached)
+ok  	fiscalisation/beeminipos-backend/internal/domain	0.283s
+ok  	fiscalisation/beeminipos-backend/internal/emailauth	(cached)
+ok  	fiscalisation/beeminipos-backend/internal/fiscalintegration	(cached)
+ok  	fiscalisation/beeminipos-backend/internal/migrations	(cached)
+?   	fiscalisation/beeminipos-backend/internal/mqttclient	[no test files]
+ok  	fiscalisation/beeminipos-backend/internal/persistence	(cached)
+ok  	fiscalisation/beeminipos-backend/internal/startup	(cached)

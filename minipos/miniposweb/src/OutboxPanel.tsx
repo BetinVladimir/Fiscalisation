@@ -35,7 +35,7 @@ export function OutboxPanel({ rows, loading, error, language, onRefresh }: {
         <Card key={row.intent.client_operation_id} mode="outlined" testID={`offline-outbox-row-${row.intent.client_operation_id}`}>
           <Card.Content style={{ gap: 4 }}>
             <Text variant="titleMedium" testID={`offline-outbox-status-${row.intent.client_operation_id}`}>{t[statusKey(row)]}</Text>
-            <Text variant="bodySmall" selectable style={{ flexShrink: 1 }}>{row.intent.client_operation_id}</Text>
+            <Text variant="bodySmall" style={{ flexShrink: 1 }}>{(row.intent.items??[]).map(item=>`${item.name} × ${item.quantity}`).join(", ")}</Text>
           </Card.Content>
         </Card>) : null}
     </Card.Content>

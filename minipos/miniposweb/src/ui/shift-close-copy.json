@@ -1,0 +1,177 @@
+{
+  "bg": {
+    "closeShift": "Затвори смяна",
+    "reconcileZ": "Свери Z",
+    "back": "Назад",
+    "resultChecking": "Резултатът се проверява",
+    "checkResult": "Провери резултата"
+  },
+  "da": {
+    "closeShift": "Luk skift",
+    "reconcileZ": "Afstem Z",
+    "back": "Tilbage",
+    "resultChecking": "Tjekker resultatet",
+    "checkResult": "Tjek resultat"
+  },
+  "hr": {
+    "closeShift": "Zatvori smjenu",
+    "reconcileZ": "Uskladi Z",
+    "back": "Natrag",
+    "resultChecking": "Provjera rezultata",
+    "checkResult": "Provjeri rezultat"
+  },
+  "cs": {
+    "closeShift": "Uzavřít směnu",
+    "reconcileZ": "Srovnat Z",
+    "back": "Zpět",
+    "resultChecking": "Kontrola výsledku",
+    "checkResult": "Zkontrolovat výsledek"
+  },
+  "en": {
+    "closeShift": "Close shift",
+    "reconcileZ": "Reconcile Z",
+    "back": "Back",
+    "resultChecking": "Checking the result",
+    "checkResult": "Check result"
+  },
+  "nl": {
+    "closeShift": "Shift sluiten",
+    "reconcileZ": "Z-verzoening",
+    "back": "Terug",
+    "resultChecking": "Controleer het resultaat",
+    "checkResult": "Controleer resultaat"
+  },
+  "et": {
+    "closeShift": "Sulge vahetus",
+    "reconcileZ": "Korrigeeri Z",
+    "back": "Tagasi",
+    "resultChecking": "Tulemuse kontrollimine",
+    "checkResult": "Kontrolli tulemust"
+  },
+  "fi": {
+    "closeShift": "Sulje vuoro",
+    "reconcileZ": "Tasaa Z",
+    "back": "Takaisin",
+    "resultChecking": "Tarkistetaan tulos",
+    "checkResult": "Tarkista tulos"
+  },
+  "fr": {
+    "closeShift": "Clôturer la caisse",
+    "reconcileZ": "Rapprocher Z",
+    "back": "Retour",
+    "resultChecking": "Vérification du résultat",
+    "checkResult": "Vérifier le résultat"
+  },
+  "hu": {
+    "closeShift": "Munkaváltás lezárása",
+    "reconcileZ": "Z-egyenleg kiegyenlítése",
+    "back": "Vissza",
+    "resultChecking": "Az eredmény ellenőrzése",
+    "checkResult": "Eredmény ellenőrzése"
+  },
+  "el": {
+    "closeShift": "Κλείσιμο βάρδιας",
+    "reconcileZ": "Εξισορρόπηση Z",
+    "back": "Πίσω",
+    "resultChecking": "Έλεγχος αποτελέσματος",
+    "checkResult": "Έλεγχος αποτελέσματος"
+  },
+  "de": {
+    "closeShift": "Schicht schließen",
+    "reconcileZ": "Z-Ausgleich",
+    "back": "Zurück",
+    "resultChecking": "Ergebnis wird geprüft",
+    "checkResult": "Ergebnis prüfen"
+  },
+  "it": {
+    "closeShift": "Chiudi turno",
+    "reconcileZ": "Riconcilia Z",
+    "back": "Indietro",
+    "resultChecking": "Verifica del risultato",
+    "checkResult": "Verifica risultato"
+  },
+  "lt": {
+    "closeShift": "Uždaryti poslinkį",
+    "reconcileZ": "Sulyginti Z",
+    "back": "Atgal",
+    "resultChecking": "Patikrinamas rezultatas",
+    "checkResult": "Patikrinti rezultatą"
+  },
+  "lv": {
+    "closeShift": "Aizvērst maiņu",
+    "reconcileZ": "Saskaņot Z",
+    "back": "Atpakaļ",
+    "resultChecking": "Rezultāta pārbaude",
+    "checkResult": "Pārbaudīt rezultātu"
+  },
+  "ga": {
+    "closeShift": "Dún shift",
+    "reconcileZ": "Ionadaigh Z",
+    "back": "Ar ais",
+    "resultChecking": "Ag seiceáil an toraidh",
+    "checkResult": "Seiceáil toradh"
+  },
+  "pl": {
+    "closeShift": "Zamknij zmianę",
+    "reconcileZ": "Rozlicz Z",
+    "back": "Wróć",
+    "resultChecking": "Sprawdzanie wyniku",
+    "checkResult": "Sprawdź wynik"
+  },
+  "pt": {
+    "closeShift": "Fechar turno",
+    "reconcileZ": "Reconciliar Z",
+    "back": "Voltar",
+    "resultChecking": "Verificando o resultado",
+    "checkResult": "Verificar resultado"
+  },
+  "ro": {
+    "closeShift": "Închide schimb",
+    "reconcileZ": "Reconciliere Z",
+    "back": "Înapoi",
+    "resultChecking": "Verificarea rezultatului",
+    "checkResult": "Verifică rezultatul"
+  },
+  "mt": {
+    "closeShift": "Għaqqad l-ġirar",
+    "reconcileZ": "Ikkunsidra Z",
+    "back": "Lura",
+    "resultChecking": "Qiegħed iċċekkja r-riżultat",
+    "checkResult": "Iċċekkja r-riżultat"
+  },
+  "sk": {
+    "closeShift": "Uzavrieť smenu",
+    "reconcileZ": "Sledovať Z",
+    "back": "Späť",
+    "resultChecking": "Kontrola výsledku",
+    "checkResult": "Skontrolovať výsledok"
+  },
+  "sv": {
+    "closeShift": "Stäng skift",
+    "reconcileZ": "Avstämma Z",
+    "back": "Tillbaka",
+    "resultChecking": "Kontrollerar resultat",
+    "checkResult": "Kontrollera resultat"
+  },
+  "es": {
+    "closeShift": "Cerrar turno",
+    "reconcileZ": "Reconciliar Z",
+    "back": "Atrás",
+    "resultChecking": "Verificando el resultado",
+    "checkResult": "Verificar resultado"
+  },
+  "sl": {
+    "closeShift": "Zapri smeno",
+    "reconcileZ": "Uskladitev Z",
+    "back": "Nazaj",
+    "resultChecking": "Preverjanje rezultata",
+    "checkResult": "Preverite rezultat"
+  },
+  "ru": {
+    "closeShift": "Закрыть смену",
+    "reconcileZ": "Сверить Z",
+    "back": "Назад",
+    "resultChecking": "Результат проверяется",
+    "checkResult": "Проверить результат"
+  }
+}

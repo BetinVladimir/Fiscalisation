@@ -116,6 +116,9 @@ export class WebBleRoute implements FiscalRoute {
     intent: FiscalIntent,
     signal: AbortSignal,
   ): Promise<FiscalOperation> {
+    return this.submitCommand(intent,signal);
+  }
+  async submitCommand(intent:{client_operation_id:string},signal:AbortSignal):Promise<FiscalOperation>{
     const bluetooth = (
       navigator as unknown as {
         bluetooth: { requestDevice(value: unknown): Promise<any> };

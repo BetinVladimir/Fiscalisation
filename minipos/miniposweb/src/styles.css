@@ -3,6 +3,10 @@
   font-family: Roboto, system-ui, sans-serif;
   color: var(--beeloy-on-background);
 }
+html, body, #root {
+  height: 100%;
+  min-height: 100%;
+}
 * {
   box-sizing: border-box;
 }
@@ -12,7 +16,7 @@ body {
 main {
   width: 100%;
   max-width: 1100px;
-  margin: auto;
+  margin: 0 auto;
   padding: 20px;
   min-width: 0;
 }

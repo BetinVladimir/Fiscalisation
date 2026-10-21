@@ -24,6 +24,9 @@ type reconciliationFailStore struct{ *testStore }
 func (s *reconciliationFailStore) Save([]byte) error { return errors.New("disk unavailable") }
 
 func newReconciliationFixture(t *testing.T) *offlineV2Fixture {
+	return newReconciliationFixtureForTenant(t, "tenant-1")
+}
+func newReconciliationFixtureForTenant(t *testing.T, tenant string) *offlineV2Fixture {
 	t.Helper()
 	f := &offlineV2Fixture{t: t, store: &testStore{}, at: time.Now().UTC().Truncate(time.Second)}
 	f.repo, _ = NewPersistentRepository(f.store)
@@ -39,11 +42,11 @@ func newReconciliationFixture(t *testing.T) *offlineV2Fixture {
 	clientDER, _ := x509.MarshalPKIXPublicKey(&f.client.PublicKey)
 	put := func(kind, id string, data map[string]any) {
 		t.Helper()
-		if err := f.repo.PutResource(ResourceRecord{Kind: kind, ID: id, TenantID: "tenant-1", Version: 1, Data: data, CreatedAt: f.at, UpdatedAt: f.at}); err != nil {
+		if err := f.repo.PutResource(ResourceRecord{Kind: kind, ID: id, TenantID: tenant, Version: 1, Data: data, CreatedAt: f.at, UpdatedAt: f.at}); err != nil {
 			t.Fatal(err)
 		}
 	}
-	binding := map[string]any{"schema_version": 3, "tenant_id": "tenant-1", "location_id": "location-1", "register_id": "register-1", "edge_device_id": "adapter-1", "generation": int64(7), "fiscal_endpoint": map[string]any{"device_id": "fiscal-1", "fiscal_memory_number": "12345678", "fiscal_device_number": "AB123456"}, "payment_endpoint": map[string]any{"device_id": "terminal-1"}, "operational_authority": map[string]any{"unp_prefix": "AB123456", "unp_range_start": int64(1), "unp_range_end": int64(1000)}}
+	binding := map[string]any{"schema_version": 3, "tenant_id": tenant, "location_id": "location-1", "register_id": "register-1", "edge_device_id": "adapter-1", "generation": int64(7), "fiscal_endpoint": map[string]any{"device_id": "fiscal-1", "fiscal_memory_number": "12345678", "fiscal_device_number": "AB123456"}, "payment_endpoint": map[string]any{"device_id": "terminal-1"}, "operational_authority": map[string]any{"unp_prefix": "AB123456", "unp_range_start": int64(1), "unp_range_end": int64(1000)}}
 	hash := edgeDigest(binding)
 	put("device", "adapter-1", map[string]any{"kind": "SMART_DEVICE", "status": "ACTIVE", "serial": "adapter-serial", "credential_id": "credential-1", "transaction_signing_public_key": base64.RawURLEncoding.EncodeToString(deviceDER), "transaction_signing_kid": "device-kid"})
 	put("device", "fiscal-1", map[string]any{"kind": "FISCAL_DEVICE", "status": "ACTIVE", "serial": "fiscal-serial", "fiscal_memory_number": "12345678", "fiscal_device_number": "AB123456"})
@@ -51,9 +54,9 @@ func newReconciliationFixture(t *testing.T) *offlineV2Fixture {
 	put("operator", "operator-1", map[string]any{"code": "A001", "actor_subject": "subject-1", "active_from": f.at.Add(-time.Hour).Format(time.RFC3339)})
 	put("composite_binding", "binding-1", map[string]any{"status": "ACTIVE", "register_id": "register-1", "adapter_device_id": "adapter-1", "fiscal_device_id": "fiscal-1", "generation": int64(7), "payload_sha256": hash})
 	put("issued_binding", hash, map[string]any{"canonical_payload": binding, "payload_sha256": hash})
-	put("workstation_session", "session-1", map[string]any{"session_id": "session-1", "tenant_id": "tenant-1", "workstation_id": "register-1", "operator_id": "operator-1", "operator_code": "A001", "app_instance_id": "app-1", "actor_subject": "subject-1", "expires_at": f.at.Add(time.Hour).Format(time.RFC3339), "created_at": f.at.Format(time.RFC3339)})
+	put("workstation_session", "session-1", map[string]any{"session_id": "session-1", "tenant_id": tenant, "workstation_id": "register-1", "operator_id": "operator-1", "operator_code": "A001", "app_instance_id": "app-1", "actor_subject": "subject-1", "expires_at": f.at.Add(time.Hour).Format(time.RFC3339), "created_at": f.at.Format(time.RFC3339)})
 	var err error
-	f.envelope, err = f.svc.IssueExecutionAuthorization("session-1", base64.RawURLEncoding.EncodeToString(clientDER), "tenant-1", "subject-1")
+	f.envelope, err = f.svc.IssueExecutionAuthorization("session-1", base64.RawURLEncoding.EncodeToString(clientDER), tenant, "subject-1")
 	if err != nil {
 		t.Fatal(err)
 	}
@@ -68,12 +71,12 @@ func newReconciliationFixture(t *testing.T) *offlineV2Fixture {
 	payload := map[string]any{"currency": "EUR", "server_sale_id": surrogate, "external_id": surrogate, "location_id": "location-1", "operator_id": "operator-1", "operator_code": "A001", "items": []any{map[string]any{"line_id": "30000000-0000-4000-8000-000000000001", "name": "Кафе ☕", "quantity": "1.000", "unit_price": map[string]any{"amount": "2.50", "currency": "EUR"}, "tax_group": "B"}}, "payments": []any{map[string]any{"payment_id": "20000000-0000-4000-8000-000000000001", "type": "CARD", "amount": map[string]any{"amount": "2.50", "currency": "EUR"}}}, "metadata": map[string]any{}}
 	acceptance := EdgeAcceptanceEvidence{Version: 2, Ingress: "BLE", ReceiptSessionID: receipt, ClientSaleSurrogateID: &surrogate, PayloadSHA256: edgeDigest(payload), UNP: "AB123456-A001-0000011", BindingSHA256: hash, Generation: 7, FiscalDeviceID: "fiscal-1", Authority: f.auth.Authority, SessionEvidence: &EdgeSessionEvidence{AuthorizationID: f.auth.AuthorizationID, AuthorizationSHA256: f.envelope.SHA256}, ProofState: "AUTHORIZED"}
 	acceptance.SessionEvidence.ClientProofSHA256 = edgeDigest(executionIntentProof(acceptance, operation))
-	f.accepted = DeviceEventEnvelope{EventID: "received-" + operation, OperationID: operation, DeviceID: "adapter-1", EventType: "ACCEPTED", OccurredAt: f.at.Format(time.RFC3339Nano), Payload: map[string]any{"operation_sequence": int64(10), "unp_sequence": int64(11), "command": map[string]any{"operation_id": operation, "tenant_id": "tenant-1", "register_id": "register-1", "device_id": "adapter-1", "command_type": "SALE_FINALIZE", "payload": payload}, "acceptance_evidence": asMap(acceptance)}}
+	f.accepted = DeviceEventEnvelope{EventID: "received-" + operation, OperationID: operation, DeviceID: "adapter-1", EventType: "ACCEPTED", OccurredAt: f.at.Format(time.RFC3339Nano), Payload: map[string]any{"operation_sequence": int64(10), "unp_sequence": int64(11), "command": map[string]any{"operation_id": operation, "tenant_id": tenant, "register_id": "register-1", "device_id": "adapter-1", "command_type": "SALE_FINALIZE", "payload": payload}, "acceptance_evidence": asMap(acceptance)}}
 	f.result = DeviceEventEnvelope{EventID: "result-" + operation, OperationID: operation, DeviceID: "adapter-1", EventType: "UNKNOWN", OccurredAt: f.at.Add(time.Second).Format(time.RFC3339Nano), Payload: map[string]any{"state": "UNKNOWN", "operation_id": operation, "receipt_session_id": receipt, "payload_sha256": acceptance.PayloadSHA256, "unp": acceptance.UNP, "fiscal_reference": "FD-123", "payment_evidence": []any{map[string]any{"payment_id": "20000000-0000-4000-8000-000000000001", "type": "CARD", "amount_minor": int64(250), "state": "CARD_UNKNOWN", "terminal_reference": "", "rrn": "", "auth_code": ""}}}}
 	transcript, _ := edgeCanonical(executionIntentProof(acceptance, operation))
 	digest := sha256.Sum256(append([]byte(executionIntentProofDomain), transcript...))
 	proof, _ := ecdsa.SignASN1(rand.Reader, f.client, digest[:])
-	f.command = map[string]any{"protocol_version": "1.0", "intent_id": operation, "client_operation_id": operation, "action": "SALE_FINALIZE", "command": "SALE_FINALIZE", "receipt_session_id": receipt, "server_sale_id": nil, "client_sale_surrogate_id": surrogate, "tenant_id": "tenant-1", "location_id": "location-1", "register_id": "register-1", "edge_device_id": "adapter-1", "binding_generation": int64(7), "canonical_payload": payload, "payload_sha256": acceptance.PayloadSHA256, "execution_authorization": asMap(f.envelope), "client_proof": map[string]any{"algorithm": "ES256_DER", "signature": base64.RawURLEncoding.EncodeToString(proof)}}
+	f.command = map[string]any{"protocol_version": "1.0", "intent_id": operation, "client_operation_id": operation, "action": "SALE_FINALIZE", "command": "SALE_FINALIZE", "receipt_session_id": receipt, "server_sale_id": nil, "client_sale_surrogate_id": surrogate, "tenant_id": tenant, "location_id": "location-1", "register_id": "register-1", "edge_device_id": "adapter-1", "binding_generation": int64(7), "canonical_payload": payload, "payload_sha256": acceptance.PayloadSHA256, "execution_authorization": asMap(f.envelope), "client_proof": map[string]any{"algorithm": "ES256_DER", "signature": base64.RawURLEncoding.EncodeToString(proof)}}
 	return f
 }
 
@@ -260,6 +263,29 @@ func TestPaymentReconciliationActualFirmwareInterop(t *testing.T) {
 			t.Fatalf("actual firmware %s: %s %v", mode, b, e)
 		}
 	}
+
+	// Boundary vectors use real root signatures and actual firmware parser.
+	for _, actor := range []string{strings.Repeat("a", 136), strings.Repeat("я", 128), strings.Repeat("я", 128) + "x"} {
+		changedGrant := grant
+		changedGrant.ActorID = actor
+		canonical, _ := edgeCanonical(changedGrant)
+		sig, kid, _ := f.issuer.SignPaymentReconciliation(canonical)
+		h := sha256.Sum256(canonical)
+		changed := command
+		changed.Authorization = ExecutionAuthorizationEnvelope{"ES256_DER", kid, base64.RawURLEncoding.EncodeToString(canonical), fmt.Sprintf("%x", h), sig}
+		fixture["grant"], fixture["command"] = changedGrant, changed
+		data, _ := json.Marshal(fixture)
+		os.WriteFile(fixturePath, data, 0600)
+		mode := "valid"
+		if len(actor) > 256 {
+			mode = "signed-invalid"
+		}
+		cmd := exec.Command(binary, fixturePath, keyPath, filepath.Join(d, fmt.Sprintf("actor-%d.sqlite", len(actor))), mode, filepath.Join(d, "actor-event.json"))
+		if output, err := cmd.CombinedOutput(); err != nil {
+			t.Fatalf("actor bytes%d: %s %v", len(actor), output, err)
+		}
+	}
+	fixture["grant"], fixture["command"] = grant, command
 	// Correctly signed malformed capabilities must still fail before any I/O.
 	originalGrant := grant
 	for _, mode := range []string{"missing-bank-proof", "wrong-row-amount", "illegal-transition", "oversized-evidence", "expired-signed"} {

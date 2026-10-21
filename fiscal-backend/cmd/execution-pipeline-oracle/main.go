@@ -52,6 +52,7 @@ func main() {
 	issuer, e := domain.NewX509DeviceCredentialIssuer(ca, key, "ssl://mqtt.test:8883", "wss://mqtt.test/mqtt", "01234567890123456789012345678901")
 	must(e)
 	svc.SetDeviceCredentialIssuer(issuer)
+	svc.SetRequireHardwareSyncSignatures(true)
 	svc.SetBLESigningKey("test-only-readiness-secret-32bytes")
 	authority, e := integration.New(db, []byte("abcdef0123456789abcdef0123456789"), []byte("0123456789abcdef0123456789abcdef"))
 	must(e)

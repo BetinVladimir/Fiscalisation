@@ -1,0 +1,10 @@
+{
+  "confirmedTitle": "Operation completed",
+  "confirmedBody": "The operation result is confirmed.",
+  "failedTitle": "Operation not completed",
+  "failedBody": "The operation did not complete. Check the details before continuing.",
+  "pendingTitle": "Awaiting confirmation",
+  "pendingBody": "The result is not confirmed. Do not repeat the payment; check the operation status.",
+  "closeShiftBody": "Closing the shift requests a Z report. You can start a new shift on this register only after closure is confirmed.",
+  "reconcileShiftBody": "Check the Z report result to confirm whether this shift is closed. A new shift on this register remains unavailable until closure is confirmed."
+}

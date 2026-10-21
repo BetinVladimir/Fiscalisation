@@ -8,6 +8,7 @@ const requiredIds = [
   'shift/open', 'shift/close', 'sale/catalog', 'sale/cart', 'sale/payment',
   'sale/result', 'management/products', 'management/employees',
   'offline/outbox', 'settings/diagnostics', 'preferences/menus',
+  'sale/outcome', 'admin/payment-reconciliation',
 ];
 const issues = [];
 if (manifest.application !== 'MiniPOS Web' || !Array.isArray(manifest.screens)) issues.push('Invalid root manifest');

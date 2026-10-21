@@ -27,7 +27,7 @@ try:
     log=open(run/'source.log','w');logs.append(log);children.append(subprocess.Popen([str(run/'source'),str(run),dsn],stdout=log,stderr=subprocess.STDOUT,env=env));wait('source.json')
     subprocess.run(['go','test','./internal/domain','-run','^TestExecutionHTTPPipelineFixture$','-count=1'],cwd=root/'fiscal-backend',env=env,check=True)
     log=open(run/'root.log','w');logs.append(log);children.append(subprocess.Popen([str(run/'root'),str(run),dsn],stdout=log,stderr=subprocess.STDOUT,env=env));wait('source-server.json')
-    subprocess.run(['./node_modules/.bin/playwright','test','-c','playwright.pipeline.config.mjs'],cwd=root/'minipos/miniposweb',env=env,check=True)
+    subprocess.run(['./node_modules/.bin/playwright','test','-c',('playwright.reconciliation-pipeline.config.mjs' if os.environ.get('RECONCILIATION_HTTP_PIPELINE')=='YES' else 'playwright.pipeline.config.mjs')],cwd=root/'minipos/miniposweb',env=env,check=True)
 finally:
     for p in children:p.terminate()
     for p in children:

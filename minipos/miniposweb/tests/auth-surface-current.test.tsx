@@ -1,9 +1,10 @@
 // @vitest-environment jsdom
 vi.mock('../src/ui/PaperOperationalHeader',()=>({PaperOperationalHeader:()=>null}));
-// Authored only; execution deferred until global gate.
+// Focused presentation checks; runtime matrix provides actual browser layout proof.
 import React,{act} from 'react';import {createRoot,type Root} from 'react-dom/client';
 import {afterEach,beforeEach,expect,it,vi} from 'vitest';
-const mock=vi.hoisted(()=>({background:'#fffbff',surfaces:[] as any[]}));
+const mock=vi.hoisted(()=>({background:'#fffbff',height:900,surfaces:[] as any[]}));
+vi.mock('react-native',()=>({useWindowDimensions:()=>({width:320,height:mock.height})}));
 vi.mock('react-native-paper',()=>({Surface:(props:any)=>{mock.surfaces.push(props);return <div data-testid={props.testID}>{props.children}</div>},Text:({children}:any)=><span>{children}</span>,HelperText:({children}:any)=><span>{children}</span>,Card:Object.assign(({children}:any)=><div>{children}</div>,{Content:({children}:any)=><div>{children}</div>}),useTheme:()=>({colors:{background:mock.background,surface:'#fff'}})}));
 vi.mock('../src/ui/PreferenceControls',()=>({readLanguage:()=> 'en',PreferenceControls:()=>null}));
 vi.mock('../src/ui/app-button',()=>({AppButton:({children}:any)=><button>{children}</button>}));
@@ -17,3 +18,5 @@ it.each(['#fffbff','#141218'])('auth page owns genuine Paper surface %s',async b
 
 import {AppFrame} from '../src/ui/app-frame';
 it.each(['#fffbff','#141218'])('working and recovery frame use Paper background %s',async background=>{mock.background=background;await act(async()=>root.render(<AppFrame testID="frame"><main>Content</main></AppFrame>));const surface=mock.surfaces.find(item=>item.testID==='frame');expect(surface.mode).toBe('flat');expect(surface.elevation).toBe(0);expect(surface.style.backgroundColor).toBe(background);expect(surface.style.minWidth).toBe(0);expect(host.querySelector('main')?.textContent).toBe('Content');});
+
+it('working surface follows viewport height after resize',async()=>{for(const height of [900,640]){mock.height=height;mock.surfaces=[];await act(async()=>root.render(<AppFrame testID="resize"><main>Content</main></AppFrame>));expect(mock.surfaces.find(item=>item.testID==='resize').style.minHeight).toBe(height)}});

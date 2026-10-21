@@ -4,6 +4,66 @@
  */
 
 export interface paths {
+    "/minipos/orders/{order_id}/lines/{line_id}": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                order_id: components["parameters"]["OrderId"];
+                line_id: components["parameters"]["LineId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Remove an owned source line before fiscal preparation. Exact version and editable state checked atomically; no financial side effects. */
+        delete: operations["deleteMiniPosSourceOrderLine"];
+        options?: never;
+        head?: never;
+        /** @description Owned source order only. Requires current version and an editable, never-prepared order; nonzero discounts require SUPERVISOR or ADMIN. */
+        patch: operations["updateMiniPosSourceOrderLine"];
+        trace?: never;
+    };
+    "/payment-reconciliations:bind-administrator": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Explicit ADMIN mapping for delegated bank decision authority; never inferred from sale authority. */
+        post: operations["bindReconciliationAdministrator"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/minipos/payment-reconciliations:authorize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Requires authenticated and persisted source ADMIN, active caller-owned app session/shift, explicit root delegation capability and persisted root ADMIN mapping. Does not prove fiscalization. */
+        post: operations["authorizeMiniPosPaymentReconciliation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/payment-reconciliations:authorize": {
         parameters: {
             query?: never;
@@ -1829,6 +1889,13 @@ export interface components {
             /** @enum {string} */
             terminal_policy?: "REQUIRED" | "AUTO_IF_AVAILABLE" | "NONE";
         };
+        MiniPosEditableOrder: components["schemas"]["MiniPosOrderRuntimeState"] & {
+            external_id: string;
+            /** Format: uuid */
+            shift_id: string;
+            lines: components["schemas"]["MiniPosOfflineLine"][];
+            total: components["schemas"]["Money"];
+        };
         MiniPosOrderRuntimeState: {
             /** Format: uuid */
             id: string;
@@ -2114,6 +2181,181 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    deleteMiniPosSourceOrderLine: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                order_id: components["parameters"]["OrderId"];
+                line_id: components["parameters"]["LineId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Updated source order */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosEditableOrder"];
+                };
+            };
+            409: components["responses"]["Problem"];
+            428: components["responses"]["Problem"];
+        };
+    };
+    updateMiniPosSourceOrderLine: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                order_id: components["parameters"]["OrderId"];
+                line_id: components["parameters"]["LineId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MiniPosOfflineLine"];
+            };
+        };
+        responses: {
+            /** @description Updated source order */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosEditableOrder"];
+                };
+            };
+            403: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            428: components["responses"]["Problem"];
+        };
+    };
+    bindReconciliationAdministrator: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    operator_id: string;
+                    external_system_id: string;
+                    source_operator_id: string;
+                    identity_issuer: string;
+                    identity_subject: string;
+                    enabled: boolean;
+                    expected_version: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Administrator mapping persisted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ADMIN required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Mapping identity or version conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    authorizeMiniPosPaymentReconciliation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    shift_id: string;
+                    decision: {
+                        operation_id: string;
+                        payment_id: string;
+                        /** @enum {string} */
+                        observed_state: "CARD_APPROVED" | "CARD_DECLINED" | "CARD_NOT_SENT" | "REVERSED" | "REVERSAL_FAILED";
+                        terminal_reference?: string;
+                        rrn?: string;
+                        auth_code?: string;
+                        reversal_reference?: string;
+                        reversal_rrn?: string;
+                        reversal_auth_code?: string;
+                        evidence_reference: string;
+                        evidence_sha256: string;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Signed single-use decision capability */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        command: "PAYMENT_RECONCILE";
+                        /** Format: uuid */
+                        client_operation_id: string;
+                        reconciliation_authorization: {
+                            algorithm: string;
+                            key_id: string;
+                            payload: string;
+                            sha256: string;
+                            signature: string;
+                        };
+                    };
+                };
+            };
+            /** @description Caller session inactive */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Administrator authority denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
     authorizePaymentReconciliation: {
         parameters: {
             query?: never;

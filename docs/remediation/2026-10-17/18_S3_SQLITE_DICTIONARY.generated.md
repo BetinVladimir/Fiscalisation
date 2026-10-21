@@ -2,7 +2,7 @@
 
 Generated from actual firmware SQL. Field names, SQLite declared types, defaults, keys, relations and executable DDL are authoritative to this source hash; business descriptions require review.
 
-Source SHA256: `a3aa973183ee484af3e13079d5dfb49714327b510af630eb48520af7d0c94aba`
+Source SHA256: `b0cb32ff113a83cc1d72ef5d6c55ce6d5e4ba3f6e26ea407ec6c0598ca05065d`
 
 Schema SQL SHA256: `80e0b9539a16897733296a8cb28c3fee250013c06601e41cbe09317ec372136b`
 

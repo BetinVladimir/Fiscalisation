@@ -2,7 +2,7 @@ import {headerTargetSize} from './header-layout';
 import {headerIcons} from './header-icons';
 import React, {useLayoutEffect, useRef, useState, type ReactNode} from 'react';
 import {Platform, View, useWindowDimensions} from 'react-native';
-import {Appbar, IconButton, Text, useTheme} from 'react-native-paper';
+import {Appbar, Icon, IconButton, Text, useTheme} from 'react-native-paper';
 
 export type HeaderAction = {label:string; onPress:()=>void; disabled?:boolean; testID?:string};
 export type OperationalHeaderProps = {
@@ -36,7 +36,7 @@ export function PaperOperationalHeader({title,testID='operational.header',back,m
  useLayoutEffect(measure,[metrics.width,metrics.zoom,count]);
  const snapshot={back,menu},committed=useRef<object|null>(null);
  useLayoutEffect(()=>{committed.current=snapshot;return()=>{if(committed.current===snapshot)committed.current=null;};});
- const action=(value:HeaderAction,icon:keyof typeof headerIcons,id:string)=><IconButton testID={value.testID??id} mode="outlined" icon={headerIcons[icon]} size={20} accessibilityLabel={value.label} disabled={value.disabled} style={{width:target,height:target,margin:0,flexShrink:0}} onPress={()=>{if(committed.current===snapshot&&!value.disabled)value.onPress();}}/>;
+ const action=(value:HeaderAction,icon:keyof typeof headerIcons,id:string)=><IconButton testID={value.testID??id} mode="outlined" icon={({size,color})=><View aria-hidden accessible={false}><Icon source={headerIcons[icon]} size={size} color={color}/></View>} size={20} accessibilityLabel={value.label} disabled={value.disabled} style={{width:target,height:target,margin:0,flexShrink:0}} onPress={()=>{if(committed.current===snapshot&&!value.disabled)value.onPress();}}/>;
  return <Appbar.Header testID={testID} statusBarHeight={0} style={{height:'auto',minHeight:56,backgroundColor:theme.colors.surface,paddingHorizontal:4}}>
   <View ref={row} onLayout={measure} style={{width:'100%',minWidth:0,flexDirection:'row',flexWrap:'nowrap',alignItems:'center',gap:2}}>
    {back?action(back,'arrow-left',`${testID}.back`):null}
