@@ -27,3 +27,76 @@ bool encode(const cJSON*v,std::vector<uint8_t>&o,int depth){if(!v||depth>16)retu
 }
 esp_err_t canonical_json_to_cbor(const cJSON*v,uint8_t**data,size_t*size){if(!v||!data||!size)return ESP_ERR_INVALID_ARG;std::vector<uint8_t>o;if(!encode(v,o,0)||o.empty()||o.size()>8192)return ESP_ERR_INVALID_ARG;*data=(uint8_t*)malloc(o.size());if(!*data)return ESP_ERR_NO_MEM;memcpy(*data,o.data(),o.size());*size=o.size();return ESP_OK;}
 }
+
+namespace beefiscal::idf { namespace {
+class ValueDecoder {
+  using V=go_json::Value;
+  const uint8_t* cursor_;const uint8_t* end_;
+  bool argument(uint8_t ai,uint64_t&value){
+    if(ai<24){value=ai;return true;}
+    const size_t width=ai==24?1:ai==25?2:ai==26?4:ai==27?8:0;
+    if(!width||size_t(end_-cursor_)<width)return false;
+    value=0;for(size_t i=0;i<width;i++)value=(value<<8)|*cursor_++;
+    return (width==1&&value>=24)||(width==2&&value>255)||
+      (width==4&&value>65535)||(width==8&&value>UINT32_MAX);
+  }
+  static bool utf8(const uint8_t*data,size_t size){
+    for(size_t at=0;at<size;){
+      const uint8_t c=data[at];if(c==0)return false;
+      if(c<0x80){++at;continue;}
+      const size_t width=c>=0xc2&&c<=0xdf?2:c>=0xe0&&c<=0xef?3:c>=0xf0&&c<=0xf4?4:0;
+      if(!width||width>size-at)return false;
+      for(size_t i=1;i<width;i++)if((data[at+i]&0xc0)!=0x80)return false;
+      const uint8_t next=data[at+1];
+      if((c==0xe0&&next<0xa0)||(c==0xed&&next>=0xa0)||
+         (c==0xf0&&next<0x90)||(c==0xf4&&next>=0x90))return false;
+      at+=width;
+    }
+    return true;
+  }
+  bool read(V&out,unsigned depth){
+    if(depth>16||cursor_==end_)return false;
+    const uint8_t first=*cursor_++,major=first>>5,ai=first&31;
+    if(major==7){
+      if(ai==20||ai==21){out=V::boolean_value(ai==21);return true;}
+      if(ai==22){out=V::null();return true;}
+      return false;
+    }
+    if(major>5)return false;
+    uint64_t value;if(!argument(ai,value))return false;
+    if(major==0||major==1){
+      if(value>uint64_t(INT64_MAX))return false;
+      out=V::integer_value(major==0?int64_t(value):-int64_t(value)-1);return true;
+    }
+    // Length caps apply to containers/bytes/text, not integer magnitude.
+    if(value>8192)return false;
+    if(major==2||major==3){
+      if(value>uint64_t(end_-cursor_))return false;
+      std::string text;
+      if(major==3){if(!utf8(cursor_,size_t(value)))return false;text.assign(reinterpret_cast<const char*>(cursor_),size_t(value));}
+      else{static const char hex[]="0123456789abcdef";text.resize(size_t(value)*2);for(size_t i=0;i<value;i++){text[2*i]=hex[cursor_[i]>>4];text[2*i+1]=hex[cursor_[i]&15];}}
+      cursor_+=size_t(value);out=V::string(std::move(text));return true;
+    }
+    out=major==4?V::array({}):V::object({});
+    for(uint64_t i=0;i<value;i++){
+      V key,item;
+      if(major==5){
+        if(!read(key,depth+1)||key.kind!=V::Kind::String)return false;
+        for(const auto&field:out.fields)if(field.first==key.text)return false;
+      }
+      if(!read(item,depth+1))return false;
+      if(major==4)out.elements.push_back(std::move(item));
+      else out.fields.emplace_back(std::move(key.text),std::move(item));
+    }
+    return true;
+  }
+ public:
+  ValueDecoder(const uint8_t*data,size_t size):cursor_(data),end_(data+size){}
+  bool decode(V&out){V next;if(!read(next,1)||cursor_!=end_)return false;out=std::move(next);return true;}
+};
+}
+esp_err_t canonical_cbor_to_value(const uint8_t*data,size_t size,go_json::Value&out){
+  if(!data||!size||size>8192)return ESP_ERR_INVALID_ARG;
+  return ValueDecoder(data,size).decode(out)?ESP_OK:ESP_ERR_INVALID_ARG;
+}
+}

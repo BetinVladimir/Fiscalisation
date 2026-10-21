@@ -185,20 +185,17 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
   go_json::Value canonical_root;
   std::string json_error;
   if (view.ingress == Ingress::Ble) {
-    if (canonical_cbor_to_json(view.data, view.size, &decoded) != ESP_OK)
-      return ESP_ERR_INVALID_ARG;
-    if (!go_json::from_cjson(decoded, canonical_root, json_error)) {
-      cJSON_Delete(decoded); return ESP_ERR_INVALID_ARG;
-    }
+    if(canonical_cbor_to_value(view.data,view.size,canonical_root)!=ESP_OK||
+       go_json::contains_nul(canonical_root)||!go_json::safe_cjson_numbers(canonical_root))return ESP_ERR_INVALID_ARG;
   } else {
     if (!go_json::parse((const char*)view.data, view.size, canonical_root, json_error))
       return ESP_ERR_INVALID_ARG;
-    std::string business_json;
-    if (!go_json::encode(canonical_root, business_json, json_error))
-      return ESP_ERR_INVALID_ARG;
-    decoded = cJSON_ParseWithLengthOpts(business_json.data(), business_json.size(),
-                                        nullptr, false);
   }
+  // Typed CBOR is retained for authorization. Reject unsafe numbers before the
+  // business-only cJSON projection can lose integer precision.
+  std::string business_json;
+  if (!go_json::encode(canonical_root, business_json, json_error))return ESP_ERR_INVALID_ARG;
+  decoded = cJSON_ParseWithLengthOpts(business_json.data(), business_json.size(),nullptr,false);
   Json root(decoded);
   if (!root || !cJSON_IsObject(root.get()) ||
       canonical_root.kind != go_json::Value::Kind::Map ||
@@ -480,7 +477,7 @@ esp_err_t IntentProcessor::accept(const CommandView &v) {
   if (!v.data || !v.size || v.size > 32768) return ESP_ERR_INVALID_ARG;
   go_json::Value root; std::string error;
   bool parsed=false;
-  if(v.ingress==Ingress::Ble){cJSON*json=nullptr;if(canonical_cbor_to_json(v.data,v.size,&json)==ESP_OK){parsed=go_json::from_cjson(json,root,error);cJSON_Delete(json);}}
+  if(v.ingress==Ingress::Ble)parsed=canonical_cbor_to_value(v.data,v.size,root)==ESP_OK;
   else parsed=go_json::parse((const char*)v.data,v.size,root,error);
   if(!parsed||go_json::contains_nul(root))return ESP_ERR_INVALID_ARG;
   for(const auto&f:root.fields)if(f.first=="command"&&f.second.kind==go_json::Value::Kind::String&&f.second.text=="PAYMENT_RECONCILE") {

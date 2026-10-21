@@ -17,7 +17,7 @@ with tempfile.TemporaryDirectory(prefix="authority-host-") as name:
  link=[d/"cJSON.o",library,"-L",ssl/"lib","-lcrypto","-lsqlite3"]
  run(common+[idf/"main/durable_storage.cpp",here/"runtime.cpp"]+link+["-o",d/"storage"])
  for mode in ["format","configuration","boundary","atomic","policy","operators","assigned","concurrent-assigned"]:run([d/"storage",mode,d/(mode+".sqlite")])
- run(common+[idf/"main"/f for f in ["durable_storage.cpp","intent_processor.cpp","go_json.cpp","go_wire.cpp","execution_authorization.cpp","payment_reconciliation.cpp"]]+[here/"intent.cpp"]+link+["-o",d/"intent"])
+ run(common+[idf/"main"/f for f in ["durable_storage.cpp","intent_processor.cpp","go_json.cpp","go_wire.cpp","execution_authorization.cpp","payment_reconciliation.cpp","canonical_cbor.cpp"]]+[here/"intent.cpp"]+link+["-o",d/"intent"])
  for fixture_name in ([os.environ["AUTHORITY_EXTERNAL_FIXTURE"]] if os.environ.get("AUTHORITY_EXTERNAL_FIXTURE") else ["issuer_fixture.json","online_issuer_fixture.json"]):
   fixture=json.loads((here/fixture_name).read_text());key=fixture["trust_key_der_base64"]
   (d/"trust.der").write_bytes(base64.urlsafe_b64decode(key+"="*((-len(key))%4)))

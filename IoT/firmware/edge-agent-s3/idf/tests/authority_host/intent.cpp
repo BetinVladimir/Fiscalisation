@@ -7,7 +7,6 @@
 #include <cstring>
 #include <sqlite3.h>
 using namespace beefiscal::idf;
-namespace beefiscal::idf{esp_err_t canonical_cbor_to_json(const uint8_t*,size_t,cJSON**){return ESP_ERR_NOT_SUPPORTED;}}
 static std::string text(cJSON*v,const char*k){auto*x=cJSON_GetObjectItemCaseSensitive(v,k);assert(cJSON_IsString(x));return x->valuestring;}
 static std::string scalar(const char*p,const char*q){sqlite3*d{};sqlite3_stmt*s{};assert(sqlite3_open(p,&d)==0);assert(sqlite3_prepare_v2(d,q,-1,&s,nullptr)==0);assert(sqlite3_step(s)==SQLITE_ROW);const auto*t=sqlite3_column_text(s,0);std::string out=t?(const char*)t:"";sqlite3_finalize(s);sqlite3_close(d);return out;}
 static std::string expected_unp,expected_server,expected_surrogate;static bool expected_mqtt=false;

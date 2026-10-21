@@ -1,0 +1,32 @@
+{
+  "scope": "Typed CBOR prerequisite and listed host regressions; full BLE origin integration/target/HIL remain pending",
+  "source_sha256": {
+    "IoT/firmware/edge-agent-s3/idf/main/canonical_cbor.h": "f5ffc02304cd1046c10f31342b27b3649904d5841d7dff1d59c18e01280ae6f3",
+    "IoT/firmware/edge-agent-s3/idf/main/canonical_cbor.cpp": "1469d3865cc654856fc7897de70ce4a58f9060fc2b3e33e95f110bfb4e415112",
+    "IoT/firmware/edge-agent-s3/idf/main/go_wire.cpp": "a7c6b719f376b2f691074e57cd10708ceb037e81bc9dadf935c6e4f6bd004464",
+    "IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp": "709270be2935a5ab59a13321b211e36380bb7955db24519960256a12489fb3cd"
+  },
+  "passed_runs": [
+    {
+      "local_log": "fiscal-cbor-typed-root-20261021.log",
+      "sha256": "ff51a3460ad40585c87e4a1a0c8a3c3a788ed8ea47c8035e1cec809ac5bbe01e",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-cbor-authority-root-20261021.log",
+      "sha256": "7290b052c28229d39e00b9cbcd8e54c47f798d94f0cdf1bc3696214fc4d32298",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-cbor-reconciliation-root-20261021.log",
+      "sha256": "2f7d2f6516b410fdb4b985f912952a1f4a0ec5436a86ef9e11e19d9933080535",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-cbor-go-wire-root-20261021.log",
+      "sha256": "9473953ff2498644c774cab934680a4b03f3e6c7b8158402be2b5372a3fa6a56",
+      "exit_code": 0
+    }
+  ],
+  "raw_logs": "Local only; excluded from published manifest"
+}

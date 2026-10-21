@@ -33,7 +33,7 @@ with tempfile.TemporaryDirectory(prefix="go-wire-host-") as name:
  source=json.loads(fixture.read_text());key=source["trust_key_der_base64"]
  (d/"trust.der").write_bytes(base64.urlsafe_b64decode(key+"="*((-len(key))%4)))
  run(["openssl","pkey","-pubin","-inform","DER","-in",d/"trust.der","-out",d/"trust.pem"])
- actual=[v for v in args if str(v) not in {str(idf/"main/canonical_cbor.cpp"),str(here/"runtime.cpp")}]
+ actual=[v for v in args if str(v)!=str(here/"runtime.cpp")]
  actual[-1]=d/"authority-runtime"
  run(actual+[idf/"tests/authority_host/intent.cpp"])
  run([d/"authority-runtime",fixture,d/"trust.pem",d/"mqtt-online.sqlite","mqtt-valid",output/"mqtt-online-events.json"])

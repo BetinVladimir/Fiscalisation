@@ -1,0 +1,13 @@
+# Typed CBOR and end-to-end BLE reply origin
+
+## Typed command prerequisite integrated
+
+Actual BLE command decoding previously passed through cJSON double values. go_json integer validation then rejected a legitimate binding_generation because its original numeric token had disappeared. The old CBOR decoder also applied its8192 length cap to integer magnitudes. Actual Go-issued/PoP command→real CBOR→processor reproduction exposed this gap; tests with a substituted BLE decoder did not prove that route.
+
+The command and reconciliation BLE paths now decode directly into typed go_json::Value, retaining checked int64 integers. Size/depth/minimal encoding, duplicate keys, trailing bytes, unsupported types and strict UTF8 are checked; byte-string→hex behavior remains explicit. The business cJSON projection still rejects integers outside ±(2^53−1) before lossy conversion; the typed reader itself supports full int64. JSON lexical integer validation is unchanged. The legacy cJSON CBOR API and32-bit result encoder remain separate limitations; this prerequisite does not claim those are fixed.
+
+Root strict GCC tests PASS: independent hexadecimal typed-reader vectors; actual authority/SQLite; actual reconciliation/Go signature interop; actual Go-wire/sync/large sequence regression. Three host decoder stubs were removed and linked to the real decoder. Root additionally fixed go_wire_host to retain that dependency for its actual authority executable. [Hash-only evidence](evidence/typed-cbor-root-2026-10-21/manifest.json).
+
+## Remaining integration
+
+Reply owner propagation through actual queue→processor→delivery→publisher is a separate reviewed package. Root full vertical verification and exact-source S3 CI are still required after that integration. No authenticated BLE channel, TLS, trusted-time provider, physical device or НАП acceptance is established here. Keys remain in ESP32-S3 NVS; ATECC608 is unused.

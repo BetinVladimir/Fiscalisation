@@ -189,6 +189,7 @@ iot-test: time-anchor-test iot-protocol-test
 	python3 IoT/firmware/edge-agent-s3/idf/tests/reconciliation_host/run.py
 	bash IoT/firmware/edge-agent-s3/idf/tests/run_provisioning_host.sh
 	python3 IoT/firmware/edge-agent-s3/idf/tests/go_json_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/cbor_typed_host/run.py
 	python3 IoT/firmware/edge-agent-s3/idf/tests/go_wire_host/run.py
 	python3 IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py
 	python3 IoT/firmware/edge-agent-s3/idf/tests/receipt_host/run.py

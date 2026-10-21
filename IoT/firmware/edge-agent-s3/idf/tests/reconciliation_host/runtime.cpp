@@ -7,7 +7,6 @@
 #include <cstring>
 #include <sqlite3.h>
 using namespace beefiscal::idf;
-namespace beefiscal::idf{esp_err_t canonical_cbor_to_json(const uint8_t*,size_t,cJSON**){return ESP_ERR_NOT_SUPPORTED;}}
 std::string read(const char*p){std::ifstream f(p);std::stringstream s;s<<f.rdbuf();return s.str();}
 std::string text(cJSON*p,const char*k){auto*v=cJSON_GetObjectItem(p,k);assert(cJSON_IsString(v));return v->valuestring;}
 struct Completion{int calls{};std::string operation,result;};

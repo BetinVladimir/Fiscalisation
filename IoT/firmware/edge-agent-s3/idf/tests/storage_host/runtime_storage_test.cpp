@@ -14,7 +14,6 @@ static std::string mqtt_issued="2024-01-01T00:00:00Z",mqtt_expires="2024-01-01T0
 static bool expired_command=false;static bool adversarial_result=false;static bool preassigned=false;static int assigned_negative=-1;
 static std::string escaped_reference(){return std::string(2048,'x')+"\"\n\\end";}
 using namespace beefiscal::idf;
-namespace beefiscal::idf {esp_err_t canonical_cbor_to_json(const uint8_t*,size_t,cJSON**){return ESP_ERR_NOT_SUPPORTED;}}
 static void sql(const char*path,const char*query){sqlite3*d{};assert(sqlite3_open(path,&d)==SQLITE_OK);char*err{};int rc=sqlite3_exec(d,query,nullptr,nullptr,&err);if(rc)std::cerr<<(err?err:"")<<"\n";assert(rc==SQLITE_OK);sqlite3_free(err);sqlite3_close(d);}
 static std::string scalar(const char*path,const char*query){sqlite3*d{};sqlite3_stmt*s{};assert(sqlite3_open(path,&d)==0);assert(sqlite3_prepare_v2(d,query,-1,&s,nullptr)==0);assert(sqlite3_step(s)==SQLITE_ROW);auto*t=sqlite3_column_text(s,0);std::string r=t?(const char*)t:"";sqlite3_finalize(s);sqlite3_close(d);return r;}
 static std::string digest(const std::string&s){unsigned char out[32];SHA256((const unsigned char*)s.data(),s.size(),out);char b[65];for(int n=0;n<32;n++)snprintf(b+n*2,3,"%02x",out[n]);return b;}
