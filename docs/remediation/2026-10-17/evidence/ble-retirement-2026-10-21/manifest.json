@@ -1,0 +1,138 @@
+{
+  "date": "2026-10-21",
+  "security_commit": "93e13a9e655e78a0e19382f5b5e1b3a3f065d2cc",
+  "tested_source_sha256": {
+    "minipos/BeeMiniPOS/App.tsx": "37e99c81b2b0165582fcfbbcab1dc3d52c60ae145e900390cc52ba2d2d368080",
+    "minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx": "f76a6c3449b75bac6b968829d7182a2a3074804e22cf94dbf8cffc710826acde",
+    "BeeFiscalApp/App.tsx": "10961408a7914d575f561ca86c2ee6a974614e17300c5e01444759eec037487c",
+    "minipos/BeeMiniPOS/src/ui/HeaderPreferenceMenus.tsx": "994dee81057e01288486802e166145caa53a04c85803c9d8f11a4b47827505a2",
+    "minipos/BeeMiniPOS/src/ui/PaperOperationalHeader.tsx": "c6827da2cb65e7c25790b1fe0a3c3dca76e06562a2635dbc69899b448144fe47",
+    "minipos/BeeMiniPOS/src/ui/header-icons.ts": "0b11c541fb1e608821092e35acf57e85df159a2e7f8b6c41bb221559ba30a5e3"
+  },
+  "results": {
+    "MiniPOS_UI": 148,
+    "MiniPOS_Node": 176,
+    "MiniPOS_TypeScript": "PASS",
+    "fresh_bundled_browser_auth_cases": 6,
+    "financial_browser_writes": 0
+  },
+  "logs": {
+    "mini-ui": {
+      "file": "mini-ui.log.gz",
+      "raw_sha256": "f8a16fdbad423331a6b03e12fa93106ec1087d2b70aeada583c9aed0d892da7b",
+      "gzip_sha256": "4d96e2170c699329e2ab32995e40a1faf5c1962c0e222b5553b9292bb7cf2216"
+    },
+    "mini-node": {
+      "file": "mini-node.log.gz",
+      "raw_sha256": "935996507ea11a37a291c87f5b67b8d7248e504bd3a7566420b4102167cf52a3",
+      "gzip_sha256": "79ad029e10e12d72ea9c79e3fe4b0333036860679a4ba99f5b047d44557e9d6d"
+    },
+    "mini-ts": {
+      "file": "mini-ts.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    },
+    "red-original-active-ble": {
+      "file": "red-original-active-ble.log.gz",
+      "raw_sha256": "d3b039e072941e738ac273c43341ae35385d2f9a3b145427ddcfd1b27167adf1",
+      "gzip_sha256": "ecf5739b2970762ee24e93cc1df2582fdf7048f3fde9c735ff80039b144c3d53"
+    },
+    "red-r1-connect-route": {
+      "file": "red-r1-connect-route.log.gz",
+      "raw_sha256": "d38f1023203db9301b5ce3e3820cfeb3edbbf7b6c493ce39733bca30edd779f5",
+      "gzip_sha256": "c9647b2614403c59a5078a9d3efbf4518398c89750635f643dfd6edf0ac6af96"
+    },
+    "red-r3-dirty-logout": {
+      "file": "red-r3-dirty-logout.log.gz",
+      "raw_sha256": "9eb0b82e6cc3e4913f49bbafe29dbb792adfd72550af0eecdcae281f39979cf2",
+      "gzip_sha256": "36847b814757a2f343b8925f6716e17bb2039a5105be7816f50309d6f28ab7ad"
+    },
+    "red-removed-logout-context": {
+      "file": "red-removed-logout-context.log.gz",
+      "raw_sha256": "c2354cda2747942cb24b24e8fb0404bb62ad6abfff5fb87df2bb63d8368df8a7",
+      "gzip_sha256": "20e89db2fd4ab8c9f5c9f4f28d35efd16cea5486d441c7ecc797f2f8317415eb"
+    },
+    "browser-dirtylogout-red": {
+      "file": "browser-dirtylogout-red.log.gz",
+      "raw_sha256": "b86f021bcb95ce937eae9334f6b6da0503c19e3b5a65b2accc2c14ae1c34c921",
+      "gzip_sha256": "93ec32a898325610aac2418dedd430182faab38ae410fbecbd745e1f4900ff52"
+    },
+    "browser-theme-open": {
+      "file": "browser-theme-open.log.gz",
+      "raw_sha256": "43896546fca29f634255615330c5d90d092ec99b8fc766a1c64f4a9c56bf2002",
+      "gzip_sha256": "5ade2bd33c159622cb74abc5b3d23a3c487c0a5f5f5fced5faf65a6a23e7f2d3"
+    },
+    "mini-export": {
+      "file": "mini-export.log.gz",
+      "raw_sha256": "7d34257343226a44ad0e4e66f9c801607d7e4d8387b4743c6d687e0a93c2652a",
+      "gzip_sha256": "9eaa3f8b53d62920af4990827a0932de4bf8ec470466d438103f4f5d79005446"
+    },
+    "fiscal-export": {
+      "file": "fiscal-export.log.gz",
+      "raw_sha256": "542dbb1d08941044a303eb4206e355ce5dcb5c99f009eafb2f138f8271a9ab0f",
+      "gzip_sha256": "aeea72e96b9230f93a88fbb526f706bd69f768752259799fb08d81fe5a57a076"
+    },
+    "browser-fullauth-historical": {
+      "file": "browser-fullauth-historical.log.gz",
+      "raw_sha256": "cc9fc837dd953b178a8c05c0fd1f752759d93dff3c25dd0c50ced3094ee51637",
+      "gzip_sha256": "c760cf00f1533abbca37ade7ad495b1644b84b0a36af5f4dd0d2b0d3b9425ff2",
+      "classification": "SUPERSEDED_INSUFFICIENT_STALE_RESPONSE_CONSUMPTION_ASSERTION"
+    },
+    "browser-fullauth": {
+      "file": "browser-fullauth.log.gz",
+      "raw_sha256": "6a07c3a280498cd7866987d4307b079f7b90d2c8c78bb0ba32424cc4abd4d533",
+      "gzip_sha256": "4beea2aa3ba0a97251cffa561b04224a99fd261145767f0f0810403cbf7599c8",
+      "classification": "PASS_SCOPED_SIX"
+    },
+    "browser-fiscal-stale-open": {
+      "file": "browser-fiscal-stale-open.log.gz",
+      "raw_sha256": "f31338255b36eeec621e5e74c8c990b1013dadf6140a128a1c975763d37a388f",
+      "gzip_sha256": "0367235d82086804a1f7859981c03d8efcaf207186fa97da07d69395a57b248c",
+      "classification": "OPEN_DIAGNOSTIC_FAILURE_NOT_ACCEPTANCE"
+    },
+    "browser-fiscal-stale-diagnostic": {
+      "file": "browser-fiscal-stale-diagnostic.log.gz",
+      "raw_sha256": "29af9893accb33be8a21009499df761e56c1c45a701c17958535063387e4a50c",
+      "gzip_sha256": "bf113b84e7fe02baa1d8da6b4e8791d130358535509427db0de0f9f090c5a2e0",
+      "classification": "OPEN_DIAGNOSTIC_FAILURE_NOT_ACCEPTANCE"
+    }
+  },
+  "browser": {
+    "MiniPOS_bundle": "AppEntry-2ae5985bbad418833c45ddc9fc4510c2.js",
+    "Fiscal_bundle": "AppEntry-7764a34b5455aa9540662e21f94df56a.js",
+    "MiniPOS_App_sha256": "37e99c81b2b0165582fcfbbcab1dc3d52c60ae145e900390cc52ba2d2d368080",
+    "Fiscal_App_sha256": "10961408a7914d575f561ca86c2ee6a974614e17300c5e01444759eec037487c",
+    "fresh_export": true,
+    "isolated_copy_only": true,
+    "dotenv_disabled": true,
+    "environment_allowlist": [
+      "PATH",
+      "HOME",
+      "TMPDIR",
+      "CI=1",
+      "EXPO_NO_DOTENV=1",
+      "EXPO_NO_TELEMETRY=1",
+      "APP_VARIANT=production",
+      "EXPO_PUBLIC_APP_ENV=prod",
+      "EXPO_PUBLIC_MINIPOS_API_URL=http://minipos-api.test/public/v1/minipos",
+      "EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-api.test/public/v1 or http://fiscal-admin.test/public/v1"
+    ],
+    "fixture_adjustment": "Existing header logout fixture omitted legitimate paginated GET /orders from Admin reset. Tmp-only fixture accepts exactly this read; existing forbidden-write checks retained. No production source changed for fixture compatibility.",
+    "theme_scope": "Fiscal theme/current401 PASS; MiniPOS theme menu under pending configuration GET remains OPEN (menu choice absent, pending read reaches deadline). MiniPOS current401/stale401 PASS uses viewport rerender, not theme PASS.",
+    "response_completion": "Confirmed current/stale cases wait response.finished plus two requestAnimationFrame callbacks. MiniPOS stale then executes Admin products navigation and observes product-add, proving a subsequent React UI commit remains authorized.",
+    "Fiscal_stale401_browser": "OPEN: held /locations GET aborted at3997ms under unchanged4000ms deadline; ordinary logout and re-OTP completed4594ms, attempted4014625ms. No observable401 response was consumed. Unit owner/ABA coverage remains valid; historical seven-case browser assertion is superseded and not acceptance."
+  },
+  "limitations": [
+    "No physical BLE/native/HIL acceptance. BLE transport is mocked in React tests.",
+    "UI matrix anchors are static evidence, not hardware protocol proof.",
+    "Actual browser bundles include current uncommitted AppFrame and decorative header work; this does not imply that UI work is part of the security commit or wholly accepted.",
+    "Auth browser proof does not cover full financial/offline flow or NAP acceptance."
+  ],
+  "commands": [
+    "node node_modules/expo/bin/cli export --clear --platform web --output-dir <fresh-isolated-output>",
+    "node e2e/auth-browser-focus.mjs",
+    "./node_modules/.bin/jest --config jest.ui.config.cjs --runInBand",
+    "node --experimental-strip-types --test src/*.test.ts",
+    "./node_modules/.bin/tsc --noEmit"
+  ]
+}

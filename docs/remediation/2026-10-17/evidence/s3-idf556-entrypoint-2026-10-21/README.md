@@ -1,0 +1,7 @@
+# Official entrypoint evidence — 2026-10-21
+
+Final full app/bootloader/partition build and explicit post-build verify: PASS. Exact source/config/tool/artifact hashes are in provenance.json; all 94 tested source files match the root-applied original source. C++ uses official gnu++2b; TLS1.3 library support is enabled. Keys remain ESP32-S3/NVS; ATECC608A/608 is unused. No flashing occurred.
+
+Gate unit suite: 12 PASS. Real wrong compiler and modified USB content reject before compilation. Artifact tamper and TLS-disabled config with updated checksum reject; these two negative runs used the preceding build-final artifact with the same semantic checks, whereas final-verify/full-build/provenance refer to final build-verified including post-build tool/SDK revalidation. Root's integrated make iot-test against vendor3.6.7 after entrypoint application: terminal0, root-integrated-iot.log.gz (Datecs/Daisy/DatecsPay/protocol/runtime codec gates included). The historical sibling keeps its earlier regression log for chronology.
+
+Provenance is local consistency metadata, not a signed release attestation. CI workflow is statically validated, not remotely executed. Runtime S3 heap/stack, physical devices, reliable GATT stream, authenticated encrypted BLE integration and HIL remain OPEN. Binary/ELF/private keys are excluded from repository evidence; binaries are retained only in /private/tmp/fiscal-sdk556-migration-20261021/evidence-verified.

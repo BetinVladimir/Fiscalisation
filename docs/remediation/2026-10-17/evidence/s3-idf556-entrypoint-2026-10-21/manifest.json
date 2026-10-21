@@ -1,0 +1,33 @@
+{
+  "files": {
+    "CLEANUP_ENTRYPOINT.json": "8f3cead79a46d66709b9b1ca7cc8c5f559f70fec75e84bc689253c4154dda998",
+    "ORIGINAL_SOURCE_MATCH.json": "47964853ead9afce510f35a668928c7d5bcdb387178aaad3c173d32590d8d96c",
+    "README.md": "f963b02b63e9c94b656e604b94708e429cae47b50e1f5140273cf0381d6c6746",
+    "artifact-tamper.log.gz": "f9a7de8765b9f938fdda10a2894b761291a24a3f075f9710b06ecefa4d9e799c",
+    "build.lock.json": "cbb7781215c3c8abfb9774b49e8c89ef36f36cbf3557dc6cf6b7a008bcce1427",
+    "compile_commands.json.gz": "6a42d480f970048f2f0cd5efb9c47a974e6a356edc0fa32aabda11f90152fd95",
+    "final-verify.log.gz": "f637f4be9a703b3795a8ab8b21fa7f7bd76f5dee201ed103b928053db9756994",
+    "full-build.log.gz": "c2856b3d7f73126fa05c5253f5e0dda426911114e0948c5ef74ec777b148c580",
+    "gate-unit-12.log.gz": "f9f3177df2dcdbdeb02fa40e0664e92943571b1bc673c93f37128fb05455c7cc",
+    "provenance.json": "6701d93d3507ae65dfd3f67bf536970422c4bbb87f46e9244c6f1d23ad6ddab6",
+    "root-integrated-iot.log.gz": "72426a94d092ead022e9089fe98ae7f0252c4ae0d4b718befd250be39cd3a0a6",
+    "sdkconfig.gz": "ed9b7a645b8cea8fc26c77aca690d47c8e77307ae6448c65adf03c5cb0c62643",
+    "tls-off-forged-checksum.log.gz": "5c5bd1bdc9ef666ef825bdb588a0f26f2e566a684d5ff6958d3ebab45a8c1320",
+    "usb-content-tamper.log.gz": "be0c276879ca3a7cf9d1053237c4b10b88add328f34004c2af136b9212ceb0ee",
+    "wrong-compiler.log.gz": "fb87896ac2667c1344d4358b948e052368a68f83ea5452e171003ce5b7b40c36"
+  },
+  "private_keys_included": false,
+  "binary_images_included": false,
+  "raw_gzip_sha256": {
+    "artifact-tamper.log.gz": "21ac4bc417dd56d8b7e4cc723bd65a49ff472a9e54610f43e31d9f90d6b1f2a1",
+    "compile_commands.json.gz": "f104c741254e5f98a5f0d4908dc72962eca16773f5fb21b672eb94623ecb3e67",
+    "final-verify.log.gz": "a42a93a17ccedf5e9fc0a474587fe5f0a076bd997a9beb8ae23e77906fa87320",
+    "full-build.log.gz": "373dfecc83035542faf4c59b24b9e4bc26f5c7d9dd915bedeea643f899a81946",
+    "gate-unit-12.log.gz": "200a30c4669411f71c4511faac1aac879a4a59ee56e6196f0f09e02a598aa9bb",
+    "root-integrated-iot.log.gz": "d4d1bdb30f87d5b9bbb1de0c57c3504c54b495ca4075f81b12e9403133412c15",
+    "sdkconfig.gz": "cdb7321d6d406c23895b16f68d54b7641fee9c8f1cf07ea96e7d660fb50808e6",
+    "tls-off-forged-checksum.log.gz": "ff7e9657af5084a80ca590f16e0f4d277644af368e277e63471d57494cc0df68",
+    "usb-content-tamper.log.gz": "84c969217b93db8c74d2d094708eceecbd217771b602a58b4963111ed7559f78",
+    "wrong-compiler.log.gz": "ad4e78df3c1796e623938ded14112e95437bb2ff9e981a54fb6dd9381a0d3afc"
+  }
+}

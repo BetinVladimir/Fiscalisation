@@ -1,0 +1,33 @@
+{
+  "files": {
+    "CLEANUP.json": "bd6a44184857ce3ca648354ff448affdd9f3d3f41ce8adca4e3767167bf91833",
+    "CONFIG_TLS13_DIFF.patch": "0a74229b37a97c25f2f7a35bebc92e44b6615c08924baf35032b053aa8c56a9a",
+    "README.md": "e6cb2093ff4e6e283bae62d6e829585daf473f2d78e8524798b61ec2d867769c",
+    "SDK_COMMIT": "f315045b918fb03152c70daa7acf8b7310a5b9f3c91c74fb456efeaea38022e3",
+    "SDK_FINAL_CLEAN.txt": "f4efb8379a83838771f483ac79049fdf639641e119df595f33c53d5e0519e852",
+    "SDK_FINAL_SUBMODULES": "7cea4f842b8f38057a5602ea46e3e8a35281523b27fe52f006862f033b931a46",
+    "TESTED_SOURCE_SHA256SUMS": "fbbb51547c531c55afe1213fd66a786e109e0bb27dcafb193185a93a0b0fb490",
+    "TOOLCHAIN_VERSIONS.txt": "7a1138413a47ae0b6ba29efb05f27ba1189bbe4df30c91c0f92ac6a37f1e4c63",
+    "baseline-full-build.log.gz": "160217095ea036414575cf9b9509eb8b39736d622fb4f32d160fc29192891a71",
+    "component-manifest.patch": "0dfa66b3e2badb9a45a7ebcd28a56a00efcd8de18db543472ae1b52c298f9047",
+    "identity-entropy.log.gz": "1cbde730784323e4df79fcf750f9c8dd34614e5077113b135ffb52e1abaa65c4",
+    "provisioning-interop.log.gz": "aed647b3f679509b0638fb398c0f14a8688882cfcb36984ad9fcadd8e1aaac17",
+    "root-full-iot-sdk556.log.gz": "5c9f21d00c5abe2fa4a187dfa9ff15e107d773a87f84d2f00bd5d3e460a67087",
+    "sdkconfig-baseline.gz": "93f41cdc81bfb95d115d511a709a384c3fba360286c4700b0d14f394ca89a19b",
+    "sdkconfig-tls13.gz": "9cd3b58af8fd85fcf9a71475184189b369ccc31e854258382ffad713ba857a1a",
+    "tls13-full-build.log.gz": "bc3af0448696d0379f8ea507df3c1f186c1bf8f01b8f751a572aa8c7926ebfe7",
+    "tls13-static-size.log.gz": "822c149d42deb252ad20c69af9f5f18dbee241e8869a5f09f67f1a463b4d2d07"
+  },
+  "private_keys_included": false,
+  "binary_images_included": false,
+  "raw_gzip_sha256": {
+    "baseline-full-build.log.gz": "0d4b254227ed6e6aea7f7129a0fb7c130d33cb1569d59739c357fcd411ae29d1",
+    "identity-entropy.log.gz": "ccea4307ccc4217f648eda2a49a7ef8688d32927f687bfe3d936f31e59ce99a5",
+    "provisioning-interop.log.gz": "d93b68d1c58efe6748e47f77a50018665d869f549e616eb7b502c0ba1b9d7a9b",
+    "root-full-iot-sdk556.log.gz": "a1ea07bfabcb26ed7b42366912cf99ebad5654b905646e4f27c9ab7253fdd23c",
+    "sdkconfig-baseline.gz": "6496cd0196e069966cb1db235aaa659129620b58178926f3fc06e64a4f00e2ef",
+    "sdkconfig-tls13.gz": "cdb7321d6d406c23895b16f68d54b7641fee9c8f1cf07ea96e7d660fb50808e6",
+    "tls13-full-build.log.gz": "0f292961d8679cbb10ffe410c012e68ce9a0a3363e88fc65c74c9efa173eb4ad",
+    "tls13-static-size.log.gz": "0cfd1668dad001f1a3bf325797b59e86f859645aceaa3d705f1d7ec087d1946a"
+  }
+}

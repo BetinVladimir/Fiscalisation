@@ -139,3 +139,7 @@ The earlier S3 compile failures above are a historical checkpoint. A subsequent 
 ## Independent client-side EKU proof
 
 The final host log `evidence/tls-portable-2026-10-21/root-host-eku-final.log.gz` adds an independent Go TLS1.3 server that forcibly presents a ClientAuth-only leaf. The actual common mbedTLS client rejects it with `-0x7a00` and `EXT_KEY_USAGE=0x1000`; a ServerAuth positive control exchanges data. Disabling verification in an isolated counterfactual makes the forbidden handshake succeed and the test fail. This closes the host client-side EKU test gap; it does not implement production certificate issuance/pinning or prove native/browser/device execution of this new host-only fixture.
+
+## Build baseline принят отдельно
+
+Коммит `925c64f` интегрировал официальный ESP-IDF5.5.6 entrypoint и build/provenance gates после полного build и IoT regression. [Документ48](48_S3_IDF556_BUILD_FEASIBILITY.md) различает исторический кандидат и итоговый артефакт. Прежний запрет считать миграцию выполненной описывает checkpoint до этого коммита; production secure BLE, runtime memory и HIL по-прежнему OPEN.

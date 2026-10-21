@@ -20,8 +20,12 @@ MiniPOS current401 сразу очищает runtime bearer, отзывает ma
 
 Все три HTTP-функции теперь строят Headers(defaults), накладывают new Headers(init.headers) через case-insensitive set и фиксируют owner по итоговым заголовкам, которые реально передаются fetch. Record, lowercase record, Headers и tuple array сохраняют override semantics, idempotency, If-Match и custom headers без изменения caller input. Чужой Bearer не отзывает текущую сессию; её собственный401 отзывает один раз. HTTP ошибки не повторяются; fetch/body deadline сохранён.
 
-[Объединённое Headers evidence](evidence/http-headers-2026-10-21/manifest.json): root MiniPOS Node176/UI130, BeeFiscal Node61/UI98, оба TypeScript PASS.59 targeted HTTP/deadline scenarios включают24 header-form cases. Fresh actual-App browser verification готовится отдельно; unit/React gates не подменяют её. BLE/offline/НАП gates остаются открытыми.
+[Объединённое Headers evidence](evidence/http-headers-2026-10-21/manifest.json): root MiniPOS Node176/UI130, BeeFiscal Node61/UI98, оба TypeScript PASS.59 targeted HTTP/deadline scenarios включают24 header-form cases. Последующий scoped fresh actual-App browser auth результат приведён в [документе50](50_BLE_AUTHORITY_RETIREMENT.md); эти исторические HTTP логи сами по себе browser acceptance не доказывают. BLE/offline/НАП gates остаются открытыми.
 
-## Active BLE retirement — OPEN
+## Active BLE retirement — software lifecycle подтверждён
 
-Review found an uncovered interaction: layout token replacement/current401 clearing may precede the old passive BLE revoke path. Local BLE READY and cached transport authority must retire synchronously under the old committed owner; best-effort remote revoke must use the captured old session/bearer and cannot affect a new session. Active-BLE tests and correction are in progress. Node/React HTTP PASS does not close this lifecycle gap (UI-MP017).
+Прежний uncovered interaction исправлен и проверен отдельно: committed auth/route owner синхронно отзывает локальную active/pending authority; remote revoke использует прежний bearer, а старые continuation не затрагивают новый lease. [Документ50 и raw evidence](50_BLE_AUTHORITY_RETIREMENT.md) фиксируют UI148/Node176/TypeScript, RED контрпримеры и свежий scoped browser auth proof. UI-MP-017 получает актуальные source/test anchors; это не физический BLE PASS.
+
+MiniPOS theme-menu interaction при held configuration GET остаётся отдельно OPEN; MiniPOS current/stale401 browser PASS относится к viewport rerender. Fiscal current401 с theme toggle проверен. Native/HIL, полноценный authenticated BLE/offline и НАП gates остаются открытыми.
+
+Scoped browser уточнение: шесть cases подтверждены после response.finished+render completion; Fiscal stale401/same-token ABA browser остаётся OPEN, поскольку старый read достиг прежнего4000ms deadline до доставки401 после повторного OTP. Исторический преждевременный visibility assert отозван; unit ABA coverage отдельно сохраняет силу. Подробности и неизменённые raw logs — в документе50.

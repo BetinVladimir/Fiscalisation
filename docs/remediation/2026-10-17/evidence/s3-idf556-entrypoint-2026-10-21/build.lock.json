@@ -1,0 +1,48 @@
+{
+  "schema_version": 1,
+  "sdk": {
+    "version": "5.5.6",
+    "commit": "880a203ae603d08a94d06aa01e0d6761958e5e9e",
+    "tools_json_sha256": "799bf92db9d1f1d584ed8afe8d98ca4bda49dad3796fdd0516b4c8d62e818a09",
+    "submodules": {
+      "components/mbedtls/mbedtls": "2b96dd8eebe880f304c69976b3c2fa0c5100cbb6"
+    },
+    "mbedtls_framework_tree": "50e13842aeec74b4164df86fdfcfe4827aff6b13"
+  },
+  "compiler_version": "xtensa-esp-elf-gcc (crosstool-NG esp-14.2.0_20260121) 14.2.0",
+  "cmake_version": "3.31.10",
+  "ninja_version": "1.12.1",
+  "python_constraints_sha256": "6b53b3657a924b8ba10c5e4eea0628e1675d2dadb7b2f9ecc48c8d130a117aa1",
+  "usb_component": {
+    "name": "espressif/usb_host_cdc_acm",
+    "version": "2.3.0",
+    "hash": "71f9ae30021b1edb6f42980eb151ab24d0b602b8463861569a151b5254ba1e4b"
+  },
+  "gpio_definitions": {
+    "EDGE_SD_CLK": 39,
+    "EDGE_SD_CMD": 38,
+    "EDGE_SD_D0": 40
+  },
+  "required_config": {
+    "CONFIG_IDF_TARGET": "\"esp32s3\"",
+    "CONFIG_ESPTOOLPY_FLASHSIZE": "\"8MB\"",
+    "CONFIG_PARTITION_TABLE_CUSTOM": "y",
+    "CONFIG_PARTITION_TABLE_CUSTOM_FILENAME": "\"partitions_8mb.csv\"",
+    "CONFIG_MBEDTLS_SSL_PROTO_TLS1_3": "y",
+    "CONFIG_MBEDTLS_SSL_KEEP_PEER_CERTIFICATE": "y"
+  },
+  "pinned_inputs": {
+    "sdkconfig.defaults": "1dec413c83ab086615d74fce72d9ef35368abc7638cb32cee416ebf9cc24073e",
+    "main/idf_component.yml": "52b1ae76cabbe8ce179aa6625a27baec7d5a9f9d0f04c9624a896dd3c9dee9ef",
+    "dependencies.lock": "e4b48eba979553aa1c7571af987a57eb925d83cf6bec1504a2e3f8b3977eeaf4",
+    "partitions_8mb.csv": "d5eb357cf242272fa84cbee33e1f5c5f00b9f4d52439156890c57327f30acb75",
+    "tools/espidf.constraints.v5.5.txt": "6b53b3657a924b8ba10c5e4eea0628e1675d2dadb7b2f9ecc48c8d130a117aa1",
+    "tools/requirements.build.txt": "0deb47ce9a23b39ac6d80573cc7d9be5cb46987b9e6299d9235862751d38a35e"
+  },
+  "python_tools": {
+    "idf-component-manager": "2.5.2",
+    "esp-idf-kconfig": "2.5.4",
+    "esptool": "4.12.0",
+    "esp-idf-size": "1.7.1"
+  }
+}
