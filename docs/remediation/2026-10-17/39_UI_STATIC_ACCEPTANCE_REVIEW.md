@@ -76,3 +76,5 @@ Browser entrypoint anchors remain source evidence only. The interaction script's
 - `ruby scripts/verify_ui_acceptance.rb`: exits1 with seven explicit OPEN cases and no missing/moved-source anchors against the reviewed tree. This is the expected honest result; it is not a green readiness claim.
 
 The checker/matrix alone cannot close these gaps. Runtime repairs need tests and reviewed evidence before their OPEN markers are removed.
+
+Subsequent investigation adds UI-MP-027: a fresh cart currently requires source HTTP even when cached checkout authority exists. See [offline cart and UNP timing follow-up](43_OFFLINE_CART_AND_UNP_TIMING.md). The earlier seven-case count is the review baseline, not the current full backlog.
