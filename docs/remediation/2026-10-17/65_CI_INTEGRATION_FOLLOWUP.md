@@ -35,3 +35,9 @@ SHA256 успешного локального лога: `8048dd8374703f5ee204e0
 ## Следующие независимые проверки
 
 Self-contained CBOR transport CI реализуется отдельно: чистый pinned Node/npm install, точные реальные модули, producer/Go/MiniPOS/full browser lifecycle, контроль fixture/source hashes и отрицательные проверки. До фактического clean run этот пункт остаётся OPEN. Production trusted-time provider/issuer/lifecycle, физический HIL и применимость актуальных норм НАП остаются отдельными открытыми требованиями.
+
+## Исправление bootstrap, ожидающее fresh CI
+
+Workflow теперь использует один уникальный COMPOSE_PROJECT_NAME на run/attempt и одинаковый COMPOSE_FILE для запуска, SQL exec и cleanup. Перед стартом формируется существующий disposable SQL fixture; третий e2e override монтирует миграции и socket. Явные синтетические DB credentials согласованы с обеими DSN. Запускается caddy с зависимостями; readiness ограничен числом попыток и timeout каждого HTTP запроса. Go выбирается по go.mod, concurrency test выполняется с count=1. Скрипт enrollment сохраняет прежний default Compose, но уважает явно переданный набор overrides.
+
+Локально: sh -n PASS, git diff --check PASS; rendered Docker Compose JSON проверен на согласованность credentials/DSN, SQL init mount, socket и HTTP dependency graph; fixture generation PASS. Полный runtime E2E пока не выполнен для этого изменения; нужен actual Ubuntu CI result. Никакое прохождение статической проверки не закрывает E2E acceptance.
