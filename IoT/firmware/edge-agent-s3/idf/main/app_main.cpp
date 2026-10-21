@@ -7,6 +7,7 @@
 #include "canonical_cbor.h"
 #include "cJSON.h"
 #include "device_identity.h"
+#include "startup_entropy.h"
 #include "encrypted_provisioning.h"
 #include "provisioned_network.h"
 #include "mbedtls/base64.h"
@@ -273,7 +274,7 @@ extern "C" void app_main(void) {
 
   // Identity precedes provisioning: its public key/kid is part of the backend
   // activation request and the subsequently signed composite binding.
-  if(device_identity.open()!=ESP_OK){
+  if(beefiscal::idf::with_startup_entropy([]{return device_identity.open();})!=ESP_OK){
     ESP_LOGE(TAG,"persistent P-256 device identity unavailable");
  return;
 

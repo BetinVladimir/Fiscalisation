@@ -159,6 +159,7 @@ minipos-outbox-test:
 factory-test:
 	cd IoT/device-manufacturing && PYTHONPATH=src python3 -m unittest discover -s tests -v
 iot-test:
+	bash IoT/firmware/edge-agent-s3/idf/tests/run_identity_entropy_host.sh
 	python3 IoT/firmware/edge-agent-s3/idf/tests/terminal_guard_host/run.py
 	python3 -m unittest discover -s tests -p '*sqlite_export.py' -v
 	python3 IoT/firmware/edge-agent-s3/idf/tests/bluepad_host/run.py

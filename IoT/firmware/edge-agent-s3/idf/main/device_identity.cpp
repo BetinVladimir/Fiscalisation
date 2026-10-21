@@ -1,6 +1,7 @@
 #include "device_identity.h"
 #include "esp_random.h"
 #include "mbedtls/base64.h"
+#include "mbedtls/ctr_drbg.h"
 #include "mbedtls/ecdsa.h"
 #include "mbedtls/ecdh.h"
 #include "mbedtls/platform_util.h"
@@ -8,9 +9,11 @@
 #include "mbedtls/sha256.h"
 #include "nvs.h"
 #include <cstring>
+#include <climits>
+#include <mutex>
 #include <vector>
 namespace beefiscal::idf{namespace{
-int random(void*,unsigned char*out,size_t n){esp_fill_random(out,n);
+int hardware_entropy(void*,unsigned char*out,size_t n){esp_fill_random(out,n);
 
  return 0;
  }
@@ -38,15 +41,34 @@ bool hex(const char*s,uint8_t*out,size_t n){if(!s||strlen(s)!=n*2)return false;
  }
 }
 struct DeviceIdentity::Impl{mbedtls_ecp_keypair key;
+ mbedtls_ctr_drbg_context rng; mutable std::mutex mutex;
+ bool rng_ready{}; uint64_t random_requests{};
+ static constexpr uint64_t maximum_random_requests=uint64_t{1}<<20;
+ static int random(void* context,unsigned char*out,size_t n){
+  auto* self=static_cast<Impl*>(context);
+  // No automatic post-startup hardware reseed: RF may be unavailable. A fresh
+  // boot reseeds under the startup entropy guard before this bound is reached.
+  if(!self||!self->rng_ready||self->random_requests>=maximum_random_requests)return MBEDTLS_ERR_CTR_DRBG_ENTROPY_SOURCE_FAILED;
+  ++self->random_requests;
+  return mbedtls_ctr_drbg_random(&self->rng,out,n);
+ }
+
  bool ok{};
  std::string public_der,kid;
- Impl(){mbedtls_ecp_keypair_init(&key);
- }~Impl(){mbedtls_ecp_keypair_free(&key);
+ Impl(){mbedtls_ecp_keypair_init(&key);mbedtls_ctr_drbg_init(&rng);
+ }~Impl(){mbedtls_ctr_drbg_free(&rng);mbedtls_ecp_keypair_free(&key);
  }};
 
 DeviceIdentity::DeviceIdentity():impl_(new Impl){}DeviceIdentity::~DeviceIdentity(){delete impl_;
  }
-esp_err_t DeviceIdentity::open(){if(impl_->ok)return ESP_OK;
+esp_err_t DeviceIdentity::open(){std::lock_guard<std::mutex> lock(impl_->mutex);if(impl_->ok)return ESP_OK;
+ if(!impl_->rng_ready){
+  static constexpr unsigned char personalization[]="beefiscal-device-identity-v1";
+  mbedtls_ctr_drbg_set_prediction_resistance(&impl_->rng,MBEDTLS_CTR_DRBG_PR_OFF);
+  mbedtls_ctr_drbg_set_reseed_interval(&impl_->rng,INT_MAX);
+  if(mbedtls_ctr_drbg_seed(&impl_->rng,hardware_entropy,nullptr,personalization,sizeof(personalization)-1)!=0)return ESP_FAIL;
+  impl_->rng_ready=true;
+ }
  nvs_handle_t h{};
  esp_err_t e=nvs_open("edge-identity",NVS_READWRITE,&h);
 
@@ -58,14 +80,14 @@ esp_err_t DeviceIdentity::open(){if(impl_->ok)return ESP_OK;
  auto&private_key=impl_->key.MBEDTLS_PRIVATE(d);
  auto&public_key=impl_->key.MBEDTLS_PRIVATE(Q);
 
- if(e==ESP_ERR_NVS_NOT_FOUND){if(mbedtls_ecp_gen_key(MBEDTLS_ECP_DP_SECP256R1,&impl_->key,random,nullptr)!=0){nvs_close(h);
+ if(e==ESP_ERR_NVS_NOT_FOUND){if(mbedtls_ecp_gen_key(MBEDTLS_ECP_DP_SECP256R1,&impl_->key,Impl::random,impl_)!=0){nvs_close(h);
 
  return ESP_FAIL;
  }if(mbedtls_mpi_write_binary(&private_key,scalar,sizeof(scalar))!=0||(e=nvs_set_blob(h,"p256",scalar,sizeof(scalar)))!=ESP_OK||(e=nvs_commit(h))!=ESP_OK){mbedtls_platform_zeroize(scalar,sizeof(scalar));
  nvs_close(h);
 
  return e==ESP_OK?ESP_FAIL:e;
- }}else{if(e!=ESP_OK||z!=sizeof(scalar)||mbedtls_ecp_group_load(&group,MBEDTLS_ECP_DP_SECP256R1)!=0||mbedtls_mpi_read_binary(&private_key,scalar,z)!=0||mbedtls_ecp_mul(&group,&public_key,&private_key,&group.G,random,nullptr)!=0){mbedtls_platform_zeroize(scalar,sizeof(scalar));
+ }}else{if(e!=ESP_OK||z!=sizeof(scalar)||mbedtls_ecp_group_load(&group,MBEDTLS_ECP_DP_SECP256R1)!=0||mbedtls_mpi_read_binary(&private_key,scalar,z)!=0||mbedtls_ecp_mul(&group,&public_key,&private_key,&group.G,Impl::random,impl_)!=0){mbedtls_platform_zeroize(scalar,sizeof(scalar));
  nvs_close(h);
 
  return ESP_ERR_INVALID_CRC;
@@ -97,9 +119,9 @@ esp_err_t DeviceIdentity::open(){if(impl_->ok)return ESP_OK;
 
  return ESP_OK;
  }
-bool DeviceIdentity::ready()const{return impl_->ok;
+bool DeviceIdentity::ready()const{std::lock_guard<std::mutex> lock(impl_->mutex);return impl_->ok;
  }
-esp_err_t DeviceIdentity::sign_hash_hex(const char*h,std::string&out)const{out.clear();
+esp_err_t DeviceIdentity::sign_hash_hex(const char*h,std::string&out)const{std::lock_guard<std::mutex> lock(impl_->mutex);out.clear();
 
  if(!impl_->ok)return ESP_ERR_INVALID_STATE;
  uint8_t digest[32],double_digest[32],sig[64];
@@ -111,7 +133,7 @@ esp_err_t DeviceIdentity::sign_hash_hex(const char*h,std::string&out)const{out.c
  mbedtls_mpi_init(&r);
 
  mbedtls_mpi_init(&s);
- int e=mbedtls_ecdsa_sign(&impl_->key.MBEDTLS_PRIVATE(grp),&r,&s,&impl_->key.MBEDTLS_PRIVATE(d),double_digest,sizeof(double_digest),random,nullptr);
+ int e=mbedtls_ecdsa_sign(&impl_->key.MBEDTLS_PRIVATE(grp),&r,&s,&impl_->key.MBEDTLS_PRIVATE(d),double_digest,sizeof(double_digest),Impl::random,impl_);
 
  if(e==0)e=mbedtls_mpi_write_binary(&r,sig,32);
 
@@ -128,6 +150,7 @@ esp_err_t DeviceIdentity::sign_hash_hex(const char*h,std::string&out)const{out.c
  return ESP_OK;
  }
 esp_err_t DeviceIdentity::provisioning_shared_secret(const uint8_t peer_point[65],uint8_t shared[32])const{
+ std::lock_guard<std::mutex> lock(impl_->mutex);
  if(!shared){return ESP_ERR_INVALID_ARG;
  }mbedtls_platform_zeroize(shared,32);
 
@@ -147,7 +170,7 @@ esp_err_t DeviceIdentity::provisioning_shared_secret(const uint8_t peer_point[65
 
  if(!e)e=mbedtls_ecp_check_pubkey(&group,&peer);
 
- if(!e)e=mbedtls_ecdh_compute_shared(const_cast<mbedtls_ecp_group*>(&group),&z,&peer,&impl_->key.MBEDTLS_PRIVATE(d),random,nullptr);
+ if(!e)e=mbedtls_ecdh_compute_shared(const_cast<mbedtls_ecp_group*>(&group),&z,&peer,&impl_->key.MBEDTLS_PRIVATE(d),Impl::random,impl_);
 
  if(!e){e=mbedtls_mpi_write_binary(&z,shared,32);
  }mbedtls_mpi_free(&z);
@@ -161,6 +184,7 @@ esp_err_t DeviceIdentity::provisioning_shared_secret(const uint8_t peer_point[65
 
 }
 esp_err_t DeviceIdentity::sign_provisioning_install(const std::string&binding_hash,int64_t generation,const std::string&package_hash,std::string&out)const{
+ std::lock_guard<std::mutex> lock(impl_->mutex);
  out.clear();
  uint8_t check[32];
 
@@ -180,7 +204,7 @@ esp_err_t DeviceIdentity::sign_provisioning_install(const std::string&binding_ha
 
  mbedtls_mpi_init(&half);
 
- int e=mbedtls_ecdsa_sign(&impl_->key.MBEDTLS_PRIVATE(grp),&r,&s,&impl_->key.MBEDTLS_PRIVATE(d),digest,sizeof(digest),random,nullptr);
+ int e=mbedtls_ecdsa_sign(&impl_->key.MBEDTLS_PRIVATE(grp),&r,&s,&impl_->key.MBEDTLS_PRIVATE(d),digest,sizeof(digest),Impl::random,impl_);
 
  if(!e)e=mbedtls_mpi_copy(&half,&impl_->key.MBEDTLS_PRIVATE(grp).N);
 
@@ -204,6 +228,7 @@ esp_err_t DeviceIdentity::sign_provisioning_install(const std::string&binding_ha
 
 }
 esp_err_t DeviceIdentity::local_tls_key_pem(std::string&out)const{
+ std::lock_guard<std::mutex> lock(impl_->mutex);
  out.clear();
 
  if(!impl_->ok)return ESP_ERR_INVALID_STATE;
