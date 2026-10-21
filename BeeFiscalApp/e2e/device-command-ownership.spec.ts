@@ -4,7 +4,7 @@ import { DEVICE_ID, mockFiscalApi, openApp } from './helpers';
 // Authored during code phase; runtime execution remains globally deferred.
 for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
   for (const theme of ['light', 'dark'] as const) {
-    test(`Pending diagnostics excludes commands and late device updates ${size}/${theme}`, async ({ page }) => {
+    test(`Pending diagnostics locks commands and navigation without replay ${size}/${theme}`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       const mutations = await mockFiscalApi(page);
@@ -28,10 +28,13 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
         await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeDisabled();
         await expect(page.getByTestId('ble-client-public-key')).not.toBeEditable();
         await page.getByTestId('device-printer-test').evaluate(node => (node as HTMLElement).click());
-        await navigate('Операции'); await expect(page.getByTestId('operation-unknown')).toBeVisible();
+        await expect(page.getByTestId('nav.open')).toBeDisabled();
+        for (const tab of await page.getByTestId(/^tab-/).all()) await expect(tab).toBeDisabled();
         const response = page.waitForResponse(r => r.url().endsWith(`/devices/${DEVICE_ID}/diagnostics`));
         release(); await (await response).finished();
-        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve(null)))));
+        await expect(page.getByTestId('diagnostics-result')).toContainText('late-diagnostic');
+        await expect(page.getByTestId('nav.open')).toBeEnabled();
+        await navigate('Операции'); await expect(page.getByTestId('operation-unknown')).toBeVisible();
         await expect(page.getByTestId('status-transport')).toContainText('Операции:');
         await navigate('Устройства');
         await expect(page.getByTestId(`device.item.${DEVICE_ID}`)).toBeVisible();

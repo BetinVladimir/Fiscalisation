@@ -4,7 +4,7 @@ import { LOCATION_ID, mockFiscalApi, openApp } from './helpers';
 // Deferred until the global forms/Paper/authored-tests gate.
 for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
   for (const theme of ['light', 'dark'] as const) {
-    test(`Late admin response preserves another context and its draft ${size}/${theme}`, async ({ page }) => {
+    test(`Pending admin save locks navigation and preserves its draft without replay ${size}/${theme}`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await mockFiscalApi(page);
@@ -14,7 +14,7 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       await page.route(`**/locations/${LOCATION_ID}`, async route => {
         if (route.request().method() !== 'PATCH') return route.fallback();
         writes++; await gate;
-        await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ id: 'late-location', code: 'SAVED', name: 'Saved' }) });
+        await route.fulfill({ contentType: 'application/json', body: JSON.stringify({ id: LOCATION_ID, code: 'DRAFT', name: 'Sofia', version: 2 }) });
       });
       const navigate = async (tab: string) => {
         if (size === 'xs') await page.getByTestId('nav.open').click();
@@ -28,15 +28,20 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
         await expect.poll(() => writes).toBe(1);
         await expect(page.getByTestId('admin-operator-save')).toBeDisabled();
         await page.getByTestId('admin-location-save').evaluate(node => (node as HTMLElement).click());
+        await expect(page.getByTestId('nav.open')).toBeDisabled();
+        for (const tab of await page.getByTestId(/^tab-/).all()) await expect(tab).toBeDisabled();
+        await expect(page.getByTestId('admin-location-code')).not.toBeEditable();
+        await expect(page.getByTestId('admin-location-code')).toHaveValue('DRAFT');
+        const completed = page.waitForResponse(r => r.request().method() === 'PATCH' && r.url().endsWith(`/locations/${LOCATION_ID}`));
+        release(); await (await completed).finished();
+        await expect(page.getByTestId('nav.open')).toBeEnabled();
+        await expect(page.getByTestId('admin-location-code')).toHaveValue('DRAFT');
         await navigate('Операции'); await expect(page.getByTestId('operation-unknown')).toBeVisible();
-        const stale = page.waitForResponse(r => r.request().method() === 'PATCH' && r.url().endsWith(`/locations/${LOCATION_ID}`));
-        release(); await (await stale).finished();
-        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve(null)))));
         await expect(page.getByTestId('status-transport')).toContainText('Операции:');
         await navigate('Администриране');
         await expect(page.getByTestId('admin-location-save')).toBeEnabled();
         await expect(page.getByTestId('admin-location-code')).toHaveValue('DRAFT');
-        // A stale response must not change selected location identity.
+        // Saving this record must retain its selected identity after navigation.
         await expect(page.getByRole('radio', { name: 'SOF • Sofia', exact: true })).toBeChecked();
         expect(writes).toBe(1);
       } finally { release(); }

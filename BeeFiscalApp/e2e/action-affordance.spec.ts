@@ -4,6 +4,22 @@ import { doubleText } from './text-scale';
 import { frameContrast } from './affordance-contrast';
 import { mockFiscalApi, openApp } from './helpers';
 
+// Paper applies Item.style to its visible row while the outer ripple owns
+// keyboard activation. Measure that exact frame and retain focus checks on the
+// interactive owner; a missing or ambiguous visible frame must still fail.
+async function controlFrame(action: Locator) {
+  if (await action.evaluate(node => parseFloat(getComputedStyle(node).borderTopWidth) >= 1)) return action;
+  const children = action.locator(':scope > *');
+  const framed = await children.evaluateAll(nodes => nodes.flatMap((node,index) => parseFloat(getComputedStyle(node).borderTopWidth) >= 1 ? [index] : []));
+  expect(framed, 'Exactly one visible Paper row frame').toHaveLength(1);
+  const frame = children.nth(framed[0]);
+  const ownerBox = await action.boundingBox(), frameBox = await frame.boundingBox();
+  expect(ownerBox).not.toBeNull(); expect(frameBox).not.toBeNull();
+  expect(frameBox!.x).toBeGreaterThanOrEqual(ownerBox!.x - 1);
+  expect(frameBox!.x + frameBox!.width).toBeLessThanOrEqual(ownerBox!.x + ownerBox!.width + 1);
+  return frame;
+}
+
 async function expectFrame(action: Locator) {
   await action.scrollIntoViewIfNeeded();
   await expect.poll(() => action.evaluate(element => {
@@ -12,7 +28,8 @@ async function expectFrame(action: Locator) {
     }
     return true;
   }), { message: 'Measure only after opening animation settles' }).toBe(true);
-  const frame = await action.evaluate(element => {
+  const paintedFrame = await controlFrame(action);
+  const frame = await paintedFrame.evaluate(element => {
     const style = getComputedStyle(element);
     const rect = element.getBoundingClientRect();
     return { width: parseFloat(style.borderTopWidth), style: style.borderTopStyle,
@@ -21,7 +38,7 @@ async function expectFrame(action: Locator) {
   });
   let textMetrics: { text: string | null; width: number; scroll: number; original: number; size: number }[] = [];
   if (process.env.TEXT200 === '1') {
-    const labels = await action.locator('[dir="auto"]').evaluateAll(nodes => nodes.map(node => ({
+    const labels = await paintedFrame.locator('[dir="auto"]').evaluateAll(nodes => nodes.map(node => ({
       text: node.textContent, width: node.clientWidth, scroll: node.scrollWidth,
       original: Number((node as HTMLElement).dataset.originalFontSize), size: parseFloat(getComputedStyle(node).fontSize),
     })));
@@ -32,7 +49,7 @@ async function expectFrame(action: Locator) {
       expect(label.scroll, `Clipped label: ${label.text}`).toBeLessThanOrEqual(label.width + 1);
     }
   }
-  const contrast = await frameContrast(action);
+  const contrast = await frameContrast(paintedFrame);
   expect(contrast.insideRatio, 'Frame against control fill').toBeGreaterThanOrEqual(3);
   expect(contrast.outsideRatio, 'Frame against surrounding surface').toBeGreaterThanOrEqual(3);
   expect(frame.width).toBeGreaterThanOrEqual(1);
@@ -106,14 +123,15 @@ test('contrast negative control detects a frame matching the fill', async ({ pag
   await mockFiscalApi(page, { secondRegister: true });
   await openApp(page);
   const action = page.getByRole('radio', { name: 'R02', exact: true }).first();
-  const original = await action.getAttribute('style');
-  await action.evaluate(element => { (element as HTMLElement).style.borderColor = getComputedStyle(element).backgroundColor; });
+  const paintedFrame = await controlFrame(action);
+  const original = await paintedFrame.getAttribute('style');
+  await paintedFrame.evaluate(element => { (element as HTMLElement).style.borderColor = getComputedStyle(element).backgroundColor; });
   try {
-    const contrast = await frameContrast(action);
+    const contrast = await frameContrast(paintedFrame);
     expect(contrast.insideRatio).toBe(1);
     expect(contrast.outsideRatio).toBeLessThan(3);
   } finally {
-    await action.evaluate((element, style) => { if (style === null) element.removeAttribute('style'); else element.setAttribute('style', style); }, original);
+    await paintedFrame.evaluate((element, style) => { if (style === null) element.removeAttribute('style'); else element.setAttribute('style', style); }, original);
   }
   await expectFrame(action);
 });

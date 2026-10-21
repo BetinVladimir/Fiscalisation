@@ -1,19 +1,39 @@
 import { expect, test } from '@playwright/test';
 import { DEVICE_ID, LOCATION_ID, OPERATOR_ID, REGISTER_ID, SECOND_DEVICE_ID, SECOND_REGISTER_ID, mockFiscalApi, openApp } from './helpers';
 
-test('device diagnostics, printer and provisioning use public API with idempotency keys', async ({ page }) => {
+test('device diagnostics and printer use public API with idempotency keys', async ({ page }) => {
   const mutations = await mockFiscalApi(page);
   await openApp(page);
   await page.getByTestId('device-diagnostics').click();
   await expect(page.getByTestId('diagnostics-result')).toContainText('secrets_redacted');
   await page.getByTestId('device-printer-test').click();
-  await page.getByTestId('device-provision').click();
-  await expect(page.getByTestId('provisioning-result')).toContainText('provision-1');
   const printer = mutations.find(x => x.path === `/devices/${DEVICE_ID}/tests/printer`)!;
-  const provisioning = mutations.find(x => x.path === `/devices/${DEVICE_ID}/provisioning-sessions`)!;
   expect(printer.headers['idempotency-key']).toBeTruthy();
-  expect(provisioning.headers['idempotency-key']).toBeTruthy();
   expect(printer.headers['x-api-version']).toBe('2026-08-07');
+});
+
+// The former POST /provisioning-sessions UI shortcut was replaced by the BLE
+// install-proof flow. This checks opening/cancellation only; real device install
+// remains OPEN here and is not replaced with a fabricated browser success.
+test('provisioning dialog cancellation clears secrets without BLE or API installation', async ({ page }) => {
+  const mutations = await mockFiscalApi(page);
+  await page.addInitScript(() => { const probe=window as unknown as Window & {__syntheticBleAttempts:number};probe.__syntheticBleAttempts=0;Object.defineProperty(navigator,'bluetooth',{configurable:true,value:{requestDevice:()=>{probe.__syntheticBleAttempts++;throw new Error('UNEXPECTED_BLE_ACCESS')}}}); });
+  await openApp(page);
+  await page.getByTestId('device-provision').click();
+  await expect(page.getByTestId('provisioning.dialog')).toBeVisible();
+  await page.getByTestId('provisioning.ssid').fill('synthetic-network');
+  await page.getByTestId('provisioning.wifi-password').fill('synthetic-wifi-secret');
+  await page.getByTestId('provisioning.fiscal-password').fill('12345678');
+  await expect(page.getByTestId('provisioning.wifi-password')).toHaveAttribute('type','password');
+  await expect(page.getByTestId('provisioning.fiscal-password')).toHaveAttribute('type','password');
+  await page.getByTestId('provisioning.cancel').click();
+  await expect(page.getByTestId('provisioning.dialog')).toHaveCount(0);
+  await page.getByTestId('device-provision').click();
+  for (const id of ['ssid','wifi-password','fiscal-password']) await expect(page.getByTestId(`provisioning.${id}`)).toHaveValue('');
+  await page.getByTestId('provisioning.cancel').click();
+  expect(mutations).toEqual([]);
+  await expect(page.getByTestId('provisioning-result')).toHaveCount(0);
+  expect(await page.evaluate(()=>(window as unknown as Window & {__syntheticBleAttempts:number}).__syntheticBleAttempts)).toBe(0);
 });
 
 test('BLE session is bound to register, operator, app instance and prepared public key', async ({ page }) => {
@@ -84,7 +104,7 @@ test('administration keeps edited location input after API error and retries wit
   const code = page.getByTestId('admin-location-code');
   await code.fill('SOF-NEW');
   await page.getByTestId('admin-location-save').click();
-  await expect(page.getByTestId('status-transport')).toContainText('UNAVAILABLE');
+  await expect(page.getByTestId('status-transport')).toContainText('HTTP 503');
   await expect(code).toHaveValue('SOF-NEW');
   await page.getByTestId('admin-location-save').click();
   await expect(page.getByTestId('status-transport')).toContainText('готово');
@@ -461,12 +481,12 @@ test('operational shell exposes a bounded language list and persisted theme', as
   expect(await languageOption.evaluate(element => parseFloat(getComputedStyle(element).borderTopWidth))).toBeGreaterThanOrEqual(1);
   expect((await languageOption.boundingBox())?.height).toBeGreaterThanOrEqual(48);
   await languageOption.click();
-  await expect(page.getByTestId('shell.language.open')).toContainText('RU');
+  await expect(page.getByTestId('shell.language.open')).toHaveAccessibleName(/: RU$/);
   await page.getByTestId('shell.theme.toggle').click();
   await page.getByTestId('shell.theme.toggle').click();
   const themeLabel = await page.getByTestId('shell.theme.toggle').getAttribute('aria-label');
   await page.reload();
-  await expect(page.getByTestId('shell.language.open')).toContainText('RU');
+  await expect(page.getByTestId('shell.language.open')).toHaveAccessibleName(/: RU$/);
   await expect(page.getByTestId('shell.theme.toggle')).toHaveAttribute('aria-label', themeLabel ?? '');
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
 });
@@ -475,7 +495,7 @@ test('backend failure is fail-closed and exposes CORE OFFLINE instead of stale d
   await mockFiscalApi(page, { devicesStatus: 503 });
   await page.goto('/');
   await expect(page.getByTestId('status-fiscal-device')).toContainText('CORE OFFLINE');
-  await expect(page.getByText(/API отказ/)).toBeVisible();
+  await expect(page.getByTestId('devices.error').getByRole('alert')).toBeVisible();
   await expect(page.getByTestId('devices.error')).toBeVisible();
   await expect(page.getByTestId('device-control-plane')).toHaveCount(0);
 });

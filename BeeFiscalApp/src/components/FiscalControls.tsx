@@ -1,7 +1,7 @@
 import {useUiPreferences} from '../ui/preferences';
 import {deviceScreenLabel} from '../ui/device-screen-copy';
 import {AppButton as Button} from '../ui/app-button';
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Platform, View } from 'react-native';
 import { Card, HelperText, RadioButton, Text, useTheme } from 'react-native-paper';
 import { FormField } from '../ui/form-field';
@@ -10,26 +10,40 @@ export type Item = Record<string, unknown>;
 export const label = (value: unknown) => typeof value === 'string' ? value : typeof value === 'number' ? String(value) : '—';
 
 function useCurrentControl(disabled: boolean) {
-  const mounted = useRef(false), snapshot = {}, latest = useRef(snapshot); latest.current = snapshot;
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const mounted = useRef(false), snapshot = {}, latest = useRef<object | null>(null);
+  // Rendering can be interrupted. Only a committed replacement retires the
+  // previous owner; otherwise a real event on the still-visible row is lost.
+  useLayoutEffect(() => {
+    mounted.current = true; latest.current = snapshot;
+    return () => { if (latest.current === snapshot) { mounted.current = false; latest.current = null; } };
+  });
   return () => mounted.current && latest.current === snapshot && !disabled;
 }
 /** Keyboard adapter only; visible rows and activation remain genuine Paper radio items. */
-function useRadioKeyboard(disabled: boolean, selectedIndex: number) {
+function useRadioKeyboard(disabled: boolean, selectedIndex: number, activate: (index: number) => void) {
   const ref = useRef<View>(null);
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (Platform.OS !== 'web') return;
     const root = ref.current as unknown as HTMLElement | null;
     if (!root) return;
-    const allRadios = Array.from(root.querySelectorAll<HTMLElement>('[role="radio"]'));
-    const radios = allRadios.filter(node => !node.parentElement?.closest('[role="radio"]'));
+    const allRadios = Array.from(root.querySelectorAll<HTMLElement>('[role="radio"],[data-fiscal-radio-decoration]'));
+    const radios = allRadios.filter(node => node.getAttribute('role') === 'radio' && !node.hasAttribute('data-fiscal-radio-decoration') && !node.parentElement?.closest('[role="radio"]'));
     // Paper exposes both the whole interactive row and its decorative glyph as
     // radios. Only the row participates in the group on web. Paper's ripple
     // drops aria-checked, so derive it from the explicit current selection.
     radios.forEach((node, index) => { node.setAttribute('aria-checked', String(index === selectedIndex)); });
-    allRadios.filter(node => !radios.includes(node)).forEach(node => {
-      node.setAttribute('aria-hidden', 'true'); node.setAttribute('role', 'presentation'); node.tabIndex = -1;
+    const decorations = allRadios.filter(node => !radios.includes(node));
+    const hideDecorations = () => decorations.forEach(node => {
+      node.setAttribute('data-fiscal-radio-decoration', 'true');
+      if (node.getAttribute('aria-hidden') !== 'true') node.setAttribute('aria-hidden', 'true');
+      if (node.getAttribute('role') !== 'presentation') node.setAttribute('role', 'presentation');
+      if (node.tabIndex !== -1) node.tabIndex = -1;
     });
+    hideDecorations();
+    // Child Pressability can update tabindex after its parent has committed.
+    // Retain the decorative boundary across those updates and subsequent renders.
+    const decorationObserver = new MutationObserver(hideDecorations);
+    decorations.forEach(node => decorationObserver.observe(node, {attributes:true,attributeFilter:['role','tabindex','aria-hidden']}));
     const enabled = radios.filter(node => node.getAttribute('aria-disabled') !== 'true');
     const selected = enabled.find(node => node.getAttribute('aria-checked') === 'true') ?? enabled[0];
     radios.forEach(node => { node.tabIndex = !disabled && node === selected ? 0 : -1; });
@@ -37,6 +51,11 @@ function useRadioKeyboard(disabled: boolean, selectedIndex: number) {
       if (disabled || event.altKey || event.ctrlKey || event.metaKey || !enabled.length) return;
       const index = enabled.findIndex(node => node === event.target || node.contains(event.target as Node));
       if (index < 0) return;
+      if (event.key === ' ' || event.key === 'Enter') {
+        event.preventDefault(); event.stopPropagation();
+        if (!event.repeat) activate(radios.indexOf(enabled[index]));
+        return;
+      }
       let next: number;
       if (event.key === 'ArrowDown' || event.key === 'ArrowRight') next = (index + 1) % enabled.length;
       else if (event.key === 'ArrowUp' || event.key === 'ArrowLeft') next = (index + enabled.length - 1) % enabled.length;
@@ -45,10 +64,13 @@ function useRadioKeyboard(disabled: boolean, selectedIndex: number) {
       else return;
       event.preventDefault();
       enabled.forEach((node, i) => { node.tabIndex = i === next ? 0 : -1; });
-      enabled[next].focus(); enabled[next].click();
+      enabled[next].focus(); activate(radios.indexOf(enabled[next]));
     };
-    root.addEventListener('keydown', keydown);
-    return () => root.removeEventListener('keydown', keydown);
+    const keyup = (event: KeyboardEvent) => {
+      if ((event.key === ' ' || event.key === 'Enter') && radios.some(node => node === event.target || node.contains(event.target as Node))) { event.preventDefault(); event.stopPropagation(); }
+    };
+    root.addEventListener('keydown', keydown); root.addEventListener('keyup', keyup);
+    return () => { decorationObserver.disconnect(); root.removeEventListener('keydown', keydown); root.removeEventListener('keyup', keyup); };
   });
   return ref;
 }
@@ -94,7 +116,10 @@ export function ReferencePicker({ label: title, items, value, labelFor, onSelect
   const current = useCurrentControl(disabled);
   const selectable = uniqueItems(items);
   const visible = selectable.filter(item => labelFor(item).toLowerCase().includes(query.trim().toLowerCase()));
-  const groupRef = useRadioKeyboard(disabled, visible.findIndex(item => itemId(item) === value));
+  const groupRef = useRadioKeyboard(disabled, visible.findIndex(item => itemId(item) === value), index => {
+    const item = visible[index];
+    if (current() && item && selectable.some(candidate => itemId(candidate) === itemId(item))) onSelect(itemId(item));
+  });
   return <View style={{ gap: 8, minWidth: 0, width: '100%', maxWidth: 320 }}>
     {items.length ? <>
       <FormField editable={!disabled} testID={`reference.search.${title}`} mode="outlined" label={`${ui('Търсене')}: ${title}`} accessibilityLabel={`${ui('Търсене')}: ${title}`} value={query} onChangeText={next => { if (current()) setQuery(next); }} />
@@ -118,7 +143,10 @@ export function Choices({ items, selectedId, labelFor, onSelect, disabled = fals
   items: Item[]; selectedId: string; labelFor: (item: Item) => string; onSelect: (item: Item) => void; disabled?: boolean;
 }) {
   const theme = useTheme(), current = useCurrentControl(disabled), selectable = uniqueItems(items);
-  const groupRef = useRadioKeyboard(disabled, selectable.findIndex(item => itemId(item) === selectedId));
+  const groupRef = useRadioKeyboard(disabled, selectable.findIndex(item => itemId(item) === selectedId), index => {
+    const item = selectable[index];
+    if (current() && item) onSelect(item);
+  });
   if (selectable.length === 0) return <Text variant="bodyMedium">Все още няма записи.</Text>;
   return <View ref={groupRef} accessibilityRole="radiogroup" accessibilityLabel="Съществуващи записи"
     style={{ flexDirection: 'row', flexWrap: 'wrap', gap: 8, paddingVertical: 2, minWidth: 0 }}>
