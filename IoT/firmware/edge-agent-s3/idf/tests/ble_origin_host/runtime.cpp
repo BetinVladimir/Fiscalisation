@@ -1,6 +1,7 @@
 #include "fake_ble.h"
 #include "ble_result_delivery.h"
 #include "canonical_cbor.h"
+#include "go_wire.h"
 #include "command_queue.h"
 #include "intent_processor.h"
 #include "mbedtls/sha256.h"
@@ -144,6 +145,44 @@ int main(int argc,char**argv){assert(argc==5);const std::string mode=argv[4];con
  }
  if(mode=="recovery"){
    const int before=delivery_count;notifications.clear();replace_owner();assert(actual_processor.recover_pending()==ESP_OK&&executor.recover_calls==1);assert(delivery_count==before&&notifications.empty());assert(scalar(argv[3],"SELECT state FROM operations")=="COMMITTED");
+ }
+
+ if(mode=="live"){
+  const auto durable_before=scalar(argv[3],"SELECT result_payload FROM operations");
+  const auto owner=BleReplyOwner{active_connection.load(),connection_generation.load()};
+  // Transport-only persisted result fixture. Wide/negative boundary amounts
+  // are encoder vectors, not claims of valid monetary operations.
+  DurableStorage encoded_storage;const std::string encoded_path=std::string(argv[3])+".encoder";remove(encoded_path.c_str());
+  assert(encoded_storage.open_database_for_test(encoded_path.c_str())==ESP_OK);
+  assert(encoded_storage.configure_authority(binding.authority.unp_prefix.c_str(),binding.authority.unp_range_start,binding.authority.unp_range_end,binding.generation)==ESP_OK);
+  assert(encoded_storage.reserve_command(operation.c_str(),std::string(64,'a').c_str(),"BLE","{}","received","encoder-receipt","{}",{},trust.now,[](const AuthorityReservation&){return "{}";},nullptr,"A001").status==ReservationStatus::New);
+  const char*states[]={"COMMITTED","RECOVERY_REQUIRED","COMPENSATED"};
+  const char*aliases[]={"FISCALIZED","FISCAL_RESULT_UNKNOWN","REJECTED"};
+  const int64_t amounts[]={2147483648LL,9007199254740993LL,INT64_MAX,INT64_MIN};
+  for(size_t i=0;i<3;++i)for(const auto amount:amounts){
+   const std::string json="{\"operation_id\":\""+operation+"\",\"state\":\""+states[i]+"\",\"payment_evidence\":[{\"amount_minor\":"+std::to_string(amount)+"}],\"fiscal_reference\":\"FD-1\",\"nullable\":null,\"empty\":[]}";
+   assert(encoded_storage.set_operation_state(operation.c_str(),states[i],json.c_str(),trust.now)==ESP_OK);
+   OperationRecord persisted;assert(encoded_storage.operation(operation.c_str(),persisted)==ESP_OK&&persisted.result_payload==json);
+   const auto input=persisted.result_payload;notifications.clear();assert(deliver_ble_result(operation.c_str(),persisted.result_payload.c_str(),Ingress::Ble,owner,nullptr)==ESP_OK&&persisted.result_payload==input);
+   OperationRecord after;assert(encoded_storage.operation(operation.c_str(),after)==ESP_OK&&after.result_payload==input);
+   const auto first=notifications;std::vector<uint8_t>wire;
+   for(const auto&frame:notifications){assert(memcmp(frame.data(),"BFF1",4)==0);wire.insert(wire.end(),frame.begin()+57,frame.end());}
+   beefiscal::go_json::Value value;assert(canonical_cbor_to_value(wire.data(),wire.size(),value)==ESP_OK);
+   const auto*evidence=beefiscal::go_json::field(value,"payment_evidence");assert(evidence&&evidence->elements.size()==1);
+   int64_t decoded;assert(beefiscal::go_json::integer(*beefiscal::go_json::field(evidence->elements[0],"amount_minor"),decoded)&&decoded==amount);
+   assert(beefiscal::go_json::field(value,"state")->text==aliases[i]);
+   notifications.clear();assert(deliver_ble_result(operation.c_str(),json.c_str(),Ingress::Ble,owner,nullptr)==ESP_OK&&notifications==first);
+   if(const char*out=getenv("CBOR_DELIVERY_FIXTURES")){std::ofstream file(out,std::ios::app);assert(file);static const char h[]="0123456789abcdef";file<<"{\"id\":\""<<operation<<"\",\"amount\":\""<<amount<<"\",\"state\":\""<<aliases[i]<<"\",\"hex\":\"";for(auto b:wire)file<<h[b>>4]<<h[b&15];file<<"\",\"frames\":[";bool comma=false;for(const auto&frame:first){if(comma)file<<',';comma=true;file<<'\"';for(auto b:frame)file<<h[b>>4]<<h[b&15];file<<'\"';}file<<"]}\n";}
+  }
+  for(const auto&bad:std::vector<std::string>{"{}","[]","{\"state\":0}","{\"state\":\"COMMITTED\",\"state\":\"REJECTED\"}","{\"state\":\"COMMITTED\",\"x\":1.0}","{\"state\":\"COMMITTED\",\"x\":1e0}","{\"state\":\"COMMITTED\",\"x\":-0}","{\"state\":\"COMMITTED\",\"x\":9223372036854775808}","{\"state\":\"COMMITTED\",\"x\":-9223372036854775809}","{\"state\":\"COMMITTED\",\"x\":NaN}","{\"state\":\"COMMITTED\",\"x\":\"\\ud800\"}","{\"state\":\"COMMITTED\",\"x\":\"\\u0000\"}",std::string("{\"state\":\"COMMITTED\",\"x\":\"")+std::string("\xc0\x80",2)+"\"}",std::string(8193,' ')}){
+   notifications.clear();allocation_count=0;assert(deliver_ble_result(operation.c_str(),bad.c_str(),Ingress::Ble,owner,nullptr)==ESP_ERR_INVALID_ARG&&notifications.empty()&&allocation_count==0);
+  }
+  const std::string base="{\"state\":\"COMMITTED\"}";
+  const std::string padded=base+std::string(8192-base.size(),' ');notifications.clear();assert(deliver_ble_result(operation.c_str(),padded.c_str(),Ingress::Ble,owner,nullptr)==ESP_OK&&!notifications.empty());
+  for(int depth:{14,15}){const std::string nested="{\"state\":\"COMMITTED\",\"x\":"+std::string(depth,'[')+"null"+std::string(depth,']')+"}";notifications.clear();const auto status=deliver_ble_result(operation.c_str(),nested.c_str(),Ingress::Ble,owner,nullptr);assert(status==(depth==14?ESP_OK:ESP_ERR_INVALID_ARG));assert(notifications.empty()==(depth==15));}
+  notifications.clear();allocation_count=0;assert(deliver_ble_result(operation.c_str(),"{\"state\":\"COMMITTED\"}",Ingress::Ble,{},nullptr)==ESP_ERR_INVALID_STATE&&notifications.empty()&&allocation_count==0);
+  assert(scalar(argv[3],"SELECT result_payload FROM operations")==durable_before&&executor.calls==1);
+  std::cout<<"actual delivery int64/state aliases/replay/strict rejection/durable unchanged PASS\n";
  }
  // Current owner must never be captured for an invalid or foreign origin.
  notifications.clear();allocation_count=0;const uint8_t byte=0;

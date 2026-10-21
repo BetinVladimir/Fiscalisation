@@ -1,5 +1,6 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { setImmediate as immediate } from "node:timers";
+import { readFileSync } from "node:fs";
 import { createHash, webcrypto } from "node:crypto";
 import { Encoder } from "cbor-x";
 import { WebBleRoute } from "../src/fiscal/webBleRoute";
@@ -174,6 +175,20 @@ for (const kind of ["mini", "pwa"] as const)
         ? transport.sendComplianceIntentAndWait(intent, id, 185, 30000, signal)
         : transport.submitCommand(intent, signal);
     }
+    it.skipIf(!process.env.CBOR_DELIVERY_FIXTURES)("actual S3 delivery int64 bytes survive real result projection", async () => {
+      const rows=readFileSync(process.env.CBOR_DELIVERY_FIXTURES!,"utf8").trim().split("\n").map(x=>JSON.parse(x));
+      expect(rows).toHaveLength(12);
+      for(const row of rows){
+        await start({client_operation_id:row.id});
+        const result=kind==="mini"?transport.sendComplianceIntentAndWait({client_operation_id:row.id},row.id,185,30000,controller.signal):send({client_operation_id:row.id});await flush();
+        for(const f of row.frames)notify(sdk.event,Buffer.from(f,"hex"));
+        await flush();if(kind==="mini")expect(events.length).toBeGreaterThan(0);
+        const value=await result;expect(value.state).toBe(row.state);expect(value.fiscal_reference).toBe("FD-1");
+        if(kind==="mini")expect(value.payment_evidence[0].amount_minor).toBe(row.amount==="2147483648"?2147483648:BigInt(row.amount));
+        else expect(value.certainty).toBe(row.state==="FISCALIZED"?"PROVEN_SUCCESS":"UNKNOWN");
+        transport.resetSession?.();await flush();
+      }
+    });
     it("installs listeners before subscription and copies offset DataView; wire unchanged", async () => {
       sdk.event.startNotifications.mockImplementation(async () => {
         expect(sdk.event.count()).toBe(1);

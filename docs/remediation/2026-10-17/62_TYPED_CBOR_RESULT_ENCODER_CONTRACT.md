@@ -47,3 +47,5 @@ Review APIs above before implementation. Exact wire int64 delivered without floa
 ## Accepted implementation refinements
 
 Raw Value::Number is rejected by the typed encoder in every case; only the explicit checked compatibility wrapper/result bridge produces Integer nodes. Existing go_json::parse repair behavior and default limits must remain unchanged; strict bridge input/depth limits apply separately. Actual application waiter/projection tests must consume bigint payment evidence to detect hidden Number/JSON.stringify assumptions beyond a library-only decode test. Production transport remains BFF1. This accepted contract is not implementation or runtime acceptance.
+
+Implementation and root verification: [64](64_TYPED_CBOR_RESULT_ENCODER.md). Legacy cJSON inputs cannot expose lost lexical provenance or bytes beyond the C-string terminator; strict production JSON bytes bridge enforces those requirements before any lossy conversion. Exact-source full target and standalone client-CI dependency setup remain separate gates.

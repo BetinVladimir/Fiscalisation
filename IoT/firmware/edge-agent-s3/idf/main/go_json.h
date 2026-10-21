@@ -24,6 +24,8 @@ struct Value {
 // Generic numbers still encode with Go float64 semantics; integer() validates a
 // typed int64 from the original token, so no cJSON/double rounding can occur.
 bool parse(const char*, size_t, Value&, std::string& error);
+// Opt-in Unicode rejection; existing parse keeps Go-compatible repair semantics.
+bool parse_strict_unicode(const char*, size_t, Value&, std::string& error);
 bool integer(const Value&, int64_t&);
 bool from_cjson(const cJSON*, Value&, std::string& error);
 bool encode(const Value&, std::string& output, std::string& error);
