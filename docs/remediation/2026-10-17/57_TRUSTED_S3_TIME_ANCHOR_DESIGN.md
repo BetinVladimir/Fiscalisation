@@ -8,7 +8,7 @@ Adopt an internal **time interval authority**, not a scalar clock. Root has appr
 
 Recommended implementation sequence after approval: (1) cheap internal interval-interface correction with host fake `[t,t]`; (2) pure nonce/interval state machine and real-crypto Go↔C++ vectors; (3) constrained device request signer + root issuer; (4) opaque relay/bootstrap transport; (5) isolated S3 integration/HIL and only then enable provider. Leave the default unavailable until every dependency and acceptance gate is explicit.
 
-Root decisions still needed: approve protocol V1 fields/domains and proposed limits; choose the server AuthorityClock health source; approve the bootstrap API/device+actor policy; approve initial use of the existing compiled binding-root key via a separate purpose-only signing method, or a separately provisioned time-purpose key. Physical monotonic drift bounds and sleep policy require measurement before production adoption.
+Accepted device-side protocol/cryptographic implementation contract is now [60](60_DEVICE_TIME_PROOF_VERIFIER_CONTRACT.md): exact V1 fields/domains and compiled BindingTrustAnchor purpose verification. Still OPEN: server AuthorityClock health source, actual root issuer and bootstrap API/device+actor policy. Physical monotonic drift bounds and sleep policy require measurement before production adoption.
 
 ## Inventory and gaps
 
