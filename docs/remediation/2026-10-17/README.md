@@ -4,6 +4,19 @@
 
 По прямому запросу пользователя отдельный Go-модуль `edge-agent/` удалён из репозитория. Его команды, генераторы и ссылки на тестовые evidence исключаются из действующего контура. Исторические результаты не подтверждают готовность S3. Текущий IoT runtime — `IoT/firmware/edge-agent-s3/idf`; обязательны actual-runtime тесты и сборка этой прошивки. Go oracle в `idf/tests/go_wire_host` использует `fiscal-backend/internal`, а не удалённый модуль, и остаётся применимым. Недостающие эквивалентные проверки S3 остаются OPEN до реализации, а не закрываются удалением reference tests.
 
+## Текущий интеграционный срез — 2026-10-21
+
+- [Статус native/ADMIN/экспорта и открытые ограничения](28_INTEGRATED_NATIVE_ADMIN_STATUS.md): actual ADMIN HTTP → браузер → S3 processor/SQLite PASS; iOS OS-key → issuer → S3 interoperability PASS. Физический BLE этими стендами не проверен.
+- [Обезличенный evidence ADMIN и S3 authority boundary](evidence/admin-http-2026-10-21/README.md): логи, SHA256 исходников и границы выводов. Authority boundary дополнительно прошёл AddressSanitizer/UndefinedBehaviorSanitizer без ошибок.
+- Независимые профили PostgreSQL: [MiniPOS](24_MINIPOS_POSTGRES_EXTRACTION.md) и [Fiscal](21_FISCAL_POSTGRES_EXTRACTION.md); [миграция audit predecessor](29_AUDIT_PREDECESSOR_MIGRATION.md).
+- [Android OS-key → issuer → S3](34_ANDROID_OS_INTEROP.md): offline и online interoperability прошли; это instrumentation harness, окончательная сборка приложения и физический BLE ещё не приняты.
+- [Интеграция UI](36_UI_INTEGRATION_RECHECK.md): отдельные auth/operational/presentation проверки прошли. Последующий полный ordinary browser baseline:215 PASS /33 FAIL; обнаружены дополнительные keyboard/focus регрессии, исправления проверяются. Полный UI gate остаётся OPEN.
+- [Canonical PostgreSQL и typed audit](37_POSTGRES_CANONICAL_INTEGRATION.md): миграция022,46 SQL-проверок, persistence обоих продуктов, три профиля досье и полный two-compose E2E прошли. Логи и хеши сохранены; production rollout внешнего BeeloyDB и полная нормативная модель не подтверждены.
+- Открытые программные требования: [электронные чеки](30_ELECTRONIC_RECEIPT_GAP.md), полный offline equivalence, отзыв автономных разрешений и защищённый BLE; полная программа HIL и внешняя нормативная приёмка также открыты.
+- [Официальная процедура НАП и ограничения актуальности](16_NAP_OFFICIAL_PROCEDURE_RECHECK.md) повторно проверены 2026-10-21. Ключи — внутри NVS ESP32-S3; ATECC608 не используется.
+
+Ниже — исторические срезы; их pending-формулировки не заменяют текущий статус выше.
+
 ## Результаты реализации на 2026-10-18
 
 - Проверенный и отправленный пакет `e66b4f7`: [online/offline authority, MQTT validity, serial-ledger](14_ONLINE_AUTHORITY_AND_MQTT_VALIDITY.md), [логи и build/source hashes](evidence/authority-2026-10-18/README.md). Полные IoT и backend domain/MQTT/API проверки и S3 build завершились exit 0 для этого среза.

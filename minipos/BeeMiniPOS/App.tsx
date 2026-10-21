@@ -55,7 +55,7 @@ import { supportedLanguages } from "./src/translations.generated";
 import { legalTranslations } from "./src/legalTranslations.generated";
 import { useTranslation } from "./src/languageStore";
 import type { Translation } from "./src/languageStore";
-import { fetchWithTimeout } from "./src/http";
+import { fetchTextWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
 import {
   isFiscalResourceId,
@@ -235,7 +235,7 @@ class MiniPosHttpError extends Error {
   }
 }
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const r = await fetchWithTimeout(apiBase + path, {
+  const {response: r, text} = await fetchTextWithTimeout(apiBase + path, {
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -248,7 +248,6 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
       ...(init.headers || {}),
     },
   });
-  const text = await r.text();
   if (r.status === 401 && prodMode) runtimeUnauthorized?.();
   if (!r.ok)
     throw new MiniPosHttpError(
@@ -277,14 +276,14 @@ async function fiscalCall<T>(path: string, init: RequestInit = {}): Promise<T> {
       ...(init.headers || {}),
     },
   };
-  let r: Response;
+  let result: {response: Response; text: string};
   try {
-    r = await fetchWithTimeout(fiscalBase + path, request);
+    result = await fetchTextWithTimeout(fiscalBase + path, request);
   } catch (first) {
     if (method === "GET") throw first;
-    r = await fetchWithTimeout(fiscalBase + path, request);
+    result = await fetchTextWithTimeout(fiscalBase + path, request);
   }
-  const text = await r.text();
+  const {response: r, text} = result;
   if (r.status === 401 && prodMode) runtimeUnauthorized?.();
   if (!r.ok)
     throw new FiscalHttpError(r.status, apiProblemText(text, `Fiscal HTTP ${r.status}`));

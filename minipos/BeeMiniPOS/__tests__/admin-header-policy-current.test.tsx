@@ -7,7 +7,7 @@ jest.mock('../src/ui/provider',()=>({}));jest.mock('../src/ui/HeaderPreferenceMe
 jest.mock('../src/languageStore',()=>({useTranslation:()=>require('../src/translations.generated').translations.en}));
 jest.mock('../src/nativeBle',()=>({}));jest.mock('../src/webBle.ts',()=>({}));jest.mock('../src/connectivity.ts',()=>({}));jest.mock('../src/checkoutJournal.ts',()=>({}));
 jest.mock('expo-crypto',()=>({getRandomBytes:jest.fn()}));jest.mock('../src/portableCrypto.ts',()=>({configureRandomSource:jest.fn()}));jest.mock('expo-status-bar',()=>({StatusBar:'StatusBar'}));jest.mock('expo-constants',()=>({default:{}}));
-jest.mock('../src/http',()=>({fetchWithTimeout:jest.fn(async()=>({ok:true,status:200,text:async()=>JSON.stringify({items:[]})}))}));
+jest.mock('../src/http',()=>({fetchTextWithTimeout:jest.fn(async()=>({response:{ok:true,status:200},text:JSON.stringify({items:[]})}))}));
 import {Admin} from '../App';import {useHeaderLeaveGuard} from '../src/ui/useHeaderLeaveGuard';
 let guard!:ReturnType<typeof useHeaderLeaveGuard>;
 const blank={locationName:'',locationAddress:'',workstationName:'',configuredRegister:'',pName:'',pPrice:'',pBarcode:'',pTaxGroup:'B',eFirst:'',eLast:'',eCode:''};

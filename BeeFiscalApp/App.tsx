@@ -31,7 +31,7 @@ import { Platform, StyleSheet, View } from "react-native";
 import { useWindowDimensions } from 'react-native';
 import { Badge, Drawer, List, Surface, Modal, Portal, Text as PaperText, useTheme } from 'react-native-paper';
 import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
-import { fetchWithTimeout } from "./src/http";
+import { fetchTextWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
 import {
   devicesBoundToRegister,
@@ -68,7 +68,7 @@ async function call(path: string, init: RequestInit = {}, requestToken = runtime
   // Every mutation is independently idempotent. A PROD 401 clears local
   // authority immediately instead of leaving privileged controls usable.
   const mutation = !!init.method && init.method !== "GET";
-  const r = await fetchWithTimeout(base + path, {
+  const {response: r, text} = await fetchTextWithTimeout(base + path, {
     ...init,
     headers: {
       "Content-Type": "application/json",
@@ -84,7 +84,6 @@ async function call(path: string, init: RequestInit = {}, requestToken = runtime
       ...(init.headers || {}),
     },
   });
-  const text = await r.text();
   if (r.status === 401 && prodMode && requestToken === runtimeAuthToken) runtimeUnauthorized?.();
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return text ? parseApiJson(text) : {};
