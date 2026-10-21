@@ -16,7 +16,11 @@ struct BLECertificateProofEnvelope {
 class TrustedBLECertificateTime {
  public:
   virtual ~TrustedBLECertificateTime() = default;
-  virtual bool now(int64_t& unix_seconds) const = 0;
+  // Inclusive integer-second bounds. Security consumers must check the entire
+  // interval; a midpoint cannot establish both not-before and expiry. Each
+  // published endpoint must be nondecreasing within an authority epoch.
+  virtual bool bounds(int64_t& lower_unix_seconds,
+                      int64_t& upper_unix_seconds) const = 0;
 };
 TrustedBLECertificateTime& unavailable_ble_certificate_time();
 struct VerifiedBLECertificateProofPermit {

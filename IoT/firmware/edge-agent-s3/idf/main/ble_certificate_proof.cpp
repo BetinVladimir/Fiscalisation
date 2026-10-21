@@ -26,7 +26,7 @@ constexpr size_t kSlots = 4, kSlotBytes = 181, kCacheBytes = 4 + kSlots * kSlotB
 constexpr char kChallengeDomain[] = "BEEFISCAL_BLE_SERVER_CERT_CHALLENGE_V1\n";
 constexpr char kProofDomain[] = "BEEFISCAL_BLE_SERVER_CERT_PROOF_V1\n";
 class UnavailableTime final : public TrustedBLECertificateTime {
- public: bool now(int64_t&) const override { return false; }
+ public: bool bounds(int64_t&,int64_t&) const override { return false; }
 };
 struct Challenge {
   std::string id, nonce, device, spki, tenant, location, reg, binding, name, hash;
@@ -182,7 +182,7 @@ esp_err_t BLEServerCertificateProofSigner::prove(const BLECertificateChallengeEn
   const std::string spki=hash(std::string(reinterpret_cast<char*>(der.data()),der.size()));
   if(binding.schema_version!=3||binding.generation<1||identity_.kid()!=binding.authority.transaction_signing_kid||c.spki!=spki||c.device!=binding.edge_device_id||c.tenant!=binding.tenant_id||
       c.location!=binding.location_id||c.reg!=binding.register_id||c.binding!=binding.payload_sha256||c.generation!=binding.generation)return ESP_ERR_INVALID_STATE;
-  int64_t now{};if(!time_.now(now)||now<1700000000||now<c.issued||now>=c.expires)return ESP_ERR_INVALID_STATE;
+  int64_t lower{},upper{};if(!time_.bounds(lower,upper)||lower<1700000000||upper<lower||lower<c.issued||upper>=c.expires)return ESP_ERR_INVALID_STATE;
   c.hash=hash(std::string(kChallengeDomain)+envelope.canonical_json);
   Value proof=Value::object({{"kind",Value::string("BLE_SERVER_CERT_PROOF")},{"version",Value::integer_value(1)},
       {"purpose",Value::string("ble-tls-server")},{"challenge_id",Value::string(c.id)},
@@ -192,7 +192,7 @@ esp_err_t BLEServerCertificateProofSigner::prove(const BLECertificateChallengeEn
   cache_established_|=present;if(recovery_pending_){recovery_pending_=false;return ESP_ERR_INVALID_STATE;}
   Slot* slot=nullptr;bool cached=false;
   for(auto& current:cache){if(current.used&&current.id==c.id){if(current.hash!=c.hash||current.binding!=c.binding||current.generation!=c.generation||current.expires!=c.expires||!verify_cached(identity_,permit.canonical_proof,current.signature))return ESP_ERR_INVALID_CRC;slot=&current;cached=true;break;}}
-  if(!cached){for(auto& current:cache)if(current.used&&current.expires<=now)current={};for(auto& current:cache)if(!current.used){slot=&current;break;}
+  if(!cached){for(auto& current:cache)if(current.used&&current.expires<=lower)current={};for(auto& current:cache)if(!current.used){slot=&current;break;}
     if(!slot)return ESP_ERR_NO_MEM;
     slot->used=true;slot->id=c.id;slot->hash=c.hash;slot->binding=c.binding;slot->generation=c.generation;slot->expires=c.expires;
     rc=identity_.sign_ble_certificate_proof(permit,slot->signature.data());if(rc!=ESP_OK)return rc;
@@ -201,8 +201,8 @@ esp_err_t BLEServerCertificateProofSigner::prove(const BLECertificateChallengeEn
     if(rc!=ESP_OK||!exists||serialize(confirmed)!=serialize(cache)){recovery_pending_=true;return rc==ESP_OK?ESP_ERR_INVALID_CRC:rc;}
     cache_established_=true;
   }
-  CompositeBinding current;rc=installed_binding(current);int64_t publication_time{};
-  if(rc!=ESP_OK||!same_binding(binding,current)||!time_.now(publication_time)||publication_time<c.issued||publication_time>=c.expires)return ESP_ERR_INVALID_STATE;
+  CompositeBinding current;rc=installed_binding(current);int64_t publication_lower{},publication_upper{};
+  if(rc!=ESP_OK||!same_binding(binding,current)||!time_.bounds(publication_lower,publication_upper)||publication_lower<1700000000||publication_upper<publication_lower||publication_lower<lower||publication_upper<upper||publication_lower<c.issued||publication_upper>=c.expires)return ESP_ERR_INVALID_STATE;
   out.canonical_json=permit.canonical_proof;out.signature=encode64(slot->signature.data(),slot->signature.size());
   if(out.signature.size()!=86){out.clear();return ESP_FAIL;}return ESP_OK;
 }

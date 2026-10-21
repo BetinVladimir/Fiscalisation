@@ -17,7 +17,16 @@ static std::string read(const std::string& path){std::ifstream f(path,std::ios::
 static const V& member(const V& value,const char* key){for(const auto& p:value.fields)if(p.first==key)return p.second;assert(false);return value;}
 static V json(const std::string& raw){V out;std::string error;assert(beefiscal::go_json::parse(raw.data(),raw.size(),out,error));return out;}
 static BLECertificateChallengeEnvelope envelope(const V& value){return {member(value,"canonical_json").text,member(value,"signature").text,member(value,"key_id").text};}
-struct Clock final:TrustedBLECertificateTime {int64_t value{};bool ready=true;bool now(int64_t& out)const override {out=value;return ready;}};
+struct Clock final:TrustedBLECertificateTime {
+ struct Window {int64_t lower,upper;bool ready=true;};
+ int64_t value{};bool ready=true;std::vector<Window> windows;mutable size_t calls=0;
+ void program(std::initializer_list<Window> values){windows=values;calls=0;}
+ bool bounds(int64_t& lower,int64_t& upper)const override {
+  if(windows.empty()){lower=upper=value;return ready;}
+  const auto& current=windows[std::min(calls++,windows.size()-1)];
+  lower=current.lower;upper=current.upper;return current.ready;
+ }
+};
 struct System {
  std::string pem,kid;DeviceIdentity identity;ProvisionedBindingStore binding;EncryptedProvisioning encrypted;Clock clock;
  System(const std::string& dir,int64_t now):pem(read(dir+"/issuer.pem")),kid(read(dir+"/issuer.kid")),binding(pem.c_str(),kid.c_str()),encrypted(identity,binding,pem.c_str(),kid.c_str()){
@@ -50,6 +59,46 @@ int main(int argc,char** argv){assert(argc==2);const std::string dir=argv[1];con
  BLEServerCertificateProofSigner production_default(system.identity,system.encrypted,system.binding);assert(production_default.prove(original,proof)!=ESP_OK&&proof.signature.empty());
  system.clock.ready=false;assert(signer.prove(original,proof)!=ESP_OK&&proof.signature.empty());system.clock.ready=true;
  system.clock.value=now-1;assert(signer.prove(original,proof)!=ESP_OK);system.clock.value=now+120;assert(signer.prove(original,proof)!=ESP_OK);system.clock.value=now;
+ // Exercise actual admission/publication with inclusive uncertainty bounds.
+ // Midpoint values below would be in-window: accepting either endpoint alone
+ // incorrectly treats uncertain time as exact time.
+ const auto before_intervals=nvs_durable;
+ auto interval_case=[&](const char* name,std::initializer_list<Clock::Window> windows,bool cached,bool accepted,size_t reads){
+  clear_cache();auto bounded=system.signer();
+  if(cached){system.clock.windows.clear();system.clock.value=now;assert(bounded.prove(original,proof)==ESP_OK);}
+  const auto before=proof_commits;const auto cached_signature=proof.signature;system.clock.program(windows);proof={"stale","stale"};
+  const auto result=bounded.prove(original,proof);
+  if((result==ESP_OK)!=accepted){std::cerr<<"FAIL interval "<<name<<" cached="<<cached<<"\n";assert(false);}
+  assert(system.clock.calls==reads);
+  if(accepted){assert(proof.signature.size()==86&&!proof.canonical_json.empty());if(cached)assert(proof.signature==cached_signature);}
+  else assert(proof.signature.empty()&&proof.canonical_json.empty());
+  if(cached||reads==1)assert(proof_commits==before);
+ };
+ for(bool cached:{false,true}){
+  interval_case("nbf midpoint valid",{{now-1,now+1}},cached,false,1);
+  interval_case("expiry midpoint valid",{{now+118,now+120}},cached,false,1);
+  interval_case("inverted admission",{{now+1,now}},cached,false,1);
+  interval_case("below minimum",{{1699999999,1700000000}},cached,false,1);
+  interval_case("int64 minimum",{{INT64_MIN,now}},cached,false,1);
+  interval_case("int64 maximum",{{now,INT64_MAX}},cached,false,1);
+  interval_case("populated unavailable admission",{{now,now,true},{now,now,false}},cached,false,2);
+  interval_case("unavailable admission",{{now,now,false}},cached,false,1);
+  interval_case("exact time",{{now,now},{now,now}},cached,true,2);
+  interval_case("expiry minus one",{{now+119,now+119},{now+119,now+119}},cached,true,2);
+  interval_case("valid interval",{{now+10,now+12},{now+11,now+13}},cached,true,2);
+  interval_case("bounded widening",{{now+10,now+12},{now+10,now+13}},cached,true,2);
+  interval_case("publication lower backwards",{{now+10,now+12},{now+9,now+12}},cached,false,2);
+  interval_case("publication upper backwards",{{now+10,now+12},{now+10,now+11}},cached,false,2);
+  interval_case("publication inverted",{{now+10,now+12},{now+13,now+11}},cached,false,2);
+  interval_case("publication below minimum",{{now,now},{1699999999,now}},cached,false,2);
+  interval_case("publication widened across nbf",{{now,now},{now-1,now+1}},cached,false,2);
+  interval_case("publication expiry midpoint valid",{{now+10,now+12},{now+118,now+120}},cached,false,2);
+  interval_case("publication exact expiry",{{now+10,now+12},{now+120,now+120}},cached,false,2);
+  interval_case("publication int64 maximum",{{now,now},{now,INT64_MAX}},cached,false,2);
+ }
+ system.clock.windows.clear();system.clock.value=now;nvs_durable=before_intervals;
+ reset_faults();
+ std::cout<<"PASS40 actual firmware interval cases including cached/new proof, nbf/expiry midpoint, ordered/minimum, provider loss and publication monotonicity\n";
  // Fixed cache has no unexpired eviction. Replays remain exact when full.
  for(int i=1;i<4;i++)assert(signer.prove(envelope(json(read(dir+"/challenge-"+std::to_string(i)+".json"))),proof)==ESP_OK);
  const auto commits=proof_commits;assert(signer.prove(envelope(json(read(dir+"/challenge-4.json"))),proof)==ESP_ERR_NO_MEM&&proof.signature.empty()&&proof_commits==commits);

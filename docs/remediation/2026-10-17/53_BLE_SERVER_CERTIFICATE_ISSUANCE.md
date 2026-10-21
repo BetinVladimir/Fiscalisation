@@ -114,3 +114,7 @@ Evidence has per-run directories plus a latest manifest at BLE_CERTIFICATE_CRYPT
 Reproduce with `CXX=g++-15 CC=gcc-15 make ble-certificate-crypto-test BLE_CERTIFICATE_CRYPTO_EVIDENCE_DIR=/absolute/output`. Public upstream network access, Git, CMake, curl, Go matching go.mod, Python and native C/C++ compilers are required. Output records per-run platform/tool hashes; this is source-pinned reproducibility, not a cross-platform bit-identical binary claim. Full ESP-IDF target build, signed device-nonce trusted time and hardware acceptance remain separate mandatory gates.
 
 Root mandatory Make entrypoint repeated with fresh upstream mbedTLS/framework/cJSON download and native rebuild: all9 phases PASS, required profile5cases and actual C++ proof/Go issuer PASS; missing/zero/skipped/hash failures rejected by4 gate tests. [Root raw evidence](evidence/ble-certificate-crypto-ci-2026-10-21/manifest.json). Remote workflow acceptance remains pending; no device/time-provider enablement.
+
+## Interval authority correction
+
+`TrustedBLECertificateTime` now provides inclusive lower/upper bounds. Admission and publication require the full interval inside challenge validity; publication rejects either endpoint moving backwards. Cache expiry pruning uses the lower bound, not midpoint. Actual runner PASS40 cases including fresh/cached proof and boundary/clock-loss checks; both counterfactuals RED. [Design and evidence](57_TRUSTED_S3_TIME_ANCHOR_DESIGN.md). Default remains unavailable; this does not initialize production time.

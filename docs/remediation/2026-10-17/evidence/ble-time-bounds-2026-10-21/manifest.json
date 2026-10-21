@@ -1,0 +1,75 @@
+{
+  "kind": "SYNTHETIC_ACTUAL_FIRMWARE_TIME_INTERVAL_PHASE1",
+  "baseline": "4686a00",
+  "patch_sha256": "b0ed81b82c14ff830eb07d3812f5ad8ca6f2e5aae68eb1edf36e4ebc90c7c79f",
+  "changed_files": {
+    "IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.h": {
+      "baseline_sha256": "6dc8d427aeb2d0637a3f0febb1d2e73acc840317afaf4cd03c50ecba3cc447b7",
+      "candidate_sha256": "b572d64e33194a80a6900843f761714d97decb673da10f03960a0e19d42911ba"
+    },
+    "IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.cpp": {
+      "baseline_sha256": "364eadad1dfdd0a0291e89555c4dcae8c2591aed7422bae331b6bdbc8e772ee0",
+      "candidate_sha256": "5554dda12f272b52c9b08a89f6b712f4cf5ab0d27aa3d32e06203bf1f7ce4e3a"
+    },
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_proof_host/proof_native.cpp": {
+      "baseline_sha256": "b5b207190193a299901647e69a2d428fc68b830ce1da44dc4343f9fcef66af60",
+      "candidate_sha256": "63736abd953f33bc4e09a1f0e795ad31dcbfb8229e5cada45cc7d99462c16a2b"
+    }
+  },
+  "tested_source_sha256": {
+    "IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.cpp": "5554dda12f272b52c9b08a89f6b712f4cf5ab0d27aa3d32e06203bf1f7ce4e3a",
+    "IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.h": "b572d64e33194a80a6900843f761714d97decb673da10f03960a0e19d42911ba",
+    "IoT/firmware/edge-agent-s3/idf/main/device_identity.cpp": "01253c764f3f229777f24621325584ea70f535c2ada02e0b1036965807966394",
+    "IoT/firmware/edge-agent-s3/idf/main/device_identity.h": "76bdbdd2fb36a6d1c286cf77646972ff07bfdbfd1c3114aa31f34f1531b22dde",
+    "IoT/firmware/edge-agent-s3/idf/main/encrypted_provisioning.cpp": "747b940164b0edbe63bfe2ca3b68e4f1882b4cbb0efcb1419ada41881fa9ab0b",
+    "IoT/firmware/edge-agent-s3/idf/main/encrypted_provisioning.h": "7b352f637bfaefeda9294449c050ed03423403dbf11b3fa9cdf90427c4ecc25f",
+    "IoT/firmware/edge-agent-s3/idf/main/go_json.cpp": "a52222f4723357e2015a7b7a313aa69d658b820cfb1fa3f0e6b67b7795c60330",
+    "IoT/firmware/edge-agent-s3/idf/main/go_json.h": "22fed8662cdf1cb4e1ec0eae339d3763f1bf75379844be066dc3dabfe84e1e08",
+    "IoT/firmware/edge-agent-s3/idf/main/installed_authority_guard.h": "923312f5da052ddf3a3bec94d5301a752b2349317a0d53c04f7ab925facf412d",
+    "IoT/firmware/edge-agent-s3/idf/main/provisioned_binding.cpp": "e7eb2d1a282b5424e9b3ccc803c5aa02a441b21fdc98a21f4e95beef5103ec8d",
+    "IoT/firmware/edge-agent-s3/idf/main/provisioned_binding.h": "dc24368c3f7baa93b17db014bbeef69f2bc657ae337a2f98febb8dff2d657b48",
+    "IoT/firmware/edge-agent-s3/idf/main/provisioning_crypto.cpp": "073f021f08a63b3dcc19e2661f1d646469b211125e976afac347a892d12529f4",
+    "IoT/firmware/edge-agent-s3/idf/main/provisioning_crypto.h": "9104cc48f206166edbe19edab2d000ad0e1d76510a4eaa35073a1425b011147f",
+    "IoT/firmware/edge-agent-s3/idf/main/startup_entropy.h": "b47325ae70248120c13f9bd6467b4246bb984f241ecd2013085adc533c0cd8e7",
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_proof_host/esp_err.h": "1b4c7eb0c2720df621dc53d7883b18977519ad8fee3b68550628382e6f8e3d5d",
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_proof_host/nvs.h": "78ef94ab0a83f10def6791a0259ac3e563dc3bb63d9a312d888f5d799417a8a5",
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_proof_host/proof_native.cpp": "63736abd953f33bc4e09a1f0e795ad31dcbfb8229e5cada45cc7d99462c16a2b",
+    "IoT/firmware/edge-agent-s3/idf/tests/entropy_host/bootloader_random.h": "f4d11082e9fec39e4414bef85729e5d81a6f6f40b5dba20a29a81c115c667b31",
+    "IoT/firmware/edge-agent-s3/idf/tests/entropy_host/esp_random.h": "b83bdfbc5c85ff6c86cd4c8da9d446afe4d9454835ddc28f5cc5e2634dc17aa9",
+    "IoT/firmware/edge-agent-s3/idf/tests/entropy_host/identity_entropy_native.cpp": "3c148a7a8b4a1fbcfafdc0cc898b3a02403f905f8bb4695031059bb0c38e426a",
+    "IoT/firmware/edge-agent-s3/idf/tests/entropy_host/identity_rng_budget_native.cpp": "6ee33f26da10542b1259a407e4b7567a2a1ee0b2d13f7869a5c09795b2640b2f",
+    "IoT/firmware/edge-agent-s3/idf/tests/entropy_host/nvs.h": "00fe0054c5ee03d2bd4d4c03504918ee2543b672fd7e79d3c5c8805b965d4d77",
+    "IoT/firmware/edge-agent-s3/idf/tests/provisioning_host/esp_err.h": "6a6826dfa469ebc4afe299c01d04bb8f326f287d0022b1704789eab386dde614",
+    "IoT/firmware/edge-agent-s3/idf/tests/provisioning_host/esp_random.h": "49d390829a03d9eaced0fe4964d7a07dc0b6e28377cb73bf15e7c28c539c1f42",
+    "IoT/firmware/edge-agent-s3/idf/tests/provisioning_host/installer_native.cpp": "34ddc810554948f431e41117b616b34b05e1294303d61823aa7020afff89c2de",
+    "IoT/firmware/edge-agent-s3/idf/tests/provisioning_host/nvs.h": "9d02cb430399a9b18ee21803199e7fc23ed05a7b5ce08e7b77e77c8032114108",
+    "IoT/firmware/edge-agent-s3/idf/tests/provisioning_host/provisioning_native.cpp": "67c8aff536831de114e9d6887c1928f13a70465b5aeb53e77f44a650b749e93d",
+    "fiscal-backend/internal/domain/ble_proof_firmware_interop_test.go": "fc8497a2d08934b9c20da4b5c91f0add9b158251e8741520502f65eca715f5d9",
+    "scripts/verify-ble-certificate-proof-host.sh": "4c7ab87827c41f1e9262e7ad43c6a149047c60d811ec978ba65592c5746e3395"
+  },
+  "dependency_sha256": {
+    "/private/tmp/fiscal-ble-crypto-ci-20261021/upstream-cjson/cJSON.c": "75c51de8fa40ac9d7a99319c6330719bd692eb81c0a869265f3d4c682533f9b9",
+    "/private/tmp/fiscal-ble-crypto-ci-20261021/upstream-cjson/cJSON.h": "0578cc29132912edbc88f83207a8fc76e5db3db0605497e909a9384ef3cc474b",
+    "/private/tmp/fiscal-tls-spike-20261021/build-host/library/libmbedx509.a": "09c17fdd1f342d4eaa7d3903fa8dffdd86b44e6094f67d89f419b8a518895c87",
+    "/private/tmp/fiscal-tls-spike-20261021/build-host/library/libmbedcrypto.a": "403bc958c35406fe6c11301a6791ab867b0114031a86af009637f8cee3a4bb30"
+  },
+  "mbedtls_commit": "068ff080b369adfac81509f9b57b2afabaf82dc5",
+  "mbedtls_framework_commit": "dde0c4a0e448a0552f18817dcea633bb851fd288",
+  "mbedtls_clean_tree_enforced_by_runner": true,
+  "gates": {
+    "actual_crypto_go_firmware_runner": "PASS40 interval cases plus existing root/context/int64/cache/NVS/fault/restart/concurrent installer suite",
+    "original_point_red": "FAIL nbf midpoint valid with unmodified4686a00 production cpp/h; test-only midpoint provider adapter",
+    "publication_monotonic_red": "FAIL publication lower backwards after removing two publication monotonic guards"
+  },
+  "no_original_mutations": true,
+  "ci_or_make_edits": false,
+  "wire_go_changes": false,
+  "production_time_provider": false,
+  "physical_or_target_build_acceptance": false,
+  "evidence_sha256": {
+    "original-point-red.log.gz": "9afc391dbc5064b183e0b35ecc6fa278044a2d3e76705c32bf6456b6b66b1aac",
+    "interval-green.log.gz": "fa5fa0c091adca4eb5304567b667979fb006188c71cf425bd0454c9844e44e59",
+    "point-counterfactual-red.log.gz": "aa09dbd145c32cf17099e00d215f62ae668eb1689a242d764f7a52566dafc144",
+    "publication-backwards-red.log.gz": "1e6337e0f76297d6b16cbecf93fbd4d3677ce84b88cd45ccc1b62ac2e06abab9"
+  }
+}
