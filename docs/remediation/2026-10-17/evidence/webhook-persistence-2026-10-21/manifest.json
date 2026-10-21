@@ -28,8 +28,13 @@
     "initial-empty-red": {
       "raw_sha256": "48781e39a42feb5b7b231296d672cb65265f5da92b7603ab8105132d946d458c",
       "expected_failure": true
+    },
+    "root-postgres": {
+      "raw_sha256": "61c37a946f4cd65f322f219116c247ca855c512360623ba707fe3637105cd689",
+      "exit_code": 0
     }
   },
   "scope": "Store fault injection at three webhook save stages; root full backend and domain/API race PASS. No real PostgreSQL network outage injection.",
-  "followup_open": "Structural snapshot validation: JSON null or missing mandatory collections currently decodes as empty. Independent followup required; generic Store authoritative-read contract still applies."
+  "followup_open": "Structural snapshot validation: JSON null or missing mandatory collections currently decodes as empty. Independent followup required; generic Store authoritative-read contract still applies.",
+  "postgres_scope": "make postgres-integration PASS: disposable typed projection, fixture preparation, Fiscal persistence/integration, MiniPOS persistence. Not real PostgreSQL network-outage injection."
 }

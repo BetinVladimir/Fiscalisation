@@ -29,6 +29,6 @@ RED definite failure: /private/tmp/fiscal-webhook-boundary-red.log; ambiguous CO
 
 ## Root integration evidence
 
-[Manifest and raw-log hashes](evidence/webhook-persistence-2026-10-21/manifest.json): full source backend and `go test -race ./internal/domain ./internal/api` PASS. Focused runtime fault tests PASS. Separate live disposable PostgreSQL runner is still in progress at this checkpoint; no network-outage acceptance is claimed.
+[Manifest and raw-log hashes](evidence/webhook-persistence-2026-10-21/manifest.json): full source backend and `go test -race ./internal/domain ./internal/api` PASS. Focused runtime fault tests PASS. `make postgres-integration` also PASS: disposable typed projection, fixture preparer and both products persistence/integration. This is a real PostgreSQL regression run, not PostgreSQL network-outage fault injection.
 
 Further structural validation remains OPEN: syntactically valid JSON `null` or an object missing mandatory snapshot collections may currently decode as empty state. The present tests establish the documented Save/Load error, empty-byte and syntax-corruption boundaries; they do not establish arbitrary persisted-object integrity.
