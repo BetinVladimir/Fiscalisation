@@ -1,0 +1,44 @@
+{
+  "base_commit": "66b5567",
+  "sources": {
+    "BeeFiscalApp/App.tsx": "617f445f588923f1d766e4ded1183fe122fd340cfb9af35043c736598f992162",
+    "BeeFiscalApp/src/requestAuthFence.test.ts": "f75220ae1069a5963a7949508a9e32fd215989926ba5b22f2ad420bdadb58133",
+    "minipos/BeeMiniPOS/App.tsx": "0698bd6955db860e0716c477e8e1c311e76e4ff1786edf3cfc7746def41359d1",
+    "minipos/BeeMiniPOS/src/requestAuthFence.test.ts": "f75220ae1069a5963a7949508a9e32fd215989926ba5b22f2ad420bdadb58133"
+  },
+  "logs": {
+    "mini-node": {
+      "raw_sha256": "eaef59966181d7635f17378b506ecbedbea655987f899ae192599c1a4144c7a2",
+      "exit_code": 0
+    },
+    "mini-ui": {
+      "raw_sha256": "099c9818619eb0461545815fcd3b786a013523899ef4198f43f700224ebb3a0e",
+      "exit_code": 0
+    },
+    "mini-ts": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0
+    },
+    "fiscal-node": {
+      "raw_sha256": "2c8873cb7995876e15e21de2b687a25a28ac8b5b5d663a6d73c304fdc5f1e128",
+      "exit_code": 0
+    },
+    "fiscal-ui": {
+      "raw_sha256": "bf0f14fdc519bd75f786003a6d08dca097a46a913f8f0fd764284a26a40db4b1",
+      "exit_code": 0
+    },
+    "fiscal-ts": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0
+    }
+  },
+  "results": {
+    "MiniPOS_Node": 176,
+    "MiniPOS_UI": 130,
+    "Fiscal_Node": 61,
+    "Fiscal_UI": 98,
+    "both_typescript": "PASS"
+  },
+  "scope": "Actual extracted HTTP bodies and existing React App tests; no new browser/native/HIL acceptance",
+  "known_followup": "UI-MP017 active BLE retirement interaction remains OPEN; HTTP gates do not prove BLE authority cleanup."
+}

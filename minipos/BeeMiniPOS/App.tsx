@@ -238,20 +238,17 @@ class MiniPosHttpError extends Error {
   }
 }
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const requestToken=runtimeAuthToken,requestOwner=requestAuthFence.capture(requestToken,init.headers);
-  const {response: r, text} = await fetchTextWithTimeout(apiBase + path, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Api-Version": apiVersion,
-      "X-App-Instance-Id": appInstanceId,
-      "Idempotency-Key": key(),
-      ...(requestToken
-        ? { Authorization: `Bearer ${requestToken}` }
-        : {}),
-      ...(init.headers || {}),
-    },
+  const requestToken=runtimeAuthToken;
+  const headers=new Headers({
+    "Content-Type":"application/json",
+    "X-Api-Version":apiVersion,
+    "X-App-Instance-Id":appInstanceId,
+    "Idempotency-Key":key(),
+    ...(requestToken?{Authorization:`Bearer ${requestToken}`}:{})
   });
+  new Headers(init.headers).forEach((value,name)=>headers.set(name,value));
+  const requestOwner=requestAuthFence.capture(requestToken,headers);
+  const {response:r,text}=await fetchTextWithTimeout(apiBase+path,{...init,headers});
   if (r.status === 401 && prodMode) requestOwner.unauthorized();
   if (!r.ok)
     throw new MiniPosHttpError(
@@ -265,22 +262,19 @@ const collect = <T,>(path: string) =>
 const collectFiscal = <T,>(path: string) =>
   collectCursorPages<T>(path, (p) => fiscalCall(p));
 async function fiscalCall<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const requestToken=runtimeFiscalToken,requestOwner=requestAuthFence.capture(requestToken,init.headers);
+  const requestToken=runtimeFiscalToken;
   const method = (init.method || "GET").toUpperCase();
   const idempotencyKey =
     new Headers(init.headers).get("Idempotency-Key") || key();
-  const request: RequestInit = {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Api-Version": apiVersion,
-      "Idempotency-Key": idempotencyKey,
-      ...(requestToken
-        ? { Authorization: `Bearer ${requestToken}` }
-        : {}),
-      ...(init.headers || {}),
-    },
-  };
+  const headers=new Headers({
+    "Content-Type":"application/json",
+    "X-Api-Version":apiVersion,
+    "Idempotency-Key":idempotencyKey,
+    ...(requestToken?{Authorization:`Bearer ${requestToken}`}:{})
+  });
+  new Headers(init.headers).forEach((value,name)=>headers.set(name,value));
+  const requestOwner=requestAuthFence.capture(requestToken,headers);
+  const request:RequestInit={...init,headers};
   let result: {response: Response; text: string};
   try {
     result = await fetchTextWithTimeout(fiscalBase + path, request);

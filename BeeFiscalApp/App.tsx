@@ -66,26 +66,18 @@ type AdminLists = {
 
 async function call(path: string, init: RequestInit = {}, requestToken = runtimeAuthToken) {
   requireFiscalAuthorization(prodMode,requestToken);
-  const requestOwner=requestAuthFence.capture(requestToken,init.headers);
   // Every mutation is independently idempotent. A PROD 401 clears local
   // authority immediately instead of leaving privileged controls usable.
   const mutation = !!init.method && init.method !== "GET";
-  const {response: r, text} = await fetchTextWithTimeout(base + path, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Api-Version": version,
-      ...(mutation
-        ? {
-            "Idempotency-Key": `${Date.now()}-${Math.random().toString(16).slice(2)}-admin`,
-          }
-        : {}),
-      ...(requestToken
-        ? { Authorization: `Bearer ${requestToken}` }
-        : {}),
-      ...(init.headers || {}),
-    },
+  const headers=new Headers({
+    "Content-Type":"application/json",
+    "X-Api-Version":version,
+    ...(mutation?{"Idempotency-Key":`${Date.now()}-${Math.random().toString(16).slice(2)}-admin`}:{}),
+    ...(requestToken?{Authorization:`Bearer ${requestToken}`}:{})
   });
+  new Headers(init.headers).forEach((value,name)=>headers.set(name,value));
+  const requestOwner=requestAuthFence.capture(requestToken,headers);
+  const {response:r,text}=await fetchTextWithTimeout(base+path,{...init,headers});
   if (r.status === 401 && prodMode) requestOwner.unauthorized();
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return text ? parseApiJson(text) : {};

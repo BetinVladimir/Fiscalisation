@@ -21,4 +21,4 @@ Refresh сверяет epoch и токен после каждого await. Clea
 
 ## Отдельно OPEN
 
-HTTP401 старого запроса в MiniPOS call/fiscalCall ещё может вызвать глобальный logout новой сессии. Нужен отдельный request authority fence и тест старого/current401 без повторной финансовой отправки. Эта граница отслеживается отдельно от least-privilege render/write capability. Полная аппаратная/БД/НАП приёмка не заявляется.
+[Отдельное исправление HTTP session ownership](47_HTTP_SESSION_OWNERSHIP.md) теперь защищает от старого401, включая ABA и реальные HeadersInit формы. Объединённые Node/UI/TypeScript проверки прошли; fresh browser/native приёмка отслеживается отдельно. Полная аппаратная/БД/НАП приёмка не заявляется.
