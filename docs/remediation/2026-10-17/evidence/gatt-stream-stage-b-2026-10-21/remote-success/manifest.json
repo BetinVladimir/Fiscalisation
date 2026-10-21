@@ -1,0 +1,83 @@
+{
+  "run": 39544238159,
+  "commit": "e81a3f30622a07642d9c58df0bc767252c52912a",
+  "scope": "Ubuntu core35fault + sanitizer and counterfactuals PASS; app compiler unavailable explicitly OPEN",
+  "logs": {
+    "SDK-deadline-expected-red.log": {
+      "raw_sha256": "4b2601f3cb314a513f4ae0c38f38af54631d9d06a3dfc7693525aa4a4457f09b",
+      "gzip_sha256": "c9379cca26d3b2f6976ffe409a8539825968c36e298984c00a2f304337dc8949"
+    },
+    "duplex.log": {
+      "raw_sha256": "a0d31e3829196599228eeead397ac6bf43120324a842253208e39c4d1e8977a1",
+      "gzip_sha256": "df9b64b8ef08751de863f136d4f1b23c7225c85b4f0cce80f324ecb166e120dc"
+    },
+    "BeeMiniPOS-typescript.log": {
+      "raw_sha256": "af9724391ec630edc448aa520d7fbd3a7191c35a3bad1e1575848a51306c21bd",
+      "gzip_sha256": "f24e0eb13e274a9774557e108b918951c45317e12f254b5694be6ce35e7a283b"
+    },
+    "boundary-unsafe-counterfactual-red.log": {
+      "raw_sha256": "1e314a09a2c5a6d3652d132a2a48cb6beaefd6730c11976b8e2b0eaa67819000",
+      "gzip_sha256": "119639438fe2ea8229d9142c365b8e36da4e87b90434c5acc7b5b4a60aa3d3bd"
+    },
+    "duplicate-suppression-expected-red.log": {
+      "raw_sha256": "649b5361714f9604c935856c4dabb60c40aa5981c7700a8739a6191c5f2e0dac",
+      "gzip_sha256": "70a9e2630527dbd1b8d1e65e18aa83c464b104aedc5fb0f662d7e588c08ef69b"
+    },
+    "boundary-unsafe-counterfactual-result.json": {
+      "raw_sha256": "6252eb69dd7b508522d8260bcfa40d3b86cf1a5bf2ac65146a92338a84d41447",
+      "gzip_sha256": "c6b338ab9389c19ba8eca79432a3799148e8bada3fab3c2d56f33bca2fd42196"
+    },
+    "generation-fence-expected-red.log": {
+      "raw_sha256": "33bbdbfaff1ebe83826fbe6b2de8451082ed3efa9acd40bdeed348fc558fb62e",
+      "gzip_sha256": "360f5d786a5475871a80f43f0cd9aecef35b3aafe53066646ecd35ced2f8bf7b"
+    },
+    "compile.log": {
+      "raw_sha256": "3401c01c4d865df65522963699647f6e583b6c9afed6c49ae7a128f0c5e200b7",
+      "gzip_sha256": "eb78f13088bafc1561d1f3976e7a382679be72870ed4d2ea7d28454555f7d9bd"
+    },
+    "future-ACK-rejection-expected-red.log": {
+      "raw_sha256": "cfc11922a3fdb43e6a9cd0654f67de91a2231b8d942cb9c65fa36b43dcb9ef5d",
+      "gzip_sha256": "bd653be2d35957f6afc90f734c9af1279982de40be8e758f8d27c228557bfda9"
+    },
+    "boundary.log": {
+      "raw_sha256": "3345224bcbdbfe7cbe091095e6af03db368a883566c57d72df3bfcf9aba9055d",
+      "gzip_sha256": "2d97827d7bf69a13ee76731fcd2f89a7ff85c6435cd59ca96d7f38045cbb2b8f"
+    },
+    "boundary-unsafe-compile.log": {
+      "raw_sha256": "40f9e1d27078aa47323f5bc65a3cff096895a4584236fb77dd4792b90eab43c8",
+      "gzip_sha256": "73143c6e6972960172798af1fe2daf78e9bc6b794e117cac41da90239093a6e6"
+    },
+    "boundary-compile.log": {
+      "raw_sha256": "e45395104d07a282961578efb4a15f5c9ebedff1e9e1b9317ef2731e7ab519e4",
+      "gzip_sha256": "879d180b6ddd03174e7e09f6c77ed2bfe910cd3d16aedbc43eec1ebc42a77ccf"
+    },
+    "TX-ring-bound-expected-red.log": {
+      "raw_sha256": "df03ee18f7d5fff339b8a6c2dcc6034bd95b95d0c29a6cd9182eef978b778141",
+      "gzip_sha256": "5cf8d40a36da803d7733fd05f543a7d7ea9588ee897e8ae2d97e92c967583486"
+    },
+    "manifest.json": {
+      "raw_sha256": "7a79a211322dddffc5f5fb9a7452eb7b592a35372370178564afcb9f4d09aeec",
+      "gzip_sha256": "bf2a73dbac97a864975177252122ca9fe2ef08b9ca3027c2b5dece2c24188ccc"
+    },
+    "miniposweb-typescript.log": {
+      "raw_sha256": "af9724391ec630edc448aa520d7fbd3a7191c35a3bad1e1575848a51306c21bd",
+      "gzip_sha256": "f24e0eb13e274a9774557e108b918951c45317e12f254b5694be6ce35e7a283b"
+    },
+    "descriptor-bound-expected-red.log": {
+      "raw_sha256": "153bbbcae951e451f73f0648f719c5e98a53b9372d61ef59ce77dcf59c61eb1b",
+      "gzip_sha256": "64b9f11c8dfd3b8532d89868e4ebd7721eb7d923e01fd38694e12c582f288d9a"
+    },
+    "counterfactuals.log": {
+      "raw_sha256": "3f2a50e8c704d65572b28bf6b9f74f81196fbeb797509f33d348b7b316cbbc7d",
+      "gzip_sha256": "58dc53b925948575edbfa82a71e2cdf42d59fc1b74f6bc2570da0f9ba5d6a153"
+    },
+    "counterfactual-results.json": {
+      "raw_sha256": "5f5334807699bd6db4b8d9af1daedc8c7321b5b868cf611d78ca99c87b682046",
+      "gzip_sha256": "52467e34b27c659a1ab438cbef4acbb2fd8109ce2f9e9f4598a49e9ae1f3b321"
+    },
+    "fiscal-gatt-ci-39544238159-status.json": {
+      "raw_sha256": "e0ff1647ab0ea3fce9a950fbdc2430317b3073f48da0a0416c3099ec6d14f3bc",
+      "gzip_sha256": "279e92ec607073305a1080b3b43205163c91437ca476dbf504a2f91118c1e99b"
+    }
+  }
+}

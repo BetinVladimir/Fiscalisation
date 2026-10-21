@@ -200,3 +200,5 @@ Integrated C↔TS reproduction PASS with ASan/UBSan, 35 fault cases, six semanti
 ### GCC CI portability follow-up
 
 First actual Ubuntu CI run39544110964 rejected two adjacent C guards under `-Werror=misleading-indentation`; this is a failed run, not acceptance. Split those statements without changing semantics or disabling warnings. GCC15 strict compile and full local Make sanitizer/fault reproduction PASS afterward. [Before/after evidence](evidence/gatt-stream-stage-b-2026-10-21/gcc-portability/manifest.json). Remote rerun required.
+
+Actual Ubuntu rerun [39544238159](https://github.com/BetinVladimir/Fiscalisation/actions/runs/39544238159) at e81a3f3 PASS:35 fault cases, sanitizer boundary and expected-RED mutations. [Downloaded raw evidence hashes](evidence/gatt-stream-stage-b-2026-10-21/remote-success/manifest.json). App TypeScript compiler checks are explicitly OPEN in this dependency-free CI; earlier local app-compiler checks remain separate. No runtime/HIL acceptance is inferred.
