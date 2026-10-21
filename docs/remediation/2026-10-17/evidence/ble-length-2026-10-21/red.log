@@ -1,0 +1,2 @@
+Assertion failed: (receive_command(1,0,&access,nullptr)==BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN&&frame_payload.empty()), function main, file ble_runtime_native.cpp, line 87.
+IoT/firmware/edge-agent-s3/idf/tests/run_native_ble.sh: line 8: 48963 Abort trap: 6           "$OUT"

@@ -79,6 +79,14 @@ int main(){
  assert(receive_command(1,0,&access,nullptr)!=0&&sink_count==0); // cannot resume rejected assembly
  packet.bytes[23]=0;packet.bytes[21]=1;
  assert(receive_command(1,0,&access,nullptr)==0&&sink_count==1); // fresh command recovers
+ // Invalid ATT frame length must also invalidate an existing assembly.
+ packet.bytes.assign(58,0);memcpy(packet.bytes.data(),"BFF1",4);packet.bytes[21]=2;
+ assert(receive_command(1,0,&access,nullptr)==0&&frame_payload.size()==1);
+ auto continuation=packet;continuation.bytes[23]=1;continuation.bytes[24]=1;
+ packet.bytes.resize(57);
+ assert(receive_command(1,0,&access,nullptr)==BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN&&frame_payload.empty());
+ packet=continuation;
+ assert(receive_command(1,0,&access,nullptr)!=0&&sink_count==1);
  // Deterministic concurrent start: first caller owns globals before init blocks.
  reset();block_init=true;esp_err_t first_result=ESP_FAIL;
  std::thread starter([&]{first_result=ble_runtime_start({"first-owner"},sink_fn,reinterpret_cast<void*>(1));});

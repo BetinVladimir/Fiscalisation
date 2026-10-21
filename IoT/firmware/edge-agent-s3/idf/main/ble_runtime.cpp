@@ -66,7 +66,7 @@ int receive_command(uint16_t connection,uint16_t,ble_gatt_access_ctxt* access,vo
   if(startup_result!=ESP_OK||startup_timed_out||active_connection==BLE_HS_CONN_HANDLE_NONE||connection!=active_connection)return BLE_ATT_ERR_UNLIKELY;
   if(ble_att_mtu(connection)<kBleMinimumMtu)return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
   const size_t size=OS_MBUF_PKTLEN(access->om);
-  if(size<=kFrameHeader||size>512)return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;
+  if(size<=kFrameHeader||size>512){frame_payload.clear();frame_total=0;return BLE_ATT_ERR_INVALID_ATTR_VALUE_LEN;}
   auto* payload=static_cast<uint8_t*>(malloc(size));
   if(!payload)return BLE_ATT_ERR_INSUFFICIENT_RES;
   uint16_t copied=0;const int flattened=ble_hs_mbuf_to_flat(access->om,payload,size,&copied);
