@@ -45,7 +45,7 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
 
 
   return (
-    <SafePaperSurface mode="flat" elevation={0} style={{flex:1,backgroundColor:theme.colors.background}}><SafeAreaView testID="auth.root" style={{ flex: 1 }}>
+    <SafePaperSurface testID="auth.surface" mode="flat" elevation={0} style={{flex:1,backgroundColor:theme.colors.background}}><SafeAreaView testID="auth.root" style={{ flex: 1 }}>
       <StatusBar style={theme.dark ? 'light' : 'dark'} />
       <LanguageThemeControls />
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingVertical: 16 }} keyboardShouldPersistTaps="handled">
@@ -55,7 +55,7 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
               <Text variant="headlineSmall" accessibilityRole="header">{copy.title}</Text>
               <Text variant="bodyMedium">{copy.description}</Text>
 
-              {auth.error ? <HelperText nativeID={errorId} type="error" visible accessibilityRole="alert" accessibilityLiveRegion="polite">{auth.error}</HelperText> : null}
+              {auth.error ? <HelperText testID="auth.error" nativeID={errorId} type="error" visible accessibilityRole="alert" accessibilityLiveRegion="polite">{foundationCopy[language].error}</HelperText> : null}
 
               {stage === 'email' ? <>
                 <FormField

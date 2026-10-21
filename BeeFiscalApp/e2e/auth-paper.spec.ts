@@ -1,5 +1,6 @@
 import { doubleText } from './text-scale';
 import { expect, test } from '@playwright/test';
+import { foundationCopy } from '../../../BeeloyBackend/mobile/shared-ui/src/foundation-copy.generated';
 import { mockFiscalApi } from './helpers';
 import { authCopy } from '../src/ui/auth-copy.generated';
 
@@ -15,7 +16,7 @@ for (const locale of ['en', 'bg', 'ru', 'de', 'fr'] as const) {
     await page.goto('/');
     await page.getByTestId('auth.language.open').click();
     await page.getByTestId(`auth.language.${locale}`).click();
-    await expect(page.getByText(authCopy[locale].title)).toBeVisible();
+    await expect(page.getByTestId('admin-login').getByRole('heading',{name:authCopy[locale].title,exact:true})).toBeVisible();
     const login = await page.getByTestId('admin-login').boundingBox();
     expect(login).not.toBeNull();
     expect(login!.x).toBeGreaterThanOrEqual(0);
@@ -41,17 +42,17 @@ test('Paper language menu scrolls through 25 locales and theme/language persist'
   await page.getByTestId('auth.language.open').click();
   await expect(page.getByRole('menuitemradio')).toHaveCount(25);
   await page.getByTestId('auth.language.ru').click();
-  await expect(page.getByText('BeeFiscal • вход администратора')).toBeVisible();
+  await expect(page.getByTestId('admin-login').getByRole('heading',{name:'BeeFiscal • вход администратора',exact:true})).toBeVisible();
   await page.getByTestId('auth.language.open').click();
   await page.keyboard.press('Escape');
   await expect(page.getByRole('menuitemradio')).toHaveCount(0);
   await page.getByTestId('auth.theme.toggle').click();
   await page.getByTestId('auth.theme.toggle').click();
-  await expect(page.getByTestId('auth.root')).toHaveCSS('background-color', 'rgb(13, 10, 18)');
+  await expect(page.getByTestId('auth.surface')).toHaveCSS('background-color', 'rgb(13, 10, 18)');
   expect(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1)).toBe(false);
   await page.reload();
-  await expect(page.getByText('BeeFiscal • вход администратора')).toBeVisible();
-  await expect(page.getByTestId('auth.root')).toHaveCSS('background-color', 'rgb(13, 10, 18)');
+  await expect(page.getByTestId('admin-login').getByRole('heading',{name:'BeeFiscal • вход администратора',exact:true})).toBeVisible();
+  await expect(page.getByTestId('auth.surface')).toHaveCSS('background-color', 'rgb(13, 10, 18)');
   await page.getByTestId('admin-login-email').fill('qa@example.org');
   await page.getByTestId('admin-login-start').click();
   await expect(page.getByTestId('admin-login-code')).toBeVisible();
@@ -90,14 +91,16 @@ test('production Paper auth retains input after errors and selects a company', a
   const email = page.getByTestId('admin-login-email');
   await email.fill('qa@example.org');
   await page.getByTestId('admin-login-start').click();
-  await expect(page.getByText(/TEMPORARY_FAILURE/)).toBeVisible();
+  await expect(page.getByTestId('auth.error')).toHaveText(foundationCopy.bg.error);
+  await expect(page.getByText(/TEMPORARY_FAILURE/)).toHaveCount(0);
   await expect(email).toHaveValue('qa@example.org');
   await page.getByTestId('admin-login-start').click();
   const code = page.getByTestId('admin-login-code');
   await expect(code).toBeVisible();
   await code.fill('000000');
   await page.getByTestId('admin-login-verify').click();
-  await expect(page.getByText(/INVALID_CODE/)).toBeVisible();
+  await expect(page.getByTestId('auth.error')).toHaveText(foundationCopy.bg.error);
+  await expect(page.getByText(/INVALID_CODE/)).toHaveCount(0);
   await expect(code).toHaveValue('000000');
   await code.fill('123456');
   await page.getByTestId('admin-login-verify').click();
@@ -105,6 +108,11 @@ test('production Paper auth retains input after errors and selects a company', a
   await page.getByRole('button', { name: 'Изберете компания Test Fiscal Company' }).click();
   await expect(page.getByTestId('status-fiscal-device')).toBeVisible();
   await expect(page.getByTestId('admin-logout')).toBeVisible();
+  let release!:()=>void;const held=new Promise<void>(resolve=>{release=resolve});let printerCalls=0;
+  await page.route('http://fiscal-admin.test/public/v1/**',async route=>{const request=route.request(),url=new URL(request.url());if(request.method()!=='POST'||!url.pathname.endsWith('/tests/printer'))return route.fallback();printerCalls++;await held;return route.fallback();});
+  const authRequests=calls.length;
+  try{await page.getByTestId('device-printer-test').click();await expect.poll(()=>printerCalls).toBe(1);await expect(page.getByTestId('admin-logout')).toBeDisabled();await expect(page.getByTestId('nav.open')).toBeDisabled();expect(calls).toHaveLength(authRequests);}finally{release();}
+  await expect(page.getByTestId('admin-logout')).toBeEnabled();expect(printerCalls).toBe(1);
   await page.getByTestId('admin-logout').click();
   await expect(page.getByTestId('auth.root')).toBeVisible();
   expect(calls.filter(call => call.path.endsWith('/challenges')).map(call => call.body.email)).toEqual(['qa@example.org', 'qa@example.org']);
@@ -119,7 +127,7 @@ test('Privacy Paper action keeps a visible frame on xs md lg in both system them
     const action=page.getByTestId('auth.privacy');await expect(action).toBeVisible();await expect(action).toHaveRole('link');
     const frame=await action.locator('..').evaluate(node=>{const s=getComputedStyle(node);return {width:parseFloat(s.borderTopWidth),style:s.borderTopStyle,color:s.borderTopColor};});
     expect(frame.width).toBeGreaterThanOrEqual(1);expect(frame.style).toBe('solid');expect(frame.color).not.toBe('rgba(0, 0, 0, 0)');expect((await action.boundingBox())!.height).toBeGreaterThanOrEqual(48);
-    const background=await page.getByTestId('auth.root').evaluate(node=>getComputedStyle(node).backgroundColor);if(theme==='light')lightBackground=background;else expect(background).not.toBe(lightBackground);
+    const background=await page.getByTestId('auth.surface').evaluate(node=>getComputedStyle(node).backgroundColor);if(theme==='light')lightBackground=background;else expect(background).not.toBe(lightBackground);
     expect(await page.evaluate(()=>document.documentElement.scrollWidth>innerWidth+1)).toBe(false);
   }
 });

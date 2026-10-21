@@ -1,0 +1,15 @@
+import assert from'node:assert/strict';
+export const deviceDataStageIds=['smart-device-activation-preview','transport-metrics','device-realtime-health','device-activity-timeline','fiscal-device-metrics','diagnostics-result','provisioning-result','ble-session-result','bluecash-activation-result'];
+export const deviceDataCases=['en','bg','ru'].flatMap(language=>['light','dark'].flatMap(mode=>[320,768,1440].flatMap(width=>[1,2].map(zoom=>({language,mode,width,zoom,title:`synthetic device fields ${language}/${mode}/${width}/zoom${zoom}`})))));
+export function verifyDeviceDataReport(report,read,selection='full'){
+ assert(['full','critical2'].includes(selection));const planned=selection==='full'?deviceDataCases:deviceDataCases.filter(c=>c.language==='en'&&c.width===320&&c.zoom===2),specs=[];
+ const visit=suites=>{for(const suite of suites??[]){specs.push(...suite.specs??[]);visit(suite.suites)}};visit(report.suites);
+ assert.equal(specs.length,planned.length);assert.equal(report.stats.expected,planned.length);for(const key of ['unexpected','skipped','flaky'])assert.equal(report.stats[key],0);assert.deepEqual(report.errors??[],[]);
+ const expected=new Map(planned.map(c=>[c.title,c]));
+ for(const spec of specs){const current=expected.get(spec.title);assert(current,'Unexpected or duplicate case');expected.delete(spec.title);assert.equal(spec.file,'device-data-readable.spec.ts');assert.equal(spec.tests.length,1);const test=spec.tests[0];assert.equal(test.status,'expected');assert.equal(test.expectedStatus,'passed');assert.equal(test.results.length,1);const result=test.results[0];assert.equal(result.status,'passed');assert.equal(result.retry,0);assert.deepEqual(result.errors??[],[]);
+  const get=name=>{const found=result.attachments.filter(a=>a.name===name);assert.equal(found.length,1,'Missing or duplicate '+name);assert.equal(found[0].contentType,'application/json');return read(found[0])};
+  const scope=get('presentation-scope');for(const key of ['language','mode','width','zoom'])assert.equal(scope[key],current[key]);assert.equal(scope.sections,9);assert.equal(scope.apiWorkflow,false);assert.equal(scope.nativeAcceptance,'OPEN');
+  for(const id of deviceDataStageIds){const raw=get('axe-'+id);assert.equal(raw.testEngine?.name,'axe-core');assert.equal(raw.toolOptions?.runOnly?.type,'tag');assert.deepEqual([...raw.toolOptions.runOnly.values].sort(),['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa'].sort());assert(raw.passes?.length>0);assert.deepEqual(raw.violations,[]);assert.deepEqual(raw.incomplete,[]);assert.equal(new URL(raw.url).pathname,'/');assert.equal(new URL(raw.url).search,'');const start=Date.parse(result.startTime),at=Date.parse(raw.timestamp);assert(Number.isFinite(start)&&Number.isFinite(at));assert(at>=start&&at<=start+result.duration+5000);}
+ }
+ assert.equal(expected.size,0);return{status:'PASS_SYNTHETIC_PAPER_PRESENTATION_ONLY',selection,cases:planned.length,sections:9,rawAA:planned.length*9,apiWorkflowAcceptance:'OPEN',nativeAcceptance:'OPEN',fullApplicationAcceptance:'OPEN'};
+}

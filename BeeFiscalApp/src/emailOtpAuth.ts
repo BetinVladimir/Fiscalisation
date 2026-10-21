@@ -18,7 +18,7 @@ export function useEmailOtpAuth() {
   const [temporary,setTemporary]=useState(""); const [selection,setSelection]=useState("");
   const [tenants,setTenants]=useState<Tenant[]>([]); const [session,setSession]=useState<Session|null>(null);
   const [error,setError]=useState(""); const [busy,setBusy]=useState(false),[booting,setBooting]=useState(true),[instanceId,setInstanceId]=useState("");
-  const call=async(path:string,body:unknown,token="")=>{const r=await fetch(apiRoot+path,{method:"POST",headers:{"Content-Type":"application/json",...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify(body)});const text=await r.text();if(!r.ok)throw new Error(text||`HTTP ${r.status}`);return text?JSON.parse(text):{}};
+  const call=async(path:string,body:unknown,token="")=>{const r=await fetch(apiRoot+path,{method:"POST",headers:{"Content-Type":"application/json",...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify(body)});const text=await r.text();if(!r.ok)throw new Error(`HTTP ${r.status}`);return text?JSON.parse(text):{}};
   // Authority survives renders, but is revoked synchronously by logout/unmount.
   const mounted=useRef(false),epoch=useRef(0),pending=useRef<object|null>(null);
   const expiresAt=useRef(0);

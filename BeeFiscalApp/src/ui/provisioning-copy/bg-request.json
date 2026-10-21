@@ -1,0 +1,11 @@
+{
+  "model": "translategemma:12b",
+  "prompt": "Translate the English values in this JSON object into Bulgarian for a fiscal device administration UI. Keep every JSON key exactly unchanged. Preserve ID, SHA-256, UUID and protocol names. Do not translate raw device states or add fields. Return only a JSON object of string values.\n{\"title\": \"Set up adapter\", \"help\": \"Select the adapter in setup mode. If installation has already completed, its confirmation is recovered without sending the settings again.\", \"ssid\": \"Wi-Fi network\", \"wifiPassword\": \"Wi-Fi password\", \"fiscalPassword\": \"Cashier password\", \"submit\": \"Connect and confirm\", \"cancel\": \"Cancel\"}",
+  "format": "json",
+  "stream": false,
+  "options": {
+    "temperature": 0,
+    "num_predict": 6000
+  },
+  "keep_alive": 0
+}

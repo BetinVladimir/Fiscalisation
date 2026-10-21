@@ -1,10 +1,10 @@
 import { expect, test } from '@playwright/test';
 import { mockFiscalApi, openApp, REGISTER_ID } from './helpers';
 
-// Deferred until the global Paper/forms/authored-tests gate is complete.
+// Read navigation retains epoch ownership; fiscal mutations keep navigation locked.
 for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
   for (const theme of ['light', 'dark'] as const) {
-    test(`Late operations read cannot clear reports loading ${size}/${theme}`, async ({ page }) => {
+    for (const staleStatus of [200, 503]) test(`Late operations read (${staleStatus}) cannot clear reports loading ${size}/${theme}`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await mockFiscalApi(page);
@@ -13,7 +13,9 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       const reportsGate = new Promise<void>(resolve => { releaseReports = resolve; });
       let operationsStarted = false, reportsStarted = false;
       await page.route('**/public/v1/operations?*', async route => {
-        operationsStarted = true; await operationsGate; await route.fallback();
+        operationsStarted = true; await operationsGate;
+        if (staleStatus === 503) await route.fulfill({status:503,contentType:"application/json",body:JSON.stringify({code:"UNAVAILABLE"})});
+        else await route.fallback();
       });
       await page.route('**/public/v1/reports?*', async route => {
         reportsStarted = true; await reportsGate; await route.fallback();
@@ -38,7 +40,7 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       } finally { releaseOperations(); releaseReports(); }
     });
 
-    test(`Late report command cannot overwrite operations context ${size}/${theme}`, async ({ page }) => {
+    test(`Pending report command blocks navigation without replay ${size}/${theme}`, async ({ page }) => {
       await page.setViewportSize({ width, height });
       await page.emulateMedia({ colorScheme: theme, reducedMotion: 'reduce' });
       await mockFiscalApi(page);
@@ -58,11 +60,14 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
         await openApp(page); await navigate('Отчети');
         await expect(page.getByTestId('reports.create.X')).toBeEnabled();
         await page.getByTestId('reports.create.X').click(); await expect.poll(() => writes).toBe(1);
+        await expect(page.getByTestId('nav.open')).toBeDisabled();
+        for (const tab of await page.getByTestId(/^tab-/).all()) await expect(tab).toBeDisabled();
+        await expect(page.getByTestId('reports.screen')).toBeVisible();
+        const completed = page.waitForResponse(response => response.request().method() === 'POST' && response.url().includes(`/registers/${REGISTER_ID}/reports`));
+        release(); await (await completed).finished();
+        await expect(page.getByTestId('nav.open')).toBeEnabled();
+        expect(writes).toBe(1);
         await navigate('Операции');
-        await expect(page.getByTestId('operation-unknown')).toBeVisible();
-        const stale = page.waitForResponse(response => response.request().method() === 'POST' && response.url().includes(`/registers/${REGISTER_ID}/reports`));
-        release(); await (await stale).finished();
-        await page.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve(null)))));
         await expect(page.getByTestId('operation-unknown')).toBeVisible();
         await expect(page.getByTestId('reports.screen')).toHaveCount(0);
         await expect(page.getByTestId('status-transport')).toContainText('Операции:');

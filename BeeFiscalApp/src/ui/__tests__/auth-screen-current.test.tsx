@@ -61,3 +61,19 @@ test.each(['email','otp','company'])('auth %s stage keeps background on Paper an
  try{await act(async()=>{tree=create(<AuthScreen auth={state}/>)});const surface=tree.root.findByType('Paper.Surface');expect(surface.props.mode).toBe('flat');expect(surface.props.elevation).toBe(0);expect(surface.props.style.backgroundColor).toBe('#fff');expect(tree.root.findByType('SafeAreaView').props.style).toEqual({flex:1});}
  finally{if(tree)await act(async()=>tree.unmount());}
 });
+
+
+test.each(['en','bg','ru'])('server JSON is never rendered in %s auth errors', async language => {
+ mockLanguage=language;const state=auth();state.error='{"code":"TEMPORARY_FAILURE","secret":"PRIVATE_TOKEN","details":{"sql":"PRIVATE_SQL_TABLE"}}';let tree:any;
+ try {
+  await act(async()=>{tree=create(<AuthScreen auth={state}/>)});
+  const error=tree.root.findByProps({testID:'auth.error'});
+  const {foundationCopy}=require('../../../../../BeeloyBackend/mobile/shared-ui/src/foundation-copy.generated');
+  expect(error.props.children).toBe(foundationCopy[language].error);
+  const rendered=JSON.stringify(tree.toJSON());
+  expect(rendered).not.toMatch(/TEMPORARY_FAILURE|PRIVATE_TOKEN|PRIVATE_SQL_TABLE|"sql"/);
+  expect(tree.root.findByProps({testID:'admin-login-email'}).props.value).toBe('qa@example.org');
+  await act(async()=>tree.root.findByProps({testID:'admin-login-start'}).props.onPress());
+  expect(state.requestCode).toHaveBeenCalledTimes(1);
+ } finally {if(tree)await act(async()=>tree.unmount());}
+});

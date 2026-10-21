@@ -1,0 +1,9 @@
+# BeeFiscalApp integration recheck — 2026-10-21
+
+Merged UI95/95 and TypeScript PASS. Actual browser targeted46/46: stale read success/failure ownership, financial-command navigation lock/exactly one write, keyboard/focus, actual target sizes and strict axe. Production-auth27/27 PASS on an isolated export built with sanitized environment and dotenv disabled. Personal source identity/auth errors remain localized; malformed challenges remain rejected without exposing internal codes.
+
+Synthetic presentation36/36 PASS on the reusable isolated builder export with mandatory kind/entrypoint/file-hash guard. Raw report independently verified:36 cases ×9 sections =324 raw axe scans, zero violations/incomplete, no retries/skips, exact locales/themes/widths/zoom. The compressed raw report contains synthetic values, not private issuer fixtures. This is presentation-only evidence: API workflow, native, full application acceptance remain OPEN.
+
+Builder6 negative/atomic-publication tests and export guard7 + report verifier13 tests PASS. Source hashes and actual export hashes are included; presentation build manifest records its own exact input snapshot. No production package entrypoint was changed. UI colors remain owned by Paper Surface; SafeArea remains a technical layout container.
+
+The original mixed browser run was167PASS/122FAIL. Wrong-build presentation/auth tests were assigned explicit suites; actual read-navigation/radio/target/icon defects and stale icon-label locators were corrected. This package does not claim the entire ordinary browser suite is green: remaining ordinary-suite failures and the source-anchor UI acceptance matrix still require reconciliation. Physical USB/COM/BLE, authenticated BLE responses/confidentiality, offline equivalence/revocation, electronic fiscal receipts and external НАП acceptance remain OPEN. S3 keys stay internal NVS; ATECC is unused.

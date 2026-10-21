@@ -1,4 +1,5 @@
 import { expect, test } from '@playwright/test';
+import {foundationCopy} from '../../../BeeloyBackend/mobile/shared-ui/src/foundation-copy.generated';
 
 // Deferred until every app reaches the global Paper + authored-tests gate.
 for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 1440, 1000]] as const) {
@@ -18,7 +19,8 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       await expect(start).toBeDisabled();
       await email.fill('qa@example.org');
       await start.click();
-      await expect(page.getByRole('alert')).toContainText('INVALID_CHALLENGE');
+      await expect(page.getByRole('alert')).toHaveText(foundationCopy.bg.error);
+      await expect(page.getByRole('alert')).not.toContainText('INVALID_CHALLENGE');
       await expect(email).toHaveValue('qa@example.org');
       await expect(email).toBeEditable();
       await start.click();

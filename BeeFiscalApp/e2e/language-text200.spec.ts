@@ -61,7 +61,7 @@ for (const [size, width, height] of [['xs', 320, 800], ['md', 768, 900], ['lg', 
         expect(text.insideRatio).toBeGreaterThanOrEqual(4.5);
         evidence.push({ code, name, metrics, frame, text });
         await page.keyboard.press('Enter');
-        await expect(trigger).toContainText(code.toUpperCase());
+        await expect(trigger).toHaveAccessibleName(new RegExp(`: ${code.toUpperCase()}$`));
         await expect(trigger).toBeFocused();
         await expect(list).toHaveCount(0);
         await expect.poll(() => page.evaluate(() => JSON.parse(localStorage.getItem('beefiscal.ui.preferences.v1') ?? '{}').language)).toBe(code);

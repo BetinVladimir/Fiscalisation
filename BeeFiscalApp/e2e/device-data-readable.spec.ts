@@ -1,0 +1,16 @@
+import{test,expect}from'@playwright/test';import AxeBuilder from'@axe-core/playwright';import{deviceDataSections}from'./device-data-fixtures';import{deviceDataCopyFor}from'../src/ui/device-data-copy';import{deviceDataRows}from'../src/deviceDataRows';
+// Run ONLY against a disposable export whose main is device-data-presentation-host.tsx.
+// This gate proves real Paper renderer presentation, not production API/permissions/BLE workflows.
+for(const language of ['en','bg','ru'])for(const mode of ['light','dark'])for(const width of [320,768,1440])for(const zoom of [1,2])test(`synthetic device fields ${language}/${mode}/${width}/zoom${zoom}`,async({page},info)=>{
+ const errors:string[]=[],unexpected:string[]=[];page.on('pageerror',e=>errors.push(e.message));await page.setViewportSize({width:Math.floor(width/zoom),height:Math.floor(1000/zoom)});await page.emulateMedia({reducedMotion:'reduce'});
+ await page.addInitScript(({language,mode})=>localStorage.setItem('beefiscal.ui.preferences.v1',JSON.stringify({language,themeMode:mode})),{language,mode});
+ await page.route('**/*',async route=>{const r=route.request();if(['xhr','fetch'].includes(r.resourceType())){unexpected.push(r.method()+' '+r.url());return route.abort()}return route.continue()});await page.goto('/');
+ for(const section of deviceDataSections){const root=page.getByTestId(section.id);await expect(root).toBeVisible();const expected=deviceDataRows(section.value,deviceDataCopyFor(language));
+  for(let n=0;n<100&&await page.getByTestId(section.id+'.more').count();n++)await page.getByTestId(section.id+'.more').click();await expect(page.getByTestId(section.id+'.more')).toHaveCount(0);
+  const actual=await root.locator('[data-testid$=".value"]').allTextContents(),labels=await root.locator('[data-testid$=".label"]').allTextContents();expect(actual).toEqual(expected.map(r=>r.value));expect(labels).toEqual(expected.map(r=>r.label));expect(actual).toContain('9223372036854775807');expect(actual).toContain('FUTURE_VALUE_PRESERVED');expect(actual.some(v=>v.startsWith('{')||v.startsWith('[{"'))).toBe(false);
+  await page.getByTestId('data-host.scroll').evaluate(el=>el.scrollTo({top:0,behavior:'instant'}));await page.evaluate(()=>document.fonts.ready);const raw=await new AxeBuilder({page}).withTags(['wcag2a','wcag2aa','wcag21a','wcag21aa','wcag22aa']).analyze();await info.attach('axe-'+section.id,{body:JSON.stringify(raw),contentType:'application/json'});expect(raw.violations).toEqual([]);expect(raw.incomplete).toEqual([]);expect(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth+1)).toBe(true);
+  for(const field of await root.locator('[data-testid$=".value"]').all())expect(await field.evaluate(el=>el.scrollWidth<=el.clientWidth+1)).toBe(true);
+  await page.getByTestId('data-host.owner-switch').click();await expect(page.getByTestId('data-host.owner')).toHaveText('B');await expect(root.locator('[data-testid$=".value"]')).toHaveCount(Math.min(10,expected.length));await page.getByTestId('data-host.next').click();
+ }
+ expect(errors).toEqual([]);expect(unexpected).toEqual([]);await info.attach('presentation-scope',{body:JSON.stringify({language,mode,width,zoom,sections:9,apiWorkflow:false,nativeAcceptance:'OPEN'}),contentType:'application/json'});
+});

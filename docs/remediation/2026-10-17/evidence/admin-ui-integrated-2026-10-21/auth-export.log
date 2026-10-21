@@ -1,0 +1,34 @@
+Starting Metro Bundler
+warning: Bundler cache is empty, rebuilding (this may take a minute)
+Web e2e/auth-app-entry.tsx ▓▓▓▓▓▓▓▓▓▓▓▓▓▓░░ 87.6% (88/94)
+Web Bundled 4465ms e2e/auth-app-entry.tsx (587 modules)
+
+› Assets (18):
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_100Thin_Italic.7bcadd0675fe47d69c2d8aaef683416f.ttf (173 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_100Thin.66209ae01f484e46679622dd607fcbc5.ttf (168 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_300Light_Italic.5788d5ce921d7a9b4fa0eaa9bf7fec8d.ttf (173 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_300Light.881e150ab929e26d1f812c4342c15a7c.ttf (167 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_400Regular_Italic.cebd892d1acfcc455f5e52d4104f2719.ttf (171 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_400Regular.8a36205bd9b83e03af0591a004bc97f4.ttf (168 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_500Medium_Italic.c16d19c2c0fd1278390a82fc245f4923.ttf (173 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_500Medium.68ea4734cf86bd544650aee05137d7bb.ttf (169 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_700Bold_Italic.fd6e9700781c4aaae877999d09db9e09.ttf (172 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_700Bold.b8e42971dec8d49207a8c8e2b919a6ac.ttf (167 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_900Black_Italic.c3332e3b8feff748ecb0c6cb75d65eae.ttf (174 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/@expo-google-fonts/roboto/Roboto_900Black.d6a6f8878adb0d8e69f9fa2e0b622924.ttf (168 kB)
+../../../../../Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/node_modules/expo/node_modules/@expo/vector-icons/build/vendor/react-native-vector-icons/Fonts/MaterialCommunityIcons.6e435534bd35da5fef04168860a9b8fa.ttf (1.31 MB)
+assets/header-icons/arrow-left.7a909a318d6db16fec2e49b2e0cd7a67.png (728 B)
+assets/header-icons/menu.b3c6c9e69cdf7b53f1e82738321e1689.png (255 B)
+assets/header-icons/translate.f6163e74783e9370018280b29663ae2b.png (2.04 kB)
+assets/header-icons/weather-night.e724a5179dee946b07c2cacb05ab4916.png (2.78 kB)
+assets/header-icons/weather-sunny.f1c18bac91da89b3ade0d14dcc9b2b8b.png (2.24 kB)
+
+› web bundles (1):
+_expo/static/js/web/auth-app-entry-5c7717a5e09ade6db00f0e15f51f7288.js (1.34 MB)
+
+› Files (3):
+favicon.ico (14.5 kB)
+index.html (1.22 kB)
+metadata.json (49 B)
+
+Exported: /private/tmp/fiscal-auth-export-clean-20261021
