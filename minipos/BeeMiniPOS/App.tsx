@@ -261,8 +261,7 @@ const collect = <T,>(path: string) =>
   collectCursorPages<T>(path, (p) => call(p));
 const collectFiscal = <T,>(path: string) =>
   collectCursorPages<T>(path, (p) => fiscalCall(p));
-async function fiscalCall<T>(path: string, init: RequestInit = {}): Promise<T> {
-  const requestToken=runtimeFiscalToken;
+async function fiscalCall<T>(path: string, init: RequestInit = {}, requestToken=runtimeFiscalToken): Promise<T> {
   const method = (init.method || "GET").toUpperCase();
   const idempotencyKey =
     new Headers(init.headers).get("Idempotency-Key") || key();
@@ -385,6 +384,14 @@ export function MiniPosApp({
       (ActiveBleBinding & BleSessionPackage & { device_id: string }) | null
     >(null),
     [bleReady, setBleReady] = useState(false);
+  type BleAuthOwner={token:string};
+  type BleRouteOwner={key:string};
+  type BleLease={route:BleRouteOwner;auth:BleAuthOwner;id:string;bearer:string;transport:WebBleBootstrap|NativeBleBootstrapContract};
+  const bleAuthOwner=useRef<BleAuthOwner|null>(null),activeBleLease=useRef<BleLease|null>(null);
+  type PendingBleLease={route:BleRouteOwner;auth:BleAuthOwner;transport:WebBleBootstrap|NativeBleBootstrapContract;bearer:string;id?:string;revoked?:boolean};
+  const pendingBleOwner=useRef<PendingBleLease|null>(null),connectFlight=useRef<PendingBleLease|null>(null),bleRouteOwner=useRef<BleRouteOwner|null>(null);
+  const bleRender={},committedBleRender=useRef<object|null>(null);
+  useLayoutEffect(()=>{committedBleRender.current=bleRender;return()=>{if(committedBleRender.current===bleRender)committedBleRender.current=null;};});
 
   const executionAuthority = useRef(new NativeExecutionAuthority(nativeExecutionProvider, AsyncStorage));
   const nativeAuthToken = emailAuth.accessToken || devAuthToken;
@@ -436,17 +443,25 @@ export function MiniPosApp({
     (prodMode
       ? undefined
       : employees.find((x) => x.id === selectedEmployeeId) || employees[0]);
+  const bleRouteKey=JSON.stringify([configuration?.id,configuration?.version,configuration?.binding_generation,configuration?.location_id,configuration?.fiscal_adapter_id,activeRegisterId,selectedEmployee?.id,selectedEmployee?.operator_code]);
+  useLayoutEffect(()=>{const route={key:bleRouteKey};bleRouteOwner.current=route;return()=>{if(bleRouteOwner.current===route){retireRouteBle(route);bleRouteOwner.current=null;}};},[bleRouteKey]);
+  const logoutContext=useMemo(()=>({}),[emailAuth.accessToken,bleRouteKey,shift?.id,shift?.state]);
+  const committedLogoutContext=useRef<object|null>(null);
+  useLayoutEffect(()=>{committedLogoutContext.current=logoutContext;return()=>{if(committedLogoutContext.current===logoutContext)committedLogoutContext.current=null;};},[logoutContext]);
   const management=useManagementAccess(prodMode,operatorEmployee?.roles,emailAuth.accessToken||'');
   const canManage=management.canManage;
   const managementWriteAllowed=management.guard();
   const showAdmin=admin&&canManage;
   const refreshEpoch=useRef(0);
-  useLayoutEffect(()=>{const token=emailAuth.accessToken||devAuthToken;runtimeAuthToken=token;runtimeFiscalToken=emailAuth.accessToken||devFiscalToken;return requestAuthFence.activate(token);},[emailAuth.accessToken]);
-  useLayoutEffect(()=>{requestAuthFence.setUnauthorized(emailAuth.accessToken||devAuthToken,()=>{runtimeAuthToken='';runtimeFiscalToken='';refreshEpoch.current++;management.synchronizeRoles(undefined);setOperatorEmployee(null);setAdmin(false);void emailAuth.logout();});});
-  const clearBleLocal = () => {
-    ble.current.resetSession();
+  useLayoutEffect(()=>{const token=emailAuth.accessToken||devAuthToken,owner={token};bleAuthOwner.current=owner;runtimeAuthToken=token;runtimeFiscalToken=emailAuth.accessToken||devFiscalToken;const release=requestAuthFence.activate(token);return()=>{if(bleAuthOwner.current===owner){retireAuthBle(owner);bleAuthOwner.current=null;}release();};},[emailAuth.accessToken]);
+  useLayoutEffect(()=>{requestAuthFence.setUnauthorized(emailAuth.accessToken||devAuthToken,()=>{const owner=bleAuthOwner.current;if(owner){retireAuthBle(owner);bleAuthOwner.current=null;}runtimeAuthToken='';runtimeFiscalToken='';refreshEpoch.current++;management.synchronizeRoles(undefined);setOperatorEmployee(null);setAdmin(false);void emailAuth.logout();});});
+  const clearBleLocal = (lease=activeBleLease.current) => {
+    if(!lease||activeBleLease.current!==lease)return false;
+    activeBleLease.current=null;
+    lease.transport.resetSession();
     setBleBinding(null);
     setBleReady(false);
+    return true;
   };
   const mutateProjectedLine = async (
     productId: string,
@@ -493,14 +508,24 @@ export function MiniPosApp({
       setStatus(message(e)),
     );
   };
-  const revokeActiveBle = async () => {
-    const id = bleBinding?.ble_session_id;
-    clearBleLocal();
-    if (id)
-      await fiscalCall(`/ble-sessions/${id}/revoke`, {
-        method: "POST",
-        body: "",
-      }).catch(() => {});
+  const revokeBleSession=(id:string,bearer:string)=>fiscalCall(`/ble-sessions/${id}/revoke`,{method:"POST",body:""},bearer).catch(()=>{});
+  const revokeActiveBle = async (lease=activeBleLease.current) => {
+    if(!lease||!clearBleLocal(lease))return;
+    await revokeBleSession(lease.id,lease.bearer);
+  };
+  const revokePendingBle=(ticket:PendingBleLease)=>{if(!ticket.id||ticket.revoked)return Promise.resolve();ticket.revoked=true;return revokeBleSession(ticket.id,ticket.bearer);};
+  const retireAuthBle=(owner:BleAuthOwner)=>{
+    const pending=pendingBleOwner.current;
+    if(pending?.auth===owner){pendingBleOwner.current=null;if(connectFlight.current===pending)connectFlight.current=null;pending.transport.resetSession();setBleBinding(null);setBleReady(false);setBusy(false);void revokePendingBle(pending);}
+    const lease=activeBleLease.current;
+    if(lease?.auth===owner)void revokeActiveBle(lease);
+  };
+  const retireRouteBle=(route:BleRouteOwner|null)=>{
+    if(!route)return;
+    if(bleRouteOwner.current===route)bleRouteOwner.current=null;
+    const pending=pendingBleOwner.current;
+    if(pending?.route===route){pendingBleOwner.current=null;if(connectFlight.current===pending)connectFlight.current=null;pending.transport.resetSession();setBleBinding(null);setBleReady(false);setBusy(false);void revokePendingBle(pending);}
+    const lease=activeBleLease.current;if(lease?.route===route)void revokeActiveBle(lease);
   };
   const refresh = async () => {
     const epoch=++refreshEpoch.current,requestToken=emailAuth.accessToken;
@@ -653,7 +678,6 @@ export function MiniPosApp({
     refreshEpoch.current++;
     if(prodMode){management.synchronizeRoles(undefined);setOperatorEmployee(null);setAdmin(false);}
     if (!emailAuth.accessToken) {
-      if (runtimeAuthToken) void revokeActiveBle();
       runtimeAuthToken = "";
       runtimeFiscalToken = "";
       setOperatorEmployee(null);
@@ -670,27 +694,13 @@ export function MiniPosApp({
     return()=>{refreshEpoch.current++;};
   }, [emailAuth.accessToken]);
   useEffect(() => {
-    if (!bleBinding) return;
-    const remaining = new Date(bleBinding.expires_at).getTime() - Date.now();
-    if (remaining <= 0) {
-      clearBleLocal();
-      setStatus("BLE сесията изтече • активирайте я отново");
-      return;
-    }
-    const timer = setTimeout(
-      () => {
-        const id = bleBinding.ble_session_id;
-        clearBleLocal();
-        setStatus("BLE сесията изтече • активирайте я отново");
-        void fiscalCall(`/ble-sessions/${id}/revoke`, {
-          method: "POST",
-          body: "",
-        }).catch(() => {});
-      },
-      Math.min(remaining, 2_147_000_000),
-    );
-    return () => clearTimeout(timer);
-  }, [bleBinding?.ble_session_id, bleBinding?.expires_at]);
+    const lease=activeBleLease.current;
+    if(!bleBinding||!lease||lease.id!==bleBinding.ble_session_id)return;
+    const expire=()=>{if(activeBleLease.current!==lease)return;void revokeActiveBle(lease);setStatus("BLE сесията изтече • активирайте я отново");};
+    const remaining=new Date(bleBinding.expires_at).getTime()-Date.now();
+    if(remaining<=0){expire();return;}
+    const timer=setTimeout(expire,Math.min(remaining,2_147_000_000));return()=>clearTimeout(timer);
+  },[bleBinding?.ble_session_id,bleBinding?.expires_at]);
   const add = async (p: Product) => {
     if (
       !shift ||
@@ -811,69 +821,40 @@ export function MiniPosApp({
     }
   };
   const connectBle = async () => {
-    if (busy) return;
+    const auth=bleAuthOwner.current,route=bleRouteOwner.current,bearer=runtimeFiscalToken,transport=ble.current;
+    if(busy||connectFlight.current||!route||committedBleRender.current!==bleRender||!auth||auth.token!==(emailAuth.accessToken||devAuthToken))return;
+    const currentAuth=()=>bleAuthOwner.current===auth&&bleRouteOwner.current===route;
+    const ticket:PendingBleLease={auth,route,transport,bearer};let issuedSessionId="";
+    connectFlight.current=ticket;pendingBleOwner.current=ticket;
+    const ownsFlight=()=>currentAuth()&&connectFlight.current===ticket;
     setBusy(true);
-    let issuedSessionId = "";
-    try {
-      if (Platform.OS === "web" && !webBluetoothSupported())
-        throw new Error("Web Bluetooth изисква Chrome/secure context");
-      if (Platform.OS !== "web" && !(await requestNativeBlePermissions()))
-        throw new Error("Bluetooth permission е отказано");
-      if (!selectedEmployee) throw new Error("Създайте служител");
-      const fiscalRegister = requireFiscalResourceId(
-        activeRegisterId,
-        "Фискалната каса",
-      );
-      const publicKey = ble.current.prepareSessionPublicKey();
-      const expectedDevice = resolveFiscalDeviceId(
-        await fiscalCall<FiscalRegisterResource>(
-          `/registers/${fiscalRegister}`,
-        ),
-        fiscalRegister,
-        prodMode ? "" : fiscalDeviceId,
-      );
-      const session = await fiscalCall<
-        BleSessionPackage & {
-          edge_id: string;
-          device_id: string;
-          location_id: string;
-          binding_version: number;
-        }
-      >(`/registers/${fiscalRegister}/ble-sessions`, {
-        method: "POST",
-        body: JSON.stringify({
-          operator_id: selectedEmployee.operator_code,
-          app_instance_id: appInstanceId,
-          public_key: publicKey,
-        }),
-      });
-      issuedSessionId = session.ble_session_id;
-      validateBleDeploymentAuthority(session, {
-        register_id: fiscalRegister,
-        device_id: expectedDevice,
-      });
-      const binding = { ...session };
-      const connected = await ble.current.connectFromUserGesture(
-        session,
-        () => {},
-      );
+    try{
+      await revokeActiveBle();
+      if(!ownsFlight())return;
+      const current=()=>currentAuth()&&pendingBleOwner.current===ticket;
+      if(Platform.OS==="web"&&!webBluetoothSupported())throw Error("Web Bluetooth изисква Chrome/secure context");
+      if(Platform.OS!=="web"&&!(await requestNativeBlePermissions()))throw Error("Bluetooth permission е отказано");
+      if(!current())return;
+      if(!selectedEmployee)throw Error("Създайте служител");
+      const fiscalRegister=requireFiscalResourceId(activeRegisterId,"Фискалната каса");
+      const publicKey=transport.prepareSessionPublicKey();
+      const expectedDevice=resolveFiscalDeviceId(await fiscalCall<FiscalRegisterResource>(`/registers/${fiscalRegister}`,{},bearer),fiscalRegister,prodMode?"":fiscalDeviceId);
+      if(!current())return;
+      const session=await fiscalCall<BleSessionPackage&{edge_id:string;device_id:string;location_id:string;binding_version:number}>(`/registers/${fiscalRegister}/ble-sessions`,{method:"POST",body:JSON.stringify({operator_id:selectedEmployee.operator_code,app_instance_id:appInstanceId,public_key:publicKey})},bearer);
+      issuedSessionId=session.ble_session_id;ticket.id=issuedSessionId;
+      if(!current()){await revokePendingBle(ticket);return;}
+      validateBleDeploymentAuthority(session,{register_id:fiscalRegister,device_id:expectedDevice});
+      const connected=await transport.connectFromUserGesture(session,()=>{});
       await connected.ready;
-      setBleBinding(binding);
-      setBleReady(true);
-      setStatus("Локалният BLE контур е READY");
-    } catch (e) {
-      ble.current.resetSession();
-      setBleBinding(null);
-      setBleReady(false);
-      if (issuedSessionId)
-        await fiscalCall(`/ble-sessions/${issuedSessionId}/revoke`, {
-          method: "POST",
-          body: "",
-        }).catch(() => {});
-      setStatus(`BLE не е готов: ${message(e)}`);
-    } finally {
-      setBusy(false);
-    }
+      if(!current()){await revokePendingBle(ticket);return;}
+      pendingBleOwner.current=null;
+      activeBleLease.current={auth,route,id:issuedSessionId,bearer,transport};
+      setBleBinding({...session});setBleReady(true);setStatus("Локалният BLE контур е READY");
+    }catch(e){
+      if(pendingBleOwner.current===ticket){pendingBleOwner.current=null;transport.resetSession();setBleBinding(null);setBleReady(false);}
+      if(issuedSessionId)await revokePendingBle(ticket);
+      if(ownsFlight())setStatus(`BLE не е готов: ${message(e)}`);
+    }finally{if(connectFlight.current===ticket){connectFlight.current=null;if(currentAuth())setBusy(false);}}
   };
   const checkout = async (type: "CASH" | "CARD" | "SPLIT") => {
     if (
@@ -1203,6 +1184,7 @@ export function MiniPosApp({
         }),
       });
       if(!ownerCurrent())return false;
+      retireRouteBle(bleRouteOwner.current);
       setConfiguration(cfg);
       await revokeActiveBle();
       if(!ownerCurrent())return false;
@@ -1232,17 +1214,25 @@ export function MiniPosApp({
     }
   };
   const logoutOperator = async () => {
-    await executionManager?.revoke();
+    const owner=bleAuthOwner.current,lease=activeBleLease.current;
+    const current=()=>owner!==null&&bleAuthOwner.current===owner&&committedLogoutContext.current===logoutContext;
+    if(!current())return;
     if (shift) {
       setStatus("Затворете смяната преди изход");
       return;
     }
+    const retired=revokeActiveBle(lease);
+    await executionManager?.revoke();
+    if(!current())return;
     try {
-      await revokeActiveBle();
+      await retired;
+      if(!current())return;
       await call("/operator-session", { method: "POST", body: "{}" });
     } finally {
-      clearBleLocal();
+      if(!current())return;
+      clearBleLocal(lease);
       await emailAuth.logout();
+      if(!current())return;
       runtimeAuthToken = "";
       runtimeFiscalToken = "";
       setOperatorEmployee(null);
