@@ -550,8 +550,9 @@ for (const kind of ["mini", "pwa"] as const)
     });
     it("abort during write stops subsequent frames; stale notifications cannot finish", async () => {
       const write = defer();
+      const writeEntered = defer<void>();
       sdk.command.writeValueWithResponse.mockImplementation(
-        () => write.promise,
+        () => { writeEntered.resolve(); return write.promise; },
       );
       await start();
       const result = send({
@@ -561,7 +562,9 @@ for (const kind of ["mini", "pwa"] as const)
       const rejected = expect(result).rejects.toMatchObject({
         name: "AbortError",
       });
-      await flush();
+      // Await actual write admission: WebCrypto can settle after an arbitrary
+      // number of event-loop turns on a loaded host.
+      await writeEntered.promise;
       expect(sdk.command.writeValueWithResponse).toHaveBeenCalledTimes(1);
       controller.abort();
       await rejected;

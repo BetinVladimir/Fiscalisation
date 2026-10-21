@@ -11,3 +11,9 @@ Root независимо выполнил полный clean run из исхо�
 [Root evidence](evidence/transport-clean-root-2026-10-21/manifest.json), [dependency hashes](evidence/transport-clean-root-2026-10-21/dependency-summary.json), [actual browser report](evidence/transport-clean-root-2026-10-21/vitest.json). Публикуются только эти три safe файла; raw producer/npm logs и fixtures остаются локально. Workflow использует тот же явный allowlist.
 
 S3 workflow дополнен pinned Node setup, transport gate, отрицательными тестами и path filters actual source graph/app locks/backend. Linux clean CI ещё требуется: успешный macOS run его не заменяет. Полный target rebuild после dispatch parse lifetime change также остаётся обязательным до обновления firmware release candidate.
+
+## Ubuntu finding and deterministic write admission
+
+Run39557126924 completed target build/native IoT/16negative gates and producer/Go/Mini waiter, but full browser scope was65PASS/1FAIL: PWA abort-during-write expected first write after a fixed number of event-loop turns. Real WebCrypto completion is not bounded by that flush count. Test now awaits a deferred signal resolved by the actual write mock admission before aborting; assertions still require exactly one write and no late result/subsequent frame. No production timeout/authorization behavior changed.
+
+Root full browser66PASS, then independent fresh clean producer12/Go12/Mini waiter12/browser66PASS with the changed actual test source. [Updated safe manifest](evidence/transport-write-barrier-root-2026-10-21/manifest.json). Corrected Ubuntu run still required; the failed run is retained as failure.
