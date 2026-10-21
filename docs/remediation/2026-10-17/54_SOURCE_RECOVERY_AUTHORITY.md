@@ -1,6 +1,6 @@
 # MP004 — Source recovery authority
 
-Статус: автоматическое восстановление source-bound journal реализовано в изолированном кандидате; требуется интеграционное ревью. Это не HIL и не сертификация.
+Статус: source-bound recovery и typed PostgreSQL projection интегрированы в bb91423; root verification приведён ниже. Source-less legacy migration остаётся OPEN. Это не HIL и не сертификация.
 
 Ранее клиент назначал READ локально в трёх UNKNOWN ветках и искал journal только при OPEN shift. Теперь UNKNOWN содержит пустой список действий; отдельная кнопка запрашивает действующее разрешение сервера. GET `/minipos/orders/{order_id}/recovery` проверяет tenant, фактический shift возвращённого order, текущего оператора и живую operator session. Разрешение допускает только READ, не prepare/dispatch/retry платежа. Для гранта необходимы явные fiscal_register_id, checkout_operation_id, receipt_session_id и согласованный fiscal_operation_id; fallback исходного register не используется.
 

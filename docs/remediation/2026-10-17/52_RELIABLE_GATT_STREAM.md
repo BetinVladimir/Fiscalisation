@@ -1,6 +1,6 @@
-# MP026 — reliable GATT byte stream v1: accepted draft / Stage B candidate
+# MP026 — reliable GATT byte stream v1: integrated Stage B core
 
-2026-10-21. Contract draft accepted for implementation by root review; Stage B candidate implemented and tested in isolation. MP026 is NOT complete. Original repository read-only for this candidate, no production enablement. Implements a transport foundation for the standard TLS1.3 direction in doc46. No custom crypto handshake, exporter, application authorization, financial admission or OpenAPI change is proposed here. Device identity/private keys remain ESP32-S3/NVS; ATECC608A/608 is unused.
+2026-10-21. Stage B core integrated in ebd8056; regression/CI gate added in1d82227, GCC portability fixed in e81a3f3 and Ubuntu CI passed (evidence below). MP026 is NOT complete. Earlier isolated-candidate observations are historical; no production channel enablement. Implements a transport foundation for the standard TLS1.3 direction in doc46. No custom crypto handshake, exporter, application authorization, financial admission or OpenAPI change is proposed here. Device identity/private keys remain ESP32-S3/NVS; ATECC608A/608 is unused.
 
 ## Decisions requested in this review
 
