@@ -1,0 +1,7 @@
+# Actual Android OS-key interoperability — 2026-10-21
+
+Separate instrumentation APK build PASS (73s), SHA256 8759214951c57e69fc40da2cdf32c6253ce7f430085119e4e6dbde036a4ae1e5. APK location: /private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/modules/beeloy-execution-crypto/android/build/outputs/apk/androidTest/debug/beeloy-execution-crypto-debug-androidTest.apk. This is a test APK, not the final MiniPOS application artifact. Every source file in its local crypto module matched the integrated module byte-for-byte before testing.
+
+Read-only Beeloy_E2E_API33 emulator, port5590; physical tablet untouched. Actual AndroidKeyStore prepares/reopens a key across instrumentation invocations; real Go issuer binds its SPKI; production JS constructs the PoP transcript; OS signs; production S3 IntentProcessor/mbedTLS/SQLite accepts valid and rejects missing proof, altered signature, binding, expiry and payload. Both leased/offline and server-assigned online fixtures PASS. Separate actual OS test checks privateKey.encoded==null, signature verification, scope isolation and durable revocation/reopen refusal.
+
+Runner deletes old test-package evidence and requires exactly one successful test per invocation. Source grants and temporary private issuer fixtures are not copied into this evidence. Emulator does not establish hardware-backed storage, full Expo app operation, BLE confidentiality/device response authentication, physical HIL, vendor acceptance or НАП approval. S3 keys remain internal NVS; no ATECC.

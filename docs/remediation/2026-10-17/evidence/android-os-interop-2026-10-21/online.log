@@ -1,0 +1,18 @@
+ok  	fiscalisation/fiscal-backend/internal/domain	0.425s
+(node:82921) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+(Use `node --trace-warnings ...` to show where the warning was created)
+format actual SQLite authority PASS
+configuration actual SQLite authority PASS
+boundary actual SQLite authority PASS
+atomic actual SQLite authority PASS
+policy actual SQLite authority PASS
+operators actual SQLite authority PASS
+assigned actual SQLite authority PASS
+concurrent-assigned actual SQLite authority PASS
+valid actual issuer→IntentProcessor→SQLite PASS
+missing actual issuer→IntentProcessor→SQLite PASS
+signature actual issuer→IntentProcessor→SQLite PASS
+binding actual issuer→IntentProcessor→SQLite PASS
+expired actual issuer→IntentProcessor→SQLite PASS
+payload actual issuer→IntentProcessor→SQLite PASS
+android actual OS key -> Go issuer -> production PoP -> S3 PASS

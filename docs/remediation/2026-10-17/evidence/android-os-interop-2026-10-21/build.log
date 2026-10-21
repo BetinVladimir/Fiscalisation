@@ -1,0 +1,223 @@
+To honour the JVM settings for this build a single-use Daemon process will be forked. For more on this, please refer to https://docs.gradle.org/8.13/userguide/gradle_daemon.html#sec:disabling_the_daemon in the Gradle documentation.
+Daemon will be stopped at the end of the build 
+> Task :gradle-plugin:settings-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle-plugin:shared:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle-plugin:shared:compileKotlin UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:shared:compileJava NO-SOURCE
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:compileJava NO-SOURCE
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:processResources NO-SOURCE
+> Task :gradle-plugin:shared:processResources NO-SOURCE
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:classes UP-TO-DATE
+> Task :gradle-plugin:shared:classes UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-plugin-shared:jar UP-TO-DATE
+> Task :gradle-plugin:shared:jar UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle-plugin:settings-plugin:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:settings-plugin:pluginDescriptors UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:processResources UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:classes UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:compileJava NO-SOURCE
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:pluginDescriptors UP-TO-DATE
+> Task :gradle-plugin:settings-plugin:jar UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:processResources UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:classes UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-settings-plugin:jar UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :gradle-plugin:react-native-gradle-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-updates-gradle-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-module-gradle-plugin:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-updates-gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :expo-module-gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :expo-updates-gradle-plugin:processResources UP-TO-DATE
+> Task :expo-module-gradle-plugin:processResources UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-plugin:compileKotlin UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-plugin:compileJava NO-SOURCE
+> Task :expo-gradle-plugin:expo-autolinking-plugin:pluginDescriptors UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-plugin:processResources UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-plugin:classes UP-TO-DATE
+> Task :expo-gradle-plugin:expo-autolinking-plugin:jar UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:compileKotlin UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:compileJava NO-SOURCE
+> Task :gradle-plugin:react-native-gradle-plugin:pluginDescriptors UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:processResources UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:classes UP-TO-DATE
+> Task :gradle-plugin:react-native-gradle-plugin:jar UP-TO-DATE
+> Task :expo-module-gradle-plugin:compileKotlin UP-TO-DATE
+> Task :expo-updates-gradle-plugin:compileKotlin UP-TO-DATE
+> Task :expo-module-gradle-plugin:compileJava NO-SOURCE
+> Task :expo-module-gradle-plugin:classes UP-TO-DATE
+> Task :expo-updates-gradle-plugin:compileJava NO-SOURCE
+> Task :expo-updates-gradle-plugin:classes UP-TO-DATE
+> Task :expo-module-gradle-plugin:jar UP-TO-DATE
+> Task :expo-updates-gradle-plugin:jar UP-TO-DATE
+
+> Configure project :
+[32m[ExpoRootProject][0m Using the following versions:
+  - buildTools:  [32m36.0.0[0m
+  - minSdk:      [32m24[0m
+  - compileSdk:  [32m36[0m
+  - targetSdk:   [32m36[0m
+  - ndk:         [32m27.1.12297006[0m
+  - kotlin:      [32m2.1.20[0m
+  - ksp:         [32m2.1.20-2.0.1[0m
+
+> Configure project :app
+ ℹ️  [33mApplying gradle plugin[0m '[32mexpo-updates-gradle-plugin[0m'
+
+> Configure project :expo
+
+Using expo modules
+  - [32mbeeloy-execution-crypto[0m (1.0.0)
+  - [32mexpo-constants[0m (18.0.14)
+  - [32mexpo-eas-client[0m (1.0.8)
+  - [32mexpo-json-utils[0m (0.15.0)
+  - [32mexpo-manifests[0m (1.0.11)
+  - [32mexpo-modules-core[0m (3.0.30)
+  - [32mexpo-structured-headers[0m (5.0.0)
+  - [32mexpo-updates[0m (29.0.20)
+  - [32mexpo-updates-interface[0m (2.0.0)
+  - [33m[📦][0m [32mexpo-asset[0m (12.0.13)
+  - [33m[📦][0m [32mexpo-crypto[0m (15.0.9)
+  - [33m[📦][0m [32mexpo-file-system[0m (19.0.24)
+  - [33m[📦][0m [32mexpo-font[0m (14.0.12)
+  - [33m[📦][0m [32mexpo-keep-awake[0m (15.0.8)
+
+
+> Task :beeloy-execution-crypto:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :beeloy-execution-crypto:preBuild UP-TO-DATE
+> Task :beeloy-execution-crypto:preDebugBuild UP-TO-DATE
+> Task :beeloy-execution-crypto:generateDebugBuildConfig
+> Task :beeloy-execution-crypto:generateDebugResValues
+> Task :beeloy-execution-crypto:generateDebugResources
+> Task :beeloy-execution-crypto:packageDebugResources
+> Task :expo-modules-core:checkKotlinGradlePluginConfigurationErrors SKIPPED
+> Task :expo-modules-core:preBuild UP-TO-DATE
+> Task :expo-modules-core:preDebugBuild UP-TO-DATE
+> Task :expo-modules-core:generateDebugBuildConfig
+> Task :expo-modules-core:generateDebugResValues
+> Task :expo-modules-core:generateDebugResources
+> Task :expo-modules-core:packageDebugResources
+> Task :beeloy-execution-crypto:preDebugAndroidTestBuild UP-TO-DATE
+> Task :expo-modules-core:javaPreCompileDebug
+> Task :beeloy-execution-crypto:javaPreCompileDebug
+> Task :beeloy-execution-crypto:extractDeepLinksDebug
+> Task :beeloy-execution-crypto:parseDebugLocalResources
+> Task :expo-modules-core:parseDebugLocalResources
+> Task :expo-modules-core:extractDeepLinksDebug
+> Task :expo-modules-core:writeDebugAarMetadata
+> Task :beeloy-execution-crypto:writeDebugAarMetadata
+> Task :expo-modules-core:generateDebugRFile
+> Task :beeloy-execution-crypto:generateDebugRFile
+
+> Task :expo-modules-core:processDebugManifest
+/private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/AndroidManifest.xml:8:9-11:45 Warning:
+	meta-data#com.facebook.soloader.enabled@android:value was tagged at AndroidManifest.xml:8 to replace other declarations but no other declaration present
+
+> Task :beeloy-execution-crypto:processDebugManifest
+> Task :beeloy-execution-crypto:compileDebugLibraryResources
+> Task :beeloy-execution-crypto:processDebugAndroidTestManifest
+> Task :beeloy-execution-crypto:generateDebugAndroidTestBuildConfig
+> Task :beeloy-execution-crypto:generateDebugAndroidTestResValues
+> Task :beeloy-execution-crypto:checkDebugAndroidTestAarMetadata
+> Task :beeloy-execution-crypto:mapDebugAndroidTestSourceSetPaths
+> Task :beeloy-execution-crypto:generateDebugAndroidTestResources
+> Task :beeloy-execution-crypto:javaPreCompileDebugAndroidTest
+> Task :expo-modules-core:compileDebugLibraryResources
+> Task :beeloy-execution-crypto:mergeDebugAndroidTestShaders
+> Task :beeloy-execution-crypto:compileDebugAndroidTestShaders NO-SOURCE
+> Task :beeloy-execution-crypto:generateDebugAndroidTestAssets UP-TO-DATE
+> Task :beeloy-execution-crypto:mergeDebugShaders
+> Task :beeloy-execution-crypto:compileDebugShaders NO-SOURCE
+> Task :beeloy-execution-crypto:generateDebugAssets UP-TO-DATE
+> Task :beeloy-execution-crypto:mergeDebugAssets
+> Task :expo-modules-core:mergeDebugShaders
+> Task :expo-modules-core:compileDebugShaders NO-SOURCE
+> Task :expo-modules-core:generateDebugAssets UP-TO-DATE
+> Task :expo-modules-core:mergeDebugAssets
+> Task :beeloy-execution-crypto:mergeDebugAndroidTestAssets
+> Task :beeloy-execution-crypto:compressDebugAndroidTestAssets
+> Task :beeloy-execution-crypto:desugarDebugAndroidTestFileDependencies
+> Task :beeloy-execution-crypto:mergeDebugJniLibFolders
+> Task :beeloy-execution-crypto:mergeDebugNativeLibs NO-SOURCE
+> Task :beeloy-execution-crypto:copyDebugJniLibsProjectOnly
+> Task :beeloy-execution-crypto:mergeDebugAndroidTestJniLibFolders
+> Task :beeloy-execution-crypto:checkDebugAndroidTestDuplicateClasses
+> Task :beeloy-execution-crypto:mergeDebugAndroidTestResources
+> Task :expo-modules-core:configureCMakeDebug[arm64-v8a]
+> Task :beeloy-execution-crypto:processDebugAndroidTestResources
+> Task :beeloy-execution-crypto:mergeExtDexDebugAndroidTest
+
+> Task :expo-modules-core:compileDebugKotlin
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/adapters/react/apploader/RNHeadlessAppLoader.kt:48:87 'val reactNativeHost: ReactNativeHost' is deprecated. You should not use ReactNativeHost directly in the New Architecture. Use ReactHost instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/adapters/react/apploader/RNHeadlessAppLoader.kt:91:85 'val reactNativeHost: ReactNativeHost' is deprecated. You should not use ReactNativeHost directly in the New Architecture. Use ReactHost instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/adapters/react/apploader/RNHeadlessAppLoader.kt:120:83 'val reactNativeHost: ReactNativeHost' is deprecated. You should not use ReactNativeHost directly in the New Architecture. Use ReactHost instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/apploader/AppLoaderProvider.kt:34:52 Unchecked cast of 'Class<*>!' to 'Class<out HeadlessAppLoader>'.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/AppContext.kt:30:8 'typealias ErrorManagerModule = JSLoggerModule' is deprecated. Use JSLoggerModule instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/AppContext.kt:253:21 'typealias ErrorManagerModule = JSLoggerModule' is deprecated. Use JSLoggerModule instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/AppContext.kt:343:21 'val DEFAULT: Int' is deprecated. UIManagerType.DEFAULT will be deleted in the next release of React Native. Use [LEGACY] instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/defaultmodules/NativeModulesProxyModule.kt:16:5 'fun Constants(legacyConstantsProvider: () -> Map<String, Any?>): Unit' is deprecated. Use `Constant` or `Property` instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/PromiseImpl.kt:65:51 'val errorManager: JSLoggerModule?' is deprecated. Use AppContext.jsLogger instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/jni/PromiseImpl.kt:69:22 'fun reportExceptionToLogBox(codedException: CodedException): Unit' is deprecated. Use appContext.jsLogger.error(...) instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/views/ViewDefinitionBuilder.kt:464:16 'val errorManager: JSLoggerModule?' is deprecated. Use AppContext.jsLogger instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/views/ViewDefinitionBuilder.kt:464:30 'fun reportExceptionToLogBox(codedException: CodedException): Unit' is deprecated. Use appContext.jsLogger.error(...) instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/views/ViewManagerDefinition.kt:41:16 'val errorManager: JSLoggerModule?' is deprecated. Use AppContext.jsLogger instead.
+w: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/node_modules/expo-modules-core/android/src/main/java/expo/modules/kotlin/views/ViewManagerDefinition.kt:41:30 'fun reportExceptionToLogBox(codedException: CodedException): Unit' is deprecated. Use appContext.jsLogger.error(...) instead.
+
+> Task :expo-modules-core:buildCMakeDebug[arm64-v8a]
+
+> Task :expo-modules-core:compileDebugJavaWithJavac
+Note: Some input files use or override a deprecated API.
+Note: Recompile with -Xlint:deprecation for details.
+
+> Task :expo-modules-core:processDebugJavaRes
+> Task :expo-modules-core:bundleLibRuntimeToJarDebug
+> Task :expo-modules-core:bundleLibCompileToJarDebug
+> Task :expo-modules-core:bundleLibRuntimeToDirDebug
+> Task :expo-modules-core:configureCMakeDebug[armeabi-v7a]
+> Task :beeloy-execution-crypto:compileDebugKotlin
+> Task :expo-modules-core:buildCMakeDebug[armeabi-v7a]
+> Task :beeloy-execution-crypto:compileDebugJavaWithJavac
+> Task :beeloy-execution-crypto:bundleLibCompileToJarDebug
+> Task :beeloy-execution-crypto:bundleLibRuntimeToJarDebug
+> Task :beeloy-execution-crypto:processDebugJavaRes
+> Task :beeloy-execution-crypto:bundleLibRuntimeToDirDebug
+> Task :beeloy-execution-crypto:compileDebugAndroidTestKotlin
+> Task :expo-modules-core:configureCMakeDebug[x86]
+> Task :beeloy-execution-crypto:compileDebugAndroidTestJavaWithJavac
+> Task :beeloy-execution-crypto:dexBuilderDebugAndroidTest
+> Task :beeloy-execution-crypto:processDebugAndroidTestJavaRes
+> Task :beeloy-execution-crypto:mergeDebugAndroidTestGlobalSynthetics
+> Task :beeloy-execution-crypto:mergeProjectDexDebugAndroidTest
+> Task :beeloy-execution-crypto:mergeLibDexDebugAndroidTest
+> Task :beeloy-execution-crypto:mergeDebugAndroidTestJavaResource
+> Task :expo-modules-core:buildCMakeDebug[x86]
+> Task :expo-modules-core:configureCMakeDebug[x86_64]
+> Task :expo-modules-core:buildCMakeDebug[x86_64]
+> Task :expo-modules-core:mergeDebugJniLibFolders
+> Task :beeloy-execution-crypto:validateSigningDebugAndroidTest
+> Task :beeloy-execution-crypto:writeDebugAndroidTestSigningConfigVersions
+> Task :expo-modules-core:mergeDebugNativeLibs
+> Task :expo-modules-core:copyDebugJniLibsProjectOnly
+> Task :beeloy-execution-crypto:mergeDebugAndroidTestNativeLibs
+
+> Task :beeloy-execution-crypto:stripDebugAndroidTestDebugSymbols
+Unable to strip the following libraries, packaging them as they are: libc++_shared.so, libexpo-modules-core.so, libfbjni.so, libhermestooling.so, libimagepipeline.so, libjsi.so, libnative-filters.so, libnative-imagetranscoder.so, libreactnative.so. Run with --info option to learn more.
+
+> Task :beeloy-execution-crypto:packageDebugAndroidTest
+> Task :beeloy-execution-crypto:createDebugAndroidTestApkListingFileRedirect
+> Task :beeloy-execution-crypto:assembleDebugAndroidTest
+
+[Incubating] Problems report is available at: file:///private/tmp/fiscal-native-authority-20261018/work/BeeMiniPOS/android/build/reports/problems/problems-report.html
+
+Deprecated Gradle features were used in this build, making it incompatible with Gradle 9.0.
+
+You can use '--warning-mode all' to show the individual deprecation warnings and determine if they come from your own scripts or plugins.
+
+For more on this, please refer to https://docs.gradle.org/8.13/userguide/command_line_interface.html#sec:command_line_warnings in the Gradle documentation.
+
+BUILD SUCCESSFUL in 1m 13s
+109 actionable tasks: 81 executed, 28 up-to-date
