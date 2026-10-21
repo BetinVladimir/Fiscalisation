@@ -19,3 +19,16 @@ Evidence: [manifest](evidence/source-recovery/manifest.json). Историчес
 ## Integrated root verification — 2026-10-21
 
 Root merged API/domain/client with the separate typed PostgreSQL whitelist projection. Node208, configured UI21suites/169tests, TypeScript, full MiniPOS Go race with actual HTTP→TS, and both generated contract drift gates PASS. All8 persistence/dependency hashes exactly match the actual PostgreSQL/RLS full race evidence. [Root logs and staged/working source hashes](evidence/source-recovery/root-integrated/manifest.json); [actual PostgreSQL evidence](evidence/typed-order-recovery-2026-10-21/README.md). Existing unrelated AppFrame/header changes were present in the working UI test environment and remain outside this package; staged and tested hashes distinguish that scope. Legacy journals without proven source identity remain quarantined, with migration/discovery work OPEN. Physical HIL and full BLE authority remain separate OPEN requirements.
+
+## Legacy export: committed owner scope and privacy
+
+Replacement legacy incremental binds export/report authority to committed auth/cloud/recovery context, pending journal ID, selected employee/operator and full fiscal route (register/configuration/binding). Each committed transition clears the report before paint. Delayed exports and retained callbacks cannot publish across auth, same-token configuration, operator or operator ABA changes. Reconciliation report publication uses the same guard.
+
+Global journal presence is not ownership evidence. Unsigned/unowned source-less journals export only kind/version, journal hash, bounded status and enumerated reason. No amount, operation/receipt ID, journal ID, source ID or timestamps are emitted by default. Detailed export requires exact signed current operator/register/intent/receipt anchors; no implicit manager override is granted. Signed payloads, authorizations, signatures, client proof, JWT and session hashes remain excluded. Malformed monetary objects are rejected.
+
+Persisted sidecars are strictly validated: fixed keys, SHA256 string, status/reason enum with compatible combinations, exact complete source_context for LINKED and no linkage for QUARANTINED. Unknown persisted reasons and arbitrary nested fields fail closed and are never echoed. Record hash must match frozen journal.
+
+Acceptance: Node234/234, configured UI19 suites166/166, TypeScript PASS. Previous legacy export against the four new actual App delayed-export tests: auth case PASS, configuration/operator/operator ABA cases RED; corrected committed scope all GREEN. Node tests cover unowned financial privacy, malformed reason/status/context/digest, nested monetary objects and arbitrary private extras. Separate raw logs and hashes are in legacy evidence manifest. Physical HIL/native/browser acceptance remains separate.
+
+
+Root integrated verification: Node234, configured UI21suites/175tests and TypeScript PASS. Source-less signed journals require unique server linkage and fresh monetary proof; records without sufficient evidence remain quarantined. [Root logs and staged/tested source hashes](evidence/legacy-source-recovery/root-integrated/manifest.json). Existing unrelated AppFrame/header changes remain outside this package and were present during UI verification.

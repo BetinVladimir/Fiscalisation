@@ -1,3 +1,4 @@
+import {recoverLegacyCheckout,legacyRecoveryExport} from './src/legacyCheckoutRecovery';
 import {recoverCheckoutReadOnly} from './src/checkoutRecovery';
 import {RequestAuthFence} from './src/requestAuthFence';
 import {managementForRoles,useManagementAccess} from './src/useManagementAccess';
@@ -397,6 +398,9 @@ export function MiniPosApp({
   const executionAuthority = useRef(new NativeExecutionAuthority(nativeExecutionProvider, AsyncStorage));
   const nativeAuthToken = emailAuth.accessToken || devAuthToken;
   const executionManager = useMemo(() => shift?.id && nativeAuthToken ? new NativeExecutionManager(executionAuthority.current, AsyncStorage, call, {backend:apiBase,token:nativeAuthToken,appInstance:appInstanceId,shiftID:shift.id},uuid) : undefined, [shift?.id,nativeAuthToken]);
+  const [legacyRecoveryVisible,setLegacyRecoveryVisible]=useState(false);
+  const [legacyRecoveryReport,setLegacyRecoveryReport]=useState('');
+
   const recoveryQuarantine=useRef<string|null>(null);
   useLayoutEffect(()=>{recoveryQuarantine.current=pendingOrder?.id??null;},[pendingOrder]);
   const checkoutInFlight=useRef<object|null>(null);
@@ -450,6 +454,9 @@ export function MiniPosApp({
       ? undefined
       : employees.find((x) => x.id === selectedEmployeeId) || employees[0]);
   const bleRouteKey=JSON.stringify([configuration?.id,configuration?.version,configuration?.binding_generation,configuration?.location_id,configuration?.fiscal_adapter_id,activeRegisterId,selectedEmployee?.id,selectedEmployee?.operator_code]);
+  const legacyExportContext=useMemo(()=>({}),[recoveryContext,bleRouteKey]);
+  const committedLegacyExportContext=useRef<object|null>(null);
+  useLayoutEffect(()=>{committedLegacyExportContext.current=legacyExportContext;setLegacyRecoveryReport('');return()=>{if(committedLegacyExportContext.current===legacyExportContext)committedLegacyExportContext.current=null;};},[legacyExportContext]);
   useLayoutEffect(()=>{const route={key:bleRouteKey};bleRouteOwner.current=route;return()=>{if(bleRouteOwner.current===route){retireRouteBle(route);bleRouteOwner.current=null;}};},[bleRouteKey]);
   const logoutContext=useMemo(()=>({}),[emailAuth.accessToken,bleRouteKey,shift?.id,shift?.state]);
   const committedLogoutContext=useRef<object|null>(null);
@@ -575,7 +582,7 @@ export function MiniPosApp({
       const journals=await checkoutJournal.current.pending();
       if(!isCurrentRefresh())return;
       const durableRecovery=journals[0];
-      if(durableRecovery){recoveryQuarantine.current=durableRecovery.sale_id;setPendingOrder({id:durableRecovery.sale_id,state:'UNKNOWN',version:durableRecovery.sale_version,allowed_actions:[],fiscal_operation_id:durableRecovery.plan.client_operation_id});}
+      if(durableRecovery){setLegacyRecoveryVisible(!durableRecovery.source_order_id);recoveryQuarantine.current=durableRecovery.sale_id;setPendingOrder({id:durableRecovery.sale_id,state:'UNKNOWN',version:durableRecovery.sale_version,allowed_actions:[],fiscal_operation_id:durableRecovery.plan.client_operation_id});}
       let cfg: Configuration;
       try {
         cfg = await call<Configuration>("/configuration");
@@ -824,6 +831,17 @@ export function MiniPosApp({
       setBusy(false);
     }
   };
+  const exportLegacyRecovery = async () => {
+    const owner=legacyExportContext;
+    if(committedLegacyExportContext.current!==owner||!pendingOrder)return;
+    try{
+    const durable=await checkoutJournal.current.load(pendingOrder.id);
+    if(committedLegacyExportContext.current!==owner||!durable||durable.source_order_id)return;
+    const record=await checkoutJournal.current.loadLegacyRecovery(durable.sale_id);
+    if(committedLegacyExportContext.current!==owner)return;
+    setLegacyRecoveryReport(JSON.stringify(legacyRecoveryExport(durable,record??undefined,{operatorCode:selectedEmployee?.operator_code??'',fiscalRegisterID:activeRegisterId}),null,2));
+    }catch(error){if(committedLegacyExportContext.current===owner)setStatus('LEGACY_EXPORT_UNAVAILABLE: '+message(error));}
+  };
   const connectBle = async () => {
     const auth=bleAuthOwner.current,route=bleRouteOwner.current,bearer=runtimeFiscalToken,transport=ble.current;
     if(busy||connectFlight.current||!route||committedBleRender.current!==bleRender||!auth||auth.token!==(emailAuth.accessToken||devAuthToken))return;
@@ -1026,10 +1044,10 @@ export function MiniPosApp({
       if(ownerCurrent())setBusy(false);
     }
   };
-  const reconcile = async () => {
+  const reconcile = async (discoverLegacy:unknown=false) => {
     if (!pendingOrder || busy) return;
-    const owner=cloudCheckoutContext,recoveryOwner=recoveryContext;
-    const current=()=>cloudCheckoutOwner.current===owner&&committedRecoveryContext.current===recoveryOwner&&nativeAuthToken===runtimeAuthToken;
+    const owner=cloudCheckoutContext,recoveryOwner=recoveryContext,exportOwner=legacyExportContext;
+    const current=()=>cloudCheckoutOwner.current===owner&&committedRecoveryContext.current===recoveryOwner&&committedLegacyExportContext.current===exportOwner&&nativeAuthToken===runtimeAuthToken;
     if(!current())return;
     if(checkoutInFlight.current)return;
     const ticket={};checkoutInFlight.current=ticket;
@@ -1038,10 +1056,11 @@ export function MiniPosApp({
       const durable=await checkoutJournal.current.load(pendingOrder.id);
       if(!current())return;
       if(!durable)throw Error('CHECKOUT_JOURNAL_REQUIRED');
-      const confirmed=await recoverCheckoutReadOnly({read:call,durable,scope:{fiscalRegisterID:activeRegisterId,operatorCode:selectedEmployee?.operator_code??''},journal:checkoutJournal.current,live:current,onPermission:permission=>{
+      const confirmed=durable.source_order_id?await recoverCheckoutReadOnly({read:call,durable,scope:{fiscalRegisterID:activeRegisterId,operatorCode:selectedEmployee?.operator_code??''},journal:checkoutJournal.current,live:current,onPermission:permission=>{
         if(current())setPendingOrder({...pendingOrder,version:permission.order_version,allowed_actions:permission.allowed_actions,fiscal_operation_id:permission.client_operation_id||undefined});
-      }});
+      }}):await recoverLegacyCheckout({durable,scope:{fiscalRegisterID:activeRegisterId,operatorCode:selectedEmployee?.operator_code??''},read:call,journal:checkoutJournal.current,live:current,discover:discoverLegacy===true});
       if(!current())return;
+      if(confirmed.kind==='QUARANTINED'){setLegacyRecoveryReport(JSON.stringify(confirmed.report,null,2));setStatus('LEGACY_SOURCE_RECOVERY_REQUIRED: '+confirmed.record.reason);return;}
       if(confirmed.kind==='DENIED'){
         setStatus('Няма разрешение за проверка; опитайте отново по-късно. Плащането не е повторено');
       }else if(confirmed.kind==='PENDING'){
@@ -1051,7 +1070,7 @@ export function MiniPosApp({
       }else{
         const remaining=await checkoutJournal.current.pending();
         if(!current())return;
-        const next=remaining[0];recoveryQuarantine.current=next?.sale_id??null;
+        const next=remaining[0];setLegacyRecoveryVisible(!!next&&!next.source_order_id);setLegacyRecoveryReport('');recoveryQuarantine.current=next?.sale_id??null;
         setPendingOrder(next?{id:next.sale_id,state:'UNKNOWN',version:next.sale_version,allowed_actions:[],fiscal_operation_id:next.plan.client_operation_id}:null);
         if(!checkoutCart.current||checkoutCart.current.source_order_id===durable.source_order_id){checkoutCart.current=null;setSaleProjection(null);setSplitCash('');}
         setStatus(confirmed.kind==='FAILED'?'Фискализацията е окончателно отказана. За нов опит създайте нова продажба.':`Фискалният резултат е потвърден • ${confirmed.operation.operation_id}`);
@@ -1368,6 +1387,7 @@ export function MiniPosApp({
               {pendingOrder.allowed_actions?.join(", ") || uiText.noActions}
             </PaperText>
           </View>
+          {legacyRecoveryVisible?<View><PaperButton testID="legacy-recovery-discover" disabled={busy} onPress={()=>reconcile(true)}>Потърси доказана връзка</PaperButton><PaperButton testID="legacy-recovery-export" disabled={busy} onPress={exportLegacyRecovery}>Експорт за сверка</PaperButton>{legacyRecoveryReport?<PaperText selectable testID="legacy-recovery-report">{legacyRecoveryReport}</PaperText>:null}</View>:null}
           {(
             <PaperButton
               testID="reconcile-start"

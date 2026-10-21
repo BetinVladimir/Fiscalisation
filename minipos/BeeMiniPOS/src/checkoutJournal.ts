@@ -1,3 +1,4 @@
+import {validateLegacyRecoveryRecord,type LegacyRecoveryRecord} from './legacyCheckoutRecovery.ts';
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import {validateCloudOperation,type CloudCheckoutOperation} from "./cloudCheckoutConfirmation.ts";
 import { canonical } from "./goCanonical.ts";
@@ -92,7 +93,17 @@ export class CheckoutJournal {
     }
     return entries;
   }
+  async loadLegacyRecovery(saleId:string):Promise<LegacyRecoveryRecord|null>{
+    const raw=await this.store.getItem('beeminipos:legacy-recovery:v1:'+saleId);if(!raw)return null;
+    try{return validateLegacyRecoveryRecord(JSON.parse(raw));}catch{throw Error('LEGACY_RECOVERY_RECORD_CORRUPT')}
+  }
+  async saveLegacyRecovery(saleId:string,record:LegacyRecoveryRecord){
+    validateLegacyRecoveryRecord(record);
+    const entry=await this.load(saleId);if(!entry)throw Error('CHECKOUT_JOURNAL_REQUIRED');
+    await this.store.setItem('beeminipos:legacy-recovery:v1:'+saleId,JSON.stringify(record));
+  }
   async remove(saleId: string) {
     await this.store.removeItem(prefix + saleId);
+    await this.store.removeItem("beeminipos:legacy-recovery:v1:"+saleId);
   }
 }
