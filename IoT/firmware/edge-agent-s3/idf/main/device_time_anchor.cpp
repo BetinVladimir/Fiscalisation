@@ -1,6 +1,7 @@
 #include "device_time_anchor.h"
 #include "installed_authority_guard.h"
 #include "go_json.h"
+#include "nvs.h"
 #include "mbedtls/base64.h"
 #include "mbedtls/ecdsa.h"
 #include "mbedtls/pk.h"
