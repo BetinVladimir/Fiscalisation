@@ -6,6 +6,7 @@
  */
 
 #include "DatecsProtocol.h"
+#include <cstdio>
 
 static bool datecsDigits(const char* value, size_t exactLength) {
     if (!value || strlen(value) != exactLength) return false;

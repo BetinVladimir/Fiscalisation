@@ -1,4 +1,5 @@
 #include "DatecsPay.h"
+#include <cstring>
 
 // ============================================================
 //  Error string table

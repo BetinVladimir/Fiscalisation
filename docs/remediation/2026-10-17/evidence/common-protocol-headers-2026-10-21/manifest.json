@@ -1,0 +1,44 @@
+{
+  "scope": "Standard-header portability correction; no protocol semantics, physical HIL or complete corrected remote CI claim",
+  "source_sha256": {
+    "IoT/common-modules/daisy/DaisyPrinter.cpp": "95348761a506c9c2c479cad63582b8f8436d06251c7ae99cf8666ab4ca148b76",
+    "IoT/common-modules/daisy/DaisyProtocol.h": "83183a6c35a08aca0cf217f634fae0efa797b09008f9bfda58efd9325f40ed29",
+    "IoT/common-modules/datecs/DatecsPrinter.cpp": "344e3703aad41bd4ee2be5196123c96c6b1f01feaa8f5035fdc5adc94a99a694",
+    "IoT/common-modules/datecs/DatecsProtocol.cpp": "ff8b505064b3321a717445dbd23290f6bb07a36e62f22ab3900349bf7a19ca1f",
+    "IoT/common-modules/datecs/DatecsProtocol.h": "1bc230c645f4a25fcea5eb330452316f0747b70988fcd259b0295b8809069f18",
+    "IoT/common-modules/datecspay/DatecsPay.cpp": "b13b98cfa20333313930b25779d0bc4483d155ff9e76dcb62566908236fd0cc9",
+    "IoT/common-modules/termol/TremolProtocol.h": "e7eeb4de9f39f28e187d450d196fcb997b53537ad54f6e9344e20af90cba70b9"
+  },
+  "passed_runs": [
+    {
+      "local_log_basename": "fiscal-datecs-gcc-headers-20261021.log",
+      "sha256": "013eee5e52a920943c66783f3441aec8e950b5099547a94e65f6042bab5bd1c8",
+      "exit_code": 0
+    },
+    {
+      "local_log_basename": "fiscal-protocol-gcc-headers-green-20261021.log",
+      "sha256": "2767a19c3cde9c368c7d462ba5c90c4c9d73ff353a7339ef20c98f8f8c3e0147",
+      "exit_code": 0
+    },
+    {
+      "local_log_basename": "fiscal-common-daisy-headers-20261021.log",
+      "sha256": "8444e599468b473d00e6495e70699417e9ad69e867bfbde5a2690e623a36233c",
+      "exit_code": 0
+    },
+    {
+      "local_log_basename": "fiscal-common-datecs-headers-20261021.log",
+      "sha256": "013eee5e52a920943c66783f3441aec8e950b5099547a94e65f6042bab5bd1c8",
+      "exit_code": 0
+    },
+    {
+      "local_log_basename": "fiscal-common-datecspay-headers-20261021.log",
+      "sha256": "a638b565f9096ce57e444c7126fd04ecf93ad9f0b421ee42e0caa25ba35d95db",
+      "exit_code": 0
+    }
+  ],
+  "negative_evidence_sha256": {
+    "remote_run39549490407": "dad021c63a523647a1fa411427010cefd699de2b5d9ed66044dc2c6d721c9abd",
+    "local_gcc_facade_before_header_correction": "a5f2d4a4c147b11b753720feca29bc50d085cce64df183dc43c8c4dd42627496"
+  },
+  "raw_logs": "Retained locally; excluded from published manifest"
+}

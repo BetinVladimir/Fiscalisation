@@ -63,6 +63,7 @@
  */
 
 #include <Arduino.h>
+#include <cstring>
 
 // ─── Protocol constants ───────────────────────────────────────────────────────
 

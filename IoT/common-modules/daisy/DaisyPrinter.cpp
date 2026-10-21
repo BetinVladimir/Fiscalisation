@@ -10,6 +10,7 @@
  */
 
 #include "DaisyProtocol.h"
+#include <cstdlib>
 #include <stdarg.h>
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────

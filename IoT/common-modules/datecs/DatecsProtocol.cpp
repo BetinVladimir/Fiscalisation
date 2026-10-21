@@ -4,6 +4,7 @@
  */
 
 #include "DatecsProtocol.h"
+#include <cstdlib>
 
 // ─── Encoding helpers ─────────────────────────────────────────────────────────
 
