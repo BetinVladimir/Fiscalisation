@@ -1,0 +1,59 @@
+{
+  "base_commit": "e7aefae",
+  "sources": {
+    "BeeFiscalApp/App.tsx": "d1f38be78b4345887e6f4bcc8cc7039ace7559e451695d4063e8642d35047299",
+    "BeeFiscalApp/src/requestAuthFence.ts": "9f720c18e74f1edf6f5132a1d015c98873c43f27f696b1c8546f5adf7092a885",
+    "BeeFiscalApp/src/requestAuthFence.test.ts": "88953d1b8e22075803c647a9f1ad405df75a99efb5823f31675aec3e5d94d018",
+    "minipos/BeeMiniPOS/App.tsx": "618568802fc6dd90d9a6264d49f9a3589a95c8c2c400d557cdd4cabce3e1c814",
+    "minipos/BeeMiniPOS/src/requestAuthFence.ts": "9f720c18e74f1edf6f5132a1d015c98873c43f27f696b1c8546f5adf7092a885",
+    "minipos/BeeMiniPOS/src/requestAuthFence.test.ts": "88953d1b8e22075803c647a9f1ad405df75a99efb5823f31675aec3e5d94d018",
+    "minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx": "5b347e9378deadba63238ec05ae88abc584138a32cd20183cf024f997f200427"
+  },
+  "logs": {
+    "mini-node": {
+      "raw_sha256": "25cf8da7ac794d84998aaac854328d7f36395e79544695eb4e955f3fe2be23cf",
+      "exit_code": 0
+    },
+    "mini-ui": {
+      "raw_sha256": "80d64a53a4b3e13f47091434f5aa027578a15b19660b37eb20bc44ea718a3144",
+      "exit_code": 0
+    },
+    "mini-ts": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0
+    },
+    "fiscal-node": {
+      "raw_sha256": "ad10a228b4d164d63d483c8a573fb3bbff2281f4b0e680ea547f5cf221dd5c10",
+      "exit_code": 0
+    },
+    "fiscal-ui": {
+      "raw_sha256": "8d80ea33fd99dd375ae09ba5921384e9bef57f364e7ada941a652b385fcb5d50",
+      "exit_code": 0
+    },
+    "fiscal-ts": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0
+    },
+    "minipos-red": {
+      "raw_sha256": "939177e8da53d717c62a94f43f1b2f1dd1654f7a0025d7240e2db832dd1c65a3",
+      "expected_failure": true
+    },
+    "fiscal-red": {
+      "raw_sha256": "88113eb28dffa0fd2f5d9f4edd7c660615157edb4eb376461b8709ce4a754a69",
+      "expected_failure": true
+    },
+    "minipos-ui-red": {
+      "raw_sha256": "36d989f4edbde8ba1edc52a67ba8308b01a6fce923cf09734ef52e7d96f3aaca",
+      "expected_failure": true
+    }
+  },
+  "scope": "Actual extracted HTTP functions plus MiniPOS React App committed session wiring; no real native/device run",
+  "results": {
+    "MiniPOS_Node": 160,
+    "MiniPOS_UI": 130,
+    "Fiscal_Node": 53,
+    "Fiscal_UI": 98,
+    "both_typescript": "PASS"
+  },
+  "followup": "Normalize all HeadersInit forms before deriving effective bearer ownership; separate additive fix under review."
+}

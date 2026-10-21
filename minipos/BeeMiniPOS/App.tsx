@@ -1,3 +1,4 @@
+import {RequestAuthFence} from './src/requestAuthFence';
 import {managementForRoles,useManagementAccess} from './src/useManagementAccess';
 import { authIllustrationOpacity, registerDisplayLabel, regulatoryIdentityLabel } from './src/ui/operator-presentation';
 import { apiProblemText } from './src/apiProblemText';
@@ -206,7 +207,7 @@ const devAuthToken = prodMode
   ? ""
   : process.env.EXPO_PUBLIC_MINIPOS_AUTH_TOKEN || "";
 let runtimeAuthToken = devAuthToken;
-let runtimeUnauthorized: (() => void) | undefined;
+const requestAuthFence=new RequestAuthFence();
 const fiscalBase = (
   process.env.EXPO_PUBLIC_FISCAL_API_URL || "http://localhost:8080/public/v1"
 ).replace(/\/$/, "");
@@ -237,6 +238,7 @@ class MiniPosHttpError extends Error {
   }
 }
 async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const requestToken=runtimeAuthToken,requestOwner=requestAuthFence.capture(requestToken,init.headers);
   const {response: r, text} = await fetchTextWithTimeout(apiBase + path, {
     ...init,
     headers: {
@@ -244,13 +246,13 @@ async function call<T>(path: string, init: RequestInit = {}): Promise<T> {
       "X-Api-Version": apiVersion,
       "X-App-Instance-Id": appInstanceId,
       "Idempotency-Key": key(),
-      ...(runtimeAuthToken
-        ? { Authorization: `Bearer ${runtimeAuthToken}` }
+      ...(requestToken
+        ? { Authorization: `Bearer ${requestToken}` }
         : {}),
       ...(init.headers || {}),
     },
   });
-  if (r.status === 401 && prodMode) runtimeUnauthorized?.();
+  if (r.status === 401 && prodMode) requestOwner.unauthorized();
   if (!r.ok)
     throw new MiniPosHttpError(
       r.status,
@@ -263,6 +265,7 @@ const collect = <T,>(path: string) =>
 const collectFiscal = <T,>(path: string) =>
   collectCursorPages<T>(path, (p) => fiscalCall(p));
 async function fiscalCall<T>(path: string, init: RequestInit = {}): Promise<T> {
+  const requestToken=runtimeFiscalToken,requestOwner=requestAuthFence.capture(requestToken,init.headers);
   const method = (init.method || "GET").toUpperCase();
   const idempotencyKey =
     new Headers(init.headers).get("Idempotency-Key") || key();
@@ -272,8 +275,8 @@ async function fiscalCall<T>(path: string, init: RequestInit = {}): Promise<T> {
       "Content-Type": "application/json",
       "X-Api-Version": apiVersion,
       "Idempotency-Key": idempotencyKey,
-      ...(runtimeFiscalToken
-        ? { Authorization: `Bearer ${runtimeFiscalToken}` }
+      ...(requestToken
+        ? { Authorization: `Bearer ${requestToken}` }
         : {}),
       ...(init.headers || {}),
     },
@@ -282,11 +285,11 @@ async function fiscalCall<T>(path: string, init: RequestInit = {}): Promise<T> {
   try {
     result = await fetchTextWithTimeout(fiscalBase + path, request);
   } catch (first) {
-    if (method === "GET") throw first;
+    if (method === "GET" || (prodMode&&!requestOwner.current())) throw first;
     result = await fetchTextWithTimeout(fiscalBase + path, request);
   }
   const {response: r, text} = result;
-  if (r.status === 401 && prodMode) runtimeUnauthorized?.();
+  if (r.status === 401 && prodMode) requestOwner.unauthorized();
   if (!r.ok)
     throw new FiscalHttpError(r.status, apiProblemText(text, `Fiscal HTTP ${r.status}`));
   return text ? JSON.parse(text) : ({} as T);
@@ -341,7 +344,7 @@ export function MiniPosApp({
   const authErrorId = `beeminipos-auth-error-${useId().replace(/:/g, '')}`;
   const legalText = legalTranslations[emailAuth.language];
   const uiText = useTranslation();
-  runtimeUnauthorized = () => void emailAuth.logout();
+
   const [legalAccepted,setLegalAccepted]=useState(false);
   const [loginCode,setLoginCode]=useState(""), [companyName,setCompanyName]=useState(""), [companyAddress,setCompanyAddress]=useState(""), [taxIdentifier,setTaxIdentifier]=useState(""), [currentUserName,setCurrentUserName]=useState("");
   const [products, setProducts] = useState<Product[]>([]),
@@ -444,6 +447,8 @@ export function MiniPosApp({
   const managementWriteAllowed=management.guard();
   const showAdmin=admin&&canManage;
   const refreshEpoch=useRef(0);
+  useLayoutEffect(()=>{const token=emailAuth.accessToken||devAuthToken;runtimeAuthToken=token;runtimeFiscalToken=emailAuth.accessToken||devFiscalToken;return requestAuthFence.activate(token);},[emailAuth.accessToken]);
+  useLayoutEffect(()=>{requestAuthFence.setUnauthorized(emailAuth.accessToken||devAuthToken,()=>{runtimeAuthToken='';runtimeFiscalToken='';refreshEpoch.current++;management.synchronizeRoles(undefined);setOperatorEmployee(null);setAdmin(false);void emailAuth.logout();});});
   const clearBleLocal = () => {
     ble.current.resetSession();
     setBleBinding(null);

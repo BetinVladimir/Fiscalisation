@@ -1,3 +1,4 @@
+import {RequestAuthFence} from './src/requestAuthFence';
 import {reportCopy} from './src/ui/report-copy';
 import {requireFiscalAuthorization} from './src/fiscalAuthorization';
 import {useUiPreferences} from './src/ui/preferences';
@@ -54,7 +55,7 @@ const devAuthToken = prodMode
   ? ""
   : process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN || "";
 let runtimeAuthToken = devAuthToken;
-let runtimeUnauthorized: (() => void) | undefined;
+const requestAuthFence=new RequestAuthFence();
 type Item = Record<string, unknown>;
 type AdminLists = {
   locations: Item[];
@@ -65,6 +66,7 @@ type AdminLists = {
 
 async function call(path: string, init: RequestInit = {}, requestToken = runtimeAuthToken) {
   requireFiscalAuthorization(prodMode,requestToken);
+  const requestOwner=requestAuthFence.capture(requestToken,init.headers);
   // Every mutation is independently idempotent. A PROD 401 clears local
   // authority immediately instead of leaving privileged controls usable.
   const mutation = !!init.method && init.method !== "GET";
@@ -84,7 +86,7 @@ async function call(path: string, init: RequestInit = {}, requestToken = runtime
       ...(init.headers || {}),
     },
   });
-  if (r.status === 401 && prodMode && requestToken === runtimeAuthToken) runtimeUnauthorized?.();
+  if (r.status === 401 && prodMode) requestOwner.unauthorized();
   if (!r.ok) throw new Error(`HTTP ${r.status}`);
   return text ? parseApiJson(text) : {};
 }
@@ -266,7 +268,8 @@ function AppContent() {
   useEffect(() => { if (!commandPending.current) setAdminBusy(false); }, [contextKey]);
 
   const invalidateReads = () => { readEpoch.current++; authOwner.current = { key: authKey }; };
-  runtimeUnauthorized = () => { invalidateReads(); void oidc.logout(); };
+  useLayoutEffect(()=>{const token=oidc.accessToken||devAuthToken;runtimeAuthToken=token;return requestAuthFence.activate(token);},[oidc.accessToken]);
+  useLayoutEffect(()=>{requestAuthFence.setUnauthorized(oidc.accessToken||devAuthToken,()=>{runtimeAuthToken='';invalidateReads();void oidc.logout();});});
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; readEpoch.current++; }; }, []);
 
   useEffect(() => {
@@ -924,7 +927,7 @@ function AppContent() {
             onPress={() => {
               if(!currentRender()||loading||adminBusy||commandPending.current)return;
               invalidateReads();
-              runtimeAuthToken = "";
+              requestAuthFence.revoke();runtimeAuthToken = "";
               void oidc.logout();
             }}
           >{shell.logout}</AppButton>
