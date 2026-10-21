@@ -88,9 +88,19 @@ export class NativeBleTransport implements NativeBleBootstrapContract {
       );
     });
     live();this.cancelScan=undefined;this.deviceId=device.id;
-    const connected = await device.connect();live();
-    await connected.discoverAllServicesAndCharacteristics();live();
-    const negotiated=this.android?await connected.requestMTU(185):connected;live();
+    const bounded=async<T>(operation:()=>Promise<T>,stage:string):Promise<T>=>{
+      let timer:ReturnType<typeof setTimeout>|undefined;
+      const pending=operation().then(value=>{
+        if(generation!==this.generation)
+          void this.manager.cancelDeviceConnection(device.id).catch(()=>{});
+        return value;
+      });
+      try{return await Promise.race([pending,new Promise<never>((_,reject)=>{timer=setTimeout(()=>reject(Error(`BLE_${stage}_TIMEOUT`)),10000);})]);}
+      finally{clearTimeout(timer);}
+    };
+    const connected:any = await bounded(()=>device.connect(),'CONNECT');live();
+    await bounded(()=>connected.discoverAllServicesAndCharacteristics(),'DISCOVERY');live();
+    const negotiated:any=this.android?await bounded(()=>connected.requestMTU(185),'MTU'):connected;live();
     this.mtu=Number(negotiated.mtu??connected.mtu??23);
     if(!Number.isInteger(this.mtu)||this.mtu<61||this.mtu>517)throw Error('BLE_MTU_TOO_SMALL');
     this.deviceId = connected.id;
