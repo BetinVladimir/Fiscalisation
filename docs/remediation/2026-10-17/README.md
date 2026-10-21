@@ -83,3 +83,5 @@ P0 означает блокер целевого денежного/фиска�
 Проверка включала чтение модулей, контрактов и протоколов и выборочный запуск тестов. Полный построчный аудит всех файлов, security certification, проверка PostgreSQL на чистом стенде, native APK/IPA/firmware rebuild и физический HIL в этом исследовании не выполнены. «Просмотрен модуль» не означает «доказано отсутствие ошибок». Для неисполненных направлений ниже явно указаны проверки к добавлению.
 
 Закрывать GAP следует ссылкой на изменение, исполняемый тест, immutable build hash и evidence. Само наличие функции, README-статуса или JSON trace со значением PASS недостаточно. Новые исходные тесты в этом этапе не добавлялись: пользователь запросил документацию без изменения кода.
+
+- [BLE certificate issuance foundation](53_BLE_SERVER_CERTIFICATE_ISSUANCE.md): integrated backend/race/actual mbedTLS profile PASS; device signer, trusted time and runtime channel remain OPEN.

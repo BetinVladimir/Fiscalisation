@@ -95,6 +95,7 @@ type Service struct {
 	policy                          PolicyCatalog
 	requireHardwareSyncSignatures   bool
 	deviceCredentialIssuer          DeviceCredentialIssuer
+	bleServerIssuer                 *BLEServerCertificateIssuer
 	compositeBindingPublisher       CompositeBindingPublisher
 	localTokenIssuer                string
 	localTokenSigningKID            string

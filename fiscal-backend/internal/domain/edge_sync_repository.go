@@ -158,7 +158,7 @@ func (r *MemoryRepository) validateEdgeSyncLocked(tenant string, ack SyncAck, sa
 }
 
 func immutableResourceKind(kind string) bool {
-	return kind == "payment_reconciliation_authorization" || kind == "payment_reconciliation" || kind == "delegated_sale_request" || kind == "delegated_shift" || kind == "unp_serial_identity" || kind == "execution_authorization" || kind == "issued_binding" || kind == "execution_authorization_revocation"
+	return kind == "ble_server_cert_challenge" || kind == "ble_server_certificate" || kind == "payment_reconciliation_authorization" || kind == "payment_reconciliation" || kind == "delegated_sale_request" || kind == "delegated_shift" || kind == "unp_serial_identity" || kind == "execution_authorization" || kind == "issued_binding" || kind == "execution_authorization_revocation"
 }
 func immutableResourceEqual(a, b ResourceRecord) bool {
 	return a.Kind == b.Kind && a.ID == b.ID && a.TenantID == b.TenantID && edgeDigest(a.Data) == edgeDigest(b.Data)
