@@ -20,6 +20,7 @@ readiness-doc-test:
 	ruby scripts/verify_readiness_documentation.rb
 supto-trace-test:
 	ruby scripts/verify_supto_trace.rb
+	ruby scripts/tests/supto_scope_guard_test.rb
 supto-document-policy-test:
 	ruby scripts/verify_document_policy.rb
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test(CustomerSaleCanNeverBecomeServiceBon|NonFiscalTemplateRejectsFiscalWording|DocumentPurposeMappingIsClosed)'

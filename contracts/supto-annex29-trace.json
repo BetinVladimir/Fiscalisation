@@ -742,10 +742,12 @@
     {
       "id": "SUPTO-29-24",
       "title": "Электронные фискальные чеки",
-      "status": "NOT_APPLICABLE",
+      "status": "FAIL",
       "owner": "receipt-platform",
       "invariants": [
-        "feature absence is machine verified"
+        "electronic fiscal receipt remains in product scope",
+        "only an authentic device-issued electronic receipt can be delivered as fiscal evidence",
+        "delivery/retention and recipient access require explicit implementation and verification"
       ],
       "apis": [],
       "db_constraints": [],
@@ -755,10 +757,11 @@
       "hil_evidence": [],
       "legal_evidence": [],
       "evidence": [
-        "contracts/supto-feature-scope.json"
+        "contracts/supto-feature-scope.json",
+        "docs/remediation/2026-10-17/30_ELECTRONIC_RECEIPT_GAP.md"
       ],
-      "gap": "",
-      "production_blocked": false
+      "gap": "Declared in product scope but authenticated device electronic receipt acquisition, delivery, retention and end-to-end tests are not implemented/verified. Software status cannot substitute device/legal evidence.",
+      "production_blocked": true
     }
   ]
 }
