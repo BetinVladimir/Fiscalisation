@@ -3,6 +3,8 @@
 Дата: **2026-10-21, Europe/Sofia**. Корень: `/Users/freelancer/Documents/Beeloy/Fiscalisation`.
 Baseline исходников на момент составления: **394ef67dc8f95ed317d24652e6802e24bd681be2**. Перед исполнением обязательно обновить baseline по P00: работа и сборки продолжаются.
 
+Ревью исполнимости выполнено против документа в commit `3e3c202`: [выводы и обязательные дополнения](#16-ревью-исполнимости-плана--2026-10-21). Исполнителю также обязательны разделы17–25; прежний короткий prompt без этих разделов недостаточен.
+
 Документ предназначен для модели, которой нужны небольшие однозначные задания. Это **план исполнения и приёмки**, а не заявление о готовности. Он сохраняет полный согласованный объём: Fiscalisation/MiniPOS, S3 IoT, USB/COM/BLE/MQTT, Android/iOS, BlueCash, supported fiscal/payment devices, тесты/артефакты/evidence и подготовка применимого комплекта НАП.
 
 ## 1. Какой результат требуется
@@ -24,7 +26,7 @@ Baseline исходников на момент составления: **394ef6
 
 Прочитать: [исходный реестр36GAP](02_GAP_REGISTER.md), [спецификациюT-01…T-27](05_TESTS_AND_ACCEPTANCE.md), [согласованный план/W9](04_REMEDIATION_PLAN.md), [автоматизациюA0–A11](07_AUTOMATION_EXECUTION.md), [цель](08_GOAL_AND_FAST_TRACK.md), [протоколы](03_DEVICE_PROTOCOLS.md), [текущую навигацию](README.md). Для конкретной задачи читать указанные далее source paths и тематические документы30…69.
 
-Приоритет: actual current source+runtime evidence → точный vendor/regulatory primary source → применимый approved contract/ADR → историческая заметка. Конфликт не решать угадыванием. Создать `BLOCKED_SPEC` с двумя противоречащими ссылками, минимальным контрпримером и конкретным вопросом. Самостоятельно продолжать независимые задачи.
+Требуемое поведение определяют актуальные применимые нормативные требования и точный протокол производителя, затем согласованные продуктовые contracts/ADR. Actual current source+runtime evidence определяет, что реализовано и что реально проверено; ошибочная реализация не переопределяет требования. Исторические заметки помогают найти контекст, но не меняют contract. Конфликт не решать угадыванием. Создать `BLOCKED_SPEC` с противоречащими ссылками, минимальным контрпримером и конкретным вопросом. Самостоятельно продолжать независимые задачи.
 
 Все пути ниже относительно корня. Запись `idf/main` означает `IoT/firmware/edge-agent-s3/idf/main`. Предлагаемые новые пути/entrypoints помечены явно; их наличие заранее не предполагается.
 
@@ -46,7 +48,7 @@ Baseline исходников на момент составления: **394ef6
 
 ## 4. Рабочий протокол слабой модели
 
-Выполнять **одну карточку Pxx за раз** в отдельном scoped commit. Не брать зависимую карточку, пока её prerequisites не имеют достаточного evidence. Внутри большой карточки сделать подзадачи `.1/.2/.3`, каждая не более одного инварианта/одного root cause.
+Выполнять **одну подкарточку Pxx.n за раз**, с отдельным scoped commit на проверенный инвариант. Карточка Pxx является пакетом; её нельзя объявить закрытой после одной подкарточки. Перед началом применять обязательный Definition of Ready из раздела17. Не брать зависимую карточку, пока её prerequisites не имеют достаточного evidence. Внутри большой карточки сделать подзадачи `.1/.2/.3`, каждая не более одного инварианта/одного root cause.
 
 1. Прочитать файлы карточки, найти actual caller/entrypoint и соответствующий existing test. Проверить, не закрыто ли это уже более поздним commit.
 2. Выписать invariant и контрпример: вход, исходное state, допустимый результат, запрещённый irreversible action.
@@ -85,7 +87,7 @@ reviewer_result: ''
 ## 5. Порядок и dependencies
 
 - Сначала P00–P02: baseline, полный inventory, profiles/sources.
-- Немедленно параллельно P03/P04 (DB), P06–P10 (S3/security), P23–P27 (protocol/emulator), P31 (native artifacts), P37 (актуальная нормативная база).
+- Параллельно можно готовить исследования/изолированные harness для потоков P03/P04 (DB), P06–P10 (S3/security), P23–P27 (protocol/emulator), P31 (native artifacts), P37 (актуальная нормативная база). Implementation/acceptance зависимой подкарточки разрешается только после её actual prerequisites; этот список не отменяет DAG.
 - Затем P12–P22: money/UNP/offline/durability/recovery/results/UI. Общие profile/authority contracts фиксируются до параллельной реализации.
 - P28–P36: весь объявленный operation scope, electronic receipts, audit/export, factory/release/security/resource coverage. Нормативные зависимости не угадывать.
 - P38: окончательная проверка на exact integrated snapshot. P39: готовый runbook для первого физического подключения и полного MVP HIL.
@@ -1245,10 +1247,13 @@ P39 описывает порядок. Начать с read-only identity/status
 
 ```text
 Репозиторий: /Users/freelancer/Documents/Beeloy/Fiscalisation.
-Прочитай разделы1–5 и карточку Pxx документа
+Прочитай разделы1–5,16–19,21–23,25 и карточку Pxx документа
  docs/remediation/2026-10-17/70_FULL_PRE_HIL_REMEDIATION_PLAN_FOR_SMALL_MODEL.md.
 Затем прочитай перечисленные в Pxx actual source/caller/test files.
-Выполни только первую незакрытую подкарточку Pxx.n.
+Найди относящиеся к ней CT cases раздела20 и interoperation cases раздела24.
+Выполни только первую незакрытую подкарточку Pxx.n, прошедшую Definition of Ready.
+Если Definition of Ready не выполнен, выполни только discovery/design этой подкарточки
+и зафиксируй точные missing inputs вместо предположений.
 
 Перед правкой:
 - зафиксируй current HEAD/dirty paths/file hashes;
@@ -1281,3 +1286,267 @@ required cases, artifacts/hashes, ограничения, следующая з�
 ```
 
 Для следующей модели передавать текущую запись задачи и ссылки на evidence, а не только разговорное «всё готово». После нескольких подкарточек интегратор сверяет общий candidate и запускает dependent regression; P38 остаётся обязательным общим gate.
+
+## 16. Ревью исполнимости плана — 2026-10-21
+
+**Вердикт:** исходный вариант достаточно полно перечислял направления, но не был самодостаточной инструкцией для полностью автономного закрытия всех разрывов слабой моделью. Большая карточка всё ещё требовала архитектурного выбора, детализации fixture/команды, выбора независимого oracle и интерпретации юридически/аппаратно неизвестных условий. Разделы16–25 обязательны и дополняют P00…P39; scope не сокращается.
+
+| Найденный пробел | Почему мешает самостоятельному исполнению | Исправление |
+|---|---|---|
+| Source ошибочно стоял выше normative/vendor contract | Модель могла узаконить баг изменением ожидания | Исправлен раздел2; required behavior и actual behavior разделены |
+|40карточек содержали крупные design tasks | Модель могла сразу писать disconnected helper либо менять несколько trust boundaries | Definition of Ready; пакет разбивается на исполнимые Pxx.n с reviewed contract/caller/oracle |
+| Нет frozen решения по части протоколов/time/offline/receipt | Модель могла придумать wire bytes, UTC guarantees, UNP или fake receipt | Реестр D01…D12, допустимые входы/выходы и fail-closed до решения |
+| Generic «fault tests» без exact postconditions | Можно получить green assertion только по HTTP/ESP_OK | CT01…CT24, state/counters/durable invariants и evidence schema |
+| Нет единой outcome taxonomy | Timeout мог превратиться в retry/FAILED/NOT_SENT | Раздел19: outcome knowledge отдельно от actual device action и authoritative projection |
+| Названия gates выглядели как готовый runner | Модель могла создать shell с echo PASS | Точные условия новых orchestrators, expected-case equality и отрицательные проверки gate |
+| Огромный список Make commands без environment manifest | Модель могла использовать ambient SDK/npm/DB либо запустить destructive target | Раздел21: recipe на подзадачу, prerequisite inventory, owned disposable services и no-hardware guard |
+| Не определена инвалидация старого evidence | Старый green мог закрыть изменённый code/config | Раздел23: impact/retest matrix и immutable candidate rules |
+| Широкие cards/DAG и параллельная подготовка смешивались | Можно merge незавершённую authority dependency | Dependency readiness действует на implementation/acceptance, исследования допускаются отдельно |
+| Не было лимита цикла «попробуй ещё» | Бесконечный rerun и замена flaky теста sleep | Failure taxonomy, deterministic barriers, bounded diagnostic/retry policy |
+| Отсутствовали требования к каждому новому emulator/profile | Модель могла скопировать encoder в oracle | Plugin/fixture contract и negative controls в разделе22 |
+| Не был определён независимый финальный reviewer | Самоотчёт исполнителя становился acceptance | Раздел25: проверка source/caller/report/artifact/coverage, без обхода missing proof |
+
+После дополнений модель может последовательно исполнять **готовые к исполнению** подзадачи и проверять результат. Документ не создаёт отсутствующую vendor specification, аппаратную схему, health SLA источника времени или внешнее юридическое подтверждение. Такие зависимости нужно получить и зафиксировать; при их отсутствии соответствующая задача остаётся BLOCKED_SPEC/EXTERNAL_PENDING. Утверждать полную автономную готовность всего продукта до их получения нельзя.
+
+## 17. Definition of Ready: обязательный вход для каждой подкарточки
+
+P01 должен добавить в task record следующие поля. Это **схема будущего inventory**, а не уже существующий API/файл. Запись хранить, например, в новом `docs/remediation/2026-10-17/execution/Pxx.n.md` и машиночитаемом inventory, формат которого фиксируется до реализации gate.
+
+```yaml
+task_id: Pxx.n
+requirements: []
+profile_ids: []
+depends_on: []
+prerequisite_evidence: []
+required_behavior_sources: [] # revision/hash/page или approved contract
+actual_entrypoint: ''
+actual_caller_chain: []       # UI/API/ingress → queue/service → driver/store → result
+source_files: []              # точные существующие relative paths, без wildcard ...
+allowed_change_files: []
+proposed_new_files: []        # цель каждого нового файла и actual caller
+frozen_contract: ''          # payload/types/errors/state/ownership/limits
+fixture_inputs: []           # path/hash/provenance; synthetic secret marker
+independent_oracle: ''
+initial_state: ''
+red_test_id: ''
+required_test_ids: []
+expected_state_transitions: []
+forbidden_side_effects: []
+commands: []                 # cwd/argv/env names/versions/timeout/expected exit
+cleanup_resources: []        # exact owned project/container/volume/cache IDs
+acceptance_assertions: []
+retest_dependents: []
+review_risk: ''
+```
+
+**Запрет старта implementation:** отсутствуют exact caller, применимый required contract, independent oracle, RED/expected postconditions, bounded execution recipe или prerequisite evidence. Вместо догадки выполнить отдельную `.design`/`.discovery` подзадачу, сохранить найденные источники и минимальный contract diff. Неизвестный file path разрешается найти `rg`, но найденный путь необходимо внести в record до изменения.
+
+**Definition of Done подкарточки:** accepted required behavior реализовано в actual caller; old RED проходит; boundary/negative/dependent gates выполнены; meaningful mutant RED; source restoration проверено; нет unexplained failures/skips; source/config/dependency/artifact hashes совпадают; limitations перечислены. Только затем статус SOFTWARE_VERIFIED_HIL_PENDING. Parent Pxx остаётся OPEN, пока каждая обязательная подкарточка не завершена.
+
+Модель не обязана заново запрашивать разрешение на каждую routine правку в уже авторизованном scope. Design review здесь нужен для фиксации correctness/trust boundaries, а не как дополнительный общий permission flow. Если решение уже принято в существующем contract/сессии, сослаться на него и продолжить.
+
+## 18. Реестр решений, которые нельзя придумывать
+
+Довести каждое решение до frozen артефакта до зависимого implementation. Для всех D-записей фиксировать выбранное значение, источники с hashes, версии consumers, совместимость, negative tests и reviewer. `TBD` не проходит readiness. Без новых вводных безопасный default — соответствующая capability UNAVAILABLE/UNSUPPORTED, а задача остаётся открытой; это временное поведение, не закрытие scope.
+
+| Decision | Что необходимо получить/зафиксировать | Выходной артефакт и зависимые задачи |
+|---|---|---|
+| D01 MVP profile/capabilities | Exact Datecs/Daisy/BluePad/BlueCash model, firmware/SDK/payment app/region/currency, transports и required operations; каждый изначально заявленный пункт учтён | Versioned registry/profile manifest; P02/P17/P24/P25/P27/P36. Нельзя самостоятельно исключить обязательный профиль |
+| D02 Vendor wire | Applicable command IDs, fields, encoding, LEN/BCC/SEQ/TLV/status, retry/duplicate/query semantics и independent bytes | Profile command table+golden fixture provenance; P17/P23…P26. Datasheet не закрывает wire contract |
+| D03 Board/electrical | Exact S3 schematic/module revision, reserved pins/PSRAM/SD, RS232 TTL voltage/DTE/DCE/cable, USB host/VBUS/current/protection | Wiring+power manifest с источниками; P32/P39. Hardware facts подтверждает владелец стенда/производитель, не код |
+| D04 Canonical database | Trusted BeeloyDB revision, complete dependency closure, exporter transformation, roles/grants/RLS applicability и actual deployment migration route | Reproducible source/SQL manifest, CI fixture profile и deployment dependency doc; P03/P04. Fixture не равна production migration |
+| D05 MQTT/API identity | Adapter vs fiscal device vs terminal identity, versioned topics/DTO/errors, operation/source/fiscal IDs, binding generation и ACK preimage | Frozen contract+publisher/subscriber compatibility tests; P05/P19/P21. Existing tested contract переиспользовать |
+| D06 Trusted UTC health | Конкретный authenticated upstream, доверенная error/health policy, monitor protocol и ownership, источник bounded uncertainty; operational acceptance его guarantees | AuthorityClock deployment profile + monitor/issuer rules; P09/P10. Не выбирать «здоровое время» по time.Now/SNTP или выдуманной uncertainty |
+| D07 BLE bootstrap/TLS | Exact characteristic/endpoint/framing limits, handshake/client/device identity, standard TLS engine, certificate trust/renewal/revocation; ownership граница | Reviewed protocol/API/state diagrams+compat tests; P07/P09/P10. Не вводить произвольный custom crypto scheme |
+| D08 Sale-entry/UNP/offline | Applicable нормативный момент ввода, source-first commercial ownership, readiness/UNP authority и durable offline reservation/import policy | ADR amendment+schemas/state/cases; P13/P14/P37. Отсутствие нормативного текста не означает исключение требования |
+| D09 Financial reconciliation | Actual final statuses, authoritative NOT_SENT evidence, source/device conflict policy, exact per-tender reference/void/refund/query capabilities | Outcome mapping+recovery/ADMIN contract; P16/P18/P20/P21/P28. UNKNOWN не разрешает retry |
+| D10 Electronic receipt | Device-generated format/acquisition command, immutable ownership/hash, legal recipient/delivery/retention/fallback requirements | End-to-end receipt contract+profile vectors; P29/P30/P37. Software-generated PDF не является substitute |
+| D11 Platform/build matrix | Supported Android/iOS/BlueCash OS/API versions, native entrypoints, full bundle mode, signing/permissions/key custody, Expo/RN/Pods compatibility | Versioned build recipe+source/dependency material manifest; P11/P31/P33. Harness build не закрывает приложение |
+| D12 External procedure | Current applicable НАП/Н18/Art118 baseline, procedure/actors, manufacturer/acquirer acceptance и exact evidence requirements | Dossier applicability/trace matrix с external reviewer, P37/P39. Не подменять документ подписанным собственным JSON |
+
+Если противоречие относится только к одному profile, изолировать его и продолжать другие, но итог P38 не может автоматически объявить весь исходный MVP scope готовым. Scope change требует явного решения пользователя и обновления всех dependent contracts/tests/UI.
+
+## 19. Outcome и state-machine правила: что именно проверять
+
+Следующие названия — **концептуальные test states**, не новая product enum. Для каждого actual wire/API/Kotlin/C++/TS status сделать explicit mapping в D09. Не вводить эти строки в production DTO без contract review.
+
+| Наблюдение | Что известно | Допустимые действия | Что запрещено |
+|---|---|---|---|
+| До admission, все границы доказывают отсутствие send | NOT_SENT, если это подтверждено actual transport/queue state | Исправить ввод; повторить по договорённой idempotency policy | Объявить NOT_SENT только по UI/network error |
+| Queue приняла intent, но caller потерял ответ | ACCEPTED/POSSIBLE_SEND; исполнение могло начаться | Read-only lookup того же immutable operation; durable pending | Новый operation UUID/route ради «повтора» |
+| Partial write или disconnect после send | UNKNOWN/POSSIBLE_SEND | Recovery/query по exact device/session/reference | Blind resend financial command или показ decline/success без proof |
+| Terminal подтвердил approve, fiscal close неизвестен | PAYMENT_APPROVED + FISCAL_UNKNOWN | Сохранить each-tender evidence; documented recovery/compensation | Потерять approved tender, повторить purchase, отменить чужой receipt |
+| Authoritative final rejection при доказанном отсутствии commit | FINAL_REJECTED в scope того же operation | Показать причину; разрешённые contract actions | Считать rejection одновременно committed либо переписать unrelated pending |
+| Подтверждён genuine fiscal result | DEVICE_COMMITTED, затем source sync может быть pending | Сохранить original evidence до durable confirmation; idempotent materialization | Стереть единственный result при потере cloud, повторить чек |
+| Source и device дают противоречащие final facts | CONFLICT/QUARANTINED | Authorized reconcile с фактами; immutable audit | Last response wins, автоматический rollback/новая финансовая операция |
+| Неверная/чужая/старая подпись или owner | UNTRUSTED_PACKET, не финансовый исход | Отбросить packet; сохранить текущую pending/healthy authority по contract | Превратить packet в FAILED/success или очистить новую session |
+
+**Обязательные свойства для всех финансовых cases:**
+
+1. `logical operation UUID + digest + authority + UNP` неизменны при retry/route/restart; одинаковый UUID с другим payload — conflict до I/O.
+2. Для каждого `payment_id` число irreversible approved debits `<=1`, кроме отдельной явно новой авторизованной операции; transport attempts и approved debit counters считать отдельно.
+3. Для одного обычного sale intent число созданных fiscal receipts `<=1`. Storno/refund — отдельная linked operation, не «второй close» первого sale.
+4. Для CASH сценария card debit count `0`. Для отказа до I/O все peer action counters `0`. Valid complete CASH имеет один receipt и matching amount/UNP/reference.
+5. Для split каждый approved tender имеет собственный immutable evidence; selected tender не представляет все платежи. `sum(tenders)` и `sum(compensation)` сверяются в exact profile units, checked integer math.
+6. Durable checkpoint precedes irreversible action; подтверждённый terminal state и outbox не расходятся. Commit uncertainty не превращается в NOT_COMMITTED по одному exception.
+7. После restart проверять состояние **того же сохранённого peer**, не новой пустой модели. Device counter не сбрасывается перезапуском host.
+8. Status/read/query/EJ recovery сами по себе не увеличивают debit/receipt counter. Если vendor query имеет side effect, это явно отражается в profile/fixture, не угадывается.
+9. Authenticated result и authoritative source projection — разные этапы. Valid device result нельзя терять из-за unavailable source; неподтверждённая projection не разрешает финансовый повтор.
+10. Смена владельца закрывает admission/publication старого request; stale error/cleanup не отбирает authority у нового owner. Сравнение только одинакового token/string/handle не доказывает отсутствие ABA.
+
+## 20. Конкретные mandatory test blueprints
+
+Каждый CT ниже развернуть в реальные named tests со своим `profile/ingress/client/fault_point` ID и записью expected state/counters/rows. Эта таблица — требование к будущему case inventory; она **не означает**, что тесты уже реализованы. Expected vendor bytes берутся из D02, не вычисляются тестируемым encoder.
+
+| ID / владелец | Given → When | Обязательные assertions / negative control |
+|---|---|---|
+| CT01 / P03 | Чистый PG, текущие Fiscal fixtures без integration schema → actual authenticated CreateSystem | RED SQLSTATE42P01 воспроизводится. После exact canonical closure actual HTTP201; actual enrollment/projection/session tests выполняются. Пустая table-only stub без constraints/functions не проходит остальные cases |
+| CT02 / P04 | Два tenant/actor и runtime DB role → foreign ID read/write/export/concurrent CAS | Wrong scope denied, чужие rows неизменны, correct owner succeeds. PG policy tests относятся к заявленным RLS tables; integration owner-only таблицы отдельно. Удаление tenant predicate/policy даёт RED |
+| CT03 / P05 | BindingA/deviceA, зарегистрирован pending operation → valid result приходит от topic/deviceB | Projection/cursor/journal не меняются; тот же result на correct immutable association принимается once. Mutant с проверкой только operation UUID даёт RED |
+| CT04 / P05,P19 | Actual broker повторяет command/result/businessACK после lost network reply | Повтор transport доставлен, но irreversible action count1 и materialized row1; ACK cursor только для exact signed batch/device/hash/seq. PUBACK-only mutant RED |
+| CT05 / P06 | Trusted enrolled key и действующий package → package subject/key/generation/setup nonce изменены | До NVS mutation packet rejected, старая authority сохранена. Correct envelope commit/readback/proof succeeds. Не использовать advertisement public key как root |
+| CT06 / P06,P09 | Actual installer: новый package, NVS commit applied → readback error | Install не объявлен verified; time authority boot-quarantined, pending/prepared invalidated; ordinary reopen/trusted_start_boot не снимает quarantine. Durable bytes не удалены ради fake rollback |
+| CT07 / P07 | Connection handleN/genA послал intent; disconnect, handleN/genB → workerA завершился | Actual durable operationA завершена один раз; notifyA не поступает B. Правильный B reply работает. Mutant с current-connection fallback RED |
+| CT08 / P07 | Реальный fragment stream → duplicates/out-of-order/max+1/hash mismatch/partial final | Никакой command admission до valid complete message; all buffers bounded/released; correct fragmentation succeeds. Одна isolated codec проверка недостаточна |
+| CT09 / P08 | Queue accepted intent, worker blocked на deterministic barrier → caller deadline | Caller выходит bounded; no stack/UAF; pending остаётся UNKNOWN. После release worker получает один durable final result; no duplicate execution. ASan/UBSan + deadline assertion |
+| CT10 / P09 | Cold boot без verified anchor; SNTP/NVS/mobile присылают время | Provider UNAVAILABLE; purpose proof не выпускается. После actual root nonce-bound response от healthy source interval valid; wallclock-only mutant RED |
+| CT11 / P09 | Pause после actual root verification → binding/owner A→B→A либо failed commit → release | Late signed response не adopts authority; replacement pending/healthy owner не повреждается. Same-address coordinator placement-new и static-exit отдельные cases |
+| CT12 / P09,P10 | Actual proof admitted с valid interval → signing/transport delay пересёк expiry/health epoch | Publication отвергнута, включая cached proof; ошибка не подменяет interval midpoint. Exact lower/upper boundaries сверяются независимым rational oracle |
+| CT13 / P10 | Full real TLS peers → wrong CA/name/SPKI/device/expiry/downgrade/replay | No authenticated operational session/result; correct profile succeeds. Signature-valid command на OPEN channel не закрывает этот test |
+| CT14 / P11 | Request captured sessionA → loginB → delayed401A; затем current401B | A не logout B/не retry; B отзывает только B. Token ABA/Header override и interrupted React admin render проверяются actual caller |
+| CT15 / P12 | Signed intent с mismatch total/tax/discount/quantity/currency/actor/binding → admission | Ни payment, ни fiscal I/O; device counters0, no false committed rows. Valid neighbouring boundary vector succeeds. Checked overflow mutant RED |
+| CT16 / P13 | First regulated sale input при not-ready/UNP unavailable → add/scan/change line | Поведение соответствует frozen D08 до regulated boundary; UI не создаёт произвольный UNP. Valid allocation после lost response/restart сохраняет identity, concurrent actors не делят один sequence |
+| CT17 / P14 | Полностью отключён source HTTP, fresh app с valid offline authority+S3 → новый cart/checkout/kill/restart/import twice | Draft/UNP/tenders/outcome survive; receipt/debit counters1 where applicable, source order1. Existing-order cached checkout не засчитывается как fresh-cart case |
+| CT18 / P15,P16 | Device выполнил close/debit; process crash до result/outbox commit → restart с тем же peer state | Recovery queries original identity, no second debit/receipt; terminal projection/outbox converge atomically; foreign open receipt не cancel. Mutant сбрасывает model state → gate отвергает fixture |
+| CT19 / P17,P18 | CARD1 approved, CARD2 unknown/declined, fiscal failure → recovery/compensation | Evidence обоих tenders раздельно; exact amount/reference; documented compensation count<=1 each, unsupported capability unresolved. Aggregate-reference-only mutant RED |
+| CT20 / P20 | Actual C++ producer выпустил maximum escaped/int64 result → Go+real TS/Kotlin projection | Exact bytes/semantic fields/status survive, no truncation/cross-owner result. All required12 transport vectors и both named client cases executed, not skipped |
+| CT21 / P21,P22 | Device committed, source import ACK lost → UI reload/lookup/route switch | No financial resend; journal retains positive evidence; authoritative matching GET permits cleanup. Foreign404/body error не доказывает NOT_SENT; locally forged READ permission не grants backend action |
+| CT22 / P24,P25,P26 | USB/UART/BLE peer принимает реальные commands → corrupt length/status/NAK/wake/completion/partial write | Exact sequence/profile payload/checksum checked independently; wrong command немедленно FAIL; no canned execute success. Production encode mutation RED |
+| CT23 / P29,P30 | Genuine receipt artifact привязан sale/device/hash → delivery lost/restart/cross-tenant retrieval | Original immutable content survives, delivery idempotent, unauthorized access denied, fallback не создаёт sale2. Software summary как fiscal artifact отвергается |
+| CT24 / P27,P33,P38 | Enabled profile/requiredcase/artifact отсутствует либо bundle сам приносит trust key → final verify | NOT_READY с exact IDs; foreign/stale report/scan/hash/root rejected. Zero tests или echo PASS не дают readiness, даже если command exit0 |
+
+**Для каждого fault CT добавить контроль:** до injection был валидный working fixture; injected fault действительно сработал (`fault_hit=1`); named assertion выполнена; clearing injection возвращает positive case. Иначе test может быть зелёным потому, что не дошёл до проверяемого участка.
+
+## 21. Execution recipes, окружение и обработка ошибок
+
+### 21.1. Обязательный recipe перед запуском
+
+Для каждой Pxx.n сохранить: exact `cwd`, argv (массив, без shell concatenation секретов), required env **names**, resolved versions, source/dependency hashes, owned paths/services, timeout, expected named cases, expected exit/result files, cleanup и command для повторной проверки. Не копировать private credentials в report. Synthetic fixtures помечать как disposable test-only.
+
+| Контур | Где взять реальный recipe/inputs | Что проверить до запуска |
+|---|---|---|
+| Backend Go | Makefile, fiscal-backend/go.mod/go.sum, minipos/beeminipos-backend/go.mod/go.sum | Exact current Go module/toolchain, working directory; external DB env и actual tests selection; -count=1 где cache мог скрыть re-execution |
+| PostgreSQL/Compose | .github/workflows/integration-contract.yml; scripts/prepare-fiscal-pg-fixture.py; compose.fiscalisation{,.dev,.e2e,.integration-ci}.yaml; verify-integration-ci-topology.py | Exact same COMPOSE_FILE/COMPOSE_PROJECT_NAME для up/exec/down; SQL hash manifest; DSN credentials match; canonical integration dependency; no чужих volumes |
+| Full S3 | idf/tools/build.lock.json, build_idf.py, .github/workflows/s3-idf.yml | Official clean SDK/submodules/compiler/USB component; IDF_PATH/IDF_TOOLS_PATH/IDF_PYTHON_ENV_PATH; новый empty build dir; no flash target |
+| Actual crypto | scripts/run-ble-certificate-crypto.py; verify-device-time-anchor-crypto-host.sh; verify-ble-certificate-proof-host.sh | Реальные pinned mbedTLS/cJSON и библиотеки той же сборки, required markers, host macros изолированы от production; timeout из runner |
+| BLE client/CBOR | tests/ble-transport/{README.md,run.py,package-lock.json,check_lock.py} | Node22.14.0/npm10.9.2 actual, empty private npm cache/config, exact11source copies, real native producer; 66baseline cases плюс новые mandatory IDs |
+| BlueCash/Daisy Smart | SmartDevices/gradlew, gradle/wrapper, settings/build files и actual variant | Собственный wrapper, exact JDK/SDK/AGP; task-local GRADLE_USER_HOME/SDK copy; variant/signature/vendor JAR hashes |
+| Full Expo | minipos/BeeMiniPOS и BeeFiscalApp package/locks/app config; native-mvp scripts после review | Actual AppEntry/App.tsx, all local shared modules tracked, current native/Pod lock compatibility, JS bundle inside artifact; HOME не переопределяется |
+| Evidence/release | existing evidence/verifier tests и Make recipes; release source/material manifest | Внешний trusted verifier key; exact digest-bound reports; safe artifact allowlist, не весь /tmp каталог |
+
+Большой список команд раздела11 — каталог gates, **не одна paste-and-run shell команда** и не разрешение выполнять `upload/flash/deploy` targets. Разбить на recipes и prerequisites. Если pipe используется для логов, результат всей проверки должен отражать первый failed процесс; использовать корректный `pipefail` либо явную проверку всех returncodes, а не успешного tee/последней команды.
+
+### 21.2. Failure taxonomy и следующий шаг
+
+| Failure | Что делать | Что не делать |
+|---|---|---|
+| PRODUCT_RED | Найти exact invariant/caller; минимальный fix; target+dependent regression | Менять expected result, чтобы принять баг |
+| FIXTURE_RED | Проверить applicable schema/profile/source/hash; исправить fixture по trusted source; сохранить прежний RED | Добавлять permissive table/mock или fake vendor response |
+| ENVIRONMENT_MISSING | Зафиксировать недостающий dependency/version/permission; подготовить task-local среду по recipe | Использовать случайный global SDK либо объявлять SKIP успешным |
+| RESOURCE_FAILURE | Подтвердить OOM/disk/process error; сохранить log hash; дождаться/управляемо завершить owned process; bounded retry с обоснованным budget | Выключать lint/test, запускать второй competing build пока первый live |
+| FLAKY/SCHEDULING | Найти незафиксированный event/barrier; ждать actual admission/completion; repeat same named case с recorded schedule | Увеличивать произвольный sleep или rerun до случайного green |
+| BLOCKED_SPEC | Записать D-ID, источники/конфликт, минимальный вопрос, dependent tasks | Выдумывать command/time/UNP/legal policy |
+| LIVE_WAIT | Poll exact confirmed process/run handle с bounded timeout; сохранить progression | Restart только из-за истечения observation timeout |
+| EXTERNAL_PENDING | Зафиксировать hardware/legal/acquirer evidence и owner/получение | Сгенерировать «акт» программным тестом |
+
+Две одинаковые неудачные попытки без нового диагностического evidence — сигнал остановить слепой retry, классифицировать причину и пересмотреть подход; это не автоматическое объявление всей цели blocked. Закрывать процесс/ресурс можно только по его фактическому state и ownership. Нельзя запускать `down -v`, `rm -rf`, reset/clean по глобальному проекту/корню.
+
+## 22. Формальные contracts для новых test orchestrators/emulators
+
+Это требования к будущей реализации P27/P38; сейчас новых schemas/entrypoints этим текстом не создаётся. Их отсутствие остаётся задачей, не assumed PASS.
+
+### 22.1. Profile и scenario
+
+Profile должен содержать: `profile_id/version`, vendor/model/hardware/firmware/protocol applicability, exact transport/config/UUID/VIDPID/interface, encoding/currency/unit rules, capabilities/unsupported operations, authoritative source hashes/pages, linked production module IDs, emulator plugin ID/version, independent golden fixture IDs, mandatory scenario IDs и declared physical-only properties.
+
+Scenario должен содержать: stable ID, requirement/P/CT IDs, profile/build ID, input hash, initial host+peer state, clock/seed/schedule, ingress/client, fault point+expected fault_hit, expected TX/RX/allowed command automaton, irreversible action counters, durable state/outbox/source assertions, expected outcome **и** permitted unresolved classification. End-of-test проверять, что все ожидаемые peer commands/assertions действительно consumed; trailing unexpected TX не игнорировать.
+
+Emulator plugin обязан поддерживать:
+
+- Byte-stream input и независимый parser, не production codec в expected oracle.
+- Stateful receipt/payment identity и separate attempt/approved/fiscal/compensation counters.
+- Persist/restore **peer state** независимо от host/SQLite restart; snapshot format versioned/hash-bound.
+- Explicit fault injection hooks с exact boundary и `fault_hit` counters.
+- Список поддержанных commands/transitions и отказ на неожиданный command/order.
+- Reviewed source/profile applicability и доказательство, что новые golden bytes не вычислены тестируемым encoder.
+
+### 22.2. Report и coverage equality
+
+Предлагаемый report содержит как минимум: schema_version, run_id, task/requirement/case/profile IDs, source/config/dependency hashes, actual entrypoints/linked units, command/tool versions, assertion IDs, executed/passed/failed/skipped, fault_hit/mutation results, seed/schedule, peer counters, artifact digests и scope `HOST_ACTUAL_RUNTIME`/`TARGET_BUILD`/`OS_INSTRUMENTATION`/`EMULATED_RUNTIME`/`PHYSICAL_HIL`. Каждый scope проверяется отдельно.
+
+Финальная проверка вычисляет expected required cases из frozen inventory и enabled profiles. Требование: **множество executed required IDs равно expected required IDs**, без дубликатов/unknown/missing, и каждый обязательный assertion проверен. Total passed>=66 само по себе не доказывает, что новые обязательные cases не исчезли; существующий66-floor сохраняет compatibility baseline, P38 должен сравнивать exact required IDs текущего candidate.
+
+`pre-hil-software-gate`: запускает реальные mandatory recipes, сохраняет все exitcodes и report hashes; error не поглощается. `pre-hil-evidence-verify`: независимо валидирует snapshot/trust/cases/assertions/profile/artifact linkage и выдаёт NOT_READY при любом missing proof. Orchestrator не вправе сам написать missing report=PASS. Фиктивный report/удалённый required case/подменённый profile/missing artifact/unknown schema/self-provided key должны ломать verifier в его собственных тестах.
+
+## 23. Boundary values, numerical budgets и повторная проверка
+
+### 23.1. Числа брать из frozen applicable contract
+
+Для каждого limit проверить `min-1,min,min+1,max-1,max,max+1`, пустое/нулевое/непредставимое значение и checked conversion между units. Где один byte/секунда/копейка меняет predicate, добавить explicit regression с независимым expected result. Для expiry указать inclusive/exclusive semantics.
+
+Известные исходные ориентиры, которые перед реализацией перепроверить по source:
+
+- Actual typed CBOR input/output budget8192bytes и depth16: это предел протокола/реализации, не monetary maximum. INT64_MIN/MAX и2^53±1 проверяются losslessly; business cJSON safe53 guard не снимается глобально.
+- Accepted time contract60: exact17 request/22response fields, exact4-key envelope, max4096bytes envelope; криптографические domains/formats и canonical JSON из contract60 не заменяются RFC8785/float map.
+- TimeAnchorPolicy на baseline: max_rtt5000ms, holdover30000ms, uncertainty250ms, width6000ms, drift1000ppm; history128. Это engineering/source defaults, не измеренные гарантии физического oscillator и не server UTC SLA. Consumer inclusive interval/exclusive expiry проверяется независимо.
+- Реальное BLE fragment allowance определяется negotiated payload minus actual header; iOS limit получается из runtime API, а не Android constant. Vendor terminal chunking определяется конкретным profile.
+- Денежные bounds/precision/currency задаются vendor+product contract; полные int64 transport test values **не** разрешают такую сумму покупки.
+- Resource capacity и mandatory soak budgets фиксируются до P35 acceptance. Если board budget/accepted workload неизвестен — явно pending measurement/profile decision, не «unlimited».
+
+### 23.2. Impact/retest matrix
+
+| Изменение | Минимальная зависимая перепроверка |
+|---|---|
+| Protocol field/codec/money/encoding | Independent golden+malformed+all applicable driver consumers, stateful monetary/recovery, client result projection |
+| Ownership/queue/async callback | Actual deterministic race/ABA/deadline, ASan/UBSan или race для соответствующего языка, caller abort/reconnect/recovery; no duplicate actions |
+| Identity/NVS/binding/time | Actual key create/reload/readback, installers/quarantine, crypto/lifecycle/interval, default unavailable, inherited certificate proof, full S3 target |
+| DB schema/roles/persistence | Fresh/upgrade PG, constraints/rights/RLS applicability, uncertain commits, enrollment/order/projection/recovery, export/backup restore |
+| DTO/HTTP/topic | Actual sender/receiver across Go/C++/Kotlin/TS, generated contracts, broker/API E2E, negative auth/scope/idempotency |
+| App auth/UI/result lifecycle | Actual App/caller tests, all relevant current45 cases, browser/native lifecycle and full affected artifact |
+| Dependencies/toolchain/build config | Lock/material origin checks, clean install, full affected build/tests, source/artifact/provenance verification; no reuse old binary |
+| Emulator/fixtures/runner/verifier | Independent oracle provenance, mutation controls, fault_hit, case discovery/exact inventory equality, all affected profiles and gate negative tests |
+| Documentation только | Coverage/link/command/decision consistency; no claim that documentation repairs product behavior |
+
+После любого dependent source/config/lock change прежний тестовый отчёт остаётся историческим. Его можно переиспользовать только если verifier доказывает неизменность полной relevant input closure и scope явно совпадает; простой одинаковый top-level HEAD/filename/count недостаточен. Новый firmware/client build включает source materials того же candidate; test-only изменения не дают права подписать старый artifact как новую сборку.
+
+## 24. Межоперационные gaps, которые легко забыть
+
+Внести в P01 обязательные cases для этих связок, даже если узкие unit suites уже зелёные:
+
+1. Source order→Fiscal preparation→S3 admission→each tender→fiscal close→durable result→source materialization→journal cleanup: trace identity/amount/UNP на каждом переходе.
+2. Одновременный MQTT и BLE retry **того же** intent: serialized idempotent reservation, no second debit/receipt. Другой payload того же UUID — conflict; новый UUID не является retry.
+3. Auth/config/binding/time-health смена после precheck и до sign/commit/publication: atomic ownership confirmation, а не «ещё один GET после операции».
+4. Actual device approved, client/backend offline: immutable evidence не теряется; новый offline cart использует новую identity по D08 и не переписывает pending предыдущего.
+5. Outbox/event order и fiscal/source projections при duplicate/delay/restart: terminal facts не регрессируют от старого сообщения; конфликт не скрывается last-write-wins.
+6. Reversal/compensation/EJ/status используют original scoped identities; unauthorized caller не превращает recovery endpoint в write/payment oracle.
+7. Fresh schema и legacy upgrade дают одинаковые constraints/ownership semantics; CI-only transformations не выдаются за canonical production deployment.
+8. App source-built feature действительно присутствует в APK/IPA/firmware и вызывается UI/ingress; linked helper без caller не закрывает requirement.
+9. Release default не включает host test roots, injected clocks, emulator publisher, placeholder backend, permissive transport или synthetic receipt reference.
+10. Нормативный/electronic receipt/first-entry/offline contract отражён в UI/API/storage/export совместно. Закрытие одного anchor не отменяет другой требуемый lifecycle.
+
+## 25. Независимая приёмка и ответ на вопрос об автономности
+
+Перед P38 reviewer получает не только итоговый PASS, а frozen source/material manifest, requirement/case inventory, выбранные D01…D12 decisions, actual reports и binaries. Проверяет:
+
+1. Required behavior подтверждён applicable source/approved contract; нет игнорируемого conflict/TBD.
+2. Actual callers всех включённых профилей используют именно tested code; native/firmware артефакты соответствуют source/config/deps и expected entrypoints.
+3. Required tests реально executed, named assertions и fault_hit присутствуют; mandatory skip/missing не скрыт общим passing count.
+4. RED reproduced→fix→negative/mutant→positive restoration доказаны; oracle независим, harness не подменяет execute/payment/fiscal success.
+5. Money/authority/durability invariants раздела19 сохраняются в CT cases и всей applicable matrix, включая crash/restart/possible-send.
+6. External trust anchor не взят из проверяемого bundle; source/artifact/report/scan hashes совпадают, unsafe logs/keys не опубликованы.
+7. Все software requirements исходного scope закрыты либо остаются NOT_READY с exact IDs; нет самовольного scope reduction.
+8. HIL/electrical/entropy/drift/native-radio/vendor/acquirer/legal внешние результаты отделены и имеют owner/procedure/evidence requirement.
+
+Результат ревью — profile-specific `PRE_HIL_SOFTWARE_READY` или `NOT_READY` со списком blockers. Если reviewer обнаружил missing case/невалидный contract, задача возвращается к соответствующей Pxx.n, а не получает waiver формулировкой «для MVP достаточно».
+
+**Практический предел:** после этих дополнений план задаёт полный маршрут, шаблоны inputs/outputs, тестовые оракулы и правила приёмки для самостоятельной работы модели. Но гарантировать, что слабая модель без проверенных D01…D12 inputs и независимой проверки сама закроет *все* ошибки, невозможно. Она должна уметь остановить зависимую задачу на отсутствии фактов и продолжать готовые. Реальное оборудование и внешняя применимость не становятся software-complete от подробности документа.
