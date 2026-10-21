@@ -1,0 +1,56 @@
+{
+  "scope": "Actual DeviceIdentity/mbedTLS with fake NVS and explicit host trusted-time fixtures; production time unavailable. Full IDF target/runtime/HIL OPEN.",
+  "logs": {
+    "fiscal-ble-proof-b-root-gcc-20261021.log.gz": {
+      "raw_sha256": "99effb2142862f59ac4b0af01feba0c9ae874a215e0f3832762a4cf7d566e3de",
+      "gzip_sha256": "cefdbf0decbae74b0c95ef0490c7423f6735e6414b3d7156d74d70c234680e55"
+    },
+    "fiscal-ble-proof-b-root-race-20261021.log.gz": {
+      "raw_sha256": "d9a68f8b2e5456336dcca98bbee5c87fe50b15db415173441f3134542d9106ee",
+      "gzip_sha256": "82822c081bb81236e6b08c79385bea103178e82db251a248164c020ee52170d9"
+    },
+    "fiscal-ble-proof-b-gcc15-final2.log.gz": {
+      "raw_sha256": "9ed9be13f43f9127a0bd35b3c59874e17d2fb9c7a6bb2f150e03ed168d13e44a",
+      "gzip_sha256": "89d45f0cc21db828753a88f084876972a7a4edd3ebb231d9eebf39a0da27d77e"
+    },
+    "fiscal-ble-proof-b-provisioning-regression.log.gz": {
+      "raw_sha256": "cdcb24e0ce949c4e897ef6557b6816cda1e10c0a947a7498689c3c573a58bfdd",
+      "gzip_sha256": "80e8924809912ee3d52777921faa1564d65b9434f38532ec629acd9be868c049"
+    },
+    "fiscal-ble-proof-b-identity-regression.log.gz": {
+      "raw_sha256": "8cfe7b2d21ffe7dedc4aa4dbcb5787469c3e9758204b98065a45b891431b28da",
+      "gzip_sha256": "55b80890d5770dd0493ff6880de237bd8739775e86f7b5ae85411876d5d359ed"
+    },
+    "fiscal-ble-proof-b-go-race.log.gz": {
+      "raw_sha256": "ae3555683367a8ac22532a47c1489d96e4d849138dac6b116bcd7da02701c614",
+      "gzip_sha256": "344146823021d227d087238fa8970377a077fe465d1f6f215aa05206e3628c9c"
+    },
+    "fiscal-ble-proof-b-full-go.log.gz": {
+      "raw_sha256": "6023370b1ceb39f601514a576e6e4a352b0ef06b15871f406c58f06ae001fb67",
+      "gzip_sha256": "c29e767b67086469bc9b29a21f850052d7dcfbdce2686aa7bac4b4ea0f0f1eb7"
+    }
+  },
+  "tested_source_sha256": {
+    "IoT/firmware/edge-agent-s3/idf/main/CMakeLists.txt": "1c65b9fc07b338f777cc07b540cc02f65432e54d00e24bb52cdd672cd959891f",
+    "IoT/firmware/edge-agent-s3/idf/main/device_identity.h": "76bdbdd2fb36a6d1c286cf77646972ff07bfdbfd1c3114aa31f34f1531b22dde",
+    "IoT/firmware/edge-agent-s3/idf/main/device_identity.cpp": "01253c764f3f229777f24621325584ea70f535c2ada02e0b1036965807966394",
+    "IoT/firmware/edge-agent-s3/idf/main/encrypted_provisioning.h": "7b352f637bfaefeda9294449c050ed03423403dbf11b3fa9cdf90427c4ecc25f",
+    "IoT/firmware/edge-agent-s3/idf/main/encrypted_provisioning.cpp": "747b940164b0edbe63bfe2ca3b68e4f1882b4cbb0efcb1419ada41881fa9ab0b",
+    "IoT/firmware/edge-agent-s3/idf/main/provisioned_binding.h": "dc24368c3f7baa93b17db014bbeef69f2bc657ae337a2f98febb8dff2d657b48",
+    "IoT/firmware/edge-agent-s3/idf/main/provisioned_binding.cpp": "e7eb2d1a282b5424e9b3ccc803c5aa02a441b21fdc98a21f4e95beef5103ec8d",
+    "IoT/firmware/edge-agent-s3/idf/main/installed_authority_guard.h": "923312f5da052ddf3a3bec94d5301a752b2349317a0d53c04f7ab925facf412d",
+    "IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.h": "6dc8d427aeb2d0637a3f0febb1d2e73acc840317afaf4cd03c50ecba3cc447b7",
+    "IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.cpp": "364eadad1dfdd0a0291e89555c4dcae8c2591aed7422bae331b6bdbc8e772ee0",
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_proof_host/esp_err.h": "1b4c7eb0c2720df621dc53d7883b18977519ad8fee3b68550628382e6f8e3d5d",
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_proof_host/nvs.h": "78ef94ab0a83f10def6791a0259ac3e563dc3bb63d9a312d888f5d799417a8a5",
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_proof_host/proof_native.cpp": "b5b207190193a299901647e69a2d428fc68b830ce1da44dc4343f9fcef66af60",
+    "fiscal-backend/internal/domain/ble_proof_firmware_interop_test.go": "fc8497a2d08934b9c20da4b5c91f0add9b158251e8741520502f65eca715f5d9",
+    "scripts/verify-ble-certificate-proof-host.sh": "4c7ab87827c41f1e9262e7ad43c6a149047c60d811ec978ba65592c5746e3395",
+    "docs/remediation/2026-10-17/53_BLE_SERVER_CERTIFICATE_ISSUANCE.md": "bee022b2c04a9c4d894a02356dee00d40f8ca10aea8de37eea199554440780c6"
+  },
+  "cjson_source_hashes": {
+    "cJSON.c": "75c51de8fa40ac9d7a99319c6330719bd692eb81c0a869265f3d4c682533f9b9",
+    "cJSON.h": "0578cc29132912edbc88f83207a8fc76e5db3db0605497e909a9384ef3cc474b"
+  },
+  "cjson_provenance": "header1.7.18 and exact source hashes; dangling submodule pointer, no git-clean claim"
+}

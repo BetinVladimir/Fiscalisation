@@ -93,3 +93,5 @@ P0 означает блокер целевого денежного/фиска�
 - [BLE callback lifecycle inventory](56_BLE_CALLBACK_LIFECYCLE.md): actual SDK integration points и недостающие lifecycle tests; native provisioning discovery cleanup исправлен, Fiscal UI115/TS PASS, оставшиеся owner/deadline/HIL gates OPEN.
 
 - Legacy source-less recovery дополнен уникальным server linkage для signed journal и scoped redacted export; [54](54_SOURCE_RECOVERY_AUTHORITY.md). Root Node234/UI175/TS PASS. Записи без доказательств остаются quarantined.
+
+- [Device-side BLE certificate proof](53_BLE_SERVER_CERTIFICATE_ISSUANCE.md): integrated same-NVS-key single-hash proof, root/context verification, guarded installer/cache and Go↔C++ interop PASS. Production trusted time, public transport and fresh IDF target build remain OPEN.

@@ -261,3 +261,33 @@ std::string DeviceIdentity::public_key_der_base64url()const{return impl_->public
  }std::string DeviceIdentity::kid()const{return impl_->kid;
  }
 }
+
+#include "ble_certificate_proof.h"
+namespace beefiscal::idf {
+esp_err_t DeviceIdentity::sign_ble_certificate_proof(
+    const VerifiedBLECertificateProofPermit& permit, uint8_t signature[64]) const {
+  std::lock_guard<std::mutex> lock(impl_->mutex);
+  if (!signature) return ESP_ERR_INVALID_ARG;
+  mbedtls_platform_zeroize(signature, 64);
+  if (!impl_->ok || permit.canonical_proof.empty() || permit.canonical_proof.size() > 1024)
+    return ESP_ERR_INVALID_STATE;
+  const std::string preimage = "BEEFISCAL_BLE_SERVER_CERT_PROOF_V1\n" + permit.canonical_proof;
+  uint8_t digest[32];
+  if (mbedtls_sha256(reinterpret_cast<const uint8_t*>(preimage.data()), preimage.size(), digest, 0))
+    return ESP_FAIL;
+  mbedtls_mpi r, s, half;
+  mbedtls_mpi_init(&r); mbedtls_mpi_init(&s); mbedtls_mpi_init(&half);
+  int rc = mbedtls_ecdsa_sign(&impl_->key.MBEDTLS_PRIVATE(grp), &r, &s,
+      &impl_->key.MBEDTLS_PRIVATE(d), digest, sizeof(digest), Impl::random, impl_);
+  if (!rc) rc = mbedtls_mpi_copy(&half, &impl_->key.MBEDTLS_PRIVATE(grp).N);
+  if (!rc) rc = mbedtls_mpi_shift_r(&half, 1);
+  if (!rc && mbedtls_mpi_cmp_mpi(&s, &half) > 0)
+    rc = mbedtls_mpi_sub_mpi(&s, &impl_->key.MBEDTLS_PRIVATE(grp).N, &s);
+  if (!rc) rc = mbedtls_mpi_write_binary(&r, signature, 32);
+  if (!rc) rc = mbedtls_mpi_write_binary(&s, signature + 32, 32);
+  mbedtls_mpi_free(&r); mbedtls_mpi_free(&s); mbedtls_mpi_free(&half);
+  mbedtls_platform_zeroize(digest, sizeof(digest));
+  if (rc) { mbedtls_platform_zeroize(signature, 64); return ESP_FAIL; }
+  return ESP_OK;
+}
+}

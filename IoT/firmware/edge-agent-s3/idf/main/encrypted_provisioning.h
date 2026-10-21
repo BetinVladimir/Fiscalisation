@@ -12,8 +12,10 @@ struct ProvisionedRuntime {
 class EncryptedProvisioning final {
  public:EncryptedProvisioning(DeviceIdentity&,ProvisionedBindingStore&,const char*,const char*);
  esp_err_t load(ProvisionedRuntime&);
+ esp_err_t load_binding(CompositeBinding&);
  esp_err_t install(const uint8_t*,size_t,const uint8_t fresh_nonce[32],ProvisionedRuntime&);
  private:DeviceIdentity&identity_;ProvisionedBindingStore&validator_;const char*issuer_pem_;const char*issuer_kid_;
- esp_err_t decode(const uint8_t*,size_t,const ProvisioningSubject&,ProvisionedRuntime&);
+ esp_err_t load_internal(ProvisionedRuntime&,bool include_private_pem);
+ esp_err_t decode(const uint8_t*,size_t,const ProvisioningSubject&,ProvisionedRuntime&,bool include_private_pem=true);
 };
 }

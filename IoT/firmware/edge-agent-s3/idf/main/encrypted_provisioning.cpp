@@ -1,4 +1,5 @@
 #include "encrypted_provisioning.h"
+#include "installed_authority_guard.h"
 #include "cJSON.h"
 #include "nvs.h"
 #include "mbedtls/platform_util.h"
@@ -80,7 +81,7 @@ void ProvisionedRuntime::clear(){wipe(secrets.root_ca_pem);
  binding={};
  }
 EncryptedProvisioning::EncryptedProvisioning(DeviceIdentity&i,ProvisionedBindingStore&v,const char*pem,const char*kid):identity_(i),validator_(v),issuer_pem_(pem),issuer_kid_(kid){}
-esp_err_t EncryptedProvisioning::decode(const uint8_t*p,size_t n,const ProvisioningSubject&subject,ProvisionedRuntime&out){
+esp_err_t EncryptedProvisioning::decode(const uint8_t*p,size_t n,const ProvisioningSubject&subject,ProvisionedRuntime&out,bool include_private_pem){
  out.clear();
  OpenedProvisioning opened;
  auto e=open_provisioning_package(p,n,issuer_pem_,subject,derive,&identity_,opened);
@@ -106,14 +107,19 @@ esp_err_t EncryptedProvisioning::decode(const uint8_t*p,size_t n,const Provision
  static constexpr char hex[]="0123456789abcdef";std::string expected_hash;expected_hash.reserve(64);for(size_t i=44;i<76;i++){expected_hash.push_back(hex[p[i]>>4]);expected_hash.push_back(hex[p[i]&15]);}
  uint64_t generation=0;for(size_t i=4;i<12;i++)generation=(generation<<8)|p[i];
  const auto profile=out.binding.profile;bool password=out.secrets.fiscal_operator_password.size()==(profile==EdgeProfile::DatecsDp150BluePad50?8:4);for(char c:out.secrets.fiscal_operator_password)password&=c>='0'&&c<='9';
- if(e!=ESP_OK||out.binding.schema_version!=3||uint64_t(out.binding.generation)!=generation||out.binding.payload_sha256!=expected_hash||out.binding.authority.transaction_signing_kid!=identity_.kid()||kid!=issuer_kid_||!password||out.secrets.root_ca_pem.find("BEGIN CERTIFICATE")==std::string::npos||out.secrets.client_certificate_pem.find("BEGIN CERTIFICATE")==std::string::npos||!certificate_matches(out.secrets,identity_)||identity_.local_tls_key_pem(out.secrets.client_key_pem)!=ESP_OK){out.clear();
+ if(e!=ESP_OK||out.binding.schema_version!=3||uint64_t(out.binding.generation)!=generation||out.binding.payload_sha256!=expected_hash||out.binding.authority.transaction_signing_kid!=identity_.kid()||kid!=issuer_kid_||!password||out.secrets.root_ca_pem.find("BEGIN CERTIFICATE")==std::string::npos||out.secrets.client_certificate_pem.find("BEGIN CERTIFICATE")==std::string::npos||!certificate_matches(out.secrets,identity_)||(include_private_pem&&identity_.local_tls_key_pem(out.secrets.client_key_pem)!=ESP_OK)){out.clear();
  return ESP_ERR_INVALID_CRC;}
  uint8_t packet_hash[32];
  if(mbedtls_sha256(p,n,packet_hash,0)){out.clear();
  return ESP_FAIL;}for(uint8_t c:packet_hash){out.package_sha256.push_back(hex[c>>4]);out.package_sha256.push_back(hex[c&15]);}
  return ESP_OK;
 }
-esp_err_t EncryptedProvisioning::load(ProvisionedRuntime&out){
+esp_err_t EncryptedProvisioning::load(ProvisionedRuntime&out){return load_internal(out,true);}
+esp_err_t EncryptedProvisioning::load_binding(CompositeBinding&out){
+ InstalledAuthorityGuard guard(installed_authority_mutex());out={};ProvisionedRuntime runtime;auto e=load_internal(runtime,false);if(e==ESP_OK)out=runtime.binding;runtime.clear();return e;
+}
+esp_err_t EncryptedProvisioning::load_internal(ProvisionedRuntime&out,bool include_private_pem){
+ InstalledAuthorityGuard guard(installed_authority_mutex());
  out.clear();nvs_handle_t h{};auto e=nvs_open("edge-provision",NVS_READONLY,&h);
  if(e!=ESP_OK)return e;
  size_t size{};e=nvs_get_blob(h,"active",nullptr,&size);
@@ -121,9 +127,10 @@ esp_err_t EncryptedProvisioning::load(ProvisionedRuntime&out){
  return e==ESP_OK?ESP_ERR_INVALID_SIZE:e;}std::vector<uint8_t>packet(size);e=nvs_get_blob(h,"active",packet.data(),&size);nvs_close(h);
  if(e!=ESP_OK)return e;
  ProvisioningSubject subject{identity_.kid(),issuer_kid_,0,{}};memcpy(subject.setup_nonce,packet.data()+12,32);
- return decode(packet.data(),packet.size(),subject,out);
+ return decode(packet.data(),packet.size(),subject,out,include_private_pem);
 }
 esp_err_t EncryptedProvisioning::install(const uint8_t*p,size_t n,const uint8_t nonce[32],ProvisionedRuntime&out){
+ InstalledAuthorityGuard guard(installed_authority_mutex());
  out.clear();
  if(!nonce)return ESP_ERR_INVALID_ARG;
  ProvisionedRuntime previous;const auto loaded=load(previous);

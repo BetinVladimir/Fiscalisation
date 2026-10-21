@@ -35,7 +35,7 @@ class ProvisionedBindingStore final{
   ProvisionedBindingStore&operator=(const ProvisionedBindingStore&)=delete;
   esp_err_t open(const char* nvs_namespace="edge-binding");void close();
   esp_err_t load(CompositeBinding&);esp_err_t install(const SignedBindingEnvelope&,
-    CompositeBinding* installed=nullptr);int64_t generation()const{return generation_;}
+    CompositeBinding* installed=nullptr);int64_t generation()const;
   esp_err_t validate(const SignedBindingEnvelope&,CompositeBinding&)const;
   static esp_err_t decode_and_validate(const char*,size_t,CompositeBinding&);
  private:struct Impl;Impl*impl_;const char*public_key_;const char*key_id_;int64_t generation_{};

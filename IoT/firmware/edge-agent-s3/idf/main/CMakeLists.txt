@@ -14,6 +14,7 @@ idf_component_register(
     "command_queue.cpp"
     "canonical_cbor.cpp"
     "device_identity.cpp"
+    "ble_certificate_proof.cpp"
     "provisioned_network.cpp"
     "encrypted_provisioning.cpp"
     "provisioning_crypto.cpp"

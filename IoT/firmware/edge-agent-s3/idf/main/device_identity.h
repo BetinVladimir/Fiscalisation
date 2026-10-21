@@ -4,6 +4,8 @@
 #include <string>
 #include "esp_err.h"
 namespace beefiscal::idf{
+class BLEServerCertificateProofSigner;
+struct VerifiedBLECertificateProofPermit;
 class DeviceIdentity final{
  public:DeviceIdentity();~DeviceIdentity();
   // First open/reload seeds the identity DRBG: invoke under with_startup_entropy
@@ -15,6 +17,9 @@ class DeviceIdentity final{
   esp_err_t sign_provisioning_install(const std::string&binding_hash,int64_t generation,const std::string&package_hash,std::string&signature)const;
   esp_err_t local_tls_key_pem(std::string&)const;
   std::string public_key_der_base64url()const;std::string kid()const;
- private:struct Impl;Impl*impl_;
+ private:
+  friend class BLEServerCertificateProofSigner;
+  esp_err_t sign_ble_certificate_proof(const VerifiedBLECertificateProofPermit&,uint8_t signature[64])const;
+  struct Impl;Impl*impl_;
 };
 }
