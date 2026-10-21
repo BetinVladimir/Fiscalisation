@@ -1,9 +1,33 @@
 name: ESP32-S3 official IDF build
 on:
   pull_request:
-    paths: ['IoT/**', 'Makefile', '.github/workflows/s3-idf.yml']
+    paths:
+      - 'IoT/**'
+      - 'Makefile'
+      - '.github/workflows/s3-idf.yml'
+      - 'tests/ble-transport/**'
+      - 'fiscal-backend/**'
+      - 'minipos/BeeMiniPOS/package.json'
+      - 'minipos/BeeMiniPOS/package-lock.json'
+      - 'minipos/miniposweb/package.json'
+      - 'minipos/miniposweb/package-lock.json'
+      - 'minipos/BeeMiniPOS/src/*.ts'
+      - 'minipos/miniposweb/src/fiscal/**'
+      - 'minipos/miniposweb/tests/webBleLifecycle.test.ts'
   push:
-    paths: ['IoT/**', 'Makefile', '.github/workflows/s3-idf.yml']
+    paths:
+      - 'IoT/**'
+      - 'Makefile'
+      - '.github/workflows/s3-idf.yml'
+      - 'tests/ble-transport/**'
+      - 'fiscal-backend/**'
+      - 'minipos/BeeMiniPOS/package.json'
+      - 'minipos/BeeMiniPOS/package-lock.json'
+      - 'minipos/miniposweb/package.json'
+      - 'minipos/miniposweb/package-lock.json'
+      - 'minipos/BeeMiniPOS/src/*.ts'
+      - 'minipos/miniposweb/src/fiscal/**'
+      - 'minipos/miniposweb/tests/webBleLifecycle.test.ts'
   workflow_dispatch:
 permissions:
   contents: read
@@ -27,6 +51,9 @@ jobs:
         with:
           go-version-file: fiscal-backend/go.mod
           cache-dependency-path: fiscal-backend/go.sum
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.14.0'
       - name: Host regression dependencies
         run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev libssl-dev pkg-config
       - name: Fetch exact official SDK and submodules
@@ -63,6 +90,26 @@ jobs:
         run: |
           set -euo pipefail
           make iot-test 2>&1 | tee "$RUNNER_TEMP/s3-iot-host.log"
+      - name: Self-contained actual BLE transport interop
+        timeout-minutes: 10
+        env:
+          MBEDTLS_SOURCE_DIR: ${{ env.IDF_PATH }}/components/mbedtls/mbedtls
+          CJSON_SOURCE_DIR: ${{ env.IDF_PATH }}/components/json/cJSON
+          OPENSSL_PREFIX: /usr
+          BLE_TRANSPORT_EVIDENCE_DIR: ${{ runner.temp }}/ble-transport-evidence
+        run: |
+          python3 -m unittest discover -s tests/ble-transport -p 'test_*.py' -v
+          make iot-cbor-encoder-interop-test
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: actual-ble-transport-interop-evidence
+          if-no-files-found: warn
+          # Explicit safe reports only: no raw native issuer logs or fixture rows.
+          path: |
+            ${{ runner.temp }}/ble-transport-evidence/manifest.json
+            ${{ runner.temp }}/ble-transport-evidence/vitest.json
+            ${{ runner.temp }}/ble-transport-evidence/dependency-summary.json
       - name: Verify final artifact provenance after regressions
         run: make iot-build-verify
       - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2

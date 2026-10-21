@@ -260,4 +260,4 @@ ble-certificate-crypto-test: ble-certificate-crypto-gate-test
 iot-cbor-encoder-test:
 	python3 IoT/firmware/edge-agent-s3/idf/tests/cbor_encoder_host/run.py
 iot-cbor-encoder-interop-test:
-	python3 IoT/firmware/edge-agent-s3/idf/tests/cbor_encoder_host/interop.py
+	python3 tests/ble-transport/run.py

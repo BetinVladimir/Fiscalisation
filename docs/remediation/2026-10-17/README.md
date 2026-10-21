@@ -6,6 +6,8 @@
 
 ## Текущий интеграционный срез — 2026-10-21
 
+- [Самодостаточный transport CI](67_SELF_CONTAINED_TRANSPORT_CI.md): root clean Node/npm + actual producer/Go/MiniPOS/browser66 PASS; Linux CI ожидает проверки.
+
 - [Актуальные CI результаты и integration bootstrap](65_CI_INTEGRATION_FOLLOWUP.md): полный S3 build c9aed74 и IoT regression PASS, independently checked103 Git sources/7 artifacts; integration E2E остаётся на проверке.
 - [Production trusted-time vertical](66_TRUSTED_TIME_PRODUCTION_VERTICAL.md): реальные lifecycle hooks, source-health/issuer/bootstrap/provider и критерии приёмки; provider пока не включён.
 
