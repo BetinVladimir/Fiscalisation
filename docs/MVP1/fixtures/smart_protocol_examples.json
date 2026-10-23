@@ -1,0 +1,25 @@
+{
+  "_source": "docs/vendor/Protocol_Smart_Pro_v2_2025.pdf + Protocol_Daisy_Smart_Payment_v1_2026.pdf; нормализовано (опечатки PDF исправлены, см. DAISY_SMART_PROTOCOLS.md F-4)",
+  "money_rule": "JSON-число строится из целых центов: BigDecimal(cents).movePointLeft(2); qty из qty_milli: movePointLeft(3)",
+  "sale_cash": {
+    "request": {"command":"PrintFiscalReceipt","data":{"UNP":"DY000600-OP01-0000001","refNum":"op-0001","opCode":20,"opPassword":"9999",
+      "items":[{"type":"item","item":"Тест","price":12.34,"qty":1.000,"vatGroup":"Б","discountType":"amount","discountValue":0.34},
+               {"type":"item","item":"Тест 2","price":3.33,"qty":0.500,"vatGroup":"Б"}],
+      "payments":[{"type":"payment","payTypeCode":0,"amount":13.67}]},"seq":1,"errorsLocale":"bg"},
+    "expected_total_cents": 1367,
+    "response_ok": {"ok":true,"seq":1}
+  },
+  "sale_error_bad_operator": {"ok":false,"messages":[{"type":"error","text":"Bad operator or password.","code":1008}]},
+  "sale_error_bad_json": {"ok":false,"messages":[{"type":"error","text":"Command has bad JSON syntax. No value for items","code":1000}],"seq":31},
+  "storno_return": {"command":"PrintFiscalReceipt","data":{"UNP":"DY000600-OP01-0000002","refNum":"op-0002","opCode":20,"opPassword":"9999","isStorno":true,"reason":1,
+    "docNumLink":"21","fmNumLink":"36940307","dateTimeLink":"09-06-2025 15:58:47","invoiceLink":"","isInvoice":false,
+    "items":[{"type":"item","item":"Тест","price":12.00,"qty":1.000,"vatGroup":"Б"}],"payments":[{"type":"payment","payTypeCode":0,"amount":12.00}]},"seq":2},
+  "z_report": {"request":{"command":"PrintDailyReport","data":{"reset":true,"opPassword":"9999"}},
+    "response_shape":{"ok":true,"data":{"reportNumber":3,"salesVatRows":[{"vatGroupCode":"Б","total":55}],"stornosVatRows":[]}}},
+  "get_status": {"request":{"command":"GetStatus"},"response":{"ok":true,"data":{"lastErrorCode":0,"clockSynchronized":true,"ejError":false,"ejNearFull":false,"ejFull":false,"paperNearEnd":false,"paperEnd":false,"fmError":false,"fmNearFull":false,"fmFull":false,"deviceAndFmNumbersAreSet":true,"deviceIsFiscalized":true}}},
+  "payment_request": {"operation":"payment_request","bank":"dsk","payload":{"reference_id":"op-0001-card","currency":"EUR","amount":8.67,"tip":0.00,"description":"Sale op-0001"}},
+  "check_status": {"request":{"operation":"check_status","bank":"dsk","payload":{"reference_id":"op-0001-card"}},
+    "statuses":["SUCCESS","REJECTED","NOT_FOUND","FAILED"],
+    "response_success":{"status":"SUCCESS","reference_id":"op-0001-card","transaction_details":{"amount":8.67,"currency":"EUR","rrn":"REF123456","masked_pan":"**** **** **** 1234","stan":"STAN123456","authorisation_code":"AUTH123456"},"message":"Transaction was approved","timestamp":"2026-10-23T10:00:00Z"}
+  }
+}

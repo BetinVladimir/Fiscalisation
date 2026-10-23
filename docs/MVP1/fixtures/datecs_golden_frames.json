@@ -1,0 +1,1812 @@
+[
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 33,
+  "direction": "request",
+  "seq": 36,
+  "data_hex": "",
+  "frame_hex": "013030323a24303032310530313b3803",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 33,
+  "direction": "answer",
+  "seq": 36,
+  "data_hex": "3009",
+  "frame_hex": "0130303335243030323130090480808080869a8080053036313103",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 35,
+  "direction": "answer",
+  "seq": 37,
+  "data_hex": "3009",
+  "frame_hex": "0130303335253030323330090480808080869a8080053036313403",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 38,
+  "direction": "request",
+  "seq": 45,
+  "data_hex": "",
+  "frame_hex": "013030323a2d303032360530313c3603",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 39,
+  "direction": "request",
+  "seq": 46,
+  "data_hex": "",
+  "frame_hex": "013030323a2e303032370530313c3803",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 42,
+  "direction": "answer",
+  "seq": 48,
+  "data_hex": "3009",
+  "frame_hex": "0130303335303030323a3009048080a080869a8080053036343603",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 43,
+  "direction": "answer",
+  "seq": 47,
+  "data_hex": "300934373009",
+  "frame_hex": "01303033392f3030323b3009343730090480808880869a80800530363d3603",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 44,
+  "direction": "request",
+  "seq": 48,
+  "data_hex": "3409",
+  "frame_hex": "013030323c303030323c3409053032303e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 44,
+  "direction": "answer",
+  "seq": 48,
+  "data_hex": "3009",
+  "frame_hex": "0130303335303030323c30090480808880869a8080053036333003",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 45,
+  "direction": "request",
+  "seq": 34,
+  "data_hex": "",
+  "frame_hex": "013030323a223030323d0530313c3203",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 45,
+  "direction": "answer",
+  "seq": 34,
+  "data_hex": "3009",
+  "frame_hex": "0130303335223030323d30090480808080869a8080053036313b03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 46,
+  "direction": "request",
+  "seq": 35,
+  "data_hex": "",
+  "frame_hex": "013030323a233030323e0530313c3403",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 46,
+  "direction": "answer",
+  "seq": 35,
+  "data_hex": "3009",
+  "frame_hex": "0130303335233030323e30090480808080869a8080053036313d03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 47,
+  "direction": "answer",
+  "seq": 36,
+  "data_hex": "3009",
+  "frame_hex": "0130303335243030323f30090480808080869a8080053036313f03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 48,
+  "direction": "request",
+  "seq": 44,
+  "data_hex": "310931093234094909",
+  "frame_hex": "01303033332c303033303109310932340949090530323e3f03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 48,
+  "direction": "answer",
+  "seq": 44,
+  "data_hex": "300934373209",
+  "frame_hex": "01303033392c303033303009343732090480808880869a80800530363c3b03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 48,
+  "direction": "answer",
+  "seq": 50,
+  "data_hex": "300934373309",
+  "frame_hex": "013030333932303033303009343733090480808880869a80800530363d3203",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 49,
+  "direction": "answer",
+  "seq": 54,
+  "data_hex": "300934373309",
+  "frame_hex": "013030333936303033313009343733090480808880869a80800530363d3703",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 49,
+  "direction": "answer",
+  "seq": 57,
+  "data_hex": "300934373309",
+  "frame_hex": "013030333939303033313009343733090480808880869a80800530363d3a03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 50,
+  "direction": "request",
+  "seq": 58,
+  "data_hex": "",
+  "frame_hex": "013030323a3a303033320530313d3003",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 51,
+  "direction": "request",
+  "seq": 59,
+  "data_hex": "3109093209313009",
+  "frame_hex": "01303033323b3030333331090932093130090530323b3303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 53,
+  "direction": "request",
+  "seq": 239,
+  "data_hex": "3009313009",
+  "frame_hex": "013030323fef303033353009313009053033333003",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 53,
+  "direction": "request",
+  "seq": 252,
+  "data_hex": "360936093009",
+  "frame_hex": "0130303330fc30303335360936093009053033343303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 53,
+  "direction": "request",
+  "seq": 74,
+  "data_hex": "313209302e3031093109",
+  "frame_hex": "01303033344a30303335313209302e3031093109053033343c03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 54,
+  "direction": "request",
+  "seq": 45,
+  "data_hex": "546578740930093009300930093009",
+  "frame_hex": "01303033392d30303336546578740930093009300930093009053034393203",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 54,
+  "direction": "answer",
+  "seq": 45,
+  "data_hex": "3009",
+  "frame_hex": "01303033352d3030333630090480808880869a8080053036323803",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 43,
+  "data_hex": "3009",
+  "frame_hex": "01303033352b303033373009048080808080828080053036303103",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "request",
+  "seq": 66,
+  "data_hex": "3209",
+  "frame_hex": "013030323c42303033373209053032313a03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 66,
+  "data_hex": "3009",
+  "frame_hex": "013030333542303033373009048080808080828080053036313803",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 45,
+  "data_hex": "3009",
+  "frame_hex": "01303033352d3030333730090480808080869a8080053036323103",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "request",
+  "seq": 59,
+  "data_hex": "3409",
+  "frame_hex": "013030323c3b303033373409053032313503",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 59,
+  "data_hex": "3009",
+  "frame_hex": "01303033353b303033373009048080808080828080053036313103",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "request",
+  "seq": 60,
+  "data_hex": "3509",
+  "frame_hex": "013030323c3c303033373509053032313703",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 60,
+  "data_hex": "3009",
+  "frame_hex": "01303033353c303033373009048080808080828080053036313203",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "request",
+  "seq": 61,
+  "data_hex": "3609",
+  "frame_hex": "013030323c3d303033373609053032313903",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 61,
+  "data_hex": "3009",
+  "frame_hex": "01303033353d303033373009048080808080828080053036313303",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "request",
+  "seq": 67,
+  "data_hex": "3709",
+  "frame_hex": "013030323c43303033373709053032323003",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 67,
+  "data_hex": "3009",
+  "frame_hex": "013030333543303033373009048080808080828080053036313903",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 69,
+  "data_hex": "3009",
+  "frame_hex": "013030333545303033373009048080808080828080053036313b03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "request",
+  "seq": 70,
+  "data_hex": "3909",
+  "frame_hex": "013030323c46303033373909053032323503",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 70,
+  "data_hex": "3009",
+  "frame_hex": "013030333546303033373009048080808080828080053036313c03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "request",
+  "seq": 71,
+  "data_hex": "313009",
+  "frame_hex": "013030323d4730303337313009053032343f03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 71,
+  "data_hex": "3009",
+  "frame_hex": "013030333547303033373009048080808080828080053036313d03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "request",
+  "seq": 73,
+  "data_hex": "313209",
+  "frame_hex": "013030323d4930303337313209053032353303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 73,
+  "data_hex": "3009",
+  "frame_hex": "013030333549303033373009048080808080828080053036313f03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "request",
+  "seq": 92,
+  "data_hex": "3133093109",
+  "frame_hex": "013030323f5c3030333731330931090530323a3303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 92,
+  "data_hex": "3009",
+  "frame_hex": "01303033355c3030333730090480808880869a8080053036353803",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "request",
+  "seq": 74,
+  "data_hex": "313409302e303209",
+  "frame_hex": "01303033324a30303337313409302e303209053033313503",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "request",
+  "seq": 37,
+  "data_hex": "313509",
+  "frame_hex": "013030323d2530303337313509053032333203",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 55,
+  "direction": "answer",
+  "seq": 37,
+  "data_hex": "3009",
+  "frame_hex": "0130303335253030333730090480808080808280800530353f3b03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 56,
+  "direction": "request",
+  "seq": 41,
+  "data_hex": "",
+  "frame_hex": "013030323a29303033380530313c3503",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 56,
+  "direction": "answer",
+  "seq": 41,
+  "data_hex": "300932363909",
+  "frame_hex": "013030333929303033383009323639090480808080808280800530363a3e03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 58,
+  "direction": "request",
+  "seq": 66,
+  "data_hex": "34093509093209313009",
+  "frame_hex": "0130303334423030333a34093509093209313009053033303403",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 58,
+  "direction": "answer",
+  "seq": 66,
+  "data_hex": "300935303109",
+  "frame_hex": "0130303339423030333a3009353031090480808880869a80800530363e3403",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 60,
+  "direction": "request",
+  "seq": 67,
+  "data_hex": "",
+  "frame_hex": "013030323a433030333c0530313e3303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 60,
+  "direction": "answer",
+  "seq": 67,
+  "data_hex": "3009",
+  "frame_hex": "0130303335433030333c30090480808080869a8080053036333c03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 61,
+  "direction": "answer",
+  "seq": 68,
+  "data_hex": "3009",
+  "frame_hex": "0130303335443030333d30090480808080869a8080053036333e03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 62,
+  "direction": "request",
+  "seq": 69,
+  "data_hex": "",
+  "frame_hex": "013030323a453030333e0530313e3703",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 63,
+  "direction": "request",
+  "seq": 70,
+  "data_hex": "",
+  "frame_hex": "013030323a463030333f0530313e3903",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 64,
+  "direction": "request",
+  "seq": 71,
+  "data_hex": "3009",
+  "frame_hex": "013030323c47303034303009053032313703",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 65,
+  "direction": "request",
+  "seq": 75,
+  "data_hex": "3009",
+  "frame_hex": "013030323c4b303034313009053032313c03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 66,
+  "direction": "request",
+  "seq": 80,
+  "data_hex": "",
+  "frame_hex": "013030323a50303034320530313e3703",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 68,
+  "direction": "request",
+  "seq": 165,
+  "data_hex": "",
+  "frame_hex": "013030323aa530303434053032333e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 68,
+  "direction": "answer",
+  "seq": 165,
+  "data_hex": "30093335383109",
+  "frame_hex": "013030333aa530303434300933353831090480808880869a8080053037373e03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 69,
+  "direction": "request",
+  "seq": 83,
+  "data_hex": "5a09",
+  "frame_hex": "013030323c53303034355a09053032353203",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 69,
+  "direction": "request",
+  "seq": 84,
+  "data_hex": "4409",
+  "frame_hex": "013030323c54303034354409053032333d03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 69,
+  "direction": "answer",
+  "seq": 84,
+  "data_hex": "3009",
+  "frame_hex": "0130303335543030343530090480808080869a8080053036343703",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 69,
+  "direction": "answer",
+  "seq": 37,
+  "data_hex": "3009",
+  "frame_hex": "0130303335253030343530090480808080869a8080053036313803",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 70,
+  "direction": "request",
+  "seq": 37,
+  "data_hex": "3009353009",
+  "frame_hex": "013030323f25303034363009353009053032363c03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 71,
+  "direction": "request",
+  "seq": 39,
+  "data_hex": "3109",
+  "frame_hex": "013030323c273030343731090530313f3f03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 71,
+  "direction": "answer",
+  "seq": 39,
+  "data_hex": "3009",
+  "frame_hex": "0130303335273030343730090480808080869a8080053036313c03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 71,
+  "direction": "request",
+  "seq": 136,
+  "data_hex": "3209",
+  "frame_hex": "013030323c88303034373209053032363103",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 72,
+  "direction": "answer",
+  "seq": 39,
+  "data_hex": "3009",
+  "frame_hex": "0130303335273030343830090480808080869a8080053036313d03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 74,
+  "direction": "request",
+  "seq": 49,
+  "data_hex": "",
+  "frame_hex": "013030323a313030343a0530313d3003",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 74,
+  "direction": "request",
+  "seq": 48,
+  "data_hex": "3009",
+  "frame_hex": "013030323c303030343a3009053032303a03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 74,
+  "direction": "request",
+  "seq": 35,
+  "data_hex": "3109",
+  "frame_hex": "013030323c233030343a31090530313f3e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 76,
+  "direction": "request",
+  "seq": 50,
+  "data_hex": "",
+  "frame_hex": "013030323a323030343c0530313d3303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 80,
+  "direction": "request",
+  "seq": 53,
+  "data_hex": "323530093131353009",
+  "frame_hex": "01303033333530303530323530093131353009053033333503",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 80,
+  "direction": "answer",
+  "seq": 53,
+  "data_hex": "3009",
+  "frame_hex": "0130303335353030353030090480808080869a8080053036323403",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 83,
+  "direction": "answer",
+  "seq": 58,
+  "data_hex": "3009323809",
+  "frame_hex": "01303033383a3030353330093238090480808080869a80800530363a3203",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 84,
+  "direction": "request",
+  "seq": 63,
+  "data_hex": "3109313233343536373809",
+  "frame_hex": "01303033353f3030353431093132333435363738090530333b3c03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 84,
+  "direction": "answer",
+  "seq": 63,
+  "data_hex": "3009",
+  "frame_hex": "01303033353f3030353430090480808080869a8080053036333203",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 86,
+  "direction": "request",
+  "seq": 137,
+  "data_hex": "",
+  "frame_hex": "013030323a8930303536053032323503",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 88,
+  "direction": "request",
+  "seq": 85,
+  "data_hex": "3109",
+  "frame_hex": "013030323c55303035383109053032323f03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 89,
+  "direction": "request",
+  "seq": 89,
+  "data_hex": "3009",
+  "frame_hex": "013030323c59303035393009053032333303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 89,
+  "direction": "answer",
+  "seq": 89,
+  "data_hex": "30093030313509",
+  "frame_hex": "013030333a5930303539300930303135090480808080869a8080053037323503",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 90,
+  "direction": "request",
+  "seq": 81,
+  "data_hex": "3109",
+  "frame_hex": "013030323c513030353a3109053032323d03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 92,
+  "direction": "request",
+  "seq": 159,
+  "data_hex": "3109",
+  "frame_hex": "013030323c9f3030353c3109053032373d03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 92,
+  "direction": "answer",
+  "seq": 159,
+  "data_hex": "3009",
+  "frame_hex": "01303033359f3030353c3009048080a080869a80800530363b3a03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 94,
+  "direction": "answer",
+  "seq": 78,
+  "data_hex": "3009",
+  "frame_hex": "01303033354e3030353e30090480808080869a8080053036343b03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 95,
+  "direction": "request",
+  "seq": 76,
+  "data_hex": "300931093209",
+  "frame_hex": "01303033304c3030353f300931093209053032393603",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 95,
+  "direction": "answer",
+  "seq": 76,
+  "data_hex": "3009",
+  "frame_hex": "01303033354c3030353f30090480808080869a8080053036343a03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 96,
+  "direction": "request",
+  "seq": 75,
+  "data_hex": "3109",
+  "frame_hex": "013030323c4b303036303109053032313e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 96,
+  "direction": "answer",
+  "seq": 75,
+  "data_hex": "3009",
+  "frame_hex": "01303033354b3030363030090480808080869a8080053036333b03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 98,
+  "direction": "request",
+  "seq": 73,
+  "data_hex": "30303037313333393109",
+  "frame_hex": "01303033344930303632303030373133333931090530333a3e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 98,
+  "direction": "answer",
+  "seq": 73,
+  "data_hex": "3009",
+  "frame_hex": "0130303335493030363230090480808080869a8080053036333b03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 99,
+  "direction": "request",
+  "seq": 67,
+  "data_hex": "",
+  "frame_hex": "013030323a43303036330530313d3d03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 100,
+  "direction": "request",
+  "seq": 66,
+  "data_hex": "2d31313130313609",
+  "frame_hex": "013030333242303036342d31313130313609053033333603",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 101,
+  "direction": "request",
+  "seq": 65,
+  "data_hex": "310931093109",
+  "frame_hex": "01303033304130303635310931093109053032383203",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 101,
+  "direction": "answer",
+  "seq": 65,
+  "data_hex": "3009",
+  "frame_hex": "0130303335413030363530090480808080869a8080053036333603",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 103,
+  "direction": "request",
+  "seq": 64,
+  "data_hex": "",
+  "frame_hex": "013030323a40303036370530313d3e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 105,
+  "direction": "request",
+  "seq": 61,
+  "data_hex": "310932093009",
+  "frame_hex": "01303033303d30303639310932093009053032383203",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 105,
+  "direction": "answer",
+  "seq": 61,
+  "data_hex": "3009",
+  "frame_hex": "01303033353d3030363930090480808080869a8080053036333603",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 106,
+  "direction": "answer",
+  "seq": 60,
+  "data_hex": "3009",
+  "frame_hex": "01303033353c3030363a30090480808080869a8080053036333603",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "answer",
+  "seq": 39,
+  "data_hex": "3009",
+  "frame_hex": "0130303335273030363b30090480808080869a8080053036323203",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "answer",
+  "seq": 33,
+  "data_hex": "3009",
+  "frame_hex": "0130303335213030363b30090480808080869a8080053036313c03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "request",
+  "seq": 47,
+  "data_hex": "4909",
+  "frame_hex": "013030323c2f3030363b4909053032323503",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "request",
+  "seq": 50,
+  "data_hex": "4109330932303009",
+  "frame_hex": "0130303332323030363b41093309323030090530323e3e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "answer",
+  "seq": 50,
+  "data_hex": "3009",
+  "frame_hex": "0130303335323030363b30090480808080869a8080053036323d03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "request",
+  "seq": 52,
+  "data_hex": "4409333009343009",
+  "frame_hex": "0130303332343030363b44093330093430090530323f3503",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "answer",
+  "seq": 52,
+  "data_hex": "3009",
+  "frame_hex": "0130303335343030363b30090480808080869a8080053036323f03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "request",
+  "seq": 65,
+  "data_hex": "46093209",
+  "frame_hex": "013030323e413030363b46093209053032373103",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "request",
+  "seq": 67,
+  "data_hex": "4c09353009",
+  "frame_hex": "013030323f433030363b4c093530090530323a3d03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "request",
+  "seq": 68,
+  "data_hex": "4e09",
+  "frame_hex": "013030323c443030363b4e09053032333f03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "request",
+  "seq": 71,
+  "data_hex": "66093209",
+  "frame_hex": "013030323e473030363b66093209053032393703",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "request",
+  "seq": 76,
+  "data_hex": "6c093809",
+  "frame_hex": "013030323e4c3030363b6c0938090530323a3803",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "request",
+  "seq": 77,
+  "data_hex": "6e09",
+  "frame_hex": "013030323c4d3030363b6e09053032363803",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "request",
+  "seq": 78,
+  "data_hex": "58093209",
+  "frame_hex": "013030323e4e3030363b58093209053032393003",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "answer",
+  "seq": 79,
+  "data_hex": "3009313109",
+  "frame_hex": "01303033384f3030363b30093131090480808080869a80800530363b3803",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 107,
+  "direction": "request",
+  "seq": 79,
+  "data_hex": "58093409",
+  "frame_hex": "013030323e4f3030363b58093409053032393303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 109,
+  "direction": "request",
+  "seq": 55,
+  "data_hex": "",
+  "frame_hex": "013030323a373030363d0530313d3b03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 109,
+  "direction": "answer",
+  "seq": 55,
+  "data_hex": "3009",
+  "frame_hex": "0130303335373030363d30090480808080869a8080053036333403",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 199,
+  "data_hex": "3009",
+  "frame_hex": "013030323cc73030363e30090530323a3703",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 200,
+  "data_hex": "3109",
+  "frame_hex": "013030323cc83030363e31090530323a3903",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 201,
+  "data_hex": "3209",
+  "frame_hex": "013030323cc93030363e32090530323a3b03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 202,
+  "data_hex": "3309",
+  "frame_hex": "013030323cca3030363e33090530323a3d03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 203,
+  "data_hex": "3409",
+  "frame_hex": "013030323ccb3030363e34090530323a3f03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 204,
+  "data_hex": "3509",
+  "frame_hex": "013030323ccc3030363e35090530323b3103",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 117,
+  "data_hex": "30093109",
+  "frame_hex": "013030323e753030363e30093109053032393103",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 123,
+  "data_hex": "3109323109",
+  "frame_hex": "013030323f7b3030363e31093231090530323c3b03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 124,
+  "data_hex": "32093109",
+  "frame_hex": "013030323e7c3030363e32093109053032393a03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 38,
+  "data_hex": "33093109",
+  "frame_hex": "013030323e263030363e33093109053032343503",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 40,
+  "data_hex": "34093109",
+  "frame_hex": "013030323e283030363e34093109053032343803",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 110,
+  "direction": "request",
+  "seq": 45,
+  "data_hex": "35093109",
+  "frame_hex": "013030323e2d3030363e35093109053032343e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 111,
+  "direction": "request",
+  "seq": 46,
+  "data_hex": "300931093209",
+  "frame_hex": "01303033302e3030363f300931093209053032373903",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 111,
+  "direction": "answer",
+  "seq": 46,
+  "data_hex": "3009",
+  "frame_hex": "01303033352e3030363f30090480808080869a8080053036323d03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 112,
+  "direction": "request",
+  "seq": 43,
+  "data_hex": "333009",
+  "frame_hex": "013030323d2b30303730333009053032333203",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 115,
+  "direction": "request",
+  "seq": 46,
+  "data_hex": "310931303009",
+  "frame_hex": "01303033302e30303733310931303009053032393403",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 116,
+  "direction": "request",
+  "seq": 43,
+  "data_hex": "3009303130313031093109",
+  "frame_hex": "01303033352b303037343009303130313031093109053033363203",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 116,
+  "direction": "answer",
+  "seq": 43,
+  "data_hex": "3009464609",
+  "frame_hex": "01303033382b3030373430094646090480808080869a80800530363b3803",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 122,
+  "direction": "answer",
+  "seq": 90,
+  "data_hex": "3009",
+  "frame_hex": "01303033355a3030373a30090480808a80869a8080053036353f03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 123,
+  "direction": "request",
+  "seq": 82,
+  "data_hex": "3109",
+  "frame_hex": "013030323c523030373b3109053032333103",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 123,
+  "direction": "request",
+  "seq": 126,
+  "data_hex": "3209",
+  "frame_hex": "013030323c7e3030373b3209053032353e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 123,
+  "direction": "request",
+  "seq": 127,
+  "data_hex": "3309",
+  "frame_hex": "013030323c7f3030373b3309053032363003",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 123,
+  "direction": "request",
+  "seq": 129,
+  "data_hex": "3409",
+  "frame_hex": "013030323c813030373b3409053032363303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 123,
+  "direction": "answer",
+  "seq": 129,
+  "data_hex": "3009",
+  "frame_hex": "0130303335813030373b30090480808080869a8080053036373d03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 123,
+  "direction": "request",
+  "seq": 128,
+  "data_hex": "3509",
+  "frame_hex": "013030323c803030373b3509053032363303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 125,
+  "direction": "request",
+  "seq": 86,
+  "data_hex": "300931093009",
+  "frame_hex": "0130303330563030373d300931093009053032393e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 126,
+  "direction": "request",
+  "seq": 106,
+  "data_hex": "300909",
+  "frame_hex": "013030323d6a3030373e300909053032353503",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 126,
+  "direction": "request",
+  "seq": 104,
+  "data_hex": "300931323409",
+  "frame_hex": "0130303330683030373e3009313234090530323d3e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 126,
+  "direction": "request",
+  "seq": 112,
+  "data_hex": "31093109",
+  "frame_hex": "013030323e703030373e31093109053032383e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 126,
+  "direction": "request",
+  "seq": 110,
+  "data_hex": "32093109",
+  "frame_hex": "013030323e6e3030373e32093109053032383d03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 126,
+  "direction": "request",
+  "seq": 117,
+  "data_hex": "33093109",
+  "frame_hex": "013030323e753030373e33093109053032393503",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 126,
+  "direction": "request",
+  "seq": 119,
+  "data_hex": "340909",
+  "frame_hex": "013030323d773030373e340909053032363603",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 126,
+  "direction": "answer",
+  "seq": 119,
+  "data_hex": "300931093109",
+  "frame_hex": "0130303339773030373e3009310931090480808080869a80800530363e3e03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 126,
+  "direction": "request",
+  "seq": 122,
+  "data_hex": "35093109",
+  "frame_hex": "013030323e7a3030373e35093109053032393c03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 126,
+  "direction": "request",
+  "seq": 124,
+  "data_hex": "36093109",
+  "frame_hex": "013030323e7c3030373e36093109053032393f03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 126,
+  "direction": "request",
+  "seq": 126,
+  "data_hex": "37093109",
+  "frame_hex": "013030323e7e3030373e370931090530323a3203",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 126,
+  "direction": "request",
+  "seq": 131,
+  "data_hex": "39093209",
+  "frame_hex": "013030323e833030373e390932090530323a3a03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 127,
+  "direction": "request",
+  "seq": 38,
+  "data_hex": "300973737309",
+  "frame_hex": "0130303330263030373f300973737309053033353f03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 135,
+  "direction": "request",
+  "seq": 87,
+  "data_hex": "4d09",
+  "frame_hex": "013030323c57303038374d09053032343f03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "request",
+  "seq": 88,
+  "data_hex": "4909",
+  "frame_hex": "013030323c583030383c4909053032353103",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "answer",
+  "seq": 156,
+  "data_hex": "3009",
+  "frame_hex": "01303033359c3030383c30090480808080869a8080053036393a03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "request",
+  "seq": 157,
+  "data_hex": "4409310909",
+  "frame_hex": "013030323f9d3030383c44093109090530323d3703",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "answer",
+  "seq": 157,
+  "data_hex": "3009",
+  "frame_hex": "01303033359d3030383c30090480808080869a8080053036393b03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "request",
+  "seq": 159,
+  "data_hex": "52093109",
+  "frame_hex": "013030323e9f3030383c520931090530323d3d03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "request",
+  "seq": 164,
+  "data_hex": "46093109",
+  "frame_hex": "013030323ea43030383c460931090530323d3603",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "request",
+  "seq": 165,
+  "data_hex": "4c093109",
+  "frame_hex": "013030323ea53030383c4c0931090530323d3d03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "request",
+  "seq": 171,
+  "data_hex": "4e09",
+  "frame_hex": "013030323cab3030383c4e090530323a3903",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "request",
+  "seq": 172,
+  "data_hex": "54093935303332313636313609",
+  "frame_hex": "0130303337ac3030383c540939353033323136363136090530343b3c03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "request",
+  "seq": 173,
+  "data_hex": "580909",
+  "frame_hex": "013030323dad3030383c5809090530323b3f03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "answer",
+  "seq": 173,
+  "data_hex": "30093309",
+  "frame_hex": "0130303337ad3030383c300933090480808080869a80800530363e3903",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "request",
+  "seq": 174,
+  "data_hex": "780909",
+  "frame_hex": "013030323dae3030383c7809090530323e3003",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 140,
+  "direction": "answer",
+  "seq": 174,
+  "data_hex": "30093130303009",
+  "frame_hex": "013030333aae3030383c300931303030090480808080869a8080053037373b03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 202,
+  "direction": "request",
+  "seq": 37,
+  "data_hex": "5245535441525409",
+  "frame_hex": "01303033322530303c3a52455354415254090530333f3303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 202,
+  "direction": "answer",
+  "seq": 37,
+  "data_hex": "3009",
+  "frame_hex": "01303033352530303c3a30090480808080869a8080053036323503",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 203,
+  "direction": "request",
+  "seq": 134,
+  "data_hex": "53544f505009",
+  "frame_hex": "01303033308630303c3b53544f5050090530333c3403",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 255,
+  "direction": "request",
+  "seq": 40,
+  "data_hex": "4175746f506f7765724f6666090909",
+  "frame_hex": "01303033392830303f3f4175746f506f7765724f66660909090530363b3303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 255,
+  "direction": "answer",
+  "seq": 40,
+  "data_hex": "30093109",
+  "frame_hex": "01303033372830303f3f300931090480808080869a8080053036363c03",
+  "bcc_verified": true,
+  "len_verified": null
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 255,
+  "direction": "request",
+  "seq": 47,
+  "data_hex": "4175746f506f7765724f666609093209",
+  "frame_hex": "013030333a2f30303f3f4175746f506f7765724f6666090932090530363e3d03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Datecs PM v2.11.4 binary log",
+  "cmd": 255,
+  "direction": "answer",
+  "seq": 47,
+  "data_hex": "3009",
+  "frame_hex": "01303033352f30303f3f30090480808080869a8080053036333703",
+  "bcc_verified": true,
+  "len_verified": null
+ }
+]

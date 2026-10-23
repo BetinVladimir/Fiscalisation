@@ -1,0 +1,35 @@
+{
+ "schema": 1,
+ "files": [
+  {
+   "path": "Protocol_Smart_Pro_v2_2025.pdf",
+   "sha256": "79648182575f7c328c45f9c4b1f344fcbe4664aa6ab38d1501d14d03410a78b4",
+   "doc": "DOC-V4",
+   "note": "Smart Pro/Smart/Smart plus/Smart S: фискальный JSON-протокол v2.2025"
+  },
+  {
+   "path": "Protocol_Daisy_Smart_Payment_v1_2026.pdf",
+   "sha256": "9974c5361d52cf1087602de150eecb02feeb8b98624d16cfbe5e80717a96bf71",
+   "doc": "DOC-V4",
+   "note": "Payment Bridge (dsk, viva) v1.2026"
+  },
+  {
+   "path": "93PC_FD_CProtocol_ver_2_0-4_2026_EN.pdf",
+   "sha256": "9436ab7a9786a3df934f01d4343260e12f1068ca5a6063fcee72a50ab3ca9c28",
+   "doc": "VG-17",
+   "note": "Daisy Compact S 01 (93PC) бинарный протокол v2.0-4 2026; байт-в-байт тот же файл, что BeeloyBackend/docs/Fiscal/beefiscal_IoT/doc/daisy/ — источник fixtures/daisy_golden_frames.json"
+  },
+  {
+   "path": "DatecspayLowLevel_v3_2025.pdf",
+   "sha256": "84a1d5156f17a322921734e6e97cedd86bcd40f5cc4040481110d0ab14d29b7c",
+   "doc": "DOC-V3",
+   "note": "Datecs Pay – Pinpad Commands v.3 (2025)"
+  },
+  {
+   "path": "DatecsPay_Pinpad_Commands_v1_9_2020.pdf",
+   "sha256": "7995460e2cbab9dfafd8aae66faaf63a4768a88efb08d5ae007b143179b67a89",
+   "doc": "DOC-V3",
+   "note": "v1.9 (2020): transaction flow, строки ошибок, теги BlueCash-50"
+  }
+ ]
+}

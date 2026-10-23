@@ -1,0 +1,9 @@
+[
+ {"name":"full","original_cents":1200,"requests":[1200],"expect":["OK"]},
+ {"name":"partial_then_rest","original_cents":1200,"requests":[500,700],"expect":["OK","OK"]},
+ {"name":"exceeds_remaining","original_cents":1200,"requests":[500,800],"expect":["OK","REVERSAL_EXCEEDS_REMAINING"]},
+ {"name":"after_full","original_cents":1200,"requests":[1200,1],"expect":["OK","ALREADY_FULLY_REVERSED"]},
+ {"name":"zero","original_cents":1200,"requests":[0],"expect":["INVALID_AMOUNT"]},
+ {"name":"negative","original_cents":1200,"requests":[-100],"expect":["INVALID_AMOUNT"]},
+ {"name":"exact_one_cent_steps","original_cents":3,"requests":[1,1,1,1],"expect":["OK","OK","OK","ALREADY_FULLY_REVERSED"]}
+]

@@ -1,0 +1,13 @@
+{
+ "profile": "BC50_DEFAULT",
+ "CASH": 0,
+ "CARD": 1,
+ "CHEQUE": 3,
+ "VOUCHER": 4,
+ "COUPON": 5,
+ "unsupported": [
+  "NHIF",
+  "DEFERRED",
+  "INTERNAL_CONSUMPTION"
+ ]
+}

@@ -1,0 +1,175 @@
+[
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 74,
+  "seq": 80,
+  "direction": "request",
+  "data_hex": "",
+  "frame_hex": "0124504a0530303c3303",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 74,
+  "seq": 80,
+  "direction": "answer",
+  "data_hex": "8880808080b8",
+  "frame_hex": "0131504a8880808080b8048880808080b8053037353403",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 48,
+  "seq": 55,
+  "direction": "request",
+  "data_hex": "312c312c44593030303639342d4f5030312d30303030303138",
+  "frame_hex": "013d3730312c312c44593030303639342d4f5030312d303030303031380530353e3603",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 48,
+  "seq": 55,
+  "direction": "answer",
+  "data_hex": "3030303030312c303030303030",
+  "frame_hex": "013837303030303030312c303030303030048880888080b8053036353d03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 48,
+  "seq": 64,
+  "direction": "request",
+  "data_hex": "312c312c44593030303630302d4f5030312d303030303030310949",
+  "frame_hex": "013f4030312c312c44593030303630302d4f5030312d303030303030310949053036323e03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 48,
+  "seq": 64,
+  "direction": "answer",
+  "data_hex": "3030303030322c303030303031",
+  "frame_hex": "013840303030303030322c303030303031048880888080b8053036363803",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 48,
+  "seq": 222,
+  "direction": "request",
+  "data_hex": "32302c393939392c44593030303630302d4f5032302d303030303030330952312c3230332c31302d30342d32332032313a35343a3032093336393430303332",
+  "frame_hex": "0163de3032302c393939392c44593030303630302d4f5032302d303030303030330952312c3230332c31302d30342d32332032313a35343a303209333639343030333205303d3e3803",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 48,
+  "seq": 222,
+  "direction": "answer",
+  "data_hex": "3030303030332c303030303032",
+  "frame_hex": "0138de303030303030332c303030303032048880888080b8053037303803",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 48,
+  "seq": 89,
+  "direction": "request",
+  "data_hex": "312c312c44593030303630302d4f5030312d30303030303034094333352c312c31373130322c31382d30342d32332030313a35393a3539093336393939343031",
+  "frame_hex": "01645930312c312c44593030303630302d4f5030312d30303030303034094333352c312c31373130322c31382d30342d32332030313a35393a353909333639393934303105303d393003",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 48,
+  "seq": 89,
+  "direction": "answer",
+  "data_hex": "3030303030342c303030303032",
+  "frame_hex": "013859303030303030342c303030303032048880888080b8053036383403",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 48,
+  "seq": 192,
+  "direction": "request",
+  "data_hex": "32302c393939392c312c54c2e0f0ede009c1f3f0e3e0f10931300933312d31322d323032322031353a3539",
+  "frame_hex": "014fc03032302c393939392c312c54c2e0f0ede009c1f3f0e3e0f10931300933312d31322d323032322031353a35390531303d3b03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 48,
+  "seq": 192,
+  "direction": "answer",
+  "data_hex": "3030303030352c303030303032",
+  "frame_hex": "0138c0303030303030352c303030303032048880888080b80530363e3c03",
+  "bcc_verified": true,
+  "len_verified": true,
+  "note": "SEQ=0xC0; в PDF в hex-строке опечатка SEQ=0x59 (см. негативный вектор)"
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 48,
+  "seq": 89,
+  "direction": "answer",
+  "data_hex": "3030303030352c303030303032",
+  "frame_hex": "013859303030303030352c303030303032048880888080b80530363e3c03",
+  "bcc_verified": false,
+  "len_verified": true,
+  "negative": true,
+  "note": "PDF typo: SEQ 0x59 вместо 0xC0 -> BCC не сходится; декодер обязан отвергнуть"
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 116,
+  "seq": 58,
+  "direction": "request",
+  "data_hex": "",
+  "frame_hex": "01243a740530303d3703",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 116,
+  "seq": 58,
+  "direction": "answer",
+  "data_hex": "50532c31342c33363934303039392a3030303132332a323032332d30342d31392a30393a31393a30322a302e3030",
+  "frame_hex": "01593a7450532c31342c33363934303039392a3030303132332a323032332d30342d31392a30393a31393a30322a302e3030048880c08080b805303d3b3c03",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 119,
+  "seq": 132,
+  "direction": "request",
+  "data_hex": "3234362c53",
+  "frame_hex": "012984773234362c53053032343403",
+  "bcc_verified": true,
+  "len_verified": true
+ },
+ {
+  "source": "Daisy protocol V.2.0-4 2026 (93PC EN) example",
+  "cmd": 119,
+  "seq": 132,
+  "direction": "answer",
+  "data_hex": "503030303234360930342e30352e323032332030383a34393a3132093635093009313009310944593939393633362d4f5030312d31323334353637093030303030302c534841313a37304243452d35454143392d34434546452d36343233310a37334646312d41384435342d42313933432d3838354538",
+  "frame_hex": "01a28477503030303234360930342e30352e323032332030383a34393a3132093635093009313009310944593939393633362d4f5030312d31323334353637093030303030302c534841313a37304243452d35454143392d34434546452d36343233310a37334646312d41384435342d42313933432d3838354538048880808080b805313d313e03",
+  "bcc_verified": true,
+  "len_verified": true
+ }
+]

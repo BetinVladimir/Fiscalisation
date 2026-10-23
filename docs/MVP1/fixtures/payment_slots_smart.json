@@ -1,0 +1,35 @@
+{
+ "_source": "Protocol_Smart_Pro_v2_2025.pdf §13 (значения по умолчанию из примера; таблица программируется в ФУ — читать GetPayments)",
+ "payments": [
+  {
+   "id": 0,
+   "name": "В БРОЙ",
+   "currencyRate": 1,
+   "payTypeNap": 0
+  },
+  {
+   "id": 1,
+   "name": "С ЧЕК",
+   "currencyRate": 1,
+   "payTypeNap": 1
+  },
+  {
+   "id": 2,
+   "name": "Кредит",
+   "currencyRate": 1,
+   "payTypeNap": 7
+  },
+  {
+   "id": 3,
+   "name": "USD",
+   "currencyRate": 0,
+   "payTypeNap": 0
+  },
+  {
+   "id": 4,
+   "name": "EURO",
+   "currencyRate": 0,
+   "payTypeNap": 0
+  }
+ ]
+}
