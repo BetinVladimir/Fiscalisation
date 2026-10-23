@@ -1,0 +1,40 @@
+# Precondition: isolated fixture app, ordinary OTP manager login and register selection.
+# No writes: a product draft must stay until explicit Discard, and leave no created product.
+appId: ${APP_ID}
+---
+- assertVisible:
+    id: "app-header"
+- tapOn:
+    id: "admin-toggle"
+- assertVisible:
+    id: "admin-editors"
+- tapOn:
+    id: "admin-products"
+- tapOn:
+    id: "product-add"
+- tapOn:
+    id: "product-name"
+- inputText: "Unsaved header draft"
+- hideKeyboard
+- tapOn:
+    id: "admin-toggle"
+- assertVisible:
+    id: "header.leave.dialog"
+- tapOn:
+    id: "header.leave.stay"
+- assertVisible: "Unsaved header draft"
+- takeScreenshot: "header-management-stay"
+- tapOn:
+    id: "admin-toggle"
+- tapOn:
+    id: "header.leave.discard"
+- assertNotVisible:
+    id: "admin-editors"
+- tapOn:
+    id: "admin-toggle"
+- tapOn:
+    id: "admin-products"
+- tapOn:
+    id: "product-add"
+- assertNotVisible: "Unsaved header draft"
+- takeScreenshot: "header-management-discard"

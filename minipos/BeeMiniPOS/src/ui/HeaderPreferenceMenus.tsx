@@ -2,7 +2,7 @@ import React,{useContext,useEffect,useLayoutEffect,useRef,useState} from 'react'
 import {Platform,ScrollView as NativeScrollView,View,type GestureResponderEvent} from 'react-native';
 import {SafeAreaInsetsContext} from 'react-native-safe-area-context';
 import {IconButton as PaperIconButton,List as PaperList,Menu as PaperMenu,useTheme} from 'react-native-paper';
-import {headerIcons} from './header-icons';
+import {decorativeHeaderIcon} from './header-icons';
 import {useHeaderMetrics} from './PaperOperationalHeader';
 import type {ThemePreference} from './provider';
 import {useTranslation,type Translation,type Language} from '../languageStore';
@@ -138,7 +138,7 @@ export function ThemeMenu({
       visible={visible}
       onDismiss={() => {if(current())setVisible(false);}}
       anchor={
-        <PaperIconButton testID="theme-menu-open" mode="outlined" icon={headerIcons[preference==='dark'?'weather-night':'weather-sunny']} size={20} style={{width:target,height:target,margin:0}} accessibilityLabel={`${text.theme}: ${labels[preference]}`} onPress={()=>{if(current())setVisible(true);}}/>
+        <PaperIconButton testID="theme-menu-open" mode="outlined" icon={decorativeHeaderIcon(preference==='dark'?'weather-night':'weather-sunny')} size={20} style={{width:target,height:target,margin:0}} accessibilityLabel={`${text.theme}: ${labels[preference]}`} onPress={()=>{if(current())setVisible(true);}}/>
       }
     >
       <NativeScrollView accessibilityRole="menu" testID="theme-menu-scroll" style={{maxHeight: menuHeight}} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
@@ -205,7 +205,7 @@ export function LanguageMenu({
       onDismiss={() => {if(current())setVisible(false);}}
       contentStyle={{ maxHeight: menuHeight, width: menuWidth, overflow: "hidden" }}
       anchor={
-        <PaperIconButton testID="language-menu-open" mode="outlined" icon={headerIcons.translate} size={20} style={{width:target,height:target,margin:0}} accessibilityLabel={`${label}: ${labels[language]}`} onPress={()=>{if(current())setVisible(true);}}/>
+        <PaperIconButton testID="language-menu-open" mode="outlined" icon={decorativeHeaderIcon('translate')} size={20} style={{width:target,height:target,margin:0}} accessibilityLabel={`${label}: ${labels[language]}`} onPress={()=>{if(current())setVisible(true);}}/>
       }
     >
       <NativeScrollView accessibilityRole="menu" testID="language-menu-scroll" style={{ maxHeight: menuHeight, ...(Platform.OS !== "web" ? { height: Math.max(0, menuHeight - 16) } : {}) }} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">

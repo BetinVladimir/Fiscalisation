@@ -1,5 +1,10 @@
 # MVP gates and formal exclusions
 
+## Проверка контуров и статусы — 2026-10-21
+
+[Текущий срез, протоколы и112 критериев unit-тестов](docs/fiscal-contour-review-20261021/README.md). На этом срезе contract-lock **VERIFIED_FAIL**: runtime OpenAPI расходится с lock/script; остальные прежние PASS требуют source/scope сверки и здесь не перезапускались. MiniPOS iOS native dependencies расходятся с package.json; полный demo/native/device цикл не принят. Это дополнение к подробному remediation, не отмена его требований. Исторические сводные количества endpoint/tests и blanket readiness ниже не переносить на текущую версию без повторного gate.
+
+
 ## Readiness update — 2026-10-17
 
 Current target MiniPOS/S3/BlueCash readiness: **SOFTWARE_GAPS_OPEN**.

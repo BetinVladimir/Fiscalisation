@@ -310,10 +310,11 @@ async function fiscalCloudReachable(path: string): Promise<boolean> {
 }
 
 type FiscalRegisterReference = {id:string;code?:string;name?:string;status?:string};
-export default function App() { return <BeeloyAppProvider><View style={{flex:1}}><AppContent/><DemoBadge/></View></BeeloyAppProvider>; }
+export default function App() { return <BeeloyAppProvider><AppFrame/></BeeloyAppProvider>; }
+function AppFrame(){const theme=useTheme();return <PaperSurface mode="flat" elevation={0} style={{flex:1,minWidth:0,backgroundColor:theme.colors.background}}><DemoBadge/><AppContent/></PaperSurface>;}
 function DemoBadge(){
  if(!Constants.expoConfig?.extra?.isDemo)return null;
- return <View pointerEvents="none" style={{position:'absolute',right:8,top:8,zIndex:9999}}><PaperBadge size={28}>DEMO</PaperBadge></View>;
+ return <SafeAreaView edges={['top']} pointerEvents="none" style={{paddingHorizontal:8,paddingVertical:4,alignItems:'flex-end',flexShrink:0}}><PaperBadge testID="minipos.demo.badge" size={28}>DEMO</PaperBadge></SafeAreaView>;
 }
 function AppContent() {
   const { preference: themePreference, dark, selectTheme } = useThemePreference();

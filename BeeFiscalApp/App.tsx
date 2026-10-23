@@ -92,8 +92,9 @@ const collect = (path: string, token: string, live: () => boolean) =>
 const label = (v: unknown) =>
   typeof v === "string" ? v : typeof v === "number" ? String(v) : "—";
 
-export default function App() { return <BeeloyAppProvider><View style={{flex:1}}><AppContent/><DemoBadge/></View></BeeloyAppProvider>; }
-function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={{position:'absolute',right:8,top:8,zIndex:9999}}><Badge size={28}>DEMO</Badge></View>:null}
+export default function App() { return <BeeloyAppProvider><AppFrame/></BeeloyAppProvider>; }
+function AppFrame(){const theme=useTheme();return <Surface mode="flat" elevation={0} style={{flex:1,minWidth:0,backgroundColor:theme.colors.background}}><DemoBadge/><AppContent/></Surface>;}
+function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<SafeAreaView edges={['top']} pointerEvents="none" style={{paddingHorizontal:8,paddingVertical:4,alignItems:'flex-end',flexShrink:0}}><Badge testID="fiscal.demo.badge" size={28}>DEMO</Badge></SafeAreaView>:null}
 function AppContent() {
   const { width } = useWindowDimensions();
   const compact = width < 600;

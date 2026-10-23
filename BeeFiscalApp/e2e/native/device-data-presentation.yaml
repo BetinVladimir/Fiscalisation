@@ -1,0 +1,18 @@
+# Authored only; requires a separately built and verified synthetic presentation target.
+# Not production workflow/native acceptance. Owner reset and all nine sections must be reviewed.
+appId: ${APP_ID}
+---
+- launchApp
+- assertVisible: "Synthetic device data presentation"
+- assertVisible:
+    id: "smart-device-activation-preview"
+- repeat:
+    times: 9
+    commands:
+      - assertVisible: "9223372036854775807"
+      - assertVisible: "FUTURE_VALUE_PRESERVED"
+      - tapOn:
+          id: "data-host.owner-switch"
+      - assertVisible: "B"
+      - tapOn:
+          id: "data-host.next"

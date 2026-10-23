@@ -1,0 +1,60 @@
+# Authored only: run on a newly built isolated fixture app, never production data.
+# Ordinary signed-out UI; no storage seeding, auth bypass, or clearState.
+appId: ${APP_ID}
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "operator-login-email"
+    timeout: 30000
+- assertVisible:
+    id: "auth.header.title"
+- assertNotVisible:
+    id: "auth.header.back"
+- tapOn:
+    id: "operator-login-email"
+- inputText: "draft@example.test"
+- hideKeyboard
+- tapOn:
+    id: "language-menu-open"
+- scrollUntilVisible:
+    element:
+      id: "language-bg"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: "language-bg"
+- assertVisible:
+    text: "draft@example.test"
+- takeScreenshot: "header-bg"
+- tapOn:
+    id: "language-menu-open"
+- scrollUntilVisible:
+    element:
+      id: "language-ru"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: "language-ru"
+- assertVisible:
+    text: "draft@example.test"
+- takeScreenshot: "header-ru"
+- tapOn:
+    id: "language-menu-open"
+- scrollUntilVisible:
+    element:
+      id: "language-en"
+    direction: DOWN
+    timeout: 15000
+- tapOn:
+    id: "language-en"
+- assertVisible:
+    text: "draft@example.test"
+- takeScreenshot: "header-en"
+- tapOn:
+    id: "theme-menu-open"
+- tapOn:
+    id: "theme-dark"
+- assertVisible:
+    text: "draft@example.test"
+- takeScreenshot: "header-theme-preserved-draft"

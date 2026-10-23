@@ -1,9 +1,11 @@
+import {assertDirtyOperatorLogout} from './header-logout.mjs';
+import {assertOperationalHeader} from './operational-header.mjs';
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
 import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
-import { chromium } from "@playwright/test";
+import { chromium, expect } from "@playwright/test";
 import AxeBuilder from "@axe-core/playwright";
 
 const root = new URL("../", import.meta.url).pathname;
@@ -146,6 +148,14 @@ async function miniPosJourney(browser, appUrl) {
   const darkColors = await colors();
   await page.reload();
   await page.getByTestId("app-header").waitFor();
+  for(const width of [320,768,1440])for(const zoom of [1,2]){
+    await page.setViewportSize({width,height:1000});await page.evaluate(value=>{document.documentElement.style.zoom=String(value)},zoom);
+    await assertOperationalHeader(page,{id:"app.header",languageId:"language-menu-open",themeId:"theme-menu-open",allowMenu:true,menuId:"admin-toggle"});
+    const raw=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21a","wcag21aa","wcag22aa"]).analyze();
+    await writeFile(join(screenshots,`header-${width}-${zoom}-raw.json`),JSON.stringify(raw));await page.screenshot({path:join(screenshots,`header-${width}-${zoom}.png`)});
+    assert.deepEqual(raw.violations,[],"header journey raw AA violations");assert.deepEqual(raw.incomplete,[],"header journey raw AA incomplete");
+  }
+  await page.evaluate(()=>{document.documentElement.style.zoom=""});await page.setViewportSize({width:1440,height:1000});
   assert.deepEqual(await colors(), darkColors, "selected Paper theme must survive reload for root and header");
   await page.getByTestId("theme-menu-open").click();
   await page.getByTestId("theme-light").click();
@@ -208,12 +218,38 @@ async function miniPosJourney(browser, appUrl) {
   await scanManagement("management-products", "product-add");
   await page.getByTestId("product-add").click();
   await scanManagement("management-product-new", "product-name");
+  await page.getByTestId("product-name").fill("Unsaved product");
+  await page.getByTestId("admin-toggle").click();
+  await page.getByTestId("header.leave.dialog").waitFor();
+  await page.getByTestId("header.leave.stay").click();
+  await expect(page.getByTestId("product-name")).toHaveValue("Unsaved product");
+  await page.getByTestId("admin-toggle").click();
+  await page.getByTestId("header.leave.discard").click();
+  await page.getByTestId("app-header").waitFor();
+  await page.getByTestId("admin-toggle").click();
+  await page.getByTestId("admin-products").click();
+  await page.getByTestId("product-add").click();
+  await expect(page.getByTestId("product-name")).toHaveValue("");
   await page.getByTestId("product-name").fill("Чай");
   await page.getByTestId("product-barcode").fill("380000000002");
   await page.getByTestId("product-price").fill("3.20");
-  await page.getByTestId("product-create").click();
+  let releaseHeaderWrite;
+  const headerWriteHeld=new Promise(resolve=>{releaseHeaderWrite=resolve});let headerWriteCalls=0;
+  const holdHeaderWrite=async route=>{const request=route.request();if(request.method()!=="POST"||!new URL(request.url()).pathname.endsWith("/products"))return route.fallback();headerWriteCalls++;await headerWriteHeld;return route.fallback();};
+  await page.route("http://minipos-api.test/**",holdHeaderWrite);
+  try{
+    await page.getByTestId("product-create").click();
+    await expect.poll(()=>headerWriteCalls).toBe(1);
+    await expect(page.getByTestId("admin-toggle")).toBeDisabled();
+    await expect(page.getByTestId("product-create")).toBeDisabled();
+    await expect(page.getByTestId("product-name")).not.toBeEditable();
+    await expect(page.getByTestId("header.leave.dialog")).toHaveCount(0);
+  }finally{releaseHeaderWrite();}
+
   await page.getByText("Продукти").waitFor();
   await page.getByText("Чай").waitFor();
+  await page.unroute("http://minipos-api.test/**",holdHeaderWrite);
+  assert.equal(headerWriteCalls,1,"header navigation must not replay a product write");
   await page.getByTestId("admin-catalog-back").click();
   await page.getByTestId("admin-tax-groups").click();
   await scanManagement("management-tax-groups", "tax-group-add");
@@ -513,6 +549,7 @@ try {
   await miniPosJourney(browser, mini.url);
   await miniPosProductionLoginFailClosed(browser, miniProd.url);
   await miniPosOnboarding(browser, miniProd.url);
+  await assertDirtyOperatorLogout(browser, miniProd.url);
   await fiscalJourney(browser, fiscal.url);
   await fiscalProductionLoginFailClosed(browser, fiscalProd.url);
 console.log("UI interaction E2E OK: MiniPOS sale/UNKNOWN/admin/onboarding + both PROD OIDC fail-closed + BeeFiscal readiness/provisioning/BLE/diagnostics/audit/reports/admin");
