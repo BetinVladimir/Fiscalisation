@@ -1,5 +1,6 @@
 package com.beeloy.fiscal.bluecash
 
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 
@@ -174,23 +175,53 @@ object DatecsPayloads {
   }
 }
 
+/**
+ * Types defined here (BUG-028) so callers like BlueCashEngine can use
+ * `when` pattern matching instead of error-message text.
+ */
+sealed class DatecsFailure(msg: String) : RuntimeException(msg) {
+  /** Command was sent (after flush) but communication failed — we don't know if FU processed it. */
+  class Unknown(msg: String) : DatecsFailure(msg)
+  /** Exception thrown before flush — command was NOT sent to the device. */
+  class NotSent(val phase: String, msg: String) : DatecsFailure(msg)
+  /** Response parsed, but fiscal device returned a non-zero error code. */
+  class Rejected(val keyCode: Int, msg: String) : DatecsFailure(msg)
+  /** Frame-level protocol errors — response received but couldn't be decoded. */
+  class BadFrame(msg: String) : DatecsFailure(msg)
+  class BccError(msg: String) : DatecsFailure(msg)
+  class CorrelationError(msg: String) : DatecsFailure(msg)
+  class FrameTooLarge(msg: String) : DatecsFailure(msg)
+}
+
 class DatecsSocketProtocol(private val input: InputStream, private val output: OutputStream) {
   private var sequence = 0x20
   @Synchronized
   fun execute(command: Int, payload: ByteArray = byteArrayOf()): DatecsResponse {
     val expected = sequence
-    output.write(DatecsFrameCodec.encode(expected, command, payload))
-    output.flush()
-    val frame = ArrayList<Byte>()
-    while (true) {
-      val b = input.read()
-      if (b < 0) error("DATECS_EOF")
-      frame += b.toByte()
-      if (b == 3) break
-      require(frame.size <= 1024) { "DATECS_FRAME_TOO_LARGE" }
+    try {
+      output.write(DatecsFrameCodec.encode(expected, command, payload))
+      output.flush()
+    } catch (e: IOException) {
+      throw DatecsFailure.NotSent("write", e.message ?: "DATECS_WRITE_ERROR")
+    } catch (e: SecurityException) {
+      throw DatecsFailure.NotSent("write", "DATECS_WRITE_DENIED")
     }
-    val result = DatecsFrameCodec.decode(frame.toByteArray())
-    require(result.sequence == expected && result.command == command) { "DATECS_CORRELATION" }
+    val frame = ArrayList<Byte>()
+    try {
+      while (true) {
+        val b = input.read()
+        if (b < 0) throw DatecsFailure.Unknown("DATECS_EOF")
+        frame += b.toByte()
+        if (b == 3) break
+        require(frame.size <= 1024) { DatecsFailure.FrameTooLarge("DATECS_FRAME_TOO_LARGE") }
+      }
+    } catch (e: DatecsFailure) { throw e }  // pass-through
+    val result =
+      try { DatecsFrameCodec.decode(frame.toByteArray()) }
+      catch (e: IllegalArgumentException) { throw DatecsFailure.BadFrame(e.message ?: "DATECS_DECODE_ERROR") }
+    if (result.sequence != expected || result.command != command) {
+      throw DatecsFailure.CorrelationError("DATECS_CORRELATION")
+    }
     sequence = if (sequence == 0x7f) 0x20 else sequence + 1
     return result
   }

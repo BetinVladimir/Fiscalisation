@@ -48,6 +48,8 @@ type Simulator struct {
 	outcomeUnknown        bool
 }
 
+func driverIsSimulated(d Driver) bool { _, ok := d.(*Simulator); return ok }
+
 func NewSimulator(enabled bool) *Simulator { return &Simulator{enabled: enabled} }
 func NewSimulatorWithCardTerminal(enabled, available bool) *Simulator {
 	return &Simulator{enabled: enabled, cardTerminalAvailable: available}
@@ -300,7 +302,7 @@ func (s *Service) reverseForTenant(saleID, reason, originalReference, tenant str
 	if parseErr != nil || documentNumber < 1 || documentNumber > 9999999 || !regexp.MustCompile(`^[0-9]{8}$`).MatchString(sale.FiscalDevice.FiscalMemoryNumber) {
 		return Operation{}, errors.New("original fiscal document metadata unavailable")
 	}
-	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, RegisterID: sale.RegisterID, Type: "REVERSAL", State: "EXECUTING", Version: 1, OriginalFiscalReference: original.FiscalReference, ReasonCode: reason, OriginalDocumentNumber: documentNumber, OriginalDocumentAt: original.UpdatedAt, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, RegisterID: sale.RegisterID, Type: "REVERSAL", State: "EXECUTING", Version: 1, OriginalFiscalReference: original.FiscalReference, ReasonCode: reason, OriginalDocumentNumber: documentNumber, OriginalDocumentAt: original.UpdatedAt, Simulated: driverIsSimulated(driver), AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	if queued, ok := driver.(durableQueuedDriver); ok {
 		command, prepareErr := queued.Prepare(op, sale, PaymentRequest{})
 		if prepareErr != nil {
@@ -396,7 +398,7 @@ func (s *Service) reserveFiscalOperation(register, typ, tenant string) (Operatio
 		return Operation{}, errors.New("fiscal device unavailable")
 	}
 	now := time.Now().UTC()
-	op := Operation{ID: newID("op"), TenantID: tenant, RegisterID: register, Type: typ, State: "EXECUTING", Version: 1, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: tenant, RegisterID: register, Type: typ, State: "EXECUTING", Version: 1, Simulated: driverIsSimulated(driver), AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	if err := s.repo.PutOperation(op); err != nil {
 		return Operation{}, err
 	}
@@ -1060,7 +1062,7 @@ func (s *Service) finalizeSaleForTenant(id string, in SaleFinalizeRequest, tenan
 		return Operation{}, fmt.Errorf("fiscal device probe failed: %w", probeErr)
 	}
 	now := time.Now().UTC()
-	op := Operation{ID: in.ClientOperationID, ClientOperationID: in.ClientOperationID, ReceiptSessionID: in.ReceiptSessionID, TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "SALE_FINALIZE", State: "EXECUTING", Version: 1, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: in.ClientOperationID, ClientOperationID: in.ClientOperationID, ReceiptSessionID: in.ReceiptSessionID, TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "SALE_FINALIZE", State: "EXECUTING", Version: 1, Simulated: driverIsSimulated(driver), AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	for _, p := range in.Payments {
 		sale.Payments = append(sale.Payments, PaymentRecord{PaymentID: p.PaymentID, Type: p.Type, Amount: p.Amount, CreatedAt: now})
 	}
@@ -1168,7 +1170,7 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 		return Operation{}, errors.New("payment amount exceeds balance")
 	}
 	now := time.Now().UTC()
-	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "FISCAL_SALE", State: "EXECUTING", Version: 1, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "FISCAL_SALE", State: "EXECUTING", Version: 1, Simulated: driverIsSimulated(driver), AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	if queued, ok := driver.(durableQueuedDriver); ok {
 		command, prepareErr := queued.Prepare(op, sale, p)
 		if prepareErr != nil {
@@ -1362,8 +1364,9 @@ func (s *Service) cancelSaleForTenant(id, tenant string) (Operation, error) {
 	if (v.State != "DRAFT" && v.State != "OPEN") || len(v.Payments) != 0 {
 		return Operation{}, errors.New("sale cannot be cancelled")
 	}
+	driver, _ := s.boundDriver(v.TenantID, v.RegisterID, FiscalDeviceSnapshot{})
 	now := time.Now().UTC()
-	op := Operation{ID: newID("op"), TenantID: v.TenantID, SaleID: v.ID, RegisterID: v.RegisterID, Type: "CANCEL_SALE", State: "CANCELLED", Version: 1, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: v.TenantID, SaleID: v.ID, RegisterID: v.RegisterID, Type: "CANCEL_SALE", State: "CANCELLED", Version: 1, Simulated: driverIsSimulated(driver), AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	v.State, v.UpdatedAt, v.Version = "CANCELLED", now, v.Version+1
 	v.CancelledAt = &now
 	return op, s.repo.CommitSaleOperation(v, op)

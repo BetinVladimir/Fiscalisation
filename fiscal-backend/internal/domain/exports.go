@@ -102,7 +102,7 @@ func (s *Service) CreateExport(in ExportRequest, tenant string) (Operation, erro
 	manifest := map[string]any{"artifact_id": artifactID, "media_type": media, "sha256": digest, "size": len(artifact), "created_at": now}
 	data := map[string]any{"export_id": exportID, "state": "COMPLETED", "type": in.Type, "requested_at": now, "completed_at": now, "artifact": manifest, "official_currency": "EUR", "interval_semantics": "[from,to)"}
 	resource := ResourceRecord{Kind: "export", TenantID: tenant, ID: exportID, Version: 1, Data: data, CreatedAt: now, UpdatedAt: now}
-	op := Operation{ID: newID("op"), TenantID: tenant, Type: "COMPLIANCE_EXPORT", State: "FISCALIZED", Version: 2, FiscalReference: exportID, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: tenant, Type: "COMPLIANCE_EXPORT", State: "FISCALIZED", Version: 2, FiscalReference: exportID, Simulated: false, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	return op, s.repo.CommitResourceArtifactsOperation(resource, op, map[string][]byte{artifactID: artifact})
 }
 
@@ -148,7 +148,7 @@ func (s *Service) CreatePeriodizedExport(in ExportRequest, tenant string) (Opera
 		"requested_at": now, "completed_at": now, "periods": periodManifests,
 	}
 	resource := ResourceRecord{Kind: "export_periods", TenantID: tenant, ID: exportID, Version: 1, Data: data, CreatedAt: now, UpdatedAt: now}
-	op := Operation{ID: newID("op"), TenantID: tenant, Type: "COMPLIANCE_EXPORT", State: "FISCALIZED", Version: 2, FiscalReference: exportID, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: tenant, Type: "COMPLIANCE_EXPORT", State: "FISCALIZED", Version: 2, FiscalReference: exportID, Simulated: false, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	return op, s.repo.CommitResourceArtifactsOperation(resource, op, artifacts)
 }
 

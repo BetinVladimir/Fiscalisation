@@ -5,6 +5,7 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"regexp"
 	"strconv"
 	"strings"
 	"sync"
@@ -58,6 +59,9 @@ func NewMemoryReceiptSagaStore() *MemoryReceiptSagaStore {
 	return &MemoryReceiptSagaStore{rows: map[string]ReceiptSaga{}}
 }
 func receiptSagaKey(tenant, operation string) string { return tenant + "\x00" + operation }
+
+var moneyPattern = regexp.MustCompile(`^[0-9]+\.[0-9]{2}$`)
+
 func ReceiptPlanHash(v ReceiptFinalizePlan) string {
 	b, _ := json.Marshal(v)
 	h := sha256.Sum256(b)
@@ -82,6 +86,17 @@ func ValidateReceiptPlan(v ReceiptFinalizePlan) error {
 	if e != nil || expected != total {
 		return errors.New("payment total mismatch")
 	}
+	var itemsTotal int64
+	for _, line := range v.Items {
+		lt, e := discountedLineTotalCents(line)
+		if e != nil {
+			return e
+		}
+		itemsTotal += lt
+	}
+	if itemsTotal != expected {
+		return errors.New("items total mismatch")
+	}
 	return nil
 }
 
@@ -94,30 +109,15 @@ func supportedPaymentType(paymentType string) bool {
 	}
 }
 func receiptMoneyCents(v string) (int64, error) {
-	sign := int64(1)
-	s := v
-	if strings.HasPrefix(s, "-") {
-		sign = -1
-		s = s[1:]
-	} else if strings.HasPrefix(s, "+") {
-		s = s[1:]
-	}
-	if s == "" || s == "." || s == ".00" {
+	if !moneyPattern.MatchString(v) {
 		return 0, errors.New("invalid money")
 	}
-	parts := strings.Split(s, ".")
-	if len(parts) != 2 || len(parts[1]) != 2 {
-		return 0, errors.New("invalid money")
-	}
-	whole, e := strconv.ParseInt(parts[0], 10, 64)
+	s := strings.Replace(v, ".", "", 1)
+	whole, e := strconv.ParseInt(s, 10, 64)
 	if e != nil {
 		return 0, e
 	}
-	fraction, e := strconv.ParseInt(parts[1], 10, 64)
-	if e != nil {
-		return 0, e
-	}
-	return sign * (whole*100 + fraction), nil
+	return whole, nil
 }
 func (s *MemoryReceiptSagaStore) ReserveReceiptSaga(tenant string, v ReceiptSaga) (ReceiptSaga, bool, error) {
 	s.mu.Lock()

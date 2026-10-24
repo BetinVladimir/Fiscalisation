@@ -167,8 +167,7 @@ class BlueCashCommandProcessor(
       ok(fiscal.execute(command, payload))
       mapOf("state" to "FISCALIZED").also { journal.append(operationId, "FISCALIZED", encode(it)) }
     } catch (e: Throwable) {
-      val unknown =
-        e.message in setOf("DATECS_EOF", "DATECS_BAD_FRAME", "DATECS_BCC", "DATECS_CORRELATION")
+      val unknown = classified(e) == Outcome.UNKNOWN
       val result =
         mapOf(
           "state" to if (unknown) "UNKNOWN" else "FAILED",
@@ -203,8 +202,7 @@ class BlueCashCommandProcessor(
         journal.append(operationId, "PRINTER_TESTED", encode(it))
       }
     } catch (e: Throwable) {
-      val unknown =
-        e.message in setOf("DATECS_EOF", "DATECS_BAD_FRAME", "DATECS_BCC", "DATECS_CORRELATION")
+      val unknown = classified(e) == Outcome.UNKNOWN
       val result =
         mapOf(
           "state" to if (unknown) "UNKNOWN" else "FAILED",
@@ -271,8 +269,7 @@ class BlueCashCommandProcessor(
         journal.append(command.operationId, "FISCALIZED", encode(it))
       }
     } catch (e: Throwable) {
-      val unknown =
-        e.message in setOf("DATECS_EOF", "DATECS_BAD_FRAME", "DATECS_BCC", "DATECS_CORRELATION")
+      val unknown = classified(e) == Outcome.UNKNOWN
       if (approvedCardPayments.isNotEmpty()) {
         journal.append(
           command.operationId,
@@ -363,8 +360,7 @@ class BlueCashCommandProcessor(
         journal.append(command.operationId, "REVERSED", encode(it))
       }
     } catch (e: Throwable) {
-      val unknown =
-        e.message in setOf("DATECS_EOF", "DATECS_BAD_FRAME", "DATECS_BCC", "DATECS_CORRELATION")
+      val unknown = classified(e) == Outcome.UNKNOWN
       val result =
         mapOf(
           "state" to if (unknown) "UNKNOWN" else "FAILED",
@@ -392,6 +388,24 @@ class BlueCashCommandProcessor(
       val p = it.split('=', limit = 2)
       p[0] to p.getOrElse(1) { "" }
     }
+  /** BUG-028: typed error classification — replaces text-based checks with `when(e)`. */
+  private fun classified(e: Throwable): Outcome =
+    when (e) {
+      is DatecsFailure.Unknown -> Outcome.UNKNOWN
+      is DatecsFailure.Rejected -> Outcome.FAILED
+      is DatecsFailure.NotSent -> Outcome.FAILED
+      is DatecsFailure.CorrelationError -> Outcome.FAILED
+      is DatecsFailure.BadFrame -> Outcome.FAILED
+      is DatecsFailure.BccError -> Outcome.FAILED
+      is DatecsFailure.FrameTooLarge -> Outcome.FAILED
+      else -> Outcome.FAILED
+    }
+}
+
+/** Outcome of a Datecs fiscal operation (BUG-028 typed classification). */
+sealed class Outcome {
+  object UNKNOWN : Outcome()
+  object FAILED : Outcome()
 }
 
 internal fun datecsPaymentMode(type: String): Int =

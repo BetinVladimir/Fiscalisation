@@ -89,13 +89,13 @@ func FuzzParseMoney(f *testing.F) {
 		// Round-trip check
 		formatted := FormatMoney(cents)
 		if formatted != input {
-			f.Errorf("round-trip failed: ParseMoney(%q)→%d→FormatMoney→%q (expected %q)", input, cents, formatted, input)
+			t.Errorf("round-trip failed: ParseMoney(%q)→%d→FormatMoney→%q (expected %q)", input, cents, formatted, input)
 			return
 		}
 		// Second parse should also succeed
 		_, err2 := ParseMoney(formatted)
 		if err2 != nil {
-			f.Errorf("second ParseMoney failed on formatted output: %v", err2)
+			t.Errorf("second ParseMoney failed on formatted output: %v", err2)
 		}
 	})
 }
