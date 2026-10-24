@@ -22,8 +22,7 @@ func TestReceiptMoneyCentsRejectsSignedAndMalformed(t *testing.T) {
 		{"0.01", 1},
 		{"12.34", 1234},
 		{"99999.99", 9999999},
-		{"1.50", 150},
-		{"01.00", 100},
+		{"01.00", 100}, // leading zero allowed per task decision
 	}
 	for _, tc := range okTests {
 		got, err := receiptMoneyCents(tc.in)

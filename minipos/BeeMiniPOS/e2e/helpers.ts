@@ -294,7 +294,7 @@ export async function setupFiscalRoutes(page: Page, overrides: FiscalOverrides =
       });
     }
 
-    if (/\/operations\/[^/:]+:reconcile$/.test(path) && method === 'POST') {
+    if (/\/operations\/[^/]+\/reconcile$/.test(path) && method === 'POST') {
       lastSale = { ...lastSale, state: 'COMPLETED', version: Number(lastSale.version) + 1 };
       return json(route, {
         operation_id: `fiscal-${fiscalSaleCounter}`,

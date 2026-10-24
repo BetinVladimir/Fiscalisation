@@ -276,7 +276,7 @@ paths:
         '202': {description: Durable non-fiscal printer test operation, content: {application/json: {schema: {$ref: '#/components/schemas/DeviceTestOperation'}}}}
         '403': {$ref: '#/components/responses/Problem'}
         '409': {$ref: '#/components/responses/Problem'}
-  /operations/{operation_id}:reconcile:
+  /operations/{operation_id}/reconcile:
     post:
       operationId: reconcileOperationExactAlias
       description: Lookup-only reconciliation; never blindly repeats the device side effect.

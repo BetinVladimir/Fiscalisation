@@ -45,7 +45,7 @@ def write_res(proj,tid,status,attempts,h,commit='',stat='',check_tail='',final_t
     for a in attempts: L.append('| %s | %d | %s | %s | %s | `%s` |'%(a.get('unit','—'),a['n'],a['rc'],a['changed'],a['verdict'],a['log']))
     if stat: L+=['','## Изменения','','```',stat.strip(),'```']
     if check_tail: L+=['','## Вывод проверки (хвост)','','```',check_tail.strip(),'```']
-    if final_tail: L+=['','## Ответ OpenCode (хвост)','','```',final_tail.strip(),'```']
+    if final_tail: L+=['','## Итоговый результат OpenCode','','```',final_tail.strip(),'```']
     open(os.path.join(proj,'docs/MVP1/fixes',tid+'.res.md'),'w',encoding='utf-8').write('\n'.join(L)+'\n')
 
 def resolve_model(cmd,explicit):
@@ -192,20 +192,29 @@ def main():
                     raise SystemExit('%s: пакет изменён после выполнения (было %s, стало %s). Проверьте и добавьте --accept-changed.'%(uid,done[uid],h))
                 print('[пропуск] %s уже выполнен'%uid);continue
             scope=ufiles or task_files(wt,tid);last_err=''
+            pre_ok,last_err=run_checks(wt,tid,checks,a.check_timeout,uid)
+            if pre_ok and not changed_files(wt):
+                git(['commit','--allow-empty','-q','-m','fix(%s): %s already satisfied\n\nFix-Task: %s\nFix-Unit: %s\nFix-Prompt-Sha: %s\nFix-Attempt: 0'%(tid,uid,tid,uid,h)],wt)
+                cm=git(['rev-parse','--short','HEAD'],wt).stdout.strip()
+                print('  ✔ %s уже выполнен: приёмка прошла, коммит %s'%(uid,cm));ok_ids.append(uid)
+                atts.append({'unit':uid,'n':0,'rc':'—','changed':0,'verdict':'уже выполнено; приёмка прошла','log':'—'})
+                write_res(proj,tid,'ВЫПОЛНЕНО' if ui==len(units) else 'В РАБОТЕ',atts,h,commit=cm,check_tail='предварительная приёмка подзадачи и checks.json: OK',scope=scope)
+                continue
             for n in range(1,a.attempts+1):
                 if n==1:
                     msg=('Выполни ТОЛЬКО подзадачу %s (%d из %d) дефекта %s: %s\nФайлы подзадачи: %s\nОстальные подзадачи делаются отдельными сессиями — не трогай их. '
                          'Следуй AGENTS.md. %s Перед завершением запусти приёмку подзадачи и покажи результат.\n\n--- ПАКЕТ ДЕФЕКТА ---\n%s')%(uid,ui,len(units),tid,utitle,', '.join(scope) or 'см. пакет',READ_RULES,text)
+                    if last_err: msg+='\n\nОшибка предварительной приёмки:\n'+last_err
                 else:
                     msg=('Предыдущая попытка по подзадаче %s не прошла проверку. Исправь причину в коде, не ослабляя тесты и не расширяя набор файлов (%s). %s '
                          'Пакет дефекта: docs/MVP1/fixes/%s.md (прочитай нужный раздел). Ошибка проверки:\n\n%s')%(uid,', '.join(scope) or 'см. пакет',READ_RULES,tid,last_err)
                 cmd=shlex.split(a.opencode_cmd)+['run']+(['--dir',wt] if use_dir else [])+(['--model',a.model] if a.model else [])+[msg]
                 log=os.path.join(logs,'%s.attempt%d.log'%(uid,n));print('[%s] %s попытка %d/%d …'%(time.strftime('%H:%M:%S'),uid,n,a.attempts),flush=True)
                 try:
-                    p=sh(cmd,wt,timeout=a.timeout,env=dict(os.environ,PWD=wt));out=p.stdout+'\n'+p.stderr;rc=p.returncode
-                except subprocess.TimeoutExpired: out='TIMEOUT OpenCode';rc=124
+                    p=sh(cmd,wt,timeout=a.timeout,env=dict(os.environ,PWD=wt));out=p.stdout+'\n'+p.stderr;rc=p.returncode;response=p.stdout.strip() or out
+                except subprocess.TimeoutExpired: out='TIMEOUT OpenCode';rc=124;response=out
                 except FileNotFoundError: raise SystemExit('не найдена команда %s (установите OpenCode или укажите --opencode-cmd)'%a.opencode_cmd)
-                open(log,'w',encoding='utf-8').write(out);last_out=tail(out,60)
+                open(log,'w',encoding='utf-8').write(out);last_out=response
                 att={'unit':uid,'n':n,'rc':rc,'changed':0,'verdict':'—','log':log};atts.append(att)
                 now_snap=snapshot(proj)
                 if now_snap!=main_snap:
@@ -218,8 +227,6 @@ def main():
                     git(['checkout','--']+bad,wt,check=False);git(['clean','-fd','--']+bad,wt,check=False)
                     last_err='Запрещённые файлы изменены и откатены: %s'%', '.join(bad);print('  ',last_err);ch=changed_files(wt)
                 def progress(extra=''): write_res(proj,tid,'В РАБОТЕ',atts,h,check_tail=extra,final_tail=last_out,scope=scope,outside=outside)
-                if not ch:
-                    last_err='OpenCode не изменил ни одного файла (rc=%d). Лог: %s'%(rc,log);att['verdict']='нет изменений';print('  ',last_err);progress(last_err);continue
                 outside=[f for f in ch if scope and not any(f==s or f.startswith(s+'/') for s in scope)]
                 if outside:
                     msg_o='вне файлов подзадачи: %s'%', '.join(outside)
@@ -227,9 +234,9 @@ def main():
                     print('   предупреждение:',msg_o)
                 ok,err=run_checks(wt,tid,checks,a.check_timeout,uid)
                 if not ok: last_err=err;att['verdict']='не прошла';print('   проверка не прошла:',err.split('\n')[0]);progress(err);continue
-                att['verdict']='прошла'
+                att['verdict']='прошла' if ch else 'уже выполнено; приёмка прошла'
                 git(['add','-A'],wt)
-                git(['commit','-q','-m','fix(%s): %s (OpenCode)\n\nFix-Task: %s\nFix-Unit: %s\nFix-Prompt-Sha: %s\nFix-Attempt: %d'%(tid,uid,tid,uid,h,n)],wt)
+                git(['commit','--allow-empty','-q','-m','fix(%s): %s (OpenCode)\n\nFix-Task: %s\nFix-Unit: %s\nFix-Prompt-Sha: %s\nFix-Attempt: %d'%(tid,uid,tid,uid,h,n)],wt)
                 cm=git(['rev-parse','--short','HEAD'],wt).stdout.strip();print('  ✔ %s выполнен, коммит %s'%(uid,cm));ok_ids.append(uid)
                 last_commit=(cm,git(['show','--stat','--format=','HEAD'],wt).stdout)
                 if ui==len(units): write_res(proj,tid,'ВЫПОЛНЕНО',atts,h,commit=cm,stat=last_commit[1],check_tail='приёмка подзадач и checks.json: OK',final_tail=last_out,scope=scope,outside=outside)

@@ -54,7 +54,7 @@ paths:
       responses:
         '200': {description: Persisted operation, content: {application/json: {schema: {$ref: '#/components/schemas/Operation'}}}}
         '404': {$ref: '#/components/responses/Problem'}
-  /operations/{operation_id}:reconcile:
+  /operations/{operation_id}/reconcile:
     post:
       operationId: reconcileLocalOperation
       security: [{bearerAuth: []}]

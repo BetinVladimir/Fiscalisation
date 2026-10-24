@@ -123,9 +123,9 @@ class BlueCashLocalHttpServer(
     if (
       session.method == Method.POST &&
         path.startsWith("/operations/") &&
-        path.endsWith(":reconcile")
+        path.endsWith("/reconcile")
     ) {
-      val id = path.removePrefix("/operations/").removeSuffix(":reconcile")
+      val id = path.removePrefix("/operations/").removeSuffix("/reconcile")
       return lookup(id)?.let { json(200, it) } ?: problem(404, "OPERATION_NOT_FOUND")
     }
     return static(session, path)

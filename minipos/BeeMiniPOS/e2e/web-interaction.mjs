@@ -117,7 +117,7 @@ async function miniPosJourney(browser, appUrl) {
     }
     if (/\/sales\/sale-\d+$/.test(path) && method === "GET") return json(route,fiscalSale);
     if (/\/operations\/fiscal-\d+$/.test(path) && method === "GET") return json(route,{operation_id:`fiscal-${fiscalOperationNumber}`,state:checkoutMode==="unknown"?"UNKNOWN":"FISCALIZED"});
-    if (/\/operations\/fiscal-\d+:reconcile$/.test(path) && method === "POST") {checkoutMode="success";fiscalSale={...fiscalSale,state:"COMPLETED",version:fiscalSale.version+1};return json(route,{operation_id:`fiscal-${fiscalOperationNumber}`,state:"FISCALIZED"},202)}
+    if (/\/operations\/fiscal-\d+\/reconcile$/.test(path) && method === "POST") {checkoutMode="success";fiscalSale={...fiscalSale,state:"COMPLETED",version:fiscalSale.version+1};return json(route,{operation_id:`fiscal-${fiscalOperationNumber}`,state:"FISCALIZED"},202)}
     return json(route, { code: "UNMOCKED", path, method }, 500);
   });
 
