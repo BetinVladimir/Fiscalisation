@@ -94,7 +94,18 @@ func supportedPaymentType(paymentType string) bool {
 	}
 }
 func receiptMoneyCents(v string) (int64, error) {
-	parts := strings.Split(v, ".")
+	sign := int64(1)
+	s := v
+	if strings.HasPrefix(s, "-") {
+		sign = -1
+		s = s[1:]
+	} else if strings.HasPrefix(s, "+") {
+		s = s[1:]
+	}
+	if s == "" || s == "." || s == ".00" {
+		return 0, errors.New("invalid money")
+	}
+	parts := strings.Split(s, ".")
 	if len(parts) != 2 || len(parts[1]) != 2 {
 		return 0, errors.New("invalid money")
 	}
@@ -106,7 +117,7 @@ func receiptMoneyCents(v string) (int64, error) {
 	if e != nil {
 		return 0, e
 	}
-	return whole*100 + fraction, nil
+	return sign * (whole*100 + fraction), nil
 }
 func (s *MemoryReceiptSagaStore) ReserveReceiptSaga(tenant string, v ReceiptSaga) (ReceiptSaga, bool, error) {
 	s.mu.Lock()

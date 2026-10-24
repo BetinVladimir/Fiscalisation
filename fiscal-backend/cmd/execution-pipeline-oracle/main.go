@@ -45,6 +45,7 @@ func main() {
 	repo, e := domain.NewPersistentRepository(&fileStore{path: filepath.Join(dir, "root.snapshot.json")})
 	must(e)
 	svc := domain.NewService(repo, mqttclient.NewBridge("01234567890123456789012345678901", repo))
+	svc.SetSimulated(true)
 	ca, e := os.ReadFile(filepath.Join(dir, "root-ca.pem"))
 	must(e)
 	key, e := os.ReadFile(filepath.Join(dir, "root-key.pem"))

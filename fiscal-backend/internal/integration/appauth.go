@@ -305,7 +305,7 @@ func (s *Service) IsAppTokenRevoked(ctx context.Context, jti string) bool {
 }
 
 func (s *Service) AppTenantsForAccess(ctx context.Context, raw string) ([]AppTenant, error) {
-	claims, e := auth.Parse(raw, s.appSigningKey, s.now())
+	claims, e := auth.Parse(raw, s.appSigningKey, s.now(), nil)
 	if e != nil || claims.JTI == "" || s.IsAppTokenRevoked(ctx, claims.JTI) {
 		return nil, ErrUnauthorized
 	}

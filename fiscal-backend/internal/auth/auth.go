@@ -15,22 +15,27 @@ import (
 type Claims struct {
 	Subject   string   `json:"sub"`
 	Issuer    string   `json:"iss"`
+	Audience  string   `json:"aud"`
 	TenantID  string   `json:"tenant_id"`
 	Roles     []string `json:"roles"`
 	Scope     string   `json:"scope"`
 	ExpiresAt int64    `json:"exp"`
+	NotBefore int64    `json:"nbf,omitempty"`
 	JTI       string   `json:"jti,omitempty"`
 }
 type key struct{}
 
 func ClaimsFrom(ctx context.Context) (Claims, bool) { v, ok := ctx.Value(key{}).(Claims); return v, ok }
 func Middleware(secret string, next http.Handler) http.Handler {
-	return MiddlewareWithOIDC(secret, nil, next)
+	return MiddlewareWithOIDCAndTokenConfig(secret, nil, nil, nil, next)
 }
 func MiddlewareWithOIDC(secret string, oidc *OIDCVerifier, next http.Handler) http.Handler {
-	return MiddlewareWithOIDCAndRevocation(secret, oidc, nil, next)
+	return MiddlewareWithOIDCAndTokenConfig(secret, oidc, nil, nil, next)
 }
 func MiddlewareWithOIDCAndRevocation(secret string, oidc *OIDCVerifier, revoked func(context.Context, string) bool, next http.Handler) http.Handler {
+	return MiddlewareWithOIDCAndTokenConfig(secret, oidc, revoked, nil, next)
+}
+func MiddlewareWithOIDCAndTokenConfig(secret string, oidc *OIDCVerifier, revoked func(context.Context, string) bool, tokenCfg *ParseTokenConfig, next http.Handler) http.Handler {
 	if secret == "" && oidc == nil {
 		panic("auth: at least one of AUTH_HMAC_KEY or OIDC must be configured")
 	}
@@ -50,10 +55,10 @@ func MiddlewareWithOIDCAndRevocation(secret string, oidc *OIDCVerifier, revoked 
 		if oidc != nil {
 			c, e = oidc.Parse(raw, time.Now())
 			if e != nil && secret != "" {
-				c, e = Parse(raw, []byte(secret), time.Now())
+				c, e = Parse(raw, []byte(secret), time.Now(), tokenCfg)
 			}
 		} else {
-			c, e = Parse(raw, []byte(secret), time.Now())
+			c, e = Parse(raw, []byte(secret), time.Now(), tokenCfg)
 		}
 		if e != nil {
 			http.Error(w, "unauthorized", http.StatusUnauthorized)
@@ -84,6 +89,15 @@ func bearerToken(header string) (string, bool) {
 		return "", false
 	}
 	return parts[1], true
+}
+
+// ParseTokenConfig carries the expected issuer and audience for HMAC token
+// validation so that issued tokens cannot masquerade as tokens from a
+// different authority.
+type ParseTokenConfig struct {
+	ExpectedIssuer string
+	ExpectedAud    string
+	MaxTTL         time.Duration // maximum allowed token lifetime (exp-nbf)
 }
 
 func hasScope(c Claims, required string) bool {
@@ -162,7 +176,7 @@ func Allowed(c Claims, method, path string) bool {
 	}
 	return hasAny(c, "CASHIER", "SUPERVISOR", "ADMIN")
 }
-func Parse(raw string, secret []byte, now time.Time) (Claims, error) {
+func Parse(raw string, secret []byte, now time.Time, config *ParseTokenConfig) (Claims, error) {
 	var c Claims
 	p := strings.Split(raw, ".")
 	if len(p) != 3 {
@@ -191,13 +205,13 @@ func Parse(raw string, secret []byte, now time.Time) (Claims, error) {
 	if e != nil || json.Unmarshal(b, &c) != nil {
 		return c, errors.New("invalid claims")
 	}
-	if err := validateClaims(c, now); err != nil {
+	if err := validateClaims(c, now, config); err != nil {
 		return c, err
 	}
 	return c, nil
 }
 
-func validateClaims(c Claims, now time.Time) error {
+func validateClaims(c Claims, now time.Time, cfg *ParseTokenConfig) error {
 	platform := hasAny(c, "MANUFACTURING_STATION", "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN", "PLATFORM_INTEGRATION_ADMIN")
 	if c.Subject == "" || (!platform && c.TenantID == "") || len(c.Roles) == 0 || c.ExpiresAt <= now.Unix() {
 		return errors.New("expired or incomplete")
@@ -205,6 +219,25 @@ func validateClaims(c Claims, now time.Time) error {
 	for _, role := range c.Roles {
 		if !hasAny(Claims{Roles: []string{role}}, "CASHIER", "SUPERVISOR", "ADMIN", "AUDITOR", "SERVICE", "MANUFACTURING_STATION", "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN", "PLATFORM_INTEGRATION_ADMIN") {
 			return errors.New("unknown role")
+		}
+	}
+	// Issuer check when config provides expected issuer.
+	if cfg != nil && cfg.ExpectedIssuer != "" && c.Issuer != cfg.ExpectedIssuer {
+		return errors.New("issuer mismatch")
+	}
+	// Audience check when config provides expected audience.
+	if cfg != nil && cfg.ExpectedAud != "" && c.Audience != cfg.ExpectedAud {
+		return errors.New("audience mismatch")
+	}
+	// Not-before check: if set, token must not be used before nbf.
+	if cfg != nil && c.NotBefore > 0 && now.Unix() < c.NotBefore {
+		return errors.New("token not yet valid")
+	}
+	// Max TTL: enforce maximum token lifetime (exp - nbf).
+	if cfg != nil && cfg.MaxTTL > 0 && c.NotBefore > 0 {
+		lifetime := time.Duration(c.ExpiresAt-c.NotBefore) * time.Second
+		if lifetime > cfg.MaxTTL {
+			return errors.New("token lifetime exceeds maximum")
 		}
 	}
 	return nil

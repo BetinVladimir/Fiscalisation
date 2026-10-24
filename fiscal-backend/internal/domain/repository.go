@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"crypto/sha256"
 	"encoding/hex"
 	"encoding/json"
@@ -18,6 +19,13 @@ var ErrSaleUNPConflict = errors.New("sale unp already exists")
 type Store interface {
 	Load() ([]byte, error)
 	Save([]byte) error
+}
+
+// PingChecker is an optional extension on Store that signals the backing
+// persistence can be health-checked. MemoryRepository delegates to this when
+// its wrapped store implements the interface.
+type PingChecker interface {
+	PingContext(ctx context.Context) error
 }
 type VersionedStore interface {
 	Store
@@ -140,6 +148,7 @@ type Repository interface {
 	Artifact(string, string) ([]byte, error)
 	AuditEvents(string) []AuditEvent
 	AppendAudit(string, string, string, string, string, string, map[string]any, map[string]any) error
+	PingContext(context.Context) error
 }
 
 func (r *MemoryRepository) ReserveUNPRange(tenant, fmin string, count int64) (int64, int64, error) {
@@ -216,6 +225,18 @@ type repositorySnapshot struct {
 
 func NewMemoryRepository() *MemoryRepository {
 	return &MemoryRepository{sales: map[string]Sale{}, operations: map[string]Operation{}, devices: map[string]Device{}, shifts: map[string]Shift{}, unp: map[string]int64{}, replays: map[string]ReplayRecord{}, outbox: map[string]OutboxItem{}, bleSessions: map[string]BLESessionRecord{}, syncAcks: map[string]SyncAck{}, connectivityProbes: map[string]ConnectivityProbe{}, resources: map[string]ResourceRecord{}, artifacts: map[string][]byte{}, audit: []AuditEvent{}, edgePending: map[string]EdgePendingCommand{}, activationChallenges: map[string]DeviceActivationChallenge{}, activationRequests: map[string]DeviceActivationRequest{}}
+}
+
+// PingContext delegates to the wrapped persistence store's health check when
+// available; returns nil for in-memory mode.
+func (r *MemoryRepository) PingContext(ctx context.Context) error {
+	if r.store == nil {
+		return nil
+	}
+	if pc, ok := r.store.(PingChecker); ok {
+		return pc.PingContext(ctx)
+	}
+	return nil
 }
 func NewPersistentRepository(store Store) (*MemoryRepository, error) {
 	r := NewMemoryRepository()

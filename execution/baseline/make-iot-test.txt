@@ -1,0 +1,1539 @@
+python3 IoT/firmware/edge-agent-s3/idf/tests/time_anchor_host/run_oracle.py
+PASS ownership/replay/boot/binding/clock/unhealthy/disjoint, exact>2^53 generation,10050refresh/recent ring/seqoverflow
+PASS independent Fraction oracle 5229 checked-int64/outward-rounding/RTT-holdover vectors outcomes={'Ok/Expired': 526, 'Ok/Ok': 463, 'RoundTripExceeded/Unavailable': 788, 'ClockFault/Unavailable': 2, 'Ok/ClockFault': 1, 'InvalidPolicy/Unavailable': 5, 'Arithmetic/Unavailable': 1530, 'InvalidSample/Unavailable': 34, 'Ok/Arithmetic': 147, 'WidthExceeded/Unavailable': 1015, 'Expired/Unavailable': 685, 'Ok/WidthExceeded': 33}
+PASS production compile has no raw permit constructor or host permit factory
+python3 IoT/firmware/edge-agent-s3/idf/tests/time_anchor_host/run_counterfactuals.py
+PASS counterfactual RED detected omit-rtt-age exit=1
+Assertion failed: (core.bounds(b)==TimeAnchorError::Expired), function tests, file core_native.cpp, line 23.
+Traceback (most recent call last):
+  File "/var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/time-anchor-red-5h5exb99/idf/tests/time_anchor_host/run_oracle.py", line 93, in <module>
+    if __name__=='__main__':main()
+  File "/var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/time-anchor-red-5h5exb99/idf/tests/time_anchor_host/run_oracle.py", line 78, in main
+    subprocess.run([str(binary)],check=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/time-anchor-host-z5c7fmoh/core']' died with <Signals.SIGABRT: 6>.
+
+PASS counterfactual RED detected round-upper-down exit=1
+PASS ownership/replay/boot/binding/clock/unhealthy/disjoint, exact>2^53 generation,10050refresh/recent ring/seqoverflow
+Traceback (most recent call last):
+  File "/var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/time-anchor-red-bjdat9jd/idf/tests/time_anchor_host/run_oracle.py", line 93, in <module>
+    if __name__=='__main__':main()
+  File "/var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/time-anchor-red-bjdat9jd/idf/tests/time_anchor_host/run_oracle.py", line 84, in main
+    assert result==expected,f'arbitrary-precision oracle mismatch case={i} input={v} actual={result!r} expected={expected!r}'
+AssertionError: arbitrary-precision oracle mismatch case=1 input=(1792555200000, 0, 0, 1, 2, 1, 30000, 6000) actual='Ok Ok 1792555200000000 1792555200000002' expected='Ok Ok 1792555200000000 1792555200000004'
+
+PASS counterfactual RED detected replay-refresh exit=1
+Assertion failed: (core.bounds(b)==TimeAnchorError::Expired), function tests, file core_native.cpp, line 23.
+Traceback (most recent call last):
+  File "/var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/time-anchor-red-dk5ryea9/idf/tests/time_anchor_host/run_oracle.py", line 93, in <module>
+    if __name__=='__main__':main()
+  File "/var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/time-anchor-red-dk5ryea9/idf/tests/time_anchor_host/run_oracle.py", line 78, in main
+    subprocess.run([str(binary)],check=True)
+  File "/Library/Frameworks/Python.framework/Versions/3.10/lib/python3.10/subprocess.py", line 526, in run
+    raise CalledProcessError(retcode, process.args,
+subprocess.CalledProcessError: Command '['/var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/time-anchor-host-in3_i02p/core']' died with <Signals.SIGABRT: 6>.
+
+IoT/common-modules/daisy/run-tests.sh
+Daisy protocol tests passed
+IoT/common-modules/datecs/run-tests.sh
+Datecs protocol tests passed
+IoT/common-modules/datecspay/run-tests.sh
+Datecs Pay protocol tests passed
+IoT/protocol-abstraction/run-tests.sh
+protocol-abstraction tests: OK
+runtime vendor codec tests: OK
+bash IoT/firmware/edge-agent-s3/idf/tests/run_identity_entropy_host.sh
+...
+----------------------------------------------------------------------
+Ran 3 tests in 0.001s
+
+OK
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+Actual mbedTLS startup first-boot/reload + entropy cleanup/corrupt-NVS + non-RF DRBG signing PASS
+Actual DRBG callback final allowed request/exhaustion + public sign fail-closed/no reseed/no rekey + fresh-boot recovery PASS
+python3 IoT/firmware/edge-agent-s3/idf/tests/terminal_guard_host/run.py
+contradictory-committed PASS (actual SQLite restart, scoped guard, no duplicate payment)
+resolve-event-collision PASS (actual SQLite restart, scoped guard, no duplicate payment)
+concurrent PASS concurrent actual SQLite connections
+claim-fault PASS (actual SQLite restart, scoped guard, no duplicate payment)
+outcome-fault PASS (actual SQLite restart, scoped guard, no duplicate payment)
+sending PASS (actual SQLite restart, scoped guard, no duplicate payment)
+same-terminal PASS (actual SQLite restart, scoped guard, no duplicate payment)
+other-terminal PASS (actual SQLite restart, scoped guard, no duplicate payment)
+cash PASS (actual SQLite restart, scoped guard, no duplicate payment)
+legacy PASS (actual SQLite restart, scoped guard, no duplicate payment)
+legacy-unknown-route PASS (actual SQLite restart, scoped guard, no duplicate payment)
+approved-complete PASS (actual SQLite restart, scoped guard, no duplicate payment)
+approved-open PASS (actual SQLite restart, scoped guard, no duplicate payment)
+resolve-approved PASS (actual SQLite restart, scoped guard, no duplicate payment)
+resolve-declined PASS (actual SQLite restart, scoped guard, no duplicate payment)
+resolve-wrong-terminal PASS (actual SQLite restart, scoped guard, no duplicate payment)
+resolve-wrong-amount PASS (actual SQLite restart, scoped guard, no duplicate payment)
+resolve-bad-evidence PASS (actual SQLite restart, scoped guard, no duplicate payment)
+resolve-outbox-fault PASS (actual SQLite restart, scoped guard, no duplicate payment)
+python3 -m unittest discover -s tests -p '*sqlite_export.py' -v
+test_artifact_tamper_and_secret_siblings (test_bluecash_sqlite_export.BlueCashExportTests) ... ok
+test_cli_and_generated_dictionary (test_bluecash_sqlite_export.BlueCashExportTests) ... ok
+test_real_sqlite_all_tables_exact_replay_and_source_unchanged (test_bluecash_sqlite_export.BlueCashExportTests) ... ok
+test_version_and_schema_drift_fail_closed (test_bluecash_sqlite_export.BlueCashExportTests) ... ok
+test_wal_snapshot_backup_keeps_latest_committed_transaction (test_bluecash_sqlite_export.BlueCashExportTests) ... ok
+test_actual_schema_all_rows_typed_roundtrip_and_unchanged_source (test_s3_sqlite_export.ExportTests) ... ok
+test_actual_source_mutation_during_export_refuses_completion (test_s3_sqlite_export.ExportTests) ... ok
+test_cli_complete_export_verify_and_generated_dictionary (test_s3_sqlite_export.ExportTests) ... ok
+test_committed_dictionary_exactly_matches_actual_firmware_source (test_s3_sqlite_export.ExportTests) ... ok
+test_corrupt_database_fails_without_partial_archive (test_s3_sqlite_export.ExportTests) ... ok
+test_no_clobber_existing_output_or_symlink_input (test_s3_sqlite_export.ExportTests) ... ok
+test_preserves_fk_issues_as_data_not_false_clean_export (test_s3_sqlite_export.ExportTests) ... ok
+test_refuses_live_sidecars_without_deleting_them (test_s3_sqlite_export.ExportTests) ... ok
+test_requires_quiescent_operator_declaration (test_s3_sqlite_export.ExportTests) ... ok
+test_schema_drift_unknown_table_not_silently_omitted (test_s3_sqlite_export.ExportTests) ... ok
+test_tampered_omitted_or_foreign_artifact_rejected (test_s3_sqlite_export.ExportTests) ... ok
+
+----------------------------------------------------------------------
+Ran 16 tests in 0.397s
+
+OK
+python3 IoT/firmware/edge-agent-s3/idf/tests/bluepad_host/run.py
+result-error PASS BLUEPAD_RESULT_UNRESOLVED
+result-retry PASS BLUEPAD_RESULT_UNRESOLVED
+coalesced PASS 
+fragmented PASS 
+missing-power PASS
+power-failure PASS
+wake-failure PASS
+notification-overflow PASS BLUEPAD_FINAL_TIMEOUT
+approved PASS 
+declined PASS BLUEPAD_DECLINED_0
+intermediate PASS 
+wake PASS 
+cccd-timeout PASS
+cccd-failure PASS
+stale-generation PASS
+foreign-df03 PASS BLUEPAD_RECEIPT_MISMATCH
+missing-tags PASS BLUEPAD_RECEIPT_MISMATCH
+wrong-type PASS BLUEPAD_RECEIPT_MISMATCH
+wrong-stan PASS BLUEPAD_RECEIPT_MISMATCH
+duplicate-tag PASS BLUEPAD_RECEIPT_MISMATCH
+invalid-ber PASS BLUEPAD_RECEIPT_MISMATCH
+end-failure PASS BLUEPAD_END_UNCONFIRMED
+early-final PASS BLUEPAD_START_UNCONFIRMED
+final-missing PASS BLUEPAD_FINAL_INVALID
+bad-bcc PASS BLUEPAD_FINAL_TIMEOUT
+oversize PASS BLUEPAD_START_UNCONFIRMED
+fragment-timeout PASS BLUEPAD_FINAL_TIMEOUT
+queue-overflow PASS BLUEPAD_FINAL_TIMEOUT
+intermediate-only PASS BLUEPAD_FINAL_TIMEOUT
+ack-only PASS BLUEPAD_FINAL_TIMEOUT
+invalid-stan PASS BLUEPAD_RECEIPT_MISMATCH
+immediate-failure PASS BLUEPAD_WRITE_NOT_SENT
+partial-immediate PASS BLUEPAD_PARTIAL_WRITE
+completion-failure PASS BLUEPAD_PARTIAL_WRITE
+completion-held PASS BLUEPAD_PARTIAL_WRITE
+disconnect PASS BLUEPAD_PARTIAL_WRITE
+host-reset PASS BLUEPAD_PARTIAL_WRITE
+write-timeout PASS BLUEPAD_PARTIAL_WRITE
+BluePad actual runtime: 38 scenarios PASS
+python3 IoT/firmware/edge-agent-s3/idf/tests/execution_auth_host/run.py
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14 (found version "3.14.5") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/execution-auth-host-8e47_b97/mbedtls
+[  1%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.o
+[  1%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/everest.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m/p256-m.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m_driver_entrypoints.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/x25519.c.o
+[  6%] Linking C static library libp256m.a
+[  8%] Linking C static library libeverest.a
+[  8%] Built target p256m
+[  8%] Built target everest
+[  9%] Building C object library/CMakeFiles/mbedcrypto.dir/aes.c.o
+[ 12%] Building C object library/CMakeFiles/mbedcrypto.dir/aria.c.o
+[ 12%] Building C object library/CMakeFiles/mbedcrypto.dir/aesni.c.o
+[ 12%] Building C object library/CMakeFiles/mbedcrypto.dir/aesce.c.o
+[ 13%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1parse.c.o
+[ 16%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1write.c.o
+[ 16%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/base64.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_core.c.o
+[ 21%] Building C object library/CMakeFiles/mbedcrypto.dir/block_cipher.c.o
+[ 21%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod_raw.c.o
+[ 22%] Building C object library/CMakeFiles/mbedcrypto.dir/camellia.c.o
+[ 24%] Building C object library/CMakeFiles/mbedcrypto.dir/ccm.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chacha20.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chachapoly.c.o
+[ 26%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher.c.o
+[ 28%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher_wrap.c.o
+[ 29%] Building C object library/CMakeFiles/mbedcrypto.dir/constant_time.c.o
+[ 30%] Building C object library/CMakeFiles/mbedcrypto.dir/cmac.c.o
+[ 32%] Building C object library/CMakeFiles/mbedcrypto.dir/des.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/dhm.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/ctr_drbg.c.o
+[ 34%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdh.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecjpake.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdsa.c.o
+[ 38%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves_new.c.o
+[ 41%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy.c.o
+[ 42%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy_poll.c.o
+[ 44%] Building C object library/CMakeFiles/mbedcrypto.dir/error.c.o
+[ 46%] Building C object library/CMakeFiles/mbedcrypto.dir/hkdf.c.o
+[ 46%] Building C object library/CMakeFiles/mbedcrypto.dir/gcm.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/hmac_drbg.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/lmots.c.o
+[ 49%] Building C object library/CMakeFiles/mbedcrypto.dir/lms.c.o
+[ 50%] Building C object library/CMakeFiles/mbedcrypto.dir/md.c.o
+[ 52%] Building C object library/CMakeFiles/mbedcrypto.dir/md5.c.o
+[ 53%] Building C object library/CMakeFiles/mbedcrypto.dir/memory_buffer_alloc.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/oid.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/nist_kw.c.o
+[ 56%] Building C object library/CMakeFiles/mbedcrypto.dir/padlock.c.o
+[ 57%] Building C object library/CMakeFiles/mbedcrypto.dir/pem.c.o
+[ 58%] Building C object library/CMakeFiles/mbedcrypto.dir/pk.c.o
+[ 60%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_ecc.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_wrap.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs12.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs5.c.o
+[ 64%] Building C object library/CMakeFiles/mbedcrypto.dir/pkparse.c.o
+[ 65%] Building C object library/CMakeFiles/mbedcrypto.dir/pkwrite.c.o
+[ 66%] Building C object library/CMakeFiles/mbedcrypto.dir/platform.c.o
+[ 68%] Building C object library/CMakeFiles/mbedcrypto.dir/platform_util.c.o
+[ 69%] Building C object library/CMakeFiles/mbedcrypto.dir/poly1305.c.o
+[ 69%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_aead.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto.c.o
+[ 72%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_cipher.c.o
+[ 73%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_client.c.o
+[ 74%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_driver_wrappers_no_static.c.o
+[ 76%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ffdh.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ecp.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_hash.c.o
+[ 78%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_mac.c.o
+[ 81%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_pake.c.o
+[ 81%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_rsa.c.o
+[ 82%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_se.c.o
+[ 84%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_slot_management.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_storage.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_its_file.c.o
+[ 86%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_util.c.o
+[ 88%] Building C object library/CMakeFiles/mbedcrypto.dir/ripemd160.c.o
+[ 89%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa.c.o
+[ 90%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa_alt_helpers.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha1.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha256.c.o
+[ 93%] Building C object library/CMakeFiles/mbedcrypto.dir/sha512.c.o
+[ 94%] Building C object library/CMakeFiles/mbedcrypto.dir/sha3.c.o
+[ 96%] Building C object library/CMakeFiles/mbedcrypto.dir/threading.c.o
+[ 97%] Building C object library/CMakeFiles/mbedcrypto.dir/timing.c.o
+[100%] Building C object library/CMakeFiles/mbedcrypto.dir/version.c.o
+[100%] Building C object library/CMakeFiles/mbedcrypto.dir/version_features.c.o
+[100%] Linking C static library libmbedcrypto.a
+[100%] Built target mbedcrypto
+valid PASS
+expired PASS
+future PASS
+long-ttl PASS
+wrong-tenant PASS
+wrong-binding PASS
+wrong-range PASS
+wrong-device-number PASS
+wrong-memory-number PASS
+wrong-operator PASS
+wrong-command PASS
+wrong-client PASS
+tampered-issuer PASS
+tampered-proof PASS
+tampered-payload PASS
+foreign-alias PASS
+noncanonical PASS
+online-valid PASS
+online-wrong-unp PASS
+online-wrong-server PASS
+online-wrong-serial PASS
+online-wrong-operator PASS
+online-missing-authority PASS
+online-wrong-source PASS
+offline-caller-unp PASS
+online-wrong-hash PASS
+online-wrong-operation PASS
+online-wrong-receipt PASS
+online-altered-lines PASS
+live clock boundaries / binding generation / lease change / issuer key fencing PASS
+python3 IoT/firmware/edge-agent-s3/idf/tests/authority_host/run.py
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14 (found version "3.14.5") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/authority-host-fjnnrbc7/mbedtls
+[  1%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/x25519.c.o
+[  1%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/everest.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m_driver_entrypoints.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m/p256-m.c.o
+[  6%] Linking C static library libp256m.a
+[  8%] Linking C static library libeverest.a
+[  8%] Built target p256m
+[  8%] Built target everest
+[  8%] Building C object library/CMakeFiles/mbedcrypto.dir/aesce.c.o
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1parse.c.o
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/aes.c.o
+[ 13%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1write.c.o
+[ 13%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum.c.o
+[ 16%] Building C object library/CMakeFiles/mbedcrypto.dir/aria.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/aesni.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/base64.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod_raw.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod.c.o
+[ 20%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_core.c.o
+[ 21%] Building C object library/CMakeFiles/mbedcrypto.dir/camellia.c.o
+[ 22%] Building C object library/CMakeFiles/mbedcrypto.dir/block_cipher.c.o
+[ 24%] Building C object library/CMakeFiles/mbedcrypto.dir/ccm.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chacha20.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chachapoly.c.o
+[ 26%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher.c.o
+[ 28%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher_wrap.c.o
+[ 29%] Building C object library/CMakeFiles/mbedcrypto.dir/constant_time.c.o
+[ 30%] Building C object library/CMakeFiles/mbedcrypto.dir/cmac.c.o
+[ 32%] Building C object library/CMakeFiles/mbedcrypto.dir/ctr_drbg.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/des.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/dhm.c.o
+[ 34%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdh.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdsa.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecjpake.c.o
+[ 38%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves_new.c.o
+[ 41%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy.c.o
+[ 42%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy_poll.c.o
+[ 44%] Building C object library/CMakeFiles/mbedcrypto.dir/error.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/hmac_drbg.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/hkdf.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/gcm.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/lmots.c.o
+[ 49%] Building C object library/CMakeFiles/mbedcrypto.dir/lms.c.o
+[ 50%] Building C object library/CMakeFiles/mbedcrypto.dir/md.c.o
+[ 52%] Building C object library/CMakeFiles/mbedcrypto.dir/md5.c.o
+[ 53%] Building C object library/CMakeFiles/mbedcrypto.dir/memory_buffer_alloc.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/nist_kw.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/oid.c.o
+[ 56%] Building C object library/CMakeFiles/mbedcrypto.dir/padlock.c.o
+[ 57%] Building C object library/CMakeFiles/mbedcrypto.dir/pem.c.o
+[ 58%] Building C object library/CMakeFiles/mbedcrypto.dir/pk.c.o
+[ 61%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_ecc.c.o
+[ 61%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_wrap.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs12.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs5.c.o
+[ 64%] Building C object library/CMakeFiles/mbedcrypto.dir/pkparse.c.o
+[ 65%] Building C object library/CMakeFiles/mbedcrypto.dir/pkwrite.c.o
+[ 66%] Building C object library/CMakeFiles/mbedcrypto.dir/platform.c.o
+[ 68%] Building C object library/CMakeFiles/mbedcrypto.dir/platform_util.c.o
+[ 69%] Building C object library/CMakeFiles/mbedcrypto.dir/poly1305.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_aead.c.o
+[ 72%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_cipher.c.o
+[ 73%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_client.c.o
+[ 74%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_driver_wrappers_no_static.c.o
+[ 76%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ecp.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ffdh.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_hash.c.o
+[ 78%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_mac.c.o
+[ 80%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_pake.c.o
+[ 81%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_rsa.c.o
+[ 84%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_se.c.o
+[ 84%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_slot_management.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_storage.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_its_file.c.o
+[ 86%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_util.c.o
+[ 88%] Building C object library/CMakeFiles/mbedcrypto.dir/ripemd160.c.o
+[ 89%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa.c.o
+[ 90%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa_alt_helpers.c.o
+[ 90%] Building C object library/CMakeFiles/mbedcrypto.dir/sha256.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha1.c.o
+[ 93%] Building C object library/CMakeFiles/mbedcrypto.dir/sha512.c.o
+[ 94%] Building C object library/CMakeFiles/mbedcrypto.dir/sha3.c.o
+[ 96%] Building C object library/CMakeFiles/mbedcrypto.dir/threading.c.o
+[ 97%] Building C object library/CMakeFiles/mbedcrypto.dir/timing.c.o
+[ 98%] Building C object library/CMakeFiles/mbedcrypto.dir/version.c.o
+[100%] Building C object library/CMakeFiles/mbedcrypto.dir/version_features.c.o
+[100%] Linking C static library libmbedcrypto.a
+[100%] Built target mbedcrypto
+format actual SQLite authority PASS
+configuration actual SQLite authority PASS
+boundary actual SQLite authority PASS
+atomic actual SQLite authority PASS
+policy actual SQLite authority PASS
+operators actual SQLite authority PASS
+assigned actual SQLite authority PASS
+concurrent-assigned actual SQLite authority PASS
+valid actual issuer→IntentProcessor→SQLite PASS
+missing actual issuer→IntentProcessor→SQLite PASS
+signature actual issuer→IntentProcessor→SQLite PASS
+binding actual issuer→IntentProcessor→SQLite PASS
+expired actual issuer→IntentProcessor→SQLite PASS
+payload actual issuer→IntentProcessor→SQLite PASS
+valid actual issuer→IntentProcessor→SQLite PASS
+missing actual issuer→IntentProcessor→SQLite PASS
+signature actual issuer→IntentProcessor→SQLite PASS
+binding actual issuer→IntentProcessor→SQLite PASS
+expired actual issuer→IntentProcessor→SQLite PASS
+payload actual issuer→IntentProcessor→SQLite PASS
+python3 IoT/firmware/edge-agent-s3/idf/tests/reconciliation_host/run.py
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14 (found version "3.14.5") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/reconciliation-host-m9mv8coj/mbedtls
+[  0%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/everest.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m/p256-m.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/x25519.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m_driver_entrypoints.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.o
+[  6%] Linking C static library libp256m.a
+[  8%] Linking C static library libeverest.a
+[  8%] Built target p256m
+[  8%] Built target everest
+[  9%] Building C object library/CMakeFiles/mbedcrypto.dir/aesni.c.o
+[ 12%] Building C object library/CMakeFiles/mbedcrypto.dir/aes.c.o
+[ 12%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1parse.c.o
+[ 14%] Building C object library/CMakeFiles/mbedcrypto.dir/base64.c.o
+[ 14%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1write.c.o
+[ 16%] Building C object library/CMakeFiles/mbedcrypto.dir/aria.c.o
+[ 16%] Building C object library/CMakeFiles/mbedcrypto.dir/aesce.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_core.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod.c.o
+[ 20%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod_raw.c.o
+[ 21%] Building C object library/CMakeFiles/mbedcrypto.dir/block_cipher.c.o
+[ 22%] Building C object library/CMakeFiles/mbedcrypto.dir/camellia.c.o
+[ 24%] Building C object library/CMakeFiles/mbedcrypto.dir/ccm.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chacha20.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chachapoly.c.o
+[ 26%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher.c.o
+[ 28%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher_wrap.c.o
+[ 29%] Building C object library/CMakeFiles/mbedcrypto.dir/constant_time.c.o
+[ 30%] Building C object library/CMakeFiles/mbedcrypto.dir/cmac.c.o
+[ 32%] Building C object library/CMakeFiles/mbedcrypto.dir/ctr_drbg.c.o
+[ 32%] Building C object library/CMakeFiles/mbedcrypto.dir/dhm.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/des.c.o
+[ 34%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdh.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecjpake.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdsa.c.o
+[ 38%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves_new.c.o
+[ 42%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy.c.o
+[ 42%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy_poll.c.o
+[ 44%] Building C object library/CMakeFiles/mbedcrypto.dir/error.c.o
+[ 45%] Building C object library/CMakeFiles/mbedcrypto.dir/gcm.c.o
+[ 46%] Building C object library/CMakeFiles/mbedcrypto.dir/hmac_drbg.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/hkdf.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/lmots.c.o
+[ 49%] Building C object library/CMakeFiles/mbedcrypto.dir/lms.c.o
+[ 50%] Building C object library/CMakeFiles/mbedcrypto.dir/md.c.o
+[ 52%] Building C object library/CMakeFiles/mbedcrypto.dir/md5.c.o
+[ 53%] Building C object library/CMakeFiles/mbedcrypto.dir/memory_buffer_alloc.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/nist_kw.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/oid.c.o
+[ 56%] Building C object library/CMakeFiles/mbedcrypto.dir/pem.c.o
+[ 57%] Building C object library/CMakeFiles/mbedcrypto.dir/padlock.c.o
+[ 58%] Building C object library/CMakeFiles/mbedcrypto.dir/pk.c.o
+[ 60%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_ecc.c.o
+[ 61%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_wrap.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs12.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs5.c.o
+[ 64%] Building C object library/CMakeFiles/mbedcrypto.dir/pkparse.c.o
+[ 66%] Building C object library/CMakeFiles/mbedcrypto.dir/pkwrite.c.o
+[ 66%] Building C object library/CMakeFiles/mbedcrypto.dir/platform.c.o
+[ 68%] Building C object library/CMakeFiles/mbedcrypto.dir/platform_util.c.o
+[ 69%] Building C object library/CMakeFiles/mbedcrypto.dir/poly1305.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_aead.c.o
+[ 72%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_cipher.c.o
+[ 73%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_client.c.o
+[ 74%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_driver_wrappers_no_static.c.o
+[ 76%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ecp.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ffdh.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_hash.c.o
+[ 78%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_mac.c.o
+[ 80%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_pake.c.o
+[ 81%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_rsa.c.o
+[ 82%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_se.c.o
+[ 84%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_slot_management.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_storage.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_its_file.c.o
+[ 86%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_util.c.o
+[ 88%] Building C object library/CMakeFiles/mbedcrypto.dir/ripemd160.c.o
+[ 89%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa.c.o
+[ 90%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa_alt_helpers.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha1.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha256.c.o
+[ 93%] Building C object library/CMakeFiles/mbedcrypto.dir/sha512.c.o
+[ 94%] Building C object library/CMakeFiles/mbedcrypto.dir/sha3.c.o
+[ 96%] Building C object library/CMakeFiles/mbedcrypto.dir/threading.c.o
+[ 97%] Building C object library/CMakeFiles/mbedcrypto.dir/timing.c.o
+[ 98%] Building C object library/CMakeFiles/mbedcrypto.dir/version.c.o
+[100%] Building C object library/CMakeFiles/mbedcrypto.dir/version_features.c.o
+[100%] Linking C static library libmbedcrypto.a
+[100%] Built target mbedcrypto
+valid actual Go grant→mbedTLS→IntentProcessor→SQLite PASS
+signature actual Go grant→mbedTLS→IntentProcessor→SQLite PASS
+tenant actual Go grant→mbedTLS→IntentProcessor→SQLite PASS
+terminal actual Go grant→mbedTLS→IntentProcessor→SQLite PASS
+binding actual Go grant→mbedTLS→IntentProcessor→SQLite PASS
+expired actual Go grant→mbedTLS→IntentProcessor→SQLite PASS
+future actual Go grant→mbedTLS→IntentProcessor→SQLite PASS
+alias actual Go grant→mbedTLS→IntentProcessor→SQLite PASS
+row actual Go grant→mbedTLS→IntentProcessor→SQLite PASS
+admin-fault actual Go grant→mbedTLS→IntentProcessor→SQLite PASS
+outbox-fault actual Go grant→mbedTLS→IntentProcessor→SQLite PASS
+=== RUN   TestPaymentReconciliationActualFirmwareInterop
+--- PASS: TestPaymentReconciliationActualFirmwareInterop (0.26s)
+PASS
+ok  	fiscalisation/fiscal-backend/internal/domain	0.718s
+bash IoT/firmware/edge-agent-s3/idf/tests/run_provisioning_host.sh
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+ok  	fiscalisation/fiscal-backend/internal/provisioningseal	0.458s
+Go issuer -> actual mbedTLS/device identity decrypt; subject/signature/GCM/device/replay guards + ordered framed transfer PASS
+ok  	fiscalisation/fiscal-backend/internal/domain	0.316s
+Actual issuer -> mbedTLS signed schema3 + encrypted NVS transaction / commit failure / lost-ACK reload / replay / subject and secret rejection PASS
+ok  	fiscalisation/fiscal-backend/internal/domain	0.286s
+python3 IoT/firmware/edge-agent-s3/idf/tests/go_json_host/run.py
+existing cJSON serialization mismatches=3
+Go oracle corpus PASS 2055 cases
+python3 IoT/firmware/edge-agent-s3/idf/tests/cbor_typed_host/run.py
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14 (found version "3.14.5") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/beefiscal-cbor-typed-pk6nlenk/mbedtls
+[  0%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/everest.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m/p256-m.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/x25519.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m_driver_entrypoints.c.o
+[  6%] Linking C static library libp256m.a
+[  8%] Linking C static library libeverest.a
+[  8%] Built target p256m
+[  8%] Built target everest
+[  9%] Building C object library/CMakeFiles/mbedcrypto.dir/aesce.c.o
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/aria.c.o
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1write.c.o
+[ 13%] Building C object library/CMakeFiles/mbedcrypto.dir/aesni.c.o
+[ 16%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1parse.c.o
+[ 16%] Building C object library/CMakeFiles/mbedcrypto.dir/base64.c.o
+[ 16%] Building C object library/CMakeFiles/mbedcrypto.dir/aes.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_core.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod.c.o
+[ 20%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod_raw.c.o
+[ 21%] Building C object library/CMakeFiles/mbedcrypto.dir/block_cipher.c.o
+[ 24%] Building C object library/CMakeFiles/mbedcrypto.dir/ccm.c.o
+[ 24%] Building C object library/CMakeFiles/mbedcrypto.dir/camellia.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chacha20.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chachapoly.c.o
+[ 26%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher.c.o
+[ 28%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher_wrap.c.o
+[ 29%] Building C object library/CMakeFiles/mbedcrypto.dir/constant_time.c.o
+[ 30%] Building C object library/CMakeFiles/mbedcrypto.dir/cmac.c.o
+[ 32%] Building C object library/CMakeFiles/mbedcrypto.dir/ctr_drbg.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/des.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/dhm.c.o
+[ 34%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdh.c.o
+[ 36%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdsa.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecjpake.c.o
+[ 38%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves_new.c.o
+[ 41%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy.c.o
+[ 42%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy_poll.c.o
+[ 44%] Building C object library/CMakeFiles/mbedcrypto.dir/error.c.o
+[ 45%] Building C object library/CMakeFiles/mbedcrypto.dir/gcm.c.o
+[ 46%] Building C object library/CMakeFiles/mbedcrypto.dir/hmac_drbg.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/hkdf.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/lmots.c.o
+[ 49%] Building C object library/CMakeFiles/mbedcrypto.dir/lms.c.o
+[ 50%] Building C object library/CMakeFiles/mbedcrypto.dir/md.c.o
+[ 52%] Building C object library/CMakeFiles/mbedcrypto.dir/md5.c.o
+[ 53%] Building C object library/CMakeFiles/mbedcrypto.dir/memory_buffer_alloc.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/nist_kw.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/oid.c.o
+[ 56%] Building C object library/CMakeFiles/mbedcrypto.dir/padlock.c.o
+[ 57%] Building C object library/CMakeFiles/mbedcrypto.dir/pk.c.o
+[ 58%] Building C object library/CMakeFiles/mbedcrypto.dir/pem.c.o
+[ 60%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_ecc.c.o
+[ 61%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_wrap.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs12.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs5.c.o
+[ 64%] Building C object library/CMakeFiles/mbedcrypto.dir/pkparse.c.o
+[ 65%] Building C object library/CMakeFiles/mbedcrypto.dir/pkwrite.c.o
+[ 66%] Building C object library/CMakeFiles/mbedcrypto.dir/platform.c.o
+[ 68%] Building C object library/CMakeFiles/mbedcrypto.dir/platform_util.c.o
+[ 69%] Building C object library/CMakeFiles/mbedcrypto.dir/poly1305.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_aead.c.o
+[ 72%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_cipher.c.o
+[ 73%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_client.c.o
+[ 74%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_driver_wrappers_no_static.c.o
+[ 76%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ecp.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ffdh.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_hash.c.o
+[ 78%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_mac.c.o
+[ 80%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_pake.c.o
+[ 81%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_rsa.c.o
+[ 82%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_se.c.o
+[ 84%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_slot_management.c.o
+[ 84%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_its_file.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_storage.c.o
+[ 86%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_util.c.o
+[ 88%] Building C object library/CMakeFiles/mbedcrypto.dir/ripemd160.c.o
+[ 89%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa.c.o
+[ 90%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa_alt_helpers.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha1.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha256.c.o
+[ 93%] Building C object library/CMakeFiles/mbedcrypto.dir/sha512.c.o
+[ 94%] Building C object library/CMakeFiles/mbedcrypto.dir/sha3.c.o
+[ 96%] Building C object library/CMakeFiles/mbedcrypto.dir/threading.c.o
+[ 97%] Building C object library/CMakeFiles/mbedcrypto.dir/timing.c.o
+[ 98%] Building C object library/CMakeFiles/mbedcrypto.dir/version.c.o
+[100%] Building C object library/CMakeFiles/mbedcrypto.dir/version_features.c.o
+[100%] Linking C static library libmbedcrypto.a
+[100%] Built target mbedcrypto
+direct CBOR int64/UTF8/length/depth/minimal/duplicate/boundary vectors PASS
+python3 IoT/firmware/edge-agent-s3/idf/tests/cbor_encoder_host/run.py
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14 (found version "3.14.5") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/beefiscal-cbor-encoder-2omd10ri/mbedtls
+[  0%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/everest.c.o
+[  1%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/x25519.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m/p256-m.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m_driver_entrypoints.c.o
+[  6%] Linking C static library libp256m.a
+[  8%] Linking C static library libeverest.a
+[  8%] Built target p256m
+[  8%] Built target everest
+[  9%] Building C object library/CMakeFiles/mbedcrypto.dir/aesce.c.o
+[  9%] Building C object library/CMakeFiles/mbedcrypto.dir/aesni.c.o
+[ 12%] Building C object library/CMakeFiles/mbedcrypto.dir/aria.c.o
+[ 13%] Building C object library/CMakeFiles/mbedcrypto.dir/aes.c.o
+[ 16%] Building C object library/CMakeFiles/mbedcrypto.dir/base64.c.o
+[ 16%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1parse.c.o
+[ 16%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1write.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_core.c.o
+[ 20%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod_raw.c.o
+[ 21%] Building C object library/CMakeFiles/mbedcrypto.dir/block_cipher.c.o
+[ 22%] Building C object library/CMakeFiles/mbedcrypto.dir/ccm.c.o
+[ 24%] Building C object library/CMakeFiles/mbedcrypto.dir/camellia.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chacha20.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chachapoly.c.o
+[ 28%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher.c.o
+[ 28%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher_wrap.c.o
+[ 29%] Building C object library/CMakeFiles/mbedcrypto.dir/constant_time.c.o
+[ 30%] Building C object library/CMakeFiles/mbedcrypto.dir/cmac.c.o
+[ 32%] Building C object library/CMakeFiles/mbedcrypto.dir/ctr_drbg.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/des.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/dhm.c.o
+[ 34%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdh.c.o
+[ 36%] Building C object library/CMakeFiles/mbedcrypto.dir/ecjpake.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdsa.c.o
+[ 38%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves_new.c.o
+[ 41%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy.c.o
+[ 42%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy_poll.c.o
+[ 44%] Building C object library/CMakeFiles/mbedcrypto.dir/error.c.o
+[ 46%] Building C object library/CMakeFiles/mbedcrypto.dir/gcm.c.o
+[ 46%] Building C object library/CMakeFiles/mbedcrypto.dir/hkdf.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/hmac_drbg.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/lmots.c.o
+[ 49%] Building C object library/CMakeFiles/mbedcrypto.dir/lms.c.o
+[ 50%] Building C object library/CMakeFiles/mbedcrypto.dir/md.c.o
+[ 52%] Building C object library/CMakeFiles/mbedcrypto.dir/md5.c.o
+[ 53%] Building C object library/CMakeFiles/mbedcrypto.dir/memory_buffer_alloc.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/nist_kw.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/oid.c.o
+[ 56%] Building C object library/CMakeFiles/mbedcrypto.dir/padlock.c.o
+[ 57%] Building C object library/CMakeFiles/mbedcrypto.dir/pk.c.o
+[ 58%] Building C object library/CMakeFiles/mbedcrypto.dir/pem.c.o
+[ 60%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_ecc.c.o
+[ 61%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_wrap.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs12.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs5.c.o
+[ 64%] Building C object library/CMakeFiles/mbedcrypto.dir/pkparse.c.o
+[ 65%] Building C object library/CMakeFiles/mbedcrypto.dir/pkwrite.c.o
+[ 66%] Building C object library/CMakeFiles/mbedcrypto.dir/platform.c.o
+[ 68%] Building C object library/CMakeFiles/mbedcrypto.dir/platform_util.c.o
+[ 69%] Building C object library/CMakeFiles/mbedcrypto.dir/poly1305.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_aead.c.o
+[ 73%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_client.c.o
+[ 73%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_cipher.c.o
+[ 74%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_driver_wrappers_no_static.c.o
+[ 76%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ecp.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ffdh.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_hash.c.o
+[ 78%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_mac.c.o
+[ 80%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_pake.c.o
+[ 81%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_rsa.c.o
+[ 82%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_se.c.o
+[ 84%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_slot_management.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_storage.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_its_file.c.o
+[ 86%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_util.c.o
+[ 88%] Building C object library/CMakeFiles/mbedcrypto.dir/ripemd160.c.o
+[ 89%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa.c.o
+[ 90%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa_alt_helpers.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha1.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha256.c.o
+[ 93%] Building C object library/CMakeFiles/mbedcrypto.dir/sha512.c.o
+[ 94%] Building C object library/CMakeFiles/mbedcrypto.dir/sha3.c.o
+[ 96%] Building C object library/CMakeFiles/mbedcrypto.dir/threading.c.o
+[ 97%] Building C object library/CMakeFiles/mbedcrypto.dir/timing.c.o
+[ 98%] Building C object library/CMakeFiles/mbedcrypto.dir/version.c.o
+[100%] Building C object library/CMakeFiles/mbedcrypto.dir/version_features.c.o
+[100%] Linking C static library libmbedcrypto.a
+[100%] Built target mbedcrypto
+0 00
+23 17
+24 1818
+255 18ff
+256 190100
+65535 19ffff
+65536 1a00010000
+2147483647 1a7fffffff
+2147483648 1a80000000
+4294967295 1affffffff
+4294967296 1b0000000100000000
+9007199254740991 1b001fffffffffffff
+9007199254740992 1b0020000000000000
+9007199254740993 1b0020000000000001
+9223372036854775807 1b7fffffffffffffff
+-9223372036854775808 3b7fffffffffffffff
+-24 37
+-25 3818
+-256 38ff
+-257 390100
+-65536 39ffff
+-65537 3a00010000
+-4294967296 3affffffff
+-4294967297 3b0000000100000000
+typed encoder independent hex/bridge/Unicode/limits PASS
+python3 IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py
+ok  	fiscalisation/fiscal-backend/internal/domain	0.406s
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14 (found version "3.14.5") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/beefiscal-ble-origin-t919z9ps/mbedtls
+[  0%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/everest.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/x25519.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m_driver_entrypoints.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m/p256-m.c.o
+[  6%] Linking C static library libp256m.a
+[  8%] Linking C static library libeverest.a
+[  8%] Built target p256m
+[  8%] Built target everest
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/aesni.c.o
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/aesce.c.o
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/aes.c.o
+[ 12%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1parse.c.o
+[ 13%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1write.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/base64.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/aria.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_core.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod.c.o
+[ 20%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod_raw.c.o
+[ 21%] Building C object library/CMakeFiles/mbedcrypto.dir/block_cipher.c.o
+[ 22%] Building C object library/CMakeFiles/mbedcrypto.dir/camellia.c.o
+[ 24%] Building C object library/CMakeFiles/mbedcrypto.dir/ccm.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chacha20.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chachapoly.c.o
+[ 26%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher.c.o
+[ 28%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher_wrap.c.o
+[ 29%] Building C object library/CMakeFiles/mbedcrypto.dir/constant_time.c.o
+[ 30%] Building C object library/CMakeFiles/mbedcrypto.dir/cmac.c.o
+[ 32%] Building C object library/CMakeFiles/mbedcrypto.dir/ctr_drbg.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/des.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/dhm.c.o
+[ 34%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdh.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdsa.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecjpake.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves.c.o
+[ 41%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves_new.c.o
+[ 41%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy.c.o
+[ 42%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy_poll.c.o
+[ 44%] Building C object library/CMakeFiles/mbedcrypto.dir/error.c.o
+[ 45%] Building C object library/CMakeFiles/mbedcrypto.dir/gcm.c.o
+[ 46%] Building C object library/CMakeFiles/mbedcrypto.dir/hkdf.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/hmac_drbg.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/lmots.c.o
+[ 49%] Building C object library/CMakeFiles/mbedcrypto.dir/lms.c.o
+[ 50%] Building C object library/CMakeFiles/mbedcrypto.dir/md.c.o
+[ 52%] Building C object library/CMakeFiles/mbedcrypto.dir/md5.c.o
+[ 53%] Building C object library/CMakeFiles/mbedcrypto.dir/memory_buffer_alloc.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/nist_kw.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/oid.c.o
+[ 56%] Building C object library/CMakeFiles/mbedcrypto.dir/padlock.c.o
+[ 57%] Building C object library/CMakeFiles/mbedcrypto.dir/pem.c.o
+[ 58%] Building C object library/CMakeFiles/mbedcrypto.dir/pk.c.o
+[ 60%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_ecc.c.o
+[ 61%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_wrap.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs12.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs5.c.o
+[ 64%] Building C object library/CMakeFiles/mbedcrypto.dir/pkparse.c.o
+[ 66%] Building C object library/CMakeFiles/mbedcrypto.dir/pkwrite.c.o
+[ 66%] Building C object library/CMakeFiles/mbedcrypto.dir/platform.c.o
+[ 68%] Building C object library/CMakeFiles/mbedcrypto.dir/platform_util.c.o
+[ 69%] Building C object library/CMakeFiles/mbedcrypto.dir/poly1305.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_aead.c.o
+[ 72%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_cipher.c.o
+[ 73%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_client.c.o
+[ 74%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_driver_wrappers_no_static.c.o
+[ 76%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ecp.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ffdh.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_hash.c.o
+[ 78%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_mac.c.o
+[ 80%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_pake.c.o
+[ 81%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_rsa.c.o
+[ 82%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_se.c.o
+[ 84%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_slot_management.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_storage.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_its_file.c.o
+[ 86%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_util.c.o
+[ 88%] Building C object library/CMakeFiles/mbedcrypto.dir/ripemd160.c.o
+[ 90%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa.c.o
+[ 90%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa_alt_helpers.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha1.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha256.c.o
+[ 93%] Building C object library/CMakeFiles/mbedcrypto.dir/sha512.c.o
+[ 94%] Building C object library/CMakeFiles/mbedcrypto.dir/sha3.c.o
+[ 96%] Building C object library/CMakeFiles/mbedcrypto.dir/threading.c.o
+[ 97%] Building C object library/CMakeFiles/mbedcrypto.dir/timing.c.o
+[ 98%] Building C object library/CMakeFiles/mbedcrypto.dir/version.c.o
+[100%] Building C object library/CMakeFiles/mbedcrypto.dir/version_features.c.o
+[100%] Linking C static library libmbedcrypto.a
+[100%] Built target mbedcrypto
+actual delivery int64/state aliases/replay/strict rejection/durable unchanged PASS
+live actual queue/processor/SQLite/CBOR/delivery/BLE PASS
+queued-reset actual queue/processor/SQLite/CBOR/delivery/BLE PASS
+executing-reset actual queue/processor/SQLite/CBOR/delivery/BLE PASS
+missing-owner actual queue/processor/SQLite/CBOR/delivery/BLE PASS
+notify-error actual queue/processor/SQLite/CBOR/delivery/BLE PASS
+duplicate actual queue/processor/SQLite/CBOR/delivery/BLE PASS
+unavailable actual queue/processor/SQLite/CBOR/delivery/BLE PASS
+queue-wait actual queue/processor/SQLite/CBOR/delivery/BLE PASS
+queue-wait-timeout actual queue/processor/SQLite/CBOR/delivery/BLE PASS
+http actual queue/processor/SQLite/CBOR/delivery/BLE PASS
+recovery actual queue/processor/SQLite/CBOR/delivery/BLE PASS
+reconcile-live actual admin queue/proof/SQLite/delivery PASS
+reconcile-reset actual admin queue/proof/SQLite/delivery PASS
+Actual BLE origin vertical: 13 scenarios PASS
+python3 IoT/firmware/edge-agent-s3/idf/tests/go_wire_host/run.py
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14 (found version "3.14.5") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.7s)
+-- Generating done (0.0s)
+-- Build files have been written to: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/go-wire-host-i6d75olh/mbedtls
+[  2%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/everest.c.o
+[  2%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m/p256-m.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/x25519.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m_driver_entrypoints.c.o
+[  6%] Linking C static library libp256m.a
+[  8%] Linking C static library libeverest.a
+[  8%] Built target p256m
+[  8%] Built target everest
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/aesni.c.o
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/aes.c.o
+[ 12%] Building C object library/CMakeFiles/mbedcrypto.dir/aria.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/aesce.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1write.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1parse.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/base64.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_core.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod.c.o
+[ 21%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod_raw.c.o
+[ 21%] Building C object library/CMakeFiles/mbedcrypto.dir/camellia.c.o
+[ 22%] Building C object library/CMakeFiles/mbedcrypto.dir/block_cipher.c.o
+[ 24%] Building C object library/CMakeFiles/mbedcrypto.dir/ccm.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chacha20.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chachapoly.c.o
+[ 26%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher.c.o
+[ 28%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher_wrap.c.o
+[ 29%] Building C object library/CMakeFiles/mbedcrypto.dir/constant_time.c.o
+[ 30%] Building C object library/CMakeFiles/mbedcrypto.dir/cmac.c.o
+[ 32%] Building C object library/CMakeFiles/mbedcrypto.dir/des.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/ctr_drbg.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/dhm.c.o
+[ 34%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdh.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdsa.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecjpake.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves_new.c.o
+[ 41%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy.c.o
+[ 44%] Building C object library/CMakeFiles/mbedcrypto.dir/error.c.o
+[ 44%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy_poll.c.o
+[ 45%] Building C object library/CMakeFiles/mbedcrypto.dir/gcm.c.o
+[ 46%] Building C object library/CMakeFiles/mbedcrypto.dir/hkdf.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/hmac_drbg.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/lmots.c.o
+[ 49%] Building C object library/CMakeFiles/mbedcrypto.dir/lms.c.o
+[ 50%] Building C object library/CMakeFiles/mbedcrypto.dir/md.c.o
+[ 52%] Building C object library/CMakeFiles/mbedcrypto.dir/md5.c.o
+[ 53%] Building C object library/CMakeFiles/mbedcrypto.dir/memory_buffer_alloc.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/nist_kw.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/oid.c.o
+[ 56%] Building C object library/CMakeFiles/mbedcrypto.dir/pem.c.o
+[ 57%] Building C object library/CMakeFiles/mbedcrypto.dir/pk.c.o
+[ 58%] Building C object library/CMakeFiles/mbedcrypto.dir/padlock.c.o
+[ 60%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_ecc.c.o
+[ 61%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_wrap.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs12.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs5.c.o
+[ 64%] Building C object library/CMakeFiles/mbedcrypto.dir/pkparse.c.o
+[ 65%] Building C object library/CMakeFiles/mbedcrypto.dir/pkwrite.c.o
+[ 66%] Building C object library/CMakeFiles/mbedcrypto.dir/platform.c.o
+[ 68%] Building C object library/CMakeFiles/mbedcrypto.dir/platform_util.c.o
+[ 69%] Building C object library/CMakeFiles/mbedcrypto.dir/poly1305.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_aead.c.o
+[ 72%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_cipher.c.o
+[ 73%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_client.c.o
+[ 74%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_driver_wrappers_no_static.c.o
+[ 76%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ecp.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ffdh.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_hash.c.o
+[ 78%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_mac.c.o
+[ 80%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_pake.c.o
+[ 81%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_rsa.c.o
+[ 82%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_se.c.o
+[ 84%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_storage.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_slot_management.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_its_file.c.o
+[ 86%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_util.c.o
+[ 88%] Building C object library/CMakeFiles/mbedcrypto.dir/ripemd160.c.o
+[ 89%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa.c.o
+[ 90%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa_alt_helpers.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha1.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha256.c.o
+[ 93%] Building C object library/CMakeFiles/mbedcrypto.dir/sha512.c.o
+[ 94%] Building C object library/CMakeFiles/mbedcrypto.dir/sha3.c.o
+[ 96%] Building C object library/CMakeFiles/mbedcrypto.dir/threading.c.o
+[ 97%] Building C object library/CMakeFiles/mbedcrypto.dir/timing.c.o
+[ 98%] Building C object library/CMakeFiles/mbedcrypto.dir/version.c.o
+[100%] Building C object library/CMakeFiles/mbedcrypto.dir/version_features.c.o
+[100%] Linking C static library libmbedcrypto.a
+[100%] Built target mbedcrypto
+actual Go signed command/payload accepted with reordered keys; malformed and unsafeinteger ingress rejected
+mqtt-valid actual issuer→IntentProcessor→SQLite PASS
+actual Go domain verifies firmware event/batch hashes; signed typed ACK emitted
+actual Go ACK HMAC accepted and durable cursor committed 1
+actual Go domain verifies firmware event/batch hashes; signed typed ACK emitted
+actual Go ACK HMAC accepted and durable cursor committed 9223372036854775806
+FROZEN_SYNC_CANONICAL_MISMATCH: retain signed batch 01020304-0506-4708-890a-0b0c0d0e0f10 for operator reconciliation; automatic rewrite forbidden
+legacy incompatible frozen batch blocked unchanged
+python3 IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14 (found version "3.14.5") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.8s)
+-- Generating done (0.0s)
+-- Build files have been written to: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/reversal-host-z_yfn5h2/mbedtls
+[  2%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/everest.c.o
+[  2%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m_driver_entrypoints.c.o
+[  2%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m/p256-m.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/x25519.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.o
+[  6%] Linking C static library libp256m.a
+[  8%] Linking C static library libeverest.a
+[  8%] Built target p256m
+[  8%] Built target everest
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/aes.c.o
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1write.c.o
+[ 12%] Building C object library/CMakeFiles/mbedcrypto.dir/aesni.c.o
+[ 13%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum.c.o
+[ 14%] Building C object library/CMakeFiles/mbedcrypto.dir/aria.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1parse.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/base64.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/aesce.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_core.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod.c.o
+[ 20%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod_raw.c.o
+[ 22%] Building C object library/CMakeFiles/mbedcrypto.dir/camellia.c.o
+[ 22%] Building C object library/CMakeFiles/mbedcrypto.dir/block_cipher.c.o
+[ 24%] Building C object library/CMakeFiles/mbedcrypto.dir/ccm.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chacha20.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chachapoly.c.o
+[ 26%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher.c.o
+[ 28%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher_wrap.c.o
+[ 29%] Building C object library/CMakeFiles/mbedcrypto.dir/constant_time.c.o
+[ 32%] Building C object library/CMakeFiles/mbedcrypto.dir/ctr_drbg.c.o
+[ 32%] Building C object library/CMakeFiles/mbedcrypto.dir/cmac.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/des.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/dhm.c.o
+[ 34%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdh.c.o
+[ 36%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdsa.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecjpake.c.o
+[ 38%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves_new.c.o
+[ 41%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy.c.o
+[ 42%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy_poll.c.o
+[ 44%] Building C object library/CMakeFiles/mbedcrypto.dir/error.c.o
+[ 45%] Building C object library/CMakeFiles/mbedcrypto.dir/gcm.c.o
+[ 46%] Building C object library/CMakeFiles/mbedcrypto.dir/hkdf.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/hmac_drbg.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/lmots.c.o
+[ 49%] Building C object library/CMakeFiles/mbedcrypto.dir/lms.c.o
+[ 50%] Building C object library/CMakeFiles/mbedcrypto.dir/md.c.o
+[ 52%] Building C object library/CMakeFiles/mbedcrypto.dir/md5.c.o
+[ 53%] Building C object library/CMakeFiles/mbedcrypto.dir/memory_buffer_alloc.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/nist_kw.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/oid.c.o
+[ 56%] Building C object library/CMakeFiles/mbedcrypto.dir/padlock.c.o
+[ 57%] Building C object library/CMakeFiles/mbedcrypto.dir/pem.c.o
+[ 58%] Building C object library/CMakeFiles/mbedcrypto.dir/pk.c.o
+[ 60%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_ecc.c.o
+[ 61%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_wrap.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs12.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs5.c.o
+[ 64%] Building C object library/CMakeFiles/mbedcrypto.dir/pkparse.c.o
+[ 65%] Building C object library/CMakeFiles/mbedcrypto.dir/pkwrite.c.o
+[ 66%] Building C object library/CMakeFiles/mbedcrypto.dir/platform.c.o
+[ 68%] Building C object library/CMakeFiles/mbedcrypto.dir/platform_util.c.o
+[ 69%] Building C object library/CMakeFiles/mbedcrypto.dir/poly1305.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_aead.c.o
+[ 72%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_cipher.c.o
+[ 73%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_client.c.o
+[ 74%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_driver_wrappers_no_static.c.o
+[ 76%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ecp.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ffdh.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_hash.c.o
+[ 78%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_mac.c.o
+[ 80%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_pake.c.o
+[ 81%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_rsa.c.o
+[ 82%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_se.c.o
+[ 84%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_slot_management.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_storage.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_its_file.c.o
+[ 86%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_util.c.o
+[ 88%] Building C object library/CMakeFiles/mbedcrypto.dir/ripemd160.c.o
+[ 89%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa.c.o
+[ 90%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa_alt_helpers.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha1.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha256.c.o
+[ 94%] Building C object library/CMakeFiles/mbedcrypto.dir/sha3.c.o
+[ 94%] Building C object library/CMakeFiles/mbedcrypto.dir/sha512.c.o
+[ 96%] Building C object library/CMakeFiles/mbedcrypto.dir/threading.c.o
+[ 97%] Building C object library/CMakeFiles/mbedcrypto.dir/timing.c.o
+[ 98%] Building C object library/CMakeFiles/mbedcrypto.dir/version.c.o
+[100%] Building C object library/CMakeFiles/mbedcrypto.dir/version_features.c.o
+[100%] Linking C static library libmbedcrypto.a
+[100%] Built target mbedcrypto
+datecs actual reversal vendor sequence PASS OPERATOR_ERROR
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+datecs actual reversal vendor sequence PASS CUSTOMER_RETURN
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+datecs actual reversal vendor sequence PASS CUSTOMER_COMPLAINT
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+datecs actual reversal vendor sequence PASS TAX_BASE_REDUCTION
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+daisy actual reversal vendor sequence PASS OPERATOR_ERROR
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+daisy actual reversal vendor sequence PASS CUSTOMER_RETURN
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+daisy actual reversal vendor sequence PASS CUSTOMER_COMPLAINT
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+daisy actual reversal vendor sequence PASS TAX_BASE_REDUCTION
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+python3 IoT/firmware/edge-agent-s3/idf/tests/receipt_host/run.py
+datecs sale valid receipt proof PASS
+datecs sale bad-close receipt proof PASS
+datecs sale wrong-number receipt proof PASS
+datecs sale wrong-unp receipt proof PASS
+datecs sale substring receipt proof PASS
+datecs sale wrong-type receipt proof PASS
+datecs sale bad-date receipt proof PASS
+datecs sale wrong-serial receipt proof PASS
+datecs reversal valid receipt proof PASS
+datecs reversal bad-close receipt proof PASS
+datecs reversal wrong-number receipt proof PASS
+datecs reversal wrong-unp receipt proof PASS
+datecs reversal substring receipt proof PASS
+datecs reversal wrong-type receipt proof PASS
+datecs reversal bad-date receipt proof PASS
+datecs reversal wrong-serial receipt proof PASS
+datecs recover-sale valid receipt proof PASS
+datecs recover-sale wrong-number receipt proof PASS
+datecs recover-sale wrong-unp receipt proof PASS
+datecs recover-sale substring receipt proof PASS
+datecs recover-sale wrong-type receipt proof PASS
+datecs recover-sale bad-date receipt proof PASS
+datecs recover-sale wrong-serial receipt proof PASS
+daisy sale valid receipt proof PASS
+daisy sale bad-close receipt proof PASS
+daisy sale wrong-number receipt proof PASS
+daisy sale wrong-unp receipt proof PASS
+daisy sale substring receipt proof PASS
+daisy sale wrong-type receipt proof PASS
+daisy sale bad-date receipt proof PASS
+daisy sale wrong-serial receipt proof PASS
+daisy reversal valid receipt proof PASS
+daisy reversal bad-close receipt proof PASS
+daisy reversal wrong-number receipt proof PASS
+daisy reversal wrong-unp receipt proof PASS
+daisy reversal substring receipt proof PASS
+daisy reversal wrong-type receipt proof PASS
+daisy reversal bad-date receipt proof PASS
+daisy reversal wrong-serial receipt proof PASS
+daisy recover-sale valid receipt proof PASS
+daisy recover-sale wrong-number receipt proof PASS
+daisy recover-sale wrong-unp receipt proof PASS
+daisy recover-sale substring receipt proof PASS
+daisy recover-sale wrong-type receipt proof PASS
+daisy recover-sale bad-date receipt proof PASS
+daisy recover-sale wrong-serial receipt proof PASS
+datecs sale line-limit receipt proof PASS
+daisy sale not-ejt receipt proof PASS
+daisy reversal not-ejt receipt proof PASS
+daisy reversal wrong-link receipt proof PASS
+daisy reversal wrong-fm receipt proof PASS
+python3 -m unittest discover -s IoT/firmware/edge-agent-s3/idf/tests -p 'test_*.py'
+...................Building pinned ESP-IDF; log: /private/var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/tmpxtu5q1td/new-output/build.log
+.........................
+----------------------------------------------------------------------
+Ran 44 tests in 0.191s
+
+OK
+IoT/firmware/edge-agent-s3/idf/tests/run_native_saga.sh
+receipt saga native fault matrix PASS
+bash IoT/firmware/edge-agent-s3/idf/tests/run_native_mqtt.sh
+actual MQTT runtime host tests: OK
+bash IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh
+actual serial runtime tests: OK
+bash IoT/firmware/edge-agent-s3/idf/tests/run_native_ble.sh
+reset/handle-token/foreign-disconnect admission: PASS
+provisioning/reset/read-flow admission: PASS
+paused command/provisioning ingress after reset+reused handle: PASS
+notify reset fence/mbuf ownership: PASS
+startup timeout/generation exhaustion permanent fence: PASS
+actual BLE runtime host tests: OK
+reset/handle-token/foreign-disconnect admission: PASS
+provisioning/reset/read-flow admission: PASS
+paused command/provisioning ingress after reset+reused handle: PASS
+notify reset fence/mbuf ownership: PASS
+startup timeout/generation exhaustion permanent fence: PASS
+actual BLE runtime host tests: OK
+reset/handle-token/foreign-disconnect admission: PASS
+provisioning/reset/read-flow admission: PASS
+paused command/provisioning ingress after reset+reused handle: PASS
+notify reset fence/mbuf ownership: PASS
+startup timeout/generation exhaustion permanent fence: PASS
+actual BLE runtime host tests: OK
+sh IoT/firmware/edge-agent-s3/idf/tests/run_storage_host.sh
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+-- The C compiler identification is AppleClang 21.0.0.21000101
+-- Detecting C compiler ABI info
+-- Detecting C compiler ABI info - done
+-- Check for working C compiler: /usr/bin/cc - skipped
+-- Detecting C compile features
+-- Detecting C compile features - done
+-- Found Python3: /opt/homebrew/Frameworks/Python.framework/Versions/3.14/bin/python3.14 (found version "3.14.5") found components: Interpreter
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD
+-- Performing Test CMAKE_HAVE_LIBC_PTHREAD - Success
+-- Found Threads: TRUE
+-- Configuring done (0.8s)
+-- Generating done (0.0s)
+-- Build files have been written to: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/beefiscal-storage-host.WFmVHo/mbedtls
+[  0%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/everest.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m/p256-m.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/Hacl_Curve25519_joined.c.o
+[  5%] Building C object 3rdparty/p256-m/CMakeFiles/p256m.dir/p256-m_driver_entrypoints.c.o
+[  5%] Building C object 3rdparty/everest/CMakeFiles/everest.dir/library/x25519.c.o
+[  6%] Linking C static library libp256m.a
+[  8%] Linking C static library libeverest.a
+[  8%] Built target p256m
+[  8%] Built target everest
+[  8%] Building C object library/CMakeFiles/mbedcrypto.dir/aesce.c.o
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/aes.c.o
+[ 10%] Building C object library/CMakeFiles/mbedcrypto.dir/aria.c.o
+[ 13%] Building C object library/CMakeFiles/mbedcrypto.dir/base64.c.o
+[ 14%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1parse.c.o
+[ 14%] Building C object library/CMakeFiles/mbedcrypto.dir/aesni.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/asn1write.c.o
+[ 17%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_core.c.o
+[ 18%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod.c.o
+[ 20%] Building C object library/CMakeFiles/mbedcrypto.dir/bignum_mod_raw.c.o
+[ 21%] Building C object library/CMakeFiles/mbedcrypto.dir/block_cipher.c.o
+[ 22%] Building C object library/CMakeFiles/mbedcrypto.dir/camellia.c.o
+[ 24%] Building C object library/CMakeFiles/mbedcrypto.dir/ccm.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chacha20.c.o
+[ 25%] Building C object library/CMakeFiles/mbedcrypto.dir/chachapoly.c.o
+[ 26%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher.c.o
+[ 28%] Building C object library/CMakeFiles/mbedcrypto.dir/cipher_wrap.c.o
+[ 30%] Building C object library/CMakeFiles/mbedcrypto.dir/cmac.c.o
+[ 30%] Building C object library/CMakeFiles/mbedcrypto.dir/constant_time.c.o
+[ 32%] Building C object library/CMakeFiles/mbedcrypto.dir/ctr_drbg.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/des.c.o
+[ 33%] Building C object library/CMakeFiles/mbedcrypto.dir/dhm.c.o
+[ 34%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdh.c.o
+[ 36%] Building C object library/CMakeFiles/mbedcrypto.dir/ecdsa.c.o
+[ 37%] Building C object library/CMakeFiles/mbedcrypto.dir/ecjpake.c.o
+[ 38%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves.c.o
+[ 40%] Building C object library/CMakeFiles/mbedcrypto.dir/ecp_curves_new.c.o
+[ 41%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy.c.o
+[ 42%] Building C object library/CMakeFiles/mbedcrypto.dir/entropy_poll.c.o
+[ 44%] Building C object library/CMakeFiles/mbedcrypto.dir/error.c.o
+[ 45%] Building C object library/CMakeFiles/mbedcrypto.dir/gcm.c.o
+[ 46%] Building C object library/CMakeFiles/mbedcrypto.dir/hkdf.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/hmac_drbg.c.o
+[ 48%] Building C object library/CMakeFiles/mbedcrypto.dir/lmots.c.o
+[ 49%] Building C object library/CMakeFiles/mbedcrypto.dir/lms.c.o
+[ 50%] Building C object library/CMakeFiles/mbedcrypto.dir/md.c.o
+[ 52%] Building C object library/CMakeFiles/mbedcrypto.dir/md5.c.o
+[ 53%] Building C object library/CMakeFiles/mbedcrypto.dir/memory_buffer_alloc.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/nist_kw.c.o
+[ 54%] Building C object library/CMakeFiles/mbedcrypto.dir/oid.c.o
+[ 56%] Building C object library/CMakeFiles/mbedcrypto.dir/padlock.c.o
+[ 57%] Building C object library/CMakeFiles/mbedcrypto.dir/pk.c.o
+[ 58%] Building C object library/CMakeFiles/mbedcrypto.dir/pem.c.o
+[ 60%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_ecc.c.o
+[ 61%] Building C object library/CMakeFiles/mbedcrypto.dir/pk_wrap.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs12.c.o
+[ 62%] Building C object library/CMakeFiles/mbedcrypto.dir/pkcs5.c.o
+[ 64%] Building C object library/CMakeFiles/mbedcrypto.dir/pkparse.c.o
+[ 65%] Building C object library/CMakeFiles/mbedcrypto.dir/pkwrite.c.o
+[ 66%] Building C object library/CMakeFiles/mbedcrypto.dir/platform.c.o
+[ 68%] Building C object library/CMakeFiles/mbedcrypto.dir/platform_util.c.o
+[ 69%] Building C object library/CMakeFiles/mbedcrypto.dir/poly1305.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto.c.o
+[ 70%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_aead.c.o
+[ 73%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_client.c.o
+[ 73%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_cipher.c.o
+[ 74%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_driver_wrappers_no_static.c.o
+[ 76%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ecp.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_ffdh.c.o
+[ 77%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_hash.c.o
+[ 78%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_mac.c.o
+[ 80%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_pake.c.o
+[ 81%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_rsa.c.o
+[ 82%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_se.c.o
+[ 84%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_slot_management.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_crypto_storage.c.o
+[ 85%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_its_file.c.o
+[ 86%] Building C object library/CMakeFiles/mbedcrypto.dir/psa_util.c.o
+[ 88%] Building C object library/CMakeFiles/mbedcrypto.dir/ripemd160.c.o
+[ 89%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa.c.o
+[ 90%] Building C object library/CMakeFiles/mbedcrypto.dir/rsa_alt_helpers.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha1.c.o
+[ 92%] Building C object library/CMakeFiles/mbedcrypto.dir/sha256.c.o
+[ 93%] Building C object library/CMakeFiles/mbedcrypto.dir/sha512.c.o
+[ 94%] Building C object library/CMakeFiles/mbedcrypto.dir/sha3.c.o
+[ 96%] Building C object library/CMakeFiles/mbedcrypto.dir/threading.c.o
+[ 97%] Building C object library/CMakeFiles/mbedcrypto.dir/timing.c.o
+[ 98%] Building C object library/CMakeFiles/mbedcrypto.dir/version.c.o
+[100%] Building C object library/CMakeFiles/mbedcrypto.dir/version_features.c.o
+[100%] Linking C static library libmbedcrypto.a
+[100%] Built target mbedcrypto
+validity-issued-boundary actual HMAC+IntentProcessor+SQLite PASS
+validity-fraction actual HMAC+IntentProcessor+SQLite PASS
+validity-nano-expired actual HMAC+IntentProcessor+SQLite PASS
+validity-nano-future actual HMAC+IntentProcessor+SQLite PASS
+validity-expired actual HMAC+IntentProcessor+SQLite PASS
+validity-future actual HMAC+IntentProcessor+SQLite PASS
+validity-missing-issued actual HMAC+IntentProcessor+SQLite PASS
+validity-missing-expires actual HMAC+IntentProcessor+SQLite PASS
+validity-reversed actual HMAC+IntentProcessor+SQLite PASS
+validity-equal actual HMAC+IntentProcessor+SQLite PASS
+validity-calendar actual HMAC+IntentProcessor+SQLite PASS
+validity-overflow actual HMAC+IntentProcessor+SQLite PASS
+validity-offset actual HMAC+IntentProcessor+SQLite PASS
+validity-leap-second actual HMAC+IntentProcessor+SQLite PASS
+validity-clock-zero actual HMAC+IntentProcessor+SQLite PASS
+validity-clock-failed actual HMAC+IntentProcessor+SQLite PASS
+validity-clock-nanos actual HMAC+IntentProcessor+SQLite PASS
+validity-reservation-expired actual HMAC+IntentProcessor+SQLite PASS
+validity-transaction-expired actual HMAC+IntentProcessor+SQLite PASS
+validity-admitted-expired actual HMAC+IntentProcessor+SQLite PASS
+validity-before-io-expired actual HMAC+IntentProcessor+SQLite PASS
+expired signed command rejected before IO/reservation
+preassigned PASS (actual IntentProcessor + SQLite, reopened)
+preassigned-negative PASS eight authenticated negativecommands beforeI/O
+currency-validation PASS (actual decoder, no reservation/executor)
+recovery-json PASS (actual recovery + SQLite, reopened)
+json-result PASS (actual IntentProcessor + SQLite, reopened)
+checkpoint PASS (actual IntentProcessor + SQLite, reopened)
+outbox PASS (actual IntentProcessor + SQLite, reopened)
+receipt PASS (actual IntentProcessor + SQLite, reopened)
+payment PASS (actual IntentProcessor + SQLite, reopened)
+collision PASS (actual IntentProcessor + SQLite, reopened)
+normal PASS (actual IntentProcessor + SQLite, reopened)
+cards PASS (actual IntentProcessor + SQLite, reopened)
+recovery-outbox PASS (actual recovery + SQLite, reopened)
+recovery-receipt PASS (actual recovery + SQLite, reopened)
+recovery-normal PASS (actual recovery + SQLite, reopened)
+recovery-progress PASS (actual recovery + SQLite, reopened)
+recovery-preserve-cards PASS (actual recovery + SQLite, reopened)
+recovery-storage-error PASS (closed SQLite fails explicitly)
+recovery-missing-receipt PASS (legacy incomplete context fails closed)
+sh IoT/firmware/edge-agent-s3/idf/tests/run_sync_host.sh
+normal PASS (actual sync runtime, durable SQLite restart)
+duplicate PASS (actual sync runtime, durable SQLite restart)
+interleaving PASS (writer queued while ACK holds storage mutex)
+large-sequence PASS
+concurrent-append PASS (concurrent actual SQLite writer/ACK)
+publish-failure PASS (actual sync runtime, durable SQLite restart)
+changed-row PASS (actual sync runtime, durable SQLite restart)
+ack-fault PASS (actual sync runtime, durable SQLite restart)
+delete-fault PASS (actual sync runtime, durable SQLite restart)
+freeze-fault PASS
+sh IoT/firmware/edge-agent-s3/idf/tests/run_money_host.sh
+In file included from /Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/money_host/money_native.cpp:1:
+In file included from /Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.h:4:
+/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/serial_exchange.h:18:18: warning: private field 'next_sequence_' is not used [-Wunused-private-field]
+   18 |  private:uint8_t next_sequence_{0x20};
+      |                  ^
+1 warning generated.
+actual profile execution vendor bytes / fixed money / fail-before-POS / secure-store path PASS
+sh IoT/firmware/edge-agent-s3/idf/tests/run_saga_storage_host.sh
+all-approved PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+decline-compensated PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+second-not-sent PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+second-unknown PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+first-declined PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+unverified PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+reversal-unknown PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+fiscal-unknown PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+fiscal-rejected PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+refund-no-original PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+begin-table PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+begin-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+intent-payment PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+intent-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+outcome-payment PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+outcome-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+fiscal-phase PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+fiscal-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-intent-payment PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-intent-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-outcome-payment PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-outcome-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-final-phase PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-final-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+begin-member PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+cas-ownership PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-outcome-member PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+sh IoT/firmware/edge-agent-s3/idf/tests/run_tender_recovery_host.sh
+compensated PASS (actual SQLite per-tender recovery)
+declined PASS (actual SQLite per-tender recovery)
+reserved PASS (actual SQLite per-tender recovery)
+second-unknown-resolved PASS (actual SQLite per-tender recovery)
+partial-reversed-resume PASS (actual SQLite per-tender recovery)
+query-race PASS (actual SQLite per-tender recovery)
+query-approved PASS (actual SQLite per-tender recovery)
+query-declined PASS (actual SQLite per-tender recovery)
+query-unknown PASS (actual SQLite per-tender recovery)
+foreign-query PASS (actual SQLite per-tender recovery)
+conflict-query PASS (actual SQLite per-tender recovery)
+query-fault PASS (actual SQLite per-tender recovery)
+operation-fault PASS (actual SQLite per-tender recovery)
+reversal-query PASS (actual SQLite per-tender recovery)
+reversal-unknown PASS (actual SQLite per-tender recovery)
+reversal-fault PASS (actual SQLite per-tender recovery)
+comp-resume PASS (actual SQLite per-tender recovery)
+comp-unknown PASS (actual SQLite per-tender recovery)
+comp-unverified PASS (actual SQLite per-tender recovery)
+comp-intent-fault PASS (actual SQLite per-tender recovery)
+comp-outcome-fault PASS (actual SQLite per-tender recovery)
+fiscal-proven PASS (actual SQLite per-tender recovery)
+fiscal-unproven PASS (actual SQLite per-tender recovery)
+fiscal-conflict PASS (actual SQLite per-tender recovery)
+legacy-card PASS (actual SQLite per-tender recovery)
+terminal-owner PASS (actual SQLite per-tender recovery)
+stale-cas PASS (actual SQLite per-tender recovery)
+snapshot-fault PASS (actual SQLite per-tender recovery)

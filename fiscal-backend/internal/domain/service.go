@@ -1,6 +1,7 @@
 package domain
 
 import (
+	"context"
 	"crypto/hmac"
 	"crypto/rand"
 	"crypto/sha256"
@@ -103,7 +104,9 @@ type Service struct {
 	spaDeploymentDescriptorURL      string
 	spaDeploymentSigningKID         string
 	spaDeploymentPublicKeyDERBase64 string
+	simulated                       bool
 }
+func (s *Service) SetSimulated(v bool) { s.simulated = v }
 
 type CompositeBindingPublisher interface {
 	PublishCompositeBinding(string, string, []byte) error
@@ -111,6 +114,45 @@ type CompositeBindingPublisher interface {
 
 func (s *Service) SetCompositeBindingPublisher(v CompositeBindingPublisher) {
 	s.compositeBindingPublisher = v
+}
+
+// ReadyComponent reports the health of an individual subsystem checked during
+// readiness evaluation.
+type ReadyComponent struct {
+	Name   string `json:"name"`
+	Status string `json:"status"`
+	Detail string `json:"detail,omitempty"`
+}
+
+// Ready returns true when the database persistence store and the bound driver
+// are both reachable.  It pings each component with a one-second timeout and
+// reports failures (but never panics): readiness is the *absence* of errors.
+func (s *Service) Ready(ctx context.Context) []ReadyComponent {
+	components := make([]ReadyComponent, 0, 3)
+
+	// Persistence layer.
+	if s.repo != nil {
+		if pingErr := s.repo.PingContext(ctx); pingErr != nil {
+			components = append(components, ReadyComponent{Name: "persistence", Status: "unhealthy", Detail: pingErr.Error()})
+		} else {
+			components = append(components, ReadyComponent{Name: "persistence", Status: "ok"})
+		}
+	} else {
+		components = append(components, ReadyComponent{Name: "persistence", Status: "unhealthy", Detail: "no repository configured"})
+	}
+
+	// Driver / transport layer.
+	if s.driver != nil {
+		if probeErr := s.driver.Probe(); probeErr != nil {
+			components = append(components, ReadyComponent{Name: "driver", Status: "unhealthy", Detail: probeErr.Error()})
+		} else {
+			components = append(components, ReadyComponent{Name: "driver", Status: "ok"})
+		}
+	} else {
+		components = append(components, ReadyComponent{Name: "driver", Status: "ok"}) // simulator path
+	}
+
+	return components
 }
 
 // boundDriver revalidates the complete immutable route snapshot immediately
@@ -258,7 +300,7 @@ func (s *Service) reverseForTenant(saleID, reason, originalReference, tenant str
 	if parseErr != nil || documentNumber < 1 || documentNumber > 9999999 || !regexp.MustCompile(`^[0-9]{8}$`).MatchString(sale.FiscalDevice.FiscalMemoryNumber) {
 		return Operation{}, errors.New("original fiscal document metadata unavailable")
 	}
-	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, RegisterID: sale.RegisterID, Type: "REVERSAL", State: "EXECUTING", Version: 1, OriginalFiscalReference: original.FiscalReference, ReasonCode: reason, OriginalDocumentNumber: documentNumber, OriginalDocumentAt: original.UpdatedAt, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, RegisterID: sale.RegisterID, Type: "REVERSAL", State: "EXECUTING", Version: 1, OriginalFiscalReference: original.FiscalReference, ReasonCode: reason, OriginalDocumentNumber: documentNumber, OriginalDocumentAt: original.UpdatedAt, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	if queued, ok := driver.(durableQueuedDriver); ok {
 		command, prepareErr := queued.Prepare(op, sale, PaymentRequest{})
 		if prepareErr != nil {
@@ -354,7 +396,7 @@ func (s *Service) reserveFiscalOperation(register, typ, tenant string) (Operatio
 		return Operation{}, errors.New("fiscal device unavailable")
 	}
 	now := time.Now().UTC()
-	op := Operation{ID: newID("op"), TenantID: tenant, RegisterID: register, Type: typ, State: "EXECUTING", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: tenant, RegisterID: register, Type: typ, State: "EXECUTING", Version: 1, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	if err := s.repo.PutOperation(op); err != nil {
 		return Operation{}, err
 	}
@@ -1018,7 +1060,7 @@ func (s *Service) finalizeSaleForTenant(id string, in SaleFinalizeRequest, tenan
 		return Operation{}, fmt.Errorf("fiscal device probe failed: %w", probeErr)
 	}
 	now := time.Now().UTC()
-	op := Operation{ID: in.ClientOperationID, ClientOperationID: in.ClientOperationID, ReceiptSessionID: in.ReceiptSessionID, TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "SALE_FINALIZE", State: "EXECUTING", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: in.ClientOperationID, ClientOperationID: in.ClientOperationID, ReceiptSessionID: in.ReceiptSessionID, TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "SALE_FINALIZE", State: "EXECUTING", Version: 1, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	for _, p := range in.Payments {
 		sale.Payments = append(sale.Payments, PaymentRecord{PaymentID: p.PaymentID, Type: p.Type, Amount: p.Amount, CreatedAt: now})
 	}
@@ -1126,7 +1168,7 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 		return Operation{}, errors.New("payment amount exceeds balance")
 	}
 	now := time.Now().UTC()
-	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "FISCAL_SALE", State: "EXECUTING", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: id, RegisterID: sale.RegisterID, Type: "FISCAL_SALE", State: "EXECUTING", Version: 1, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	if queued, ok := driver.(durableQueuedDriver); ok {
 		command, prepareErr := queued.Prepare(op, sale, p)
 		if prepareErr != nil {
@@ -1321,7 +1363,7 @@ func (s *Service) cancelSaleForTenant(id, tenant string) (Operation, error) {
 		return Operation{}, errors.New("sale cannot be cancelled")
 	}
 	now := time.Now().UTC()
-	op := Operation{ID: newID("op"), TenantID: v.TenantID, SaleID: v.ID, RegisterID: v.RegisterID, Type: "CANCEL_SALE", State: "CANCELLED", Version: 1, Simulated: true, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	op := Operation{ID: newID("op"), TenantID: v.TenantID, SaleID: v.ID, RegisterID: v.RegisterID, Type: "CANCEL_SALE", State: "CANCELLED", Version: 1, Simulated: s.simulated, AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	v.State, v.UpdatedAt, v.Version = "CANCELLED", now, v.Version+1
 	v.CancelledAt = &now
 	return op, s.repo.CommitSaleOperation(v, op)
@@ -1490,12 +1532,30 @@ func validMoney(m Money) bool {
 	if m.Currency != "EUR" {
 		return false
 	}
-	parts := strings.Split(m.Amount, ".")
+	amount := m.Amount
+	if amount == "" {
+		return false
+	}
+	s := amount
+	if s[0] == '-' || s[0] == '+' {
+		s = s[1:]
+	}
+	if s == "" || s[0] == '.' {
+		return false
+	}
+	parts := strings.Split(s, ".")
 	if len(parts) != 2 || len(parts[1]) != 2 {
 		return false
 	}
-	_, e := strconv.ParseInt(strings.ReplaceAll(m.Amount, ".", ""), 10, 64)
-	return e == nil
+	_, e := strconv.ParseInt(parts[0], 10, 64)
+	if e != nil {
+		return false
+	}
+	frac, e := strconv.ParseInt(parts[1], 10, 64)
+	if e != nil {
+		return false
+	}
+	return frac >= 0 && frac < 100
 }
 func validQuantity(v string) bool { x, e := parseFixed(v, 3); return e == nil && x > 0 }
 func parseFixed(v string, scale int) (int64, error) {

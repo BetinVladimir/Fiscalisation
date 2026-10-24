@@ -20,14 +20,14 @@ func token(payload, key string) string {
 func TestParse(t *testing.T) {
 	now := time.Unix(1000, 0)
 	raw := token(`{"sub":"u1","tenant_id":"t1","roles":["cashier"],"scope":"fiscal.base","exp":2000}`, "secret")
-	c, e := Parse(raw, []byte("secret"), now)
+	c, e := Parse(raw, []byte("secret"), now, nil)
 	if e != nil || c.TenantID != "t1" {
 		t.Fatalf("%+v %v", c, e)
 	}
-	if _, e = Parse(raw+"x", []byte("secret"), now); e == nil {
+	if _, e = Parse(raw+"x", []byte("secret"), now, nil); e == nil {
 		t.Fatal("tampering accepted")
 	}
-	if _, e = Parse(raw, []byte("secret"), time.Unix(3000, 0)); e == nil {
+	if _, e = Parse(raw, []byte("secret"), time.Unix(3000, 0), nil); e == nil {
 		t.Fatal("expired accepted")
 	}
 }
@@ -84,7 +84,7 @@ func TestRBACLeastPrivilege(t *testing.T) {
 
 func TestParseRejectsUnknownRole(t *testing.T) {
 	raw := token(`{"sub":"u1","tenant_id":"t1","roles":["ROOT"],"scope":"fiscal.base","exp":2000}`, "secret")
-	if _, err := Parse(raw, []byte("secret"), time.Unix(1000, 0)); err == nil {
+	if _, err := Parse(raw, []byte("secret"), time.Unix(1000, 0), nil); err == nil {
 		t.Fatal("unknown role accepted")
 	}
 }

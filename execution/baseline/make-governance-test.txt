@@ -1,0 +1,2 @@
+ruby scripts/verify_governance.rb
+governance gate OK: 2 products, 10 owned modules, 14 P0 decisions

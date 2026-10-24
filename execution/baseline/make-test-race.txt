@@ -1,0 +1,29 @@
+cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test -race ./...
+?   	fiscalisation/fiscal-backend/cmd/dossier-export	[no test files]
+?   	fiscalisation/fiscal-backend/cmd/execution-pipeline-oracle	[no test files]
+?   	fiscalisation/fiscal-backend/cmd/fiscal-backend	[no test files]
+ok  	fiscalisation/fiscal-backend/integration	1.702s
+ok  	fiscalisation/fiscal-backend/internal/api	1.730s
+ok  	fiscalisation/fiscal-backend/internal/auth	2.506s
+ok  	fiscalisation/fiscal-backend/internal/config	2.338s
+ok  	fiscalisation/fiscal-backend/internal/domain	6.341s
+ok  	fiscalisation/fiscal-backend/internal/dossier	3.052s
+ok  	fiscalisation/fiscal-backend/internal/integration	3.878s
+ok  	fiscalisation/fiscal-backend/internal/mqttclient	4.677s
+ok  	fiscalisation/fiscal-backend/internal/persistence	5.093s
+ok  	fiscalisation/fiscal-backend/internal/provisioningseal	4.291s
+ok  	fiscalisation/fiscal-backend/internal/startup	3.439s
+ok  	fiscalisation/fiscal-backend/internal/webhook	5.557s
+cd minipos/beeminipos-backend && GOCACHE=/tmp/beeminipos-go-cache go test -race ./...
+ok  	fiscalisation/beeminipos-backend/cmd/beeminipos-backend	1.380s
+?   	fiscalisation/beeminipos-backend/cmd/execution-pipeline-oracle	[no test files]
+ok  	fiscalisation/beeminipos-backend/internal/api	1.629s
+ok  	fiscalisation/beeminipos-backend/internal/auth	2.656s
+ok  	fiscalisation/beeminipos-backend/internal/config	2.254s
+ok  	fiscalisation/beeminipos-backend/internal/domain	1.947s
+ok  	fiscalisation/beeminipos-backend/internal/emailauth	3.017s
+ok  	fiscalisation/beeminipos-backend/internal/fiscalintegration	3.883s
+ok  	fiscalisation/beeminipos-backend/internal/migrations	3.417s
+?   	fiscalisation/beeminipos-backend/internal/mqttclient	[no test files]
+ok  	fiscalisation/beeminipos-backend/internal/persistence	4.649s
+ok  	fiscalisation/beeminipos-backend/internal/startup	4.207s

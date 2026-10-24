@@ -964,3 +964,8 @@ func rebuildSnapshot(rows []stateRow) ([]byte, error) {
 	}
 	return json.Marshal(root)
 }
+
+// PingContext health-checks the primary connection pool.
+func (p *Postgres) PingContext(ctx context.Context) error {
+	return p.db.PingContext(ctx)
+}

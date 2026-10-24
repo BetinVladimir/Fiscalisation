@@ -144,8 +144,8 @@ func newHandler(s *domain.Service, c config.Config, integrationHandler http.Hand
 	m.HandleFunc("/connectivity/ping", h.ping)
 	m.HandleFunc("/public/v1/connectivity/ping", h.ping)
 	m.HandleFunc("/livez", h.live)
-	m.HandleFunc("/readyz", h.live)
-	m.HandleFunc("/healthz", h.live)
+	m.HandleFunc("/readyz", h.ready)
+	m.HandleFunc("/healthz", h.ready)
 	m.HandleFunc("/public/v1/version", h.version)
 	m.HandleFunc("/public/v1/sales", h.sales)
 	m.HandleFunc("/public/v1/sales:open-with-line", h.openSaleWithLine)
@@ -904,6 +904,42 @@ func ifMatch(r *http.Request) (int64, bool) {
 func (h *Handler) live(w http.ResponseWriter, _ *http.Request) {
 	write(w, 200, map[string]any{"status": "ok"})
 }
+
+func (h *Handler) ready(w http.ResponseWriter, r *http.Request) {
+	ctx, cancel := context.WithTimeout(r.Context(), 1*time.Second)
+	defer cancel()
+	components := h.svc.Ready(ctx)
+
+	anyUnhealthy := false
+	for i := range components {
+		if components[i].Status == "unhealthy" {
+			anyUnhealthy = true
+			break
+		}
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	enc := json.NewEncoder(w)
+	enc.SetIndent("", "  ")
+	if anyUnhealthy {
+		w.WriteHeader(http.StatusServiceUnavailable)
+		if err := enc.Encode(struct {
+			Status string                  `json:"status"`
+			Items  []domain.ReadyComponent `json:"items"`
+		}{"unhealthy", components}); err != nil {
+			log.Printf("readyz: encode failed: %v", err)
+		}
+		return
+	}
+	w.WriteHeader(http.StatusOK)
+	if err := enc.Encode(struct {
+		Status string                  `json:"status"`
+		Items  []domain.ReadyComponent `json:"items"`
+	}{"ok", components}); err != nil {
+		log.Printf("readyz: encode failed: %v", err)
+	}
+}
+
 func (h *Handler) ping(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodHead && r.Method != http.MethodGet {
 		w.Header().Set("Allow", "HEAD, GET")
