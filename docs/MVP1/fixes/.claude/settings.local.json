@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(claude --version)",
+      "Read(//Users/freelancer/**)",
+      "Bash(git -C /Users/freelancer/Documents/Beeloy/Fiscalisation status --short)",
+      "Bash(git -C /Users/freelancer/Documents/Beeloy/Fiscalisation log --oneline -5)",
+      "Bash(git *)",
+      "Bash(chmod +x *)",
+      "Bash(python3 docs/MVP1/fixes/run_fixes.py --routes all --list)",
+      "Bash(python3 docs/MVP1/fixes/run_fixes.py --routes all --opencode-cmd /private/tmp/claude-502/-Users-freelancer-Documents-Beeloy-Fiscalisation-docs-MVP1-fixes/d1ba76c0-59bc-4e75-bad8-de19ba7089f1/scratchpad/opencode-wrap.sh --only BUG-001 --attempts 3 --timeout 600 --check-timeout 300)"
+    ]
+  }
+}

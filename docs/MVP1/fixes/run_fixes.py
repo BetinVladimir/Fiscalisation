@@ -10,7 +10,7 @@
 Результат каждого дефекта пишется в <проект>/docs/MVP1/fixes/<ID>.res.md рядом с промптом (после каждой попытки).
 
 Пример (macOS):
-  caffeinate -i python3 docs/MVP1/fixes/run_fixes.py --model provider/qwen-model
+  caffeinate -i python3 docs/MVP1/fixes/run_fixes.py --model provider/id   (необязательно: по умолчанию ollama/qwen3.6:35b-a3b-coding-mtp-q4_K_M)
   python3 docs/MVP1/fixes/run_fixes.py --list              # очередь без запуска
   python3 docs/MVP1/fixes/run_fixes.py --only SEQ-01       # один дефект
 Важно: AGENTS.md и fixes/ должны быть закоммичены в базовой ветке (worktree строится от HEAD).
@@ -18,6 +18,10 @@
 import argparse,fcntl,hashlib,json,os,re,shlex,subprocess,sys,time
 
 HERE=os.path.dirname(os.path.abspath(__file__))
+# Целевая модель (Ollama-тег): qwen3.6:35b-a3b-coding-mtp-q4_K_M. Префикс провайдера в OpenCode предполагается `ollama/`;
+# если в `opencode models` он другой, скрипт найдёт строку по тегу. Переопределение: --model provider/id или OPENCODE_MODEL.
+MODEL_TAG='qwen3.6:35b-a3b-coding-mtp-q4_K_M'
+DEFAULT_MODEL='ollama/'+MODEL_TAG
 FORBIDDEN=('docs/MVP1/execution/','docs/MVP1/fixes/','AGENTS.md')   # агент не должен менять план и правила
 
 def sh(cmd,cwd,check=False,timeout=None,env=None):
@@ -28,9 +32,10 @@ def git(args,cwd,check=True): return sh(['git']+args,cwd,check)
 def sha(text): return hashlib.sha256(text.encode('utf-8')).hexdigest()[:12]
 def tail(text,n=150): return '\n'.join(text.strip().split('\n')[-n:])
 
+MODEL_USED=['?']
 def write_res(proj,tid,status,attempts,h,commit='',stat='',check_tail='',final_tail='',scope=None,outside=None):
     """Результат пишется рядом с оригинальным промптом: <проект>/docs/MVP1/fixes/<ID>.res.md (перезаписывается)."""
-    L=['# Результат %s'%tid,'','- **Статус:** %s'%status,'- **Время:** %s'%time.strftime('%Y-%m-%d %H:%M:%S'),
+    L=['# Результат %s'%tid,'','- **Модель:** %s'%MODEL_USED[0],'- **Статус:** %s'%status,'- **Время:** %s'%time.strftime('%Y-%m-%d %H:%M:%S'),
        '- **Попыток:** %d'%len(attempts),'- **Версия промпта (sha):** %s'%h]
     if commit: L.append('- **Коммит:** `%s` (ветка worktree, слияние вручную)'%commit)
     if scope: L.append('- **Файлы подзадач:** %s'%', '.join(scope))
@@ -41,6 +46,18 @@ def write_res(proj,tid,status,attempts,h,commit='',stat='',check_tail='',final_t
     if check_tail: L+=['','## Вывод проверки (хвост)','','```',check_tail.strip(),'```']
     if final_tail: L+=['','## Ответ OpenCode (хвост)','','```',final_tail.strip(),'```']
     open(os.path.join(proj,'docs/MVP1/fixes',tid+'.res.md'),'w',encoding='utf-8').write('\n'.join(L)+'\n')
+
+def resolve_model(cmd,explicit):
+    """--model -> OPENCODE_MODEL -> DEFAULT_MODEL, если он есть в `opencode models`; иначе единственная строка с MODEL_TAG."""
+    m=explicit or os.environ.get('OPENCODE_MODEL')
+    if m: return m
+    try: out=subprocess.run(shlex.split(cmd)+['models'],capture_output=True,text=True,timeout=120).stdout
+    except (FileNotFoundError,subprocess.TimeoutExpired): raise SystemExit('не удалось выполнить `%s models`; укажите --model provider/id'%cmd)
+    lines=[l.strip() for l in out.split('\n') if l.strip()]
+    if DEFAULT_MODEL in lines: return DEFAULT_MODEL
+    cand=[l for l in lines if l.endswith(MODEL_TAG)]
+    if len(cand)==1: return cand[0]
+    raise SystemExit('Модель %s не найдена в `opencode models` (подходящих строк: %d).%s\nУкажите точный id: --model provider/id (или OPENCODE_MODEL).'%(DEFAULT_MODEL,len(cand),'\n  '+'\n  '.join(cand[:10]) if cand else ''))
 
 def queue(fixes_dir,routes):
     """Порядок = порядок строк INDEX.md (P0 по номеру, затем P1, P2)."""
@@ -85,7 +102,7 @@ def main():
     ap=argparse.ArgumentParser(description=__doc__,formatter_class=argparse.RawDescriptionHelpFormatter)
     root_default=os.path.abspath(os.path.join(HERE,'..','..','..'))
     ap.add_argument('--project',default=root_default,help='корень репозитория Fiscalisation')
-    ap.add_argument('--model',default=None,help='provider/model из `opencode models`')
+    ap.add_argument('--model',default=None,help='provider/id из `opencode models`; по умолчанию '+DEFAULT_MODEL)
     ap.add_argument('--opencode-cmd',default='opencode',help='команда OpenCode (для тестов можно подставить заглушку)')
     ap.add_argument('--checks',default=None,help='JSON со списком команд, например [["npm","test"]]')
     ap.add_argument('--routes',default='qwen',choices=['qwen','codex-first','all'],help='какие маршруты из INDEX.md запускать (по умолчанию qwen)')
@@ -117,6 +134,7 @@ def main():
     try: fcntl.flock(lock,fcntl.LOCK_EX|fcntl.LOCK_NB)
     except OSError: raise SystemExit('уже запущен другой экземпляр скрипта')
 
+    a.model=resolve_model(a.opencode_cmd,a.model);MODEL_USED[0]=a.model;print('модель:',a.model)
     base=git(['rev-parse','--abbrev-ref','HEAD'],proj).stdout.strip()
     if not os.path.isdir(wt):
         exists=sh(['git','rev-parse','--verify','--quiet',a.branch],proj).returncode==0
