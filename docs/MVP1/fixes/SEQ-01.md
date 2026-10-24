@@ -1,5 +1,5 @@
 <!-- Сгенерировано tools/gen-fixes.py; не править руками -->
-# Дефект SEQ-01 · P0 · исполнитель: qwen
+# Дефект SEQ-01 · P0 · исполнитель: локальная модель (qwen), по подзадачам: 2
 
 **Состояние кода на 2026-10-24:** OPEN — S3 wrap 0xFF для Datecs
 **Проверка состояния:** `sed -n 23p IoT/firmware/edge-agent-s3/idf/main/serial_exchange.cpp`
