@@ -96,6 +96,21 @@ def task_files(wt,tid):
         return sorted({f.rstrip('/') for st in t.get('subtasks',[]) for f in st.get('files',[]) if f})
     except Exception: return []
 
+def snapshot(proj):
+    """Отпечаток изменений основного проекта: {путь: sha} для всех файлов из git status (кроме *.res.md и логов скрипта)."""
+    out=git(['status','--porcelain','-uall'],proj,check=False).stdout;snap={}
+    for l in out.split('\n'):
+        if not l.strip(): continue
+        f=l[3:].split(' -> ')[-1].strip('"')
+        if f.endswith('.res.md'): continue
+        try: snap[f]=hashlib.sha1(open(os.path.join(proj,f),'rb').read()).hexdigest()
+        except (IsADirectoryError,FileNotFoundError,PermissionError): snap[f]='-'
+    return snap
+
+def supports_dir(cmd):
+    try: return '--dir' in subprocess.run(shlex.split(cmd)+['run','--help'],capture_output=True,text=True,timeout=60).stdout
+    except Exception: return False
+
 def changed_files(wt):
     out=git(['status','--porcelain','-uall'],wt).stdout
     return [l[3:].split(' -> ')[-1] for l in out.split('\n') if l.strip()]
@@ -161,7 +176,9 @@ def main():
     checks=json.load(open(a.checks,encoding='utf-8')) if a.checks else []
     base_ref=git(['merge-base',a.branch,base],proj).stdout.strip() if base!=a.branch else git(['rev-list','--max-parents=0','HEAD'],proj).stdout.split()[0]
     t0=time.time();ok_ids=[]
-    READ_RULES=('Правила чтения: файлы длиннее 300 строк НЕ читай целиком — найди нужное через grep -n и читай диапазон (sed -n \'A,Bp\' файл); '
+    use_dir=supports_dir(a.opencode_cmd);main_snap=snapshot(proj)
+    print('рабочая копия агента:',wt,'| --dir:', 'да' if use_dir else 'нет (PWD задаётся окружением)')
+    READ_RULES=('Рабочая директория — '+wt+' (cwd). ВСЕ пути относительные от неё. Запрещено читать и менять файлы вне неё, в том числе основной проект '+proj+'. Правила чтения: файлы длиннее 300 строк НЕ читай целиком — найди нужное через grep -n и читай диапазон (sed -n \'A,Bp\' файл); '
                 'правь точечно. Не открывай больше 3 файлов за сессию. Лишние инструменты и поиск по всему репозиторию не нужны.')
     for tid,prio,route in q:
         pfile=os.path.join(wt,'docs/MVP1/fixes',tid+'.md')
@@ -182,14 +199,19 @@ def main():
                 else:
                     msg=('Предыдущая попытка по подзадаче %s не прошла проверку. Исправь причину в коде, не ослабляя тесты и не расширяя набор файлов (%s). %s '
                          'Пакет дефекта: docs/MVP1/fixes/%s.md (прочитай нужный раздел). Ошибка проверки:\n\n%s')%(uid,', '.join(scope) or 'см. пакет',READ_RULES,tid,last_err)
-                cmd=shlex.split(a.opencode_cmd)+['run']+(['--model',a.model] if a.model else [])+[msg]
+                cmd=shlex.split(a.opencode_cmd)+['run']+(['--dir',wt] if use_dir else [])+(['--model',a.model] if a.model else [])+[msg]
                 log=os.path.join(logs,'%s.attempt%d.log'%(uid,n));print('[%s] %s попытка %d/%d …'%(time.strftime('%H:%M:%S'),uid,n,a.attempts),flush=True)
                 try:
-                    p=sh(cmd,wt,timeout=a.timeout);out=p.stdout+'\n'+p.stderr;rc=p.returncode
+                    p=sh(cmd,wt,timeout=a.timeout,env=dict(os.environ,PWD=wt));out=p.stdout+'\n'+p.stderr;rc=p.returncode
                 except subprocess.TimeoutExpired: out='TIMEOUT OpenCode';rc=124
                 except FileNotFoundError: raise SystemExit('не найдена команда %s (установите OpenCode или укажите --opencode-cmd)'%a.opencode_cmd)
                 open(log,'w',encoding='utf-8').write(out);last_out=tail(out,60)
                 att={'unit':uid,'n':n,'rc':rc,'changed':0,'verdict':'—','log':log};atts.append(att)
+                now_snap=snapshot(proj)
+                if now_snap!=main_snap:
+                    diff=sorted(k for k in set(now_snap)|set(main_snap) if now_snap.get(k)!=main_snap.get(k))
+                    write_res(proj,tid,'ОСТАНОВЛЕНО: агент изменил основной проект',atts,h,check_tail='Изменены вне worktree: '+', '.join(diff),final_tail=last_out)
+                    raise SystemExit('\n✖ Агент изменил файлы ОСНОВНОГО проекта (вне worktree): %s\nПроверьте `git -C %s diff`, откатите вручную (git checkout -- <файл>) и проверьте, что OpenCode работает в %s (см. лог %s).'%(', '.join(diff[:10]),proj,wt,log))
                 ch=changed_files(wt);att['changed']=len(ch)
                 bad=[f for f in ch if f.startswith(FORBIDDEN)]
                 if bad:
