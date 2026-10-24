@@ -47,8 +47,8 @@ func TestValidateReceiptPlanRejectsNegativePaymentThatSumsCorrectly(t *testing.T
 		UNP:               "UNP12345",
 		Items:             []SaleLine{{LineID: "l1", Name: "Item", Quantity: "1.000", UnitPrice: Money{Amount: "10.00", Currency: "EUR"}, TaxGroup: "TAX"}},
 		Payments: []PaymentRequest{
-			{PaymentID: "pay-001", Type: "CARD", Amount: Money{Amount: "-0.50", Currency: "EUR"}},
-			{PaymentID: "pay-002", Type: "CASH", Amount: Money{Amount: "11.00", Currency: "EUR"}},
+			{PaymentID: "a0000001-0002-0003-0004-000000000001", Type: "CARD", Amount: Money{Amount: "-0.50", Currency: "EUR"}},
+			{PaymentID: "a0000001-0002-0003-0004-000000000002", Type: "CASH", Amount: Money{Amount: "11.00", Currency: "EUR"}},
 		},
 		ExpectedTotal: Money{Amount: "10.50", Currency: "EUR"},
 	}
