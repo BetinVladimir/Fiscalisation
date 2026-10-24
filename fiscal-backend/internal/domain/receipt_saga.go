@@ -60,7 +60,7 @@ func NewMemoryReceiptSagaStore() *MemoryReceiptSagaStore {
 }
 func receiptSagaKey(tenant, operation string) string { return tenant + "\x00" + operation }
 
-var moneyPattern = regexp.MustCompile(`^[0-9]+\.[0-9]{2}$`)
+var moneyPattern = regexp.MustCompile(`^[0-9]{1,7}\.[0-9]{2}$`)
 
 func ReceiptPlanHash(v ReceiptFinalizePlan) string {
 	b, _ := json.Marshal(v)
