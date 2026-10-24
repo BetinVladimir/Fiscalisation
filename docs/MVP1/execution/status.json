@@ -268,8 +268,8 @@
    "severity": "P1",
    "doc": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
    "depends": [],
-   "status": "NOT_STARTED",
-   "notes": "",
+   "status": "IN_PROGRESS",
+   "notes": "[reverify 2026-10-24 PARTIAL] money.go (Cents, ParseMoney, FormatMoney, LineTotal) создан. Осталось: перевести 20 вызовов receiptMoneyCents/parseFixed | проверка: grep -rn 'receiptMoneyCents\\|parseFixed' fiscal-backend/internal --include=*.go | grep -v _test | wc -l | [reverify 2026-10-24 PARTIAL] money.go (Cents, ParseMoney, FormatMoney, LineTotal) создан. Осталось: перевести 20 вызовов receiptMoneyCents/parseFixed | проверка: grep -rn 'receiptMoneyCents\\|parseFixed' fiscal-backend/internal --include=*.go | grep -v _test | wc -l",
    "subtasks": [
     {
      "id": "ARCH-004.1",
@@ -297,7 +297,8 @@
      "accept": "go test ./internal/domain -run 'Money|Fuzz' -count=1"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "PARTIAL"
   },
   {
    "id": "ARCH-006",
@@ -306,7 +307,7 @@
    "doc": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] driverFor отсутствует | проверка: grep -rn 'func (s \\*Service) driverFor' fiscal-backend/internal | [reverify 2026-10-24 OPEN] driverFor отсутствует | проверка: grep -rn 'func (s \\*Service) driverFor' fiscal-backend/internal",
    "subtasks": [
     {
      "id": "ARCH-006.1",
@@ -325,7 +326,8 @@
      "accept": "grep -n 's\\.driver\\b' internal/domain/service.go | grep -v 'func (s \\*Service) driverFor'"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-001",
@@ -333,8 +335,8 @@
    "severity": "P0",
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
-   "status": "NOT_STARTED",
-   "notes": "",
+   "status": "IN_PROGRESS",
+   "notes": "Fixed: validMoney rejects +/- prefixed values and leading dot; receiptMoneyCents handles leading signs | [reverify 2026-10-24 PARTIAL] знак теперь учитывается (−0.50→−50, −1.50→−150), но остались «+1.00», «01.00» и «1.-5»→95 без регэкспа ^[0-9]+\\.[0-9]{2}$. Осталось: регэксп + тест. Статус DONE был завышен: регэксп и тест отсутствуют | проверка: sed -n 96,122p fiscal-backend/internal/domain/receipt_saga.go",
    "subtasks": [
     {
      "id": "BUG-001.1",
@@ -384,7 +386,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Файл после D-5: правка в `receipt_plan.go` (если разделение ещё не сделано — в `receipt_saga.go:96-111`). Функции: `receiptMoneyCents(v string) (int64, error)`, `ValidateReceiptPlan(v ReceiptFinalizePlan) error`."
+   "decomp_note": "Файл после D-5: правка в `receipt_plan.go` (если разделение ещё не сделано — в `receipt_saga.go:96-111`). Функции: `receiptMoneyCents(v string) (int64, error)`, `ValidateReceiptPlan(v ReceiptFinalizePlan) error`.",
+   "reverify": "PARTIAL"
   },
   {
    "id": "BUG-002",
@@ -393,7 +396,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "Fixed: validMoney rejects +/- prefixed values and leading dot | [reverify 2026-10-24 OPEN] validMoney по-прежнему принимает префикс +/− (service.go:1540-1542), хотя в статусе стояло «Fixed: rejects +/-»; задача была закрыта ошибочно | проверка: sed -n 1531,1545p fiscal-backend/internal/domain/service.go",
    "subtasks": [
     {
      "id": "BUG-002.1",
@@ -422,7 +425,8 @@
      "accept": "go test ./internal/domain -run TestValidMoney -count=1"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-003",
@@ -430,8 +434,8 @@
    "severity": "P0",
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
-   "status": "NOT_STARTED",
-   "notes": "",
+   "status": "IN_PROGRESS",
+   "notes": "Fixed: simulated field + SetSimulated() wired; 7 call sites rewired | [reverify 2026-10-24 PARTIAL] Simulated берётся из s.simulated (SetSimulated); жёсткого true в service.go нет. Осталось: проверить exports.go:105,151 и добавить тест | проверка: grep -rn 'Simulated' fiscal-backend/internal/domain/service.go",
    "subtasks": [
     {
      "id": "BUG-003.1",
@@ -489,7 +493,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Символы: `type Driver interface` (service.go:33), `type Simulator struct` (:44), 5 литералов `Operation{… Simulated: true}` в service.go (внутри `reverseForTenant`, `reserveFiscalOperation`, `finalizeSaleForTenant`, `payForTenant`, `cancelSaleForTenant`) и 2 в exports.go (`CreateExport`, `CreatePeriodizedExport` — экспорт не использует ФУ ⇒ `Simulated:false`)."
+   "decomp_note": "Символы: `type Driver interface` (service.go:33), `type Simulator struct` (:44), 5 литералов `Operation{… Simulated: true}` в service.go (внутри `reverseForTenant`, `reserveFiscalOperation`, `finalizeSaleForTenant`, `payForTenant`, `cancelSaleForTenant`) и 2 в exports.go (`CreateExport`, `CreatePeriodizedExport` — экспорт не использует ФУ ⇒ `Simulated:false`).",
+   "reverify": "PARTIAL"
   },
   {
    "id": "BUG-004",
@@ -534,8 +539,8 @@
    "severity": "P0",
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
-   "status": "NOT_STARTED",
-   "notes": "",
+   "status": "DONE",
+   "notes": "Fixed: AppEnv validation, stub default false, staging parity, EMQX+stub error; 4 new tests pass | [reverify 2026-10-24 CLOSED] APP_ENV валидируется (dev/test/staging/prod), prod-проверки применяются и к staging; тесты TestValidateRejectsUnknownAppEnv, TestValidateProdChecksApplyToStaging, TestLoadDefaultsAreSafe есть. Go-тесты не запускались (нет Go) | проверка: grep -c 'func TestLoadDefaultsAreSafe' fiscal-backend/internal/config/config_test.go",
    "subtasks": [
     {
      "id": "BUG-009.1",
@@ -585,7 +590,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Файл `fiscal-backend/internal/config/config.go`: `Config` (стр. 12), `Load` (стр. 25-36: `getenv(\"APP_ENV\",\"dev\")`, `AllowStubAdapters`, `CORSAllowedOrigins`), `Validate` (стр. 38-100)."
+   "decomp_note": "Файл `fiscal-backend/internal/config/config.go`: `Config` (стр. 12), `Load` (стр. 25-36: `getenv(\"APP_ENV\",\"dev\")`, `AllowStubAdapters`, `CORSAllowedOrigins`), `Validate` (стр. 38-100).",
+   "reverify": "CLOSED"
   },
   {
    "id": "BUG-010",
@@ -593,8 +599,8 @@
    "severity": "P1",
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
-   "status": "NOT_STARTED",
-   "notes": "",
+   "status": "IN_PROGRESS",
+   "notes": "Fixed: readiness separation via PingChecker interface; /livez 200, /readyz & /healthz delegate to Ready() | [reverify 2026-10-24 PARTIAL] /readyz и /healthz → h.ready, /livez → h.live. Осталось: тест TestReadyzFailsWhenRepositoryUnavailable | проверка: grep -n 'readyz\\|livez' fiscal-backend/internal/api/handler.go",
    "subtasks": [
     {
      "id": "BUG-010.1",
@@ -622,7 +628,8 @@
      "accept": "go test ./internal/api -run Readyz -count=1"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "PARTIAL"
   },
   {
    "id": "BUG-011",
@@ -630,8 +637,8 @@
    "severity": "P1",
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
-   "status": "NOT_STARTED",
-   "notes": "",
+   "status": "IN_PROGRESS",
+   "notes": "Fixed: ParseTokenConfig struct + Parse() accepts config; validateClaims checks iss/aud/nbf/maxTTL; middleware threaded | [reverify 2026-10-24 PARTIAL] проверки iss/aud/nbf/maxTTL (ParseTokenConfig) есть; осталось: откат на HMAC при ошибке OIDC (auth.go:55-58) и тест TST-GO-08 | проверка: sed -n 55,58p fiscal-backend/internal/auth/auth.go",
    "subtasks": [
     {
      "id": "BUG-011.1",
@@ -659,7 +666,8 @@
      "accept": "go test ./internal/auth -count=1"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "PARTIAL"
   },
   {
    "id": "BUG-012",
@@ -717,8 +725,8 @@
    "severity": "P0",
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
-   "status": "NOT_STARTED",
-   "notes": "",
+   "status": "DONE",
+   "notes": "BLOCKED: No git repo in workspace. Requires git rm --cached credentials.json, .gitignore update, keystore rotation note | [reverify 2026-10-24 CLOSED] POS/pos-app/credentials.json не отслеживается git и в .gitignore; ротация пароля — действие владельца, CI-проверка секретов — POS-09 | проверка: cd ../POS && git check-ignore pos-app/credentials.json",
    "subtasks": [
     {
      "id": "BUG-060.1",
@@ -758,7 +766,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Задача репозитория **POS**: `POS/pos-app/credentials.json` отслеживается git. Значения секретов не копировать нигде."
+   "decomp_note": "Задача репозитория **POS**: `POS/pos-app/credentials.json` отслеживается git. Значения секретов не копировать нигде.",
+   "reverify": "CLOSED"
   },
   {
    "id": "POS-09",
@@ -855,7 +864,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] проверка сводится к total>0 | проверка: sed -n 398p IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp | [reverify 2026-10-24 OPEN] проверка сводится к total>0 | проверка: sed -n 398p IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp",
    "subtasks": [
     {
      "id": "BUG-043.1",
@@ -883,7 +892,8 @@
      "accept": "make iot-test"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-061",
@@ -986,7 +996,7 @@
    "doc": "ARCH_02_GAPS_TASKS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] POS/docs/contracts отсутствует | проверка: ls ../POS/docs/contracts | [reverify 2026-10-24 OPEN] POS/docs/contracts отсутствует | проверка: ls ../POS/docs/contracts",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -1016,7 +1026,8 @@
      "test": "exit 0",
      "accept": "make contract-test"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TG-013",
@@ -1074,7 +1085,7 @@
    "doc": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] BlueCashRuntime отсутствует | проверка: ls SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash | grep -i runtime | [reverify 2026-10-24 OPEN] BlueCashRuntime отсутствует | проверка: ls SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash | grep -i runtime",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -1086,7 +1097,8 @@
      "test": "0",
      "accept": "grep -rn 'import android' SmartDevices/bluecash-app/src/main/kotlin --include='BlueCashRuntime*.kt' | wc -l"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "ARCH-008",
@@ -1106,7 +1118,7 @@
     "BUG-028"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] нет отмены открытого чека при сбое | проверка: grep -c 'CMD_CANCEL' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt | [reverify 2026-10-24 OPEN] нет отмены открытого чека при сбое | проверка: grep -c 'CMD_CANCEL' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt",
    "subtasks": [
     {
      "id": "BUG-020.1",
@@ -1156,7 +1168,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Закрытие открытого чека. Зависит от BUG-028 (Unknown). Номер команды отмены чека — из PM v2.11.4 (cmd 60 «Cancel receipt»: сверить с PDF в DOC-V1; значение записать в константу `CMD_CANCEL_RECEIPT` с комментарием раздела)."
+   "decomp_note": "Закрытие открытого чека. Зависит от BUG-028 (Unknown). Номер команды отмены чека — из PM v2.11.4 (cmd 60 «Cancel receipt»: сверить с PDF в DOC-V1; значение записать в константу `CMD_CANCEL_RECEIPT` с комментарием раздела).",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-021",
@@ -1167,7 +1180,7 @@
     "BUG-028"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] компенсация карты при любой ошибке, независимо от unknown | проверка: sed -n 274,278p SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt | [reverify 2026-10-24 OPEN] компенсация карты при любой ошибке, независимо от unknown | проверка: sed -n 274,278p SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt",
    "subtasks": [
     {
      "id": "BUG-021.1",
@@ -1207,7 +1220,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Не сторнировать карту при UNKNOWN. Зависит от BUG-028. Решение BUG-071 (D-12) определяет порядок для reverse."
+   "decomp_note": "Не сторнировать карту при UNKNOWN. Зависит от BUG-028. Решение BUG-071 (D-12) определяет порядок для reverse.",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-022",
@@ -1266,7 +1280,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] require(current == null) остался | проверка: grep -n 'SALE_ALREADY_EXISTS' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashComplianceIntent.kt | [reverify 2026-10-24 OPEN] require(current == null) остался | проверка: grep -n 'SALE_ALREADY_EXISTS' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashComplianceIntent.kt",
    "subtasks": [
     {
      "id": "BUG-024.1",
@@ -1294,7 +1308,8 @@
      "accept": "./gradlew :bluecash-app:testProdDebugUnitTest --tests '*BlueCashComplianceIntentTest*'"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-025",
@@ -1340,7 +1355,7 @@
     "TG-006"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] синтетический референс \"DATECS-\"+operationId | проверка: grep -n '\"DATECS-\"' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt | [reverify 2026-10-24 OPEN] синтетический референс \"DATECS-\"+operationId | проверка: grep -n '\"DATECS-\"' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt",
    "subtasks": [
     {
      "id": "BUG-026.1",
@@ -1371,7 +1386,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Убрать выдуманный `fiscal_reference=\"DATECS-<op>\"`. Зависит от TG-006 (парсинг ответа cmd 56/74)."
+   "decomp_note": "Убрать выдуманный `fiscal_reference=\"DATECS-<op>\"`. Зависит от TG-006 (парсинг ответа cmd 56/74).",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-027",
@@ -1380,7 +1396,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "закрывается VG-02 (ARCH_09); отдельно не делать",
+   "notes": "закрывается VG-02 (ARCH_09); отдельно не делать | [reverify 2026-10-24 OPEN] пустой ответ принимается как успех | проверка: sed -n 379p SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt",
    "subtasks": [
     {
      "id": "BUG-027.1",
@@ -1408,7 +1424,8 @@
      "accept": "gradle-тест ok."
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-028",
@@ -1417,7 +1434,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] классификация UNKNOWN по тексту сообщения | проверка: grep -n 'DATECS_EOF' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt | [reverify 2026-10-24 OPEN] классификация UNKNOWN по тексту сообщения | проверка: grep -n 'DATECS_EOF' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt",
    "subtasks": [
     {
      "id": "BUG-028.1",
@@ -1466,7 +1483,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Типизированная классификация. Файлы: `DatecsProtocol.kt`, `DatecsAndroidPorts.kt`, `BlueCashEngine.kt` (4 места `e.message in setOf` ~170,206,274,366)."
+   "decomp_note": "Типизированная классификация. Файлы: `DatecsProtocol.kt`, `DatecsAndroidPorts.kt`, `BlueCashEngine.kt` (4 места `e.message in setOf` ~170,206,274,366).",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-029",
@@ -1477,7 +1495,7 @@
     "BUG-028"
    ],
    "status": "NOT_STARTED",
-   "notes": "дополняется VG-03 (SEQ); тесты BUG-029 + VG-03.1-4",
+   "notes": "дополняется VG-03 (SEQ); тесты BUG-029 + VG-03.1-4 | [reverify 2026-10-24 OPEN] DatecsSocketProtocol.execute: нет SYN/NAK/таймаута | проверка: sed -n 180,196p SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsProtocol.kt",
    "subtasks": [
     {
      "id": "BUG-029.1",
@@ -1536,7 +1554,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Протокол: дедлайн, SYN, NAK, SEQ. Файл `DatecsProtocol.kt:177-197`. Вспомогательные требования VG-03."
+   "decomp_note": "Протокол: дедлайн, SYN, NAK, SEQ. Файл `DatecsProtocol.kt:177-197`. Вспомогательные требования VG-03.",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-030",
@@ -1603,7 +1622,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] в манифесте нет сервиса и разрешений | проверка: grep -c 'FOREGROUND_SERVICE' SmartDevices/bluecash-app/src/main/AndroidManifest.xml | [reverify 2026-10-24 OPEN] в манифесте нет сервиса и разрешений | проверка: grep -c 'FOREGROUND_SERVICE' SmartDevices/bluecash-app/src/main/AndroidManifest.xml",
    "subtasks": [
     {
      "id": "BUG-032.1",
@@ -1664,7 +1683,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Жизненный цикл рантайма. `MainActivity.kt:174-300, 325-335`, `AndroidManifest.xml`."
+   "decomp_note": "Жизненный цикл рантайма. `MainActivity.kt:174-300, 325-335`, `AndroidManifest.xml`.",
+   "reverify": "OPEN"
   },
   {
    "id": "CODE-001",
@@ -1739,7 +1759,8 @@
    "doc": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": ""
+   "notes": "[reverify 2026-10-24 OPEN] DatecsLimits отсутствует | проверка: grep -rn 'object DatecsLimits' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash | [reverify 2026-10-24 OPEN] DatecsLimits отсутствует | проверка: grep -rn 'object DatecsLimits' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash",
+   "reverify": "OPEN"
   },
   {
    "id": "TG-004",
@@ -1834,7 +1855,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "для BC-50 cmd 61 недоступна (VG-11): только чтение cmd 62",
+   "notes": "для BC-50 cmd 61 недоступна (VG-11): только чтение cmd 62 | [reverify 2026-10-24 OPEN] DeviceTime возвращает time.Now().UTC() | проверка: sed -n 98p fiscal-backend/internal/mqttclient/client.go",
    "subtasks": [
     {
      "id": "BUG-005.1",
@@ -1893,7 +1914,8 @@
      "accept": "go test ./internal/domain ./internal/mqttclient -run 'ClockSync|DailyClock' -count=1"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-008",
@@ -1902,7 +1924,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] OriginalDocumentAt: original.UpdatedAt | проверка: grep -o 'OriginalDocumentAt: original.UpdatedAt' fiscal-backend/internal/domain/service.go | [reverify 2026-10-24 OPEN] OriginalDocumentAt: original.UpdatedAt | проверка: grep -o 'OriginalDocumentAt: original.UpdatedAt' fiscal-backend/internal/domain/service.go",
    "subtasks": [
     {
      "id": "BUG-008.1",
@@ -1930,7 +1952,8 @@
      "accept": "go test ./internal/domain -run TestReverseUsesFiscalDocumentTimestamp -count=1"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-040",
@@ -1939,7 +1962,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] UNP резервируется до проверки готовности ФУ (строки 411 и 438) | проверка: grep -n 'reserve_command\\|executor_.ready' IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp | [reverify 2026-10-24 OPEN] UNP резервируется до проверки готовности ФУ (строки 411 и 438) | проверка: grep -n 'reserve_command\\|executor_.ready' IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp",
    "subtasks": [
     {
      "id": "BUG-040.1",
@@ -1967,7 +1990,8 @@
      "accept": "make iot-test"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-041",
@@ -1976,7 +2000,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] now() возвращает 0 при часах раньше 2024-01-01, at=now() не проверяется | проверка: sed -n 77,80p IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp | [reverify 2026-10-24 OPEN] now() возвращает 0 при часах раньше 2024-01-01, at=now() не проверяется | проверка: sed -n 77,80p IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp",
    "subtasks": [
     {
      "id": "BUG-041.1",
@@ -2004,7 +2028,8 @@
      "accept": "make iot-test"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "OPEN"
   },
   {
    "id": "CODE-007",
@@ -2013,7 +2038,8 @@
    "doc": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": ""
+   "notes": "[reverify 2026-10-24 OPEN] Clock интерфейса нет | проверка: grep -rn 'type Clock interface' fiscal-backend/internal | [reverify 2026-10-24 OPEN] Clock интерфейса нет | проверка: grep -rn 'type Clock interface' fiscal-backend/internal",
+   "reverify": "OPEN"
   },
   {
    "id": "NAP-12",
@@ -2051,8 +2077,8 @@
    "depends": [
     "NORM-03"
    ],
-   "status": "NOT_STARTED",
-   "notes": "",
+   "status": "DONE",
+   "notes": "[reverify 2026-10-24 CLOSED] unique(tenant_id,unp) в БД; unp_allocator_test.go: параллельные диапазоны, коллизии, неизменяемость | проверка: grep -c 'unique(tenant_id,unp)' database/fiscal/003_runtime_typed.sql | [reverify 2026-10-24 CLOSED] unique(tenant_id,unp) в БД; unp_allocator_test.go: параллельные диапазоны, коллизии, неизменяемость | проверка: grep -c 'unique(tenant_id,unp)' database/fiscal/003_runtime_typed.sql",
    "subtasks": [
     {
      "id": "TG-002.1",
@@ -2093,7 +2119,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Файлы: `internal/domain/unp_allocator.go`, `regulatory_identifier.go` (`BGUNPSequenceMax`), `internal/persistence/postgres.go:59` (`AllocateUNP`), `database/fiscal/013_supto_identifier_foundation.sql`."
+   "decomp_note": "Файлы: `internal/domain/unp_allocator.go`, `regulatory_identifier.go` (`BGUNPSequenceMax`), `internal/persistence/postgres.go:59` (`AllocateUNP`), `database/fiscal/013_supto_identifier_foundation.sql`.",
+   "reverify": "CLOSED"
   },
   {
    "id": "TG-003",
@@ -2171,7 +2198,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] POS вызывает :reconcile, шлюз принимает /reconcile | проверка: cd ../POS && grep -n reconcile pos-app/src/infrastructure/runtime/Adapters.ts pos-gateway/cmd/gateway/main.go | [reverify 2026-10-24 OPEN] POS вызывает :reconcile, шлюз принимает /reconcile | проверка: cd ../POS && grep -n reconcile pos-app/src/infrastructure/runtime/Adapters.ts pos-gateway/cmd/gateway/main.go",
    "subtasks": [
     {
      "id": "BUG-050.1",
@@ -2202,7 +2229,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Клиент POS: URL reconcile. `Adapters.ts` класс `HttpFiscalApiClient`, метод `reconcileOperation(id)` (стр. 97-104)."
+   "decomp_note": "Клиент POS: URL reconcile. `Adapters.ts` класс `HttpFiscalApiClient`, метод `reconcileOperation(id)` (стр. 97-104).",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-051",
@@ -2295,7 +2323,7 @@
     "POS-01"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] unp берётся с откатом на fiscalReference | проверка: cd ../POS && grep -n \"result.unp\" pos-app/src/infrastructure/runtime/Adapters.ts | [reverify 2026-10-24 OPEN] unp берётся с откатом на fiscalReference | проверка: cd ../POS && grep -n \"result.unp\" pos-app/src/infrastructure/runtime/Adapters.ts",
    "subtasks": [
     {
      "id": "BUG-053.1",
@@ -2345,7 +2373,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "УНП и фискальный референс — разные сущности. Места: `Adapters.ts:230` (`normalizeStatus`), `:713`, `LocalReceiptOperations.ts:10`, `LocalSuptoJournal.ts`."
+   "decomp_note": "УНП и фискальный референс — разные сущности. Места: `Adapters.ts:230` (`normalizeStatus`), `:713`, `LocalReceiptOperations.ts:10`, `LocalSuptoJournal.ts`.",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-054",
@@ -2353,8 +2382,8 @@
    "severity": "P1",
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
-   "status": "NOT_STARTED",
-   "notes": "",
+   "status": "IN_PROGRESS",
+   "notes": "[reverify 2026-10-24 PARTIAL] таймаут 4 с через AbortController есть. Осталось: разбор ответа и UNKNOWN при таймауте записи (тест TST-POS-05) | проверка: cd ../POS && grep -n AbortController pos-app/src/infrastructure/runtime/Adapters.ts | [reverify 2026-10-24 PARTIAL] таймаут 4 с через AbortController есть. Осталось: разбор ответа и UNKNOWN при таймауте записи (тест TST-POS-05) | проверка: cd ../POS && grep -n AbortController pos-app/src/infrastructure/runtime/Adapters.ts",
    "subtasks": [
     {
      "id": "BUG-054.1",
@@ -2386,7 +2415,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Разбор ответа и таймауты (`Adapters.ts:255-266`, приватный `request`)."
+   "decomp_note": "Разбор ответа и таймауты (`Adapters.ts:255-266`, приватный `request`).",
+   "reverify": "PARTIAL"
   },
   {
    "id": "BUG-055",
@@ -2397,7 +2427,7 @@
     "POS-01"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] шлюз финализирует платёж как CASH | проверка: cd ../POS && grep -c \"\\\"type\\\": \\\"CASH\\\"\" pos-gateway/internal/drain/idle.go | [reverify 2026-10-24 OPEN] шлюз финализирует платёж как CASH | проверка: cd ../POS && grep -c \"\\\"type\\\": \\\"CASH\\\"\" pos-gateway/internal/drain/idle.go",
    "subtasks": [
     {
      "id": "BUG-055.1",
@@ -2447,7 +2477,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Шлюз финализирует всё как CASH: `drain/idle.go:96-108` внутри `(*outboxDrainer).drain` (52-136)."
+   "decomp_note": "Шлюз финализирует всё как CASH: `drain/idle.go:96-108` внутри `(*outboxDrainer).drain` (52-136).",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-056",
@@ -2487,7 +2518,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] пустой ключ заменяется uuid.NewString() | проверка: cd ../POS && sed -n 83p pos-gateway/internal/handler/fiscal_handler.go | [reverify 2026-10-24 OPEN] пустой ключ заменяется uuid.NewString() | проверка: cd ../POS && sed -n 83p pos-gateway/internal/handler/fiscal_handler.go",
    "subtasks": [
     {
      "id": "BUG-057.1",
@@ -2509,7 +2540,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Idempotency-Key (`fiscal_handler.go:61-90`, строка 83)."
+   "decomp_note": "Idempotency-Key (`fiscal_handler.go:61-90`, строка 83).",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-058",
@@ -2548,8 +2580,8 @@
    "severity": "P1",
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
-   "status": "NOT_STARTED",
-   "notes": "обменники: результаты beeloy.events, команды beeloy.erp.events; Nack(false,true) на любую ошибку",
+   "status": "IN_PROGRESS",
+   "notes": "обменники: результаты beeloy.events, команды beeloy.erp.events; Nack(false,true) на любую ошибку | [reverify 2026-10-24 PARTIAL] потребитель результатов использует inbox и ключ fiscal.operation.result.#. Осталось: скрипт топологии (POS-08) | проверка: cd ../POS && grep -n fiscal.operation.result pos-gateway/internal/fiscal/result_consumer.go",
    "subtasks": [
     {
      "id": "BUG-059.1",
@@ -2589,7 +2621,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Потребитель результатов `fiscal/result_consumer.go`: `StartResultConsumer`:20, `apply`:73, `mapState`:247."
+   "decomp_note": "Потребитель результатов `fiscal/result_consumer.go`: `StartResultConsumer`:20, `apply`:73, `mapState`:247.",
+   "reverify": "PARTIAL"
   },
   {
    "id": "NAP-04",
@@ -2600,7 +2633,7 @@
     "NORM-09"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: NNN_sale_import_evidence.sql | проверка: test -e NNN_sale_import_evidence.sql",
    "subtasks": [
     {
      "id": "NAP-04.1",
@@ -2619,7 +2652,8 @@
      "accept": "go test ./internal/domain -run 'ImportEvidence|ExportIncludesImport' -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "NAP-05",
@@ -2630,7 +2664,7 @@
     "NORM-09"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: POS/scripts/check-i18n-bg.mjs | проверка: test -e POS/scripts/check-i18n-bg.mjs",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -2660,7 +2694,8 @@
      "test": "exit 0",
      "accept": "node POS/scripts/check-i18n-bg.mjs"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "POS-02",
@@ -2852,7 +2887,7 @@
     "DOC-002"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] ReserveReceiptSaga нигде не вызывается кроме определений | проверка: grep -rn ReserveReceiptSaga fiscal-backend --include=*.go --exclude=*_test.go | [reverify 2026-10-24 OPEN] ReserveReceiptSaga нигде не вызывается кроме определений | проверка: grep -rn ReserveReceiptSaga fiscal-backend --include=*.go --exclude=*_test.go",
    "subtasks": [
     {
      "id": "BUG-006.1",
@@ -2884,7 +2919,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "По D-5: разделить `receipt_saga.go`. Подзадачи механические."
+   "decomp_note": "По D-5: разделить `receipt_saga.go`. Подзадачи механические.",
+   "reverify": "OPEN"
   },
   {
    "id": "CODE-006",
@@ -2973,7 +3009,7 @@
     "TG-001"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] reconciler.go не существует | проверка: ls fiscal-backend/internal/domain/reconciler.go | [reverify 2026-10-24 OPEN] reconciler.go не существует | проверка: ls fiscal-backend/internal/domain/reconciler.go",
    "subtasks": [
     {
      "id": "TG-010.1",
@@ -2992,7 +3028,8 @@
      "accept": "go test ./internal/domain -run Reconciler -race -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "TG-015",
@@ -3012,7 +3049,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] допустимы только CASH и CARD | проверка: sed -n 390p IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp | [reverify 2026-10-24 OPEN] допустимы только CASH и CARD | проверка: sed -n 390p IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp",
    "subtasks": [
     {
      "id": "BUG-042.1",
@@ -3041,7 +3078,8 @@
      "accept": "go test ./internal/domain -run PaymentTypeCapability -count=1"
     }
    ],
-   "decomp": "function-level"
+   "decomp": "function-level",
+   "reverify": "OPEN"
   },
   {
    "id": "BUG-044",
@@ -3050,7 +3088,8 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": ""
+   "notes": "[reverify 2026-10-24 OPEN] PayloadConflict возвращает ошибку без result_sink_ | проверка: sed -n 431,432p IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp | [reverify 2026-10-24 OPEN] PayloadConflict возвращает ошибку без result_sink_ | проверка: sed -n 431,432p IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp",
+   "reverify": "OPEN"
   },
   {
    "id": "NAP-01",
@@ -3089,7 +3128,7 @@
    "doc": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: service.go | проверка: test -e service.go",
    "subtasks": [
     {
      "id": "NAP-02.1",
@@ -3108,7 +3147,8 @@
      "accept": "go test -run InsufficientCash"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "NAP-03",
@@ -3147,7 +3187,7 @@
     "NORM-11"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: scripts/check-prod-artifact.sh | проверка: test -e scripts/check-prod-artifact.sh",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -3177,7 +3217,8 @@
      "test": "exit 0",
      "accept": "bash scripts/check-prod-artifact.sh"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "NAP-11",
@@ -3225,7 +3266,7 @@
     "NORM-01"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: electronic_receipt.go | проверка: test -e electronic_receipt.go",
    "subtasks": [
     {
      "id": "TG-008.1",
@@ -3244,7 +3285,8 @@
      "accept": "go test ./internal/domain ./internal/api -run ElectronicReceipt -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "TG-009",
@@ -3254,8 +3296,8 @@
    "depends": [
     "NORM-04"
    ],
-   "status": "NOT_STARTED",
-   "notes": "",
+   "status": "IN_PROGRESS",
+   "notes": "[reverify 2026-10-24 PARTIAL] reversal_policy.go и тесты есть (срок ошибки оператора). Осталось: спец. УНП сторно, остальные пункты карточки | проверка: ls fiscal-backend/internal/domain/reversal_policy.go | [reverify 2026-10-24 PARTIAL] reversal_policy.go и тесты есть (срок ошибки оператора). Осталось: спец. УНП сторно, остальные пункты карточки | проверка: ls fiscal-backend/internal/domain/reversal_policy.go",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -3294,7 +3336,8 @@
      "test": "exit 0",
      "accept": "cd fiscal-backend && go vet ./internal/domain"
     }
-   ]
+   ],
+   "reverify": "PARTIAL"
   },
   {
    "id": "TG-016",
@@ -3332,7 +3375,7 @@
     "TG-001"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] service.go 1639 строк, не разделён | проверка: wc -l fiscal-backend/internal/domain/service.go | [reverify 2026-10-24 OPEN] service.go 1639 строк, не разделён | проверка: wc -l fiscal-backend/internal/domain/service.go",
    "subtasks": [
     {
      "id": "ARCH-002.1",
@@ -3435,7 +3478,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Механическое разделение `service.go` (1579 строк) на файлы **без изменения сигнатур**. Каждая подзадача: вырезать перечисленные функции целиком (с комментариями) в новый файл пакета `domain`; `go build` и тесты зелёные; публичный хэш API не меняется. Номера строк — на момент аудита (искать по имени)."
+   "decomp_note": "Механическое разделение `service.go` (1579 строк) на файлы **без изменения сигнатур**. Каждая подзадача: вырезать перечисленные функции целиком (с комментариями) в новый файл пакета `domain`; `go build` и тесты зелёные; публичный хэш API не меняется. Номера строк — на момент аудита (искать по имени).",
+   "reverify": "OPEN"
   },
   {
    "id": "ARCH-003",
@@ -3446,7 +3490,7 @@
     "BUG-012"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] handler.go 2125 строк, не разделён | проверка: wc -l fiscal-backend/internal/api/handler.go | [reverify 2026-10-24 OPEN] handler.go 2125 строк, не разделён | проверка: wc -l fiscal-backend/internal/api/handler.go",
    "subtasks": [
     {
      "id": "ARCH-003.1",
@@ -3529,7 +3573,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "Механическое разделение `internal/api/handler.go` (2089 строк). Хэндлеры — методы `*Handler`; пути и поведение не меняются."
+   "decomp_note": "Механическое разделение `internal/api/handler.go` (2089 строк). Хэндлеры — методы `*Handler`; пути и поведение не меняются.",
+   "reverify": "OPEN"
   },
   {
    "id": "ARCH-009",
@@ -3556,7 +3601,8 @@
    "doc": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": ""
+   "notes": "[reverify 2026-10-24 OPEN] type OperationState отсутствует | проверка: grep -rn 'type OperationState' fiscal-backend/internal | [reverify 2026-10-24 OPEN] type OperationState отсутствует | проверка: grep -rn 'type OperationState' fiscal-backend/internal",
+   "reverify": "OPEN"
   },
   {
    "id": "DOC-001",
@@ -3593,7 +3639,7 @@
    "doc": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: scripts/check-data-location.sh | проверка: test -e scripts/check-data-location.sh",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -3623,7 +3669,8 @@
      "test": "exit 0; тестовый регион us-east-1 → exit 1",
      "accept": "bash scripts/check-data-location.sh"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "NAP-08",
@@ -3711,7 +3758,7 @@
    "doc": "ARCH_02_GAPS_TASKS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] /metrics не найден | проверка: grep -rn promhttp fiscal-backend --include=*.go | [reverify 2026-10-24 OPEN] /metrics не найден | проверка: grep -rn promhttp fiscal-backend --include=*.go",
    "subtasks": [
     {
      "id": "TG-011.1",
@@ -3728,7 +3775,8 @@
      "accept": "go test ./internal/api -run 'Metrics|LogMasking' -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "TG-012",
@@ -3805,7 +3853,7 @@
     "GATE-01"
    ],
    "status": "NOT_STARTED",
-   "notes": "",
+   "notes": "[reverify 2026-10-24 OPEN] HIL_RUNBOOK.md и scripts/hil отсутствуют | проверка: ls docs/MVP1/HIL_RUNBOOK.md scripts/hil | [reverify 2026-10-24 OPEN] HIL_RUNBOOK.md и scripts/hil отсутствуют | проверка: ls docs/MVP1/HIL_RUNBOOK.md scripts/hil",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -3836,7 +3884,8 @@
      "test": "≥6",
      "accept": "grep -c 'HIL' docs/remediation/2026-10-17/MVP_GATES.md"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "VG-19",
@@ -4038,7 +4087,7 @@
     "NORM-14"
    ],
    "status": "NOT_STARTED",
-   "notes": "округление: ЗВЕРБ чл.12–13; общие векторы contracts/testdata/rounding.json",
+   "notes": "округление: ЗВЕРБ чл.12–13; общие векторы contracts/testdata/rounding.json | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: contracts/testdata/rounding.json, fiscal-backend/internal/domain/rounding_golden_test.go, POS/pos-app/src/__tests__/rounding.golden.test.ts | проверка: test -e contracts/testdata/rounding.json",
    "subtasks": [
     {
      "id": "NAP-19.1",
@@ -4069,7 +4118,8 @@
      "accept": "cd fiscal-backend && go test ./internal/domain -run RoundingGolden -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "VG-20",
@@ -4600,7 +4650,7 @@
     "VG-02"
    ],
    "status": "NOT_STARTED",
-   "notes": "часы BC-50: cmd 61 недоступна; cmd 62 + бит 0.2",
+   "notes": "часы BC-50: cmd 61 недоступна; cmd 62 + бит 0.2 | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsClock.kt | проверка: test -e SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsClock.kt",
    "subtasks": [
     {
      "id": "VG-11.1",
@@ -4621,7 +4671,8 @@
      "accept": "cd SmartDevices && ./gradlew :bluecash-app:testProdDebugUnitTest --tests '*DatecsClock*'"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "NAP-20",
@@ -5424,7 +5475,7 @@
    "doc": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "minipos/BeeMiniPOS/modules/beeloy-execution-crypto",
+   "notes": "minipos/BeeMiniPOS/modules/beeloy-execution-crypto | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: minipos/BeeMiniPOS/modules/beeloy-execution-crypto/fixtures/execution_signature_vectors.json, fiscal-backend/internal/domain/execution_signature_vectors_test.go | проверка: test -e minipos/BeeMiniPOS/modules/beeloy-execution-crypto/fixtures/execution_signature_vectors.json",
    "subtasks": [
     {
      "id": "MC-01.1",
@@ -5445,7 +5496,8 @@
      "accept": "cd fiscal-backend && go test ./internal/domain -run MobileDerSignature -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "AA-01",
@@ -5454,7 +5506,7 @@
    "doc": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "AdminApp",
+   "notes": "AdminApp | [reverify 2026-10-24 OPEN] crypto.randomUUID() в AdminApp | проверка: grep -c randomUUID AdminApp/App.tsx",
    "subtasks": [
     {
      "id": "AA-01.1",
@@ -5477,7 +5529,8 @@
      "accept": "cd AdminApp && ! rg -n \"crypto\\.randomUUID\" App.tsx"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "AA-02",
@@ -5527,7 +5580,7 @@
    "doc": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "AdminApp + BeeFiscalApp",
+   "notes": "AdminApp + BeeFiscalApp | [reverify 2026-10-24 OPEN] фолбэк на localhost:8080 | проверка: grep -n localhost:8080 BeeFiscalApp/App.tsx",
    "subtasks": [
     {
      "id": "AA-03.1",
@@ -5561,7 +5614,8 @@
      "accept": "cd BeeFiscalApp && npx jest __tests__/fiscal-authorization-current.test.ts"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "AA-04",
@@ -5601,7 +5655,7 @@
    "doc": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "BeeFiscalApp",
+   "notes": "BeeFiscalApp | [reverify 2026-10-24 OPEN] authenticate() заглушка CRYPTO_PROVIDER_NOT_AVAILABLE | проверка: grep -n CRYPTO_PROVIDER_NOT_AVAILABLE BeeFiscalApp/src/smartDeviceBle.native.ts",
    "subtasks": [
     {
      "id": "BF-01.1",
@@ -5631,7 +5685,8 @@
      "accept": "cd BeeFiscalApp && npx jest __tests__/smart-device-ble-native.test.ts"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "BF-02",
@@ -5719,7 +5774,7 @@
    "doc": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "POS/erp-connector",
+   "notes": "POS/erp-connector | [reverify 2026-10-24 OPEN] в erp-connector нет состояния UNKNOWN | проверка: grep -c UNKNOWN ../POS/erp-connector/internal/orchestration/service.go",
    "subtasks": [
     {
      "id": "EC-02.1",
@@ -5750,7 +5805,8 @@
      "accept": "cd POS/erp-connector && go test ./internal/orchestration -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "EC-03",
@@ -5759,7 +5815,7 @@
    "doc": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "POS/erp-connector",
+   "notes": "POS/erp-connector | [reverify 2026-10-24 OPEN] нет url.PathEscape | проверка: grep -c PathEscape ../POS/erp-connector/internal/orchestration/service.go",
    "subtasks": [
     {
      "id": "EC-03.1",
@@ -5781,7 +5837,8 @@
      "accept": "cd POS/erp-connector && go test ./internal/orchestration -run Path -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "EC-04",
@@ -5792,7 +5849,7 @@
     "EC-01"
    ],
    "status": "NOT_STARTED",
-   "notes": "POS/erp-connector",
+   "notes": "POS/erp-connector | [reverify 2026-10-24 OPEN] _ = s.commitCredential | проверка: grep -n \"_ = s.commitCredential\" ../POS/erp-connector/internal/orchestration/service.go",
    "subtasks": [
     {
      "id": "EC-04.1",
@@ -5813,7 +5870,8 @@
      "accept": "cd POS/erp-connector && go test ./internal/orchestration -run Credential -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "EC-05",
@@ -5822,7 +5880,7 @@
    "doc": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "POS/erp-connector",
+   "notes": "POS/erp-connector | [reverify 2026-10-24 OPEN] opening_cash жёстко 0.00 | проверка: grep -n opening_cash ../POS/erp-connector/internal/orchestration/service.go",
    "subtasks": [
     {
      "id": "EC-05.1",
@@ -5835,7 +5893,8 @@
      "accept": "cd POS/erp-connector && go test ./internal/orchestration -run ShiftOpen -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "EC-06",
@@ -5876,7 +5935,7 @@
    "doc": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "POS/erp-connector",
+   "notes": "POS/erp-connector | [reverify 2026-10-24 OPEN] E2E_PROBE в боевом коде | проверка: grep -n E2E_PROBE ../POS/erp-connector/internal/orchestration/service.go",
    "subtasks": [
     {
      "id": "EC-07.1",
@@ -5889,7 +5948,8 @@
      "accept": "cd POS/erp-connector && go test ./internal/orchestration -run E2EProbe -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "PA-01",
@@ -5898,7 +5958,7 @@
    "doc": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "BeeloyBackend/public-api-core",
+   "notes": "BeeloyBackend/public-api-core | [reverify 2026-10-24 OPEN] Nack(false,true): бесконечный requeue | проверка: grep -n Nack ../BeeloyBackend/public-api-core/internal/adminerp/networkmessaging/fiscal_results.go",
    "subtasks": [
     {
      "id": "PA-01.1",
@@ -5920,7 +5980,8 @@
      "accept": "cd BeeloyBackend/public-api-core && go test ./internal/adminerp/networkmessaging -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "PA-02",
@@ -5929,7 +5990,7 @@
    "doc": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "BeeloyBackend/public-api-core",
+   "notes": "BeeloyBackend/public-api-core | [reverify 2026-10-24 OPEN] payloadSha256 необязателен | проверка: grep -n 'PayloadSHA256 != \"\"' ../BeeloyBackend/public-api-core/internal/adminerp/networkmessaging/fiscal_results.go",
    "subtasks": [
     {
      "id": "PA-02.1",
@@ -5942,7 +6003,8 @@
      "accept": "cd BeeloyBackend/public-api-core && go test ./internal/adminerp/networkmessaging -run ResultWithoutHash -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "OPEN"
   },
   {
    "id": "PA-03",
@@ -5952,8 +6014,8 @@
    "depends": [
     "EC-02"
    ],
-   "status": "NOT_STARTED",
-   "notes": "BeeloyBackend/public-api-core",
+   "status": "IN_PROGRESS",
+   "notes": "BeeloyBackend/public-api-core | [reverify 2026-10-24 PARTIAL] словарь статусов результата проверяется (SUCCEEDED/FAILED/RECONCILIATION_REQUIRED/CANCELLED). Осталось: нормализация в общем пути | проверка: grep -n RECONCILIATION_REQUIRED ../BeeloyBackend/public-api-core/internal/adminerp/networkmessaging/fiscal_results.go",
    "subtasks": [
     {
      "id": "PA-03.1",
@@ -5975,7 +6037,8 @@
      "accept": "cd BeeloyBackend/public-api-core && go test ./internal/adminerp/networkmessaging -count=1"
     }
    ],
-   "decomp": "from-card"
+   "decomp": "from-card",
+   "reverify": "PARTIAL"
   },
   {
    "id": "SCOPE-02",
@@ -6140,7 +6203,7 @@
    "doc": "ARCH_01_BUGS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "нет взаимного исключения между MQTT/BLE/HTTP в BlueCashCommandProcessor",
+   "notes": "нет взаимного исключения между MQTT/BLE/HTTP в BlueCashCommandProcessor | [reverify 2026-10-24 OPEN] нет блокировки между транспортами BlueCash | проверка: grep -c 'Mutex' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt",
    "subtasks": [
     {
      "id": "BUG-072.1",
@@ -6171,7 +6234,8 @@
     }
    ],
    "decomp": "function-level",
-   "decomp_note": "P0 (новая): нет взаимного исключения между MQTT/BLE/HTTP транспортами, `journal.find`+`append` — check-then-act. `BlueCashCommandProcessor.sale/reverse/printerTest`."
+   "decomp_note": "P0 (новая): нет взаимного исключения между MQTT/BLE/HTTP транспортами, `journal.find`+`append` — check-then-act. `BlueCashCommandProcessor.sale/reverse/printerTest`.",
+   "reverify": "OPEN"
   },
   {
    "id": "VG-23",
@@ -6220,7 +6284,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "`persistLocked` пишет весь снимок при каждой мутации — потеря/гонка",
+   "notes": "`persistLocked` пишет весь снимок при каждой мутации — потеря/гонка | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: fiscal-backend/internal/persistence/concurrent_test.go | проверка: test -e fiscal-backend/internal/persistence/concurrent_test.go",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6239,7 +6303,8 @@
      "test": "зелёный",
      "accept": "go test ./internal/persistence -race -run Concurrent"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-02",
@@ -6248,7 +6313,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "`AllocateUNP` при параллельных вызовах",
+   "notes": "`AllocateUNP` при параллельных вызовах | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: то же | проверка: test -e то же",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6267,7 +6332,8 @@
      "test": "зелёный",
      "accept": "-run AllocateUNP"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-03",
@@ -6276,7 +6342,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "Откат при падении между `persist` и ответом",
+   "notes": "Откат при падении между `persist` и ответом | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: internal/api/crash_replay_test.go | проверка: test -e internal/api/crash_replay_test.go",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6295,7 +6361,8 @@
      "test": "зелёный",
      "accept": "go test ./internal/api -run CrashReplay"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-04",
@@ -6304,7 +6371,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "DER vs P1363 подписи (MC-01)",
+   "notes": "DER vs P1363 подписи (MC-01) | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: fiscal-backend/internal/domain/ecdsa_vectors_test.go` + `fixtures/ecdsa_vectors.json | проверка: test -e fiscal-backend/internal/domain/ecdsa_vectors_test.go` + `fixtures/ecdsa_vectors.json",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6323,7 +6390,8 @@
      "test": "зелёный",
      "accept": "go test -run EcdsaVectors"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-05",
@@ -6332,7 +6400,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "Datecs-кадры против эталонных (VG-01/02)",
+   "notes": "Datecs-кадры против эталонных (VG-01/02) | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/DatecsGoldenFramesTest.kt | проверка: test -e SmartDevices/bluecash-app/src/test/kotlin/com/beeloy/fiscal/bluecash/DatecsGoldenFramesTest.kt",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6351,7 +6419,8 @@
      "test": "зелёный",
      "accept": "gradle `--tests *GoldenFrames*"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-06",
@@ -6360,7 +6429,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "Журнал Android при убийстве процесса",
+   "notes": "Журнал Android при убийстве процесса | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: Robolectric `JournalCrashRecoveryTest.kt | проверка: test -e Robolectric `JournalCrashRecoveryTest.kt",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6379,7 +6448,8 @@
      "test": "зелёный",
      "accept": "gradle `--tests *CrashRecovery*"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-07",
@@ -6388,7 +6458,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "minipos webhook гонка (MP-03)",
+   "notes": "minipos webhook гонка (MP-03) | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: minipos/.../webhook_race_test.go | проверка: test -e minipos/.../webhook_race_test.go",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6407,7 +6477,8 @@
      "test": "зелёный",
      "accept": "go test -run WebhookRace"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-08",
@@ -6416,7 +6487,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "erp-connector потеря команды при падении (EC-01)",
+   "notes": "erp-connector потеря команды при падении (EC-01) | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: POS/erp-connector/orchestration/crash_test.go | проверка: test -e POS/erp-connector/orchestration/crash_test.go",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6435,7 +6506,8 @@
      "test": "зелёный",
      "accept": "go test -run Crash"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-09",
@@ -6444,7 +6516,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "public-api-core ядовитое сообщение (PA-01)",
+   "notes": "public-api-core ядовитое сообщение (PA-01) | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: public-api-core/.../fiscal_results_dlq_test.go | проверка: test -e public-api-core/.../fiscal_results_dlq_test.go",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6463,7 +6535,8 @@
      "test": "зелёный",
      "accept": "go test -run DLQ"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-10",
@@ -6472,7 +6545,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "Нагрузочный «ровно один документ»",
+   "notes": "Нагрузочный «ровно один документ» | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: tests/e2e/exactly_once_test.go | проверка: test -e tests/e2e/exactly_once_test.go",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6491,7 +6564,8 @@
      "test": "зелёный",
      "accept": "make e2e-local E2E=exactly-once"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-11",
@@ -6500,7 +6574,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "Ночной переход времени (E2E-15)",
+   "notes": "Ночной переход времени (E2E-15) | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: internal/domain/business_date_test.go | проверка: test -e internal/domain/business_date_test.go",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6519,7 +6593,8 @@
      "test": "зелёный",
      "accept": "go test -run BusinessDate"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-12",
@@ -6528,7 +6603,7 @@
    "doc": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "Fuzz парсера кадров",
+   "notes": "Fuzz парсера кадров | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: FrameFuzzTest | проверка: test -e FrameFuzzTest",
    "decomp": "from-spec",
    "subtasks": [
     {
@@ -6547,7 +6622,8 @@
      "test": "зелёный",
      "accept": "make fuzz-short"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-E2E-01",
@@ -7278,7 +7354,7 @@
    "doc": "ARCH_16_PLAN_REVIEW_ROUND4.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "`scripts/check-mvp-cut.py`: execution/mvp-cut.v1.json (must_before_hil / after_hil / owner_decision_date); каждый Pxx ровно в одном списке; задачи плана без Pxx получают явную отметку",
+   "notes": "`scripts/check-mvp-cut.py`: execution/mvp-cut.v1.json (must_before_hil / after_hil / owner_decision_date); каждый Pxx ровно в одном списке; задачи плана без Pxx получают явную отметку | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: scripts/check-mvp-cut.py | проверка: test -e scripts/check-mvp-cut.py",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -7309,7 +7385,8 @@
      "test": "exit 0",
      "accept": "python3 scripts/check-mvp-cut.py"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-CRIT-01",
@@ -7347,8 +7424,8 @@
    "severity": "P0",
    "doc": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
    "depends": [],
-   "status": "NOT_STARTED",
-   "notes": "golden-кадры Daisy 2.0-4",
+   "status": "DONE",
+   "notes": "golden-кадры Daisy 2.0-4 | [reverify 2026-10-24 CLOSED] 17 золотых кадров Daisy проверены инструментом; тест кодека — TST-DEEP-13 | проверка: python3 docs/MVP1/tools/extract_vendor_frames.py --check daisy",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -7371,7 +7448,8 @@
      "test": "bash run-tests.sh exit 0; в выводе golden_daisy: pass=N fail=0",
      "accept": "cd IoT/protocol-abstraction && bash run-tests.sh"
     }
-   ]
+   ],
+   "reverify": "CLOSED"
   },
   {
    "id": "DSY-02",
@@ -7381,8 +7459,8 @@
    "depends": [
     "DSY-01"
    ],
-   "status": "NOT_STARTED",
-   "notes": "GAP-009/024: Daisy codec и serial_exchange",
+   "status": "IN_PROGRESS",
+   "notes": "GAP-009/024: Daisy codec и serial_exchange | [reverify 2026-10-24 PARTIAL] Daisy-кодек исправлен (LEN +0x24/−0x2B). Осталось: SEQ-диапазон на S3 (SEQ-01), CP1251 (в C++ только DaisyPrinter) | проверка: grep -n \"next_sequence_\" IoT/firmware/edge-agent-s3/idf/main/serial_exchange.cpp",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -7404,7 +7482,8 @@
      "test": "run-tests.sh exit 0; serial_exchange_native: syn_extends=pass nak_retry=pass deadline=pass",
      "accept": "cd IoT/protocol-abstraction && bash run-tests.sh"
     }
-   ]
+   ],
+   "reverify": "PARTIAL"
   },
   {
    "id": "DSY-03",
@@ -7413,7 +7492,7 @@
    "doc": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "выбор Daisy по профилю в profile_executor.cpp",
+   "notes": "выбор Daisy по профилю в profile_executor.cpp | [reverify 2026-10-24 OPEN] профиль не-Datecs трактуется как Daisy | проверка: sed -n 15p IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -7435,7 +7514,8 @@
      "test": "run_native_saga.sh exit 0",
      "accept": "cd IoT/firmware/edge-agent-s3/idf/tests && bash run_native_saga.sh"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "DSY-04",
@@ -7631,8 +7711,8 @@
    "severity": "P0",
    "doc": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
    "depends": [],
-   "status": "NOT_STARTED",
-   "notes": "GAP-010 LEN +0x2A: Kotlin и C++",
+   "status": "DONE",
+   "notes": "GAP-010 LEN +0x2A: Kotlin и C++ | [reverify 2026-10-24 CLOSED] LEN=data+0x2A: C++ DatecsCodec и Kotlin DatecsFrameCodec | проверка: grep -c 'size()+0x2a' IoT/protocol-abstraction/src/FrameCodec.cpp && grep -c 'data.size + 0x2a' SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsProtocol.kt",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -7645,7 +7725,8 @@
      "test": "vector empty_tx_len pass в обоих",
      "accept": "cd IoT/protocol-abstraction && bash run-tests.sh"
     }
-   ]
+   ],
+   "reverify": "CLOSED"
   },
   {
    "id": "S3D-03",
@@ -7703,8 +7784,8 @@
    "depends": [
     "BP-01"
    ],
-   "status": "NOT_STARTED",
-   "notes": "BluePay: golden-кадры DatecsPay и сверка кода с PDF v3",
+   "status": "IN_PROGRESS",
+   "notes": "BluePay: golden-кадры DatecsPay и сверка кода с PDF v3 | [reverify 2026-10-24 PARTIAL] 72 золотых кадра DatecsPay проверены инструментом. Осталось: тест библиотеки на кадры и сверка кода с PDF | проверка: python3 docs/MVP1/tools/extract_vendor_frames.py --check datecspay",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -7736,7 +7817,8 @@
      "test": "вектор из PDF §8 (RRN \"6680635\") совпал",
      "accept": "cd IoT/common-modules/datecspay && bash run-tests.sh"
     }
-   ]
+   ],
+   "reverify": "PARTIAL"
   },
   {
    "id": "BP-03",
@@ -7798,7 +7880,7 @@
    "doc": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "BLE операционный канал до HIL (P10)",
+   "notes": "BLE операционный канал до HIL (P10) | [reverify 2026-10-24 OPEN] нативный BLE-модуль POS отсутствует | проверка: grep -rln \"react-native-ble-plx\" ../POS/pos-app/package.json",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -7821,7 +7903,8 @@
      "test": "exit 0; auth_negative=pass",
      "accept": "cd IoT/firmware/edge-agent-s3/idf/tests && bash run_native_ble.sh"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "MQ-03",
@@ -7830,7 +7913,7 @@
    "doc": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "единый контракт результата UNKNOWN для всех путей",
+   "notes": "единый контракт результата UNKNOWN для всех путей | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: fiscal-backend/internal/domain/device_result.go | проверка: test -e fiscal-backend/internal/domain/device_result.go",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -7843,7 +7926,8 @@
      "test": "exit 0",
      "accept": "cd fiscal-backend && go test ./internal/domain -run DeviceResult -count=1"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "CL-01",
@@ -7903,7 +7987,7 @@
    "doc": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "HIL-матрица и проверка",
+   "notes": "HIL-матрица и проверка | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: scripts/check-hil-matrix.py | проверка: test -e scripts/check-hil-matrix.py",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -7925,7 +8009,8 @@
      "test": "exit 0 на полном наборе, 1 на изъятии одной ячейки",
      "accept": "python3 scripts/check-hil-matrix.py"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "NAP-P-01",
@@ -7964,7 +8049,7 @@
    "doc": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "scripts/check-hil-matrix.py",
+   "notes": "scripts/check-hil-matrix.py | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: scripts/check-hil-matrix.py | проверка: test -e scripts/check-hil-matrix.py",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -7986,7 +8071,8 @@
      "test": "48",
      "accept": "python3 scripts/check-hil-matrix.py --list | wc -l"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "SMS-01",
@@ -8030,7 +8116,7 @@
     "BUG-032"
    ],
    "status": "NOT_STARTED",
-   "notes": "общий Android-рантайм из bluecash-app",
+   "notes": "общий Android-рантайм из bluecash-app | [reverify 2026-10-24 OPEN] код отсутствует | проверка: ls SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8061,7 +8147,8 @@
      "test": "exit 0",
      "accept": "cd SmartDevices && ./gradlew :bluecash-app:testProdDebugUnitTest"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "SMS-03",
@@ -8073,7 +8160,7 @@
     "BUG-028"
    ],
    "status": "NOT_STARTED",
-   "notes": "SmartFiscalPort поверх JSON/HTTP (PrintFiscalReceipt, GetStatus, GetPayments)",
+   "notes": "SmartFiscalPort поверх JSON/HTTP (PrintFiscalReceipt, GetStatus, GetPayments) | [reverify 2026-10-24 OPEN] код отсутствует | проверка: ls SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8095,7 +8182,8 @@
      "test": "6 кейсов pass",
      "accept": "cd SmartDevices && ./gradlew :daisy-smart-app:testDebugUnitTest --tests \"*SmartFiscalPortTest*\""
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "SMS-04",
@@ -8106,7 +8194,7 @@
     "SMS-03"
    ],
    "status": "NOT_STARTED",
-   "notes": "Smart S: фискальные операции (атомарный PrintFiscalReceipt) | D-20: PROD запрещён до ответа Q-S2; только LAB",
+   "notes": "Smart S: фискальные операции (атомарный PrintFiscalReceipt) | D-20: PROD запрещён до ответа Q-S2; только LAB | [reverify 2026-10-24 OPEN] код отсутствует | проверка: ls SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8146,7 +8234,8 @@
      "test": "4 флага → блок, httpCalls(sale)==0",
      "accept": "cd SmartDevices && ./gradlew :daisy-smart-app:testDebugUnitTest --tests \"*SmartZAndGateTest*\""
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "SMS-05",
@@ -8158,7 +8247,7 @@
     "SMS-09"
    ],
    "status": "NOT_STARTED",
-   "notes": "Smart S: карта через Payment Bridge",
+   "notes": "Smart S: карта через Payment Bridge | [reverify 2026-10-24 OPEN] код отсутствует | проверка: ls SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8180,7 +8269,8 @@
      "test": "refundCalls==0",
      "accept": "cd SmartDevices && ./gradlew :daisy-smart-app:testDebugUnitTest --tests \"*SmartMixedPaymentTest*\""
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "SMS-06",
@@ -8213,7 +8303,7 @@
     "SMS-03"
    ],
    "status": "NOT_STARTED",
-   "notes": "Smart S: платёжные типы из GetPayments",
+   "notes": "Smart S: платёжные типы из GetPayments | [reverify 2026-10-24 OPEN] код отсутствует | проверка: ls SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8226,7 +8316,8 @@
      "test": "таблица по умолчанию → CASH=0; пустая → UNSUPPORTED",
      "accept": "cd SmartDevices && ./gradlew :daisy-smart-app:testDebugUnitTest --tests \"*SmartPaymentsTableTest*\""
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "EMU-01",
@@ -8238,7 +8329,7 @@
     "S3D-02"
    ],
    "status": "NOT_STARTED",
-   "notes": "FakeDatecsDevice (E-1)",
+   "notes": "FakeDatecsDevice (E-1) | [reverify 2026-10-24 OPEN] фейк-эмулятор не найден | проверка: find . -path ./node_modules -prune -o -iname \"*Fake*\" -print | head -3",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8259,7 +8350,8 @@
      "test": "doc_counter==1 после двух отправок cmd 56 с одним SEQ",
      "accept": "cd IoT/protocol-abstraction && bash run-tests.sh"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "EMU-02",
@@ -8270,7 +8362,7 @@
     "DSY-01"
    ],
    "status": "NOT_STARTED",
-   "notes": "FakeDaisyDevice (E-2)",
+   "notes": "FakeDaisyDevice (E-2) | [reverify 2026-10-24 OPEN] фейк-эмулятор не найден | проверка: find . -path ./node_modules -prune -o -iname \"*Fake*\" -print | head -3",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8291,7 +8383,8 @@
      "test": "3 теста pass",
      "accept": "cd IoT/protocol-abstraction && bash run-tests.sh"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "EMU-03",
@@ -8303,7 +8396,7 @@
     "SMS-09"
    ],
    "status": "NOT_STARTED",
-   "notes": "FakeSmartFiscalServer + FakeBridge (E-3)",
+   "notes": "FakeSmartFiscalServer + FakeBridge (E-3) | [reverify 2026-10-24 OPEN] фейк-эмулятор не найден | проверка: find . -path ./node_modules -prune -o -iname \"*Fake*\" -print | head -3",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8315,7 +8408,8 @@
      "test": "ARCH_19 P-S S5: DROP_AFTER_BODY → UNKNOWN, httpCalls==1",
      "accept": "cd SmartDevices && ./gradlew :daisy-smart-app:testDebugUnitTest"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "EMU-04",
@@ -8327,7 +8421,7 @@
     "BP-04"
    ],
    "status": "NOT_STARTED",
-   "notes": "FakeBluePad (E-4)",
+   "notes": "FakeBluePad (E-4) | [reverify 2026-10-24 OPEN] фейк-эмулятор не найден | проверка: find . -path ./node_modules -prune -o -iname \"*Fake*\" -print | head -3",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8339,7 +8433,8 @@
      "test": "4 режима покрыты тестами",
      "accept": "cd IoT/firmware/edge-agent-s3/idf/tests && ls bluepad_host"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "EMU-05",
@@ -8350,7 +8445,7 @@
     "MQ-01"
    ],
    "status": "NOT_STARTED",
-   "notes": "FakeBroker (E-5)",
+   "notes": "FakeBroker (E-5) | [reverify 2026-10-24 OPEN] фейк-эмулятор не найден | проверка: find . -path ./node_modules -prune -o -iname \"*Fake*\" -print | head -3",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8362,7 +8457,8 @@
      "test": "ARCH_19 transport.S1,S4,S5,S6,S7 зелёные",
      "accept": "cd fiscal-backend && go test ./internal/mqttclient -count=1"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "EMU-06",
@@ -8373,7 +8469,7 @@
     "MQ-02"
    ],
    "status": "NOT_STARTED",
-   "notes": "FakePeripheral BLE (E-6)",
+   "notes": "FakePeripheral BLE (E-6) | [reverify 2026-10-24 OPEN] фейк-эмулятор не найден | проверка: find . -path ./node_modules -prune -o -iname \"*Fake*\" -print | head -3",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8385,7 +8481,8 @@
      "test": "transport.S8 pass",
      "accept": "cd IoT/firmware/edge-agent-s3/idf/tests && bash run_native_ble.sh"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "DOC-V4B",
@@ -8419,7 +8516,7 @@
     "SMS-02"
    ],
    "status": "NOT_STARTED",
-   "notes": "Smart S: SmartFiscalHttpClient — JSON по HTTP localhost к ФУ (baseUrl из настроек; путь/порт — Q-S1)",
+   "notes": "Smart S: SmartFiscalHttpClient — JSON по HTTP localhost к ФУ (baseUrl из настроек; путь/порт — Q-S1) | [reverify 2026-10-24 OPEN] код отсутствует | проверка: ls SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8442,7 +8539,8 @@
      "test": "34/34 вектора, значения без хвостов вида 13.670000001",
      "accept": "cd SmartDevices && ./gradlew :daisy-smart-app:testDebugUnitTest --tests \"*SmartMoneyTest*\""
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "SMS-09",
@@ -8453,7 +8551,7 @@
     "SMS-02"
    ],
    "status": "NOT_STARTED",
-   "notes": "Smart S: PaymentBridgeClient — payment_request/check_status (банки dsk, viva)",
+   "notes": "Smart S: PaymentBridgeClient — payment_request/check_status (банки dsk, viva) | [reverify 2026-10-24 OPEN] код отсутствует | проверка: ls SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8475,7 +8573,8 @@
      "test": "refund() возвращает REFUND_MANUAL_REQUIRED, сетевых вызовов 0",
      "accept": "cd SmartDevices && ./gradlew :daisy-smart-app:testDebugUnitTest --tests \"*PaymentBridgeClientTest*\""
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "BP-04",
@@ -8576,7 +8675,7 @@
     "MQ-02"
    ],
    "status": "NOT_STARTED",
-   "notes": "POS: нативный BLE-модуль Expo (GATT central) для связи с S3 и BlueCash",
+   "notes": "POS: нативный BLE-модуль Expo (GATT central) для связи с S3 и BlueCash | [reverify 2026-10-24 OPEN] нативный BLE-модуль POS отсутствует | проверка: grep -rln \"react-native-ble-plx\" ../POS/pos-app/package.json",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8598,7 +8697,8 @@
      "test": "sendCalls==1 при UNKNOWN; без proof → AUTH_FAILED",
      "accept": "cd POS/pos-app && npx jest ble"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "POS-BLE-02",
@@ -8609,7 +8709,7 @@
     "POS-BLE-01"
    ],
    "status": "NOT_STARTED",
-   "notes": "POS: выбор транспорта MQTT/BLE и офлайн-режим без backend",
+   "notes": "POS: выбор транспорта MQTT/BLE и офлайн-режим без backend | [reverify 2026-10-24 OPEN] нативный BLE-модуль POS отсутствует | проверка: grep -rln \"react-native-ble-plx\" ../POS/pos-app/package.json",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8621,7 +8721,8 @@
      "test": "3 состояния сети → 3 маршрута; дубль idempotency_key не создаёт второй продажи",
      "accept": "cd POS/pos-app && npx jest ble"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "POS-BLE-03",
@@ -8633,7 +8734,7 @@
     "HILMX-01"
    ],
    "status": "NOT_STARTED",
-   "notes": "POS: сценарии S1…S8 по BLE для каждого пути в HIL-матрице (client=pos, transport=ble)",
+   "notes": "POS: сценарии S1…S8 по BLE для каждого пути в HIL-матрице (client=pos, transport=ble) | [reverify 2026-10-24 OPEN] нативный BLE-модуль POS отсутствует | проверка: grep -rln \"react-native-ble-plx\" ../POS/pos-app/package.json",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8646,7 +8747,8 @@
      "test": "python3 scripts/check-hil-matrix.py --list | grep -c \"pos.ble\" == 40",
      "accept": "python3 scripts/check-hil-matrix.py --list"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "SEQ-01",
@@ -8655,7 +8757,7 @@
    "doc": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "S3 оборачивает SEQ на 0xFF для Datecs; допустимо 0x20…0x7F (Kotlin уже верно). GAP-012 PARTIAL",
+   "notes": "S3 оборачивает SEQ на 0xFF для Datecs; допустимо 0x20…0x7F (Kotlin уже верно). GAP-012 PARTIAL | [reverify 2026-10-24 OPEN] S3 wrap 0xFF для Datecs | проверка: sed -n 23p IoT/firmware/edge-agent-s3/idf/main/serial_exchange.cpp",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8676,7 +8778,8 @@
      "test": "тест зелёный",
      "accept": "bash IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-E2E-21",
@@ -8688,7 +8791,7 @@
     "EMU-06"
    ],
    "status": "NOT_STARTED",
-   "notes": "POS нативный BLE: MTU 23/247, потерянный фрагмент, разрыв после записи",
+   "notes": "POS нативный BLE: MTU 23/247, потерянный фрагмент, разрыв после записи | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: tests/e2e/pos_ble/ | проверка: test -e tests/e2e/pos_ble/",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8700,7 +8803,8 @@
      "test": "3 из 3",
      "accept": "make e2e-local E2E=21"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-E2E-22",
@@ -8712,7 +8816,7 @@
     "SMS-08"
    ],
    "status": "NOT_STARTED",
-   "notes": "Smart S: HTTP localhost + Payment Bridge; UNKNOWN через check_status; F-1 PROD/LAB",
+   "notes": "Smart S: HTTP localhost + Payment Bridge; UNKNOWN через check_status; F-1 PROD/LAB | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: tests/e2e/smart_s/ | проверка: test -e tests/e2e/smart_s/",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8724,7 +8828,8 @@
      "test": "3 из 3",
      "accept": "make e2e-local E2E=22"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-E2E-23",
@@ -8736,7 +8841,7 @@
     "BP-04"
    ],
    "status": "NOT_STARTED",
-   "notes": "BluePay: прокси сокета, потеря TRANSACTION COMPLETE, восстановление 0x1A/0x24",
+   "notes": "BluePay: прокси сокета, потеря TRANSACTION COMPLETE, восстановление 0x1A/0x24 | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: tests/e2e/bluepay/ | проверка: test -e tests/e2e/bluepay/",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8748,7 +8853,8 @@
      "test": "3 из 3",
      "accept": "make e2e-local E2E=23"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-E2E-24",
@@ -8759,7 +8865,7 @@
     "TG-001"
    ],
    "status": "NOT_STARTED",
-   "notes": "Рестарт и атомарность (D-3, TG-001): 20 параллельных одним ключом, FAIL_AT на каждой границе",
+   "notes": "Рестарт и атомарность (D-3, TG-001): 20 параллельных одним ключом, FAIL_AT на каждой границе | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: tests/e2e/restart_cas/ | проверка: test -e tests/e2e/restart_cas/",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8771,7 +8877,8 @@
      "test": "3 из 3",
      "accept": "make e2e-local E2E=24"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-E2E-25",
@@ -8780,7 +8887,7 @@
    "doc": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "Оракул слотов оплаты по профилям BC-50/Daisy Compact/Smart S",
+   "notes": "Оракул слотов оплаты по профилям BC-50/Daisy Compact/Smart S | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: tests/e2e/payment_slots/ | проверка: test -e tests/e2e/payment_slots/",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8801,7 +8908,8 @@
      "test": "3 из 3",
      "accept": "make e2e-local E2E=25"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-E2E-26",
@@ -8812,7 +8920,7 @@
     "TG-009"
    ],
    "status": "NOT_STARTED",
-   "notes": "Порядок сторно→возврат карты на шести путях; REFUND_MANUAL_REQUIRED для Smart S",
+   "notes": "Порядок сторно→возврат карты на шести путях; REFUND_MANUAL_REQUIRED для Smart S | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: tests/e2e/storno_order/ | проверка: test -e tests/e2e/storno_order/",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8824,7 +8932,8 @@
      "test": "3 из 3",
      "accept": "make e2e-local E2E=26"
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-DEEP-13",
@@ -8854,7 +8963,7 @@
    "doc": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
    "depends": [],
    "status": "NOT_STARTED",
-   "notes": "Золотые кадры DatecsPay (72) и Smart-примеры",
+   "notes": "Золотые кадры DatecsPay (72) и Smart-примеры | [reverify 2026-10-24 OPEN] ни один из целевых файлов не существует: IoT/common-modules/datecspay/tests/DatecsPayGoldenFramesTest.cpp | проверка: test -e IoT/common-modules/datecspay/tests/DatecsPayGoldenFramesTest.cpp",
    "decomp": "function-level",
    "subtasks": [
     {
@@ -8875,7 +8984,8 @@
      "test": "схема отвергает опечатки F-4",
      "accept": "python3 -c \"import json;json.load(open('docs/MVP1/fixtures/smart_protocol_examples.json'))\""
     }
-   ]
+   ],
+   "reverify": "OPEN"
   },
   {
    "id": "TST-GATE-01",

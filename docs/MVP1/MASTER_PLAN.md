@@ -163,3 +163,5 @@ NAP-09 (досье и экстрактор), TG-014 (`HIL_RUNBOOK.md`, `scripts/
 Карточки плана `docs/remediation/2026-10-17/70_FULL_PRE_HIL_REMEDIATION_PLAN_FOR_SMALL_MODEL.md` остаются «как проверять и доказывать» (протокол Pxx.n, outcome-таксономия, Definition of Ready). Данный план задаёт **что и в каком порядке чинить**. Соответствие карточек и задач — [ARCH_07 §6](ARCH_07_PLAN70_CRITICAL_REVIEW.md). Новые карточки P40–P44 (ARCH_07 R-02) реализуются волнами W5, W1, W3, W2, W9 соответственно.
 
 Раунд 5: конвейер поставки (1 разработчик + qwen + codex) [ARCH_21](ARCH_21_DELIVERY_PIPELINE.md); ревью тестов и e2e, новые сценарии TST-E2E-21…26 [ARCH_22](ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md); письма вендорам `../vendor/LETTER_DAISY.md`, `../vendor/LETTER_DATECS.md`.
+
+Раунд 6: сверка с кодом 2026-10-24 — [OPEN_WORK](OPEN_WORK.md) (очередь только актуальных работ), доказательства в `execution/reverify.json`.

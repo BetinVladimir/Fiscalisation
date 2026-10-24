@@ -84,8 +84,8 @@
   "why": "нет кода"
  },
  "BUG-001": {
-  "route": "qwen",
-  "why": "по умолчанию"
+  "route": "codex-first",
+  "why": "P0 + критичная область: saga"
  },
  "BUG-002": {
   "route": "codex-first",
@@ -129,11 +129,11 @@
  },
  "BUG-020": {
   "route": "codex-first",
-  "why": "P0 + критичная область: Cas"
+  "why": "P0 + критичная область: cas"
  },
  "BUG-021": {
   "route": "codex-first",
-  "why": "P0 + критичная область: CAS"
+  "why": "P0 + критичная область: cas"
  },
  "BUG-022": {
   "route": "codex-first",
@@ -152,8 +152,8 @@
   "why": "по умолчанию"
  },
  "BUG-026": {
-  "route": "qwen",
-  "why": "по умолчанию"
+  "route": "codex-first",
+  "why": "P0 + критичная область: cas"
  },
  "BUG-027": {
   "route": "qwen",
@@ -161,11 +161,11 @@
  },
  "BUG-028": {
   "route": "codex-first",
-  "why": "P0 + критичная область: Cas"
+  "why": "P0 + критичная область: cas"
  },
  "BUG-029": {
-  "route": "qwen",
-  "why": "по умолчанию"
+  "route": "codex-first",
+  "why": "P0 + критичная область: cas"
  },
  "BUG-030": {
   "route": "qwen",

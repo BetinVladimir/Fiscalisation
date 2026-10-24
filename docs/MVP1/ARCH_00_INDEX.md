@@ -36,7 +36,8 @@
 | [ARCH_20_EMULATOR_SPECS.md](ARCH_20_EMULATOR_SPECS.md) | Спецификации эмуляторов: Datecs, Daisy, Smart S SDK, BluePad, MQTT-брокер, BLE-периферия (задачи EMU-01…06) |
 | [ARCH_21_DELIVERY_PIPELINE.md](ARCH_21_DELIVERY_PIPELINE.md) | Конвейер: qwen кодит → codex ревью → тесты+багфикс qwen → e2e codex; маршрутизация, чек-лист, сроки (~14 недель) |
 | [ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md](ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md) | Ревью тестов/e2e: 12 находок (в т.ч. дефект SEQ Datecs на S3), сценарии TST-E2E-21…26, правила 3 из 3 |
-| [tools/](tools/) | `task-pack.py` (пакет задачи ≤6000 ток.), `check-doc-refs.py` (ссылки/статус/сценарии), `extract_vendor_frames.py` (проверка golden-кадров), `datecs_frame.py`, `route-tasks.py` (маршрут qwen/codex/human), `run-accept.py` (прогон accept), `check-test-matrix.py` |
+| [OPEN_WORK.md](OPEN_WORK.md) | Актуальные работы после сверки с кодом (2026-10-24): закрыто / частично / подтверждённо открыто / не проверялось; генерируется `tools/gen-open-work.py` из `execution/reverify.json` |
+| [tools/](tools/) | `task-pack.py` (пакет задачи ≤6000 ток.), `check-doc-refs.py` (ссылки/статус/сценарии), `extract_vendor_frames.py` (проверка golden-кадров), `datecs_frame.py`, `route-tasks.py` (маршрут qwen/codex/human), `run-accept.py` (прогон accept), `check-test-matrix.py`, `apply_reverify.py`, `gen-open-work.py` |
 | [MASTER_PLAN.md](MASTER_PLAN.md), [execution/status.json](execution/status.json) | Общий план (волны, ворота, решения D-1…D-10) и машинный трекер |
 
 Существующие документы (`docs/remediation/2026-10-17/*`, `docs/fiscal-contour-review-20261021/*`, `MVP_BLOCKERS.md`) **не дублируются**: где находка уже есть в реестре, дана ссылка `GAP-0xx` и отмечено «подтверждено в коде». Новые идентификаторы: `BUG-*`, `GAPX-*`, `TST-*`, `ARCH-*`, `POS-*`, `SUP-*`.
