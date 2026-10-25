@@ -13,6 +13,7 @@ import os
 from pathlib import Path
 import re
 import shlex
+import stat
 import subprocess
 import sys
 import time
@@ -263,24 +264,52 @@ def review_result(plan,queue,repos,state,review_path):
 _FILE_DIGESTS={}
 
 def inventory(repo):
+    repo=os.path.abspath(repo)
     r=subprocess.run(['git','ls-files','-co','--exclude-standard','-z'],cwd=repo,capture_output=True,check=True)
     head=subprocess.run(['git','rev-parse','--verify','HEAD'],cwd=repo,capture_output=True).stdout
     index=subprocess.run(['git','ls-files','-s','-z'],cwd=repo,capture_output=True,check=True).stdout
     result={'@git-state':hashlib.sha256(head+b'\0'+index).hexdigest()}
     for raw in r.stdout.split(b'\0'):
         if not raw:continue
-        path=os.fsdecode(raw);f=repo/path
-        if f.is_symlink():result[path]=digest(os.readlink(f))
-        elif f.is_file():
-            st=f.stat();signature=(st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns,st.st_mode)
-            key=str(f.resolve());cached=_FILE_DIGESTS.get(key)
+        path=os.fsdecode(raw)
+        if path in result:continue
+        filename=os.path.join(repo,path)
+        try:st=os.lstat(filename)
+        except (FileNotFoundError,NotADirectoryError):continue
+        if stat.S_ISLNK(st.st_mode):result[path]=digest(os.readlink(filename))
+        elif stat.S_ISREG(st.st_mode):
+            signature=(st.st_dev,st.st_ino,st.st_size,st.st_mtime_ns,st.st_ctime_ns,st.st_mode)
+            # Lexical key avoids resolving every ancestor of every regular file.
+            # Metadata includes inode/device/ctime, so alias retargets invalidate it.
+            cached=_FILE_DIGESTS.get(filename)
             if cached is None or cached[0]!=signature:
-                value=hashlib.sha256(f.read_bytes()).hexdigest()
-                after=f.stat()
-                if (after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_ctime_ns,after.st_mode)!=signature:raise ValueError('file changed during inventory: '+str(f))
-                _FILE_DIGESTS[key]=(signature,value)
-            result[path]='file:'+str(st.st_mode & 0o777)+':'+_FILE_DIGESTS[key][1]
+                value=hashlib.sha256(Path(filename).read_bytes()).hexdigest()
+                after=os.lstat(filename)
+                if (after.st_dev,after.st_ino,after.st_size,after.st_mtime_ns,after.st_ctime_ns,after.st_mode)!=signature:raise ValueError('file changed during inventory: '+filename)
+                _FILE_DIGESTS[filename]=(signature,value)
+            result[path]='file:'+str(st.st_mode & 0o777)+':'+_FILE_DIGESTS[filename][1]
     return result
+
+def scope_matcher(root,files):
+    """Compile scopes for one quiescent scan, retaining canonical symlink checks."""
+    scopes=tuple(scope_path(root,f) for f in files)
+    parents={}
+    def match(repo,path):
+        if not scopes:return False
+        file=Path(repo)/path
+        parent=str(file.parent)
+        try:
+            st=os.stat(parent)
+            signature=(st.st_dev,st.st_ino,st.st_mtime_ns,st.st_ctime_ns)
+            cached=parents.get(parent)
+            if cached is None or cached[0]!=signature:
+                cached=(signature,file.parent.resolve());parents[parent]=cached
+            # Final-component symlinks must be resolved even with a cached parent.
+            mode=os.lstat(file).st_mode
+            canonical=file.resolve() if stat.S_ISLNK(mode) else cached[1]/file.name
+        except (FileNotFoundError,NotADirectoryError):canonical=file.resolve()
+        return any(canonical==scope or scope in canonical.parents for scope in scopes)
+    return match
 
 def in_scope(root,repo,path,files):
     p=(repo/path).resolve()
@@ -326,11 +355,12 @@ def model_argv(args,message):
 def generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state,uid,attempt,prior_error=""):
     prepare_unit(root,unit)
     scopes=unit['files']+unit.get('mutation_files',[])
+    allowed=scope_matcher(root,scopes)
     before={str(repo):inventory(repo) for repo in repos}
     originals={}
     for repo in repos:
         for path in before[str(repo)]:
-            if path!='@git-state' and not is_test_file(path) and in_scope(root,repo,path,scopes):
+            if path!='@git-state' and not is_test_file(path) and allowed(repo,path):
                 file=repo/path
                 if file.is_symlink():raise ValueError('red mutation of symlink not supported: '+str(file))
                 originals[file]=(file.read_bytes(),file.stat().st_mode & 0o777)
@@ -369,7 +399,7 @@ def generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state
             mutations.mkdir(parents=True,exist_ok=True);mutations.chmod(0o700)
             changed=[]
             candidates=set(originals)
-            candidates.update(repo/path for repo in repos for path in inventory(repo) if path!='@git-state' and not is_test_file(path) and in_scope(root,repo,path,scopes))
+            candidates.update(repo/path for repo in repos for path in inventory(repo) if path!='@git-state' and not is_test_file(path) and allowed(repo,path))
             for file in sorted(candidates):
                 old=originals.get(file,(None,None))[0];new=file.read_bytes() if file.is_file() and not file.is_symlink() else None
                 if old==new:continue
@@ -381,10 +411,11 @@ def generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state
                 changed.append(item)
             (mutations/'manifest.json').write_text(json.dumps(changed,indent=2))
             # Restore only this invocation's scoped non-test mutations, never Git state.
+            allowed=scope_matcher(root,scopes)
             for repo in repos:
                 for path in inventory(repo):
                     file=repo/path
-                    if path!='@git-state' and not is_test_file(path) and in_scope(root,repo,path,scopes) and file not in originals:
+                    if path!='@git-state' and not is_test_file(path) and allowed(repo,path) and file not in originals:
                         file.unlink()
             for file,(content,mode) in originals.items():
                 file.parent.mkdir(parents=True,exist_ok=True);file.write_bytes(content);file.chmod(mode)

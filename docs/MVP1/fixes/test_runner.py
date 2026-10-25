@@ -8,6 +8,41 @@ def plan():
     return {'schema':2,'context_tokens':65536,'packet_estimate_limit':12000,'policy':'money invariants','rules':'read 3 files','tasks':[{'id':'A-01','priority':'P0','mode':'code','depends':[],'spec':'assert product counter equals one','units':[{'id':'A-01.1','title':'implement counter test','files':['tests/test_counter.py'],'test':'counter=1','accept':'python3 -m unittest discover -s tests -p test_counter.py','sources':[],'phase':'green'}]}]}
 
 class RunnerTests(unittest.TestCase):
+    def test_inventory_detects_symlink_retarget_and_ancestor_replacement(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);subprocess.run(['git','init','-q',d],check=True)
+            (root/'a').mkdir();(root/'b').mkdir()
+            (root/'a/x').write_text('one');(root/'b/x').write_text('two')
+            link=root/'link';link.symlink_to('a');before=r.inventory(root)
+            link.unlink();link.symlink_to('b');self.assertNotEqual(before,r.inventory(root))
+            directory=root/'nested';directory.mkdir();(directory/'x').write_text('one')
+            subprocess.run(['git','add','nested/x'],cwd=root,check=True)
+            before=r.inventory(root);(directory/'x').unlink();directory.rmdir();directory.symlink_to(root/'b',target_is_directory=True)
+            self.assertNotEqual(before,r.inventory(root))
+    def test_inventory_rejects_change_during_hash(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);subprocess.run(['git','init','-q',d],check=True);file=root/'x';file.write_text('one')
+            original=Path.read_bytes
+            def changing(path):
+                content=original(path)
+                if path==file:path.write_text('two')
+                return content
+            with patch.object(Path,'read_bytes',changing):
+                with self.assertRaisesRegex(ValueError,'changed during inventory'):r.inventory(root)
+    def test_compiled_scope_matches_reference_and_rechecks_symlinks(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d)/'Fiscalisation';root.mkdir();(root/'allowed').mkdir();(root/'outside').mkdir()
+            (root/'allowed/x').write_text('one');(root/'outside/x').write_text('two')
+            alias=root/'alias';alias.symlink_to(root/'allowed',target_is_directory=True)
+            leaf=root/'allowed/link';leaf.symlink_to(root/'outside/x')
+            scopes=['allowed'];match=r.scope_matcher(root,scopes)
+            for path in ['allowed/x','allowed/link','outside/x','alias/x','allowed/missing']:
+                self.assertEqual(r.in_scope(root,root,path,scopes),match(root,path),path)
+            alias.unlink();alias.symlink_to(root/'outside',target_is_directory=True)
+            self.assertFalse(match(root,'alias/x'))
+            leaf.unlink();leaf.symlink_to(root/'allowed/x');self.assertTrue(match(root,'allowed/link'))
+            leaf.unlink();leaf.symlink_to(root/'outside/x');self.assertFalse(match(root,'allowed/link'))
+            self.assertFalse(r.scope_matcher(root,[])(root,'allowed/x'))
     def test_persistence_schema_packet_uses_postgres_and_preserves_ddl_ownership(self):
         p=json.loads((HERE/'plan.json').read_text())
         t=next(t for t in p['tasks'] if t['id']=='PERSIST-01');u=t['units'][0]
