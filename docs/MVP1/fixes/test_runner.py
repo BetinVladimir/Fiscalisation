@@ -48,12 +48,12 @@ class RunnerTests(unittest.TestCase):
         t=next(t for t in p['tasks'] if t['id']=='PERSIST-01');u=t['units'][0]
         self.assertTrue(t['spec_override'])
         self.assertIn('MUST NOT apply local SQL',t['spec'])
-        self.assertIn('TestMVP1SchemaUpgradePreservesData',u['harness_template'])
+        self.assertIn('TestMVP1SchemaFresh',u['harness_template'])
         self.assertIn('required_tests=',u['harness_template'])
-        self.assertIn('No t.Skip',u['title'])
+        self.assertIn('t.Skip',u['title'])
         self.assertIn('MVP1_SCHEMA_ADMIN_URL',u['harness_template'])
-        self.assertIn('Do NOT implement initdb/pg_ctl',u['title'])
-        self.assertIn('No source-string assertions',u['title'])
+        self.assertIn('No custom cluster lifecycle',u['title'])
+        self.assertIn('static source assertions',u['title'])
         self.assertNotIn('fiscal-backend/internal/persistence/migrations.go',u['files'])
     def test_admin_idempotency_packet_scopes_required_jest_setup_and_lock(self):
         p=json.loads((HERE/'plan.json').read_text())
@@ -571,7 +571,14 @@ class PlanTests(unittest.TestCase):
                 self.assertTrue(any(f.endswith(('.go','.kt','.cpp')) or f=='tests/e2e/test_exactly_once.py' for f in u['files']))
                 self.assertTrue(u['require_runtime']);self.assertTrue(u['read_files'])
                 self.assertFalse(any(f.startswith('docs/MVP1/specs/') for f in u['files']))
-    def test_scope_for_persistence_implementation(self):self.assertEqual(6,len(next(t for t in self.p['tasks'] if t['id']=='PERSIST-01')['units']))
+    def test_scope_for_persistence_implementation(self):
+        units=next(t for t in self.p['tasks'] if t['id']=='PERSIST-01')['units']
+        self.assertEqual(['PERSIST-01.1','PERSIST-01.7','PERSIST-01.8'],[u['id'] for u in units[:3]])
+        self.assertEqual(8,len(units))
+        for u,name in zip(units,['Fresh','UpgradePreservesData','RollbackReapply']):
+            self.assertIn('^TestMVP1Schema'+name+'$',u['harness_template'])
+            self.assertIn('schema_fixture_test.go',next(iter(u['scaffolds'])))
+            self.assertIn('self.assertEqual((ROOT/',u['harness_template'])
 
     def test_all_arch_source_cards_are_mapped(self):
         ids={t['id'] for t in self.p['tasks']}

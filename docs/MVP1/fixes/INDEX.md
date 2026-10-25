@@ -429,7 +429,7 @@
 | [S3FIX-05](S3FIX-05.md) | P0 | code | 1 | TRACE_EXISTING_REGISTERS.md |
 | [S3FIX-06](S3FIX-06.md) | P0 | code | 1 | TRACE_EXISTING_REGISTERS.md |
 | [S3FIX-07](S3FIX-07.md) | P0 | code | 3 | TRACE_EXISTING_REGISTERS.md |
-| [PERSIST-01](PERSIST-01.md) | P0 | code | 6 | MVP_GOAL.md |
+| [PERSIST-01](PERSIST-01.md) | P0 | code | 8 | MVP_GOAL.md |
 | [MATRIX-01](MATRIX-01.md) | P0 | code | 1 | MVP_GOAL.md |
 | [SUPTO-01](SUPTO-01.md) | P0 | code | 3 | MVP_GOAL.md |
 | [REFUND-01](REFUND-01.md) | P0 | code | 1 | MVP_GOAL.md |

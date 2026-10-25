@@ -1,0 +1,124 @@
+package persistence
+
+import (
+	"context"
+	"crypto/rand"
+	"database/sql"
+	"encoding/hex"
+	"fmt"
+	"net/url"
+	"os"
+	"os/exec"
+	"path/filepath"
+	"sort"
+	"strconv"
+	"strings"
+	"testing"
+	"time"
+)
+
+type mvpSchemaFixture struct {
+	DB        *sql.DB
+	URL       string
+	directory string
+	applied   map[string]bool
+	t         *testing.T
+}
+
+// Fixed test infrastructure. Only the owned cluster supplied by Python is allowed.
+func mvpNewSchemaFixture(t *testing.T, through int) *mvpSchemaFixture {
+	t.Helper()
+	raw := os.Getenv("MVP1_SCHEMA_ADMIN_URL")
+	u, err := url.Parse(raw)
+	if err != nil || u == nil || u.Path != "/postgres" || u.Host != "" || !strings.HasPrefix(u.Query().Get("host"), "/private/tmp/mvp1-pg-") || u.Query().Get("port") != "55432" || u.Query().Has("dbname") {
+		t.Fatal("requires owned disposable MVP1_SCHEMA_ADMIN_URL")
+	}
+	admin, err := sql.Open("pgx", raw)
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() { admin.Close() })
+	random := make([]byte, 10)
+	if _, err = rand.Read(random); err != nil {
+		t.Fatal(err)
+	}
+	name := "mvp1_schema_" + hex.EncodeToString(random)
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+	if _, err = admin.ExecContext(ctx, `CREATE DATABASE "`+name+`"`); err != nil {
+		t.Fatal(err)
+	}
+	u.Path = "/" + name
+	u.RawPath = ""
+	db, err := sql.Open("pgx", u.String())
+	if err != nil {
+		t.Fatal(err)
+	}
+	t.Cleanup(func() {
+		db.Close()
+		ctx, cancel := context.WithTimeout(context.Background(), 20*time.Second)
+		defer cancel()
+		if _, err := admin.ExecContext(ctx, `DROP DATABASE "`+name+`" WITH (FORCE)`); err != nil {
+			t.Errorf("drop owned fixture: %v", err)
+		}
+	})
+	root := os.Getenv("MVP1_SCHEMA_ROOT")
+	if root == "" {
+		t.Fatal("MVP1_SCHEMA_ROOT required")
+	}
+	prepared := filepath.Join(t.TempDir(), "prepared")
+	cmd := exec.CommandContext(ctx, "python3", filepath.Join(root, "scripts/prepare-fiscal-pg-fixture.py"), "--source", filepath.Join(root, "database/fiscal"), "--output", prepared, "--namespace", "fiscal")
+	if out, err := cmd.CombinedOutput(); err != nil {
+		t.Fatalf("prepare fixture: %v %s", err, out)
+	}
+	fixture := &mvpSchemaFixture{DB: db, URL: u.String(), directory: prepared, applied: map[string]bool{}, t: t}
+	fixture.Apply(through)
+	return fixture
+}
+
+// Apply each real ordered fixture once; callers can seed predecessor data between prefixes.
+func (f *mvpSchemaFixture) Apply(through int) {
+	f.t.Helper()
+	entries, err := os.ReadDir(f.directory)
+	if err != nil {
+		f.t.Fatal(err)
+	}
+	var names []string
+	for _, entry := range entries {
+		if !entry.IsDir() && strings.HasSuffix(entry.Name(), ".sql") {
+			names = append(names, entry.Name())
+		}
+	}
+	sort.Strings(names)
+	for _, name := range names {
+		n, err := strconv.Atoi(name[:3])
+		if err != nil {
+			f.t.Fatal(err)
+		}
+		if f.applied[name] || (n != 999 && n > through) || (n == 999 && through < 22) {
+			continue
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		cmd := exec.CommandContext(ctx, "psql", f.URL, "-X", "-v", "ON_ERROR_STOP=1", "-q", "-f", filepath.Join(f.directory, name))
+		out, err := cmd.CombinedOutput()
+		cancel()
+		if err != nil {
+			f.t.Fatalf("apply %s: %v %s", name, err, out)
+		}
+		f.applied[name] = true
+	}
+}
+
+// Return prepared actual migration SQL for an explicit transaction/rollback test.
+func (f *mvpSchemaFixture) SQL(number int) string {
+	f.t.Helper()
+	paths, err := filepath.Glob(filepath.Join(f.directory, fmt.Sprintf("%03d_*.sql", number)))
+	if err != nil || len(paths) != 1 {
+		f.t.Fatalf("fixture %03d missing/ambiguous: %v", number, paths)
+	}
+	data, err := os.ReadFile(paths[0])
+	if err != nil {
+		f.t.Fatal(err)
+	}
+	return string(data)
+}
