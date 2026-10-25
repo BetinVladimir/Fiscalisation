@@ -4,9 +4,9 @@ The runner must continue independent work after an ordinary task exhausts its re
 
 ## Timeout diagnosis and repair
 
-- `--timeout` limits each model invocation (default 1800 seconds).
+- `--timeout` is the total model wall-time budget for one unit attempt (default 1800 seconds), shared across red, green and any explicitly enabled recovery sessions. Controller checks/tests run outside this model budget.
 - `--model-idle-timeout` limits inactivity in captured model output (default 900 seconds; 0 disables). Silence is a suspected stall, not proof that the GPU is idle.
-- `--recoveries-per-stage` permits 0–2 fresh repair sessions per stage (default 1), within the outer `--attempts` budget.
+- `--attempts` defaults to 1. `--recoveries-per-stage` defaults to 0: no hidden second attempt after timeout. Explicit legacy overrides permit up to 2 repair sessions per stage, still within the shared model-time budget.
 - On a timeout, terminate the owned process group, preserve the transcript and changed-file snapshots, and write `artifacts/<unit>/recovery/<attempt>/<stage><retry>/diagnosis.json`.
 - Check scope, original repositories, immutable harness and sealed green tests before repair. Restore the original scoped production bytes before a red retry. Keep normal test expectations in every phase.
 - The repair session receives the diagnosis, transcript tail and concrete repair instructions for the same unit/stage. It must diagnose before editing and run the exact acceptance command.
@@ -50,3 +50,19 @@ snapshots (initial warm-up excluded). A complete deterministic red/green runner
 fixture used 32 full scans in strict mode versus 16 in light mode; both returned
 TESTED_REVIEW_REQUIRED with genuine red evidence. These measurements do not predict
 Qwen generation speed or the duration of the complete MVP1 queue.
+
+
+## One-attempt policy
+
+The supervised full run uses `--attempts 1 --recoveries-per-stage 0 --timeout 1800`.
+A successful attempt still has separate red and green model sessions, sharing one
+30-minute model budget. A failed acceptance, missing harness or timeout ends that
+unit attempt. No extra model call is made to decompose the failure.
+
+Alongside `UNRESOLVED_FAILURES.md`, `DECOMPOSITION_QUEUE.md` and private
+`artifacts/<unit>/decomposition/*.json` retain the original criterion, exact scope,
+acceptance, failure and a proposal for smaller work. Proposals are explicitly
+`PROPOSED_NOT_EXECUTABLE`: inspect real code, preserve all original requirements
+and verify replacement packets before retrying after the independent queue.
+These records never count as completion or PASS. Integrity failures still stop
+for diagnosis and safe restoration.

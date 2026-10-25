@@ -357,11 +357,45 @@ class RunnerTests(unittest.TestCase):
                     self.assertEqual('def count(): return 1\n',(repo/'product_counter.py').read_text())
                     self.assertIn('[RECOVERY_ANALYSIS_AND_REPAIR]',argv[-1])
             return original(argv,root,timeout,**kwargs)
-        with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=interrupted):self.assertEqual(4,r.main(args))
+        with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=interrupted):self.assertEqual(4,r.main(args+['--recoveries-per-stage','1']))
         state=workspace/'.mvp-fixes-state';self.assertTrue((state/'A-01.1.json').exists())
         diagnosis=json.loads(next((state/'artifacts/A-01.1/recovery').rglob('diagnosis.json')).read_text())
         self.assertEqual('RETRYING',diagnosis['status']);self.assertEqual(124,diagnosis['returncode'])
         self.assertTrue(list(state.glob('A-01.1.1.red.recovery1.log')))
+    def test_default_timeout_has_one_model_call_and_decomposition_history(self):
+        p,here,repo,workspace,args=self.fixture();original=r.run_process;calls=[]
+        def timeout(argv,root,limit,**kw):
+            if '--model' in argv:
+                calls.append(limit);Path(kw['output_file']).write_text('timeout');return 124,'timeout'
+            return original(argv,root,limit,**kw)
+        with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=timeout):self.assertEqual(1,r.main(args))
+        state=workspace/'.mvp-fixes-state';self.assertEqual(1,len(calls))
+        self.assertFalse((state/'A-01.1.json').exists());self.assertIn('A-01.1',(state/'DECOMPOSITION_QUEUE.md').read_text())
+        candidate=json.loads(next((state/'artifacts/A-01.1/decomposition').glob('*.json')).read_text())
+        self.assertEqual('PROPOSED_NOT_EXECUTABLE',candidate['status']);self.assertEqual(p['tasks'][0]['units'][0]['files'],candidate['scope'])
+        self.assertEqual('FAILED_UNRESOLVED',json.loads((state/'A-01.1.failure.json').read_text())['status'])
+    def test_default_missing_harness_is_not_retried(self):
+        p,here,repo,workspace,args=self.fixture();model=Path(args[args.index('--opencode-cmd')+1].split(' ',1)[1]);model.write_text('print("no changes")');original=r.run_process;calls=[]
+        def count(argv,*pos,**kw):
+            if '--model' in argv:calls.append(argv)
+            return original(argv,*pos,**kw)
+        with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=count):self.assertEqual(1,r.main(args))
+        self.assertEqual(1,len(calls));self.assertFalse((workspace/'.mvp-fixes-state/A-01.1.json').exists())
+    def test_red_green_share_model_time_budget(self):
+        p,here,repo,workspace,args=self.fixture();original=r.run_process;limits=[]
+        def count(argv,root,limit,**kw):
+            if '--model' in argv:limits.append(limit)
+            return original(argv,root,limit,**kw)
+        with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=count):self.assertEqual(4,r.main(args+['--timeout','30']))
+        self.assertEqual(2,len(limits));self.assertLessEqual(limits[0],30);self.assertLess(limits[1],limits[0])
+    def test_exhausted_red_budget_cannot_start_green_model(self):
+        p,here,repo,workspace,args=self.fixture();original=r.run_recovering_stage;stages=[]
+        def consume(*pos,**kw):
+            stages.append(pos[11]);result=original(*pos,**kw);pos[-1]['remaining']=0;return result
+        with patch.object(r,'HERE',here),patch.object(r,'run_recovering_stage',side_effect=consume),patch.object(r,'model_argv',wraps=r.model_argv) as model:
+            self.assertEqual(1,r.main(args));self.assertEqual(1,model.call_count)
+        self.assertFalse((workspace/'.mvp-fixes-state/A-01.1.json').exists())
+
     def test_exhausted_unit_skips_and_independent_task_runs(self):
         p,here,repo,workspace,args=self.fixture();a=p['tasks'][0];b=copy.deepcopy(a);b['id']='B-01';b['units'][0]['id']='B-01.1';c=copy.deepcopy(a);c['id']='C-01';c['depends']=['A-01'];c['units'][0]['id']='C-01.1';p['tasks']+=[b,c]
         for f in (here/'plan.json',repo/'docs/MVP1/fixes/plan.json'):f.write_text(json.dumps(p))
@@ -390,7 +424,7 @@ class RunnerTests(unittest.TestCase):
             if '--model' in argv:
                 calls.append(argv[-1]);Path(kw['output_file']).write_text('quiet model timeout');return 124,'quiet model timeout'
             return original(argv,root,limit,**kw)
-        with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=timeout):self.assertEqual(1,r.main(args+['--attempts','1']))
+        with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=timeout):self.assertEqual(1,r.main(args+['--attempts','1','--recoveries-per-stage','1']))
         state=workspace/'.mvp-fixes-state';self.assertEqual(2,len(calls));self.assertFalse((state/'A-01.1.json').exists());self.assertTrue((state/'A-01.1.failure.json').exists())
         self.assertIn('RECOVERY_EXHAUSTED',(state/'UNRESOLVED_FAILURES.md').read_text())
     def test_green_timeout_cannot_repair_by_changing_sealed_test(self):

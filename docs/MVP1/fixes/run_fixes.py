@@ -409,16 +409,36 @@ def record_failure(state,task,uid,packet_sha,reason,status='FAILED_UNRESOLVED'):
         out.write('\n## '+uid+' — '+status+'\n\nTask: '+task+'; UTC: '+time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime())+'\n\n'+reason[-3000:]+'\n\nEvidence: `'+str(state/(uid+'.*'))+'`\n')
     report.chmod(0o600)
 
-def run_recovering_stage(args,plan,unit,root,repos,protected,original_hashes,state,uid,attempt,stage,msg,scopes,originals,sealed):
+def record_decomposition(state,task,unit,reason):
+    """Preserve a bounded analysis request, never invent executable tasks or PASS."""
+    uid=unit['id'];folder=state/'artifacts'/uid/'decomposition'
+    folder.mkdir(parents=True,exist_ok=True,mode=0o700)
+    entry={'schema':1,'status':'PROPOSED_NOT_EXECUTABLE','task':task['id'],'unit':uid,
+           'time':time.time(),'reason':reason[-12000:],'scope':unit['files'],
+           'accept':unit['accept'],'original_criterion':unit.get('test',''),
+           'steps':['Prepare the exact acceptance harness and smallest runnable fixture first.',
+                    'Separate independent behavior/failure cases from the original criterion into small native tests; preserve every requirement.',
+                    'Implement one behavior per checked packet, then run the combined original acceptance and regression.'],
+           'gate':'Review decomposition against real code, dependencies, scope and independent oracle before executing. No extra model session on this failed attempt.'}
+    file=folder/(str(time.time_ns())+'.json');file.write_text(json.dumps(entry,ensure_ascii=False,indent=2));file.chmod(0o600)
+    report=state/'DECOMPOSITION_QUEUE.md'
+    with report.open('a') as out:
+        out.write('\n## '+uid+' — DECOMPOSE_OR_SKIP\n\nTask: '+task['id']+'; proposal: `'+str(file)+'`\n\nFailure: '+reason[-2000:]+'\n\nNo executable replacement or PASS has been issued. Review smaller packets before retry; continue independent tasks.\n')
+    report.chmod(0o600)
+
+def run_recovering_stage(args,plan,unit,root,repos,protected,original_hashes,state,uid,attempt,stage,msg,scopes,originals,sealed,budget=None):
     initial=msg
-    for recovery in range(getattr(args,'recoveries_per_stage',1)+1):
+    if budget is None:budget={"remaining":float(args.timeout)}
+    for recovery in range(getattr(args,'recoveries_per_stage',0)+1):
+        if budget['remaining']<=0.01:return 124,'RECOVERY_EXHAUSTED shared model time budget exhausted before '+stage
         before={str(repo):inventory(repo) for repo in repos}
         suffix='' if recovery==0 else '.recovery'+str(recovery)
         logfile=state/(uid+f'.{attempt}.{stage}'+suffix+'.log')
         artifacts=state/'artifacts'/uid/'model'/stage/(str(attempt)+suffix);artifacts.mkdir(parents=True,exist_ok=True,mode=0o700)
         print('MODEL_START',uid,'stage='+stage,'attempt='+str(attempt),'recovery='+str(recovery),'cwd='+str(root),flush=True)
         started=time.monotonic()
-        rc,output=run_process(model_argv(args,msg),root,args.timeout,env={'MVP1_ARTIFACT_DIR':str(artifacts.resolve())},output_file=logfile,idle_timeout=getattr(args,'model_idle_timeout',900))
+        rc,output=run_process(model_argv(args,msg),root,min(args.timeout,budget['remaining']),env={'MVP1_ARTIFACT_DIR':str(artifacts.resolve())},output_file=logfile,idle_timeout=getattr(args,'model_idle_timeout',900))
+        budget['remaining']=max(0.0,budget['remaining']-(time.monotonic()-started))
         invalidate_inventories()
         print('MODEL_EXIT',uid,'stage='+stage,'rc='+str(rc),'seconds='+str(round(time.monotonic()-started,1)),flush=True)
         verify_unchanged(root,repos,before,scopes if stage=='red' else unit['files'],protected,original_hashes)
@@ -441,7 +461,7 @@ def run_recovering_stage(args,plan,unit,root,repos,protected,original_hashes,sta
                 if file.is_file() and not file.is_symlink():
                     saved=folder/(str(len(changed))+'.snapshot');saved.write_bytes(file.read_bytes());saved.chmod(0o600)
                 changed.append(str(file))
-        diagnostic={'schema':1,'unit':uid,'stage':stage,'attempt':attempt,'recovery':recovery,'returncode':rc,'diagnosis':diagnosis,'remedies':remedies,'changed_files':changed,'log':str(logfile),'status':'RETRYING' if recovery<getattr(args,'recoveries_per_stage',1) else 'EXHAUSTED'}
+        diagnostic={'schema':1,'unit':uid,'stage':stage,'attempt':attempt,'recovery':recovery,'returncode':rc,'diagnosis':diagnosis,'remedies':remedies,'changed_files':changed,'log':str(logfile),'status':'RETRYING' if recovery<getattr(args,'recoveries_per_stage',0) and budget['remaining']>0.01 else 'EXHAUSTED'}
         (folder/'diagnosis.json').write_text(json.dumps(diagnostic,indent=2))
         # Red retries must start from actual original product bytes; tests may be repaired in red.
         if stage=='red':
@@ -459,6 +479,7 @@ def run_recovering_stage(args,plan,unit,root,repos,protected,original_hashes,sta
     raise AssertionError('unreachable recovery loop')
 
 def _generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state,uid,attempt,prior_error=""):
+    budget={"remaining":float(args.timeout)}
     prepare_unit(root,unit)
     scopes=unit['files']+unit.get('mutation_files',[])
     allowed=scope_matcher(root,scopes)
@@ -479,7 +500,7 @@ def _generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,stat
         msg=header+attempt_prompt(stage_packet,prior_error,plan['packet_estimate_limit']-(len(header.encode())+len(footer.encode()))//2-2)+footer
         if len(msg.encode())//2+1>plan['packet_estimate_limit']:raise ValueError('stage packet too large '+uid)
         prior={str(repo):inventory(repo) for repo in repos}
-        rc,output=run_recovering_stage(args,plan,unit,root,repos,protected,original_hashes,state,uid,attempt,stage,msg,scopes,originals,sealed if stage=='green' else {})
+        rc,output=run_recovering_stage(args,plan,unit,root,repos,protected,original_hashes,state,uid,attempt,stage,msg,scopes,originals,sealed if stage=='green' else {},budget)
         verify_unchanged(root,repos,prior,scopes if stage=='red' else unit['files'],protected,original_hashes)
         if stage=='red':
             for repo in repos:
@@ -567,11 +588,11 @@ def main(argv=None):
     a.add_argument('--create-workspace',action='store_true',help='create detached git worktrees, copy reviewed fixes packets; no commits')
     a.add_argument('--only');a.add_argument('--pilot-unit',help='execute one explicit unit without dependencies; always partial, never ACCEPTED');a.add_argument('--execute',action='store_true');a.add_argument('--workspace-root',type=Path)
     a.add_argument('--opencode-run-arg',action='append',default=[],choices=['--standalone','--auto','--format=json'],help='explicit run flag; use --opencode-run-arg=--standalone (repeatable)')
-    a.add_argument('--opencode-cmd',default='opencode');a.add_argument('--attempts',type=int,default=3)
+    a.add_argument('--opencode-cmd',default='opencode');a.add_argument('--attempts',type=int,default=1)
     a.add_argument('--timeout',type=int,default=1800);a.add_argument('--check-timeout',type=int,default=900)
     a.add_argument('--model-idle-timeout',type=float,default=900,help='model output inactivity limit; 0 disables')
     a.add_argument('--guard-mode',choices=['light','strict'],default='light',help='reuse quiescent scans within a unit; strict rescans every read')
-    a.add_argument('--recoveries-per-stage',type=int,default=1)
+    a.add_argument('--recoveries-per-stage',type=int,default=0)
     a.add_argument('--fail-fast',action='store_true',help='stop on exhausted task instead of continuing independent tasks')
     a.add_argument('--retry-failed',action='store_true',help='retry unchanged units previously recorded as unresolved')
     a.add_argument('--state-dir',type=Path);a.add_argument('--review',type=Path,help='independent review JSON matching final workspace digest');args=a.parse_args(argv)
@@ -663,7 +684,7 @@ def main(argv=None):
                         receipt.write_text(json.dumps({'schema':3,'packet_sha':fingerprint,'red_verified':True,'red_log':uid+f'.{attempt}.red.evidence.log','red_sha':digest((state/(uid+f'.{attempt}.red.evidence.log')).read_text()),'model':args.model,'time':time.time(),'status':'TESTED_REVIEW_REQUIRED','output':output},ensure_ascii=False,indent=2));print('TESTED',uid);break
                     print('FAIL',uid,output[-2000:])
                 else:
-                    record_failure(state,t['id'],uid,fingerprint,output);failed.append(uid);task_failed=True;print('SKIP_UNRESOLVED',uid,flush=True)
+                    record_failure(state,t['id'],uid,fingerprint,output);record_decomposition(state,t,unit,output);failed.append(uid);task_failed=True;print('SKIP_UNRESOLVED',uid,flush=True)
                     if args.fail_fast:return 1
                     break
             if task_failed:continue
