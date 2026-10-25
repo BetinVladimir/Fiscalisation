@@ -12525,13 +12525,12 @@
       "units": [
         {
           "id": "BF-01.1",
-          "title": "Прочитать протокол прошивки и зафиксировать таблицей «команда → payload → ответ» в docs/MVP1/specs/ble_provisioning.md\nПриёмочный тест tests/mvp1/test_bf_01_1.py: unittest вызывает реальный код/нативный тестовый runner/скрипт (subprocess без shell), проверяет точные ожидаемые результаты из спецификации и ненулевой счётчик тестов. Для документной работы валидирует структуру и требуемые поля, не только наличие файла. Не использовать always-true, mocked production function, skip, чтение ожидаемого из реализации. Сначала test-first и чувствительность к дефекту, затем минимальная правка. Старую команду legacy_accept сверить с реальной структурой и запускать из harness только если она содержательно проверяет эту подзадачу. Scope точный: путь файла разрешает только этот файл; путь каталога — его потомков. Новый файл допустим только внутри явно указанного каталога, не рядом с разрешённым файлом. Если нужного пути нет в files — BLOCKED_SCOPE, не создавать его. Обязательны реально выполненные unittest assertions; skip/expectedFailure/no tests и assertEqual(константа,константа) не принимаются. Для кода запустить реальный native runtime/tests subprocess либо импортировать production Python module. Автостатус только TESTED_REVIEW_REQUIRED; независимое ревью проверяет смысл oracle и фактическое покрытие. Тесты не меняют source tree: временные БД/fixtures в tempfile, отчёты/raw evidence в os.environ[\"MVP1_ARTIFACT_DIR\"] (отдельный каталог каждого из трёх прогонов); не писать generated evidence в git checkout. Контроллер сначала проверяет реальный assertion FAIL, затем green без изменения red-тестов. Для test-only работы разрешена временная мутация scoped production файла: контроллер восстановит его исходные байты перед green. Native subprocess обязан захватывать stdout/stderr и выдавать реальные ненулевые test counts (Go JSON, JUnit XML, unittest, pytest, TAP, GTest/Jest/CTest); python --version/echo/import без вызова продукта не являются runtime evidence.",
+          "title": "DOCUMENT ONLY: write tests/mvp1/test_bf_01_1.py and docs/MVP1/specs/ble_provisioning.md. Firmware/application sources are read-only. Read the three referenced authoritative protocol documents; derive no protocol values from guesses. RED: create meaningful document validation tests, leave the document missing or temporarily remove a required table row, run exact acceptance and leave a real assertion failure. GREEN: write/fix the protocol document without changing the red tests. Assert required fields and known protocol constants from independent specification literals, not values copied from the generated document. Document unsupported/unresolved behavior explicitly as BLOCKED_SPEC. Never implement BLE code or claim hardware PASS in this unit.",
           "files": [
-            "BeeFiscalApp/__tests__/smart-device-ble-native.test.ts",
-            "BeeFiscalApp/src/smartDeviceBle.native.ts",
+            "docs/MVP1/specs/ble_provisioning.md",
             "tests/mvp1/test_bf_01_1.py"
           ],
-          "test": "документ создан",
+          "test": "Validate the protocol document with executable unittest assertions: required command/payload/response table, GATT/fragmentation/authentication/timeout fields, exact independently specified protocol constants and source references. Missing document/required row must cause an assertion failure. No presence-only test.",
           "accept": "python3 -m unittest discover -s tests/mvp1 -p test_bf_01_1.py",
           "sources": [
             "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md"
@@ -12539,8 +12538,13 @@
           "phase": "green",
           "regression": [],
           "legacy_accept": "",
-          "require_runtime": true,
+          "require_runtime": false,
           "red_required": true,
+          "read_files": [
+            "IoT/firmware/edge-agent-s3/idf/BINDING_PROVISIONING.md",
+            "docs/remediation/2026-10-17/52_RELIABLE_GATT_STREAM.md",
+            "docs/remediation/2026-10-17/PROVISIONING_V2_CRYPTO.md"
+          ],
           "mutation_files": []
         },
         {
@@ -23350,7 +23354,7 @@
         },
         {
           "id": "PERSIST-01.8",
-          "title": "ONLY actual migration transaction rollback/reapply, <=80 lines native Go. f:=mvpNewSchemaFixture(t,2). Seed a fiscal.tenants row using real columns from 001_init.sql. Begin sql.Tx, execute actual prepared f.SQL(3), verify fiscal.fiscal_runtime_replays exists INSIDE tx, then Rollback. Query via f.DB: runtime table absent; seeded tenant values unchanged. f.Apply(3), then assert runtime table exists and same tenant values remain. Do not drop the entire schema/database and call it rollback. This is compatibility fixture transaction rollback, not canonical down-migration certification. Controller supplies immutable Python harness and repository_schema_fixture_test.go; never edit either. Write only the one named Go test function, import standard packages and pgconn when checking SQLSTATE. No custom cluster lifecycle, SQL loader, os.Executable path inference, URL appending, t.Skip, static source assertions or phase-specific always-failing tests. Run ONLY the exact unit acceptance from the printed working root; never change to /workspace or use python -c wrappers. Existing fixture may already be correct: red must temporarily mutate an existing scoped SQL constraint/column relevant to THIS test, not add 999 red-only migration. Keep normal expectations in red and green. Controller restores scoped SQL before green. Do not modify application migrations.go. Stop immediately after this unit acceptance; other unit tests are scheduled separately.",
+          "title": "ONLY actual migration transaction rollback/reapply, <=80 lines native Go. f:=mvpNewSchemaFixture(t,2). Seed a fiscal.tenants row using real columns from 001_init.sql. Begin sql.Tx, execute actual prepared f.SQL(3), verify fiscal.fiscal_runtime_replays exists INSIDE tx, then Rollback. Query via f.DB: runtime table absent; seeded tenant values unchanged. f.Apply(3), then assert runtime table exists and same tenant values remain. Do not drop the entire schema/database and call it rollback. This is compatibility fixture transaction rollback, not canonical down-migration certification. Controller supplies immutable Python harness and repository_schema_fixture_test.go; never edit either. Write only the one named Go test function, import standard packages and pgconn when checking SQLSTATE. No custom cluster lifecycle, SQL loader, os.Executable path inference, URL appending, t.Skip, static source assertions or phase-specific always-failing tests. Run ONLY the exact unit acceptance from the printed working root; never change to /workspace or use python -c wrappers. Existing fixture may already be correct: red must temporarily mutate an existing scoped SQL constraint/column relevant to THIS test, not add 999 red-only migration. Keep normal expectations in red and green. Controller restores scoped SQL before green. Do not modify application migrations.go. Stop immediately after this unit acceptance; other unit tests are scheduled separately. RED MUTATION EXACTLY: in database/fiscal/003_runtime_typed.sql replace ALL occurrences of fiscal_runtime_replays with fiscal_runtime_replays_mutant, including CREATE TABLE, index, RLS list and GRANT. Keep SQL valid; do not add an undefined type, SQL syntax error or a failing statement. Run exact acceptance: migration must execute successfully, then the existing assertion for fiscal.fiscal_runtime_replays inside sql.Tx must fail because that expected table is absent. Keep the normal expected table name in the test. STOP in red; controller restores SQL for green. A green native test or a SQL execution error is NOT red evidence.",
           "files": [
             "database/fiscal",
             "fiscal-backend/internal/persistence/repository_schema_rollback_test.go",

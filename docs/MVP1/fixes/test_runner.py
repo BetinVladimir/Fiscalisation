@@ -738,6 +738,15 @@ class PlanTests(unittest.TestCase):
             (planned/'BUG-005.md').write_text('stale packet')
             self.assertIn('stale generated packet BUG-005.md',tool.compare_packets(generated,planned/'plan.json'))
 
+    def test_ble_protocol_document_keeps_its_deliverable_and_read_only_sources(self):
+        p=r.read_plan(HERE/'plan.json');t=next(t for t in p['tasks'] if t['id']=='BF-01');u=t['units'][0]
+        self.assertEqual('BF-01.1',u['id'])
+        self.assertEqual({'docs/MVP1/specs/ble_provisioning.md','tests/mvp1/test_bf_01_1.py'},set(u['files']))
+        self.assertFalse(u['require_runtime']);self.assertEqual([],u['mutation_files'])
+        self.assertTrue(u['read_files']);self.assertTrue(all(f.endswith('.md') for f in u['read_files']))
+        self.assertIn('assertion failure',u['title']);self.assertIn('without changing the red tests',u['title'])
+        for source in u['read_files']:self.assertTrue((HERE.parents[2]/source).is_file(),source)
+
 class InventoryEpochTests(unittest.TestCase):
     def setUp(self):
         self.previous=r._INVENTORY_EPOCH

@@ -383,3 +383,18 @@ def fix_plan(tasks):
     unit['scaffolds'][native_path]=native
     unit['harness_template']=unit['harness_template'].replace('  with temporary_postgres()','  self.assertEqual((ROOT/'+repr(native_path)+').read_text(),'+repr(native)+')\n  with temporary_postgres()')
     unit['title']='Fresh schema ONLY. Controller has supplied BOTH immutable native test and Python harness. Do not write or change tests, receipt_session inserts, infrastructure, helper or harness. Read only database/fiscal/013_supto_identifier_foundation.sql and the supplied native test if needed. RED: temporarily remove the existing UNIQUE (tenant_id, unp) constraint from migration013, leaving other SQL valid; run exact unit acceptance, confirm expected duplicate-UNP assertion, STOP. GREEN: controller restores SQL; run unchanged unit acceptance and STOP, no test edits. SQLSTATE 23505 and exact constraint names, valid seed inserts and cross-tenant controls are already implemented. Do not add 999 migrations or another test.'
+
+
+    # BF-01.1 is a protocol document; inherited implementation scope removed its deliverable.
+    unit=tasks['BF-01']['units'][0]
+    unit['files']=['docs/MVP1/specs/ble_provisioning.md','tests/mvp1/test_bf_01_1.py']
+    unit['read_files']=['IoT/firmware/edge-agent-s3/idf/BINDING_PROVISIONING.md','docs/remediation/2026-10-17/52_RELIABLE_GATT_STREAM.md','docs/remediation/2026-10-17/PROVISIONING_V2_CRYPTO.md']
+    unit['mutation_files']=[]
+    unit['require_runtime']=False
+    unit['legacy_accept']=''
+    unit['test']='Validate the protocol document with executable unittest assertions: required command/payload/response table, GATT/fragmentation/authentication/timeout fields, exact independently specified protocol constants and source references. Missing document/required row must cause an assertion failure. No presence-only test.'
+    unit['title']='DOCUMENT ONLY: write tests/mvp1/test_bf_01_1.py and docs/MVP1/specs/ble_provisioning.md. Firmware/application sources are read-only. Read the three referenced authoritative protocol documents; derive no protocol values from guesses. RED: create meaningful document validation tests, leave the document missing or temporarily remove a required table row, run exact acceptance and leave a real assertion failure. GREEN: write/fix the protocol document without changing the red tests. Assert required fields and known protocol constants from independent specification literals, not values copied from the generated document. Document unsupported/unresolved behavior explicitly as BLOCKED_SPEC. Never implement BLE code or claim hardware PASS in this unit.'
+
+    # A valid behavioral mutant is necessary: an undefined SQL type is a setup error.
+    unit=next(u for u in tasks['PERSIST-01']['units'] if u['id']=='PERSIST-01.8')
+    unit['title']+=' RED MUTATION EXACTLY: in database/fiscal/003_runtime_typed.sql replace ALL occurrences of fiscal_runtime_replays with fiscal_runtime_replays_mutant, including CREATE TABLE, index, RLS list and GRANT. Keep SQL valid; do not add an undefined type, SQL syntax error or a failing statement. Run exact acceptance: migration must execute successfully, then the existing assertion for fiscal.fiscal_runtime_replays inside sql.Tx must fail because that expected table is absent. Keep the normal expected table name in the test. STOP in red; controller restores SQL for green. A green native test or a SQL execution error is NOT red evidence.'
