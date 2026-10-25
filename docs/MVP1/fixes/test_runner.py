@@ -19,6 +19,14 @@ class RunnerTests(unittest.TestCase):
             self.assertIn('AA-01.2',unit['title'])
         self.assertNotIn('AdminApp/App.tsx',task['units'][0]['files'])
         self.assertTrue(task['spec_override'])
+        first=task['units'][0]
+        self.assertIn('AdminApp/src/idempotency.test.ts',first['scaffolds'])
+        native=first['scaffolds']['AdminApp/src/idempotency.test.ts']
+        self.assertIn('jest.fn',native)
+        self.assertIn('jest.clearAllMocks()',native)
+        self.assertIn('newKey(); expect(sdk.randomUUID).toHaveBeenCalledTimes(1)',native)
+        self.assertIn('self.assertEqual((ROOT/',first['harness_template'])
+        self.assertNotIn('babel',first['scaffolds']['AdminApp/jest.config.js'])
     def setUp(self):
         redirect=contextlib.redirect_stdout(io.StringIO());redirect.__enter__();self.addCleanup(redirect.__exit__,None,None,None)
     def test_tap_plan_without_executions_is_not_evidence(self):
