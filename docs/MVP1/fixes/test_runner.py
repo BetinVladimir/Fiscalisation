@@ -17,6 +17,8 @@ class RunnerTests(unittest.TestCase):
             self.assertIn('not a constant',unit['title'])
             self.assertIn('global.crypto undefined',unit['title'])
             self.assertIn('AA-01.2',unit['title'])
+        self.assertNotIn('AdminApp/App.tsx',task['units'][0]['files'])
+        self.assertTrue(task['spec_override'])
     def setUp(self):
         redirect=contextlib.redirect_stdout(io.StringIO());redirect.__enter__();self.addCleanup(redirect.__exit__,None,None,None)
     def test_tap_plan_without_executions_is_not_evidence(self):
@@ -445,6 +447,7 @@ class RunnerTests(unittest.TestCase):
     def test_stage_prompt_has_matching_phase(self):
         p,here,repo,workspace,args=self.fixture()
         model=Path(args[args.index('--opencode-cmd')+1].split(' ',1)[1])
+        model.write_text(model.read_text()+'\nassert \"[UNIT_BOUNDARY] Execute ONLY A-01.1\" in sys.argv[-1]\nassert \"Do not start, implement, or create tests for another unit\" in sys.argv[-1]\n')
         model.write_text(model.read_text()+'\nif "[MVP_RED_STAGE]" in sys.argv[-1]: assert \'"phase": "red"\' in sys.argv[-1]\nelse: assert \'"phase": "green"\' in sys.argv[-1]\n')
         with patch.object(r,'HERE',here):self.assertEqual(4,r.main(args))
 

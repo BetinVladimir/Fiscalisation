@@ -12,6 +12,11 @@ def fix_plan(tasks):
     tasks['TG-017']['spec']='Сводный gate вендорных работ; не редактировать status.json. Успех требует все depends, не только VG-20.'
     tasks['BUG-060']['external_requires']=['SECURITY-ROTATION-01']
     tasks['SECURITY-ROTATION-01']={'id':'SECURITY-ROTATION-01','mode':'external','priority':'P0','source':'DECISIONS.md','source_status':'NEW','depends':[],'external_requires':[],'units':[],'notes':'Владелец: ротация реально раскрытых ключей/паролей и решение о git history. Кодогенерация создаёт только scan/конфигурацию. Не выдумывать подтверждение ротации.','spec':'Письменное evidence ротации без секретов; независимая проверка. Не выполнять на реальных credentials автоматически.'}
+    tasks['AA-01']['spec_override']=True
+    tasks['AA-01']['spec']='Hermes-safe AdminApp idempotency: expo-crypto ~15.0.9; newKey() delegates to Expo randomUUID. Execute ONLY the selected unit. AA-01.1 creates and tests the helper; AA-01.2 migrates App.tsx call sites in its own later session. Never create another unit acceptance test.'
+    first=tasks['AA-01']['units'][0]
+    first['files']=[p for p in first['files'] if p!='AdminApp/App.tsx']
+    first['title']+=' STOP after helper acceptance: do not edit App.tsx, do not begin AA-01.2, do not create test_aa_01_2.py. The controller schedules the next unit.'
     # AdminApp has no Jest configuration; adding dependencies also requires its lock.
     for unit in tasks['AA-01']['units']:
         unit['files']=list(dict.fromkeys(unit['files']+['AdminApp/package-lock.json','AdminApp/jest.config.js']))
