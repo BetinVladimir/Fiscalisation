@@ -420,6 +420,22 @@ class RunnerTests(unittest.TestCase):
         model=top/'fake_model.py';model.write_text('import sys\nfrom pathlib import Path\nif \"[MVP_RED_STAGE]\" in sys.argv[-1]: Path(\"product_counter.py\").write_text(\"def count(): return 0\\n\")\np=Path("tests/test_counter.py");p.parent.mkdir(exist_ok=True);p.write_text('+repr(test)+')\n')
         args=['--plan',str(here/'plan.json'),'--execute','--workspace-root',str(workspace),'--opencode-cmd',sys.executable+' '+str(model),'--model','fixture']
         return p,here,repo,workspace,args
+    def test_light_and_strict_keep_real_red_green_and_reduce_scans(self):
+        results={}
+        for mode in ('strict','light'):
+            p,here,repo,workspace,args=self.fixture()
+            with patch.object(r,'HERE',here),contextlib.redirect_stdout(io.StringIO()):
+                self.assertEqual(4,r.main(args+['--guard-mode',mode]))
+            state=workspace/'.mvp-fixes-state'
+            receipt=json.loads((state/'A-01.1.json').read_text())
+            self.assertTrue(receipt['red_verified'])
+            self.assertEqual('TESTED_REVIEW_REQUIRED',receipt['status'])
+            self.assertEqual('def count(): return 1\n',(repo/'product_counter.py').read_text())
+            results[mode]=json.loads((state/'guard-metrics.json').read_text())
+        self.assertGreater(results['light']['cache_hits'],0)
+        self.assertEqual(0,results['strict']['cache_hits'])
+        self.assertLess(results['light']['scans'],results['strict']['scans'])
+
     def test_fixture_execute_resume_requires_independent_review(self):
         p,here,repo,workspace,args=self.fixture()
         with patch.object(r,'HERE',here):
@@ -721,5 +737,63 @@ class PlanTests(unittest.TestCase):
             self.assertEqual([],tool.compare_packets(generated,planned/'plan.json'))
             (planned/'BUG-005.md').write_text('stale packet')
             self.assertIn('stale generated packet BUG-005.md',tool.compare_packets(generated,planned/'plan.json'))
+
+class InventoryEpochTests(unittest.TestCase):
+    def setUp(self):
+        self.previous=r._INVENTORY_EPOCH
+    def tearDown(self):
+        r._INVENTORY_EPOCH=self.previous
+    def test_light_cache_copies_and_invalidation(self):
+        r._INVENTORY_EPOCH={}
+        with patch.object(r,'_inventory_uncached',side_effect=[{'x':'one'},{'x':'two'}]) as scan:
+            first=r.inventory('/tmp/repo');first['x']='corrupted'
+            self.assertEqual(r.inventory('/tmp/repo'),{'x':'one'})
+            self.assertEqual(scan.call_count,1)
+            r.invalidate_inventories()
+            self.assertEqual(r.inventory('/tmp/repo'),{'x':'two'})
+    def test_strict_always_scans(self):
+        r._INVENTORY_EPOCH=None
+        with patch.object(r,'_inventory_uncached',return_value={}) as scan:
+            r.inventory('/tmp/repo');r.inventory('/tmp/repo')
+            self.assertEqual(scan.call_count,2)
+    def test_external_process_invalidates_even_on_exception(self):
+        r._INVENTORY_EPOCH={'before':{}}
+        def mutate(*args,**kwargs):
+            self.assertEqual(r._INVENTORY_EPOCH,{})
+            r._INVENTORY_EPOCH['during']={}
+            raise OSError('failed spawn')
+        with patch.object(r,'_run_process',side_effect=mutate):
+            with self.assertRaises(OSError):r.run_process([],Path('/tmp'),1)
+        self.assertEqual(r._INVENTORY_EPOCH,{})
+    def test_acceptance_invalidates_without_process(self):
+        r._INVENTORY_EPOCH={'before':{}}
+        with patch.object(r,'_execute_check',side_effect=ValueError('broken')):
+            with self.assertRaises(ValueError):r.execute_check('bad',Path('/tmp'),1)
+        self.assertEqual(r._INVENTORY_EPOCH,{})
+    def test_unit_cache_never_leaks_to_task_boundary(self):
+        from types import SimpleNamespace
+        r._INVENTORY_EPOCH=None
+        def unit(*args,**kwargs):
+            self.assertIsInstance(r._INVENTORY_EPOCH,dict)
+            r._INVENTORY_EPOCH['cached']={}
+            raise ValueError('scope')
+        with patch.object(r,'_generate_unit',side_effect=unit):
+            with self.assertRaises(ValueError):r.generate_unit(SimpleNamespace(guard_mode='light'))
+        self.assertIsNone(r._INVENTORY_EPOCH)
+    def test_new_protected_file_detected_after_external_writer(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);subprocess.run(['git','init','-q',d],check=True)
+            r._INVENTORY_EPOCH={};before={str(root):r.inventory(root)}
+            def mutate(*args,**kwargs):
+                (root/'AGENTS.md').write_text('changed');return 0,''
+            with patch.object(r,'_run_process',side_effect=mutate):r.run_process([],root,1)
+            with self.assertRaisesRegex(ValueError,'outside scope'):
+                r.verify_unchanged(root,[root],before,['allowed.py'],[],{})
+    def test_prepared_scaffolds_invalidate_snapshot(self):
+        with tempfile.TemporaryDirectory() as d:
+            root=Path(d);subprocess.run(['git','init','-q',d],check=True)
+            r._INVENTORY_EPOCH={};self.assertNotIn('tests/new.py',r.inventory(root))
+            r.prepare_unit(root,{'id':'A-01.1','files':['tests/new.py'],'scaffolds':{'tests/new.py':'content'}})
+            self.assertIn('tests/new.py',r.inventory(root))
 
 if __name__=='__main__':unittest.main()

@@ -173,7 +173,7 @@ def validate(plan,root):
             except ValueError as e:errors.append(str(e))
     return errors
 
-def run_process(argv,root,timeout,env=None,output_file=None,idle_timeout=0):
+def _run_process(argv,root,timeout,env=None,output_file=None,idle_timeout=0):
     """Bound output memory and terminate descendants on timeout."""
     process_env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',**(env or {}))
     # OpenCode uses PWD for project identity, even when Popen changed cwd.
@@ -222,6 +222,12 @@ def run_process(argv,root,timeout,env=None,output_file=None,idle_timeout=0):
         stream.seek(max(0,length-12000))
         return rc,('IDLE_OUTPUT_TIMEOUT\n' if idle else '')+('LEAKED_CHILD_PROCESSES\n' if leaked else '')+stream.read().decode('utf-8',errors='replace')
 
+def run_process(*args,**kwargs):
+    # Every external writer ends the quiescent inventory epoch, even on failure.
+    invalidate_inventories()
+    try:return _run_process(*args,**kwargs)
+    finally:invalidate_inventories()
+
 def check_selector(command):
     parts=shlex.split(command)
     if len(parts)!=8 or parts[:4]!=['python3','-m','unittest','discover'] or parts[4]!='-s' or parts[6]!='-p':
@@ -231,7 +237,7 @@ def check_selector(command):
     if any(v in Path(start).parts for v in ('..','.git')) or not re.fullmatch(r'test_[A-Za-z0-9_.-]+\.py',pattern):raise ValueError('unsafe discovery selector')
     return start,pattern
 
-def execute_check(command,root,timeout,phase='green',repeat=1,require_runtime=False,artifact_dir=None):
+def _execute_check(command,root,timeout,phase='green',repeat=1,require_runtime=False,artifact_dir=None):
     if phase not in ('red','green') or type(repeat) is not int or repeat<1 or repeat>3:return False,'unsupported phase/repeat'
     try:start,pattern=check_selector(command)
     except ValueError as e:return False,str(e)
@@ -257,6 +263,11 @@ def execute_check(command,root,timeout,phase='green',repeat=1,require_runtime=Fa
             if not valid:return False,'\n'.join(logs)
     return True,'\n'.join(logs)
 
+def execute_check(*args,**kwargs):
+    invalidate_inventories()
+    try:return _execute_check(*args,**kwargs)
+    finally:invalidate_inventories()
+
 def forbidden(path):
     return path=='AGENTS.md' or path.startswith('docs/MVP1/fixes/') or path in ('docs/MVP1/execution/status.json','docs/MVP1/execution/reverify.json','docs/MVP1/execution/routing.json')
 
@@ -281,8 +292,26 @@ def review_result(plan,queue,repos,state,review_path):
     return bool(expected) and review.get('schema')==1 and isinstance(review.get('reviewer'),str) and bool(review['reviewer'].strip()) and review.get('verdict')=='approve' and review.get('independent') is True and bool(review.get('reviewer')) and 'qwen' not in review['reviewer'].lower() and review.get('plan_sha')==bundle['plan_sha'] and review.get('workspace_sha')==bundle['workspace_sha'] and isinstance(review.get('tasks'),list) and all(isinstance(t,str) for t in review['tasks']) and len(review['tasks'])==len(expected) and set(review['tasks'])==expected
 
 _FILE_DIGESTS={}
+_INVENTORY_EPOCH=None
+_INVENTORY_METRICS={"scans":0,"cache_hits":0,"scan_seconds":0.0}
+
+def invalidate_inventories():
+    if _INVENTORY_EPOCH is not None:_INVENTORY_EPOCH.clear()
 
 def inventory(repo):
+    key=os.path.abspath(repo)
+    if _INVENTORY_EPOCH is not None and key in _INVENTORY_EPOCH:
+        _INVENTORY_METRICS['cache_hits']+=1
+        return dict(_INVENTORY_EPOCH[key])
+    started=time.monotonic()
+    try:result=_inventory_uncached(repo)
+    finally:
+        _INVENTORY_METRICS['scans']+=1
+        _INVENTORY_METRICS['scan_seconds']+=time.monotonic()-started
+    if _INVENTORY_EPOCH is not None:_INVENTORY_EPOCH[key]=result
+    return dict(result)
+
+def _inventory_uncached(repo):
     repo=os.path.abspath(repo)
     r=subprocess.run(['git','ls-files','-co','--exclude-standard','-z'],cwd=repo,capture_output=True,check=True)
     head=subprocess.run(['git','rev-parse','--verify','HEAD'],cwd=repo,capture_output=True).stdout
@@ -347,6 +376,7 @@ def is_test_file(path):
 
 def prepare_unit(root,unit):
     """Create only declared fixed scaffolding; refuse to replace existing work."""
+    invalidate_inventories()
     root=Path(root)
     if unit.get('test_vectors_file'):
         file=scope_path(root,unit['test_vectors_file'])
@@ -389,6 +419,7 @@ def run_recovering_stage(args,plan,unit,root,repos,protected,original_hashes,sta
         print('MODEL_START',uid,'stage='+stage,'attempt='+str(attempt),'recovery='+str(recovery),'cwd='+str(root),flush=True)
         started=time.monotonic()
         rc,output=run_process(model_argv(args,msg),root,args.timeout,env={'MVP1_ARTIFACT_DIR':str(artifacts.resolve())},output_file=logfile,idle_timeout=getattr(args,'model_idle_timeout',900))
+        invalidate_inventories()
         print('MODEL_EXIT',uid,'stage='+stage,'rc='+str(rc),'seconds='+str(round(time.monotonic()-started,1)),flush=True)
         verify_unchanged(root,repos,before,scopes if stage=='red' else unit['files'],protected,original_hashes)
         current={str(repo/path):value for repo in repos for path,value in inventory(repo).items() if path!='@git-state' and is_test_file(path)}
@@ -414,18 +445,20 @@ def run_recovering_stage(args,plan,unit,root,repos,protected,original_hashes,sta
         (folder/'diagnosis.json').write_text(json.dumps(diagnostic,indent=2))
         # Red retries must start from actual original product bytes; tests may be repaired in red.
         if stage=='red':
+            invalidate_inventories()
             for repo in repos:
                 for path in inventory(repo):
                     file=repo/path
                     if path!='@git-state' and not is_test_file(path) and allowed(repo,path) and file not in originals:file.unlink()
             for file,(content,mode) in originals.items():file.parent.mkdir(parents=True,exist_ok=True);file.write_bytes(content);file.chmod(mode)
+        invalidate_inventories()
         print('RECOVERY',uid,stage,diagnostic['status'],diagnosis,flush=True)
         if diagnostic['status']=='EXHAUSTED':return rc,'RECOVERY_EXHAUSTED '+diagnosis+'\n'+output
         context='\n[RECOVERY_ANALYSIS_AND_REPAIR] '+diagnosis+'\n'+'\n'.join(remedies)+'\nPrevious transcript tail:\n'+output[-4000:]
         msg=attempt_prompt(initial,context,plan['packet_estimate_limit'])
     raise AssertionError('unreachable recovery loop')
 
-def generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state,uid,attempt,prior_error=""):
+def _generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state,uid,attempt,prior_error=""):
     prepare_unit(root,unit)
     scopes=unit['files']+unit.get('mutation_files',[])
     allowed=scope_matcher(root,scopes)
@@ -479,6 +512,7 @@ def generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state
                 changed.append(item)
             (mutations/'manifest.json').write_text(json.dumps(changed,indent=2))
             # Restore only this invocation's scoped non-test mutations, never Git state.
+            invalidate_inventories()
             allowed=scope_matcher(root,scopes)
             for repo in repos:
                 for path in inventory(repo):
@@ -487,6 +521,7 @@ def generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state
                         file.unlink()
             for file,(content,mode) in originals.items():
                 file.parent.mkdir(parents=True,exist_ok=True);file.write_bytes(content);file.chmod(mode)
+            invalidate_inventories()
             if not ok and changed and rc==0:
                 # A small model may implement the fix during red despite instructions.
                 # Discard its production proposal, then prove the SAME test fails on
@@ -516,7 +551,16 @@ def generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state
         if rc!=0 or not ok:return False,stage.upper()+'_EVIDENCE_FAIL\n'+evidence
     return True,evidence
 
+def generate_unit(args,*pos,**kwargs):
+    global _INVENTORY_EPOCH
+    previous=_INVENTORY_EPOCH
+    # Cache only inside a controller-owned unit. All task/final checks remain fresh.
+    _INVENTORY_EPOCH={} if getattr(args,'guard_mode','light')=='light' else None
+    try:return _generate_unit(args,*pos,**kwargs)
+    finally:_INVENTORY_EPOCH=previous
+
 def main(argv=None):
+    _INVENTORY_METRICS.update(scans=0,cache_hits=0,scan_seconds=0.0)
     a=argparse.ArgumentParser(description=__doc__)
     a.add_argument('--plan',type=Path,default=HERE/'plan.json');a.add_argument('--model',default=os.environ.get('OPENCODE_MODEL',MODEL))
     a.add_argument('--list',action='store_true');a.add_argument('--validate',action='store_true');a.add_argument('--dry-run',action='store_true')
@@ -526,6 +570,7 @@ def main(argv=None):
     a.add_argument('--opencode-cmd',default='opencode');a.add_argument('--attempts',type=int,default=3)
     a.add_argument('--timeout',type=int,default=1800);a.add_argument('--check-timeout',type=int,default=900)
     a.add_argument('--model-idle-timeout',type=float,default=900,help='model output inactivity limit; 0 disables')
+    a.add_argument('--guard-mode',choices=['light','strict'],default='light',help='reuse quiescent scans within a unit; strict rescans every read')
     a.add_argument('--recoveries-per-stage',type=int,default=1)
     a.add_argument('--fail-fast',action='store_true',help='stop on exhausted task instead of continuing independent tasks')
     a.add_argument('--retry-failed',action='store_true',help='retry unchanged units previously recorded as unresolved')
@@ -665,7 +710,8 @@ def main(argv=None):
         record_failure(state,'RUNNER','RUNNER',digest(json.dumps(plan,sort_keys=True)),str(e),'INTEGRITY_STOP')
         raise
     finally:
-        lock.close()
+        try:(state/'guard-metrics.json').write_text(json.dumps(dict(_INVENTORY_METRICS,guard_mode=args.guard_mode),indent=2))
+        finally:lock.close()
 
 if __name__=='__main__':
     try:sys.exit(main())

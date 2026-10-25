@@ -25,3 +25,28 @@ Unchanged failures are skipped on resume. Use `--retry-failed` after a concrete 
 The complete queue exits nonzero while unresolved tasks remain and must not emit ACCEPTED. External/HIL gates require their own evidence. The monitoring agent diagnoses remaining failures and resumes repaired work until the authorized development scope is complete; final code review stays a separate gate.
 
 After each red phase, the runner also saves exact declared test-file bytes and their hashes under `artifacts/<unit>/red/sealed/<attempt>/`. Integrity stops must be diagnosed before any automatic update/restart; the safe-boundary installer refuses exit code 2.
+
+
+## Lightweight inventory guards
+
+`--guard-mode light` (default) reuses complete repository inventories only during
+controller-owned, quiescent portions of one unit. Every model subprocess, acceptance
+run, scaffold preparation and restoration of red mutations invalidates the cache.
+Failure and timeout paths invalidate it too. The cache is discarded on unit exit,
+including exceptions. `--guard-mode strict` disables this reuse for comparison.
+
+All workspace repositories and protected source repositories are still checked after
+every external model/test operation. Scope, Git state, immutable harnesses and sealed
+red tests retain their existing gates. Task closure and final regression use fresh
+inventories; no cached or skipped test result can create a PASS. This deliberately
+keeps stronger guards than checking only the affected repository. Concurrent manual
+changes to the isolated workspace are unsupported and are detected at the next fresh
+scan. Inventory metrics are saved to `.mvp-fixes-state/guard-metrics.json` on runner
+exit; timings cover inventories rather than model generation or test execution.
+
+Measurement on 2026-10-25: six quiescent inventory requests over 186,553 Backend
+entries took 41.614 s in strict mode and 6.874 s in light mode, with identical
+snapshots (initial warm-up excluded). A complete deterministic red/green runner
+fixture used 32 full scans in strict mode versus 16 in light mode; both returned
+TESTED_REVIEW_REQUIRED with genuine red evidence. These measurements do not predict
+Qwen generation speed or the duration of the complete MVP1 queue.
