@@ -66,3 +66,13 @@ acceptance, failure and a proposal for smaller work. Proposals are explicitly
 and verify replacement packets before retrying after the independent queue.
 These records never count as completion or PASS. Integrity failures still stop
 for diagnosis and safe restoration.
+
+
+## Execution model after maintenance
+
+The default execution model is `ollama/qwen3-coder:30b-a3b-q4_K_M` with context
+65536 and output limit 8192 in the isolated OpenCode configuration. The supervisor
+passes the model explicitly and verifies the loaded Ollama context before launch.
+Earlier receipts keep their actual generating model; changing the execution model
+does not rewrite evidence or waive resume acceptance. One attempt, zero automatic
+recoveries and the shared 1800-second model budget remain in effect.

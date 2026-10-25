@@ -8,6 +8,9 @@ def plan():
     return {'schema':2,'context_tokens':65536,'packet_estimate_limit':12000,'policy':'money invariants','rules':'read 3 files','tasks':[{'id':'A-01','priority':'P0','mode':'code','depends':[],'spec':'assert product counter equals one','units':[{'id':'A-01.1','title':'implement counter test','files':['tests/test_counter.py'],'test':'counter=1','accept':'python3 -m unittest discover -s tests -p test_counter.py','sources':[],'phase':'green'}]}]}
 
 class RunnerTests(unittest.TestCase):
+    def test_default_execution_model_is_requested_qwen_coder(self):
+        self.assertEqual('ollama/qwen3-coder:30b-a3b-q4_K_M',r.MODEL)
+
     def test_large_prepared_fixtures_use_hashes_without_losing_requirements(self):
         p=plan();u=p['tasks'][0]['units'][0];u['harness_template']='x'*30000;u['scaffolds']={'tests/native.py':'y'*30000};u['title']='Exact business oracle must remain'
         message=r.prompt(p,p['tasks'][0],u,Path('/tmp/isolated/Fiscalisation'))
