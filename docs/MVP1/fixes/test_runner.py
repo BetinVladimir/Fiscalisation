@@ -8,6 +8,12 @@ def plan():
     return {'schema':2,'context_tokens':65536,'packet_estimate_limit':12000,'policy':'money invariants','rules':'read 3 files','tasks':[{'id':'A-01','priority':'P0','mode':'code','depends':[],'spec':'assert product counter equals one','units':[{'id':'A-01.1','title':'implement counter test','files':['tests/test_counter.py'],'test':'counter=1','accept':'python3 -m unittest discover -s tests -p test_counter.py','sources':[],'phase':'green'}]}]}
 
 class RunnerTests(unittest.TestCase):
+    def test_large_prepared_fixtures_use_hashes_without_losing_requirements(self):
+        p=plan();u=p['tasks'][0]['units'][0];u['harness_template']='x'*30000;u['scaffolds']={'tests/native.py':'y'*30000};u['title']='Exact business oracle must remain'
+        message=r.prompt(p,p['tasks'][0],u,Path('/tmp/isolated/Fiscalisation'))
+        self.assertIn(r.digest('x'*30000),message);self.assertIn(r.digest('y'*30000),message)
+        self.assertIn('Exact business oracle must remain',message);self.assertIn(u['accept'],message)
+        self.assertLessEqual(len(message.encode())//2+1,12000)
     def test_inventory_detects_symlink_retarget_and_ancestor_replacement(self):
         with tempfile.TemporaryDirectory() as d:
             root=Path(d);subprocess.run(['git','init','-q',d],check=True)
@@ -50,10 +56,10 @@ class RunnerTests(unittest.TestCase):
         self.assertIn('MUST NOT apply local SQL',t['spec'])
         self.assertIn('TestMVP1SchemaFresh',u['harness_template'])
         self.assertIn('required_tests=',u['harness_template'])
-        self.assertIn('t.Skip',u['title'])
+        self.assertIn('immutable native test',u['title'])
         self.assertIn('MVP1_SCHEMA_ADMIN_URL',u['harness_template'])
-        self.assertIn('No custom cluster lifecycle',u['title'])
-        self.assertIn('static source assertions',u['title'])
+        self.assertIn('no test edits',u['title'])
+        self.assertIn('Do not write or change tests',u['title'])
         self.assertNotIn('fiscal-backend/internal/persistence/migrations.go',u['files'])
     def test_admin_idempotency_packet_scopes_required_jest_setup_and_lock(self):
         p=json.loads((HERE/'plan.json').read_text())
@@ -396,6 +402,13 @@ class RunnerTests(unittest.TestCase):
         with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=corrupt):
             with self.assertRaisesRegex(ValueError,'red tests changed'):r.main(args)
         state=workspace/'.mvp-fixes-state';self.assertFalse((state/'A-01.1.json').exists());self.assertIn('INTEGRITY_STOP',(state/'UNRESOLVED_FAILURES.md').read_text())
+    def test_red_test_bytes_are_preserved_for_integrity_diagnosis(self):
+        p,here,repo,workspace,args=self.fixture()
+        with patch.object(r,'HERE',here):self.assertEqual(4,r.main(args))
+        folder=workspace/'.mvp-fixes-state/artifacts/A-01.1/red/sealed/1';manifest=json.loads((folder/'manifest.json').read_text())
+        entry=next(x for x in manifest['files'] if x['path'].endswith('/tests/test_counter.py'))
+        self.assertEqual((repo/'tests/test_counter.py').read_bytes(),(folder/entry['snapshot']).read_bytes())
+        self.assertEqual(entry['sha256'],r.hashlib.sha256((folder/entry['snapshot']).read_bytes()).hexdigest())
     def fixture(self,model_test=None):
         temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);top=Path(temp.name)
         source=top/'source/Fiscalisation';here=source/'docs/MVP1/fixes';here.mkdir(parents=True)

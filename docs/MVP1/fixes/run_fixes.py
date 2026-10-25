@@ -88,12 +88,22 @@ def prompt(plan,task,unit,root):
                 else:txt=task.get('spec','')
             else:txt=task.get('spec','')
             sources.append(txt)
+    root_footer='\nРабочий корень Fiscalisation: '+str(root)+'\nРазрешённые sibling пути ../POS и ../BeeloyBackend только внутри изолированного workspace. read_files — только чтение контекста. В files путь файла разрешает только его, путь каталога — его потомков; соседние новые файлы запрещены. Отсутствующий нужный путь — BLOCKED_SCOPE. Не коммитить. Не изменять правила, plan.json, fixes, execution/status.json и сам runner. Для red-фазы создать тест и оставить ожидаемый assertion FAIL; green-фаза обязана выполнить содержательные тесты.'
     body='\n\n'.join([plan['policy'],plan['rules'],f"Задача {task['id']}; подзадача {unit['id']}; фаза {unit.get('phase','green')}",json.dumps(unit,ensure_ascii=False,indent=2),task.get('spec',''),task.get('notes','')]+sources)
-    if len(body.encode())//2+1>plan['packet_estimate_limit']:
+    if (len(body.encode())+len(root_footer.encode()))//2+1>plan['packet_estimate_limit']:
         # Do not truncate requirements: give exact source references instead of redundant copies.
         body='\n\n'.join([plan['policy'],plan['rules'],json.dumps(unit,ensure_ascii=False,indent=2),task.get('notes',''), 'Полная карточка: docs/MVP1/fixes/'+task['id']+'.md; читать только свою подзадачу и спецификацию по rg/sed.'])
-    if len(body.encode())//2+1>plan['packet_estimate_limit']:raise ValueError('packet too large '+unit['id'])
-    body=body+'\nРабочий корень Fiscalisation: '+str(root)+'\nРазрешённые sibling пути ../POS и ../BeeloyBackend только внутри изолированного workspace. read_files — только чтение контекста. В files путь файла разрешает только его, путь каталога — его потомков; соседние новые файлы запрещены. Отсутствующий нужный путь — BLOCKED_SCOPE. Не коммитить. Не изменять правила, plan.json, fixes, execution/status.json и сам runner. Для red-фазы создать тест и оставить ожидаемый assertion FAIL; green-фаза обязана выполнить содержательные тесты.'
+    if (len(body.encode())+len(root_footer.encode()))//2+1>plan['packet_estimate_limit']:
+        # Prepared controller fixtures need file references, not repeated inline copies.
+        compact=dict(unit)
+        if 'harness_template' in compact:
+            compact['harness_template_sha256']=digest(compact.pop('harness_template'))
+            compact['prepared_harness']='Controller already prepared the exact immutable acceptance file. Read it only if necessary; do not edit.'
+        if 'scaffolds' in compact:
+            compact['scaffolds']={path:{'prepared':True,'sha256':digest(content)} for path,content in compact['scaffolds'].items()}
+        body='\n\n'.join([plan['policy'],plan['rules'],json.dumps(compact,ensure_ascii=False,indent=2),task.get('notes',''),'Full task: docs/MVP1/fixes/'+task['id']+'.md; read only this unit and its referenced prepared files.'])
+    if (len(body.encode())+len(root_footer.encode()))//2+1>plan['packet_estimate_limit']:raise ValueError('packet too large '+unit['id'])
+    body=body+root_footer
     if len(body.encode())//2+1>plan['packet_estimate_limit']:raise ValueError('packet too large '+unit['id'])
     return body
 
@@ -491,6 +501,15 @@ def generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state
                 for path in inventory(repo):
                     if path!='@git-state' and is_test_file(path) and (repo/path).is_symlink():raise ValueError('cannot seal symlink test or fixture: '+path)
             sealed={str(repo/path):value for repo in repos for path,value in inventory(repo).items() if path!='@git-state' and is_test_file(path)}
+            snapshots=state/'artifacts'/uid/'red'/'sealed'/str(attempt)
+            snapshots.mkdir(parents=True,exist_ok=True,mode=0o700)
+            manifest=[]
+            for relative in unit['files']:
+                file=root/relative
+                if is_test_file(relative) and file.is_file() and not file.is_symlink():
+                    saved=snapshots/(str(len(manifest))+'.test');saved.write_bytes(file.read_bytes());saved.chmod(0o600)
+                    manifest.append({'path':str(file),'snapshot':saved.name,'sha256':hashlib.sha256(saved.read_bytes()).hexdigest()})
+            (snapshots/'manifest.json').write_text(json.dumps({'all_tests_sha':digest(json.dumps(sealed,sort_keys=True)),'files':manifest},indent=2))
         else:
             current={str(repo/path):value for repo in repos for path,value in inventory(repo).items() if path!='@git-state' and is_test_file(path)}
             if any(current.get(path)!=value for path,value in sealed.items()):raise ValueError('red tests changed during green '+uid)

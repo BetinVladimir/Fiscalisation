@@ -23,3 +23,5 @@ Unchanged failures are skipped on resume. Use `--retry-failed` after a concrete 
 `--fail-fast` restores stopping at the first exhausted ordinary task. Scope violations, modified original repositories, tampered tests/harnesses and invalid receipts remain integrity stops: record `INTEGRITY_STOP` and halt rather than continue against a potentially corrupted baseline.
 
 The complete queue exits nonzero while unresolved tasks remain and must not emit ACCEPTED. External/HIL gates require their own evidence. The monitoring agent diagnoses remaining failures and resumes repaired work until the authorized development scope is complete; final code review stays a separate gate.
+
+After each red phase, the runner also saves exact declared test-file bytes and their hashes under `artifacts/<unit>/red/sealed/<attempt>/`. Integrity stops must be diagnosed before any automatic update/restart; the safe-boundary installer refuses exit code 2.
