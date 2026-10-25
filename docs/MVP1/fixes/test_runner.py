@@ -16,6 +16,8 @@ class RunnerTests(unittest.TestCase):
         self.assertIn('TestMVP1SchemaUpgradePreservesData',u['harness_template'])
         self.assertIn('required_tests=',u['harness_template'])
         self.assertIn('No t.Skip',u['title'])
+        self.assertIn('MVP1_SCHEMA_ADMIN_URL',u['harness_template'])
+        self.assertIn('Do NOT implement initdb/pg_ctl',u['title'])
         self.assertIn('No source-string assertions',u['title'])
         self.assertNotIn('fiscal-backend/internal/persistence/migrations.go',u['files'])
     def test_admin_idempotency_packet_scopes_required_jest_setup_and_lock(self):
