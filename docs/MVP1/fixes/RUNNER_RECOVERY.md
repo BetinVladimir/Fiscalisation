@@ -76,3 +76,13 @@ passes the model explicitly and verifies the loaded Ollama context before launch
 Earlier receipts keep their actual generating model; changing the execution model
 does not rewrite evidence or waive resume acceptance. One attempt, zero automatic
 recoveries and the shared 1800-second model budget remain in effect.
+
+
+## Native harness and path-list clarification
+
+Unprepared model sessions explicitly require unittest.TestCase/test_* discovery
+and real native Go/Kotlin execution through the existing native harness. Failed
+neighboring harnesses are not examples. `files` and `mutation_files` are lists of
+allowed paths, never directories in which to create scripts. Extra artifacts
+belong outside the checkout in MVP1_ARTIFACT_DIR. These reminders change no scope,
+red/green requirement, receipt fingerprint or acceptance gate.

@@ -377,6 +377,20 @@ class RunnerTests(unittest.TestCase):
         candidate=json.loads(next((state/'artifacts/A-01.1/decomposition').glob('*.json')).read_text())
         self.assertEqual('PROPOSED_NOT_EXECUTABLE',candidate['status']);self.assertEqual(p['tasks'][0]['units'][0]['files'],candidate['scope'])
         self.assertEqual('FAILED_UNRESOLVED',json.loads((state/'A-01.1.failure.json').read_text())['status'])
+    def test_generated_stage_contract_disambiguates_native_harness_and_mutation_paths(self):
+        p,here,repo,workspace,args=self.fixture();original=r.run_process;messages=[]
+        def capture(argv,*pos,**kw):
+            if '--model' in argv:messages.append(argv[-1])
+            return original(argv,*pos,**kw)
+        with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=capture):self.assertEqual(4,r.main(args))
+        self.assertEqual(2,len(messages))
+        for message in messages:
+            self.assertIn('[HARNESS_CONTRACT]',message);self.assertIn('unittest.TestCase',message)
+            self.assertIn('create it in RED only, never change it in GREEN',message)
+            self.assertIn('Go/Kotlin are NOT Python imports',message)
+            self.assertIn('NEVER directory names',message);self.assertIn('Do not copy failed neighboring harnesses',message)
+            self.assertIn('MVP1_ARTIFACT_DIR',message)
+
     def test_default_missing_harness_is_not_retried(self):
         p,here,repo,workspace,args=self.fixture();model=Path(args[args.index('--opencode-cmd')+1].split(' ',1)[1]);model.write_text('print("no changes")');original=r.run_process;calls=[]
         def count(argv,*pos,**kw):
