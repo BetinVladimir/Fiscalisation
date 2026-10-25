@@ -8,6 +8,15 @@ def plan():
     return {'schema':2,'context_tokens':65536,'packet_estimate_limit':12000,'policy':'money invariants','rules':'read 3 files','tasks':[{'id':'A-01','priority':'P0','mode':'code','depends':[],'spec':'assert product counter equals one','units':[{'id':'A-01.1','title':'implement counter test','files':['tests/test_counter.py'],'test':'counter=1','accept':'python3 -m unittest discover -s tests -p test_counter.py','sources':[],'phase':'green'}]}]}
 
 class RunnerTests(unittest.TestCase):
+    def test_admin_idempotency_packet_scopes_required_jest_setup_and_lock(self):
+        p=json.loads((HERE/'plan.json').read_text())
+        task=next(t for t in p['tasks'] if t['id']=='AA-01')
+        for unit in task['units']:
+            self.assertIn('AdminApp/package-lock.json',unit['files'])
+            self.assertIn('AdminApp/jest.config.js',unit['files'])
+            self.assertIn('not a constant',unit['title'])
+            self.assertIn('global.crypto undefined',unit['title'])
+            self.assertIn('AA-01.2',unit['title'])
     def setUp(self):
         redirect=contextlib.redirect_stdout(io.StringIO());redirect.__enter__();self.addCleanup(redirect.__exit__,None,None,None)
     def test_tap_plan_without_executions_is_not_evidence(self):

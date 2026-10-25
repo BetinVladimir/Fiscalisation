@@ -12,6 +12,10 @@ def fix_plan(tasks):
     tasks['TG-017']['spec']='Сводный gate вендорных работ; не редактировать status.json. Успех требует все depends, не только VG-20.'
     tasks['BUG-060']['external_requires']=['SECURITY-ROTATION-01']
     tasks['SECURITY-ROTATION-01']={'id':'SECURITY-ROTATION-01','mode':'external','priority':'P0','source':'DECISIONS.md','source_status':'NEW','depends':[],'external_requires':[],'units':[],'notes':'Владелец: ротация реально раскрытых ключей/паролей и решение о git history. Кодогенерация создаёт только scan/конфигурацию. Не выдумывать подтверждение ротации.','spec':'Письменное evidence ротации без секретов; независимая проверка. Не выполнять на реальных credentials автоматически.'}
+    # AdminApp has no Jest configuration; adding dependencies also requires its lock.
+    for unit in tasks['AA-01']['units']:
+        unit['files']=list(dict.fromkeys(unit['files']+['AdminApp/package-lock.json','AdminApp/jest.config.js']))
+        unit['title']+=' AdminApp Jest setup and package-lock.json are explicitly scoped: keep manifest/lock consistent. Use local npx --no-install jest --runInBand. In the native test, mock only the Expo SDK boundary, never newKey: jest.mock expo-crypto randomUUID delegates to jest.requireActual(\"node:crypto\").randomUUID, not a constant. Set global.crypto undefined before calling the real newKey, verify UUID v4, distinct keys, and SDK invocation. A constant SDK mock makes the uniqueness test impossible to pass and is forbidden. AA-01.1 tests the helper; App.tsx call-site migration belongs to AA-01.2.'
     add_files={
       'CL-02':['minipos/miniposweb/src/fiscal','minipos/BeeMiniPOS/src'],
       'BUG-051':['../POS/.env.example'],
