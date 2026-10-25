@@ -329,6 +329,73 @@ class RunnerTests(unittest.TestCase):
             (root/'tests/test_evidence.py').write_text('import os,unittest\nfrom pathlib import Path\nclass T(unittest.TestCase):\n def test_evidence(self):\n  p=Path(os.environ["MVP1_ARTIFACT_DIR"])/"evidence.json"\n  p.write_text("{}")\n  self.assertTrue(p.exists())\n')
             ok,out=r.execute_check('python3 -m unittest discover -s tests -p test_evidence.py',root,10,repeat=3,artifact_dir=dest)
             self.assertTrue(ok,out);self.assertTrue(all((dest/str(n)/'evidence.json').exists() for n in range(1,4)))
+    def test_idle_watchdog_terminates_quiet_child(self):
+        with tempfile.TemporaryDirectory() as d:
+            rc,out=r.run_process([sys.executable,'-c','import time;time.sleep(5)'],d,10,idle_timeout=.1)
+            self.assertEqual(126,rc);self.assertIn('IDLE_OUTPUT_TIMEOUT',out)
+    def test_idle_watchdog_accepts_regular_progress(self):
+        with tempfile.TemporaryDirectory() as d:
+            code='import time\nfor i in range(8): print(i,flush=True);time.sleep(.04)'
+            rc,out=r.run_process([sys.executable,'-c',code],d,5,idle_timeout=.2)
+            self.assertEqual(0,rc,out)
+    def test_timeout_is_diagnosed_product_restored_and_stage_repaired(self):
+        p,here,repo,workspace,args=self.fixture();original=r.run_process;calls=[]
+        def interrupted(argv,root,timeout,**kwargs):
+            if '--model' in argv:
+                calls.append(argv[-1])
+                if len(calls)==1:
+                    (repo/'product_counter.py').write_text('def count(): return 99\n')
+                    Path(kwargs['output_file']).write_text('Permission denied: external_directory')
+                    return 124,'Permission denied: external_directory'
+                if len(calls)==2:
+                    self.assertEqual('def count(): return 1\n',(repo/'product_counter.py').read_text())
+                    self.assertIn('[RECOVERY_ANALYSIS_AND_REPAIR]',argv[-1])
+            return original(argv,root,timeout,**kwargs)
+        with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=interrupted):self.assertEqual(4,r.main(args))
+        state=workspace/'.mvp-fixes-state';self.assertTrue((state/'A-01.1.json').exists())
+        diagnosis=json.loads(next((state/'artifacts/A-01.1/recovery').rglob('diagnosis.json')).read_text())
+        self.assertEqual('RETRYING',diagnosis['status']);self.assertEqual(124,diagnosis['returncode'])
+        self.assertTrue(list(state.glob('A-01.1.1.red.recovery1.log')))
+    def test_exhausted_unit_skips_and_independent_task_runs(self):
+        p,here,repo,workspace,args=self.fixture();a=p['tasks'][0];b=copy.deepcopy(a);b['id']='B-01';b['units'][0]['id']='B-01.1';c=copy.deepcopy(a);c['id']='C-01';c['depends']=['A-01'];c['units'][0]['id']='C-01.1';p['tasks']+=[b,c]
+        for f in (here/'plan.json',repo/'docs/MVP1/fixes/plan.json'):f.write_text(json.dumps(p))
+        model=Path(args[args.index('--opencode-cmd')+1].split(' ',1)[1]);old=model.read_text()
+        model.write_text('import sys\nif '+repr('"id": "A-01.1"')+' in sys.argv[-1]:\n print("no implementation")\nelse:\n'+''.join(' '+line+'\n' for line in old.splitlines()))
+        with patch.object(r,'HERE',here):self.assertEqual(1,r.main(args+['--attempts','1']))
+        state=workspace/'.mvp-fixes-state';self.assertFalse((state/'A-01.1.json').exists());self.assertTrue((state/'B-01.1.json').exists());self.assertFalse((state/'C-01.1.json').exists())
+        report=(state/'UNRESOLVED_FAILURES.md').read_text();self.assertIn('A-01.1',report);self.assertIn('C-01',report);self.assertIn('BLOCKED_DEPENDENCY',report)
+        self.assertFalse((state/'review-request.json').exists())
+        with patch.object(r,'HERE',here),contextlib.redirect_stdout(io.StringIO()) as capture:self.assertEqual(1,r.main(args+['--attempts','1']))
+        self.assertIn('SKIP_UNRESOLVED',capture.getvalue())
+    def test_retry_failed_clears_unresolved_marker_only_after_real_red_green(self):
+        p,here,repo,workspace,args=self.fixture();model=Path(args[args.index('--opencode-cmd')+1].split(' ',1)[1]);good=model.read_text();model.write_text('print("no implementation")')
+        with patch.object(r,'HERE',here):self.assertEqual(1,r.main(args+['--attempts','1']))
+        state=workspace/'.mvp-fixes-state';self.assertTrue((state/'A-01.1.failure.json').exists());model.write_text(good)
+        with patch.object(r,'HERE',here):self.assertEqual(4,r.main(args+['--retry-failed']))
+        self.assertFalse((state/'A-01.1.failure.json').exists());self.assertTrue((state/'A-01.1.json').exists());self.assertIn('RESOLVED',(state/'UNRESOLVED_FAILURES.md').read_text())
+    def test_scope_violation_is_reported_and_never_silently_skipped(self):
+        p,here,repo,workspace,args=self.fixture();model=Path(args[args.index('--opencode-cmd')+1].split(' ',1)[1]);model.write_text('from pathlib import Path\nPath("outside.txt").write_text("bad")')
+        with patch.object(r,'HERE',here):
+            with self.assertRaisesRegex(ValueError,'outside scope'):r.main(args)
+        state=workspace/'.mvp-fixes-state';self.assertIn('INTEGRITY_STOP',(state/'UNRESOLVED_FAILURES.md').read_text());self.assertFalse((state/'A-01.1.json').exists())
+    def test_recovery_budget_exhaustion_cannot_create_pass_receipt(self):
+        p,here,repo,workspace,args=self.fixture();original=r.run_process;calls=[]
+        def timeout(argv,root,limit,**kw):
+            if '--model' in argv:
+                calls.append(argv[-1]);Path(kw['output_file']).write_text('quiet model timeout');return 124,'quiet model timeout'
+            return original(argv,root,limit,**kw)
+        with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=timeout):self.assertEqual(1,r.main(args+['--attempts','1']))
+        state=workspace/'.mvp-fixes-state';self.assertEqual(2,len(calls));self.assertFalse((state/'A-01.1.json').exists());self.assertTrue((state/'A-01.1.failure.json').exists())
+        self.assertIn('RECOVERY_EXHAUSTED',(state/'UNRESOLVED_FAILURES.md').read_text())
+    def test_green_timeout_cannot_repair_by_changing_sealed_test(self):
+        p,here,repo,workspace,args=self.fixture();original=r.run_process
+        def corrupt(argv,root,limit,**kw):
+            if '--model' in argv and '[MVP_GREEN_STAGE]' in argv[-1]:
+                file=repo/'tests/test_counter.py';file.write_text(file.read_text()+'\n# changed during timed-out green\n');Path(kw['output_file']).write_text('timeout');return 124,'timeout'
+            return original(argv,root,limit,**kw)
+        with patch.object(r,'HERE',here),patch.object(r,'run_process',side_effect=corrupt):
+            with self.assertRaisesRegex(ValueError,'red tests changed'):r.main(args)
+        state=workspace/'.mvp-fixes-state';self.assertFalse((state/'A-01.1.json').exists());self.assertIn('INTEGRITY_STOP',(state/'UNRESOLVED_FAILURES.md').read_text())
     def fixture(self,model_test=None):
         temp=tempfile.TemporaryDirectory();self.addCleanup(temp.cleanup);top=Path(temp.name)
         source=top/'source/Fiscalisation';here=source/'docs/MVP1/fixes';here.mkdir(parents=True)

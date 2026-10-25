@@ -163,14 +163,23 @@ def validate(plan,root):
             except ValueError as e:errors.append(str(e))
     return errors
 
-def run_process(argv,root,timeout,env=None,output_file=None):
+def run_process(argv,root,timeout,env=None,output_file=None,idle_timeout=0):
     """Bound output memory and terminate descendants on timeout."""
     process_env=dict(os.environ,PYTHONDONTWRITEBYTECODE='1',**(env or {}))
     # OpenCode uses PWD for project identity, even when Popen changed cwd.
     process_env['PWD']=str(Path(root).resolve());process_env.pop('OLDPWD',None)
     with tempfile.TemporaryFile(mode='w+b') as stream:
         process=subprocess.Popen(argv,cwd=root,stdout=stream,stderr=subprocess.STDOUT,start_new_session=True,env=process_env)
-        try:rc=process.wait(timeout=timeout)
+        started=last_output=time.monotonic();size=0;idle=False
+        try:
+            while True:
+                now=time.monotonic();current=os.fstat(stream.fileno()).st_size
+                if current!=size:size=current;last_output=now
+                if now-started>=timeout:raise subprocess.TimeoutExpired(argv,timeout)
+                if idle_timeout and now-last_output>=idle_timeout:
+                    idle=True;raise subprocess.TimeoutExpired(argv,idle_timeout)
+                try:rc=process.wait(timeout=min(1,max(.01,timeout-(now-started)),max(.01,idle_timeout-(now-last_output)) if idle_timeout else 1));break
+                except subprocess.TimeoutExpired:pass
         except subprocess.TimeoutExpired:
 
             try:os.killpg(process.pid,signal.SIGTERM)
@@ -180,7 +189,7 @@ def run_process(argv,root,timeout,env=None,output_file=None):
                 try:os.killpg(process.pid,signal.SIGKILL)
                 except ProcessLookupError:pass
                 process.wait()
-            rc=124
+            rc=126 if idle else 124
         leaked=False
         try:os.killpg(process.pid,0)
         except ProcessLookupError:pass
@@ -201,7 +210,7 @@ def run_process(argv,root,timeout,env=None,output_file=None):
             if length>1048576:payload=b'[TRUNCATED to last 1 MiB]\n'+payload
             file=Path(output_file);file.write_bytes(payload);file.chmod(0o600)
         stream.seek(max(0,length-12000))
-        return rc,('LEAKED_CHILD_PROCESSES\n' if leaked else '')+stream.read().decode('utf-8',errors='replace')
+        return rc,('IDLE_OUTPUT_TIMEOUT\n' if idle else '')+('LEAKED_CHILD_PROCESSES\n' if leaked else '')+stream.read().decode('utf-8',errors='replace')
 
 def check_selector(command):
     parts=shlex.split(command)
@@ -352,6 +361,60 @@ def prepare_unit(root,unit):
 def model_argv(args,message):
     return shlex.split(args.opencode_cmd)+['run']+getattr(args,'opencode_run_arg',[])+['--model',args.model,message]
 
+def record_failure(state,task,uid,packet_sha,reason,status='FAILED_UNRESOLVED'):
+    entry={'schema':1,'task':task,'unit':uid,'packet_sha':packet_sha,'status':status,'reason':reason[-12000:],'time':time.time()}
+    file=state/(uid+'.failure.json');file.write_text(json.dumps(entry,indent=2));file.chmod(0o600)
+    report=state/'UNRESOLVED_FAILURES.md'
+    with report.open('a') as out:
+        out.write('\n## '+uid+' — '+status+'\n\nTask: '+task+'; UTC: '+time.strftime('%Y-%m-%d %H:%M:%S',time.gmtime())+'\n\n'+reason[-3000:]+'\n\nEvidence: `'+str(state/(uid+'.*'))+'`\n')
+    report.chmod(0o600)
+
+def run_recovering_stage(args,plan,unit,root,repos,protected,original_hashes,state,uid,attempt,stage,msg,scopes,originals,sealed):
+    initial=msg
+    for recovery in range(getattr(args,'recoveries_per_stage',1)+1):
+        before={str(repo):inventory(repo) for repo in repos}
+        suffix='' if recovery==0 else '.recovery'+str(recovery)
+        logfile=state/(uid+f'.{attempt}.{stage}'+suffix+'.log')
+        artifacts=state/'artifacts'/uid/'model'/stage/(str(attempt)+suffix);artifacts.mkdir(parents=True,exist_ok=True,mode=0o700)
+        print('MODEL_START',uid,'stage='+stage,'attempt='+str(attempt),'recovery='+str(recovery),'cwd='+str(root),flush=True)
+        started=time.monotonic()
+        rc,output=run_process(model_argv(args,msg),root,args.timeout,env={'MVP1_ARTIFACT_DIR':str(artifacts.resolve())},output_file=logfile,idle_timeout=getattr(args,'model_idle_timeout',900))
+        print('MODEL_EXIT',uid,'stage='+stage,'rc='+str(rc),'seconds='+str(round(time.monotonic()-started,1)),flush=True)
+        verify_unchanged(root,repos,before,scopes if stage=='red' else unit['files'],protected,original_hashes)
+        current={str(repo/path):value for repo in repos for path,value in inventory(repo).items() if path!='@git-state' and is_test_file(path)}
+        if stage=='green' and any(current.get(path)!=value for path,value in sealed.items()):raise ValueError('red tests changed during green '+uid)
+        if unit.get('harness_template'):
+            start,pattern=check_selector(unit['accept'])
+            if (root/start/pattern).read_text()!=unit['harness_template']:raise ValueError('fixed harness changed '+uid)
+        if rc not in (124,126):return rc,output
+        diagnosis='No model output before idle limit' if rc==126 else 'Model session exceeded wall-clock deadline'
+        remedies=['Diagnose the previous failure BEFORE making edits. Work only on this unit and current stage.','Use the exact acceptance command and working root; do not rebuild shared test infrastructure.','Keep tests phase-independent; do not skip, weaken assertions, expand scope or invent red failures.','Fix the concrete cause in allowed product/native-test files, then run acceptance and STOP.']
+        if 'external_directory' in output:remedies.append('A command was denied external_directory; use the exact acceptance from the workspace root, without python -c wrappers or guessed /workspace paths.')
+        if 'pg_ctl' in output:remedies.append('Use the supplied PostgreSQL helper; do not implement cluster lifecycle.')
+        folder=state/'artifacts'/uid/'recovery'/str(attempt)/(stage+str(recovery));folder.mkdir(parents=True,exist_ok=True,mode=0o700)
+        changed=[];allowed=scope_matcher(root,scopes)
+        for repo in repos:
+            for path,value in inventory(repo).items():
+                if path=='@git-state' or value==before[str(repo)].get(path):continue
+                file=repo/path
+                if file.is_file() and not file.is_symlink():
+                    saved=folder/(str(len(changed))+'.snapshot');saved.write_bytes(file.read_bytes());saved.chmod(0o600)
+                changed.append(str(file))
+        diagnostic={'schema':1,'unit':uid,'stage':stage,'attempt':attempt,'recovery':recovery,'returncode':rc,'diagnosis':diagnosis,'remedies':remedies,'changed_files':changed,'log':str(logfile),'status':'RETRYING' if recovery<getattr(args,'recoveries_per_stage',1) else 'EXHAUSTED'}
+        (folder/'diagnosis.json').write_text(json.dumps(diagnostic,indent=2))
+        # Red retries must start from actual original product bytes; tests may be repaired in red.
+        if stage=='red':
+            for repo in repos:
+                for path in inventory(repo):
+                    file=repo/path
+                    if path!='@git-state' and not is_test_file(path) and allowed(repo,path) and file not in originals:file.unlink()
+            for file,(content,mode) in originals.items():file.parent.mkdir(parents=True,exist_ok=True);file.write_bytes(content);file.chmod(mode)
+        print('RECOVERY',uid,stage,diagnostic['status'],diagnosis,flush=True)
+        if diagnostic['status']=='EXHAUSTED':return rc,'RECOVERY_EXHAUSTED '+diagnosis+'\n'+output
+        context='\n[RECOVERY_ANALYSIS_AND_REPAIR] '+diagnosis+'\n'+'\n'.join(remedies)+'\nPrevious transcript tail:\n'+output[-4000:]
+        msg=attempt_prompt(initial,context,plan['packet_estimate_limit'])
+    raise AssertionError('unreachable recovery loop')
+
 def generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state,uid,attempt,prior_error=""):
     prepare_unit(root,unit)
     scopes=unit['files']+unit.get('mutation_files',[])
@@ -373,12 +436,7 @@ def generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state
         msg=header+attempt_prompt(stage_packet,prior_error,plan['packet_estimate_limit']-(len(header.encode())+len(footer.encode()))//2-2)+footer
         if len(msg.encode())//2+1>plan['packet_estimate_limit']:raise ValueError('stage packet too large '+uid)
         prior={str(repo):inventory(repo) for repo in repos}
-        print('MODEL_START',uid,'stage='+stage,'attempt='+str(attempt),'cwd='+str(root),flush=True)
-        started=time.monotonic()
-        model_artifacts=state/'artifacts'/uid/'model'/stage/str(attempt)
-        model_artifacts.mkdir(parents=True,exist_ok=True,mode=0o700)
-        rc,output=run_process(model_argv(args,msg),root,args.timeout,env={'MVP1_ARTIFACT_DIR':str(model_artifacts.resolve())},output_file=state/(uid+f'.{attempt}.{stage}.log'))
-        print('MODEL_EXIT',uid,'stage='+stage,'rc='+str(rc),'seconds='+str(round(time.monotonic()-started,1)),flush=True)
+        rc,output=run_recovering_stage(args,plan,unit,root,repos,protected,original_hashes,state,uid,attempt,stage,msg,scopes,originals,sealed if stage=='green' else {})
         verify_unchanged(root,repos,prior,scopes if stage=='red' else unit['files'],protected,original_hashes)
         if stage=='red':
             for repo in repos:
@@ -388,7 +446,7 @@ def generate_unit(args,plan,task,unit,root,repos,protected,original_hashes,state
         if unit.get('harness_template'):
             start,pattern=check_selector(unit['accept']);file=root/start/pattern
             if not file.is_file() or file.read_text()!=unit['harness_template']:raise ValueError('fixed harness changed '+uid)
-        if rc==124:raise ValueError('model timeout '+uid)
+        if rc in (124,126):return False,output
         check_before={str(repo):inventory(repo) for repo in repos}
         ok,evidence=execute_check(unit['accept'],root,args.check_timeout,phase=stage,repeat=1 if stage=='red' else unit.get('repeat',1),require_runtime=unit.get('require_runtime',False),artifact_dir=state/'artifacts'/uid/stage)
         verify_unchanged(root,repos,check_before,[],protected,original_hashes)
@@ -448,8 +506,13 @@ def main(argv=None):
     a.add_argument('--opencode-run-arg',action='append',default=[],choices=['--standalone','--auto','--format=json'],help='explicit run flag; use --opencode-run-arg=--standalone (repeatable)')
     a.add_argument('--opencode-cmd',default='opencode');a.add_argument('--attempts',type=int,default=3)
     a.add_argument('--timeout',type=int,default=1800);a.add_argument('--check-timeout',type=int,default=900)
+    a.add_argument('--model-idle-timeout',type=float,default=900,help='model output inactivity limit; 0 disables')
+    a.add_argument('--recoveries-per-stage',type=int,default=1)
+    a.add_argument('--fail-fast',action='store_true',help='stop on exhausted task instead of continuing independent tasks')
+    a.add_argument('--retry-failed',action='store_true',help='retry unchanged units previously recorded as unresolved')
     a.add_argument('--state-dir',type=Path);a.add_argument('--review',type=Path,help='independent review JSON matching final workspace digest');args=a.parse_args(argv)
     if args.attempts<1 or args.attempts>3 or args.timeout<=0 or args.check_timeout<=0:a.error('attempts must be 1..3 and timeouts positive')
+    if args.model_idle_timeout<0 or not 0<=args.recoveries_per_stage<=2:a.error('idle timeout must be nonnegative; recoveries 0..2')
     original=HERE.parents[2];plan=read_plan(args.plan);queue=ordered(plan,args.only)
     if args.pilot_unit:
         if args.review:a.error('pilot-unit cannot accept --review')
@@ -500,15 +563,22 @@ def main(argv=None):
     try:
         protected=[original]+[original.parent/n for n in ['POS','BeeloyBackend'] if (original.parent/n/'.git').exists()]
         original_hashes={str(r):inventory(r) for r in protected}
+        failed=[]
         finished=set();blocked=sorted({dep for task in queue for dep in task.get('external_requires',[])})
         for t in queue:
             if t['mode']=='external':blocked.append(t['id']);print('EXTERNAL',t['id']);continue
-            if not args.pilot_unit and any(d not in finished for d in t['depends']):blocked.append(t['id']);print('BLOCKED dependencies',t['id']);continue
+            if not args.pilot_unit and any(d not in finished for d in t['depends']):
+                blocked.append(t['id']);print('BLOCKED dependencies',t['id'])
+                record_failure(state,t['id'],t['id'],digest(json.dumps(t,sort_keys=True)),'Dependencies unfinished: '+','.join(d for d in t['depends'] if d not in finished),'BLOCKED_DEPENDENCY');continue
             if t.get('alias_of'):
                 if t.get('external_requires'):blocked.append(t['id']);print('EXTERNAL_ALIAS',t['id']);continue
                 finished.add(t['id']);continue
+            task_failed=False
             for unit in t['units']:
                 uid=unit['id'];packet=prompt(plan,t,unit,root);fingerprint=digest(packet)
+                failure=state/(uid+'.failure.json')
+                if failure.exists() and not args.retry_failed and json.loads(failure.read_text()).get('packet_sha')==fingerprint:
+                    failed.append(uid);task_failed=True;print('SKIP_UNRESOLVED',uid,flush=True);break
                 receipt=state/(uid+'.json')
                 if receipt.exists():
                     old=json.loads(receipt.read_text())
@@ -519,21 +589,34 @@ def main(argv=None):
                     verify_unchanged(root,repos,before,[],protected,original_hashes)
                     if ok:continue
                 for attempt in range(1,args.attempts+1):
-                    ok,output=generate_unit(args,plan,t,unit,root,repos,protected,original_hashes,state,uid,attempt,output if attempt>1 else '')
+                    try:ok,output=generate_unit(args,plan,t,unit,root,repos,protected,original_hashes,state,uid,attempt,output if attempt>1 else '')
+                    except (ValueError,OSError) as e:
+                        record_failure(state,t['id'],uid,fingerprint,str(e),'INTEGRITY_STOP');raise
                     if ok:
+                        if failure.exists():
+                            failure.rename(state/(uid+'.resolved.'+str(time.time_ns())+'.json'))
+                            with (state/'UNRESOLVED_FAILURES.md').open('a') as resolved:resolved.write('\n## '+uid+' — RESOLVED\n\nVerified red/green receipt now exists.\n')
                         receipt.write_text(json.dumps({'schema':3,'packet_sha':fingerprint,'red_verified':True,'red_log':uid+f'.{attempt}.red.evidence.log','red_sha':digest((state/(uid+f'.{attempt}.red.evidence.log')).read_text()),'model':args.model,'time':time.time(),'status':'TESTED_REVIEW_REQUIRED','output':output},ensure_ascii=False,indent=2));print('TESTED',uid);break
                     print('FAIL',uid,output[-2000:])
-                else:return 1
+                else:
+                    record_failure(state,t['id'],uid,fingerprint,output);failed.append(uid);task_failed=True;print('SKIP_UNRESOLVED',uid,flush=True)
+                    if args.fail_fast:return 1
+                    break
+            if task_failed:continue
             # A task is complete only when all previously red tests now pass.
             for u in t['units']:
                 before={str(repo):inventory(repo) for repo in repos}
                 ok,output=execute_check(u['accept'],root,args.check_timeout,repeat=u.get('repeat',1),require_runtime=u.get('require_runtime',False),artifact_dir=state/'artifacts'/u['id'])
                 verify_unchanged(root,repos,before,[],protected,original_hashes)
-                if not ok:print('FINAL FAIL',u['id'],output);return 1
+                if not ok:
+                    print('FINAL FAIL',u['id'],output);record_failure(state,t['id'],u['id'],digest(prompt(plan,t,u,root)),output);failed.append(u['id']);task_failed=True;break
+            if task_failed:
+                if args.fail_fast:return 1
+                continue
             finished.add(t['id'])
         # Later implementation units can invalidate earlier green units. Recheck the
         # complete selected code closure before issuing a review request/acceptance.
-        code_tasks=[task for task in queue if task['mode']=='code' and not task.get('alias_of')]
+        code_tasks=[task for task in queue if task['mode']=='code' and not task.get('alias_of') and task['id'] in finished]
         for task in code_tasks:
             for unit in task['units']:verify_red_evidence(state,unit['id'])
         if len(code_tasks)>1:
@@ -542,7 +625,13 @@ def main(argv=None):
                     before={str(repo):inventory(repo) for repo in repos}
                     ok,output=execute_check(unit['accept'],root,args.check_timeout,repeat=unit.get('repeat',1),require_runtime=unit.get('require_runtime',False),artifact_dir=state/'artifacts'/unit['id'])
                     verify_unchanged(root,repos,before,[],protected,original_hashes)
-                    if not ok:print('FINAL_CLOSURE_FAIL',unit['id'],output);return 1
+                    if not ok:
+                        print('FINAL_CLOSURE_FAIL',unit['id'],output);record_failure(state,task['id'],unit['id'],digest(prompt(plan,task,unit,root)),output);failed.append(unit['id'])
+                        if args.fail_fast:return 1
+        incomplete=[t['id'] for t in queue if t['mode']=='code' and not t.get('alias_of') and t['id'] not in finished]
+        if failed or incomplete:
+            print('INCOMPLETE_UNRESOLVED',','.join(failed),'report='+str(state/'UNRESOLVED_FAILURES.md'),flush=True)
+            return 1
         if args.pilot_unit:
             report={'schema':1,'status':'PILOT_TESTED_REVIEW_REQUIRED','task':args.only,'units':[args.pilot_unit],'omitted_dependencies':queue[0]['depends'],'model':args.model,'plan_sha':digest(json.dumps(plan,sort_keys=True)),'workspace_sha':bundle_hash(repos)}
             (state/'pilot-report.json').write_text(json.dumps(report,indent=2))
@@ -553,6 +642,9 @@ def main(argv=None):
         print('ACCEPTED' if approved else 'TESTED_REVIEW_REQUIRED','tasks',len(finished),'external/blocked',','.join(blocked))
         if not approved:return 4
         return 3 if blocked else 0
+    except (ValueError,OSError) as e:
+        record_failure(state,'RUNNER','RUNNER',digest(json.dumps(plan,sort_keys=True)),str(e),'INTEGRITY_STOP')
+        raise
     finally:
         lock.close()
 
