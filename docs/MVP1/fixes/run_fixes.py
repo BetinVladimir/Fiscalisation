@@ -22,7 +22,7 @@ import signal
 import tempfile
 
 HERE=Path(__file__).resolve().parent
-MODEL='ollama/qwen3-coder:30b-a3b-q4_K_M'
+MODEL='ollama/qwen3.6:35b-a3b-coding-mtp-q4_K_M'
 
 def digest(data):return hashlib.sha256(data.encode()).hexdigest()
 def read_plan(path):

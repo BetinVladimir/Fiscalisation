@@ -70,7 +70,7 @@ for diagnosis and safe restoration.
 
 ## Execution model after maintenance
 
-The default execution model is `ollama/qwen3-coder:30b-a3b-q4_K_M` with context
+The default execution model is `ollama/qwen3.6:35b-a3b-coding-mtp-q4_K_M` with context
 65536 and output limit 8192 in the isolated OpenCode configuration. The supervisor
 passes the model explicitly and verifies the loaded Ollama context before launch.
 Earlier receipts keep their actual generating model; changing the execution model
