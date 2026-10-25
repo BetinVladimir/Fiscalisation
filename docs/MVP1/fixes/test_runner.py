@@ -8,6 +8,16 @@ def plan():
     return {'schema':2,'context_tokens':65536,'packet_estimate_limit':12000,'policy':'money invariants','rules':'read 3 files','tasks':[{'id':'A-01','priority':'P0','mode':'code','depends':[],'spec':'assert product counter equals one','units':[{'id':'A-01.1','title':'implement counter test','files':['tests/test_counter.py'],'test':'counter=1','accept':'python3 -m unittest discover -s tests -p test_counter.py','sources':[],'phase':'green'}]}]}
 
 class RunnerTests(unittest.TestCase):
+    def test_persistence_schema_packet_uses_postgres_and_preserves_ddl_ownership(self):
+        p=json.loads((HERE/'plan.json').read_text())
+        t=next(t for t in p['tasks'] if t['id']=='PERSIST-01');u=t['units'][0]
+        self.assertTrue(t['spec_override'])
+        self.assertIn('MUST NOT apply local SQL',t['spec'])
+        self.assertIn('TestMVP1SchemaUpgradePreservesData',u['harness_template'])
+        self.assertIn('required_tests=',u['harness_template'])
+        self.assertIn('No t.Skip',u['title'])
+        self.assertIn('No source-string assertions',u['title'])
+        self.assertNotIn('fiscal-backend/internal/persistence/migrations.go',u['files'])
     def test_admin_idempotency_packet_scopes_required_jest_setup_and_lock(self):
         p=json.loads((HERE/'plan.json').read_text())
         task=next(t for t in p['tasks'] if t['id']=='AA-01')

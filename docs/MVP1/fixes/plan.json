@@ -23278,12 +23278,12 @@
       "depends": [
         "W0-1"
       ],
-      "spec": "Транзакционная реализация D-3: нормализованные operation/event/UNP/idempotency/outbox, WithTx; миграции up/down/up; не ограничиваться проверкой старого snapshot.",
+      "spec": "Persistence compatibility fixture and atomic durable runtime. database/README.md is authoritative: BeeloyDB owns platform DDL; service RunMigrations is a readiness gate and MUST NOT apply local SQL. Local database/fiscal SQL is isolated compatibility fixture only; its passing tests do not certify canonical BeeloyDB migrations. Execute only selected unit.",
       "notes": "Явное закрытие разрыва ревью; реальные внешние gates остаются открыты.",
       "units": [
         {
           "id": "PERSIST-01.1",
-          "title": "Миграции нормализованных operation/event/UNP/idempotency/outbox и индексов; test-first: чистая БД и предыдущая версия: up/down/up, UNIQUE на tenant+UNP/key, данные предыдущей версии сохранены. Реализовать конкретную часть продукта; oracle не брать из реализации. Читать по 3 файла диапазонами, менять до 400 строк за итерацию. Обязательны реально выполненные unittest assertions; skip/expectedFailure/no tests и assertEqual(константа,константа) не принимаются. Для кода запустить реальный native runtime/tests subprocess либо импортировать production Python module. Автостатус только TESTED_REVIEW_REQUIRED; независимое ревью проверяет смысл oracle и фактическое покрытие. Тесты не меняют source tree: временные БД/fixtures в tempfile, отчёты/raw evidence в os.environ[\"MVP1_ARTIFACT_DIR\"] (отдельный каталог каждого из трёх прогонов); не писать generated evidence в git checkout. Контроллер сначала проверяет реальный assertion FAIL, затем green без изменения red-тестов. Для test-only работы разрешена временная мутация scoped production файла: контроллер восстановит его исходные байты перед green. Native subprocess обязан захватывать stdout/stderr и выдавать реальные ненулевые test counts (Go JSON, JUnit XML, unittest, pytest, TAP, GTest/Jest/CTest); python --version/echo/import без вызова продукта не являются runtime evidence.",
+          "title": "Implement real PostgreSQL compatibility migration tests in repository_schema_test.go. Fixed Python harness invokes three required Go tests TestMVP1SchemaFresh, TestMVP1SchemaUpgradePreservesData, TestMVP1SchemaRollbackReapply. No source-string assertions, SQLite substitution, version-only subprocesses, or tests requiring RunMigrations to read database/fiscal. Use installed initdb/pg_ctl/psql via exec.LookPath and exec.Command; start an OWN temporary PostgreSQL cluster under MVP1_ARTIFACT_DIR, unique Unix socket directory, listen_addresses empty; stop only this owned cluster with cleanup, never connect to shared/production DB or read real credentials. Reuse prepare-fiscal-pg-fixture.py namespace handling; do not edit that script. Fresh: apply actual ordered fixture SQL and assert operation/event/replay/UNP/outbox tables and UNIQUE violations on same tenant+UNP and tenant+idempotency key, valid distinct values accepted. Upgrade: apply predecessor fixture prefix, seed valid records, apply remaining SQL, query exact preserved values and new constraints. Rollback/reapply: exercise actual isolated SQL transaction rollback preserving seeded data, then apply again and query schema/data; if no down files, report that explicit down-migration gate is unsupported, never pretend rollback is full canonical up/down/up. No t.Skip; missing PostgreSQL/tool is BLOCKED, not PASS. Red: first implement correct native tests, temporarily mutate only scoped fixture SQL constraint if already correct, run exact unit accept to real assertion failure, STOP; controller restores fixture before green. Green: repair only fixture product SQL or verify restored fixture, never change sealed tests. Leave application migrations.go unchanged. Keep native assertions exact and runtime-based.",
           "files": [
             "database/fiscal",
             "fiscal-backend/internal/persistence/repository_schema_test.go",
@@ -23293,14 +23293,26 @@
             "MVP_GOAL.md",
             "DECISIONS.md"
           ],
-          "test": "чистая БД и предыдущая версия: up/down/up, UNIQUE на tenant+UNP/key, данные предыдущей версии сохранены",
+          "test": "Actual disposable PostgreSQL: fresh fixture schema and uniqueness, predecessor-data upgrade preservation, transaction rollback/reapply. Canonical BeeloyDB and missing explicit down migrations remain external unverified gates.",
           "accept": "python3 -m unittest discover -s tests/mvp1 -p test_persist_01_1.py",
           "regression": [],
           "phase": "green",
           "legacy_accept": "cd fiscal-backend && bash ../scripts/postgres-integration.sh",
           "require_runtime": true,
           "red_required": true,
-          "mutation_files": []
+          "harness_template": "from pathlib import Path\nimport sys,unittest\nROOT=Path(__file__).resolve().parents[2]\nsys.path.insert(0,str(ROOT/\"docs/MVP1/fixes\"))\nfrom native_harness import check_native_tests\nclass T(unittest.TestCase):\n def test_schema(self):\n  check_native_tests(self,[\"go\",\"test\",\"-json\",\"./internal/persistence\",\"-run\",\"^TestMVP1Schema\",\"-count=1\",\"-timeout=240s\"],root=ROOT,cwd=\"fiscal-backend\",required_tests=(\"TestMVP1SchemaFresh\",\"TestMVP1SchemaUpgradePreservesData\",\"TestMVP1SchemaRollbackReapply\"),minimum=3,timeout=300)\n",
+          "read_files": [
+            "database/README.md",
+            "scripts/postgres-integration.sh",
+            "scripts/prepare-fiscal-pg-fixture.py",
+            "fiscal-backend/internal/persistence/postgres_fixture_test.go",
+            "fiscal-backend/internal/persistence/migrations.go"
+          ],
+          "mutation_files": [
+            "scripts/postgres-integration.sh",
+            "scripts/prepare-fiscal-pg-fixture.py",
+            "fiscal-backend/internal/persistence/migrations.go"
+          ]
         },
         {
           "id": "PERSIST-01.2",
@@ -23409,6 +23421,7 @@
           "mutation_files": []
         }
       ],
+      "spec_override": true,
       "external_requires": []
     },
     {
