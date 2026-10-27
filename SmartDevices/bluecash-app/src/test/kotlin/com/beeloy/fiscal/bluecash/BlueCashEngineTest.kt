@@ -149,6 +149,24 @@ class BlueCashEngineTest {
     assertEquals(0, c.calls)
   }
   @Test
+  fun `printerTestClosesNonFiscalReceiptOnFailure`() {
+    val calls = mutableListOf<Int>()
+    val failOn42 = object : DatecsFiscalPort {
+      override fun reachable() = true
+      override fun execute(command: Int, payload: ByteArray): DatecsResponse {
+        calls += command
+        if (command == 42) error("DATECS_LINE_FAIL")
+        return DatecsResponse(32, command, "0\t".toByteArray(), byteArrayOf())
+      }
+    }
+    val j = SignedMemoryJournal(Signer())
+    val p = BlueCashCommandProcessor(failOn42, Card(), j)
+    val result = p.printerTest("pt-fail-1")
+    assertEquals("FAILED", result["state"])
+    assertEquals("cmd 39 must close non-fiscal doc after cmd 42 fail",
+      listOf(38, 42, 39), calls)
+  }
+  @Test
   fun `reports and cash movements are durable and idempotent`() {
     val f = Fiscal()
     val j = SignedMemoryJournal(Signer())

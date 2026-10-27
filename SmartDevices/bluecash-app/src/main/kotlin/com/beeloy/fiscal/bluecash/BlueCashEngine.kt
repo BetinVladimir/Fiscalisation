@@ -216,8 +216,8 @@ class BlueCashCommandProcessor(
     } catch (e: Throwable) {
       val unknown = classified(e) == Outcome.UNKNOWN
       if (receiptOpened && !unknown) {
-        val cancelOk = runCatching { fiscal.execute(DatecsPayloads.CMD_CANCEL_RECEIPT) }.isSuccess
-        if (cancelOk) {
+        val closeOk = runCatching { fiscal.execute(39) }.isSuccess
+        if (closeOk) {
           journal.append(operationId, "RECEIPT_CANCELLED", "state=RECEIPT_CANCELLED")
         } else {
           journal.append(operationId, "RECEIPT_CANCEL_FAILED", "state=RECEIPT_CANCEL_FAILED")
