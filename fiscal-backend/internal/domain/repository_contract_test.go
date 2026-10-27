@@ -80,6 +80,90 @@ func TestRepositoryReloadPreservesState(t *testing.T) {
 	}
 }
 
+// TestConcurrentFinalizeSameKeyFinalizeProducesOneOperation verifies Invariant 4:
+// 8 goroutines calling FinalizeSaleForTenant with the same ClientOperationID
+// produce exactly one Operation record and trigger Driver.Execute exactly once.
+func TestConcurrentFinalizeSameKeyFinalizeProducesOneOperation(t *testing.T) {
+	const opID = "00000000-0000-4000-8000-100000000001"
+	const receiptID = "00000000-0000-4000-8000-100000000002"
+	const payID = "00000000-0000-4000-8000-100000000003"
+
+	repo := NewMemoryRepository()
+	driver := &finalizeCountingDriver{}
+	svc := NewService(repo, driver)
+
+	sale := Sale{
+		ID:         "sale-concurrent-finalize",
+		State:      "OPEN",
+		UNP:        "12345678-A001-0000001",
+		RegisterID: "register-1",
+		Lines: []SaleLine{{
+			LineID:    "line-1",
+			Name:      "Coffee",
+			Quantity:  "1.000",
+			UnitPrice: Money{Amount: "2.50", Currency: "EUR"},
+			TaxGroup:  "B",
+		}},
+		Version: 1,
+	}
+	if err := repo.PutSale(sale); err != nil {
+		t.Fatal(err)
+	}
+
+	req := SaleFinalizeRequest{
+		ClientOperationID: opID,
+		ReceiptSessionID:  receiptID,
+		Payments: []PaymentRequest{{
+			PaymentID: payID,
+			Type:      "CASH",
+			Amount:    Money{Amount: "2.50", Currency: "EUR"},
+		}},
+		ExpectedTotal: Money{Amount: "2.50", Currency: "EUR"},
+	}
+
+	const goroutines = 8
+	var wg sync.WaitGroup
+	wg.Add(goroutines)
+	for range goroutines {
+		go func() {
+			defer wg.Done()
+			svc.FinalizeSaleForTenant(sale.ID, req, "") //nolint:errcheck
+		}()
+	}
+	wg.Wait()
+
+	var matched int
+	for _, op := range repo.Operations() {
+		if op.ID == opID {
+			matched++
+		}
+	}
+	if matched != 1 {
+		t.Errorf("want exactly 1 operation with ID %s, got %d", opID, matched)
+	}
+	if driver.calls() != 1 {
+		t.Errorf("want driver.Execute called exactly 1 time, got %d", driver.calls())
+	}
+}
+
+type finalizeCountingDriver struct {
+	mu sync.Mutex
+	n  int
+}
+
+func (d *finalizeCountingDriver) Probe() error { return nil }
+func (d *finalizeCountingDriver) Execute(Operation, Sale, PaymentRequest) (string, string) {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	d.n++
+	return "receipt-finalize", ""
+}
+func (d *finalizeCountingDriver) calls() int {
+	d.mu.Lock()
+	defer d.mu.Unlock()
+	return d.n
+}
+
 // TestEmptyRepositoryStartsEmpty verifies that a fresh MemoryRepository
 // starts empty (no error, no stale state).
 func TestEmptyRepositoryStartsEmpty(t *testing.T) {

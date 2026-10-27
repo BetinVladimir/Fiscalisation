@@ -108,6 +108,7 @@ type Service struct {
 	spaDeploymentPublicKeyDERBase64 string
 	simulated                       bool
 }
+
 func (s *Service) SetSimulated(v bool) { s.simulated = v }
 
 type CompositeBindingPublisher interface {
@@ -144,8 +145,8 @@ func (s *Service) Ready(ctx context.Context) []ReadyComponent {
 	}
 
 	// Driver / transport layer.
-	if s.driver != nil {
-		if probeErr := s.driver.Probe(); probeErr != nil {
+	if d := s.driverFor(""); d != nil {
+		if probeErr := d.Probe(); probeErr != nil {
 			components = append(components, ReadyComponent{Name: "driver", Status: "unhealthy", Detail: probeErr.Error()})
 		} else {
 			components = append(components, ReadyComponent{Name: "driver", Status: "ok"})
@@ -157,16 +158,20 @@ func (s *Service) Ready(ctx context.Context) []ReadyComponent {
 	return components
 }
 
+// driverFor is the single access point for the service transport driver.
+func (s *Service) driverFor(_ string) Driver { return s.driver }
+
 // boundDriver revalidates the complete immutable route snapshot immediately
 // before use. The configured driver is a transport dispatcher (MQTT/simulator),
 // not a device choice; the selected device remains the snapshot carried in the
 // command. Any rebind or identity mismatch is fenced without fallback.
 func (s *Service) boundDriver(tenant, register string, expected FiscalDeviceSnapshot) (Driver, error) {
-	if s.driver == nil {
+	d := s.driverFor(register)
+	if d == nil {
 		return nil, errors.New("device route unavailable")
 	}
 	if tenant == "" { // isolated unit/dev simulator path has no registry authority
-		return s.driver, nil
+		return d, nil
 	}
 	current, err := s.activeFiscalDeviceSnapshot(register, tenant, time.Now().UTC())
 	if err != nil || expected.DeviceID == "" || current.DeviceID != expected.DeviceID ||
@@ -175,7 +180,7 @@ func (s *Service) boundDriver(tenant, register string, expected FiscalDeviceSnap
 		current.Model != expected.Model {
 		return nil, errors.New("stale or mismatched device route")
 	}
-	return s.driver, nil
+	return d, nil
 }
 
 func (s *Service) SetRequireHardwareSyncSignatures(required bool) {
@@ -409,7 +414,7 @@ func (s *Service) reserveFiscalOperation(register, typ, tenant string) (Operatio
 }
 
 func (s *Service) executeReservedFiscalOperation(op Operation, register, tenant string) Operation {
-	ref, code := s.driver.Execute(op, Sale{RegisterID: register, TenantID: tenant}, PaymentRequest{})
+	ref, code := s.driverFor(register).Execute(op, Sale{RegisterID: register, TenantID: tenant}, PaymentRequest{})
 	op.Version++
 	op.UpdatedAt = time.Now().UTC()
 	if code == "FISCAL_RESULT_UNKNOWN" {
@@ -434,7 +439,7 @@ func (s *Service) Connectivity(register, tenant string) (ConnectivityProbe, erro
 	if !registryReady {
 		v.Hops["fiscal_core"] = map[string]any{"state": "BLOCKED", "latency_ms": 0}
 	}
-	if !registryReady || s.driver == nil || s.driver.Probe() != nil {
+	if d := s.driverFor(register); !registryReady || d == nil || d.Probe() != nil {
 		v.State, v.RecommendedTransport = "FAILED", "BLOCK"
 		v.Hops["driver"] = map[string]any{"state": "UNAVAILABLE", "latency_ms": 0}
 		v.Hops["fiscal_device"] = map[string]any{"state": "UNAVAILABLE", "latency_ms": 0, "device_id": deviceID}
@@ -466,7 +471,8 @@ func (s *Service) RefreshReadiness(workstation, tenant string) (ReadinessLease, 
 	}
 	now := time.Now().UTC()
 	device, err := s.activeFiscalDeviceSnapshot(workstation, tenant, now)
-	if err != nil || !bgFMINPattern.MatchString(device.FiscalDeviceNumber) || s.driver == nil || s.driver.Probe() != nil {
+	d := s.driverFor(workstation)
+	if err != nil || !bgFMINPattern.MatchString(device.FiscalDeviceNumber) || d == nil || d.Probe() != nil {
 		return ReadinessLease{}, errors.New("fiscal device not ready")
 	}
 	lease := ReadinessLease{LeaseID: newID("ready"), TenantID: tenant, WorkstationID: workstation, FiscalDeviceID: device.DeviceID, FiscalDeviceNumber: device.FiscalDeviceNumber, ProfileVersion: BGProfileVersion, Ready: true, CheckedAt: now, ValidUntil: now.Add(BGReadinessLeaseMax)}
@@ -495,7 +501,7 @@ func (s *Service) signReadiness(v ReadinessLease) string {
 	return base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
 }
 func (s *Service) SyncWorkstationClock(workstation, tenant string) (DeviceClockSync, error) {
-	driver, ok := s.driver.(clockCapableDriver)
+	driver, ok := s.driverFor(workstation).(clockCapableDriver)
 	if !ok {
 		return DeviceClockSync{}, errors.New("device clock capability unavailable")
 	}
@@ -1091,6 +1097,13 @@ func (s *Service) finalizeSaleForTenant(id string, in SaleFinalizeRequest, tenan
 		}
 		return op, nil
 	}
+	// Atomically transition the sale to PAYMENT_PENDING and store the
+	// operation as EXECUTING before any I/O. This prevents concurrent
+	// goroutines with the same ClientOperationID from each calling Execute.
+	sale, err = writer.ReserveSaleFinalize(sale, sale.Version, op, nil)
+	if err != nil {
+		return Operation{}, err
+	}
 	ref, code := driver.Execute(op, sale, PaymentRequest{})
 	op.Version++
 	op.UpdatedAt = time.Now().UTC()
@@ -1503,7 +1516,8 @@ func reconciliationRequiredEvent(op Operation) OutboxItem {
 func (s *Service) PendingOutbox(now time.Time) []OutboxItem { return s.repo.PendingOutbox(now) }
 func (s *Service) UpdateOutbox(v OutboxItem) error          { return s.repo.UpdateOutbox(v) }
 func (s *Service) Readiness(device string) map[string]any {
-	ready := s.driver != nil && s.driver.Probe() == nil
+	d := s.driverFor(device)
+	ready := d != nil && d.Probe() == nil
 	state, transport := "READY", "REST"
 	if !ready {
 		state, transport = "UNAVAILABLE", "BLOCK"
@@ -1512,7 +1526,8 @@ func (s *Service) Readiness(device string) map[string]any {
 }
 func (s *Service) ReadinessForTenant(device, tenant string) map[string]any {
 	registryReady := s.activeDeviceForTenant(device, tenant)
-	driverReady := registryReady && s.driver != nil && s.driver.Probe() == nil
+	d := s.driverFor(device)
+	driverReady := registryReady && d != nil && d.Probe() == nil
 	state, transport := "READY", "REST"
 	if !driverReady {
 		state, transport = "UNAVAILABLE", "BLOCK"
