@@ -246,6 +246,43 @@ class BlueCashComplianceIntentExecutor(
     id: String,
     hash: String
   ): Map<String, Any?> {
+    // Crash recovery: store.put(sale) ran but processor.sale() never completed.
+    // Same intent_id, same hash, result not yet saved → resume with the saved UNP.
+    if (current != null) {
+      val rec = current.processed[id]
+      if (rec != null && rec.hash == hash && rec.result == null) {
+        val physical =
+          processor.sale(
+            BlueCashSale(
+              id,
+              current.unp!!,
+              operatorNumber,
+              operatorPassword,
+              tillNumber,
+              current.lines.map { it.fiscal },
+              current.payments
+            ),
+            evidence(intent)
+          )
+        val state =
+          when (physical["state"]) {
+            "FISCALIZED" -> "FISCALIZED"
+            "UNKNOWN",
+            "RECOVERY_REQUIRED" -> "FISCAL_RESULT_UNKNOWN"
+            else -> "FAILED"
+          }
+        val result =
+          result(id, state, current.version, physical["error_code"], physical["fiscal_reference"])
+        store.put(
+          current.copy(
+            state = state,
+            processed = current.processed + (id to BleIntentRecord(hash, result)),
+            fiscalReference = physical["fiscal_reference"]
+          )
+        )
+        return result
+      }
+    }
     require(current == null) { "SALE_ALREADY_EXISTS" }
     val rawItems = intent["items"] as? List<*> ?: error("ITEMS_REQUIRED")
     val rawPayments = intent["payments"] as? List<*> ?: error("PAYMENTS_REQUIRED")
