@@ -198,7 +198,7 @@ class BlueCashCommandProcessor(
     return try {
       ok(fiscal.execute(38))
       receiptOpened = true
-      ok(fiscal.execute(42, "BEELOY PRINTER TEST\t\t\t\t\t\t".toByteArray()))
+      ok(fiscal.execute(42, DatecsText.encode("BEELOY PRINTER TEST\t\t\t\t\t\t")))
       ok(fiscal.execute(39))
       mapOf("state" to "PRINTER_TESTED").also {
         journal.append(operationId, "PRINTER_TESTED", encode(it))
@@ -277,7 +277,7 @@ class BlueCashCommandProcessor(
       command.lines.forEach { ok(fiscal.execute(49, DatecsPayloads.line(it))) }
       command.payments.forEach { ok(fiscal.execute(53, DatecsPayloads.payment(datecsPaymentMode(it.type), it.amount))) }
       val closed = ok(fiscal.execute(56))
-      val ref = closed.data.toString(Charsets.UTF_8).split('\t').getOrNull(1)?.takeIf { it.isNotBlank() }
+      val ref = DatecsText.decode(closed.data).split('\t').getOrNull(1)?.takeIf { it.isNotBlank() }
       if (ref == null) {
         val result = mapOf("state" to "RECOVERY_REQUIRED", "error_code" to "FISCAL_REFERENCE_UNPARSEABLE")
         journal.append(command.operationId, "RECOVERY_REQUIRED", encode(result))
@@ -299,7 +299,8 @@ class BlueCashCommandProcessor(
           return result
         }
       }
-      if (approvedCardPayments.isNotEmpty()) {
+      if (approvedCardPayments.isNotEmpty() && !unknown) {
+        // Fiscal definitively failed: safe to reverse the card (D-09).
         journal.append(
           command.operationId,
           "COMPENSATION_REQUIRED",
@@ -317,6 +318,12 @@ class BlueCashCommandProcessor(
             )
           else mapOf("state" to "RECOVERY_REQUIRED", "error_code" to "CARD_COMPENSATION_FAILED")
         journal.append(command.operationId, result.getValue("state"), encode(result))
+        return result
+      }
+      if (approvedCardPayments.isNotEmpty()) {
+        // unknown=true: fiscal outcome unclear — do NOT reverse card (invariant 2).
+        val result = mapOf("state" to "RECOVERY_REQUIRED", "error_code" to "FISCAL_RESULT_UNKNOWN")
+        journal.append(command.operationId, "RECOVERY_REQUIRED", encode(result))
         return result
       }
       val result =
@@ -343,7 +350,7 @@ class BlueCashCommandProcessor(
       .firstOrNull { it.type == "ACCEPTED" }
       ?.let { require(it.payload == acceptedEvidence) { "COMMAND_ID_PAYLOAD_CONFLICT" } }
     old
-      .lastOrNull { it.type in setOf("REVERSED", "FAILED", "UNKNOWN") }
+      .lastOrNull { it.type in setOf("REVERSED", "FAILED", "UNKNOWN", "REFUND_PENDING") }
       ?.let {
         return parse(it.payload)
       }
@@ -354,21 +361,7 @@ class BlueCashCommandProcessor(
     journal.append(command.operationId, "EXECUTING", "state=EXECUTING")
     var receiptOpened = false
     return try {
-      for (p in command.payments.filter { it.type == "CARD" }.asReversed()) {
-        require(card.reachable()) { "PAYMENT_TERMINAL_UNREACHABLE" }
-        journal.append(
-          command.operationId,
-          "REFUND_PREPARED",
-          "payment_id=${p.id}&amount=${p.amount}&original_operation_id=${command.originalOperationId}"
-        )
-        val payment = card.reverse(p.id)
-        require(payment["approved"] == "true") { payment["error_code"] ?: "CARD_REVERSAL_DECLINED" }
-        journal.append(
-          command.operationId,
-          "REFUND_APPROVED",
-          "payment_id=${p.id}&rrn=${payment["rrn"].orEmpty()}&authorization_code=${payment["authorization_code"].orEmpty()}"
-        )
-      }
+      // Storno-first (invariant 3): fiscal reversal before any card refund.
       ok(
         fiscal.execute(
           43,
@@ -384,11 +377,35 @@ class BlueCashCommandProcessor(
       command.lines.forEach { ok(fiscal.execute(49, DatecsPayloads.line(it))) }
       command.payments.forEach { ok(fiscal.execute(53, DatecsPayloads.payment(datecsPaymentMode(it.type), it.amount))) }
       val closed = ok(fiscal.execute(56))
-      val ref = closed.data.toString(Charsets.UTF_8).split('\t').getOrNull(1)?.takeIf { it.isNotBlank() }
+      val ref = DatecsText.decode(closed.data).split('\t').getOrNull(1)?.takeIf { it.isNotBlank() }
       if (ref == null) {
         val result = mapOf("state" to "RECOVERY_REQUIRED", "error_code" to "FISCAL_REFERENCE_UNPARSEABLE")
         journal.append(command.operationId, "RECOVERY_REQUIRED", encode(result))
         return result
+      }
+      // Fiscal storno confirmed: safe to refund card.
+      for (p in command.payments.filter { it.type == "CARD" }.asReversed()) {
+        require(card.reachable()) { "PAYMENT_TERMINAL_UNREACHABLE" }
+        journal.append(
+          command.operationId,
+          "REFUND_PREPARED",
+          "payment_id=${p.id}&amount=${p.amount}&original_operation_id=${command.originalOperationId}"
+        )
+        val payment = runCatching { card.reverse(p.id) }.getOrElse { mapOf("approved" to "false") }
+        if (payment["approved"] != "true") {
+          val result = mapOf(
+            "state" to "REFUND_PENDING",
+            "fiscal_reference" to ref,
+            "error_code" to (payment["error_code"] ?: "CARD_REVERSAL_DECLINED")
+          )
+          journal.append(command.operationId, "REFUND_PENDING", encode(result))
+          return result
+        }
+        journal.append(
+          command.operationId,
+          "REFUND_APPROVED",
+          "payment_id=${p.id}&rrn=${payment["rrn"].orEmpty()}&authorization_code=${payment["authorization_code"].orEmpty()}"
+        )
       }
       mapOf("state" to "REVERSED", "fiscal_reference" to ref).also {
         journal.append(command.operationId, "REVERSED", encode(it))
@@ -416,7 +433,7 @@ class BlueCashCommandProcessor(
     }
   }
   private fun ok(r: DatecsResponse): DatecsResponse {
-    val text = r.data.toString(Charsets.UTF_8)
+    val text = DatecsText.decode(r.data)
     require(text.startsWith("0\t") || text == "0" || text.isEmpty()) {
       text.substringBefore('\t').ifBlank { "DATECS_REJECTED" }
     }

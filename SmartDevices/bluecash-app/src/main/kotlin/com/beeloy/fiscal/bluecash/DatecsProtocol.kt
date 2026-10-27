@@ -3,6 +3,10 @@ package com.beeloy.fiscal.bluecash
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.nio.CharBuffer
+import java.nio.charset.CharacterCodingException
+import java.nio.charset.Charset
+import java.nio.charset.CodingErrorAction
 
 data class DatecsResponse(
   val sequence: Int,
@@ -84,11 +88,30 @@ data class DatecsStornoDocument(
   val invoiceReason: String? = null
 )
 
+/** Encodes/decodes fiscal device text as CP1251 (invariant 7). */
+object DatecsText {
+  private val CHARSET: Charset = Charset.forName("windows-1251")
+  fun encode(s: String): ByteArray {
+    try {
+      val buf = CHARSET.newEncoder()
+        .onMalformedInput(CodingErrorAction.REPORT)
+        .onUnmappableCharacter(CodingErrorAction.REPORT)
+        .encode(CharBuffer.wrap(s))
+      val ba = ByteArray(buf.limit())
+      buf.get(ba)
+      return ba
+    } catch (e: CharacterCodingException) {
+      throw IllegalArgumentException("DATECS_TEXT_UNMAPPABLE")
+    }
+  }
+  fun decode(b: ByteArray): String = String(b, CHARSET)
+}
+
 object DatecsPayloads {
   private val money = Regex("[0-9]{1,5}\\.[0-9]{2}")
   private val quantity = Regex("[0-9]{1,2}\\.[0-9]{3}")
   private fun bytes(vararg fields: String) =
-    fields.joinToString("\t", postfix = "\t").toByteArray(Charsets.UTF_8)
+    DatecsText.encode(fields.joinToString("\t", postfix = "\t"))
   fun open(
     operator: Int,
     password: String,

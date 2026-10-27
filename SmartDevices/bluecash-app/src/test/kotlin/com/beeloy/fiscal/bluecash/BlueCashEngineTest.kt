@@ -333,6 +333,122 @@ class BlueCashEngineTest {
     assertFalse(j.find("op-1").any { it.type == "RECEIPT_CANCELLED" })
   }
 
+  // BUG-071: storno-first (card refund only after fiscal storno confirmed) ──────
+
+  @Test
+  fun reverseCardRefundNeverBeforeFiscalStorno() {
+    val log = mutableListOf<String>()
+    val f = object : DatecsFiscalPort {
+      override fun reachable() = true
+      override fun execute(command: Int, payload: ByteArray): DatecsResponse {
+        log += "fiscal:$command"
+        return DatecsResponse(0x20, command, if (command == 56) "0\tBON-99\t".toByteArray() else "0\t".toByteArray(), byteArrayOf())
+      }
+    }
+    val c = object : DatecsPaymentPort {
+      override fun reachable() = true
+      override fun purchaseEur(amountMinor: Long, operationId: String) = mapOf("approved" to "true")
+      override fun reverse(operationId: String) = mapOf("approved" to "true").also { log += "card:reverse" }
+    }
+    val j = SignedMemoryJournal(Signer())
+    val d = DatecsStornoDocument(1, 42, "11-08-26 12:30:45", "12345678", "DY000600-OP01-0000001")
+    val cmd = BlueCashReversal("rev-x", "op-1", 1, "1", 24, d,
+      listOf(FiscalLine("Coffee", 'B', "2.65", "1.000")),
+      listOf(SalePayment("p", "CARD", "2.65")))
+    val result = BlueCashCommandProcessor(f, c, j).reverse(cmd)
+    assertEquals("REVERSED", result["state"])
+    val cardIdx = log.indexOfFirst { it == "card:reverse" }
+    val lastFiscalIdx = log.indexOfLast { it.startsWith("fiscal:") }
+    assertTrue("card:reverse (idx=$cardIdx) must come after last fiscal call (idx=$lastFiscalIdx)", cardIdx > lastFiscalIdx)
+  }
+
+  @Test
+  fun reverseStornoUnknownDoesNotRefund() {
+    val f = FailAtPort(mapOf(43 to DatecsFailure.Unknown("DATECS_EOF")))
+    val c = Card()
+    val j = SignedMemoryJournal(Signer())
+    val d = DatecsStornoDocument(1, 42, "11-08-26 12:30:45", "12345678", "DY000600-OP01-0000001")
+    val cmd = BlueCashReversal("rev-u", "op-1", 1, "1", 24, d,
+      listOf(FiscalLine("Coffee", 'B', "2.65", "1.000")),
+      listOf(SalePayment("p", "CARD", "2.65")))
+    val result = BlueCashCommandProcessor(f, c, j).reverse(cmd)
+    assertEquals("UNKNOWN", result["state"])
+    assertEquals(0, c.reversals)
+  }
+
+  @Test
+  fun reverseRefundFailureAfterStornoIsRetryable() {
+    val f = Fiscal()
+    val noRefundCard = object : DatecsPaymentPort {
+      override fun reachable() = true
+      override fun purchaseEur(amountMinor: Long, operationId: String) = mapOf("approved" to "true")
+      override fun reverse(operationId: String) = mapOf("approved" to "false", "error_code" to "CARD_NETWORK_TIMEOUT")
+    }
+    val j = SignedMemoryJournal(Signer())
+    val d = DatecsStornoDocument(1, 42, "11-08-26 12:30:45", "12345678", "DY000600-OP01-0000001")
+    val cmd = BlueCashReversal("rev-r", "op-1", 1, "1", 24, d,
+      listOf(FiscalLine("Coffee", 'B', "2.65", "1.000")),
+      listOf(SalePayment("p", "CARD", "2.65")))
+    val result = BlueCashCommandProcessor(f, noRefundCard, j).reverse(cmd)
+    assertEquals("REFUND_PENDING", result["state"])
+    assertNotNull(result["fiscal_reference"])
+  }
+
+  // BUG-021: no card reversal when fiscal result is Unknown ────────────────────
+
+  @Test
+  fun saleDoesNotReverseCardWhenFiscalResultUnknown() {
+    // cmd 56 (close) throws Unknown (DATECS_EOF): fiscal outcome unclear → no card reversal
+    val f = FailAtPort(mapOf(56 to DatecsFailure.Unknown("DATECS_EOF")))
+    val c = Card()
+    val j = SignedMemoryJournal(Signer())
+    val result = BlueCashCommandProcessor(f, c, j).sale(sale())
+    assertEquals(0, c.reversals)
+    assertEquals("RECOVERY_REQUIRED", result["state"])
+  }
+
+  @Test
+  fun saleReversesCardWhenFiscalDefinitelyRejected() {
+    // cmd 56 definitively rejected → fiscal not fiscalized → safe to reverse card
+    val f = FailAtPort(mapOf(56 to DatecsFailure.Rejected(22, "FISCAL_REJECTED")))
+    val c = Card()
+    val j = SignedMemoryJournal(Signer())
+    val result = BlueCashCommandProcessor(f, c, j).sale(sale())
+    assertEquals(1, c.reversals)
+    assertEquals("COMPENSATED", result["state"])
+  }
+
+  // VG-01: fiscal device expects CP1251, not UTF-8 ─────────────────────────────
+
+  @Test
+  fun linePayloadEncodesCyrillicAsWindows1251() {
+    // "Кафе" in CP1251: К=0xCA, а=0xE0, ф=0xF4, е=0xE5 (1 byte each)
+    // In UTF-8 "К" = 0xD0 0x9A — two bytes; first byte 0xD0 ≠ 0xCA → fails currently
+    val line = FiscalLine("Кафе", 'B', "2.65", "1.000")
+    val encoded = DatecsPayloads.line(line)
+    assertEquals(0xCA.toByte(), encoded[0])
+    assertEquals(0xE0.toByte(), encoded[1])
+    assertEquals(0xF4.toByte(), encoded[2])
+    assertEquals(0xE5.toByte(), encoded[3])
+    assertEquals('\t'.code.toByte(), encoded[4])
+  }
+
+  @Test
+  fun fiscalReferenceDecodedFromWindows1251() {
+    // FU returns "0\tБОН-42\t" in CP1251 bytes; ok() must decode as CP1251, not UTF-8
+    val cp1251 = java.nio.charset.Charset.forName("windows-1251")
+    val responseBytes = "0\tБОН-42\t".toByteArray(cp1251)
+    val fakePort = object : DatecsFiscalPort {
+      override fun reachable() = true
+      override fun execute(command: Int, payload: ByteArray): DatecsResponse =
+        DatecsResponse(0x20, command, if (command == 56) responseBytes else "0\t".toByteArray(cp1251), byteArrayOf())
+    }
+    val j = SignedMemoryJournal(Signer())
+    val result = BlueCashCommandProcessor(fakePort, Card(), j).sale(cashSale())
+    assertEquals("FISCALIZED", result["state"])
+    assertEquals("БОН-42", result["fiscal_reference"])
+  }
+
   @Test
   fun emptyCloseResponseIsNotSuccess() {
     val blankFiscal = object : DatecsFiscalPort {
