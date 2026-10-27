@@ -1,3 +1,5 @@
+let mockExtra:any={isDemo:false,appVariant:'production'};
+jest.mock('expo-constants',()=>({__esModule:true,default:{get expoConfig(){return{extra:mockExtra}}}}));
 // Authored only; runtime remains behind the global Paper/test gate.
 import React from 'react';
 import { act, create } from 'react-test-renderer';
@@ -77,3 +79,5 @@ test.each(['en','bg','ru'])('server JSON is never rendered in %s auth errors', a
   expect(state.requestCode).toHaveBeenCalledTimes(1);
  } finally {if(tree)await act(async()=>tree.unmount());}
 });
+
+test.each([{extra:{isDemo:true,appVariant:'demo'},allowed:true},{extra:{isDemo:false,appVariant:'production'},allowed:false},{extra:{isDemo:'true',appVariant:'demo'},allowed:false},{extra:{isDemo:true,appVariant:'production'},allowed:false}])('actual Paper OTP only admits demo for $extra',async({extra,allowed})=>{mockExtra=extra;const state={...auth(),temporary:'challenge',code:'demo'};let tree:any;await act(async()=>{tree=create(<AuthScreen auth={state}/>)});expect(tree.root.findByProps({testID:'admin-login-code'}).props.keyboardType).toBe(allowed?'default':'number-pad');expect(tree.root.findByProps({testID:'admin-login-verify'}).props.disabled).toBe(!allowed);await act(async()=>tree.unmount());mockExtra={isDemo:false,appVariant:'production'};});

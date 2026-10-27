@@ -1,3 +1,4 @@
+import { demoEmailOtpEnabled, normalizeEmailOtp, validEmailOtp } from './emailOtpCode';
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Crypto from "expo-crypto";
 import * as SecureStore from "expo-secure-store";
@@ -69,7 +70,7 @@ export function useEmailOtpAuth() {
     });
   };
   const verifyCode=async()=>{
-    if(!temporary||session||selection||!/^\d{6}$/.test(code))return;
+    if(!temporary||session||selection||!validEmailOtp(code,demoEmailOtpEnabled()))return;
     await run(async owner=>{const out=await call("/public/v1/app-auth/challenges:verify",{code,app_instance_id:instanceId},temporary);
       if(out.session)await keepSession(out.session,owner);
       else{if(typeof out.tenant_selection_token!=='string'||!out.tenant_selection_token.trim()||!validTenants(out.tenants)||!out.tenants.length)throw new Error('INVALID_TENANT_SELECTION');
@@ -124,7 +125,7 @@ export function useEmailOtpAuth() {
     return()=>clearTimeout(timer);
   },[session,instanceId,busy]);
   const editEmail=(value:string)=>{if(current()&&!booting&&!pending.current&&!temporary&&!session){setEmail(value);setError('')}};
-  const editCode=(value:string)=>{if(current()&&!booting&&!pending.current&&temporary&&!selection&&!session){setCode(value.replace(/\D/g,'').slice(0,6));setError('')}};
+  const editCode=(value:string)=>{if(current()&&!booting&&!pending.current&&temporary&&!selection&&!session){setCode(normalizeEmailOtp(value,demoEmailOtpEnabled()));setError('')}};
   const roles=useMemo(()=>session?.tenant.roles||[],[session]);
   return {configured:true,ready:!busy&&!booting,accessToken:session?.access_token||"",roles,error,email,setEmail:editEmail,code,setCode:editCode,temporary,tenants,currentTenant:session?.tenant,requestCode,verifyCode,selectTenant,switchTenant,logout};
 }
