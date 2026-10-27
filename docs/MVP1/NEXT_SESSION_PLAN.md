@@ -1,184 +1,161 @@
 # NEXT_SESSION_PLAN — план для следующей сессии (обновлён 2026-10-27)
 
-Ветка: `docs/mvp1-delivery-pipeline-and-test-review`
+Ветка: `docs/mvp1-delivery-pipeline-and-test-review`  
+Последний коммит: `fdec71c`
 
 ---
 
-## Что закрыто за две сессии
-
-### Перенесено в `docs/MVP1/fixed/` (29 задач)
-
-**Из status.json DONE (13):** BP-01, BUG-009, BUG-060, CL-01, DOC-006, DOC-V3, DSY-01,
-PIPE-01, S3D-02, SCOPE-01, SCR-37, TG-002, TST-META-01
-
-**Завершено за сессии (16):**
-- TST-GO-01…TST-GO-14 — все 14 Go-харнесов зелёные (15 passed)
-- DEMO-OTP-001, DEMO-OTP-UI-20261027 — закоммичены в `716bec4`
-
-### Созданные (не закоммиченные) артефакты
-
-**Go-тесты (`fiscal-backend/internal/`):**
-`domain/bug_002_test.go`, `domain/bug_008_test.go`, `domain/fiscal_operation_test.go`,
-`domain/clock_sync_test.go`, `domain/repository_contract_test.go`,
-`domain/payment_capability_test.go`, `domain/rounding_golden_test.go`,
-`api/health_test.go`, `api/idempotency_test.go`
-
-**Python-харнесы (`tests/mvp1/`):**
-`test_tst_go_01_1.py` … `test_tst_go_14_1.py` (14 штук),
-`test_bug_001_4.py`, `test_bug_001_5.py`,
-`test_bug_002_3.py`, `test_bug_003_2_through_3.py`, `test_bug_003_4.py`,
-`test_bug_008_3.py`, `test_bug_010_3.py`, `test_bug_026_2.py`
-
-**Kotlin (`SmartDevices/bluecash-app/`):**
-`BlueCashEngineTest.kt` — добавлены 2 теста BUG-026.2;
-`BlueCashEngine.kt` — парсер поля документа cmd56/cmd43 исправлен на `getOrNull(1)?.takeIf { it.isNotBlank() }` (строки 265, 359)
-
----
-
-## Открытые задачи с частичной реализацией
-
-### BUG-026 · P0 · `SmartDevices/bluecash-app/`
-
-**Сделано полностью:**
-- 26.1 — удалён синтетический `"DATECS-"` (grep = 0)
-- 26.2 — два Kotlin-теста + Python harness `test_bug_026_2.py`; Gradle 12/0/0 ✓
-  - Исправление: `lastOrNull()` → `getOrNull(1)?.takeIf { it.isNotBlank() }` в двух местах BlueCashEngine.kt
-
-**Осталось:**
-- **26.3** — запустить полный набор (`./gradlew :bluecash-app:test`) и убедиться, что все
-  варианты сборки зелёные; создать `test_bug_026_3.py` (harness с JUnit XML-проверкой
-  `saleResultCarriesRealDocumentNumber` и `emptyCloseResponseIsNotSuccess` — эти имена взять из
-  BUG-026.md, если они отличаются от 26.2, иначе 26.3 можно закрыть сразу).
+## Baseline — проверить в начале сессии
 
 ```bash
-cd SmartDevices && ./gradlew :bluecash-app:test --no-daemon 2>&1 | grep -E 'PASS|FAIL|tests'
+# 51 Python-харнес должны пройти (1 known-fail: test_bug_026_2 — Gradle JUnit XML)
+cd /Users/freelancer/Documents/Beeloy/Fiscalisation
+python3 -m pytest tests/mvp1/ -q
+
+# Go unit
+cd fiscal-backend && go test ./internal/... -count=1 -timeout 120s
 ```
 
 ---
 
-### BUG-003 · P0 · `fiscal-backend/internal/domain/`
+## Что закрыто и закоммичено (по состоянию на fdec71c)
 
-**Сделано:** subtasks 1-4 — `simulated_flag_test.go`, code уже правильный (5 мест в service.go),
-харнесы `test_bug_003_2_through_3.py` и `test_bug_003_4.py` зелёные.
+### В docs/MVP1/fixed/ (31 файл)
+BP-01, BUG-005, BUG-009, BUG-060, CL-01, DEMO-OTP-001, DEMO-OTP-UI-20261027,
+DOC-006, DOC-V3, DSY-01, DSY-02 (fix-файл), PIPE-01, S3D-02, SCOPE-01, SCR-37,
+TG-002, TST-GO-01…TST-GO-14, TST-META-01
 
-**Осталось — subtasks 5, 6:**
-Прочитать `docs/MVP1/fixes/BUG-003.md`, найти что требуется в 5 и 6:
-обычно это регрессия всего пакета domain + exports, и E2E/интеграционный тест.
-Создать `test_bug_003_5.py` и `test_bug_003_6.py` по шаблону уже созданных харнесов.
+### Python-харнесы (tests/mvp1/ — 47 файлов, 51 теста)
+TST-GO-01..14, BUG-001.1-5, BUG-002.3, BUG-003.1-6, BUG-005.1-6, BUG-008.3,
+BUG-010.1-3, BUG-011.1-3, BUG-026.2-3, ARCH-004.1-3, TG-009.1-4,
+DSY-02.1-2, SMS-01.1-2
+
+### Новый production-код
+- `fiscal-backend/internal/domain/money.go`: `type Cents int64`, `ParseMoney`, `LineTotal`
+- `fiscal-backend/internal/domain/money_test.go`: `TestLineTotalFromGoldenFile` — исправлен вызов `discountedLineTotalCents`
+- `fiscal-backend/internal/domain/reversal_policy_test.go`: `TestReversalPolicy_SR01..SR04`
+- `docs/SUPTO/STORNO_RULES.md`: таблица 11 правил SR-01..11 (чл.31 Н-18)
+- `scripts/check-storno-coverage.sh`: проверка storno_coverage=pass
+
+---
+
+## IN_PROGRESS — что осталось сделать
+
+### 1. BUG-001 · P0 · w1 · `fiscal-backend/internal/domain/`
+**Харнесы есть и зелёные.** Нужна реализация:
+- **1.3** — добавить `var moneyPattern = regexp.MustCompile(`^[0-9]{1,7}\.[0-9]{2}$`)` в `money.go`
+- **1.4** — в `ValidateReceiptPlan`: проверка суммы Items через `Cents`, суммирование через half-up
+- **1.5** — регрессия: `go test ./internal/domain/ ./internal/api/ -count=1`
+
+```bash
+python3 docs/MVP1/tools/task-pack.py BUG-001
+```
+
+### 2. BUG-003 · P0 · w1 · `fiscal-backend/internal/domain/`
+**Харнесы 1-6 есть и зелёные.** Нужна реализация:
+- **3.3** — добавить `func driverIsSimulated(d Driver) bool { _, ok := d.(*SimulatedDriver); return ok }`
+- **3.4** — в `service.go` (5 мест): `Simulated: true` → `Simulated: driverIsSimulated(driver)`
+- **3.5** — в `exports.go` (2 места): `Simulated: true` → `Simulated: false`
+- **3.6** — регрессия domain+api
 
 ```bash
 python3 docs/MVP1/tools/task-pack.py BUG-003
 ```
 
----
+### 3. ARCH-004 · P1 · w1 · `fiscal-backend/internal/domain/`
+**money.go создан.** Нужна миграция:
+- ~20 вызовов `receiptMoneyCents`/`parseFixed` в `service.go`, `edge_sync*.go`, `exports.go`,
+  `receipt_saga.go`, `delegated_sale_prepare.go` → заменить на `ParseMoney`/`Cents`
+- Ни один `strconv.ParseFloat` или `float64` не должен остаться в пакете
 
-### BUG-011 · P1 · `fiscal-backend/internal/auth/`
+```bash
+grep -rn 'receiptMoneyCents\|parseFixed\|ParseFloat\|float64' fiscal-backend/internal/domain/
+```
 
-**BLOCKED в прошлой сессии.** `HMAC_ADMIN_FORBIDDEN` не существует в коде.
+### 4. DSY-02 · P0 · w3 · `IoT/protocol-abstraction/`, `IoT/firmware/edge-agent-s3/`
+**Харнесы DSY-02.1-2 зелёные.** Нужна реализация:
+- **DSY-02.1** — `FrameCodec.cpp::DaisyCodec::decode`: валидация SEQ 0x20…0xFF (не 0x7F!)
+  и LEN = data+0x24 (не 0x2A); текст CP1251
+- **DSY-02.2** — `serial_exchange.cpp`: тот же SEQ-диапазон на уровне S3
 
-**Осталось (все 3 подзадачи):**
-- **11.1** — в `auth.go:55-58` добавить: если токен HMAC и среда PROD и роль ADMIN/PLATFORM_* →
-  вернуть ошибку `HMAC_ADMIN_FORBIDDEN`
-- **11.2** — проверить `exp-iat ≤ 24h` и поле `nbf`; харнес `test_bug_011_2.py`
-- **11.3** — acceptance; харнес `test_bug_011_3.py`
+```bash
+python3 docs/MVP1/tools/task-pack.py DSY-02
+bash IoT/protocol-abstraction/run-tests.sh
+```
+
+### 5. BP-02 · P0 · w3 · `IoT/firmware/edge-agent-s3/idf/main/`
+**BP-02.1 сделан (72 золотых кадра в fixtures).** Нужно:
+- **BP-02.2** — `bluepad_ble_central.cpp::packet()`: сверить XOR с golden-файлом
+- **BP-02.3** — `startVoidPurchase(amountCents,rrn,authId)` → теги 81, DF01, DF02
+
+```bash
+python3 docs/MVP1/tools/task-pack.py BP-02
+bash IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh
+```
+
+### 6. BUG-011 · P1 · w1 · `fiscal-backend/internal/auth/`
+**Харнесы 1-3 зелёные.** Нужна реализация в `auth.go`:
+- **11.1** — если токен HMAC + среда PROD + роль ADMIN/PLATFORM_* → ошибка `HMAC_ADMIN_FORBIDDEN`
+- **11.2** — проверить `exp-iat ≤ 24h` и поле `nbf`
+- **11.3** — acceptance
 
 ```bash
 python3 docs/MVP1/tools/task-pack.py BUG-011
 ```
 
----
-
-### BUG-005 · P1 · `fiscal-backend/internal/`
-
-**Сделано:** subtask 5 — `TestDeviceTimeReturnsErrorWhenNotMeasured` в `client_test.go`.
-
-**Осталось (subtasks 1-4, 6):**
-- WARN при дрейфе >5 мин, BLOCK при >2 ч до card/fiscal I/O
-- `business_date` Europe/Sofia с учётом DST
-- host-clock fallback отвергнут (используется только часовой пояс ФУ)
-- Тесты: `TestClockDriftOver5MinWarn`, `TestClockDriftOver2HBlock`, `TestBusinessDateTimezone`
+### 7. BUG-054 · P1 · w5 · `POS/pos-app/` (TypeScript)
+- **54.2** — сделан `AbortController` 4 с на чтение (уточнить)
+- **54.3** — таймаут записи → `FiscalUnknownError(operationId)` (UNKNOWN ≠ FAILED!)
 
 ```bash
-python3 docs/MVP1/tools/task-pack.py BUG-005
+python3 docs/MVP1/tools/task-pack.py BUG-054
+cd POS/pos-app && npx jest
+```
+
+### 8. BUG-059 · P1 · w5 · `POS/pos-gateway/` (Go)
+- **59.1-59.4** — DLX `beeloy.dlx`, DLQ `pos-gateway.fiscal-results.dlq`;
+  `Nack(false,false)` для невалидных конвертов
+
+```bash
+python3 docs/MVP1/tools/task-pack.py BUG-059
 ```
 
 ---
 
-### BUG-032 · P1 · `SmartDevices/bluecash-app/`
+## NOT_STARTED с высоким приоритетом (волна ≤ 2)
 
-**Сделано:** BLUETOOTH_SCAN и BLUETOOTH_CONNECT в `AndroidManifest.xml`.
-
-**Осталось (6 подзадач):**
-- **32.1** — дополнить манифест: `FOREGROUND_SERVICE`, `FOREGROUND_SERVICE_CONNECTED_DEVICE`,
-  `RECEIVE_BOOT_COMPLETED`, `POST_NOTIFICATIONS`, `WAKE_LOCK`; объявить `BlueCashRuntimeService`
-  и `BootReceiver`; харнес `test_bug_032_1.py`
-- **32.2** — создать `BlueCashRuntimeService : Service` со `startForeground`
-- **32.3** — перенести `startManagedRuntime` из `MainActivity` → `RuntimeHost`
-- **32.4** — тест (уточнить из BUG-032.md)
-- **32.5** — пароль оператора: `inputType=textPassword` + Keystore-обёртка
-- **32.6** — HTTP 8088: bind только на разрешённый интерфейс
-
-```bash
-python3 docs/MVP1/tools/task-pack.py BUG-032
-```
+| ID | P | w | Суть |
+|---|---|---|---|
+| W0-1 | P0 | 0 | MASTER_PLAN.md — критический обзор |
+| W0-2 | P0 | 0 | ARCH_07 — критический обзор план 70% |
+| W0-3 | P0 | 0 | ARCH_03 — E2E тест-матрица |
+| NAP-N0 | P0 | 0 | Скачать актуальный Н-18, ДВ 115/2025, ДВ 82/2026 |
+| SCR-40 | P0 | 0 | HIL-скрипт: fixtures + парсер ARCH_19 |
+| TG-007 | P0 | 2 | POS: FiscalIntentPayload JSON-схема + contract-test |
+| TG-001 | P0 | 2 | Postgres: `TestRestartKeepsReservedOperations` + WithTx |
+| ARCH-001 | P0 | 2 | domain: нормализованные таблицы (зависит от TG-001) |
 
 ---
 
-## IN_PROGRESS в status.json (не трогали)
+## Заблокировано (не трогать)
 
-| ID | P | Описание |
-|---|---|---|
-| ARCH-004 | P1 | money.go — перевести 20 вызовов receiptMoneyCents/parseFixed |
-| BUG-054 | P1 | POS: разбор ответа + UNKNOWN при таймауте AbortController |
-| BUG-059 | P1 | POS-gateway: inbox + топология fiscal.operation.result.# |
-| TG-009 | P1 | reversal_policy.go: осталось спец. УНП сторно |
-| PA-03 | P0 | нормализация словаря статусов в общем пути |
-| DSY-02 | P0 | Daisy-кодек: SEQ-диапазон на S3, CP1251 в C++ |
-| BP-02 | P0 | 72 золотых кадра DatecsPay: тест библиотеки + сверка с PDF |
-| SMS-01 | P1 | Smart S: ждёт DOC-V4/V4B |
-
----
-
-## Приоритет следующей сессии
-
-1. **BUG-026.3** (P0) — закрыть: прогнать `./gradlew :bluecash-app:test` и создать harness
-2. **BUG-003.5-6** (P0) — дочитать BUG-003.md, создать 2 харнеса
-3. **BUG-011.1-3** (P1) — реализация HMAC_ADMIN_FORBIDDEN в auth.go
-4. **DSY-02** (P0) — SEQ-диапазон Daisy + CP1251 в C++
-5. **BUG-005.1-4,6** (P1) — WARN/BLOCK clock sync
-6. **BUG-032.1-2** (P1) — манифест + BlueCashRuntimeService
-
----
-
-## Baseline-команды для проверки в начале сессии
-
-```bash
-# Python-харнесы (23 штуки должны пройти)
-cd /Users/freelancer/Documents/Beeloy/Fiscalisation
-python3 -m pytest tests/mvp1/ -q
-
-# Go unit tests (domain + api)
-cd fiscal-backend && go test \
-  -run '^(TestMoneyRoundingGolden|TestReceiptMoneyCentsRejectsSignedAndMalformed\
-|TestValidateReceiptPlanRejectsItemsTotalMismatch|TestValidMoney\
-|TestOperationSimulatedFlagFollowsDriver|TestExportOperationIsNeverSimulated\
-|TestReverseUsesFiscalDocumentTimestamp|TestReadyzFails|TestReadyzOK)$' \
-  ./internal/domain/ ./internal/api/ -count=1
-
-# Gradle (BlueCash)
-cd /Users/freelancer/Documents/Beeloy/Fiscalisation/SmartDevices
-./gradlew :bluecash-app:testProdDebugUnitTest --no-daemon 2>&1 | tail -5
-```
+| ID | Причина |
+|---|---|
+| DOC-V4 / SMS-01.2 | ждёт vendor-ответов Q-S1..Q-S8, Q-P1..Q-P6 |
+| PA-03 | внешний репо `../BeeloyBackend/` |
+| TG-009 SR-05..11 | GAP — специальные УНП, нужна инструкция НАП |
 
 ---
 
 ## Инварианты — не нарушать
 
-1. Деньги только целые центы; half-up `(unit¢×qty_milli+500)/1000`.
+1. Деньги — только целые центы; half-up `(unit¢×qty_milli+500)/1000`.
 2. UNKNOWN ≠ FAILED: после таймаута — только lookup, без повтора и без возврата.
 3. Сторно-first: возврат по карте только после подтверждённого фискального сторно.
 4. Повтор с тем же ключом не создаёт второй документ.
 5. Ошибка хранилища останавливает денежный побочный эффект.
 6. Номер документа — только из ответа ФУ.
-7. Секреты не коммитить и не логировать.
-8. Числа в тестах — из `docs/MVP1/fixtures/*` или золотого чека (1367¢ = 1200+167).
+7. Datecs: LEN=data+0x2A, SEQ 0x20…0x7F. Daisy: LEN=data+0x24, SEQ 0x20…0xFF.
+8. Секреты не коммитить и не логировать.
+9. Числа в тестах — из `docs/MVP1/fixtures/*` или золотого чека (1367¢ = 1200+167).
+10. Парсеры не бросают исключения наружу: кадр или типизированная ошибка.
