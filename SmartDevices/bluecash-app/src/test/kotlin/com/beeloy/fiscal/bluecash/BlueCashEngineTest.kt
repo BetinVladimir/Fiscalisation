@@ -265,6 +265,74 @@ class BlueCashEngineTest {
     assertEquals("BON-42", result["fiscal_reference"])
   }
 
+  // BUG-020.5: open-receipt cancellation on failure ────────────────────────────
+
+  /** Configurable fake port: specific commands throw the given exception. */
+  private class FailAtPort(private val failMap: Map<Int, Throwable>) : DatecsFiscalPort {
+    val calls = mutableListOf<Int>()
+    override fun reachable() = true
+    override fun execute(command: Int, payload: ByteArray): DatecsResponse {
+      calls += command
+      failMap[command]?.let { throw it }
+      return DatecsResponse(0x20, command,
+        if (command == 56) "0\tBON-42\t".toByteArray() else "0\t".toByteArray(),
+        byteArrayOf())
+    }
+  }
+
+  private fun cashSale(operationId: String = "op-1") = BlueCashSale(
+    operationId, "DY000600-OP01-0000001", 1, "1", 24,
+    listOf(FiscalLine("Coffee", 'B', "2.65", "1.000")),
+    listOf(SalePayment("p", "CASH", "2.65"))
+  )
+
+  @Test
+  fun saleCancelsOpenReceiptWhenLineRejected() {
+    val f = FailAtPort(mapOf(49 to DatecsFailure.Rejected(22, "-111")))
+    val j = SignedMemoryJournal(Signer())
+    val result = BlueCashCommandProcessor(f, Card(), j).sale(cashSale())
+    assertEquals(listOf(48, 49, DatecsPayloads.CMD_CANCEL_RECEIPT), f.calls)
+    assertEquals("FAILED", result["state"])
+    assertEquals("-111", result["error_code"])
+    assertTrue(j.find("op-1").any { it.type == "RECEIPT_CANCELLED" })
+  }
+
+  @Test
+  fun saleCancelsOpenReceiptWhenPaymentRejected() {
+    val f = FailAtPort(mapOf(53 to DatecsFailure.Rejected(22, "-112")))
+    val j = SignedMemoryJournal(Signer())
+    val result = BlueCashCommandProcessor(f, Card(), j).sale(cashSale())
+    assertEquals(listOf(48, 49, 53, DatecsPayloads.CMD_CANCEL_RECEIPT), f.calls)
+    assertEquals("FAILED", result["state"])
+    assertEquals("-112", result["error_code"])
+    assertTrue(j.find("op-1").any { it.type == "RECEIPT_CANCELLED" })
+  }
+
+  @Test
+  fun saleDoesNotBlindCancelOnUnknown() {
+    // EOF after payment (cmd 53) → Unknown → no cancel, no card reversal.
+    val f = FailAtPort(mapOf(53 to DatecsFailure.Unknown("DATECS_EOF")))
+    val j = SignedMemoryJournal(Signer())
+    val result = BlueCashCommandProcessor(f, Card(), j).sale(cashSale())
+    assertEquals(listOf(48, 49, 53), f.calls)
+    assertEquals("UNKNOWN", result["state"])
+    assertFalse(j.find("op-1").any { it.type == "RECEIPT_CANCELLED" })
+  }
+
+  @Test
+  fun cancelFailureIsJournaled() {
+    // Line rejected AND cancel also fails → RECOVERY_REQUIRED, RECEIPT_CANCEL_FAILED in journal.
+    val f = FailAtPort(mapOf(
+      49 to DatecsFailure.Rejected(22, "-111"),
+      DatecsPayloads.CMD_CANCEL_RECEIPT to DatecsFailure.Unknown("DATECS_EOF")
+    ))
+    val j = SignedMemoryJournal(Signer())
+    val result = BlueCashCommandProcessor(f, Card(), j).sale(cashSale())
+    assertEquals("RECOVERY_REQUIRED", result["state"])
+    assertTrue(j.find("op-1").any { it.type == "RECEIPT_CANCEL_FAILED" })
+    assertFalse(j.find("op-1").any { it.type == "RECEIPT_CANCELLED" })
+  }
+
   @Test
   fun emptyCloseResponseIsNotSuccess() {
     val blankFiscal = object : DatecsFiscalPort {

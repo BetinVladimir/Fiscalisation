@@ -135,6 +135,10 @@ object DatecsPayloads {
     require(money.matches(amount))
     return bytes(if (out) "1" else "0", amount)
   }
+  /** Datecs Communication Protocol v2.11.4 §4.21 — cancel an open fiscal receipt. */
+  const val CMD_CANCEL_RECEIPT = 60
+  fun cancelReceipt(): ByteArray = byteArrayOf()
+
   /** Datecs command 43, Communication Protocol v2.11.4 section 4.6. */
   fun stornoOpen(
     operator: Int,

@@ -38,6 +38,19 @@ class DatecsProtocolTest {
     assertEquals(19, frame.size)
   }
 
+  // BUG-020.1: CMD_CANCEL_RECEIPT (§4.21) is command 60 with empty payload.
+  @Test fun `cancelReceipt encodes command 60 with empty payload`() {
+    assertEquals(60, DatecsPayloads.CMD_CANCEL_RECEIPT)
+    val payload = DatecsPayloads.cancelReceipt()
+    assertEquals(0, payload.size)
+    // Encode produces a valid Datecs request frame (SOH … ETX).
+    val frame = DatecsFrameCodec.encode(0x20, DatecsPayloads.CMD_CANCEL_RECEIPT, payload)
+    assertEquals(1, frame.first().toInt())   // SOH
+    assertEquals(3, frame.last().toInt())    // ETX
+    // Empty-data frame: 1(SOH)+4(LEN)+1(SEQ)+4(CMD)+0(data)+1(ENQ)+4(BCC)+1(ETX) = 16 bytes.
+    assertEquals(16, frame.size)
+  }
+
   @Test fun `payloads match Datecs documentation vectors`() {
     assertEquals(
         "1\t1\tDY000600-OP01-0000001\t24\t\t",

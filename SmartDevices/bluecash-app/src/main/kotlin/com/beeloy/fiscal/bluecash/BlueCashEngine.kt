@@ -194,8 +194,10 @@ class BlueCashCommandProcessor(
     require(fiscal.reachable()) { "FISCAL_DEVICE_UNREACHABLE" }
     journal.append(operationId, "ACCEPTED", acceptedEvidence)
     journal.append(operationId, "EXECUTING", "state=EXECUTING")
+    var receiptOpened = false
     return try {
       ok(fiscal.execute(38))
+      receiptOpened = true
       ok(fiscal.execute(42, "BEELOY PRINTER TEST\t\t\t\t\t\t".toByteArray()))
       ok(fiscal.execute(39))
       mapOf("state" to "PRINTER_TESTED").also {
@@ -203,6 +205,17 @@ class BlueCashCommandProcessor(
       }
     } catch (e: Throwable) {
       val unknown = classified(e) == Outcome.UNKNOWN
+      if (receiptOpened && !unknown) {
+        val cancelOk = runCatching { fiscal.execute(DatecsPayloads.CMD_CANCEL_RECEIPT) }.isSuccess
+        if (cancelOk) {
+          journal.append(operationId, "RECEIPT_CANCELLED", "state=RECEIPT_CANCELLED")
+        } else {
+          journal.append(operationId, "RECEIPT_CANCEL_FAILED", "state=RECEIPT_CANCEL_FAILED")
+          val result = mapOf("state" to "RECOVERY_REQUIRED", "error_code" to "RECEIPT_CANCEL_FAILED")
+          journal.append(operationId, "RECOVERY_REQUIRED", encode(result))
+          return result
+        }
+      }
       val result =
         mapOf(
           "state" to if (unknown) "UNKNOWN" else "FAILED",
@@ -236,6 +249,7 @@ class BlueCashCommandProcessor(
     journal.append(command.operationId, "ACCEPTED", acceptedEvidence)
     journal.append(command.operationId, "EXECUTING", "state=EXECUTING")
     val approvedCardPayments = mutableListOf<SalePayment>()
+    var receiptOpened = false
     return try {
       for (p in command.payments.filter { it.type == "CARD" }) {
         require(card.reachable()) { "PAYMENT_TERMINAL_UNREACHABLE" }
@@ -259,6 +273,7 @@ class BlueCashCommandProcessor(
           DatecsPayloads.open(command.operator, command.password, command.unp, command.till)
         )
       )
+      receiptOpened = true
       command.lines.forEach { ok(fiscal.execute(49, DatecsPayloads.line(it))) }
       command.payments.forEach { ok(fiscal.execute(53, DatecsPayloads.payment(datecsPaymentMode(it.type), it.amount))) }
       val closed = ok(fiscal.execute(56))
@@ -273,6 +288,17 @@ class BlueCashCommandProcessor(
       }
     } catch (e: Throwable) {
       val unknown = classified(e) == Outcome.UNKNOWN
+      if (receiptOpened && !unknown) {
+        val cancelOk = runCatching { fiscal.execute(DatecsPayloads.CMD_CANCEL_RECEIPT) }.isSuccess
+        if (cancelOk) {
+          journal.append(command.operationId, "RECEIPT_CANCELLED", "state=RECEIPT_CANCELLED")
+        } else {
+          journal.append(command.operationId, "RECEIPT_CANCEL_FAILED", "state=RECEIPT_CANCEL_FAILED")
+          val result = mapOf("state" to "RECOVERY_REQUIRED", "error_code" to "RECEIPT_CANCEL_FAILED")
+          journal.append(command.operationId, "RECOVERY_REQUIRED", encode(result))
+          return result
+        }
+      }
       if (approvedCardPayments.isNotEmpty()) {
         journal.append(
           command.operationId,
@@ -326,6 +352,7 @@ class BlueCashCommandProcessor(
     require(fiscal.reachable()) { "FISCAL_DEVICE_UNREACHABLE" }
     journal.append(command.operationId, "ACCEPTED", acceptedEvidence)
     journal.append(command.operationId, "EXECUTING", "state=EXECUTING")
+    var receiptOpened = false
     return try {
       for (p in command.payments.filter { it.type == "CARD" }.asReversed()) {
         require(card.reachable()) { "PAYMENT_TERMINAL_UNREACHABLE" }
@@ -353,6 +380,7 @@ class BlueCashCommandProcessor(
           )
         )
       )
+      receiptOpened = true
       command.lines.forEach { ok(fiscal.execute(49, DatecsPayloads.line(it))) }
       command.payments.forEach { ok(fiscal.execute(53, DatecsPayloads.payment(datecsPaymentMode(it.type), it.amount))) }
       val closed = ok(fiscal.execute(56))
@@ -367,6 +395,17 @@ class BlueCashCommandProcessor(
       }
     } catch (e: Throwable) {
       val unknown = classified(e) == Outcome.UNKNOWN
+      if (receiptOpened && !unknown) {
+        val cancelOk = runCatching { fiscal.execute(DatecsPayloads.CMD_CANCEL_RECEIPT) }.isSuccess
+        if (cancelOk) {
+          journal.append(command.operationId, "RECEIPT_CANCELLED", "state=RECEIPT_CANCELLED")
+        } else {
+          journal.append(command.operationId, "RECEIPT_CANCEL_FAILED", "state=RECEIPT_CANCEL_FAILED")
+          val result = mapOf("state" to "RECOVERY_REQUIRED", "error_code" to "RECEIPT_CANCEL_FAILED")
+          journal.append(command.operationId, "RECOVERY_REQUIRED", encode(result))
+          return result
+        }
+      }
       val result =
         mapOf(
           "state" to if (unknown) "UNKNOWN" else "FAILED",
