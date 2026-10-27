@@ -449,6 +449,35 @@ class BlueCashEngineTest {
     assertEquals("БОН-42", result["fiscal_reference"])
   }
 
+  // ── BUG-025: COMPENSATED and RECOVERY_REQUIRED must be terminal idempotency states ──
+
+  @Test fun `replayOfCompensatedSaleReturnsCompensated`() {
+    val f = Fiscal().apply { fail = true }
+    val j = SignedMemoryJournal(Signer())
+    val p = BlueCashCommandProcessor(f, Card(), j)
+    val first = p.sale(sale())
+    assertEquals("COMPENSATED", first["state"])
+    // Replay with same operationId must return COMPENSATED, not try again.
+    val second = p.sale(sale())
+    assertEquals("replay must return COMPENSATED", "COMPENSATED", second["state"])
+  }
+
+  @Test fun `replayOfRecoveryRequiredReturnsRecoveryRequired`() {
+    // After a timeout on cmd56, state is RECOVERY_REQUIRED.
+    val blankFiscal = object : DatecsFiscalPort {
+      override fun reachable() = true
+      override fun execute(command: Int, payload: ByteArray): DatecsResponse =
+        if (command == 56) DatecsResponse(0x20, command, "0\t\t".toByteArray(), byteArrayOf())
+        else DatecsResponse(0x20, command, "0\t".toByteArray(), byteArrayOf())
+    }
+    val j = SignedMemoryJournal(Signer())
+    val p = BlueCashCommandProcessor(blankFiscal, Card(), j)
+    val first = p.sale(sale())
+    assertEquals("RECOVERY_REQUIRED", first["state"])
+    val second = p.sale(sale())
+    assertEquals("replay must return RECOVERY_REQUIRED", "RECOVERY_REQUIRED", second["state"])
+  }
+
   // ── BUG-022: payload validation must happen before card purchase ─────────────
 
   @Test fun `salePrevalidatesAllPayloadsBeforeCardPurchase`() {

@@ -144,6 +144,13 @@ class BlueCashCommandProcessor(
 ) {
   /** Single lock for sale/reverse/printerTest — one FU, one executor (BUG-072). */
   private val lock = ReentrantLock()
+
+  companion object {
+    /** Terminal states for sale idempotency check (BUG-025). */
+    val SALE_TERMINAL = setOf(
+      "FISCALIZED", "FAILED", "UNKNOWN", "COMPENSATED", "RECOVERY_REQUIRED"
+    )
+  }
   fun fiscalReachable() = fiscal.reachable()
   fun paymentReachable() = card.reachable()
   fun administrative(
@@ -246,7 +253,7 @@ class BlueCashCommandProcessor(
       .firstOrNull { it.type == "ACCEPTED" }
       ?.let { require(it.payload == acceptedEvidence) { "COMMAND_ID_PAYLOAD_CONFLICT" } }
     old
-      .lastOrNull { it.type in setOf("FISCALIZED", "FAILED", "UNKNOWN") }
+      .lastOrNull { it.type in SALE_TERMINAL }
       ?.let {
         return@withLock parse(it.payload)
       }
