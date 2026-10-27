@@ -117,6 +117,9 @@ object DatecsText {
 object DatecsPayloads {
   private val money = Regex("[0-9]{1,5}\\.[0-9]{2}")
   private val quantity = Regex("[0-9]{1,5}\\.[0-9]{3}")
+  // BG UNP format: 2 uppercase letters + 6 digits + hyphen + 4 alphanumeric + hyphen + 7 digits
+  private val unpRegex = Regex("[A-Z]{2}[0-9]{6}-[A-Z0-9]{4}-[0-9]{7}")
+  private val percentRegex = Regex("(100\\.00|[0-9]{1,2}\\.[0-9]{2})")
   private fun bytes(vararg fields: String) =
     DatecsText.encode(fields.joinToString("\t", postfix = "\t"))
   fun open(
@@ -129,9 +132,9 @@ object DatecsPayloads {
     require(
       operator in 1..30 &&
         password.matches(Regex("[0-9]{1,8}")) &&
-        unp.length in 8..64 &&
+        unpRegex.matches(unp) &&
         till in 1..99999
-    )
+    ) { "OPEN_INVALID:operator=$operator,unp=$unp,till=$till" }
     return bytes("$operator", password, unp, "$till", if (invoice) "I" else "")
   }
   fun line(v: FiscalLine): ByteArray {
@@ -144,7 +147,16 @@ object DatecsPayloads {
         v.discountType in 0..4 &&
         v.department in 0..99
     )
-    if (v.discountType != 0) require(money.matches(v.discountValue))
+    if (v.discountType in 1..2) {
+      // Percentage discount: must be 0.01-100.00
+      require(percentRegex.matches(v.discountValue)) { "PAYLOAD_INVALID:discount_percent" }
+      val pct = v.discountValue.toBigDecimal()
+      require(pct >= java.math.BigDecimal("0.01") && pct <= java.math.BigDecimal("100.00")) {
+        "PAYLOAD_INVALID:discount_percent_range"
+      }
+    } else if (v.discountType in 3..4) {
+      require(money.matches(v.discountValue)) { "PAYLOAD_INVALID:discount_value" }
+    }
     return bytes(
       v.name,
       "${v.taxGroup-'A'+1}",
@@ -242,6 +254,56 @@ object DatecsTimeouts {
 }
 
 /**
+ * Validates a DatecsResponse: requires at least [expectedFields] tab-separated fields in the data,
+ * and that the first field is the decimal string "0" (no error). (VG-02.3)
+ *
+ * Empty data always fails when expectedFields > 0.
+ * Non-zero first field throws DatecsFailure.Rejected with its integer value.
+ */
+fun DatecsResponse.requireOk(expectedFields: Int = 1): DatecsResponse {
+    require(expectedFields >= 1) { "expectedFields must be >= 1" }
+    val text = DatecsText.decode(data)
+    if (text.isEmpty()) throw DatecsFailure.Rejected(0, "DATECS_EMPTY_RESPONSE")
+    val fields = text.split('\t')
+    if (fields.size < expectedFields) {
+        throw DatecsFailure.Rejected(0, "DATECS_MISSING_FIELDS:expected=$expectedFields,got=${fields.size}")
+    }
+    val errorCode = fields[0].toIntOrNull()
+        ?: throw DatecsFailure.Rejected(0, "DATECS_ERROR_CODE_NOT_INT:${fields[0]}")
+    if (errorCode != 0) throw DatecsFailure.Rejected(errorCode, "DATECS_ERROR:$errorCode")
+    return this
+}
+
+/**
+ * Parsed representation of the 8 status bytes returned by the fiscal device (VG-02.1).
+ *
+ * Datecs status bytes layout (FP-800 / FP-2000 series):
+ *   Byte 0 (S0): bit5=error, bit4=fiscal-memory-full, bit1=near-paper-end, bit0=paper-out
+ *   Byte 2 (S2): bit5=error, bit4=open-fiscal-memory, bit1=payment-open
+ *   Bytes 1,3,5,7 are reserved/device-specific
+ * fatal = any error bit (bit5) set in any status byte
+ * warning = any non-fatal advisory bit set (e.g. near-paper-end)
+ */
+data class DatecsStatus(val raw: ByteArray) {
+    init { require(raw.size == 8) { "DatecsStatus: expected 8 bytes, got ${raw.size}" } }
+
+    /** True if any byte has the error flag (bit 5 = 0x20) set. */
+    val fatal: Boolean get() = raw.any { (it.toInt() and 0x20) != 0 }
+
+    /** True if advisory flags are set (near-paper-end bit1 of byte0, or fiscal-memory-full bit4). */
+    val warning: Boolean get() =
+        (raw[0].toInt() and 0x02) != 0 ||   // near end of paper
+        (raw[0].toInt() and 0x10) != 0       // fiscal memory almost full
+
+    companion object {
+        fun parse(bytes: ByteArray): DatecsStatus = DatecsStatus(bytes)
+    }
+
+    override fun equals(other: Any?) = other is DatecsStatus && raw.contentEquals(other.raw)
+    override fun hashCode() = raw.contentHashCode()
+}
+
+/**
  * Types defined here (BUG-028) so callers like BlueCashEngine can use
  * `when` pattern matching instead of error-message text.
  */
@@ -264,7 +326,7 @@ class DatecsSocketProtocol(
   private val output: OutputStream,
   internal val timeoutFor: (Int) -> Long = { cmd -> DatecsTimeouts.forCommand(cmd).toMillis() }
 ) {
-  private var sequence = 0x20
+  internal var sequence = 0x20
 
   private companion object {
     val READER = Executors.newCachedThreadPool { r ->
