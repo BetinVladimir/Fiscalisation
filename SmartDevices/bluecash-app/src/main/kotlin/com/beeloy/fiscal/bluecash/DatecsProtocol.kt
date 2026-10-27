@@ -7,6 +7,12 @@ import java.nio.CharBuffer
 import java.nio.charset.CharacterCodingException
 import java.nio.charset.Charset
 import java.nio.charset.CodingErrorAction
+import java.time.Duration
+import java.util.concurrent.Callable
+import java.util.concurrent.ExecutionException
+import java.util.concurrent.Executors
+import java.util.concurrent.TimeUnit
+import java.util.concurrent.TimeoutException
 
 data class DatecsResponse(
   val sequence: Int,
@@ -202,6 +208,16 @@ object DatecsPayloads {
   }
 }
 
+object DatecsTimeouts {
+  private val REPORT = setOf(69, 70)
+  private val RECEIPT = setOf(38, 39, 42, 43, 48, 49, 53, 56, 57, 60)
+  fun forCommand(cmd: Int): Duration = when (cmd) {
+    in REPORT -> Duration.ofSeconds(120)
+    in RECEIPT -> Duration.ofSeconds(30)
+    else -> Duration.ofSeconds(5)
+  }
+}
+
 /**
  * Types defined here (BUG-028) so callers like BlueCashEngine can use
  * `when` pattern matching instead of error-message text.
@@ -220,36 +236,92 @@ sealed class DatecsFailure(msg: String) : RuntimeException(msg) {
   class FrameTooLarge(msg: String) : DatecsFailure(msg)
 }
 
-class DatecsSocketProtocol(private val input: InputStream, private val output: OutputStream) {
+class DatecsSocketProtocol(
+  private val input: InputStream,
+  private val output: OutputStream,
+  internal val timeoutFor: (Int) -> Long = { cmd -> DatecsTimeouts.forCommand(cmd).toMillis() }
+) {
   private var sequence = 0x20
+
+  private companion object {
+    val READER = Executors.newCachedThreadPool { r ->
+      Thread(r).also { it.isDaemon = true; it.name = "datecs-reader" }
+    }
+  }
+
+  private data class ResponseOrNak(val isNak: Boolean, val frame: ByteArray?)
+
+  private fun readResponse(): ResponseOrNak {
+    val frame = ArrayList<Byte>()
+    while (true) {
+      val b = input.read()
+      if (b < 0) throw DatecsFailure.Unknown("DATECS_EOF")
+      when {
+        b == 0x15 && frame.isEmpty() -> return ResponseOrNak(isNak = true, frame = null)
+        b == 0x16 -> frame.clear()
+        frame.isEmpty() && b != 1 -> Unit  // garbage before SOH
+        else -> {
+          frame += b.toByte()
+          if (b == 3) break
+          if (frame.size > 1024) throw DatecsFailure.FrameTooLarge("DATECS_FRAME_TOO_LARGE")
+        }
+      }
+    }
+    return ResponseOrNak(isNak = false, frame = frame.toByteArray())
+  }
+
   @Synchronized
   fun execute(command: Int, payload: ByteArray = byteArrayOf()): DatecsResponse {
     val expected = sequence
+    val encodedFrame = try {
+      DatecsFrameCodec.encode(expected, command, payload)
+    } catch (e: IllegalArgumentException) {
+      throw DatecsFailure.NotSent("encode", e.message ?: "DATECS_FRAME_FIELDS")
+    }
     try {
-      output.write(DatecsFrameCodec.encode(expected, command, payload))
+      output.write(encodedFrame)
       output.flush()
     } catch (e: IOException) {
       throw DatecsFailure.NotSent("write", e.message ?: "DATECS_WRITE_ERROR")
     } catch (e: SecurityException) {
       throw DatecsFailure.NotSent("write", "DATECS_WRITE_DENIED")
     }
-    val frame = ArrayList<Byte>()
-    try {
-      while (true) {
-        val b = input.read()
-        if (b < 0) throw DatecsFailure.Unknown("DATECS_EOF")
-        frame += b.toByte()
-        if (b == 3) break
-        require(frame.size <= 1024) { DatecsFailure.FrameTooLarge("DATECS_FRAME_TOO_LARGE") }
+    val timeoutMs = timeoutFor(command)
+    var retransmits = 0
+    while (true) {
+      val future = READER.submit(Callable { readResponse() })
+      val response: ResponseOrNak
+      try {
+        response = future.get(timeoutMs, TimeUnit.MILLISECONDS)
+      } catch (e: TimeoutException) {
+        future.cancel(true)
+        runCatching { input.close() }
+        throw DatecsFailure.Unknown("DATECS_TIMEOUT")
+      } catch (e: ExecutionException) {
+        val cause = e.cause
+        if (cause is DatecsFailure) throw cause
+        throw DatecsFailure.Unknown(cause?.message ?: "DATECS_UNKNOWN")
       }
-    } catch (e: DatecsFailure) { throw e }  // pass-through
-    val result =
-      try { DatecsFrameCodec.decode(frame.toByteArray()) }
-      catch (e: IllegalArgumentException) { throw DatecsFailure.BadFrame(e.message ?: "DATECS_DECODE_ERROR") }
-    if (result.sequence != expected || result.command != command) {
-      throw DatecsFailure.CorrelationError("DATECS_CORRELATION")
+      if (response.isNak) {
+        if (++retransmits >= 3) throw DatecsFailure.Unknown("DATECS_NAK_MAX_RETRANSMIT")
+        try {
+          output.write(encodedFrame)
+          output.flush()
+        } catch (e: IOException) {
+          throw DatecsFailure.Unknown("DATECS_RETRANSMIT_FAILED")
+        }
+        continue
+      }
+      val result = try {
+        DatecsFrameCodec.decode(response.frame!!)
+      } catch (e: IllegalArgumentException) {
+        throw DatecsFailure.BadFrame(e.message ?: "DATECS_DECODE_ERROR")
+      }
+      if (result.sequence != expected || result.command != command) {
+        throw DatecsFailure.CorrelationError("DATECS_CORRELATION")
+      }
+      sequence = if (sequence == 0x7f) 0x20 else sequence + 1
+      return result
     }
-    sequence = if (sequence == 0x7f) 0x20 else sequence + 1
-    return result
   }
 }
