@@ -172,9 +172,8 @@ class BlueCashEngineTest {
     val anchor = j.append("op", "FISCALIZED", "state=FISCALIZED")
     now = Instant.parse("2026-05-01T00:00:00Z")
     assertEquals(0, j.purgeBefore(now.minusSeconds(90L * 86400)))
-    val transportHash = "a".repeat(64)
-    j.acknowledge(anchor.sequence, transportHash, "ack")
-    assertEquals(transportHash, j.checkpoint().second)
+    j.acknowledge(anchor.sequence, anchor.hash, "ack")
+    assertEquals(anchor.hash, j.checkpoint().second)
     assertEquals(1, j.purgeBefore(now.minusSeconds(90L * 86400)))
     assertEquals(listOf(anchor.sequence), j.find("op").map { it.sequence })
   }

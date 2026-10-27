@@ -108,12 +108,10 @@ class SignedMemoryJournal(
   private var acknowledgedHash: String? = null
   override fun acknowledge(throughSequence: Long, hash: String, ackId: String) {
     synchronized(rows) {
-      require(
-        throughSequence >= acknowledgedThrough &&
-          rows.any { it.sequence == throughSequence } &&
-          hash.matches(Regex("[0-9a-f]{64}")) &&
-          ackId.isNotBlank()
-      )
+      require(throughSequence >= acknowledgedThrough && ackId.isNotBlank()) { "ACK_INVALID" }
+      val stored = rows.firstOrNull { it.sequence == throughSequence }
+      require(stored != null) { "ACK_SEQUENCE_UNKNOWN" }
+      require(stored.hash == hash) { "ACK_HASH_MISMATCH" }
       acknowledgedThrough = throughSequence
       acknowledgedHash = hash
     }
