@@ -1,146 +1,113 @@
 # NEXT_SESSION_PLAN — план для следующей сессии (обновлён 2026-10-27)
 
-Ветка: `docs/mvp1-delivery-pipeline-and-test-review`  
-Последний коммит в Fiscalisation: `fdec71c`  
-Последний коммит в POS: не коммичено (см. ниже)
+Ветки:
+- `Fiscalisation`: `docs/mvp1-delivery-pipeline-and-test-review` (последний коммит: `d7554d3`)
+- `POS`: `main` (последний коммит: `c5b2e9b`)
 
 ---
 
-## Шаг 0 — закоммитить накопленные правки (до любой работы)
-
-В Fiscalisation есть незакоммиченные изменения:
-
-```bash
-# Проверить
-cd /Users/freelancer/Documents/Beeloy/Fiscalisation
-git status --short
-
-# Закоммитить (по одному блоку):
-git add fiscal-backend/internal/domain/money_test.go
-git add fiscal-backend/cmd/fiscal-backend/repo.go fiscal-backend/cmd/fiscal-backend/main_test.go
-git add IoT/common-modules/datecspay/tests/DatecsPayTest.cpp
-git commit -m "Fix ARCH-004 money_test, add TG-001.6 repo guard, BP-02.3 void-purchase tag order"
-```
-
-В POS (отдельный git):
-```bash
-cd /Users/freelancer/Documents/Beeloy/POS
-git add docs/contracts/ pos-gateway/internal/contracts/ Makefile
-git commit -m "TG-007: FiscalIntentPayload schema, lock, contract tests, Makefile"
-```
-
----
-
-## Baseline — проверить перед работой
+## Baseline — проверить в начале сессии
 
 ```bash
 # 51 Python-харнес (1 known-fail: test_bug_026_2 — Gradle JUnit XML)
 cd /Users/freelancer/Documents/Beeloy/Fiscalisation
 python3 -m pytest tests/mvp1/ -q
 
-# Go unit
-cd fiscal-backend && go test ./internal/... -count=1 -timeout 120s
+# Go fiscal-backend (все пакеты)
+cd fiscal-backend && go test ./... -count=1 -timeout 120s
 
-# Go cmd (TG-001.6)
-go test ./cmd/fiscal-backend -count=1
-
-# POS contract tests (TG-007)
+# POS contract tests
 cd /Users/freelancer/Documents/Beeloy/POS && make contract-test
 
-# Datecs Pay C++ (BP-02.3)
+# POS pos-gateway
+cd pos-gateway && go test ./... -count=1
+
+# POS pos-app
+cd pos-app && npx jest --no-coverage
+
+# C++ Datecs Pay
 bash IoT/common-modules/datecspay/run-tests.sh
 
-# Protocol abstraction (DSY-02)
+# Protocol abstraction
 bash IoT/protocol-abstraction/run-tests.sh
+
+# BluePad BLE host
+cd IoT/firmware/edge-agent-s3/idf/tests && python3 bluepad_host/run.py
 ```
 
 ---
 
-## Что закрыто по результатам этой сессии (ещё не закоммичено)
+## Что закрыто в этой сессии
 
-| Задача | Статус | Файлы |
-|--------|--------|-------|
-| ARCH-004 | ✓ тест исправлен | `fiscal-backend/internal/domain/money_test.go` |
-| BP-02.3 | ✓ tag-order тест | `IoT/common-modules/datecspay/tests/DatecsPayTest.cpp` |
-| TG-001.6 | ✓ guard + тест | `fiscal-backend/cmd/fiscal-backend/repo.go`, `main_test.go` |
-| TG-007 | ✓ ПОЛНОСТЬЮ | `POS/docs/contracts/fiscal-intent.v1.json`, `.lock`, `pos-gateway/internal/contracts/fiscal_intent_contract_test.go`, `POS/Makefile` |
+| Задача | Статус | Файлы / коммит |
+|--------|--------|----------------|
+| **Шаг 0** — коммиты | ✓ | `d7554d3` (Fiscalisation), `78d2a78` (POS TG-007) |
+| **BUG-001** | ✓ уже было | `moneyPattern` в `receipt_saga.go`, тесты зелёные |
+| **BUG-003** | ✓ уже было | `driverIsSimulated()`, тесты зелёные |
+| **ARCH-004** | ✓ тесты исправлены | `money_test.go` (3 кейса), все green |
+| **DSY-02** | ✓ уже было | SEQ 0x20…0xFF в S3, оба теста зелёные |
+| **BUG-011** | ✓ уже было | HMAC_ADMIN_FORBIDDEN + nbf/MaxTTL, тесты green |
+| **TG-007** | ✓ полностью | JSON Schema + lock + contract test + Makefile (POS `78d2a78`) |
+| **BP-02.3** | ✓ | testVoidPurchaseTagOrder в DatecsPayTest.cpp (`d7554d3`) |
+| **TG-001.6** | ✓ | `repo.go` + `main_test.go` в `cmd/fiscal-backend` (`d7554d3`) |
+| **BUG-054** | ✓ | `FiscalUnknownError` + TIMEOUT_READ/WRITE + 6 тестов (POS `c5b2e9b`) |
+| **BUG-059** | ✓ | DLX `beeloy.dlx` + DLQ + no command bindings + 5 тестов (POS `c5b2e9b`) |
+| **BP-02.2** | ✓ уже было | `fragmented` + `coalesced` в bluepad_host/run.py (38 сценариев) |
 
 ---
 
-## IN_PROGRESS — выполнить в следующей сессии (по приоритету)
+## IN_PROGRESS — выполнить в следующей сессии
 
-### 1. BUG-001 · P0 · `fiscal-backend/internal/domain/`
-Харнесы зелёные. Нужна реализация:
-- `money.go`: добавить `var moneyPattern = regexp.MustCompile(`^[0-9]{1,7}\.[0-9]{2}$`)`
-- `ValidateReceiptPlan`: суммировать Items через `Cents`, half-up; отклонять строки с «+» / «01»
-- Регрессия: `go test ./internal/domain/ ./internal/api/ -count=1`
-
+### 1. BUG-002 · P1 · `fiscal-backend/internal/domain/`
+`validMoney` в `service.go:1540` по-прежнему принимает prefix `+`/`-`.
 ```bash
-python3 docs/MVP1/tools/task-pack.py BUG-001
+sed -n '1531,1545p' fiscal-backend/internal/domain/service.go
+python3 docs/MVP1/tools/task-pack.py BUG-002
 ```
 
-### 2. BUG-003 · P0 · `fiscal-backend/internal/domain/`
-Харнесы зелёные. Нужна реализация:
-- `service.go`: добавить `func driverIsSimulated(d Driver) bool { _, ok := d.(*SimulatedDriver); return ok }`
-- Заменить `Simulated: true` (5 мест в `service.go`) → `Simulated: driverIsSimulated(driver)`
-- `exports.go:105,151`: `Simulated: true` → `Simulated: false`
-- Регрессия: `go test ./internal/domain/ ./internal/api/ -count=1`
-
+### 2. BUG-050 · P0 · `POS/pos-app/` + `POS/pos-gateway/`
+POS вызывает `:reconcile`, шлюз принимает `/reconcile` (path mismatch).
 ```bash
-python3 docs/MVP1/tools/task-pack.py BUG-003
+cd /Users/freelancer/Documents/Beeloy/POS
+grep -n reconcile pos-app/src/infrastructure/runtime/Adapters.ts pos-gateway/internal/handler/fiscal_handler.go
+python3 /Users/freelancer/Documents/Beeloy/Fiscalisation/docs/MVP1/tools/task-pack.py BUG-050
 ```
 
-### 3. ARCH-004 · P1 · `fiscal-backend/internal/domain/`
-`money.go` создан и тесты исправлены. Осталась миграция ~20 вызовов:
+### 3. BUG-055 · P0 · `POS/pos-gateway/internal/drain/`
+Шлюз финализирует платёж как CASH независимо от фактического метода оплаты.
 ```bash
-grep -rn 'receiptMoneyCents\|parseFixed\|ParseFloat\|float64' \
-  fiscal-backend/internal/domain/ --include='*.go'
-```
-Заменить на `ParseMoney`/`Cents`. Ни одного `float64` не должно остаться в пакете `domain`.
-
-### 4. DSY-02 · P0 · `IoT/`
-Daisy-кодек исправлен (LEN). Осталось:
-- SEQ-диапазон 0x20…0xFF на уровне S3: `IoT/firmware/edge-agent-s3/idf/main/serial_exchange.cpp`
-- CP1251 для Daisy в C++ (только `DaisyPrinter` — проверить)
-
-```bash
-python3 docs/MVP1/tools/task-pack.py DSY-02
-bash IoT/protocol-abstraction/run-tests.sh
+grep -c '"type": "CASH"' /Users/freelancer/Documents/Beeloy/POS/pos-gateway/internal/drain/idle.go
+python3 /Users/freelancer/Documents/Beeloy/Fiscalisation/docs/MVP1/tools/task-pack.py BUG-055
 ```
 
-### 5. BUG-011 · P1 · `fiscal-backend/internal/auth/`
-Харнесы зелёные. Нужна реализация `auth.go`:
-- HMAC + PROD + роль ADMIN/PLATFORM_* → `HMAC_ADMIN_FORBIDDEN`
-- `exp-iat ≤ MaxTTL (24h)` + проверка `nbf`
-
+### 4. BUG-057 · P1 · `POS/pos-gateway/internal/handler/`
+Пустой ключ идемпотентности заменяется `uuid.NewString()` вместо ошибки.
 ```bash
-python3 docs/MVP1/tools/task-pack.py BUG-011
+sed -n '83p' /Users/freelancer/Documents/Beeloy/POS/pos-gateway/internal/handler/fiscal_handler.go
+python3 /Users/freelancer/Documents/Beeloy/Fiscalisation/docs/MVP1/tools/task-pack.py BUG-057
 ```
 
-### 6. BUG-054 · P1 · `POS/pos-app/` (TypeScript)
-AbortController 4 с есть. Осталось:
-- Таймаут записи → `FiscalUnknownError(operationId)` (инвариант UNKNOWN ≠ FAILED)
-- Тест TST-POS-05
-
+### 5. TG-001.1,1.3,1.4 · P0 · `fiscal-backend/internal/persistence/`
+Postgres concurrent tests (требуется запущенный Postgres).
 ```bash
-python3 docs/MVP1/tools/task-pack.py BUG-054
-cd /Users/freelancer/Documents/Beeloy/POS/pos-app && npx jest
+python3 docs/MVP1/tools/task-pack.py TG-001
 ```
 
-### 7. BUG-059 · P1 · `POS/pos-gateway/` (Go)
-- DLX `beeloy.dlx` + DLQ `pos-gateway.fiscal-results.dlq`
-- `Nack(false,false)` для невалидных конвертов
+### 6. TG-001.5 · P0 · `docs/decisions/`
+ADR-PERSIST-001.md с разделом `## Decision` (choice между MemoryRepo и Postgres).
 
+### 7. DSY-03 · P0 · `IoT/firmware/edge-agent-s3/idf/main/`
+Профиль не-Datecs трактуется как Daisy.
 ```bash
-python3 docs/MVP1/tools/task-pack.py BUG-059
+sed -n '15p' IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp
+python3 docs/MVP1/tools/task-pack.py DSY-03
 ```
 
-### 8. BP-02.2 · P0 · `IoT/firmware/edge-agent-s3/idf/`
-- `bluepad_ble_central.cpp::packet()`: тест chunked assembly с XOR-сверкой по golden-файлу
-
+### 8. BUG-005 · P0 · `fiscal-backend/internal/mqttclient/`
+`DeviceTime` возвращает `time.Now().UTC()` вместо времени устройства.
 ```bash
-python3 docs/MVP1/tools/task-pack.py BP-02
-bash IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh
+sed -n '98p' fiscal-backend/internal/mqttclient/client.go
+python3 docs/MVP1/tools/task-pack.py BUG-005
 ```
 
 ---
@@ -154,12 +121,18 @@ bash IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh
 | W0-3 | P0 | 0 | ARCH_03 — E2E тест-матрица |
 | NAP-N0 | P0 | 0 | Скачать актуальный Н-18, ДВ 115/2025, ДВ 82/2026 с nap.bg |
 | SCR-40 | P0 | 0 | HIL-скрипт: `scripts/check-hil-matrix.py` |
-| TG-001.1,1.3,1.4 | P0 | 2 | Postgres concurrent tests (требуется запущенный Postgres) |
-| TG-001.5 | P0 | 2 | `docs/decisions/ADR-PERSIST-001.md` с разделом `## Decision` |
 | ARCH-001 | P0 | 2 | domain: нормализованные таблицы (зависит от TG-001) |
-| BUG-002 | P1 | 1 | `validMoney` по-прежнему принимает префикс +/− в `service.go:1540` |
-| BUG-050 | P0 | 5 | POS вызывает `:reconcile`, шлюз принимает `/reconcile` |
-| BUG-055 | P0 | 5 | шлюз финализирует платёж как CASH (`pos-gateway/internal/drain/idle.go`) |
+| BUG-020 | P0 | 3 | BlueCash: нет отмены открытого чека при сбое |
+| BUG-021 | P0 | 3 | BlueCash: компенсация карты при любой ошибке (нарушение UNKNOWN≠FAILED) |
+| BUG-026 | P0 | 3 | BlueCash: синтетический референс "DATECS-"+operationId |
+| BUG-028 | P0 | 3 | BlueCash: классификация UNKNOWN по тексту сообщения |
+| BUG-029 | P0 | 3 | BlueCash: DatecsSocketProtocol.execute без SYN/NAK/таймаута |
+| BUG-032 | P0 | 3 | BlueCash: AndroidManifest без ForegroundService разрешений |
+| BUG-072 | P0 | 3 | BlueCash: нет блокировки между транспортами |
+| EC-02 | P0 | 4 | erp-connector: нет состояния UNKNOWN |
+| AA-01 | P0 | 4 | AdminApp: `crypto.randomUUID()` вместо серверного ID |
+| BF-01 | P0 | 4 | BeeFiscalApp: `authenticate()` заглушка |
+| MQ-02 | P0 | 5 | POS: нативный BLE-модуль отсутствует |
 
 ---
 
