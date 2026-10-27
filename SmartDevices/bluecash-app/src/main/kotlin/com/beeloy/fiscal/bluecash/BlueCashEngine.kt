@@ -2,6 +2,8 @@ package com.beeloy.fiscal.bluecash
 
 import java.security.MessageDigest
 import java.time.Instant
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 data class SalePayment(val id: String, val type: String, val amount: String)
 
@@ -140,6 +142,8 @@ class BlueCashCommandProcessor(
   private val card: DatecsPaymentPort,
   private val journal: TransactionJournal
 ) {
+  /** Single lock for sale/reverse/printerTest — one FU, one executor (BUG-072). */
+  private val lock = ReentrantLock()
   fun fiscalReachable() = fiscal.reachable()
   fun paymentReachable() = card.reachable()
   fun administrative(
@@ -182,6 +186,7 @@ class BlueCashCommandProcessor(
     acceptedEvidence: String = "state=ACCEPTED"
   ): Map<String, String> {
     require(operationId.isNotBlank())
+    return lock.withLock {
     val old = journal.find(operationId)
     old
       .firstOrNull { it.type == "ACCEPTED" }
@@ -189,13 +194,13 @@ class BlueCashCommandProcessor(
     old
       .lastOrNull { it.type in setOf("PRINTER_TESTED", "FAILED", "UNKNOWN") }
       ?.let {
-        return parse(it.payload)
+        return@withLock parse(it.payload)
       }
     require(fiscal.reachable()) { "FISCAL_DEVICE_UNREACHABLE" }
     journal.append(operationId, "ACCEPTED", acceptedEvidence)
     journal.append(operationId, "EXECUTING", "state=EXECUTING")
     var receiptOpened = false
-    return try {
+    try {
       ok(fiscal.execute(38))
       receiptOpened = true
       ok(fiscal.execute(42, DatecsText.encode("BEELOY PRINTER TEST\t\t\t\t\t\t")))
@@ -224,6 +229,7 @@ class BlueCashCommandProcessor(
       journal.append(operationId, result.getValue("state"), encode(result))
       result
     }
+    }
   }
   fun sale(
     command: BlueCashSale,
@@ -234,6 +240,7 @@ class BlueCashCommandProcessor(
         command.lines.isNotEmpty() &&
         command.payments.isNotEmpty()
     )
+    return lock.withLock {
     val old = journal.find(command.operationId)
     old
       .firstOrNull { it.type == "ACCEPTED" }
@@ -241,16 +248,16 @@ class BlueCashCommandProcessor(
     old
       .lastOrNull { it.type in setOf("FISCALIZED", "FAILED", "UNKNOWN") }
       ?.let {
-        return parse(it.payload)
+        return@withLock parse(it.payload)
       }
     if (old.any { it.type == "ACCEPTED" || it.type == "EXECUTING" })
-      return mapOf("state" to "UNKNOWN", "error_code" to "RECOVERY_REQUIRED")
+      return@withLock mapOf("state" to "UNKNOWN", "error_code" to "RECOVERY_REQUIRED")
     require(fiscal.reachable()) { "FISCAL_DEVICE_UNREACHABLE" }
     journal.append(command.operationId, "ACCEPTED", acceptedEvidence)
     journal.append(command.operationId, "EXECUTING", "state=EXECUTING")
     val approvedCardPayments = mutableListOf<SalePayment>()
     var receiptOpened = false
-    return try {
+    try {
       for (p in command.payments.filter { it.type == "CARD" }) {
         require(card.reachable()) { "PAYMENT_TERMINAL_UNREACHABLE" }
         journal.append(
@@ -334,6 +341,7 @@ class BlueCashCommandProcessor(
       journal.append(command.operationId, result.getValue("state"), encode(result))
       result
     }
+    }
   }
   fun reverse(
     command: BlueCashReversal,
@@ -345,6 +353,7 @@ class BlueCashCommandProcessor(
         command.lines.isNotEmpty() &&
         command.payments.isNotEmpty()
     )
+    return lock.withLock {
     val old = journal.find(command.operationId)
     old
       .firstOrNull { it.type == "ACCEPTED" }
@@ -352,15 +361,15 @@ class BlueCashCommandProcessor(
     old
       .lastOrNull { it.type in setOf("REVERSED", "FAILED", "UNKNOWN", "REFUND_PENDING") }
       ?.let {
-        return parse(it.payload)
+        return@withLock parse(it.payload)
       }
     if (old.any { it.type == "ACCEPTED" || it.type == "EXECUTING" })
-      return mapOf("state" to "UNKNOWN", "error_code" to "RECOVERY_REQUIRED")
+      return@withLock mapOf("state" to "UNKNOWN", "error_code" to "RECOVERY_REQUIRED")
     require(fiscal.reachable()) { "FISCAL_DEVICE_UNREACHABLE" }
     journal.append(command.operationId, "ACCEPTED", acceptedEvidence)
     journal.append(command.operationId, "EXECUTING", "state=EXECUTING")
     var receiptOpened = false
-    return try {
+    try {
       // Storno-first (invariant 3): fiscal reversal before any card refund.
       ok(
         fiscal.execute(
@@ -430,6 +439,7 @@ class BlueCashCommandProcessor(
         )
       journal.append(command.operationId, result.getValue("state"), encode(result))
       result
+    }
     }
   }
   private fun ok(r: DatecsResponse): DatecsResponse {
