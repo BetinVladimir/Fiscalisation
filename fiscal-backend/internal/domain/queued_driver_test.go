@@ -113,7 +113,7 @@ func TestReversalIsReservedWithDurableCommandBeforePublish(t *testing.T) {
 	if err := repo.PutSale(sale); err != nil {
 		t.Fatal(err)
 	}
-	if err := repo.PutOperation(Operation{ID: "original-op", SaleID: sale.ID, Type: "FISCAL_SALE", State: "FISCALIZED", Version: 2, FiscalReference: "269", CreatedAt: now, UpdatedAt: now}); err != nil {
+	if err := repo.PutOperation(Operation{ID: "original-op", SaleID: sale.ID, Type: "FISCAL_SALE", State: "FISCALIZED", Version: 2, FiscalReference: "269", FiscalDocumentAt: now, CreatedAt: now, UpdatedAt: now}); err != nil {
 		t.Fatal(err)
 	}
 	op, err := svc.Reverse(sale.ID, "CUSTOMER_RETURN")

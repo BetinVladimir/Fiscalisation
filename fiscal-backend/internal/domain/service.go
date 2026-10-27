@@ -302,7 +302,10 @@ func (s *Service) reverseForTenant(saleID, reason, originalReference, tenant str
 	if parseErr != nil || documentNumber < 1 || documentNumber > 9999999 || !regexp.MustCompile(`^[0-9]{8}$`).MatchString(sale.FiscalDevice.FiscalMemoryNumber) {
 		return Operation{}, errors.New("original fiscal document metadata unavailable")
 	}
-	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, RegisterID: sale.RegisterID, Type: "REVERSAL", State: "EXECUTING", Version: 1, OriginalFiscalReference: original.FiscalReference, ReasonCode: reason, OriginalDocumentNumber: documentNumber, OriginalDocumentAt: original.UpdatedAt, Simulated: driverIsSimulated(driver), AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
+	if original.FiscalDocumentAt.IsZero() {
+		return Operation{}, errors.New("ORIGINAL_DOCUMENT_TIME_UNAVAILABLE")
+	}
+	op := Operation{ID: newID("op"), TenantID: sale.TenantID, SaleID: saleID, RegisterID: sale.RegisterID, Type: "REVERSAL", State: "EXECUTING", Version: 1, OriginalFiscalReference: original.FiscalReference, ReasonCode: reason, OriginalDocumentNumber: documentNumber, OriginalDocumentAt: original.FiscalDocumentAt, Simulated: driverIsSimulated(driver), AllowedActions: []string{}, CreatedAt: now, UpdatedAt: now}
 	if queued, ok := driver.(durableQueuedDriver); ok {
 		command, prepareErr := queued.Prepare(op, sale, PaymentRequest{})
 		if prepareErr != nil {
@@ -338,7 +341,7 @@ func (s *Service) reverseForTenant(saleID, reason, originalReference, tenant str
 		sale.UpdatedAt = op.UpdatedAt
 		return op, s.repo.CommitSaleOperationEvent(sale, op, fiscalOperationEvent(sale, op))
 	}
-	op.State, op.FiscalReference = "FISCALIZED", ref
+	op.State, op.FiscalReference, op.FiscalDocumentAt = "FISCALIZED", ref, op.UpdatedAt
 	// The locked Fiscal Sale contract represents a successfully stornoed sale as
 	// CANCELLED; the REVERSAL operation and webhook retain explicit storno semantics.
 	sale.State = "CANCELLED"
@@ -414,7 +417,7 @@ func (s *Service) executeReservedFiscalOperation(op Operation, register, tenant 
 	} else if code != "" {
 		op.State, op.ErrorCode = "FAILED", code
 	} else {
-		op.State, op.FiscalReference = "FISCALIZED", ref
+		op.State, op.FiscalReference, op.FiscalDocumentAt = "FISCALIZED", ref, op.UpdatedAt
 	}
 	return op
 }
@@ -506,32 +509,30 @@ func (s *Service) SyncWorkstationClock(workstation, tenant string) (DeviceClockS
 		return DeviceClockSync{}, err
 	}
 	drift := int64(deviceTime.Sub(now).Seconds())
-	set := drift > 30 || drift < -30
-	if set {
-		if err = driver.SetDeviceTime(now); err != nil {
-			return DeviceClockSync{}, err
-		}
-		deviceTime, err = driver.DeviceTime()
-		if err != nil {
-			return DeviceClockSync{}, err
-		}
-		drift = int64(deviceTime.Sub(now).Seconds())
+	sofia, _ := time.LoadLocation("Europe/Sofia")
+	businessDate := now.In(sofia).Format("2006-01-02")
+	driftAbs := drift
+	if driftAbs < 0 {
+		driftAbs = -driftAbs
 	}
-	event := DeviceClockSync{EventID: newID("clock"), TenantID: tenant, WorkstationID: workstation, DeviceID: device.DeviceID, BusinessDate: now.Format("2006-01-02"), TrustedTime: now, DeviceTime: deviceTime, DriftSeconds: drift, SetPerformed: set, Verified: drift <= 30 && drift >= -30, OccurredAt: now}
+	event := DeviceClockSync{
+		EventID: newID("clock"), TenantID: tenant, WorkstationID: workstation, DeviceID: device.DeviceID,
+		BusinessDate: businessDate, TrustedTime: now, DeviceTime: deviceTime, DriftSeconds: drift,
+		DriftWarn: driftAbs > 300, SetPerformed: false,
+		Verified: driftAbs <= 7200, OccurredAt: now,
+	}
 	if !event.Verified {
-		return DeviceClockSync{}, errors.New("device clock drift not corrected")
+		return DeviceClockSync{}, fmt.Errorf("DEVICE_CLOCK_DRIFT_BLOCKED: drift %ds exceeds 2h limit", drift)
 	}
-	err = s.repo.PutResource(ResourceRecord{Kind: "device_clock_sync_event", TenantID: tenant, ID: event.EventID, Version: 1, Data: asMap(event), CreatedAt: now, UpdatedAt: now})
+	syncKey := workstation + "|" + businessDate
+	err = s.repo.PutResource(ResourceRecord{Kind: "device_clock_sync_event", TenantID: tenant, ID: syncKey, Version: 1, Data: asMap(event), CreatedAt: now, UpdatedAt: now})
 	return event, err
 }
 func (s *Service) HasDailyClockSync(workstation, tenant string, at time.Time) bool {
-	date := at.UTC().Format("2006-01-02")
-	for _, r := range s.repo.Resources("device_clock_sync_event", tenant) {
-		if stringField(r.Data, "workstation_id") == workstation && stringField(r.Data, "business_date") == date && r.Data["verified"] == true {
-			return true
-		}
-	}
-	return false
+	sofia, _ := time.LoadLocation("Europe/Sofia")
+	date := at.In(sofia).Format("2006-01-02")
+	r, err := s.repo.Resource("device_clock_sync_event", workstation+"|"+date)
+	return err == nil && r.TenantID == tenant && r.Data["verified"] == true
 }
 func (s *Service) BLESession(register, operator, app, tenant, actorSubject, clientPublicKey string) (map[string]any, error) {
 	decodedPublicKey, publicKeyErr := base64.RawURLEncoding.DecodeString(clientPublicKey)
@@ -1101,6 +1102,7 @@ func (s *Service) finalizeSaleForTenant(id string, in SaleFinalizeRequest, tenan
 	} else {
 		op.State = "FISCALIZED"
 		op.FiscalReference = ref
+		op.FiscalDocumentAt = op.UpdatedAt
 		sale.State = "COMPLETED"
 		sale.CompletedAt = &op.UpdatedAt
 		sale.FiscalOperationID = op.ID
@@ -1221,6 +1223,7 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 		sale.Payments = append(sale.Payments, PaymentRecord{PaymentID: p.PaymentID, Type: p.Type, Amount: p.Amount, FiscalReference: ref, CreatedAt: op.UpdatedAt})
 		if paid+amount == total {
 			op.State = "FISCALIZED"
+			op.FiscalDocumentAt = op.UpdatedAt
 			sale.State = "COMPLETED"
 			sale.CompletedAt = &op.UpdatedAt
 			sale.FiscalOperationID = op.ID
@@ -1535,30 +1538,11 @@ func validMoney(m Money) bool {
 	if m.Currency != "EUR" {
 		return false
 	}
-	amount := m.Amount
-	if amount == "" {
+	if !moneyPattern.MatchString(m.Amount) {
 		return false
 	}
-	s := amount
-	if s[0] == '-' || s[0] == '+' {
-		s = s[1:]
-	}
-	if s == "" || s[0] == '.' {
-		return false
-	}
-	parts := strings.Split(s, ".")
-	if len(parts) != 2 || len(parts[1]) != 2 {
-		return false
-	}
-	_, e := strconv.ParseInt(parts[0], 10, 64)
-	if e != nil {
-		return false
-	}
-	frac, e := strconv.ParseInt(parts[1], 10, 64)
-	if e != nil {
-		return false
-	}
-	return frac >= 0 && frac < 100
+	dot := strings.IndexByte(m.Amount, '.')
+	return dot >= 1 && dot <= 12
 }
 func validQuantity(v string) bool { x, e := parseFixed(v, 3); return e == nil && x > 0 }
 func parseFixed(v string, scale int) (int64, error) {

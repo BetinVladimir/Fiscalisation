@@ -70,7 +70,12 @@ func FormatMoney(c Cents) string {
 		return "-" + FormatMoney(-c)
 	}
 	v := int64(c)
-	return strconv.FormatInt(v/100, 10) + "." + strconv.FormatInt(v%100, 10) //nolint:mnd // money format: 2 digit fraction
+	frac := v % 100
+	whole := v / 100
+	if frac < 10 {
+		return strconv.FormatInt(whole, 10) + ".0" + strconv.FormatInt(frac, 10)
+	}
+	return strconv.FormatInt(whole, 10) + "." + strconv.FormatInt(frac, 10)
 }
 
 // LineTotal computes the line total from a unit price (in Cents) and a

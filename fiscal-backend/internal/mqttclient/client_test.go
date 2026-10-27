@@ -404,3 +404,14 @@ func TestBridgeRejectsMissingOrAmbiguousTransportAuthorityBeforePublish(t *testi
 		})
 	}
 }
+
+// TestDeviceTimeReturnsErrorWhenNotMeasured verifies BUG-005.5:
+// DeviceTime must never return the host clock — it must return an error
+// until the fiscal device clock is actually read via cmd62.
+func TestDeviceTimeReturnsErrorWhenNotMeasured(t *testing.T) {
+	b := &Bridge{}
+	_, err := b.DeviceTime()
+	if err == nil || err.Error() != "DEVICE_CLOCK_NOT_MEASURED" {
+		t.Errorf("DeviceTime() error = %v, want DEVICE_CLOCK_NOT_MEASURED", err)
+	}
+}

@@ -220,4 +220,63 @@ class BlueCashEngineTest {
     )
     assertTrue(restartFiscal.calls.isEmpty())
   }
+
+  // BUG-026: document number must come from FU response, not a synthetic prefix.
+  @Test
+  fun closeReceiptWithoutParsableDocumentNumberIsUnknown() {
+    val emptyFiscal = object : DatecsFiscalPort {
+      override fun reachable() = true
+      override fun execute(command: Int, payload: ByteArray): DatecsResponse =
+        // cmd56 (close receipt): success status but blank doc-number field → no ref.
+        if (command == 56) DatecsResponse(0x20, command, "0\t \t".toByteArray(), byteArrayOf())
+        else DatecsResponse(0x20, command, "0\t".toByteArray(), byteArrayOf())
+    }
+    val j = SignedMemoryJournal(Signer())
+    val result = BlueCashCommandProcessor(emptyFiscal, Card(), j).sale(sale())
+    // Without a parseable reference the saga must signal recovery, not invent one.
+    assertEquals("RECOVERY_REQUIRED", result["state"])
+    assertEquals("FISCAL_REFERENCE_UNPARSEABLE", result["error_code"])
+    assertNull(result["fiscal_reference"])
+  }
+
+  @Test
+  fun closeReceiptParsesDocumentNumberFromVendorFixture() {
+    // Response matches PM v2.11.4 §4 cmd56 example: tab-delimited "0\tBON-42\t".
+    val vendorFiscal = object : DatecsFiscalPort {
+      override fun reachable() = true
+      override fun execute(command: Int, payload: ByteArray): DatecsResponse =
+        DatecsResponse(0x20, command,
+          if (command == 56) "0\tBON-42\t".toByteArray(Charsets.UTF_8) else "0\t".toByteArray(),
+          byteArrayOf())
+    }
+    val j = SignedMemoryJournal(Signer())
+    val result = BlueCashCommandProcessor(vendorFiscal, Card(), j).sale(sale())
+    assertEquals("FISCALIZED", result["state"])
+    assertEquals("BON-42", result["fiscal_reference"])
+  }
+
+  // BUG-026.3: acceptance names from spec.
+  @Test
+  fun saleResultCarriesRealDocumentNumber() {
+    val j = SignedMemoryJournal(Signer())
+    // Default Fiscal mock returns "0\tBON-42\t" for cmd56.
+    val result = BlueCashCommandProcessor(Fiscal(), Card(), j).sale(sale())
+    assertEquals("FISCALIZED", result["state"])
+    assertEquals("BON-42", result["fiscal_reference"])
+  }
+
+  @Test
+  fun emptyCloseResponseIsNotSuccess() {
+    val blankFiscal = object : DatecsFiscalPort {
+      override fun reachable() = true
+      override fun execute(command: Int, payload: ByteArray): DatecsResponse =
+        if (command == 56) DatecsResponse(0x20, command, "0\t\t".toByteArray(), byteArrayOf())
+        else DatecsResponse(0x20, command, "0\t".toByteArray(), byteArrayOf())
+    }
+    val j = SignedMemoryJournal(Signer())
+    val result = BlueCashCommandProcessor(blankFiscal, Card(), j).sale(sale())
+    assertEquals("RECOVERY_REQUIRED", result["state"])
+    assertEquals("FISCAL_REFERENCE_UNPARSEABLE", result["error_code"])
+    assertNull(result["fiscal_reference"])
+  }
 }

@@ -88,14 +88,10 @@ func (b *Bridge) Probe() error {
 	return nil
 }
 
-// DeviceTime exposes the adapter host's UTC clock as the trusted transport
-// clock. Physical fiscal-device drift remains part of the signed command
-// result; this capability only gates workstation readiness before a sale.
+// DeviceTime returns an error until the device clock is read via cmd62.
+// Returning the host clock is explicitly forbidden (BUG-005).
 func (b *Bridge) DeviceTime() (time.Time, error) {
-	if err := b.Probe(); err != nil {
-		return time.Time{}, err
-	}
-	return time.Now().UTC(), nil
+	return time.Time{}, fmt.Errorf("DEVICE_CLOCK_NOT_MEASURED")
 }
 func (b *Bridge) SetDeviceTime(at time.Time) error {
 	if at.IsZero() {

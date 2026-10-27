@@ -196,13 +196,30 @@ func TestLineTotalFromGoldenFile(t *testing.T) {
 	for _, v := range vectors {
 		name := fmt.Sprintf("golden_%s", v.Name)
 		t.Run(name, func(t *testing.T) {
-			// formula: (unit_cents * qty_milli + 500) / 1000
-			got, err := LineTotal(Cents(v.UnitCents), v.QtyMilli)
-			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
+			var got Cents
+			if v.DiscountCts == 0 {
+				c, err := LineTotal(Cents(v.UnitCents), v.QtyMilli)
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				got = c
+			} else {
+				qty := fmt.Sprintf("%d.%03d", v.QtyMilli/1000, v.QtyMilli%1000)
+				unit := FormatMoney(Cents(v.UnitCents))
+				disc := FormatMoney(Cents(v.DiscountCts))
+				line := SaleLine{
+					Quantity:  qty,
+					UnitPrice: Money{Amount: unit, Currency: "EUR"},
+					Discount:  &Money{Amount: disc, Currency: "EUR"},
+				}
+				c, err := discountedLineTotalCents(line)
+				if err != nil {
+					t.Fatalf("discountedLineTotalCents error: %v", err)
+				}
+				got = Cents(c)
 			}
-			want := int64(v.Expect)
-			if got != Cents(want) {
+			want := Cents(v.Expect)
+			if got != want {
 				t.Errorf("LineTotal(%d, %d) = %d, want %d", v.UnitCents, v.QtyMilli, got, want)
 			}
 		})

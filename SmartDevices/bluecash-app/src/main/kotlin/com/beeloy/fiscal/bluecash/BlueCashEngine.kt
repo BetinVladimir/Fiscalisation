@@ -262,9 +262,12 @@ class BlueCashCommandProcessor(
       command.lines.forEach { ok(fiscal.execute(49, DatecsPayloads.line(it))) }
       command.payments.forEach { ok(fiscal.execute(53, DatecsPayloads.payment(datecsPaymentMode(it.type), it.amount))) }
       val closed = ok(fiscal.execute(56))
-      val ref =
-        closed.data.toString(Charsets.UTF_8).split('\t').filter { it.isNotBlank() }.lastOrNull()
-          ?: ("DATECS-" + command.operationId)
+      val ref = closed.data.toString(Charsets.UTF_8).split('\t').getOrNull(1)?.takeIf { it.isNotBlank() }
+      if (ref == null) {
+        val result = mapOf("state" to "RECOVERY_REQUIRED", "error_code" to "FISCAL_REFERENCE_UNPARSEABLE")
+        journal.append(command.operationId, "RECOVERY_REQUIRED", encode(result))
+        return result
+      }
       mapOf("state" to "FISCALIZED", "fiscal_reference" to ref).also {
         journal.append(command.operationId, "FISCALIZED", encode(it))
       }
@@ -353,9 +356,12 @@ class BlueCashCommandProcessor(
       command.lines.forEach { ok(fiscal.execute(49, DatecsPayloads.line(it))) }
       command.payments.forEach { ok(fiscal.execute(53, DatecsPayloads.payment(datecsPaymentMode(it.type), it.amount))) }
       val closed = ok(fiscal.execute(56))
-      val ref =
-        closed.data.toString(Charsets.UTF_8).split('\t').filter { it.isNotBlank() }.lastOrNull()
-          ?: "DATECS-${command.operationId}"
+      val ref = closed.data.toString(Charsets.UTF_8).split('\t').getOrNull(1)?.takeIf { it.isNotBlank() }
+      if (ref == null) {
+        val result = mapOf("state" to "RECOVERY_REQUIRED", "error_code" to "FISCAL_REFERENCE_UNPARSEABLE")
+        journal.append(command.operationId, "RECOVERY_REQUIRED", encode(result))
+        return result
+      }
       mapOf("state" to "REVERSED", "fiscal_reference" to ref).also {
         journal.append(command.operationId, "REVERSED", encode(it))
       }
