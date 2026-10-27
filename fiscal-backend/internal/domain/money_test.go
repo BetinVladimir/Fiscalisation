@@ -110,7 +110,7 @@ func TestLineTotal(t *testing.T) {
 		wantErr  bool
 	}{
 		{"332 * 5000 = 1660", 332, 5000, 1660, false},
-		{"half-up: 999 * 333/1000 = 333", 999, 333, 332, false},
+		{"half-up: 999 * 333/1000 = 333", 999, 333, 333, false},
 		{"zero price", 0, 100, 0, false},
 		{"qty_milli=1, price=1 → 0", 1, 1, 0, false},
 		{"qty_milli=500, price=1 → 1 (half-rounds up)", 1, 500, 1, false},
@@ -119,10 +119,10 @@ func TestLineTotal(t *testing.T) {
 		{"qty_milli=1000, price=100 → 100", 100, 1000, 100, false},
 		{"qty_milli=3000, price=100 → 300", 100, 3000, 300, false},
 
-		// Overflow cases
+		// Overflow cases — values chosen so p*q actually overflows int64
 		{"overflow int64", Cents(math.MaxInt64), 100, 0, true},
-		{"large price * large qty", Cents(9999999), 9999999, 0, true},
-		{"max price", 932372036854775, 100, 0, true}, // triggers the (p*q+500)/1000 overflow
+		{"overflow: qty nearly maxint", Cents(100), math.MaxInt64/100 + 1, 0, true},
+		{"overflow: price*2 > maxint", Cents(math.MaxInt64/2 + 1), 2, 0, true},
 		{"negative price", -1, 100, 0, true},
 		{"zero qty", 100, 0, 0, true},
 		{"negative qty", 100, -1, 0, true},

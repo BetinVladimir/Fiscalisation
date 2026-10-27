@@ -149,6 +149,29 @@ static void testBleTransportChunksAndDisconnect() {
     assert(stream.read() == -1);
 }
 
+// BP-02.3: startVoidPurchase emits tags in order 0x81 (amount), 0xDF01 (RRN), 0xDF02 (AuthID).
+// RRN "6680635" (7 chars), AuthID "123456" (6 chars) from PDF §8.
+static void testVoidPurchaseTagOrder() {
+    FakeStream io;
+    io.queue(packet(0x00, 0x00));
+    DatecsPay pay(io);
+    assert(pay.startVoidPurchase(50, "6680635", "123456") == DatecsError::NoErr);
+    // Packet: [0]=3E [1]=CMD [2..3]=status [4]=datalen [5]=SubCmd [6]=VoidPurchase(0x07) [7..]=TLV
+    assert(io.tx[6] == 0x07); // TransactionType::VoidPurchase
+    // Amount tag 0x81 at offset 7
+    assert(io.tx[7] == 0x81);
+    assert(io.tx[8] == 0x04);
+    assert(io.tx[12] == 0x32); // 50 cents = 0x32 in LSB
+    // RRN tag 0xDF01 at offset 13 (after 6-byte amount TLV)
+    assert(io.tx[13] == 0xDF);
+    assert(io.tx[14] == 0x01);
+    assert(io.tx[15] == 0x07); // RRN length = 7
+    // AuthID tag 0xDF02 at offset 23 (13 + 2+1+7 = 23)
+    assert(io.tx[23] == 0xDF);
+    assert(io.tx[24] == 0x02);
+    assert(io.tx[25] == 0x06); // AuthID length = 6
+}
+
 int main() {
     testGoldenPurchaseAndPartialWrite();
     testBuilderAndParserBounds();
@@ -157,5 +180,6 @@ int main() {
     testMtuChunking();
     testInvalidStringsAndWriteFailure();
     testBleTransportChunksAndDisconnect();
+    testVoidPurchaseTagOrder();
     return 0;
 }
