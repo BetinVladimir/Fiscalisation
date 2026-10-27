@@ -1,6 +1,7 @@
 package com.beeloy.fiscal.bluecash
 
 import java.io.IOException
+import java.math.BigDecimal
 import java.io.InputStream
 import java.io.OutputStream
 import java.nio.CharBuffer
@@ -115,7 +116,7 @@ object DatecsText {
 
 object DatecsPayloads {
   private val money = Regex("[0-9]{1,5}\\.[0-9]{2}")
-  private val quantity = Regex("[0-9]{1,2}\\.[0-9]{3}")
+  private val quantity = Regex("[0-9]{1,5}\\.[0-9]{3}")
   private fun bytes(vararg fields: String) =
     DatecsText.encode(fields.joinToString("\t", postfix = "\t"))
   fun open(
@@ -167,6 +168,28 @@ object DatecsPayloads {
   /** Datecs Communication Protocol v2.11.4 §4.21 — cancel an open fiscal receipt. */
   const val CMD_CANCEL_RECEIPT = 60
   fun cancelReceipt(): ByteArray = byteArrayOf()
+
+  private val MAX_LINE_TOTAL = BigDecimal("9999999.99")
+
+  /** Returns PAYLOAD_INVALID:<field> codes for every invalid line/payment; empty = OK. */
+  fun validateSale(lines: List<FiscalLine>, payments: List<SalePayment>): List<String> {
+    val errors = mutableListOf<String>()
+    for (line in lines) {
+      if (line.name.isBlank() || line.name.length > 72) errors += "PAYLOAD_INVALID:name"
+      if (!money.matches(line.unitPrice)) errors += "PAYLOAD_INVALID:unit_price"
+      if (!quantity.matches(line.quantity)) errors += "PAYLOAD_INVALID:quantity"
+      if (line.taxGroup !in 'A'..'H') errors += "PAYLOAD_INVALID:tax_group"
+      if (line.discountType !in 0..4) errors += "PAYLOAD_INVALID:discount_type"
+      if (errors.isEmpty()) {
+        val lineTotal = BigDecimal(line.unitPrice) * BigDecimal(line.quantity)
+        if (lineTotal > MAX_LINE_TOTAL) errors += "PAYLOAD_INVALID:line_total_exceeded"
+      }
+    }
+    for (p in payments) {
+      if (!money.matches(p.amount)) errors += "PAYLOAD_INVALID:payment_amount"
+    }
+    return errors
+  }
 
   /** Datecs command 43, Communication Protocol v2.11.4 section 4.6. */
   fun stornoOpen(

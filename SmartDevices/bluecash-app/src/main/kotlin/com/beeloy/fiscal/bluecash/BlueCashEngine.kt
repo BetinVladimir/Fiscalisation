@@ -252,6 +252,10 @@ class BlueCashCommandProcessor(
       }
     if (old.any { it.type == "ACCEPTED" || it.type == "EXECUTING" })
       return@withLock mapOf("state" to "UNKNOWN", "error_code" to "RECOVERY_REQUIRED")
+    val payloadErrors = DatecsPayloads.validateSale(command.lines, command.payments)
+    if (payloadErrors.isNotEmpty()) {
+      return@withLock mapOf("state" to "FAILED", "error_code" to payloadErrors.first())
+    }
     require(fiscal.reachable()) { "FISCAL_DEVICE_UNREACHABLE" }
     journal.append(command.operationId, "ACCEPTED", acceptedEvidence)
     journal.append(command.operationId, "EXECUTING", "state=EXECUTING")

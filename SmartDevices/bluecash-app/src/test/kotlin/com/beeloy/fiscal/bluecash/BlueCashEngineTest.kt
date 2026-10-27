@@ -449,6 +449,64 @@ class BlueCashEngineTest {
     assertEquals("БОН-42", result["fiscal_reference"])
   }
 
+  // ── BUG-022: payload validation must happen before card purchase ─────────────
+
+  @Test fun `salePrevalidatesAllPayloadsBeforeCardPurchase`() {
+    val c = Card()
+    val badSale = BlueCashSale(
+      "op-pre-1", "DY000600-OP01-0000001", 1, "1", 24,
+      listOf(FiscalLine("A".repeat(73), 'B', "2.65", "1.000")),
+      listOf(SalePayment("p", "CARD", "2.65"))
+    )
+    val result = BlueCashCommandProcessor(Fiscal(), c, SignedMemoryJournal(Signer())).sale(badSale)
+    assertEquals("FAILED", result["state"])
+    assertTrue("error_code must mention PAYLOAD_INVALID",
+      result["error_code"]?.startsWith("PAYLOAD_INVALID") == true)
+    assertEquals("card.purchaseEur must NOT be called before validation", 0, c.calls)
+  }
+
+  @Test fun `quantityScientificNotationRejected`() {
+    val c = Card()
+    val badSale = BlueCashSale(
+      "op-sci-1", "DY000600-OP01-0000001", 1, "1", 24,
+      listOf(FiscalLine("Coffee", 'B', "2.65", "1e3")),
+      listOf(SalePayment("p", "CARD", "2.65"))
+    )
+    val result = BlueCashCommandProcessor(Fiscal(), c, SignedMemoryJournal(Signer())).sale(badSale)
+    assertEquals("FAILED", result["state"])
+    assertEquals("card must not be charged for invalid quantity format", 0, c.calls)
+  }
+
+  @Test fun `quantity120Accepted`() {
+    val f = object : DatecsFiscalPort {
+      override fun reachable() = true
+      override fun execute(command: Int, payload: ByteArray) =
+        DatecsResponse(0x20, command,
+          if (command == 56) "0\tBON-1\t".toByteArray() else "0\t".toByteArray(),
+          byteArrayOf())
+    }
+    val sale = BlueCashSale(
+      "op-120-1", "DY000600-OP01-0000001", 1, "1", 24,
+      listOf(FiscalLine("Widget", 'B', "2.65", "120.000")),
+      listOf(SalePayment("p", "CASH", "318.00"))
+    )
+    val result = BlueCashCommandProcessor(f, Card(), SignedMemoryJournal(Signer())).sale(sale)
+    assertEquals("FISCALIZED", result["state"])
+  }
+
+  @Test fun `rejectsPriceTimesQuantityOver9999999_99`() {
+    val c = Card()
+    // 50000.00 × 200.000 = 10_000_000 which exceeds 9_999_999.99
+    val bigSale = BlueCashSale(
+      "op-big-1", "DY000600-OP01-0000001", 1, "1", 24,
+      listOf(FiscalLine("Item", 'B', "50000.00", "200.000")),
+      listOf(SalePayment("p", "CARD", "50000.00"))
+    )
+    val result = BlueCashCommandProcessor(Fiscal(), c, SignedMemoryJournal(Signer())).sale(bigSale)
+    assertEquals("FAILED", result["state"])
+    assertEquals("card must not be charged when total exceeds max", 0, c.calls)
+  }
+
   @Test
   fun emptyCloseResponseIsNotSuccess() {
     val blankFiscal = object : DatecsFiscalPort {
