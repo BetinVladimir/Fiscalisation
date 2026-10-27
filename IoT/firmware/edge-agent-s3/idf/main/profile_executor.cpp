@@ -12,12 +12,14 @@
 #include "cJSON.h"
 #include "money_plan.h"
 namespace beefiscal::idf{namespace{
-int write_bytes(void*ctx,const uint8_t*p,size_t n,uint32_t timeout){auto&b=*static_cast<const CompositeBinding*>(ctx);return b.profile==EdgeProfile::DatecsDp150BluePad50?uart_runtime_write(p,n,timeout):usb_cdc_write(p,n,timeout);}
-int read_bytes(void*ctx,uint8_t*p,size_t n,uint32_t timeout){auto&b=*static_cast<const CompositeBinding*>(ctx);return b.profile==EdgeProfile::DatecsDp150BluePad50?uart_runtime_read(p,n,timeout):usb_cdc_read(p,n,timeout);}
+int write_bytes(void*ctx,const uint8_t*p,size_t n,uint32_t timeout){auto&b=*static_cast<const CompositeBinding*>(ctx);if(b.profile==EdgeProfile::DatecsDp150BluePad50)return uart_runtime_write(p,n,timeout);if(b.profile==EdgeProfile::DaisyCompactS01)return usb_cdc_write(p,n,timeout);return -1;}
+int read_bytes(void*ctx,uint8_t*p,size_t n,uint32_t timeout){auto&b=*static_cast<const CompositeBinding*>(ctx);if(b.profile==EdgeProfile::DatecsDp150BluePad50)return uart_runtime_read(p,n,timeout);if(b.profile==EdgeProfile::DaisyCompactS01)return usb_cdc_read(p,n,timeout);return -1;}
 int64_t monotonic_ms(void*){return esp_timer_get_time()/1000;}
 bool exchange(const CompositeBinding&b,uint16_t command,const std::vector<uint8_t>&payload,SerialSession&sequence,bee::ParsedFrame*out=nullptr){
+ if(b.profile==EdgeProfile::Unconfigured)return false;
  SerialTransport transport{const_cast<CompositeBinding*>(&b),write_bytes,read_bytes,monotonic_ms};
- return sequence.exchange(b.profile==EdgeProfile::DatecsDp150BluePad50?SerialProfile::Datecs:SerialProfile::Daisy,transport,command,payload,out);
+ const SerialProfile sp=b.profile==EdgeProfile::DatecsDp150BluePad50?SerialProfile::Datecs:SerialProfile::Daisy;
+ return sequence.exchange(sp,transport,command,payload,out);
 }
 // Vendor-issued document evidence. These queries never print/cancel/refund.
 bool exact_unp_token(const std::string& text,const std::string& unp){

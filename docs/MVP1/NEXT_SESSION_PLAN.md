@@ -1,8 +1,8 @@
-# NEXT_SESSION_PLAN — план для следующей сессии (обновлён 2026-10-27)
+# NEXT_SESSION_PLAN — план для следующей сессии (обновлён 2026-10-27 сессия 2)
 
 Ветки:
-- `Fiscalisation`: `docs/mvp1-delivery-pipeline-and-test-review` (последний коммит: `d7554d3`)
-- `POS`: `main` (последний коммит: `c5b2e9b`)
+- `Fiscalisation`: `docs/mvp1-delivery-pipeline-and-test-review` (ожидается коммит после сессии)
+- `POS`: `main` (ожидается коммит после сессии)
 
 ---
 
@@ -37,77 +37,34 @@ cd IoT/firmware/edge-agent-s3/idf/tests && python3 bluepad_host/run.py
 
 ---
 
-## Что закрыто в этой сессии
+## Что закрыто в этой сессии (сессия 2)
 
-| Задача | Статус | Файлы / коммит |
-|--------|--------|----------------|
-| **Шаг 0** — коммиты | ✓ | `d7554d3` (Fiscalisation), `78d2a78` (POS TG-007) |
-| **BUG-001** | ✓ уже было | `moneyPattern` в `receipt_saga.go`, тесты зелёные |
-| **BUG-003** | ✓ уже было | `driverIsSimulated()`, тесты зелёные |
-| **ARCH-004** | ✓ тесты исправлены | `money_test.go` (3 кейса), все green |
-| **DSY-02** | ✓ уже было | SEQ 0x20…0xFF в S3, оба теста зелёные |
-| **BUG-011** | ✓ уже было | HMAC_ADMIN_FORBIDDEN + nbf/MaxTTL, тесты green |
-| **TG-007** | ✓ полностью | JSON Schema + lock + contract test + Makefile (POS `78d2a78`) |
-| **BP-02.3** | ✓ | testVoidPurchaseTagOrder в DatecsPayTest.cpp (`d7554d3`) |
-| **TG-001.6** | ✓ | `repo.go` + `main_test.go` в `cmd/fiscal-backend` (`d7554d3`) |
-| **BUG-054** | ✓ | `FiscalUnknownError` + TIMEOUT_READ/WRITE + 6 тестов (POS `c5b2e9b`) |
-| **BUG-059** | ✓ | DLX `beeloy.dlx` + DLQ + no command bindings + 5 тестов (POS `c5b2e9b`) |
-| **BP-02.2** | ✓ уже было | `fragmented` + `coalesced` в bluepad_host/run.py (38 сценариев) |
+| Задача | Статус | Файлы |
+|--------|--------|-------|
+| **BUG-002** | ✓ уже было | `bug_002_test.go` зелёный, `validMoney` корректен |
+| **BUG-005** | ✓ уже было | `DeviceTime` → `DEVICE_CLOCK_NOT_MEASURED`, 5 тестов green |
+| **BUG-050** | ✓ | `Adapters.ts:109` `:reconcile` → `/reconcile`, тест green |
+| **BUG-055** | ✓ | `finalize_cmd.go` + `idle.go` — реальные payments из intent, 3 теста green |
+| **BUG-057** | ✓ | `resolveOperationID` + 422 на конфликт, 3 теста green |
+| **DSY-03** | ✓ | `profile_orchestrator.cpp` Unconfigured guard + `profile_executor.cpp` switch; тест `profile_unconfigured_no_io` green |
 
 ---
 
 ## IN_PROGRESS — выполнить в следующей сессии
 
-### 1. BUG-002 · P1 · `fiscal-backend/internal/domain/`
-`validMoney` в `service.go:1540` по-прежнему принимает prefix `+`/`-`.
-```bash
-sed -n '1531,1545p' fiscal-backend/internal/domain/service.go
-python3 docs/MVP1/tools/task-pack.py BUG-002
-```
-
-### 2. BUG-050 · P0 · `POS/pos-app/` + `POS/pos-gateway/`
-POS вызывает `:reconcile`, шлюз принимает `/reconcile` (path mismatch).
-```bash
-cd /Users/freelancer/Documents/Beeloy/POS
-grep -n reconcile pos-app/src/infrastructure/runtime/Adapters.ts pos-gateway/internal/handler/fiscal_handler.go
-python3 /Users/freelancer/Documents/Beeloy/Fiscalisation/docs/MVP1/tools/task-pack.py BUG-050
-```
-
-### 3. BUG-055 · P0 · `POS/pos-gateway/internal/drain/`
-Шлюз финализирует платёж как CASH независимо от фактического метода оплаты.
-```bash
-grep -c '"type": "CASH"' /Users/freelancer/Documents/Beeloy/POS/pos-gateway/internal/drain/idle.go
-python3 /Users/freelancer/Documents/Beeloy/Fiscalisation/docs/MVP1/tools/task-pack.py BUG-055
-```
-
-### 4. BUG-057 · P1 · `POS/pos-gateway/internal/handler/`
-Пустой ключ идемпотентности заменяется `uuid.NewString()` вместо ошибки.
-```bash
-sed -n '83p' /Users/freelancer/Documents/Beeloy/POS/pos-gateway/internal/handler/fiscal_handler.go
-python3 /Users/freelancer/Documents/Beeloy/Fiscalisation/docs/MVP1/tools/task-pack.py BUG-057
-```
-
-### 5. TG-001.1,1.3,1.4 · P0 · `fiscal-backend/internal/persistence/`
+### 1. TG-001.1,1.3,1.4 · P0 · `fiscal-backend/internal/persistence/`
 Postgres concurrent tests (требуется запущенный Postgres).
 ```bash
 python3 docs/MVP1/tools/task-pack.py TG-001
 ```
 
-### 6. TG-001.5 · P0 · `docs/decisions/`
+### 2. TG-001.5 · P0 · `docs/decisions/`
 ADR-PERSIST-001.md с разделом `## Decision` (choice между MemoryRepo и Postgres).
 
-### 7. DSY-03 · P0 · `IoT/firmware/edge-agent-s3/idf/main/`
-Профиль не-Datecs трактуется как Daisy.
+### 3. BUG-020/021/026/028/029/032/072 · P0 · BlueCash
+BlueCash: нет mutex, синтетический референс, UNKNOWN по тексту, нет SYN/NAK/timeout, нет ForegroundService.
 ```bash
-sed -n '15p' IoT/firmware/edge-agent-s3/idf/main/profile_executor.cpp
-python3 docs/MVP1/tools/task-pack.py DSY-03
-```
-
-### 8. BUG-005 · P0 · `fiscal-backend/internal/mqttclient/`
-`DeviceTime` возвращает `time.Now().UTC()` вместо времени устройства.
-```bash
-sed -n '98p' fiscal-backend/internal/mqttclient/client.go
-python3 docs/MVP1/tools/task-pack.py BUG-005
+python3 docs/MVP1/tools/task-pack.py BUG-020
 ```
 
 ---

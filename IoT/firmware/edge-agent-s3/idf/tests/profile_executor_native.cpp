@@ -89,4 +89,14 @@ void receipt_fault_matrix(EdgeProfile profile){
   assert(run(x,journal.storage,plan("SALE_FINALIZE","CASH")).certainty==ExecutionCertainty::Committed);}
  {ProtocolFaithfulIo io(profile);Journal journal;ProfileExecutor x(b,io,&journal.storage);RecoveryItem recovery{};recovery.operation_id="11111111-1111-4111-8111-111111111111";const auto lookups=io.lookup_calls;assert(x.recover(recovery).certainty==ExecutionCertainty::Unknown);assert(io.lookup_calls==lookups);io.fiscal_up=false;assert(run(x,journal.storage,plan("SALE_FINALIZE")).certainty==ExecutionCertainty::DeviceUnavailable);}
 }
-int main(){for(auto profile:{EdgeProfile::DatecsDp150BluePad50,EdgeProfile::DaisyCompactS01}){protocol_corruption_matrix(profile);fiscal_matrix(profile);receipt_fault_matrix(profile);}return 0;}
+void profile_unconfigured_no_io(){
+ // DSY-03: Unconfigured profile must not attempt any fiscal I/O.
+ CompositeBinding b; // b.profile defaults to EdgeProfile::Unconfigured
+ ProtocolFaithfulIo io(EdgeProfile::DatecsDp150BluePad50); // mock codec; profile in binding is Unconfigured
+ Journal journal;ProfileExecutor x(b,io,&journal.storage);
+ auto r=run(x,journal.storage,plan("REPORT_Z")); // non-monetary: currently bypasses config check
+ assert(io.fiscal_calls==0);// DSY-03: must be 0; will fail (>0) until fix in profile_orchestrator.cpp
+ assert(r.certainty!=ExecutionCertainty::Committed);
+ std::printf("profile_unconfigured_no_io: PASS\n");
+}
+int main(){for(auto profile:{EdgeProfile::DatecsDp150BluePad50,EdgeProfile::DaisyCompactS01}){protocol_corruption_matrix(profile);fiscal_matrix(profile);receipt_fault_matrix(profile);}profile_unconfigured_no_io();return 0;}

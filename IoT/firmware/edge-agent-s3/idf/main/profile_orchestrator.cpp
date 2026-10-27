@@ -10,6 +10,7 @@ PaymentRecord record(const ReceiptPlan&p,const IntentPayment&payment,const Payme
 ProfileExecutor::ProfileExecutor(const CompositeBinding&b,DeviceIo&i,DurableStorage*s):binding_(b),io_(i),storage_(s){}
 bool ProfileExecutor::ready(){return io_.fiscal_ready();}
 ExecutionResult ProfileExecutor::execute(const ReceiptPlan&p){
+ if(binding_.profile==EdgeProfile::Unconfigured)return{ExecutionCertainty::Rejected,"","FISCAL_PROFILE_UNCONFIGURED","","",""};
  const bool monetary=p.command_type=="SALE_FINALIZE"||p.command_type=="SALE_REVERSE"||p.command_type=="CASH_IN"||p.command_type=="CASH_OUT";
  if(monetary){auto error=receipt_plan_error(binding_,p);if(error.empty())error=io_.preflight(p);if(!error.empty())return{ExecutionCertainty::Rejected,"",error,"","",""};}
  if(!io_.fiscal_ready())return{ExecutionCertainty::DeviceUnavailable,"","FISCAL_DEVICE_UNAVAILABLE","","",""};
