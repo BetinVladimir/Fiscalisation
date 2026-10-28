@@ -1,0 +1,10 @@
+{
+  "device": "Daisy Compact FP",
+  "source": "DSY-07",
+  "slots": [
+    {"index": 0, "type": "CASH",    "name": "Брой",    "code": "P"},
+    {"index": 1, "type": "CARD",    "name": "Карта",   "code": "N"},
+    {"index": 2, "type": "VOUCHER", "name": "Ваучер",  "code": "V"},
+    {"index": 3, "type": "CREDIT",  "name": "Кредит",  "code": "C"}
+  ]
+}

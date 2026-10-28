@@ -98,6 +98,6 @@ class StatefulFakeDatecsFiscalPort(
         }
 
         val raw = DatecsText.encode(fixedResponse)
-        return DatecsResponse(0x20, command, raw)
+        return DatecsResponse(0x20, command, raw, byteArrayOf())
     }
 }

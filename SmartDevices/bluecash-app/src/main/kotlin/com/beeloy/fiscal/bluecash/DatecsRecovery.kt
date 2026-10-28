@@ -28,8 +28,9 @@ class DatecsRecovery(
     fun snapshot(operationId: String): PreOpenSnapshot {
         val r76 = fiscal.execute(76).requireOk(2)
         val f76 = DatecsText.decode(r76.data).split('\t')
-        val isOpen = f76[0].toIntOrNull() ?: 0
-        val number = f76.getOrElse(1) { "0" }.toIntOrNull() ?: 0
+        // f76[0]=ErrorCode(validated 0), f76[1]=IsOpen, f76[2]=Number
+        val isOpen = f76.getOrElse(1) { "0" }.toIntOrNull() ?: 0
+        val number = f76.getOrElse(2) { "0" }.toIntOrNull() ?: 0
         val unp = readParam("UNP")
         val lastDoc = readParam("nLastFiscalDoc").toIntOrNull() ?: 0
         val snap = PreOpenSnapshot(isOpen, number, unp, lastDoc)
@@ -45,8 +46,9 @@ class DatecsRecovery(
     fun resolve(expected: PreOpenSnapshot, expectedUnp: String): ResolutionState {
         val r76 = fiscal.execute(76).requireOk(2)
         val f76 = DatecsText.decode(r76.data).split('\t')
-        val isOpen = f76[0].toIntOrNull() ?: -1
-        val number = f76.getOrElse(1) { "0" }.toIntOrNull() ?: 0
+        // f76[0]=ErrorCode, f76[1]=IsOpen, f76[2]=Number
+        val isOpen = f76.getOrElse(1) { "-1" }.toIntOrNull() ?: -1
+        val number = f76.getOrElse(2) { "0" }.toIntOrNull() ?: 0
         val currentUnp = readParam("UNP")
         return when {
             isOpen == 0 && number > expected.receiptNumber && currentUnp == expectedUnp ->
@@ -63,7 +65,7 @@ class DatecsRecovery(
      */
     fun cancelOrphanIfNeeded(operationId: String): Boolean {
         val r76 = fiscal.execute(76).requireOk(2)
-        val isOpen = DatecsText.decode(r76.data).split('\t')[0].toIntOrNull() ?: 0
+        val isOpen = DatecsText.decode(r76.data).split('\t').getOrElse(1) { "0" }.toIntOrNull() ?: 0
         if (isOpen == 0) return false
         return try {
             fiscal.execute(DatecsPayloads.CMD_CANCEL_RECEIPT, DatecsPayloads.cancelReceipt())
@@ -100,8 +102,9 @@ class DatecsRecovery(
     }
 
     private fun readParam(name: String): String {
-        val resp = fiscal.execute(255, DatecsText.encode(name)).requireOk(1)
-        return DatecsText.decode(resp.data).split('\t').firstOrNull()?.trim() ?: ""
+        val resp = fiscal.execute(255, DatecsText.encode(name)).requireOk(2)
+        // field[0]=ErrorCode, field[1]=value
+        return DatecsText.decode(resp.data).split('\t').getOrElse(1) { "" }.trim()
     }
 }
 
