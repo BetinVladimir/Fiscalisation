@@ -48,6 +48,13 @@
         "COUPON"
       ],
       "status": "SOFTWARE_IMPLEMENTED_HIL_REQUIRED"
+    },
+    "fiscal_unit_tremol": {
+      "in_product_scope": false,
+      "in_mvp_scope": false,
+      "status": "NOT_IN_MVP_SCOPE",
+      "capability_gate": "REJECTED_BEFORE_IO",
+      "note": "Tremol fiscal unit adapter not implemented in MVP1; any route targeting a Tremol device must return UNSUPPORTED before any I/O (VG-18, D-1)"
     }
   }
 }
