@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fiscalisation/fiscal-backend/internal/domain"
 	"fmt"
 	"testing"
@@ -24,6 +25,20 @@ func (f *fakeSync) ActivateDeviceCredential(id, credential, nonce, signature str
 }
 func (f *fakeSync) SignDeviceActivationAcknowledgement(unsigned []byte) (string, error) {
 	return base64.RawURLEncoding.EncodeToString(append([]byte("test-signature:"), unsigned...)), f.err
+}
+
+// countingSync is a minimal syncService that counts how many times the sync
+// handler is invoked, used to verify TOPIC_FORBIDDEN stops before the handler.
+type countingSync struct {
+	fakeSync
+	onSync func()
+}
+
+func (c *countingSync) ProcessEdgeSyncBatch(tenant string, batch domain.EdgeSyncBatch) (domain.EdgeSyncBatch, error) {
+	if c.onSync != nil {
+		c.onSync()
+	}
+	return batch, nil
 }
 
 type publishToken struct{ err error }
@@ -413,5 +428,31 @@ func TestDeviceTimeReturnsErrorWhenNotMeasured(t *testing.T) {
 	_, err := b.DeviceTime()
 	if err == nil || err.Error() != "DEVICE_CLOCK_NOT_MEASURED" {
 		t.Errorf("DeviceTime() error = %v, want DEVICE_CLOCK_NOT_MEASURED", err)
+	}
+}
+
+// TestForeignTenantRejected verifies that a Processor scoped to one tenant
+// rejects MQTT messages whose topic contains a different tenant, returning
+// ErrTopicForbidden without invoking the domain service handler (handlerCalls==0).
+func TestForeignTenantRejected(t *testing.T) {
+	handlerCalls := 0
+	svc := &countingSync{onSync: func() { handlerCalls++ }}
+	p := NewProcessor(svc).WithAllowedTenant("tenant-allowed")
+
+	// Foreign tenant — should be rejected before domain handler is called.
+	body, _ := json.Marshal(domain.EdgeSyncBatch{EdgeID: "device-1"})
+	_, _, err := p.Process("tenants/tenant-other/devices/device-1/sync/batches/b1", body)
+	if !errors.Is(err, ErrTopicForbidden) {
+		t.Fatalf("expected ErrTopicForbidden, got %v", err)
+	}
+	if handlerCalls != 0 {
+		t.Fatalf("handler called %d times, expected 0 for foreign tenant", handlerCalls)
+	}
+
+	// Own tenant — should be accepted (may fail for other reasons, but no TOPIC_FORBIDDEN).
+	ownBody, _ := json.Marshal(domain.EdgeSyncBatch{EdgeID: "device-1"})
+	_, _, err = p.Process("tenants/tenant-allowed/devices/device-1/sync/batches/b2", ownBody)
+	if errors.Is(err, ErrTopicForbidden) {
+		t.Fatalf("own-tenant message incorrectly rejected with TOPIC_FORBIDDEN")
 	}
 }

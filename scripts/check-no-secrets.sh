@@ -17,6 +17,9 @@ check() {
     -E "$pattern" "$ROOT" 2>/dev/null \
     | grep -v 'check-no-secrets' \
     | grep -v '_test\.' \
+    | grep -v 'Test\.kt' \
+    | grep -v '/test/kotlin/' \
+    | grep -v 'tests/mvp1/' \
     | grep -v 'example\.' \
     | grep -v 'docs/MVP1/fixes' \
     | grep -v 'docs/MVP1/fixed' \

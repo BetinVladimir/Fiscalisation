@@ -24,6 +24,10 @@ import (
 // clock is forbidden (BUG-005).
 var ErrDeviceClockNotMeasured = fmt.Errorf("DEVICE_CLOCK_NOT_MEASURED")
 
+// ErrTopicForbidden is returned by Processor.Process when a message arrives
+// on a topic whose tenant does not match the processor's allowed tenant scope.
+var ErrTopicForbidden = fmt.Errorf("TOPIC_FORBIDDEN")
+
 // ErrDeviceClockSetUnsupported is returned by SetDeviceTime for the BC-50
 // (BlueCash) profile which reads the clock via cmd62 but does not support
 // setting it.
@@ -54,8 +58,9 @@ type commandResultService interface {
 }
 
 type Processor struct {
-	service    syncService
-	signingKey []byte
+	service        syncService
+	signingKey     []byte
+	allowedTenant  string // when non-empty, messages for other tenants are rejected
 }
 
 type Bridge struct {
@@ -300,7 +305,31 @@ func NewProcessor(service syncService, signingKey ...string) *Processor {
 	return p
 }
 
+// WithAllowedTenant returns a copy of p that rejects messages whose topic tenant
+// does not match the given tenant identifier. An empty string disables the check.
+func (p *Processor) WithAllowedTenant(tenant string) *Processor {
+	cp := *p
+	cp.allowedTenant = tenant
+	return &cp
+}
+
+// topicTenant extracts the tenant segment from well-known topic patterns, or
+// returns "" if the topic does not include a tenant field.
+func topicTenant(topic string) string {
+	for _, re := range []*regexp.Regexp{commandOutcomeTopic, statusTopic, bindingAckTopic, syncTopic} {
+		if parts := re.FindStringSubmatch(topic); len(parts) >= 2 {
+			return parts[1]
+		}
+	}
+	return ""
+}
+
 func (p *Processor) Process(topic string, payload []byte) (string, []byte, error) {
+	if p.allowedTenant != "" {
+		if t := topicTenant(topic); t != "" && t != p.allowedTenant {
+			return "", nil, fmt.Errorf("%w: topic tenant %q", ErrTopicForbidden, t)
+		}
+	}
 	if parts := commandOutcomeTopic.FindStringSubmatch(topic); len(parts) == 5 {
 		if parts[4] == "ack" {
 			return "", nil, nil
