@@ -6,7 +6,7 @@ ROOT="$(cd "$(dirname "$0")/.." && pwd)"
 errors=0
 
 # PROD-001: no stub/simulator/fake markers in non-test production Go/Kotlin/TS source
-STUB_PATTERNS=('//\s*STUB' 'FakeDevice\b' 'SimulatorAdapter\b' 'TODO.*prod' 'FIXME.*prod')
+STUB_PATTERNS=('//\s*STUB' 'FakeDevice\b' 'SimulatorAdapter\b' 'TODO.*prod' 'FIXME.*prod' 'AUTHORIZED_TEST')
 for pat in "${STUB_PATTERNS[@]}"; do
   if rg --no-messages \
       --glob='*.go' --glob='*.kt' --glob='*.ts' --glob='*.tsx' \
