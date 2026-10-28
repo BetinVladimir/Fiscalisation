@@ -1,5 +1,5 @@
 HIL_RUBY ?= ruby
-.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-external-verifier-test supto-hil-verifier-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test smart-device-host-test minipos-outbox-test factory-test iot-test iot-protocol-test time-anchor-test ble-stream-test ble-certificate-crypto-test ble-certificate-crypto-gate-test iot-build iot-build-check iot-build-verify iot-build-script-test compose-check compose-e2e regression full-regression lint plan-check fuzz-short contract-lock
+.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-external-verifier-test supto-hil-verifier-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test smart-device-host-test minipos-outbox-test factory-test iot-test iot-protocol-test time-anchor-test ble-stream-test ble-certificate-crypto-test ble-certificate-crypto-gate-test iot-build iot-build-check iot-build-verify iot-build-script-test compose-check compose-e2e regression full-regression lint plan-check fuzz-short contract-lock regression
 deps:
 	cd minipos/BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
 	cd BeeFiscalApp && npm ci --cache /tmp/beefiscalapp-npm-cache --no-audit --no-fund
@@ -301,3 +301,8 @@ fuzz-short:
 .PHONY: contract-lock
 contract-lock:
 	./scripts/verify-contract-lock.sh
+
+# REGRESSION-01: unified offline regression harness
+.PHONY: regression
+regression:
+	python3 -m unittest tests/e2e/test_mvp1_regression.py -v
