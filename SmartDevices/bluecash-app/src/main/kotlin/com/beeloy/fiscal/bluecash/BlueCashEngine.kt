@@ -151,6 +151,31 @@ class BlueCashCommandProcessor(
   }
   fun fiscalReachable() = fiscal.reachable()
   fun paymentReachable() = card.reachable()
+
+  /**
+   * TG-005: Cancel any dangling open receipt at startup before accepting new commands.
+   *
+   * Reads FU status (cmd 76, field[1] = receipt-open flag). If open, sends CMD_CANCEL_RECEIPT
+   * (cmd 60) and records the event in the journal. Must be called once after connecting to the FU.
+   *
+   * @return true if a dangling receipt was found and cancel was attempted.
+   */
+  fun startup(recoveryOperationId: String): Boolean {
+    require(recoveryOperationId.isNotBlank())
+    val r76 = fiscal.execute(76)
+    val text = String(r76.data, Charsets.ISO_8859_1)
+    val isOpen = text.split('\t').getOrElse(1) { "0" }.toIntOrNull() ?: 0
+    if (isOpen == 0) return false
+    return try {
+      fiscal.execute(DatecsPayloads.CMD_CANCEL_RECEIPT, DatecsPayloads.cancelReceipt())
+      journal.append(recoveryOperationId, "STARTUP_RECEIPT_CANCELED", "isOpen=$isOpen")
+      true
+    } catch (e: DatecsFailure) {
+      journal.append(recoveryOperationId, "STARTUP_RECEIPT_CANCEL_FAILED", "error=${e.message}")
+      false
+    }
+  }
+
   fun administrative(
     operationId: String,
     command: Int,
