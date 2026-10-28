@@ -186,6 +186,59 @@ class BlueCashCommandProcessor(
       result
     }
   }
+  /**
+   * Execute X (preview) or Z (close-of-day) report with durable journal.
+   *
+   * Idempotency: ERR_Z_REPORT_CLOSED (-104006) means Z was already executed on the FU;
+   * we treat that as "already FISCALIZED" so the saga is idempotent.
+   * Response fields (tab-separated): nRep, TotA, TotB, TotC, TotD, TotE, TotF, TotG, TotH, ...
+   *
+   * @param zReport  true = Z (closes day), false = X (read-only totals).
+   */
+  fun dailyReport(
+    operationId: String,
+    zReport: Boolean
+  ): Map<String, String> {
+    require(operationId.isNotBlank())
+    val reportType = if (zReport) "Z" else "X"
+    val acceptedEvidence = "state=ACCEPTED,report=$reportType"
+    val old = journal.find(operationId)
+    old.firstOrNull { it.type == "ACCEPTED" }
+      ?.let { require(it.payload == acceptedEvidence) { "COMMAND_ID_PAYLOAD_CONFLICT" } }
+    old.lastOrNull { it.type in setOf("FISCALIZED", "FAILED", "UNKNOWN") }
+      ?.let { return parse(it.payload) }
+    if (old.any { it.type == "ACCEPTED" || it.type == "EXECUTING" })
+      return mapOf("state" to "UNKNOWN", "error_code" to "RECOVERY_REQUIRED")
+    require(fiscal.reachable()) { "FISCAL_DEVICE_UNREACHABLE" }
+    journal.append(operationId, "ACCEPTED", acceptedEvidence)
+    journal.append(operationId, "EXECUTING", "state=EXECUTING")
+    return try {
+      val resp = fiscal.execute(69, DatecsPayloads.report(zReport))
+      val text = String(resp.data, Charsets.ISO_8859_1)
+      val fields = text.trimEnd().split("\t")
+      // fields[0] = error code (0 = ok, already validated by requireOk inside execute)
+      val nRep   = fields.getOrNull(1)?.trim() ?: ""
+      val totA   = fields.getOrNull(2)?.trim() ?: ""
+      val result = mapOf("state" to "FISCALIZED", "n_rep" to nRep, "tot_a" to totA,
+                         "report_type" to reportType)
+      journal.append(operationId, "FISCALIZED", encode(result))
+      result
+    } catch (e: Throwable) {
+      // ERR_Z_REPORT_CLOSED = -104006: Z was already done on the FU → idempotent success.
+      if (e is DatecsFailure.Rejected && e.keyCode == -104006) {
+        val result = mapOf("state" to "FISCALIZED", "error_code" to "Z_ALREADY_CLOSED",
+                           "report_type" to reportType)
+        journal.append(operationId, "FISCALIZED", encode(result))
+        return result
+      }
+      val unknown = classified(e) == Outcome.UNKNOWN
+      val result = mapOf("state" to if (unknown) "UNKNOWN" else "FAILED",
+                         "error_code" to (e.message ?: "DATECS_FAILURE"))
+      journal.append(operationId, result.getValue("state"), encode(result))
+      result
+    }
+  }
+
   fun printerTest(
     operationId: String,
     acceptedEvidence: String = "state=ACCEPTED"
