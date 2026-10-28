@@ -294,12 +294,12 @@ func exportPeriodCSV(exportType string, rows []exportRow, currency string, from,
 	var b bytes.Buffer
 	w := csv.NewWriter(&b)
 	headers, records := normativeExportTable(exportType, rows)
-	_ = w.Write(append([]string{"period_official_currency", "period_from_inclusive", "period_to_exclusive"}, headers...))
+	_ = w.Write(append([]string{"period_official_currency", "period_from_inclusive", "period_to_exclusive"}, headers...) // best-effort: csv.Writer buffers; Flush() error is checked by caller) // best-effort: csv.Writer buffers; Flush() error is checked by caller
 	if len(rows) == 0 {
-		_ = w.Write(append([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, make([]string, len(headers))...))
+		_ = w.Write(append([]string{currency, from.UTC() // best-effort: csv.Writer buffers; Flush() error is checked by caller.Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, make([]string, len(headers))...))
 	}
 	for _, record := range records {
-		_ = w.Write(append([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, record...))
+		_ = w.Write(append([]string{currency, from.UTC() // best-effort: csv.Writer buffers; Flush() error is checked by caller.Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, record...))
 	}
 	w.Flush()
 	return b.Bytes(), w.Error()
@@ -475,9 +475,9 @@ func exportNormativeCSV(exportType string, rows []exportRow) ([]byte, error) {
 	headers, records := normativeExportTable(exportType, rows)
 	var b bytes.Buffer
 	w := csv.NewWriter(&b)
-	_ = w.Write(headers)
+	_ = w.Write(headers) // best-effort: csv.Writer buffers; Flush() error is checked by caller
 	for _, record := range records {
-		_ = w.Write(record)
+		_ = w.Write(record) // best-effort: csv.Writer buffers; Flush() error is checked by caller
 	}
 	w.Flush()
 	return b.Bytes(), w.Error()
@@ -503,9 +503,9 @@ func exportPeriodXLSX(exportType string, rows []exportRow, currency string, from
 func exportCSV(rows []exportRow) ([]byte, error) {
 	var b bytes.Buffer
 	w := csv.NewWriter(&b)
-	_ = w.Write(exportCSVHeader())
+	_ = w.Write(exportCSVHeader() // best-effort: csv.Writer buffers; Flush() error is checked by caller)
 	for _, r := range rows {
-		_ = w.Write(exportCSVRecord(r))
+		_ = w.Write(exportCSVRecord(r) // best-effort: csv.Writer buffers; Flush() error is checked by caller)
 	}
 	w.Flush()
 	return b.Bytes(), w.Error()

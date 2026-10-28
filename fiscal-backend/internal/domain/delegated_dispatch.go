@@ -79,7 +79,7 @@ func (s *Service) DispatchDelegatedExecution(p DelegatedExecutionPrincipal, auth
 	}
 	// Publication loss is represented by the durable command and existing operation.
 	// The device deduplicates the same operation/receipt across MQTT and local ingress.
-	_ = queued.Publish(command)
+	_ = queued.Publish(command) // best-effort: MQTT publication loss is recovered via durable command on device reconnect
 	return op, nil
 }
 

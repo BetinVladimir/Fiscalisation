@@ -49,7 +49,7 @@ func validRepositorySnapshotShape(raw, baseline []byte) bool {
 	if json.Unmarshal(raw, &next) != nil || next == nil || len(next) == 0 {
 		return false
 	}
-	_ = json.Unmarshal(baseline, &previous)
+	_ = json.Unmarshal(baseline, &previous) // best-effort: recovery baseline may be absent; zero value is safe fallback
 	maps := []string{"sales", "operations", "devices", "shifts", "unp", "replays", "outbox", "ble_sessions", "sync_acks", "connectivity_probes", "resources", "artifacts", "edge_pending", "activation_challenges", "activation_requests"}
 	recognized := false
 	optional := map[string]bool{"edge_pending": true, "activation_challenges": true, "activation_requests": true}

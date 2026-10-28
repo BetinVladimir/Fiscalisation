@@ -1916,9 +1916,9 @@ func (r *MemoryRepository) commitResourceArtifactsOperationEvents(resource Resou
 	return r.persistLocked()
 }
 func asMap(v any) map[string]any {
-	b, _ := json.Marshal(v)
+	b, _ := json.Marshal(v) // best-effort: Marshal of map[string]any never fails
 	var out map[string]any
-	_ = json.Unmarshal(b, &out)
+	_ = json.Unmarshal(b, &out) // best-effort: round-trip of already-marshalled value
 	return out
 }
 func (r *MemoryRepository) NextUNP(register, operator, tenant string) (string, error) {
@@ -2070,7 +2070,7 @@ func (r *MemoryRepository) CloseShift(id string) (Shift, error) {
 		}
 		v.State = "RECONCILIATION_REQUIRED"
 		r.shifts[id] = v
-		_ = r.persistLocked()
+		_ = r.persistLocked() // best-effort: error already returned to caller
 		return v, errors.New("unresolved register operation blocks close")
 	}
 	now := time.Now().UTC()

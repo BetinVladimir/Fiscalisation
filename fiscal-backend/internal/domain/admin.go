@@ -694,7 +694,7 @@ func (s *Service) DeviceActivationToken(deviceID, locationID, appInstanceID, ten
 	})
 	unsigned := base64.RawURLEncoding.EncodeToString(header) + "." + base64.RawURLEncoding.EncodeToString(claims)
 	mac := hmac.New(sha256.New, s.bleSigningKey)
-	_, _ = mac.Write([]byte(unsigned))
+	_, _ = mac.Write([]byte(unsigned)) // best-effort: hmac.Write never returns error (documented in crypto/hmac)
 	token := unsigned + "." + base64.RawURLEncoding.EncodeToString(mac.Sum(nil))
 	return map[string]any{"activation_token": token, "token_type": "Bearer", "expires_at": expires, "organization_id": tenant, "location_id": locationID, "device_id": deviceID, "app_instance_id": appInstanceID}, nil
 }

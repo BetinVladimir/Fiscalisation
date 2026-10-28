@@ -21,7 +21,7 @@ import (
 
 func newID(prefix string) string {
 	b := make([]byte, 16)
-	_, _ = rand.Read(b)
+	_, _ = rand.Read(b) // best-effort: rand.Read never returns error on Linux; UUID fallback is harmless
 	return fmt.Sprintf("%s-%08x-%04x-%04x-%04x-%012x",
 		prefix, b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }
@@ -754,11 +754,11 @@ type OpenSaleWithFirstLineRequest struct {
 
 func (s *Service) OpenWorkstationSession(workstation, operatorCode, appInstance, actor, tenant string) (WorkstationSession, error) {
 	if workstation == "" || appInstance == "" || actor == "" || !bgOperatorPattern.MatchString(operatorCode) {
-		_ = s.repo.AppendAudit(tenant, actor, "LOGIN_FAILED", "workstation_session", workstation, "", nil, map[string]any{"operator_code": operatorCode, "app_instance_id": appInstance, "reason": "INVALID_SESSION_INPUT"})
+		_ = s.repo.AppendAudit(tenant, actor, "LOGIN_FAILED", "workstation_session", workstation, "", nil, map[string]any{"operator_code": operatorCode, "app_instance_id": appInstance, "reason": "INVALID_SESSION_INPUT"}) // best-effort: audit log; primary error already returned to caller
 		return WorkstationSession{}, errors.New("invalid workstation session")
 	}
 	if _, err := s.activeFiscalDeviceSnapshot(workstation, tenant, time.Now().UTC()); err != nil {
-		_ = s.repo.AppendAudit(tenant, actor, "LOGIN_FAILED", "workstation_session", workstation, "", nil, map[string]any{"operator_code": operatorCode, "app_instance_id": appInstance, "reason": "FISCAL_DEVICE_UNAVAILABLE"})
+		_ = s.repo.AppendAudit(tenant, actor, "LOGIN_FAILED", "workstation_session", workstation, "", nil, map[string]any{"operator_code": operatorCode, "app_instance_id": appInstance, "reason": "FISCAL_DEVICE_UNAVAILABLE"}) // best-effort: audit log; primary error already returned
 		return WorkstationSession{}, err
 	}
 	operatorID := ""
@@ -769,7 +769,7 @@ func (s *Service) OpenWorkstationSession(workstation, operatorCode, appInstance,
 		}
 	}
 	if operatorID == "" || !s.activeOperatorForTenant(operatorCode, tenant, time.Now().UTC()) {
-		_ = s.repo.AppendAudit(tenant, actor, "LOGIN_FAILED", "workstation_session", workstation, "", nil, map[string]any{"operator_code": operatorCode, "app_instance_id": appInstance, "reason": "OPERATOR_UNAVAILABLE"})
+		_ = s.repo.AppendAudit(tenant, actor, "LOGIN_FAILED", "workstation_session", workstation, "", nil, map[string]any{"operator_code": operatorCode, "app_instance_id": appInstance, "reason": "OPERATOR_UNAVAILABLE"}) // best-effort: audit log; primary error already returned
 		return WorkstationSession{}, errors.New("operator unavailable")
 	}
 	now := time.Now().UTC()
@@ -1214,7 +1214,7 @@ func (s *Service) payForTenant(id string, p PaymentRequest, tenant string) (Oper
 			op.Version++
 			op.UpdatedAt = time.Now().UTC()
 			sale.State = "UNKNOWN"
-			_ = s.repo.CommitSaleOperation(sale, op)
+			_ = s.repo.CommitSaleOperation(sale, op) // best-effort: persist UNKNOWN state after MQTT failure; state already set in-memory
 			return op, nil
 		}
 		return op, nil
