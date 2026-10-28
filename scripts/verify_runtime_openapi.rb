@@ -21,9 +21,11 @@ end
 
 sources = {
   "fiscal-backend/internal/api/handler.go" => [
-    "/public/v1/payment-reconciliations:authorize", "/public/v1/sales:open-with-line", ":finalize", "/public/v1/workstations/", "/public/v1/exports/periodized", "/public/v1/exports/", "activation-tokens",
+    "/public/v1/payment-reconciliations:authorize", "/public/v1/sales:open-with-line", "/public/v1/workstations/", "/public/v1/exports/periodized", "/public/v1/exports/",
     "/platform/v1/manufacturing/devices:register", "/platform/v1/devices"
   ],
+  "fiscal-backend/internal/api/handlers_sales.go" => [":finalize"],
+  "fiscal-backend/internal/api/handlers_devices.go" => ["activation-tokens"],
   "minipos/beeminipos-backend/internal/api/handler.go" => [
     "/public/v1/minipos/execution-authorizations", "/public/v1/minipos/execution-authorizations:dispatch", "/public/v1/minipos/configuration", "/public/v1/minipos/employees/", "/public/v1/minipos/operator-session",
     "/public/v1/minipos/shifts", "/public/v1/minipos/shifts/", "/public/v1/minipos/orders/",
