@@ -64,7 +64,6 @@ type fbClient struct {
 	willTopic    string
 	willPayload  []byte
 	pendingAck   map[uint16]fbMsg // QoS1 in-flight, awaiting PUBACK
-	nextMsgID    uint16
 }
 
 // FakeBroker is a minimal in-process MQTT 3.1.1 broker for test doubles.

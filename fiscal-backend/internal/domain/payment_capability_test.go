@@ -48,3 +48,34 @@ func TestPaymentTypeCapabilityMatrix(t *testing.T) {
 		}
 	}
 }
+
+// TestPaymentTypeRejectedBeforeSideEffect verifies that ValidatePaymentTypeForDevice
+// is a pure, pre-I/O gate: it returns an error for all 6 extended payment types
+// when the device lacks the required capability, guaranteeing rejection before
+// any driver operation.
+func TestPaymentTypeRejectedBeforeSideEffect(t *testing.T) {
+	extended := map[string]string{
+		"NHIF":                 "NHIF_PAYMENT",
+		"CHEQUE":               "CHEQUE_PAYMENT",
+		"VOUCHER":              "VOUCHER_PAYMENT",
+		"DEFERRED":             "DEFERRED_PAYMENT",
+		"INTERNAL_CONSUMPTION": "INTERNAL_CONSUMPTION_PAYMENT",
+		"COUPON":               "COUPON_PAYMENT",
+	}
+	for payType, requiredCap := range extended {
+		if err := ValidatePaymentTypeForDevice(payType, nil); err == nil {
+			t.Errorf("%s: expected rejection without capability (before any I/O)", payType)
+		}
+		if err := ValidatePaymentTypeForDevice(payType, []string{"WRONG_CAPABILITY"}); err == nil {
+			t.Errorf("%s: expected rejection with wrong capability", payType)
+		}
+		if err := ValidatePaymentTypeForDevice(payType, []string{requiredCap}); err != nil {
+			t.Errorf("%s: unexpected rejection with correct capability %s: %v", payType, requiredCap, err)
+		}
+	}
+	for _, base := range []string{"CASH", "CARD"} {
+		if err := ValidatePaymentTypeForDevice(base, nil); err != nil {
+			t.Errorf("%s: base type must never be rejected: %v", base, err)
+		}
+	}
+}

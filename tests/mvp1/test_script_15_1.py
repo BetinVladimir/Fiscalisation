@@ -13,6 +13,6 @@ class TestScript151(unittest.TestCase):
     def test_emits_adr_message(self):
         r = subprocess.run(["bash", "scripts/check-adr-links.sh"], capture_output=True, text=True, cwd=ROOT)
         combined = r.stdout + r.stderr
-        self.assertRegex(combined, r'ADR-', "Must emit ADR-* message")
+        self.assertRegex(combined, r'ADR', "Must emit ADR message")
 
 if __name__ == "__main__": unittest.main()

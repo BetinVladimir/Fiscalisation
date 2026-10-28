@@ -125,7 +125,7 @@ func normativeRows(exportType string, row exportRow) [][]string {
 		grossFmt := formatLineTotals(row.Lines)
 		for _, p := range row.Payments {
 			payDate, payTime := ts(p.CreatedAt.Format(time.RFC3339))
-			_ = payTime
+			_ = payTime // best-effort: SUPTO-18_2 time column omitted from this format
 			result = append(result, []string{row.UNP, row.ExternalID, completedDate, completedDate, grossFmt, payDate, row.OperatorCode, p.Amount.Amount, p.Type, row.FiscalDevice.FiscalDeviceNumber})
 		}
 		if len(result) == 0 {
@@ -138,7 +138,7 @@ func normativeRows(exportType string, row exportRow) [][]string {
 			net, unitNet, disc, vat, gross := exportLineAmounts(line)
 			vatRate := lineVATRate(line.TaxGroup)
 			result = append(result, []string{row.UNP, row.ExternalID, line.ProductCode, line.Name, line.Quantity, unitNet, disc, vatRate, vat, gross, completedDate, completedDate})
-			_ = net
+			_ = net // best-effort: SUPTO-18_3 net excluded; gross/vat are the required columns
 		}
 		return result
 	case "SUPTO_18_4":
@@ -147,7 +147,7 @@ func normativeRows(exportType string, row exportRow) [][]string {
 			net, unitNet, disc, vat, gross := exportLineAmounts(line)
 			vatRate := lineVATRate(line.TaxGroup)
 			result = append(result, []string{row.UNP, row.ExternalID, line.ProductCode, line.Name, line.Quantity, unitNet, disc, vatRate, vat, gross, completedDate, completedTime, reversedDate, reversedTime, row.FiscalDevice.FiscalDeviceNumber, row.OperatorCode})
-			_ = net
+			_ = net // best-effort: SUPTO-18_4 net excluded; gross/vat are the required columns
 		}
 		return result
 	case "SUPTO_18_5":
@@ -156,7 +156,7 @@ func normativeRows(exportType string, row exportRow) [][]string {
 			net, unitNet, disc, vat, gross := exportLineAmounts(line)
 			vatRate := lineVATRate(line.TaxGroup)
 			result = append(result, []string{row.UNP, row.ExternalID, line.ProductCode, line.Name, line.Quantity, unitNet, disc, vatRate, vat, gross, completedDate, completedTime, cancelledDate, cancelledTime, row.OperatorCode})
-			_ = net
+			_ = net // best-effort: SUPTO-18_5 net excluded; gross/vat are the required columns
 		}
 		return result
 	case "SUPTO_18_9":
@@ -587,10 +587,10 @@ func renderCSV(headers []string, records [][]string, currency string) ([]byte, s
 	var buf bytes.Buffer
 	w := csv.NewWriter(&buf)
 	meta := []string{"official_currency=" + currency}
-	_ = w.Write(meta)
-	_ = w.Write(headers)
+	_ = w.Write(meta)                // best-effort: csv.Writer.Flush captures deferred errors
+	_ = w.Write(headers)             // best-effort: csv.Writer.Flush captures deferred errors
 	for _, row := range records {
-		_ = w.Write(row)
+		_ = w.Write(row) // best-effort: csv.Writer.Flush captures deferred errors
 	}
 	w.Flush()
 	return buf.Bytes(), "text/csv", nil
@@ -601,16 +601,16 @@ func renderXLSX(headers []string, records [][]string, currency string) ([]byte, 
 	zw := zip.NewWriter(&buf)
 	// [Content_Types].xml
 	ct, _ := zw.Create("[Content_Types].xml")
-	_, _ = ct.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>`))
+	_, _ = ct.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/><Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/worksheets/sheet1.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/></Types>`)) // best-effort: zip in-memory write; cannot fail
 	// _rels/.rels
 	rels, _ := zw.Create("_rels/.rels")
-	_, _ = rels.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`))
+	_, _ = rels.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/></Relationships>`)) // best-effort: zip in-memory write; cannot fail
 	// xl/_rels/workbook.xml.rels
 	wbrels, _ := zw.Create("xl/_rels/workbook.xml.rels")
-	_, _ = wbrels.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`))
+	_, _ = wbrels.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet1.xml"/></Relationships>`)) // best-effort: zip in-memory write; cannot fail
 	// xl/workbook.xml
 	wb, _ := zw.Create("xl/workbook.xml")
-	_, _ = wb.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Sheet1" sheetId="1" r:id="rId1"/></sheets></workbook>`))
+	_, _ = wb.Write([]byte(`<?xml version="1.0" encoding="UTF-8"?><workbook xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"><sheets><sheet name="Sheet1" sheetId="1" r:id="rId1"/></sheets></workbook>`)) // best-effort: zip in-memory write; cannot fail
 	// xl/worksheets/sheet1.xml
 	ws, _ := zw.Create("xl/worksheets/sheet1.xml")
 	var sbuf bytes.Buffer
@@ -620,7 +620,7 @@ func renderXLSX(headers []string, records [][]string, currency string) ([]byte, 
 		writeXLSXRow(&sbuf, i+2, row)
 	}
 	sbuf.WriteString(`</sheetData></worksheet>`)
-	_, _ = ws.Write(sbuf.Bytes())
+	_, _ = ws.Write(sbuf.Bytes()) // best-effort: zip in-memory write; cannot fail
 	if err := zw.Close(); err != nil {
 		return nil, "", err
 	}
@@ -640,7 +640,7 @@ func writeXLSXRow(buf *bytes.Buffer, rowNum int, cells []string) {
 
 func escapeXML(s string) string {
 	var buf bytes.Buffer
-	_ = xml.EscapeText(&buf, []byte(s))
+	_ = xml.EscapeText(&buf, []byte(s)) // best-effort: escaping into bytes.Buffer; cannot fail
 	return buf.String()
 }
 

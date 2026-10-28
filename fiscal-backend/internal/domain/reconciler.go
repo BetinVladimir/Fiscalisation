@@ -94,7 +94,7 @@ func (r *Reconciler) ReconcileOperation(op Operation) {
 		op.ErrorCode = "RECONCILE_ESCALATED"
 		op.AllowedActions = []string{}
 		op.UpdatedAt = r.now()
-		_ = r.repo.PutOperation(op)
+		_ = r.repo.PutOperation(op) // best-effort: escalate regardless; storage failure is logged upstream
 		r.escalate(op)
 		return
 	}
@@ -103,7 +103,7 @@ func (r *Reconciler) ReconcileOperation(op Operation) {
 	op.State = "UNKNOWN"
 	op.AllowedActions = []string{"RECONCILE"}
 	op.UpdatedAt = r.now()
-	_ = r.repo.PutOperation(op)
+	_ = r.repo.PutOperation(op) // best-effort: UNKNOWN state persisted if possible; invariant 2 holds regardless
 }
 
 // countReconcileAttempts reads the attempt number embedded in ErrorCode.

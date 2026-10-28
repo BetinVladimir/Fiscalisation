@@ -1,4 +1,4 @@
-#!/bin/sh
+#!/usr/bin/env bash
 # check-doc-drift.sh — verify all rows in docs/MVP1/DOC_DRIFT.md have status RESOLVED.
 # Exit 0 if no OPEN rows; exit 1 with list of open items on stderr.
 set -eu
