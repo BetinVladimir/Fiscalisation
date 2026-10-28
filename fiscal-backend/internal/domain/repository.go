@@ -546,24 +546,6 @@ func (r *MemoryRepository) restoreLocked() {
 	}
 }
 
-func (r *MemoryRepository) resetLocked() {
-	r.sales = map[string]Sale{}
-	r.operations = map[string]Operation{}
-	r.devices = map[string]Device{}
-	r.shifts = map[string]Shift{}
-	r.unp = map[string]int64{}
-	r.replays = map[string]ReplayRecord{}
-	r.outbox = map[string]OutboxItem{}
-	r.bleSessions = map[string]BLESessionRecord{}
-	r.syncAcks = map[string]SyncAck{}
-	r.connectivityProbes = map[string]ConnectivityProbe{}
-	r.resources = map[string]ResourceRecord{}
-	r.artifacts = map[string][]byte{}
-	r.audit = []AuditEvent{}
-	r.edgePending = map[string]EdgePendingCommand{}
-	r.activationChallenges = map[string]DeviceActivationChallenge{}
-	r.activationRequests = map[string]DeviceActivationRequest{}
-}
 func (r *MemoryRepository) Replay(k string) (ReplayRecord, bool) {
 	if err := r.ensurePersistenceReady(); err != nil {
 		return *new(ReplayRecord), *new(bool)

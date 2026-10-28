@@ -83,7 +83,7 @@ func (s *Service) UpsertDeviceHealth(tenant, adapter string, status DeviceHealth
 	}
 	transitionID, uuidErr := newUUID()
 	if uuidErr == nil {
-		_ = s.repo.PutResource(ResourceRecord{Kind: "device_health_transition", // best-effort: health audit only, core response already succeeded TenantID: tenant, ID: transitionID, Version: 1, Data: map[string]any{"adapter_device_id": adapter, "state": status.AdapterState, "boot_id": status.BootID, "sequence": status.Sequence, "observed_at": observedAt}, CreatedAt: now, UpdatedAt: now})
+		_ = s.repo.PutResource(ResourceRecord{Kind: "device_health_transition", TenantID: tenant, ID: transitionID, Version: 1, Data: map[string]any{"adapter_device_id": adapter, "state": status.AdapterState, "boot_id": status.BootID, "sequence": status.Sequence, "observed_at": observedAt}, CreatedAt: now, UpdatedAt: now}) // best-effort: health audit only, core response already succeeded
 	}
 	return publicResource(current), nil
 }

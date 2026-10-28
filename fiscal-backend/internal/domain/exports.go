@@ -294,12 +294,12 @@ func exportPeriodCSV(exportType string, rows []exportRow, currency string, from,
 	var b bytes.Buffer
 	w := csv.NewWriter(&b)
 	headers, records := normativeExportTable(exportType, rows)
-	_ = w.Write(append([]string{"period_official_currency", "period_from_inclusive", "period_to_exclusive"}, headers...) // best-effort: csv.Writer buffers; Flush() error is checked by caller) // best-effort: csv.Writer buffers; Flush() error is checked by caller
+	_ = w.Write(append([]string{"period_official_currency", "period_from_inclusive", "period_to_exclusive"}, headers...)) // best-effort: csv.Writer buffers; Flush() error is checked by caller
 	if len(rows) == 0 {
-		_ = w.Write(append([]string{currency, from.UTC() // best-effort: csv.Writer buffers; Flush() error is checked by caller.Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, make([]string, len(headers))...))
+		_ = w.Write(append([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, make([]string, len(headers))...)) // best-effort: csv.Writer buffers; Flush() error is checked by caller
 	}
 	for _, record := range records {
-		_ = w.Write(append([]string{currency, from.UTC() // best-effort: csv.Writer buffers; Flush() error is checked by caller.Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, record...))
+		_ = w.Write(append([]string{currency, from.UTC().Format(time.RFC3339Nano), to.UTC().Format(time.RFC3339Nano)}, record...)) // best-effort: csv.Writer buffers; Flush() error is checked by caller
 	}
 	w.Flush()
 	return b.Bytes(), w.Error()
@@ -500,17 +500,6 @@ func exportPeriodXLSX(exportType string, rows []exportRow, currency string, from
 	}
 	return exportTableXLSX(append(prefix, headers...), values)
 }
-func exportCSV(rows []exportRow) ([]byte, error) {
-	var b bytes.Buffer
-	w := csv.NewWriter(&b)
-	_ = w.Write(exportCSVHeader() // best-effort: csv.Writer buffers; Flush() error is checked by caller)
-	for _, r := range rows {
-		_ = w.Write(exportCSVRecord(r) // best-effort: csv.Writer buffers; Flush() error is checked by caller)
-	}
-	w.Flush()
-	return b.Bytes(), w.Error()
-}
-
 func exportCSVHeader() []string {
 	return []string{"sale_id", "external_id", "unp", "location_id", "register_id", "operator_id", "state", "fiscal_operation_id", "receipt_artifact_id", "fiscal_device_json", "official_currency", "total_amount", "lines_json", "payments_json", "created_at"}
 }
@@ -520,14 +509,6 @@ func exportCSVRecord(r exportRow) []string {
 	payments, _ := json.Marshal(r.Payments)
 	device, _ := json.Marshal(r.FiscalDevice)
 	return []string{r.SaleID, r.ExternalID, r.UNP, r.LocationID, r.RegisterID, r.OperatorID, r.State, r.FiscalOperationID, r.ReceiptArtifactID, string(device), r.OfficialCurrency, r.Total.Amount, string(lines), string(payments), r.CreatedAt}
-}
-
-func exportXLSX(rows []exportRow) ([]byte, error) {
-	values := make([][]string, 0, len(rows))
-	for _, r := range rows {
-		values = append(values, exportCSVRecord(r))
-	}
-	return exportTableXLSX(exportCSVHeader(), values)
 }
 
 func exportTableXLSX(headers []string, values [][]string) ([]byte, error) {
