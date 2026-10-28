@@ -200,6 +200,13 @@ object DatecsPayloads {
     for (p in payments) {
       if (!money.matches(p.amount)) errors += "PAYLOAD_INVALID:payment_amount"
     }
+    // VG-06.3: validate plan totals match before any I/O (only when no line discounts)
+    if (errors.isEmpty() && lines.isNotEmpty() && payments.isNotEmpty() &&
+        lines.all { it.discountType == 0 }) {
+      val lineSum = lines.sumOf { BigDecimal(it.unitPrice) * BigDecimal(it.quantity) }
+      val paySum = payments.sumOf { BigDecimal(it.amount) }
+      if (lineSum.compareTo(paySum) != 0) errors += "PAYLOAD_INVALID:total_mismatch"
+    }
     return errors
   }
 
@@ -321,12 +328,28 @@ sealed class DatecsFailure(msg: String) : RuntimeException(msg) {
   class FrameTooLarge(msg: String) : DatecsFailure(msg)
 }
 
+/** Persists the last Datecs SEQ counter across restarts (VG-03.2). */
+interface SequenceStore {
+  fun load(): Int?   // null = unknown (first boot or cleared)
+  fun save(seq: Int)
+}
+
+/** In-memory SequenceStore for tests. */
+class MemorySequenceStore : SequenceStore {
+  private var value: Int? = null
+  override fun load(): Int? = value
+  override fun save(seq: Int) { value = seq }
+}
+
 class DatecsSocketProtocol(
   private val input: InputStream,
   private val output: OutputStream,
+  private val sequenceStore: SequenceStore? = null,
   internal val timeoutFor: (Int) -> Long = { cmd -> DatecsTimeouts.forCommand(cmd).toMillis() }
 ) {
-  internal var sequence = 0x20
+  /** True when SEQ was unknown at construction — first execute() should be cmd 74 (read-only). */
+  internal var seqUnknown: Boolean = sequenceStore?.load() == null
+  internal var sequence = sequenceStore?.load() ?: 0x20
 
   private companion object {
     val READER = Executors.newCachedThreadPool { r ->
@@ -406,6 +429,8 @@ class DatecsSocketProtocol(
         throw DatecsFailure.CorrelationError("DATECS_CORRELATION")
       }
       sequence = if (sequence == 0x7f) 0x20 else sequence + 1
+      sequenceStore?.save(sequence)
+      seqUnknown = false
       return result
     }
   }
