@@ -82,7 +82,7 @@ required_groups.each do |gid|
 end
 
 if errors.empty?
-  puts "OK: plan_coverage.json is valid (#{coverage['groups'].length} groups)"
+  puts "PLAN-CHECK OK: plan_coverage.json is valid (#{coverage['groups'].length} groups)"
   exit 0
 else
   errors.each { |e| puts "FAIL: #{e}" }

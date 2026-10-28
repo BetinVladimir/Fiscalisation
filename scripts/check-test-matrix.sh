@@ -45,7 +45,7 @@ done < <(tail -n +2 "$MATRIX")
 
 if [[ $ERRORS -eq 0 ]]; then
     MODULE_COUNT=$(tail -n +2 "$MATRIX" | wc -l | tr -d ' ')
-    echo "OK: test-matrix.tsv is valid ($MODULE_COUNT module rows)"
+    echo "TEST-MATRIX OK: test-matrix.tsv is valid ($MODULE_COUNT module rows)"
     exit 0
 else
     echo "FAIL: $ERRORS error(s) found in test-matrix.tsv"

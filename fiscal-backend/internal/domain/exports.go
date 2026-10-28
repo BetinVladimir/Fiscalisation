@@ -9,11 +9,11 @@ var ErrZMismatch = errors.New("Z_MISMATCH")
 // ZReportTotals holds the totals from a Z (close-of-day) fiscal report.
 // All monetary fields are in whole cents (invariant 1).
 type ZReportTotals struct {
-	NReport  int64  // report sequence number from the FU response
-	TotA     int64  // total taxable amount A (cents)
-	TotB     int64  // total taxable amount B (cents)
-	TotC     int64  // total taxable amount C (cents)
-	TotD     int64  // total taxable amount D (cents)
+	NReport   int64 // report sequence number from the FU response
+	TotA      int64 // total taxable amount A (cents)
+	TotB      int64 // total taxable amount B (cents)
+	TotC      int64 // total taxable amount C (cents)
+	TotD      int64 // total taxable amount D (cents)
 	CashTotal int64 // total cash collected (cents)
 	CardTotal int64 // total card collected (cents)
 }

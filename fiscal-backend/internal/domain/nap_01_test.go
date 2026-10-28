@@ -74,7 +74,7 @@ func TestReversalWithoutOriginalRequiresBasis(t *testing.T) {
 		"TECHNICAL_ISSUE",
 		"",
 		"market_withdrawal", // lowercase must not match
-		"PRE-SUPTO-SALE",   // wrong separator
+		"PRE-SUPTO-SALE",    // wrong separator
 	}
 	for _, r := range disallowed {
 		if ReversalBasisAllowed(r) {

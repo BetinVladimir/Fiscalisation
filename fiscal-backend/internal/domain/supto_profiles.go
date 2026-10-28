@@ -9,13 +9,13 @@ import (
 // SutpoProfile describes the audit/operator capabilities for one fiscal device profile.
 // The JSON fixture lives in docs/MVP1/fixtures/supto_profiles.json.
 type SutpoProfile struct {
-	ID               string   `json:"id"`
-	Name             string   `json:"name"`
-	DisabledOperator bool     `json:"disabled_operator"`
-	ReadOnlyAuditor  bool     `json:"read_only_auditor"`
-	AuditEvents      []string `json:"audit_events"`
-	Unsupported      []string `json:"unsupported"`
-	UnsupportedReason string  `json:"unsupported_reason"`
+	ID                string   `json:"id"`
+	Name              string   `json:"name"`
+	DisabledOperator  bool     `json:"disabled_operator"`
+	ReadOnlyAuditor   bool     `json:"read_only_auditor"`
+	AuditEvents       []string `json:"audit_events"`
+	Unsupported       []string `json:"unsupported"`
+	UnsupportedReason string   `json:"unsupported_reason"`
 }
 
 type sutpoProfilesFile struct {

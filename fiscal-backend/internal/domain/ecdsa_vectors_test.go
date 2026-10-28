@@ -19,13 +19,13 @@ import (
 //
 // Cross-format rejection is tested in TestECDSACrossFormatRejection.
 type ecdsaVector struct {
-	Index       int    `json:"index"`
-	DigestHex   string `json:"digest_hex"`
-	PubKeySpki  string `json:"pubkey_spki_b64"`
-	SigDer      string `json:"sig_der_b64"`
-	SigP1363    string `json:"sig_p1363_b64"`
-	WrongDer    string `json:"wrong_sig_der_b64"`
-	WrongP1363  string `json:"wrong_sig_p1363_b64"`
+	Index      int    `json:"index"`
+	DigestHex  string `json:"digest_hex"`
+	PubKeySpki string `json:"pubkey_spki_b64"`
+	SigDer     string `json:"sig_der_b64"`
+	SigP1363   string `json:"sig_p1363_b64"`
+	WrongDer   string `json:"wrong_sig_der_b64"`
+	WrongP1363 string `json:"wrong_sig_p1363_b64"`
 }
 
 func loadECDSAVectors(t *testing.T) []ecdsaVector {

@@ -14,12 +14,12 @@ import (
 // an atomic open-with-line write. OperatorCode is resolved from the session and
 // must never be set directly by the caller.
 type OpenSaleWithFirstLineRequest struct {
-	TenantID             string
+	TenantID              string
 	ClientSaleSurrogateID string
-	WorkstationID        string
-	OperatorSessionID    string
-	OperatorCode         string `json:"-"`
-	Line                 SaleLine `json:"line"`
+	WorkstationID         string
+	OperatorSessionID     string
+	OperatorCode          string   `json:"-"`
+	Line                  SaleLine `json:"line"`
 }
 
 func (s *Service) OpenSaleWithFirstLine(in OpenSaleWithFirstLineRequest) (Sale, error) {

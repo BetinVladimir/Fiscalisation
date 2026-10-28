@@ -160,7 +160,6 @@ func (s *Service) driverFor(_ string) Driver { return s.driver }
 // not a device choice; the selected device remains the snapshot carried in the
 // command. Any rebind or identity mismatch is fenced without fallback.
 
-
 func (s *Service) SetRequireHardwareSyncSignatures(required bool) {
 	s.requireHardwareSyncSignatures = required
 }
@@ -169,13 +168,8 @@ func (s *Service) SetRequireHardwareSyncSignatures(required bool) {
 // delivered while its signed authority was valid. It never creates a fresh
 // envelope and never repeats a possible device side effect.
 
-
 func (s *Service) CountryPolicy(at time.Time) (CountryPolicy, error) { return s.policy.Policy(at) }
 func (s *Service) TaxGroups(at time.Time) ([]TaxGroup, error)        { return s.policy.TaxGroups(at) }
-
-
-
-
 
 func NewService(r Repository, d Driver) *Service {
 	return &Service{repo: r, driver: d, policy: DefaultBGPolicyCatalog()}
@@ -187,4 +181,3 @@ type CreateSale struct {
 	RegisterID string `json:"register_id"`
 	OperatorID string `json:"operator_id"`
 }
-

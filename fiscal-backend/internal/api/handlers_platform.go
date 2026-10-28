@@ -393,4 +393,3 @@ func (h *Handler) sync(w http.ResponseWriter, r *http.Request) {
 	}
 	h.saveReplay(w, r, body, 200, v)
 }
-

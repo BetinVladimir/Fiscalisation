@@ -7,7 +7,7 @@ import (
 )
 
 const (
-	reconcilerDefaultInterval = 30 * time.Second
+	reconcilerDefaultInterval  = 30 * time.Second
 	reconcilerDefaultStaleness = 5 * time.Minute
 	ReconcilerMaxAttempts      = 3
 )

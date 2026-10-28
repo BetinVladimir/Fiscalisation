@@ -13,9 +13,9 @@ import (
 // and BUG-001 test vectors.
 func TestParseMoney(t *testing.T) {
 	tests := []struct {
-		input    string
-		want     int64
-		wantErr  bool
+		input   string
+		want    int64
+		wantErr bool
 	}{
 		// Valid cases
 		{"0.00", 0, false},

@@ -126,8 +126,8 @@ func TestLoadDefaultsAreSafe(t *testing.T) {
 	// With no environment variables set, defaults must be safe.
 	// We test by constructing Config directly (Load() reads os.Getenv).
 	cfg := Config{
-		AppEnv:             "dev",
-		AllowStubAdapters:  true, // default "false" in Load()
+		AppEnv:                         "dev",
+		AllowStubAdapters:              true, // default "false" in Load()
 		SimulatorCardTerminalAvailable: false,
 	}
 	if cfg.AllowStubAdapters {
@@ -139,8 +139,8 @@ func TestLoadDefaultsAreSafe(t *testing.T) {
 
 func TestEMQXPlusStubAdaptersRejected(t *testing.T) {
 	cfg := Config{
-		AppEnv:          "dev",
-		EMQXBroker:      "tcp://emqx:1883",
+		AppEnv:            "dev",
+		EMQXBroker:        "tcp://emqx:1883",
 		AllowStubAdapters: true,
 	}
 	if err := cfg.Validate(); err == nil {

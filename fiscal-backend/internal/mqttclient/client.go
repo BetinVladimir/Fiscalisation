@@ -58,9 +58,9 @@ type commandResultService interface {
 }
 
 type Processor struct {
-	service        syncService
-	signingKey     []byte
-	allowedTenant  string // when non-empty, messages for other tenants are rejected
+	service       syncService
+	signingKey    []byte
+	allowedTenant string // when non-empty, messages for other tenants are rejected
 }
 
 type Bridge struct {

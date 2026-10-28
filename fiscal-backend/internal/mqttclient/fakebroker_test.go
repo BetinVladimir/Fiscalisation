@@ -240,7 +240,11 @@ func (c *fbClient) PublishDup(msgID uint16) bool {
 }
 
 // Ack acknowledges a QoS1 message, removing it from in-flight.
-func (c *fbClient) Ack(msgID uint16) { c.broker.mu.Lock(); delete(c.pendingAck, msgID); c.broker.mu.Unlock() }
+func (c *fbClient) Ack(msgID uint16) {
+	c.broker.mu.Lock()
+	delete(c.pendingAck, msgID)
+	c.broker.mu.Unlock()
+}
 
 // Disconnect performs a graceful disconnect (no LWT).
 func (c *fbClient) Disconnect() {

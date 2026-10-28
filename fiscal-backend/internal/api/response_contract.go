@@ -132,7 +132,13 @@ func enforceSuccessResponses(next http.Handler) http.Handler {
 				valid = captured.body.Len() > 0 && containsString(contract.Media, contentType)
 				if valid && contentType == "application/json" && !responseSchemaIsBinary(contract.Schema) {
 					var decoded any
-					if err := json.Unmarshal(captured.body.Bytes(), &decoded); err != nil { schemaErr = err; valid = false } else if err = validateResponseSchema(contract.Schema, decoded); err != nil { schemaErr = err; valid = false }
+					if err := json.Unmarshal(captured.body.Bytes(), &decoded); err != nil {
+						schemaErr = err
+						valid = false
+					} else if err = validateResponseSchema(contract.Schema, decoded); err != nil {
+						schemaErr = err
+						valid = false
+					}
 				}
 			}
 			if !valid {
@@ -204,8 +210,12 @@ func validateOpenAPIRequest(r *http.Request, path string) error {
 	}
 	if contentType == "application/json" {
 		var decoded any
-		if err := json.Unmarshal(body, &decoded); err != nil { return fmt.Errorf("request body invalid JSON: %w", err) }
-		if err := validateResponseSchema(contract.Schema, decoded); err != nil { return fmt.Errorf("request body violates schema: %w", err) }
+		if err := json.Unmarshal(body, &decoded); err != nil {
+			return fmt.Errorf("request body invalid JSON: %w", err)
+		}
+		if err := validateResponseSchema(contract.Schema, decoded); err != nil {
+			return fmt.Errorf("request body violates schema: %w", err)
+		}
 	}
 	return nil
 }

@@ -587,8 +587,8 @@ func renderCSV(headers []string, records [][]string, currency string) ([]byte, s
 	var buf bytes.Buffer
 	w := csv.NewWriter(&buf)
 	meta := []string{"official_currency=" + currency}
-	_ = w.Write(meta)                // best-effort: csv.Writer.Flush captures deferred errors
-	_ = w.Write(headers)             // best-effort: csv.Writer.Flush captures deferred errors
+	_ = w.Write(meta)    // best-effort: csv.Writer.Flush captures deferred errors
+	_ = w.Write(headers) // best-effort: csv.Writer.Flush captures deferred errors
 	for _, row := range records {
 		_ = w.Write(row) // best-effort: csv.Writer.Flush captures deferred errors
 	}

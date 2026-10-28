@@ -44,12 +44,12 @@ func TestTwoReplicasGenerationConflict(t *testing.T) {
 	saleB1 := domain.Sale{
 		ID: saleB, TenantID: tenant, OperatorID: "A001",
 		ExternalID: "ext-two-replica-b",
-		State: "OPEN", UNP: "BB123456-A001-0000001",
+		State:      "OPEN", UNP: "BB123456-A001-0000001",
 		RegisterID: "register-b",
 		Lines: []domain.SaleLine{{LineID: "l", Name: "Tea",
 			Quantity: "1.000", UnitPrice: domain.Money{Amount: "1.00", Currency: "EUR"}, TaxGroup: "B"}},
 		Payments: []domain.PaymentRecord{},
-		Version: 1, CreatedAt: now, UpdatedAt: now,
+		Version:  1, CreatedAt: now, UpdatedAt: now,
 	}
 	if err = repoB.PutSale(saleB1); err != nil {
 		t.Fatalf("replica B write failed: %v", err)
@@ -60,12 +60,12 @@ func TestTwoReplicasGenerationConflict(t *testing.T) {
 	saleA1 := domain.Sale{
 		ID: saleA, TenantID: tenant, OperatorID: "A001",
 		ExternalID: "ext-two-replica-a",
-		State: "OPEN", UNP: "AA123456-A001-0000001",
+		State:      "OPEN", UNP: "AA123456-A001-0000001",
 		RegisterID: "register-a",
 		Lines: []domain.SaleLine{{LineID: "l", Name: "Coffee",
 			Quantity: "1.000", UnitPrice: domain.Money{Amount: "2.00", Currency: "EUR"}, TaxGroup: "B"}},
 		Payments: []domain.PaymentRecord{},
-		Version: 1, CreatedAt: now, UpdatedAt: now,
+		Version:  1, CreatedAt: now, UpdatedAt: now,
 	}
 	// The first attempt may hit ErrConcurrentState; retry once after recover.
 	putErr := repoA.PutSale(saleA1)
