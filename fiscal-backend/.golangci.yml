@@ -1,0 +1,30 @@
+# golangci-lint configuration for fiscal-backend
+# STYLE-001: Money rules — no float64/float32 in domain packages (except metrics)
+run:
+  timeout: 3m
+  modules-download-mode: readonly
+
+linters:
+  enable:
+    - govet
+    - staticcheck
+    - errcheck
+    - ineffassign
+    - unused
+
+linters-settings:
+  govet:
+    enable-all: false
+
+issues:
+  exclude-rules:
+    # Allow float64 in metrics package (Prometheus counters)
+    - path: internal/metrics
+      linters: [govet]
+    # Allow test files broader latitude
+    - path: _test\.go
+      linters: [errcheck]
+
+  # Money safety: forbid float types in domain packages
+  # Enforced via scripts/check-lint-rules.sh (golangci-lint custom rules require
+  # a plugin; script-based grep is the current enforcement mechanism)

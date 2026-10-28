@@ -1,74 +1,90 @@
 #!/usr/bin/env ruby
-# check_plan_coverage.rb — plan integrity: markdown cards <-> status.json
-# Exit 0 = clean; exit 1 = violations; exit 3 = missing environment
+# check_plan_coverage.rb — Validate docs/MVP1/fixtures/plan_coverage.json
+# Exit 0: valid; Exit 1: schema/structure error; Exit 2: missing task IDs in plan.json
+#
+# Usage: ruby scripts/check_plan_coverage.rb [--plan PATH] [--coverage PATH]
 require 'json'
+require 'optparse'
 require 'set'
 
-ROOT = File.expand_path('..', __dir__)
-STATUS_FILE = File.join(ROOT, 'docs/MVP1/execution/status.json')
+root = File.expand_path('..', __dir__)
 
-unless File.exist?(STATUS_FILE)
-  warn "PLAN-ENV: #{STATUS_FILE} not found (exit 3)"
-  exit 3
-end
-
-status = JSON.parse(File.read(STATUS_FILE)) rescue nil
-unless status.is_a?(Hash)
-  warn 'PLAN-ENV: status.json is not a JSON object'
-  exit 3
-end
-
-tasks_raw = status['tasks'] || []
-# tasks can be Array of {id:...} or Hash {id => {...}}
-tasks = if tasks_raw.is_a?(Array)
-  tasks_raw.each_with_object({}) { |t, h| h[t['id']] = t if t['id'] }
-else
-  tasks_raw
-end
-status_ids = Set.new(tasks.keys)
-
-# Collect IDs from fixes/ markdown files
-card_dir = File.join(ROOT, 'docs/MVP1/fixes')
-card_ids = Set.new
-if Dir.exist?(card_dir)
-  Dir.glob(File.join(card_dir, '*.md')).each do |f|
-    base = File.basename(f, '.md')
-    next if %w[README INDEX REVIEW E2E_COVERAGE].include?(base)
-    card_ids << base
-  end
-end
+options = {
+  plan:     File.join(root, 'docs/MVP1/fixes/plan.json'),
+  coverage: File.join(root, 'docs/MVP1/fixtures/plan_coverage.json'),
+}
+OptionParser.new do |opts|
+  opts.on('--plan PATH')     { |v| options[:plan]     = v }
+  opts.on('--coverage PATH') { |v| options[:coverage] = v }
+end.parse!
 
 errors = []
 
-# PLAN-001: every card ID should be in status.json (warn only — cards may precede status)
-missing_from_status = card_ids - status_ids
-if missing_from_status.size > 50
-  errors << "PLAN-001: #{missing_from_status.size} cards not in status.json (sample: #{missing_from_status.first(3).join(', ')})"
+# Load files
+begin
+  coverage = JSON.parse(File.read(options[:coverage]))
+rescue => e
+  abort "ERROR: cannot parse plan_coverage.json: #{e}"
 end
 
-# PLAN-002: status IDs with doc field must point to existing file
-tasks.each do |id, task|
-  doc = task['doc']
-  next unless doc
-  doc_path = File.join(ROOT, doc)
-  unless File.exist?(doc_path)
-    errors << "PLAN-002: task #{id} doc=#{doc} not found"
+begin
+  plan = JSON.parse(File.read(options[:plan]))
+rescue => e
+  abort "ERROR: cannot parse plan.json: #{e}"
+end
+
+# Schema check
+unless coverage['schema'] == 1
+  errors << "coverage.schema must be 1, got #{coverage['schema'].inspect}"
+end
+unless coverage['groups'].is_a?(Array) && coverage['groups'].length > 0
+  errors << "coverage.groups must be a non-empty array"
+end
+
+# Collect all plan task IDs
+plan_ids = Set.new((plan['tasks'] || []).map { |t| t['id'] })
+
+required_group_fields = %w[id name description task_ids evidence_gate]
+required_groups = %w[P40 P41 P42 P43 P44]
+found_groups = []
+
+(coverage['groups'] || []).each do |grp|
+  gid = grp['id']
+  found_groups << gid
+
+  required_group_fields.each do |field|
+    unless grp.key?(field)
+      errors << "Group #{gid}: missing required field '#{field}'"
+    end
+  end
+
+  task_ids = grp['task_ids']
+  unless task_ids.is_a?(Array) && task_ids.length > 0
+    errors << "Group #{gid}: task_ids must be a non-empty array"
+    next
+  end
+
+  task_ids.each do |tid|
+    unless plan_ids.include?(tid)
+      errors << "Group #{gid}: task_id '#{tid}' not found in plan.json"
+    end
+  end
+
+  if grp['evidence_gate'].to_s.strip.empty?
+    errors << "Group #{gid}: evidence_gate must not be empty"
   end
 end
 
-# PLAN-003: depends reference existing IDs
-tasks.each do |id, task|
-  (task['depends'] || task['requires'] || []).each do |dep|
-    unless status_ids.include?(dep) || card_ids.include?(dep)
-      errors << "PLAN-003: task #{id} depends on unknown #{dep}"
-    end
+required_groups.each do |gid|
+  unless found_groups.include?(gid)
+    errors << "Missing required group '#{gid}'"
   end
 end
 
 if errors.empty?
-  puts "PLAN-CHECK OK: #{tasks.size} tasks, #{card_ids.size} cards checked"
+  puts "OK: plan_coverage.json is valid (#{coverage['groups'].length} groups)"
   exit 0
 else
-  errors.each { |e| warn e }
+  errors.each { |e| puts "FAIL: #{e}" }
   exit 1
 end

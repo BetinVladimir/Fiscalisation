@@ -1,0 +1,11 @@
+# TST-E2E-25.1 · P1 · ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md
+
+Dependencies: W0-1, E2E-HARNESS-01, VG-23, DSY-07, SMS-07
+Notes: Актуальная спецификация повторного ревью в поле spec. Противоречащие исторические notes/карточки отменены; использовать текущие unit requirements и source decisions.
+
+Цель: POS + MiniPOS, MQTT и BLE, BlueCash, Datecs/S3/COM, BluePay/S3/BLE, Daisy Compact/S3/USB, Smart S/Android/HTTP. D-1…D-20: последние подтверждённые решения DECISIONS §5 приоритетнее старых карточек. Транзакции до HIL. Деньги: целые центы, half-up; golden 1200+167=1367, CASH 500/CARD 867. UNKNOWN после записи: только lookup, никаких повторных денежных команд/автовозврата. Сторно до refund; crash/timeout refund сохраняет отдельное durable состояние. Compact: CARD/split запрещены до I/O. Smart S: только LAB без номера; PROD UNKNOWN, не синтетический номер. E-чек выключен: проверять отказ, не реализовывать отправку. BC-50: сторно cmd43, внешний терминал; часы читать cmd62, WARN >5мин/BLOCK >2ч, business_date Europe/Sofia; валютный режим 2/3. Datecs SEQ 0x20..0x7f, Daisy 0x20..0xff, CP1251. Статусы исторического трекера не доказывают готовность. Никогда не менять status.json и не записывать HIL PASS по эмулятору.
+
+Подзадача TST-E2E-25.1: выполнить свою часть актуальной спецификации: Матрица слотов по capabilities. BC50 и Smart S LAB: CASH500/CARD867=1367, реальные profile slots из утверждённых fixtures/GetPayments. Compact: CASH1367 положительно, CARD/split отрицательно до I/O. Smart S неопределённый слот в PROD блокируется, LAB явно маркируется. Ожидаемое не берётся из тестируемого маппера. Адресный unittest-harness: python3 -m unittest discover -s tests/e2e/scenarios -p test_tst_e2e_25.py. Native runtime/scripts реально вызываются; skips/no tests не допускаются; временные данные/evidence в MVP1_ARTIFACT_DIR. Контроллер сначала проверяет реальный assertion FAIL, затем green без изменения red-тестов. Для test-only работы разрешена временная мутация scoped production файла: контроллер восстановит его исходные байты перед green. Native subprocess обязан захватывать stdout/stderr и выдавать реальные ненулевые test counts (Go JSON, JUnit XML, unittest, pytest, TAP, GTest/Jest/CTest); python --version/echo/import без вызова продукта не являются runtime evidence.
+
+Source: ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md
+Task: TST-E2E-25  Unit: TST-E2E-25.1

@@ -1,0 +1,10 @@
+# SECURITY-ROTATION-01 · P0 · DECISIONS.md
+
+Notes: Владелец: ротация реально раскрытых ключей/паролей и решение о git history. Кодогенерация создаёт только scan/конфигурацию. Не выдумывать подтверждение ротации.
+
+Цель: POS + MiniPOS, MQTT и BLE, BlueCash, Datecs/S3/COM, BluePay/S3/BLE, Daisy Compact/S3/USB, Smart S/Android/HTTP. D-1…D-20: последние подтверждённые решения DECISIONS §5 приоритетнее старых карточек. Транзакции до HIL. Деньги: целые центы, half-up; golden 1200+167=1367, CASH 500/CARD 867. UNKNOWN после записи: только lookup, никаких повторных денежных команд/автовозврата. Сторно до refund; crash/timeout refund сохраняет отдельное durable состояние. Compact: CARD/split запрещены до I/O. Smart S: только LAB без номера; PROD UNKNOWN, не синтетический номер. E-чек выключен: проверять отказ, не реализовывать отправку. BC-50: сторно cmd43, внешний терминал; часы читать cmd62, WARN >5мин/BLOCK >2ч, business_date Europe/Sofia; валютный режим 2/3. Datecs SEQ 0x20..0x7f, Daisy 0x20..0xff, CP1251. Статусы исторического трекера не доказывают готовность. Никогда не менять status.json и не записывать HIL PASS по эмулятору.
+
+Письменное evidence ротации без секретов; независимая проверка. Не выполнять на реальных credentials автоматически.
+
+Source: DECISIONS.md
+Task: SECURITY-ROTATION-01  Unit: SECURITY-ROTATION-01
