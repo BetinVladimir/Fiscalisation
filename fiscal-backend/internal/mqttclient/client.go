@@ -19,6 +19,16 @@ import (
 	"fiscalisation/fiscal-backend/internal/domain"
 )
 
+// ErrDeviceClockNotMeasured is returned by DeviceTime when no DEVICE_TIME
+// response from the fiscal device has been received yet. Fallback to the host
+// clock is forbidden (BUG-005).
+var ErrDeviceClockNotMeasured = fmt.Errorf("DEVICE_CLOCK_NOT_MEASURED")
+
+// ErrDeviceClockSetUnsupported is returned by SetDeviceTime for the BC-50
+// (BlueCash) profile which reads the clock via cmd62 but does not support
+// setting it.
+var ErrDeviceClockSetUnsupported = fmt.Errorf("DEVICE_CLOCK_SET_UNSUPPORTED")
+
 var syncTopic = regexp.MustCompile(`^tenants/([^/]+)/devices/([^/]+)/sync/batches/([^/]+)$`)
 var activationTopic = regexp.MustCompile(`^beefiscal/v1/devices/([^/]+)/activation$`)
 var bindingAckTopic = regexp.MustCompile(`^tenants/([^/]+)/devices/([^/]+)/bindings/acks$`)
@@ -91,13 +101,13 @@ func (b *Bridge) Probe() error {
 // DeviceTime returns an error until the device clock is read via cmd62.
 // Returning the host clock is explicitly forbidden (BUG-005).
 func (b *Bridge) DeviceTime() (time.Time, error) {
-	return time.Time{}, fmt.Errorf("DEVICE_CLOCK_NOT_MEASURED")
+	return time.Time{}, ErrDeviceClockNotMeasured
 }
-func (b *Bridge) SetDeviceTime(at time.Time) error {
-	if at.IsZero() {
-		return fmt.Errorf("invalid device time")
-	}
-	return b.Probe()
+
+// SetDeviceTime is not supported for the BC-50 (BlueCash via MQTT). The device
+// clock can only be read (cmd62), not set (cmd61 is unavailable on this profile).
+func (b *Bridge) SetDeviceTime(_ time.Time) error {
+	return ErrDeviceClockSetUnsupported
 }
 func (b *Bridge) Execute(domain.Operation, domain.Sale, domain.PaymentRequest) (string, string) {
 	return "", "MQTT_ASYNC_DRIVER_REQUIRES_QUEUE"
