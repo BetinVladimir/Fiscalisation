@@ -1,4 +1,39 @@
 {
+  "PRB-01": {
+    "status": "BLOCKED_SPEC",
+    "description": "BC-50 cmd 255 read: UNP, StornoUNP, FMnumber, nLastFiscalDoc, NapBlockDateTime, DFR_needed, CurrNameLocal, CurrNameForeign, ExchangeRate — each name: supported/unsupported + raw frame",
+    "source": "DECISIONS §5, DOC-V2",
+    "requires": "Physical BC-50 hardware on HIL stand; run cmd 255 for each name, record raw frame + parsed result per DECISIONS §5",
+    "notes": "BLOCKED: no physical BC-50 device available in this session. Must be done on real hardware."
+  },
+  "PRB-02": {
+    "status": "BLOCKED_SPEC",
+    "description": "BC-50 payment slot names (programming) — decision D-9",
+    "source": "DECISIONS §5",
+    "requires": "Physical BC-50 hardware on HIL stand; read payment slot names, record raw frame",
+    "notes": "BLOCKED: no physical BC-50 device available in this session."
+  },
+  "PRB-03": {
+    "status": "BLOCKED_SPEC",
+    "description": "BC-50 price×quantity rounding: 3 fixture sets from ARCH_15 §ROUND; expected ΔCents=0",
+    "source": "DECISIONS §5, ARCH_15 §ROUND",
+    "requires": "Physical BC-50 hardware on HIL stand; send sale with 3 fixture sets, compare FU total vs local half-up total",
+    "notes": "BLOCKED: no physical BC-50 device available in this session. Fixture values: golden 1200+167=1367¢ (CASH 500/CARD 867)."
+  },
+  "PRB-04": {
+    "status": "BLOCKED_SPEC",
+    "description": "BC-50 currency mode read — decision D-10; expected value in {0,1,2,3}",
+    "source": "DECISIONS §5, D-10",
+    "requires": "Physical BC-50 hardware on HIL stand; read currency mode register, record value",
+    "notes": "BLOCKED: no physical BC-50 device available in this session."
+  },
+  "PRB-05": {
+    "status": "BLOCKED_SPEC",
+    "description": "BC-50 HIL probe per DECISIONS §5 — specific subject not listed in §5 table; requires probe identification from owner",
+    "source": "DECISIONS §5",
+    "requires": "Physical BC-50 hardware on HIL stand; probe subject must be confirmed by project owner",
+    "notes": "BLOCKED: probe subject not defined in DECISIONS §5 table (PRB-01..04 listed). Owner must specify what PRB-05 should verify."
+  },
   "PRB-07": {
     "vid": "0483",
     "pid": "5740",

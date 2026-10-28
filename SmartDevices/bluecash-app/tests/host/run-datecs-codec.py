@@ -22,10 +22,12 @@ compiler = [jar("org.jetbrains.kotlin", a, VERSION) for a in
 compiler += [stdlib, annotations, jar("org.jetbrains.intellij.deps", "trove4j", "1.0.20200330"),
              jar("org.jetbrains.kotlinx", "kotlinx-coroutines-core-jvm", "1.6.4")]
 java = str(Path(os.environ["JAVA_HOME"]) / "bin/java") if "JAVA_HOME" in os.environ else "java"
-source = HERE.parents[1] / "src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsProtocol.kt"
+src = HERE.parents[1] / "src/main/kotlin/com/beeloy/fiscal/bluecash"
+# DatecsProtocol.kt references SalePayment from BlueCashEngine.kt; include both.
+sources = [src / "DatecsProtocol.kt", src / "BlueCashEngine.kt", HERE / "DatecsCodecVendorHost.kt"]
 with tempfile.TemporaryDirectory(prefix="beefiscal-datecs-kotlin-") as output:
     subprocess.run([java, "-cp", os.pathsep.join(compiler), "org.jetbrains.kotlin.cli.jvm.K2JVMCompiler",
                     "-no-stdlib", "-no-reflect", "-classpath", os.pathsep.join([stdlib, annotations]),
-                    "-d", output, str(source), str(HERE / "DatecsCodecVendorHost.kt")], check=True)
+                    "-d", output] + [str(s) for s in sources], check=True)
     subprocess.run([java, "-cp", os.pathsep.join([output, stdlib]),
                     "com.beeloy.fiscal.bluecash.DatecsCodecVendorHostKt"], check=True)
