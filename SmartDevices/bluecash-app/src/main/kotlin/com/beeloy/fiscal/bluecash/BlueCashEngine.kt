@@ -590,3 +590,30 @@ internal fun datecsPaymentMode(type: String): Int =
     "DEFERRED", "INTERNAL_CONSUMPTION" -> 5
     else -> error("PAYMENT_TYPE")
   }
+
+/**
+ * VG-23: Hardware device profiles for payment slot mapping.
+ */
+enum class BC50Profile {
+    DEFAULT
+}
+
+/**
+ * VG-23: Map a POS payment type to a Datecs paid-mode slot for a given device profile.
+ * BC50_DEFAULT from PM §4.15 and docs/MVP1/fixtures/payment_slots_bc50.json:
+ *   CASH→0, CARD→1, CHEQUE→3, VOUCHER→4, COUPON→5.
+ * NHIF, DEFERRED, INTERNAL_CONSUMPTION → null (PAYMENT_TYPE_UNSUPPORTED).
+ * Validation must happen before any card or fiscal I/O (invariant: BUG-022).
+ */
+fun paymentSlot(profile: BC50Profile, type: String): Int? =
+    when (profile) {
+        BC50Profile.DEFAULT -> when (type) {
+            "CASH"   -> 0
+            "CARD"   -> 1
+            "CHEQUE" -> 3
+            "VOUCHER" -> 4
+            "COUPON"  -> 5
+            "NHIF", "DEFERRED", "INTERNAL_CONSUMPTION" -> null
+            else -> error("PAYMENT_TYPE_UNKNOWN:$type")
+        }
+    }
