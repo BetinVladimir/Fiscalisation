@@ -52,8 +52,10 @@ type recoveryRows struct {
 	missing, done bool
 }
 
-func (r *recoveryRows) Columns() []string { return []string{"ciphertext", "fiscal_tenant_id"} }
-func (r *recoveryRows) Close() error      { return nil }
+func (r *recoveryRows) Columns() []string {
+	return []string{"ciphertext", "fiscal_tenant_id", "encryption_key_id"}
+}
+func (r *recoveryRows) Close() error { return nil }
 func (r *recoveryRows) Next(v []driver.Value) error {
 	if r.done || r.missing {
 		return io.EOF
@@ -61,6 +63,7 @@ func (r *recoveryRows) Next(v []driver.Value) error {
 	r.done = true
 	v[0] = r.data
 	v[1] = "fiscal-tenant-a"
+	v[2] = "" // single-key mode: empty keyID falls through to c.decrypt
 	return nil
 }
 

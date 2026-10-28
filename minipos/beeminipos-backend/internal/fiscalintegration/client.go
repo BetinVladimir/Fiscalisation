@@ -22,6 +22,11 @@ import (
 	_ "github.com/jackc/pgx/v5/stdlib"
 )
 
+// ErrLinkNotFoundYet is returned when a webhook UPDATE affects 0 rows because
+// the resource link was not yet inserted (race between mutateResource and webhook).
+// The caller should return 409 so the Fiscal platform retries later.
+var ErrLinkNotFoundYet = errors.New("link not found yet")
+
 // HTTPStatusError preserves an authoritative upstream denial across the source bridge.
 type HTTPStatusError struct {
 	StatusCode int
@@ -36,7 +41,11 @@ type Client struct {
 	db                       *sql.DB
 	base, systemToken, keyID string
 	aead                     cipher.AEAD
-	http                     *http.Client
+	// keyring holds all active and previous encryption keys for re-wrap on read.
+	// If nil, only aead (identified by keyID) is available.
+	keyring     map[string]cipher.AEAD
+	activeKeyID string
+	http        *http.Client
 }
 type Enrollment struct {
 	Email           string `json:"email"`
@@ -314,23 +323,12 @@ func (c *Client) mutateResource(ctx context.Context, companyID, method, resource
 	if resource == "organization" && linkSourceID == "" {
 		linkSourceID = "organization"
 	}
-	_, e = c.db.ExecContext(ctx, `insert into minipos.company_fiscal_resource_links(binding_id,resource_type,source_entity_id,source_version,sync_status,last_operation_id) values($1,$2,$3,$4,'ACCEPTED',$5) on conflict(binding_id,resource_type,source_entity_id) do update set source_version=excluded.source_version,sync_status='ACCEPTED',last_operation_id=excluded.last_operation_id,updated_at=now()`, binding, strings.TrimSuffix(resource, "s"), linkSourceID, sourceVersion, out.OperationID)
+	_, e = c.db.ExecContext(ctx, `insert into minipos.company_fiscal_resource_links(binding_id,resource_type,source_entity_id,source_version,sync_status,last_operation_id) values($1,$2,$3,$4,'PENDING_SEND',$5) on conflict(binding_id,resource_type,source_entity_id) do update set source_version=excluded.source_version,sync_status='PENDING_SEND',last_operation_id=excluded.last_operation_id,updated_at=now() where company_fiscal_resource_links.sync_status<>'SUCCEEDED'`, binding, strings.TrimSuffix(resource, "s"), linkSourceID, sourceVersion, out.OperationID)
 	return out, e
 }
 
 func (c *Client) UpdateSourceCompanyID(ctx context.Context, companyID, next string, expected int64, idempotency, actorType, actorID, session, reason string) error {
-	token, _, e := c.tenantCredential(ctx, companyID)
-	if e != nil {
-		return e
-	}
-	headers := map[string]string{"BeeFiscal-Source-Actor-Type": actorType, "BeeFiscal-Source-Actor-Id": actorID}
-	if session != "" {
-		headers["BeeFiscal-Source-Actor-Session-Id"] = session
-	}
-	e = c.call(ctx, http.MethodPatch, "/integration/v1/binding", token, idempotency, headers, map[string]any{"source_company_id": next, "expected_version": expected}, nil)
-	if e != nil {
-		return e
-	}
+	// Step 1: Lock the binding row first to detect version conflicts BEFORE calling Fiscal.
 	tx, e := c.db.BeginTx(ctx, nil)
 	if e != nil {
 		return e
@@ -345,6 +343,19 @@ func (c *Client) UpdateSourceCompanyID(ctx context.Context, companyID, next stri
 	if e != nil {
 		return e
 	}
+	// Step 2: Call Fiscal only after confirming local version.
+	token, _, e := c.tenantCredential(ctx, companyID)
+	if e != nil {
+		return e
+	}
+	headers := map[string]string{"BeeFiscal-Source-Actor-Type": actorType, "BeeFiscal-Source-Actor-Id": actorID}
+	if session != "" {
+		headers["BeeFiscal-Source-Actor-Session-Id"] = session
+	}
+	if e = c.call(ctx, http.MethodPatch, "/integration/v1/binding", token, idempotency, headers, map[string]any{"source_company_id": next, "expected_version": expected}, nil); e != nil {
+		return e
+	}
+	// Step 3: Update and commit.
 	_, e = tx.ExecContext(ctx, `update minipos.company_fiscal_bindings set source_company_id=$2,version=version+1,updated_at=now() where id=$1`, id, next)
 	if e != nil {
 		return e
@@ -353,7 +364,12 @@ func (c *Client) UpdateSourceCompanyID(ctx context.Context, companyID, next stri
 	if e != nil {
 		return e
 	}
-	return tx.Commit()
+	if e = tx.Commit(); e != nil {
+		// Commit failed after Fiscal was already updated: queue for repair.
+		_, _ = c.db.ExecContext(ctx, `insert into minipos.binding_repair_queue(binding_id,next_source_company_id,idempotency_key,actor_type,actor_id,created_at) values($1,$2,$3,$4,$5,now()) on conflict do nothing`, id, next, idempotency, actorType, actorID)
+		return e
+	}
+	return nil
 }
 
 func (c *Client) ProcessWebhook(ctx context.Context, eventID, systemID, tenantID, operationID, sourceID, status string, sourceVersion int64, result map[string]any) error {
@@ -367,14 +383,17 @@ func (c *Client) ProcessWebhook(ctx context.Context, eventID, systemID, tenantID
 	if e != nil {
 		return e
 	}
-	syncStatus := status
-	if syncStatus != "SUCCEEDED" && syncStatus != "SUPERSEDED" {
-		syncStatus = "FAILED"
-	}
-	resultJSON, _ := json.Marshal(result)
-	_, e = tx.ExecContext(ctx, `update minipos.company_fiscal_resource_links set sync_status=$2,fiscal_resource_id=coalesce($3->>'id',fiscal_resource_id),fiscal_version=coalesce(($3->>'version')::bigint,fiscal_version),last_error_code=case when $2='FAILED' then 'FISCAL_OPERATION_FAILED' else null end,updated_at=now() where binding_id=$1 and source_entity_id=$4 and source_version=$5 and last_operation_id=$6`, bindingID, syncStatus, resultJSON, sourceID, sourceVersion, operationID)
+	syncStatus, e := mapWebhookStatus(status)
 	if e != nil {
 		return e
+	}
+	resultJSON, _ := json.Marshal(result)
+	res, e := tx.ExecContext(ctx, `update minipos.company_fiscal_resource_links set sync_status=$2,fiscal_resource_id=coalesce($3->>'id',fiscal_resource_id),fiscal_version=coalesce(($3->>'version')::bigint,fiscal_version),last_error_code=case when $2='FAILED' then 'FISCAL_OPERATION_FAILED' else null end,updated_at=now() where binding_id=$1 and source_entity_id=$4 and source_version=$5 and last_operation_id=$6 and sync_status<>'SUCCEEDED'`, bindingID, syncStatus, resultJSON, sourceID, sourceVersion, operationID)
+	if e != nil {
+		return e
+	}
+	if n, _ := res.RowsAffected(); n == 0 {
+		return ErrLinkNotFoundYet
 	}
 	_, e = tx.ExecContext(ctx, `insert into minipos.minipos_runtime_webhook_inbox(event_id,organization_id,request_hash,received_at,payload) select $1,company_id,$2,now(),$3 from minipos.company_fiscal_bindings where id=$4 on conflict(event_id) do nothing`, eventID, operationID, resultJSON, bindingID)
 	if e != nil {

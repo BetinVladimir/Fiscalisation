@@ -46,16 +46,40 @@ func (c *Client) GetFiscalOperation(ctx context.Context, companyID, operationID 
 
 func (c *Client) fiscalReadCredential(ctx context.Context, companyID string) (string, string, error) {
 	var encrypted []byte
-	var tenant string
-	err := c.db.QueryRowContext(ctx, `select c.ciphertext,b.fiscal_tenant_id from minipos.company_fiscal_credentials c join minipos.company_fiscal_bindings b on b.id=c.binding_id where b.company_id=$1 and b.status='ACTIVE' and c.status='ACTIVE'`, companyID).Scan(&encrypted, &tenant)
+	var tenant, storedKeyID string
+	err := c.db.QueryRowContext(ctx, `select c.ciphertext,b.fiscal_tenant_id,c.encryption_key_id from minipos.company_fiscal_credentials c join minipos.company_fiscal_bindings b on b.id=c.binding_id where b.company_id=$1 and b.status='ACTIVE' and c.status='ACTIVE'`, companyID).Scan(&encrypted, &tenant, &storedKeyID)
 	if err != nil {
 		return "", "", err
 	}
-	token, err := c.decrypt(encrypted)
+	token, err := c.decryptWithKeyID(storedKeyID, encrypted)
 	if err != nil || token == "" || tenant == "" {
 		return "", "", errors.New("Fiscal read credential unavailable")
 	}
+	// Re-wrap with the active key if the credential was encrypted with an older key.
+	if c.activeKeyID != "" && storedKeyID != c.activeKeyID {
+		if newCT, e := c.encrypt(token); e == nil {
+			// $1=storedKeyID $2=activeKeyID $3=encrypted(old) $4=newCT — order matters for test spy capture
+			_, _ = c.db.ExecContext(ctx, `update minipos.company_fiscal_credentials set ciphertext=$4,encryption_key_id=$2,updated_at=now() where status='ACTIVE' and encryption_key_id=$1 and ciphertext=$3`, storedKeyID, c.activeKeyID, encrypted, newCT)
+		}
+	}
 	return token, tenant, nil
+}
+
+func (c *Client) decryptWithKeyID(keyID string, data []byte) (string, error) {
+	if c.keyring != nil {
+		aead, ok := c.keyring[keyID]
+		if !ok {
+			return "", errors.New("unknown encryption key ID: " + keyID)
+		}
+		n := aead.NonceSize()
+		if len(data) < n {
+			return "", errors.New("invalid ciphertext")
+		}
+		p, e := aead.Open(nil, data[:n], data[n:], nil)
+		return string(p), e
+	}
+	// Fallback: single-key mode (keyring not configured).
+	return c.decrypt(data)
 }
 
 type FiscalSale struct {

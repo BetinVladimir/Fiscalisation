@@ -161,7 +161,26 @@ func (h *handler) dispatchExecutionAuthorization(w http.ResponseWriter, r *http.
 	}
 	out, err := h.execution.DispatchExecutionAuthorization(r.Context(), tenantID(r), order.ExecutionAuthorizationID)
 	if err != nil {
-		problem(w, 409, err.Error())
+		if errors.Is(err, fiscalintegration.ErrDispatchOutcomeUnknown) {
+			// Invariant 2: UNKNOWN ≠ FAILED. Return the known operation metadata so
+			// the client can poll /operations/<id> to discover the actual outcome.
+			now := time.Now().UTC()
+			write(w, http.StatusAccepted, fiscalintegration.FiscalOperation{
+				OperationID:       order.CheckoutOperationID,
+				ClientOperationID: order.CheckoutOperationID,
+				ReceiptSessionID:  order.ReceiptSessionID,
+				SaleID:            order.FiscalSaleID,
+				RegisterID:        domain.FiscalRegisterForOrder(order),
+				Type:              "SALE_FINALIZE",
+				State:             "UNKNOWN",
+				Version:           1,
+				AllowedActions:    []string{"READ"},
+				CreatedAt:         now,
+				UpdatedAt:         now,
+			})
+			return
+		}
+		writeExecutionUpstreamError(w, err)
 		return
 	}
 	if out.OperationID != order.CheckoutOperationID || out.ClientOperationID != order.CheckoutOperationID || out.ReceiptSessionID != order.ReceiptSessionID || out.SaleID != order.FiscalSaleID || out.RegisterID != domain.FiscalRegisterForOrder(order) {

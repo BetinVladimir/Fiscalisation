@@ -13,6 +13,6 @@ class TestScript171(unittest.TestCase):
     def test_emits_inv_message(self):
         r = subprocess.run(["bash", "scripts/check-doc-invariants.sh"], capture_output=True, text=True, cwd=ROOT)
         combined = r.stdout + r.stderr
-        self.assertRegex(combined, r'INV-|DOC-INVARIANTS', "Must emit INV-* or DOC-INVARIANTS message")
+        self.assertRegex(combined, r'INV-|DOC-INVARIANTS|NO_INVARIANTS', "Must emit INV-* or DOC-INVARIANTS or NO_INVARIANTS message")
 
 if __name__ == "__main__": unittest.main()

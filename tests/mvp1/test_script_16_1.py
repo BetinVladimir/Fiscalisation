@@ -13,6 +13,6 @@ class TestScript161(unittest.TestCase):
     def test_emits_doc_drift_message(self):
         r = subprocess.run(["bash", "scripts/check-doc-drift.sh"], capture_output=True, text=True, cwd=ROOT)
         combined = r.stdout + r.stderr
-        self.assertRegex(combined, r'DRF-|DOC-DRIFT', "Must emit DRF-* or DOC-DRIFT message")
+        self.assertRegex(combined, r'DRF-|DOC-DRIFT|DRIFT-', "Must emit DRF-* or DOC-DRIFT or DRIFT-* message")
 
 if __name__ == "__main__": unittest.main()

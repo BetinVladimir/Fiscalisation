@@ -2,12 +2,25 @@ package fiscalintegration
 
 import (
 	"context"
+	"crypto/sha256"
 	"encoding/base64"
+	"encoding/hex"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 )
+
+var allowedAlgorithms = map[string]struct{}{
+	"ES256": {},
+	"ES384": {},
+	"ES512": {},
+}
+
+// ErrDispatchOutcomeUnknown is returned when the network request was sent but
+// the response was lost (timeout, connection reset). Invariant 2: UNKNOWN ≠ FAILED.
+var ErrDispatchOutcomeUnknown = errors.New("dispatch outcome unknown")
 
 type ExecutionAuthorizationEnvelope struct {
 	Algorithm string `json:"algorithm"`
@@ -43,14 +56,28 @@ func (c *Client) IssueExecutionAuthorization(ctx context.Context, companyID stri
 	if err = c.call(ctx, http.MethodPost, "/integration/v1/execution-authorizations", token, idempotency, nil, in, &out); err != nil {
 		return out, err
 	}
+	if _, ok := allowedAlgorithms[out.Authorization.Algorithm]; !ok {
+		return ExecutionAuthorizationResponse{}, fmt.Errorf("fiscal authorization algorithm %q not allowed", out.Authorization.Algorithm)
+	}
+	raw, e := base64.RawURLEncoding.DecodeString(out.Authorization.Payload)
+	if e != nil {
+		return ExecutionAuthorizationResponse{}, errors.New("fiscal authorization payload not base64")
+	}
+	sum := sha256.Sum256(raw)
+	if hex.EncodeToString(sum[:]) != out.Authorization.SHA256 {
+		return ExecutionAuthorizationResponse{}, errors.New("fiscal authorization sha256 mismatch")
+	}
 	var claims struct {
 		TenantID      string `json:"tenant_id"`
 		AppInstanceID string `json:"app_instance_id"`
 		ClientKey     string `json:"client_signing_public_key_der_base64"`
+		ExpiresAt     string `json:"expires_at"`
 	}
-	raw, e := base64.RawURLEncoding.DecodeString(out.Authorization.Payload)
-	if e != nil || json.Unmarshal(raw, &claims) != nil || claims.TenantID != tenant || claims.AppInstanceID != in.AppInstanceID || claims.ClientKey != in.ClientSigningPublicKeyDERBase64 {
+	if json.Unmarshal(raw, &claims) != nil || claims.TenantID != tenant || claims.AppInstanceID != in.AppInstanceID || claims.ClientKey != in.ClientSigningPublicKeyDERBase64 {
 		return ExecutionAuthorizationResponse{}, errors.New("fiscal authorization identity mismatch")
+	}
+	if exp, e2 := time.Parse(time.RFC3339, claims.ExpiresAt); e2 != nil || exp.Before(time.Now()) {
+		return ExecutionAuthorizationResponse{}, errors.New("fiscal authorization expired or missing expires_at")
 	}
 	return out, nil
 }
@@ -84,8 +111,14 @@ func (c *Client) DispatchExecutionAuthorization(ctx context.Context, company, au
 		return FiscalOperation{}, err
 	}
 	var out FiscalOperation
-	err = c.call(ctx, http.MethodPost, "/integration/v1/execution-authorizations:dispatch", token, "", nil, map[string]any{"authorization_id": authorizationID}, &out)
+	err = c.call(ctx, http.MethodPost, "/integration/v1/execution-authorizations:dispatch", token, "dispatch-"+authorizationID, nil, map[string]any{"authorization_id": authorizationID}, &out)
 	if err != nil {
+		// Network or timeout errors leave outcome unknown; caller must not retry
+		// with a new key (invariant 2: UNKNOWN ≠ FAILED).
+		var upstream *HTTPStatusError
+		if !errors.As(err, &upstream) {
+			return FiscalOperation{}, fmt.Errorf("%w: %v", ErrDispatchOutcomeUnknown, err)
+		}
 		return out, err
 	}
 	if out.TenantID != tenant || out.OperationID == "" || out.ClientOperationID != out.OperationID {
