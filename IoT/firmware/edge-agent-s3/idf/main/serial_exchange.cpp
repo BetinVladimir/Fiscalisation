@@ -20,7 +20,7 @@ bool SerialSession::exchange(SerialProfile profile,const SerialTransport&io,uint
  if(request.empty())return false;
  // Consume SEQ for every attempted logical command, including failures. Retries
  // below reuse the same immutable packet (Datecs3.3 / Daisy2-3 duplicate cache).
- next_sequence_=sequence==0xff?0x20:uint8_t(sequence+1);
+ next_sequence_=(profile==SerialProfile::Datecs)?(sequence==0x7f?0x20:uint8_t(sequence+1)):(sequence==0xff?0x20:uint8_t(sequence+1));
  const int64_t deadline=io.now_ms(io.context)+(profile==SerialProfile::Daisy?3000:6000);
  int64_t receive_deadline=0;unsigned sends=0;
  auto send=[&](){

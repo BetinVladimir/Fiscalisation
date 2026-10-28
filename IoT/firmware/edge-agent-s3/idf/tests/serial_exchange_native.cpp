@@ -50,5 +50,23 @@ int main(){for(auto profile:{SerialProfile::Datecs,SerialProfile::Daisy}){
  for(auto pair:std::vector<std::pair<int,int>>{{0,2},{1,2},{2,1},{4,16}}){Fake f(profile);f.status_byte=uint8_t(pair.first);f.status_mask=uint8_t(pair.second);SerialSession session;assert(!session.exchange(profile,f.io(),69,{}));assert(f.writes==1);}
  if(profile==SerialProfile::Daisy){Fake f(profile);f.status_byte=1;f.status_mask=64;SerialSession session;assert(!session.exchange(profile,f.io(),69,{}));}
  else{Fake f(profile);f.result="-111016\t";SerialSession session;assert(!session.exchange(profile,f.io(),69,{}));assert(f.writes==1);}
- {Fake f(profile);SerialSession session;for(int i=0;i<226;i++)assert(session.exchange(profile,f.io(),69,{}));assert(f.sent[0]==f.sent[224]&&f.sent[1]==f.sent[225]);}
- }std::cout<<"actual serial runtime tests: OK\n";}
+ // Profile-specific SEQ golden assertions.
+ // Datecs: cycle=96 (0x20..0x7F); Daisy: cycle=224 (0x20..0xFF).
+ // SEQ field position: Datecs sent[i][5], Daisy sent[i][2].
+ if(profile==SerialProfile::Datecs){
+  Fake f(profile);SerialSession session;
+  for(int i=0;i<226;i++)assert(session.exchange(profile,f.io(),69,{}));
+  assert(f.sent[95][5]==0x7f);  // index 95 = last in 0x20..0x7F range
+  assert(f.sent[96][5]==0x20);  // index 96 = wrap to start
+  assert(f.sent[112][5]==0x30); // index 112: 0x20+(112%96)=0x20+16=0x30
+  assert(f.sent[192][5]==0x20); // index 192: 0x20+(192%96)=0x20+0=0x20
+  std::cout<<"ok 1 - Datecs cycle96\n";
+ }else{
+  Fake f(profile);SerialSession session;
+  for(int i=0;i<226;i++)assert(session.exchange(profile,f.io(),69,{}));
+  assert(f.sent[223][2]==0xff); // index 223 = last in 0x20..0xFF range
+  assert(f.sent[224][2]==0x20); // index 224 = wrap to start
+  assert(f.sent[225][2]==0x21); // index 225 = one after wrap
+  std::cout<<"ok 2 - Daisy cycle224\n";
+ }
+ }std::cout<<"1..2\n";std::cout<<"actual serial runtime tests: OK\n";}
