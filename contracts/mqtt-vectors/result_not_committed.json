@@ -1,0 +1,13 @@
+{
+  "name": "result_not_committed",
+  "topic": "tenants/tenant-01/devices/device-01/results",
+  "command_type": "RESULT",
+  "operation_id": "op-finalize-002",
+  "payload": {
+    "outcome": "NOT_COMMITTED",
+    "error_code": "FISCAL_UNIT_REJECTED"
+  },
+  "signature": "valid",
+  "expires_at": "2026-12-31T23:59:59Z",
+  "expect": "ACCEPTED"
+}

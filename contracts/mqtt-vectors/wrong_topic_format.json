@@ -1,0 +1,11 @@
+{
+  "name": "wrong_topic_format",
+  "topic": "tenants/tenant-01/wrong-path/commands",
+  "command_type": "FINALIZE",
+  "operation_id": "op-finalize-006",
+  "payload": {},
+  "signature": "valid",
+  "expires_at": "2026-12-31T23:59:59Z",
+  "expect": "REJECTED",
+  "error_code": "TOPIC_FORMAT_INVALID"
+}
