@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "groups": [
+    {
+      "id": "P40",
+      "name": "Foundation",
+      "description": "Core infrastructure tasks",
+      "task_ids": ["GOOD-01", "GOOD-02", "GOOD-03"],
+      "evidence_gate": "all tasks merged and tested"
+    },
+    {
+      "id": "P41",
+      "name": "Protocol Layer",
+      "description": "Protocol implementation",
+      "task_ids": ["GOOD-04", "GOOD-05", "GOOD-06"],
+      "evidence_gate": "protocol tests passing"
+    },
+    {
+      "id": "P42",
+      "name": "Business Logic",
+      "description": "Domain logic",
+      "task_ids": ["GOOD-07", "GOOD-08", "GOOD-09"],
+      "evidence_gate": "unit tests passing"
+    },
+    {
+      "id": "P43",
+      "name": "Integration",
+      "description": "Integration tests",
+      "task_ids": ["GOOD-10", "GOOD-11", "GOOD-12"],
+      "evidence_gate": "integration suite green"
+    },
+    {
+      "id": "P44",
+      "name": "Pipeline",
+      "description": "Delivery pipeline",
+      "task_ids": ["GOOD-13", "GOOD-14", "GOOD-15"],
+      "evidence_gate": "pipeline gates passed"
+    }
+  ]
+}
