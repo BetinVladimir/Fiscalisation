@@ -5,7 +5,7 @@ import unittest
 from pathlib import Path
 
 ROOT = Path(__file__).parent.parent.parent
-sys.path.insert(0, str(ROOT / 'docs/MVP1/fixes'))
+
 from native_harness import check_native_tests
 
 _SCOPED_FILES = [

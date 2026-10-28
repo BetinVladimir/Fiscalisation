@@ -2,7 +2,7 @@
 from pathlib import Path
 import sys, unittest
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "docs/MVP1/fixes"))
+
 from native_harness import check_native_tests
 
 

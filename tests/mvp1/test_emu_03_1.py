@@ -8,7 +8,7 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parents[2]
 SMART_DEVICES = ROOT / 'SmartDevices'
 
-sys.path.insert(0, str(ROOT / 'docs/MVP1/fixes'))
+
 from native_harness import check_native_tests
 
 
