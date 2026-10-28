@@ -77,6 +77,16 @@ func (s *Service) reverseForTenant(saleID, reason, originalReference, tenant str
 		sale.UpdatedAt = op.UpdatedAt
 		return op, s.repo.CommitSaleOperationEvent(sale, op, fiscalOperationEvent(sale, op))
 	}
+	if code == "INSUFFICIENT_CASH" {
+		// NAP-02 (чл. 31(3)): FD -104010 ERR_NEED_ALL_PAIDOUT. Sale stays COMPLETED;
+		// with OPERATOR_ERROR basis the cashier may deposit cash and retry.
+		op.AllowedActions = []string{"CASH_IN"}
+		op.State, op.ErrorCode = "FAILED", code
+		sale.State = "COMPLETED"
+		sale.Version++
+		sale.UpdatedAt = op.UpdatedAt
+		return op, s.repo.CommitSaleOperationEvent(sale, op, fiscalOperationEvent(sale, op))
+	}
 	if code != "" {
 		op.State, op.ErrorCode = "FAILED", code
 		sale.State = "COMPLETED"
