@@ -20,6 +20,7 @@ struct ProtocolFaithfulIo final:DeviceIo{
  PaymentOutcome next_reverse{PaymentCertainty::Approved,"STAN-1","RRN-1","AUTH-1",""};
  int fiscal_calls{},purchase_calls{},lookup_calls{},reverse_calls{};std::vector<std::string> commands;
  bool currency_is_eur{true};
+ std::string authority_unp_prefix;
  explicit ProtocolFaithfulIo(EdgeProfile value):profile(value){}
  bool verified_reversal_profile()const override{return true;}
  bool fiscal_ready()override{return fiscal_up&&currency_is_eur;}bool payment_ready()override{return payment_up;}
@@ -48,7 +49,7 @@ struct ProtocolFaithfulIo final:DeviceIo{
  PaymentOutcome purchase(const std::string&,int64_t)override{purchase_calls++;commands.push_back("BLUEPAD_BLE_PURCHASE");return next_purchase;}
  PaymentOutcome payment_lookup(const std::string&)override{lookup_calls++;commands.push_back("BLUEPAD_BLE_LOOKUP");return next_lookup;}
  PaymentOutcome reverse(const std::string&,int64_t)override{reverse_calls++;commands.push_back("BLUEPAD_BLE_VOID");return next_reverse;}
- ExecutionResult recover(const RecoveryItem&)override{lookup_calls++;commands.push_back(profile==EdgeProfile::DaisyCompactS01?"DAISY_USB_LOOKUP":"DATECS_UART_LOOKUP");return next_fiscal;}
+ ExecutionResult recover(const RecoveryItem&i)override{if(!authority_unp_prefix.empty()&&!i.canonical_unp.empty()&&(i.canonical_unp.size()<8||i.canonical_unp.substr(0,8)!=authority_unp_prefix))return{ExecutionCertainty::Unknown,"","FOREIGN_RECEIPT_OWNERSHIP","","",""};lookup_calls++;commands.push_back(profile==EdgeProfile::DaisyCompactS01?"DAISY_USB_LOOKUP":"DATECS_UART_LOOKUP");return next_fiscal;}
 };
 ReceiptPlan plan(const std::string&kind,const std::string&payment="CASH") {static int sequence=0;ReceiptPlan p;p.operation_id="operation-"+std::to_string(++sequence);p.receipt_session_id="receipt-"+std::to_string(sequence);p.unp="DY000600-OP01-0000001";p.command_type=kind;p.items.push_back({"line","Coffee","1.000","10.00","B",""});p.payments.push_back({"pay-"+p.operation_id,payment,"10.00",1000});return p;}
 CompositeBinding binding(EdgeProfile profile){CompositeBinding b;b.profile=profile;b.fiscal.execution.present=true;b.fiscal.execution.operator_number=1;b.fiscal.execution.operator_count=30;b.fiscal.execution.operator_password_ref="fiscal-pass";b.fiscal.execution.device_configuration_id="test-config";if(profile==EdgeProfile::DatecsDp150BluePad50){b.fiscal.execution.till_number=1;b.fiscal.execution.datecs_card_mode=1;}else b.fiscal.execution.daisy_card_code='N';b.payment.present=profile==EdgeProfile::DatecsDp150BluePad50;b.payment.device_id="terminal-profile-test";return b;}
@@ -90,6 +91,24 @@ void receipt_fault_matrix(EdgeProfile profile){
   assert(run(x,journal.storage,plan("SALE_FINALIZE","CASH")).certainty==ExecutionCertainty::Committed);}
  {ProtocolFaithfulIo io(profile);Journal journal;ProfileExecutor x(b,io,&journal.storage);RecoveryItem recovery{};recovery.operation_id="11111111-1111-4111-8111-111111111111";const auto lookups=io.lookup_calls;assert(x.recover(recovery).certainty==ExecutionCertainty::Unknown);assert(io.lookup_calls==lookups);io.fiscal_up=false;assert(run(x,journal.storage,plan("SALE_FINALIZE")).certainty==ExecutionCertainty::DeviceUnavailable);}
 }
+void recovery_ownership_matrix(EdgeProfile profile){
+ const auto b=binding(profile);
+ const std::string own_unp="DT636497-OP01-0000001";
+ const std::string foreign_unp="XX111111-OP01-0000001";
+ const std::string cash_payload="{\"payments\":[{\"type\":\"CASH\"}]}";
+ // Matching prefix: io_.recover() must be called
+ {ProtocolFaithfulIo io(profile);io.authority_unp_prefix="DT636497";Journal journal;ProfileExecutor x(b,io,&journal.storage);
+  RecoveryItem ri{};ri.operation_id="22222222-2222-4222-8222-222222222221";ri.receipt_id="receipt-22222222";ri.canonical_unp=own_unp;ri.canonical_payload=cash_payload;
+  const auto lookups=io.lookup_calls;
+  assert(x.recover(ri).certainty==ExecutionCertainty::Committed);
+  assert(io.lookup_calls==lookups+1);}
+ // Foreign prefix: io_.recover() must NOT be called (open foreign receipt not cancelled)
+ {ProtocolFaithfulIo io(profile);io.authority_unp_prefix="DT636497";Journal journal;ProfileExecutor x(b,io,&journal.storage);
+  RecoveryItem ri{};ri.operation_id="33333333-3333-4333-8333-333333333331";ri.receipt_id="receipt-33333333";ri.canonical_unp=foreign_unp;ri.canonical_payload=cash_payload;
+  const auto lookups=io.lookup_calls;
+  assert(x.recover(ri).certainty==ExecutionCertainty::Unknown);
+  assert(io.lookup_calls==lookups);}
+}
 void currency_param_gate(){
  // DSY-08.2: device with non-EUR currency must return DeviceUnavailable before any I/O.
  CompositeBinding b=binding(EdgeProfile::DaisyCompactS01);
@@ -113,4 +132,4 @@ void profile_unconfigured_no_io(){
  assert(r.certainty!=ExecutionCertainty::Committed);
  std::printf("profile_unconfigured_no_io: PASS\n");
 }
-int main(){for(auto profile:{EdgeProfile::DatecsDp150BluePad50,EdgeProfile::DaisyCompactS01}){protocol_corruption_matrix(profile);fiscal_matrix(profile);receipt_fault_matrix(profile);}profile_unconfigured_no_io();currency_param_gate();return 0;}
+int main(){for(auto profile:{EdgeProfile::DatecsDp150BluePad50,EdgeProfile::DaisyCompactS01}){protocol_corruption_matrix(profile);fiscal_matrix(profile);receipt_fault_matrix(profile);recovery_ownership_matrix(profile);}profile_unconfigured_no_io();currency_param_gate();std::printf("recovery_ownership_matrix: PASS\n");return 0;}

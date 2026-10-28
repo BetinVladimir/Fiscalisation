@@ -44,6 +44,6 @@ mbedtls_library=$(sed -n '2p' "$out/mbedtls-paths")
   -L"$openssl/lib" -lcrypto -lsqlite3 \
   -o "$out/durable_storage_native"
 
-for mode in storage-error-stops-io unp-seven-digits restart-no-unp-reuse; do
+for mode in storage-error-stops-io unp-seven-digits restart-no-unp-reuse atomic-terminal-outbox; do
   "$out/durable_storage_native" "$mode" "$out/$mode.sqlite"
 done

@@ -130,6 +130,62 @@ static int test_restart_no_unp_reuse(const char* path) {
     return 0;
 }
 
+// S3FIX-02.1: SQLite transaction commits terminal state + outbox together.
+// Inject failure AFTER operations INSERT but BEFORE event_outbox INSERT.
+// After restart: both rows absent (transaction was fully rolled back).
+static int test_atomic_terminal_outbox(const char* path) {
+    remove(path);
+    {
+        DurableStorage storage;
+        assert(storage.open_database_for_test(path) == ESP_OK);
+        assert(storage.configure_authority("DT636497", 1, 100, 1) == ESP_OK);
+
+        // Inject fault: abort every INSERT into event_outbox.
+        // This fires after the operations row has been written but before
+        // the outbox row, so the whole transaction must roll back.
+        sql(path,
+            "CREATE TRIGGER s3fix02_outbox_fault BEFORE INSERT ON event_outbox "
+            "BEGIN SELECT RAISE(ABORT,'s3fix-02-atomic-outbox'); END;");
+
+        auto result = do_reserve(storage, "op-atomic-1");
+        // Reserve must fail due to the trigger.
+        assert(result.status == ReservationStatus::StorageFailure);
+        storage.close();
+    }
+
+    // Restart: open a fresh connection, neither operations nor event_outbox
+    // should contain the aborted operation_id.
+    {
+        sqlite3* d{};
+        assert(sqlite3_open(path, &d) == SQLITE_OK);
+        // Count operations rows for the attempted operation_id.
+        {
+            sqlite3_stmt* s{};
+            const char* q = "SELECT COUNT(*) FROM operations WHERE operation_id='op-atomic-1'";
+            assert(sqlite3_prepare_v2(d, q, -1, &s, nullptr) == SQLITE_OK);
+            assert(sqlite3_step(s) == SQLITE_ROW);
+            int cnt = sqlite3_column_int(s, 0);
+            sqlite3_finalize(s);
+            assert(cnt == 0); // operations must be absent after rollback
+        }
+        // Count event_outbox rows for the attempted operation_id.
+        {
+            sqlite3_stmt* s{};
+            const char* q = "SELECT COUNT(*) FROM event_outbox WHERE operation_id='op-atomic-1'";
+            assert(sqlite3_prepare_v2(d, q, -1, &s, nullptr) == SQLITE_OK);
+            assert(sqlite3_step(s) == SQLITE_ROW);
+            int cnt = sqlite3_column_int(s, 0);
+            sqlite3_finalize(s);
+            assert(cnt == 0); // outbox must also be absent after rollback
+        }
+        sqlite3_close(d);
+    }
+
+    std::cout << "atomic-terminal-outbox PASS "
+                 "(outbox-fault rolls back operations+outbox together)\n";
+    return 0;
+}
+
 int main(int argc, char** argv) {
     if (argc < 3) {
         std::cerr << "usage: " << argv[0] << " <mode> <db_path>\n";
@@ -137,9 +193,10 @@ int main(int argc, char** argv) {
     }
     const std::string mode = argv[1];
     const char* path = argv[2];
-    if (mode == "storage-error-stops-io") return test_storage_error_stops_io(path);
-    if (mode == "unp-seven-digits")       return test_unp_seven_digits(path);
-    if (mode == "restart-no-unp-reuse")   return test_restart_no_unp_reuse(path);
+    if (mode == "storage-error-stops-io")  return test_storage_error_stops_io(path);
+    if (mode == "unp-seven-digits")        return test_unp_seven_digits(path);
+    if (mode == "restart-no-unp-reuse")    return test_restart_no_unp_reuse(path);
+    if (mode == "atomic-terminal-outbox")  return test_atomic_terminal_outbox(path);
     std::cerr << "unknown mode: " << mode << "\n";
     return 2;
 }
