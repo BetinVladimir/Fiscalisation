@@ -157,6 +157,9 @@ object DatecsPayloads {
     } else if (v.discountType in 3..4) {
       require(money.matches(v.discountValue)) { "PAYLOAD_INVALID:discount_value" }
     }
+    // VG-13: always use syntax №2 (8 fields) with Unit="бр." as default per §4.12.
+    // CP1251 bytes for "бр.": 0xE1 0xF0 0x2E
+    val unit = v.unit.ifEmpty { "бр." }
     return bytes(
       v.name,
       "${v.taxGroup-'A'+1}",
@@ -165,7 +168,7 @@ object DatecsPayloads {
       if (v.discountType == 0) "" else "${v.discountType}",
       v.discountValue,
       "${v.department}",
-      v.unit
+      unit
     )
   }
   fun payment(mode: Int, amount: String): ByteArray {
