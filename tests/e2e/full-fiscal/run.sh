@@ -270,7 +270,7 @@ done
 edge=$(curl -fsS -X POST http://localhost:19001/beeloy/local/v1/intents -H 'Authorization: Bearer e2e-local-token' -H 'Idempotency-Key: edge-operation-e2e' -H 'Content-Type: application/json' --data '{"intent_id":"edge-intent","client_operation_id":"edge-operation-e2e","payment_type":"CASH","binding_generation":1}')
 printf '%s' "$edge" | jq -e '.state == "FISCALIZED" and .profile == "edge-agent-s3"' >/dev/null
 edge_id=$(printf '%s' "$edge" | jq -er .operation_id)
-curl -fsS "http://localhost:19001/beeloy/local/v1/operations/$edge_id:reconcile" -H 'Authorization: Bearer e2e-local-token' | jq -e '.reconciled == true' >/dev/null
+curl -fsS "http://localhost:19001/beeloy/local/v1/operations/$edge_id/reconcile" -H 'Authorization: Bearer e2e-local-token' | jq -e '.reconciled == true' >/dev/null
 blue=$(curl -fsS -X POST http://localhost:19002/beeloy/local/v1/intents -H 'Authorization: Bearer e2e-local-token' -H 'Idempotency-Key: blue-operation-e2e' -H 'Content-Type: application/json' --data '{"intent_id":"blue-intent","client_operation_id":"blue-operation-e2e","payment_type":"CARD","binding_generation":1}')
 printf '%s' "$blue" | jq -e '.state == "FISCALIZED" and .profile == "bluecash-app" and (.rrn | length) > 0' >/dev/null
 replay=$(curl -fsS -X POST http://localhost:19002/beeloy/local/v1/intents -H 'Authorization: Bearer e2e-local-token' -H 'Idempotency-Key: blue-operation-e2e' -H 'Content-Type: application/json' --data '{"payment_type":"CARD"}')

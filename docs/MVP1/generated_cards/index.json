@@ -1,0 +1,6854 @@
+{
+  "schema": 1,
+  "cards": [
+    {
+      "unit_id": "AA-01.1",
+      "task_id": "AA-01",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "AA-01.1.md",
+      "lines": 12,
+      "bytes": 6213
+    },
+    {
+      "unit_id": "AA-01.2",
+      "task_id": "AA-01",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "AA-01.2.md",
+      "lines": 12,
+      "bytes": 5021
+    },
+    {
+      "unit_id": "AA-02.1",
+      "task_id": "AA-02",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "AA-02.1.md",
+      "lines": 12,
+      "bytes": 4491
+    },
+    {
+      "unit_id": "AA-02.2",
+      "task_id": "AA-02",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "AA-02.2.md",
+      "lines": 12,
+      "bytes": 4472
+    },
+    {
+      "unit_id": "AA-02.3",
+      "task_id": "AA-02",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "AA-02.3.md",
+      "lines": 12,
+      "bytes": 4459
+    },
+    {
+      "unit_id": "AA-03.1",
+      "task_id": "AA-03",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "AA-03.1.md",
+      "lines": 12,
+      "bytes": 4433
+    },
+    {
+      "unit_id": "AA-03.2",
+      "task_id": "AA-03",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "AA-03.2.md",
+      "lines": 12,
+      "bytes": 4473
+    },
+    {
+      "unit_id": "AA-03.3",
+      "task_id": "AA-03",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "AA-03.3.md",
+      "lines": 12,
+      "bytes": 4481
+    },
+    {
+      "unit_id": "AA-04.1",
+      "task_id": "AA-04",
+      "priority": "P2",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "AA-04.1.md",
+      "lines": 12,
+      "bytes": 4459
+    },
+    {
+      "unit_id": "AA-04.2",
+      "task_id": "AA-04",
+      "priority": "P2",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "AA-04.2.md",
+      "lines": 12,
+      "bytes": 4441
+    },
+    {
+      "unit_id": "ARCH-001",
+      "task_id": "ARCH-001",
+      "priority": "P0",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-001.md",
+      "lines": 13,
+      "bytes": 1924
+    },
+    {
+      "unit_id": "ARCH-002.1",
+      "task_id": "ARCH-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-002.1.md",
+      "lines": 12,
+      "bytes": 4906
+    },
+    {
+      "unit_id": "ARCH-002.2",
+      "task_id": "ARCH-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-002.2.md",
+      "lines": 12,
+      "bytes": 4765
+    },
+    {
+      "unit_id": "ARCH-002.3",
+      "task_id": "ARCH-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-002.3.md",
+      "lines": 12,
+      "bytes": 4703
+    },
+    {
+      "unit_id": "ARCH-002.4",
+      "task_id": "ARCH-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-002.4.md",
+      "lines": 12,
+      "bytes": 4784
+    },
+    {
+      "unit_id": "ARCH-002.5",
+      "task_id": "ARCH-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-002.5.md",
+      "lines": 12,
+      "bytes": 4879
+    },
+    {
+      "unit_id": "ARCH-002.6",
+      "task_id": "ARCH-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-002.6.md",
+      "lines": 12,
+      "bytes": 4809
+    },
+    {
+      "unit_id": "ARCH-002.7",
+      "task_id": "ARCH-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-002.7.md",
+      "lines": 12,
+      "bytes": 4997
+    },
+    {
+      "unit_id": "ARCH-002.8",
+      "task_id": "ARCH-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-002.8.md",
+      "lines": 12,
+      "bytes": 4785
+    },
+    {
+      "unit_id": "ARCH-002.9",
+      "task_id": "ARCH-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-002.9.md",
+      "lines": 12,
+      "bytes": 4785
+    },
+    {
+      "unit_id": "ARCH-002.10",
+      "task_id": "ARCH-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-002.10.md",
+      "lines": 12,
+      "bytes": 4839
+    },
+    {
+      "unit_id": "ARCH-003.1",
+      "task_id": "ARCH-003",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-003.1.md",
+      "lines": 12,
+      "bytes": 4777
+    },
+    {
+      "unit_id": "ARCH-003.2",
+      "task_id": "ARCH-003",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-003.2.md",
+      "lines": 12,
+      "bytes": 4813
+    },
+    {
+      "unit_id": "ARCH-003.3",
+      "task_id": "ARCH-003",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-003.3.md",
+      "lines": 12,
+      "bytes": 4795
+    },
+    {
+      "unit_id": "ARCH-003.4",
+      "task_id": "ARCH-003",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-003.4.md",
+      "lines": 12,
+      "bytes": 4760
+    },
+    {
+      "unit_id": "ARCH-003.5",
+      "task_id": "ARCH-003",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-003.5.md",
+      "lines": 12,
+      "bytes": 4737
+    },
+    {
+      "unit_id": "ARCH-003.6",
+      "task_id": "ARCH-003",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-003.6.md",
+      "lines": 12,
+      "bytes": 4692
+    },
+    {
+      "unit_id": "ARCH-003.7",
+      "task_id": "ARCH-003",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-003.7.md",
+      "lines": 12,
+      "bytes": 4812
+    },
+    {
+      "unit_id": "ARCH-003.8",
+      "task_id": "ARCH-003",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-003.8.md",
+      "lines": 12,
+      "bytes": 4725
+    },
+    {
+      "unit_id": "ARCH-004.1-through-2",
+      "task_id": "ARCH-004",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-004.1-through-2.md",
+      "lines": 13,
+      "bytes": 5221
+    },
+    {
+      "unit_id": "ARCH-004.3",
+      "task_id": "ARCH-004",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-004.3.md",
+      "lines": 12,
+      "bytes": 4787
+    },
+    {
+      "unit_id": "ARCH-005",
+      "task_id": "ARCH-005",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-005.md",
+      "lines": 12,
+      "bytes": 1743
+    },
+    {
+      "unit_id": "ARCH-006.1",
+      "task_id": "ARCH-006",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-006.1.md",
+      "lines": 12,
+      "bytes": 4700
+    },
+    {
+      "unit_id": "ARCH-006.2",
+      "task_id": "ARCH-006",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-006.2.md",
+      "lines": 12,
+      "bytes": 4626
+    },
+    {
+      "unit_id": "ARCH-007.1",
+      "task_id": "ARCH-007",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-007.1.md",
+      "lines": 12,
+      "bytes": 4753
+    },
+    {
+      "unit_id": "ARCH-008.1",
+      "task_id": "ARCH-008",
+      "priority": "P2",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-008.1.md",
+      "lines": 16,
+      "bytes": 5213
+    },
+    {
+      "unit_id": "ARCH-009.1",
+      "task_id": "ARCH-009",
+      "priority": "P2",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "ARCH-009.1.md",
+      "lines": 14,
+      "bytes": 4685
+    },
+    {
+      "unit_id": "BF-01.1",
+      "task_id": "BF-01",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "BF-01.1.md",
+      "lines": 11,
+      "bytes": 2272
+    },
+    {
+      "unit_id": "BF-01.2",
+      "task_id": "BF-01",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "BF-01.2.md",
+      "lines": 12,
+      "bytes": 4444
+    },
+    {
+      "unit_id": "BF-01.3",
+      "task_id": "BF-01",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "BF-01.3.md",
+      "lines": 12,
+      "bytes": 4478
+    },
+    {
+      "unit_id": "BF-02.1",
+      "task_id": "BF-02",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "BF-02.1.md",
+      "lines": 12,
+      "bytes": 4436
+    },
+    {
+      "unit_id": "BF-02.2",
+      "task_id": "BF-02",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "BF-02.2.md",
+      "lines": 12,
+      "bytes": 4459
+    },
+    {
+      "unit_id": "BP-01",
+      "task_id": "BP-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "BP-01.md",
+      "lines": 13,
+      "bytes": 1768
+    },
+    {
+      "unit_id": "BP-02.1",
+      "task_id": "BP-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "BP-02.1.md",
+      "lines": 13,
+      "bytes": 4822
+    },
+    {
+      "unit_id": "BP-02.2",
+      "task_id": "BP-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "BP-02.2.md",
+      "lines": 13,
+      "bytes": 4739
+    },
+    {
+      "unit_id": "BP-02.3",
+      "task_id": "BP-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "BP-02.3.md",
+      "lines": 13,
+      "bytes": 4722
+    },
+    {
+      "unit_id": "BP-03.1",
+      "task_id": "BP-03",
+      "priority": "P1",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "BP-03.1.md",
+      "lines": 12,
+      "bytes": 4723
+    },
+    {
+      "unit_id": "BP-04.1",
+      "task_id": "BP-04",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "BP-04.1.md",
+      "lines": 12,
+      "bytes": 4857
+    },
+    {
+      "unit_id": "BP-04.2",
+      "task_id": "BP-04",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "BP-04.2.md",
+      "lines": 12,
+      "bytes": 4859
+    },
+    {
+      "unit_id": "BP-05.1",
+      "task_id": "BP-05",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "BP-05.1.md",
+      "lines": 12,
+      "bytes": 4847
+    },
+    {
+      "unit_id": "BP-05.2",
+      "task_id": "BP-05",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "BP-05.2.md",
+      "lines": 12,
+      "bytes": 4706
+    },
+    {
+      "unit_id": "BP-06",
+      "task_id": "BP-06",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "BP-06.md",
+      "lines": 9,
+      "bytes": 1882
+    },
+    {
+      "unit_id": "BUG-001.1-through-3",
+      "task_id": "BUG-001",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-001.1-through-3.md",
+      "lines": 14,
+      "bytes": 5322
+    },
+    {
+      "unit_id": "BUG-001.4",
+      "task_id": "BUG-001",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-001.4.md",
+      "lines": 12,
+      "bytes": 4777
+    },
+    {
+      "unit_id": "BUG-001.5",
+      "task_id": "BUG-001",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-001.5.md",
+      "lines": 12,
+      "bytes": 4497
+    },
+    {
+      "unit_id": "BUG-002.1-through-2",
+      "task_id": "BUG-002",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-002.1-through-2.md",
+      "lines": 21,
+      "bytes": 5465
+    },
+    {
+      "unit_id": "BUG-002.3",
+      "task_id": "BUG-002",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-002.3.md",
+      "lines": 21,
+      "bytes": 5445
+    },
+    {
+      "unit_id": "BUG-003.1",
+      "task_id": "BUG-003",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-003.1.md",
+      "lines": 12,
+      "bytes": 4788
+    },
+    {
+      "unit_id": "BUG-003.2-through-3",
+      "task_id": "BUG-003",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-003.2-through-3.md",
+      "lines": 13,
+      "bytes": 4733
+    },
+    {
+      "unit_id": "BUG-003.4",
+      "task_id": "BUG-003",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-003.4.md",
+      "lines": 12,
+      "bytes": 4652
+    },
+    {
+      "unit_id": "BUG-003.5",
+      "task_id": "BUG-003",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-003.5.md",
+      "lines": 12,
+      "bytes": 4502
+    },
+    {
+      "unit_id": "BUG-003.6",
+      "task_id": "BUG-003",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-003.6.md",
+      "lines": 12,
+      "bytes": 4454
+    },
+    {
+      "unit_id": "BUG-004.1-through-2",
+      "task_id": "BUG-004",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-004.1-through-2.md",
+      "lines": 12,
+      "bytes": 4960
+    },
+    {
+      "unit_id": "BUG-004.3",
+      "task_id": "BUG-004",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-004.3.md",
+      "lines": 11,
+      "bytes": 4423
+    },
+    {
+      "unit_id": "BUG-005.1-through-2",
+      "task_id": "BUG-005",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-005.1-through-2.md",
+      "lines": 11,
+      "bytes": 3721
+    },
+    {
+      "unit_id": "BUG-005.3",
+      "task_id": "BUG-005",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-005.3.md",
+      "lines": 12,
+      "bytes": 5698
+    },
+    {
+      "unit_id": "BUG-005.4",
+      "task_id": "BUG-005",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-005.4.md",
+      "lines": 12,
+      "bytes": 5650
+    },
+    {
+      "unit_id": "BUG-005.5",
+      "task_id": "BUG-005",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-005.5.md",
+      "lines": 12,
+      "bytes": 5698
+    },
+    {
+      "unit_id": "BUG-005.6",
+      "task_id": "BUG-005",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-005.6.md",
+      "lines": 12,
+      "bytes": 5542
+    },
+    {
+      "unit_id": "BUG-006.1",
+      "task_id": "BUG-006",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-006.1.md",
+      "lines": 12,
+      "bytes": 4752
+    },
+    {
+      "unit_id": "BUG-006.2",
+      "task_id": "BUG-006",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-006.2.md",
+      "lines": 12,
+      "bytes": 4828
+    },
+    {
+      "unit_id": "BUG-006.3",
+      "task_id": "BUG-006",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-006.3.md",
+      "lines": 12,
+      "bytes": 4706
+    },
+    {
+      "unit_id": "BUG-008.1-through-2",
+      "task_id": "BUG-008",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-008.1-through-2.md",
+      "lines": 13,
+      "bytes": 5072
+    },
+    {
+      "unit_id": "BUG-008.3",
+      "task_id": "BUG-008",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-008.3.md",
+      "lines": 12,
+      "bytes": 4607
+    },
+    {
+      "unit_id": "BUG-009.1",
+      "task_id": "BUG-009",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-009.1.md",
+      "lines": 12,
+      "bytes": 4830
+    },
+    {
+      "unit_id": "BUG-009.2",
+      "task_id": "BUG-009",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-009.2.md",
+      "lines": 12,
+      "bytes": 4602
+    },
+    {
+      "unit_id": "BUG-009.3",
+      "task_id": "BUG-009",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-009.3.md",
+      "lines": 12,
+      "bytes": 4605
+    },
+    {
+      "unit_id": "BUG-009.4",
+      "task_id": "BUG-009",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-009.4.md",
+      "lines": 12,
+      "bytes": 4572
+    },
+    {
+      "unit_id": "BUG-009.5",
+      "task_id": "BUG-009",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-009.5.md",
+      "lines": 12,
+      "bytes": 4603
+    },
+    {
+      "unit_id": "BUG-010.1-through-2",
+      "task_id": "BUG-010",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-010.1-through-2.md",
+      "lines": 13,
+      "bytes": 4896
+    },
+    {
+      "unit_id": "BUG-010.3",
+      "task_id": "BUG-010",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-010.3.md",
+      "lines": 12,
+      "bytes": 4536
+    },
+    {
+      "unit_id": "BUG-011.1",
+      "task_id": "BUG-011",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-011.1.md",
+      "lines": 12,
+      "bytes": 4577
+    },
+    {
+      "unit_id": "BUG-011.2",
+      "task_id": "BUG-011",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-011.2.md",
+      "lines": 12,
+      "bytes": 4734
+    },
+    {
+      "unit_id": "BUG-011.3",
+      "task_id": "BUG-011",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-011.3.md",
+      "lines": 12,
+      "bytes": 4549
+    },
+    {
+      "unit_id": "BUG-012.1-through-2",
+      "task_id": "BUG-012",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-012.1-through-2.md",
+      "lines": 13,
+      "bytes": 4920
+    },
+    {
+      "unit_id": "BUG-012.3",
+      "task_id": "BUG-012",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-012.3.md",
+      "lines": 12,
+      "bytes": 4523
+    },
+    {
+      "unit_id": "BUG-012.4",
+      "task_id": "BUG-012",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-012.4.md",
+      "lines": 12,
+      "bytes": 4471
+    },
+    {
+      "unit_id": "BUG-020.1",
+      "task_id": "BUG-020",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-020.1.md",
+      "lines": 12,
+      "bytes": 4688
+    },
+    {
+      "unit_id": "BUG-020.2",
+      "task_id": "BUG-020",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-020.2.md",
+      "lines": 12,
+      "bytes": 4764
+    },
+    {
+      "unit_id": "BUG-020.3",
+      "task_id": "BUG-020",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-020.3.md",
+      "lines": 12,
+      "bytes": 4740
+    },
+    {
+      "unit_id": "BUG-020.4",
+      "task_id": "BUG-020",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-020.4.md",
+      "lines": 12,
+      "bytes": 4710
+    },
+    {
+      "unit_id": "BUG-020.5",
+      "task_id": "BUG-020",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-020.5.md",
+      "lines": 12,
+      "bytes": 4877
+    },
+    {
+      "unit_id": "BUG-021.1",
+      "task_id": "BUG-021",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-021.1.md",
+      "lines": 12,
+      "bytes": 4800
+    },
+    {
+      "unit_id": "BUG-021.2",
+      "task_id": "BUG-021",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-021.2.md",
+      "lines": 12,
+      "bytes": 4710
+    },
+    {
+      "unit_id": "BUG-021.3",
+      "task_id": "BUG-021",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-021.3.md",
+      "lines": 12,
+      "bytes": 4750
+    },
+    {
+      "unit_id": "BUG-021.4",
+      "task_id": "BUG-021",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-021.4.md",
+      "lines": 12,
+      "bytes": 4709
+    },
+    {
+      "unit_id": "BUG-022.1",
+      "task_id": "BUG-022",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-022.1.md",
+      "lines": 11,
+      "bytes": 4577
+    },
+    {
+      "unit_id": "BUG-022.2",
+      "task_id": "BUG-022",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-022.2.md",
+      "lines": 11,
+      "bytes": 4498
+    },
+    {
+      "unit_id": "BUG-022.3",
+      "task_id": "BUG-022",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-022.3.md",
+      "lines": 11,
+      "bytes": 4455
+    },
+    {
+      "unit_id": "BUG-022.4",
+      "task_id": "BUG-022",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-022.4.md",
+      "lines": 11,
+      "bytes": 4555
+    },
+    {
+      "unit_id": "BUG-023.1",
+      "task_id": "BUG-023",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-023.1.md",
+      "lines": 11,
+      "bytes": 4577
+    },
+    {
+      "unit_id": "BUG-023.2-through-3",
+      "task_id": "BUG-023",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-023.2-through-3.md",
+      "lines": 12,
+      "bytes": 4685
+    },
+    {
+      "unit_id": "BUG-023.4",
+      "task_id": "BUG-023",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-023.4.md",
+      "lines": 11,
+      "bytes": 4445
+    },
+    {
+      "unit_id": "BUG-023.5",
+      "task_id": "BUG-023",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-023.5.md",
+      "lines": 11,
+      "bytes": 4418
+    },
+    {
+      "unit_id": "BUG-024.1-through-2",
+      "task_id": "BUG-024",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-024.1-through-2.md",
+      "lines": 13,
+      "bytes": 5100
+    },
+    {
+      "unit_id": "BUG-024.3",
+      "task_id": "BUG-024",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-024.3.md",
+      "lines": 12,
+      "bytes": 4644
+    },
+    {
+      "unit_id": "BUG-025.1-through-2",
+      "task_id": "BUG-025",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-025.1-through-2.md",
+      "lines": 12,
+      "bytes": 4777
+    },
+    {
+      "unit_id": "BUG-025.3",
+      "task_id": "BUG-025",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-025.3.md",
+      "lines": 11,
+      "bytes": 4423
+    },
+    {
+      "unit_id": "BUG-026.1",
+      "task_id": "BUG-026",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-026.1.md",
+      "lines": 12,
+      "bytes": 4739
+    },
+    {
+      "unit_id": "BUG-026.2",
+      "task_id": "BUG-026",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-026.2.md",
+      "lines": 12,
+      "bytes": 4750
+    },
+    {
+      "unit_id": "BUG-026.3",
+      "task_id": "BUG-026",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-026.3.md",
+      "lines": 12,
+      "bytes": 4657
+    },
+    {
+      "unit_id": "BUG-027",
+      "task_id": "BUG-027",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-027.md",
+      "lines": 13,
+      "bytes": 1768
+    },
+    {
+      "unit_id": "BUG-028.1",
+      "task_id": "BUG-028",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-028.1.md",
+      "lines": 12,
+      "bytes": 4880
+    },
+    {
+      "unit_id": "BUG-028.2",
+      "task_id": "BUG-028",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-028.2.md",
+      "lines": 12,
+      "bytes": 4799
+    },
+    {
+      "unit_id": "BUG-028.3",
+      "task_id": "BUG-028",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-028.3.md",
+      "lines": 12,
+      "bytes": 4773
+    },
+    {
+      "unit_id": "BUG-028.4",
+      "task_id": "BUG-028",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-028.4.md",
+      "lines": 12,
+      "bytes": 4793
+    },
+    {
+      "unit_id": "BUG-028.5",
+      "task_id": "BUG-028",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-028.5.md",
+      "lines": 12,
+      "bytes": 4823
+    },
+    {
+      "unit_id": "BUG-029.1",
+      "task_id": "BUG-029",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-029.1.md",
+      "lines": 12,
+      "bytes": 4577
+    },
+    {
+      "unit_id": "BUG-029.2",
+      "task_id": "BUG-029",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-029.2.md",
+      "lines": 12,
+      "bytes": 4623
+    },
+    {
+      "unit_id": "BUG-029.3",
+      "task_id": "BUG-029",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-029.3.md",
+      "lines": 12,
+      "bytes": 4569
+    },
+    {
+      "unit_id": "BUG-029.4",
+      "task_id": "BUG-029",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-029.4.md",
+      "lines": 12,
+      "bytes": 4560
+    },
+    {
+      "unit_id": "BUG-029.5",
+      "task_id": "BUG-029",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-029.5.md",
+      "lines": 12,
+      "bytes": 4601
+    },
+    {
+      "unit_id": "BUG-029.6",
+      "task_id": "BUG-029",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-029.6.md",
+      "lines": 12,
+      "bytes": 4574
+    },
+    {
+      "unit_id": "BUG-030.1",
+      "task_id": "BUG-030",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-030.1.md",
+      "lines": 11,
+      "bytes": 4509
+    },
+    {
+      "unit_id": "BUG-030.2",
+      "task_id": "BUG-030",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-030.2.md",
+      "lines": 11,
+      "bytes": 4522
+    },
+    {
+      "unit_id": "BUG-030.3",
+      "task_id": "BUG-030",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-030.3.md",
+      "lines": 11,
+      "bytes": 4459
+    },
+    {
+      "unit_id": "BUG-030.4",
+      "task_id": "BUG-030",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-030.4.md",
+      "lines": 11,
+      "bytes": 4476
+    },
+    {
+      "unit_id": "BUG-031.1",
+      "task_id": "BUG-031",
+      "priority": "P2",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-031.1.md",
+      "lines": 11,
+      "bytes": 4613
+    },
+    {
+      "unit_id": "BUG-032.1",
+      "task_id": "BUG-032",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-032.1.md",
+      "lines": 12,
+      "bytes": 4797
+    },
+    {
+      "unit_id": "BUG-032.2",
+      "task_id": "BUG-032",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-032.2.md",
+      "lines": 12,
+      "bytes": 4796
+    },
+    {
+      "unit_id": "BUG-032.3",
+      "task_id": "BUG-032",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-032.3.md",
+      "lines": 12,
+      "bytes": 4774
+    },
+    {
+      "unit_id": "BUG-032.4",
+      "task_id": "BUG-032",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-032.4.md",
+      "lines": 12,
+      "bytes": 4670
+    },
+    {
+      "unit_id": "BUG-032.5",
+      "task_id": "BUG-032",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-032.5.md",
+      "lines": 12,
+      "bytes": 4733
+    },
+    {
+      "unit_id": "BUG-032.6",
+      "task_id": "BUG-032",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-032.6.md",
+      "lines": 12,
+      "bytes": 4706
+    },
+    {
+      "unit_id": "BUG-040.1",
+      "task_id": "BUG-040",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-040.1.md",
+      "lines": 12,
+      "bytes": 4842
+    },
+    {
+      "unit_id": "BUG-040.2",
+      "task_id": "BUG-040",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-040.2.md",
+      "lines": 12,
+      "bytes": 4900
+    },
+    {
+      "unit_id": "BUG-040.3",
+      "task_id": "BUG-040",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-040.3.md",
+      "lines": 12,
+      "bytes": 4682
+    },
+    {
+      "unit_id": "BUG-041.1",
+      "task_id": "BUG-041",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-041.1.md",
+      "lines": 12,
+      "bytes": 4683
+    },
+    {
+      "unit_id": "BUG-041.2",
+      "task_id": "BUG-041",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-041.2.md",
+      "lines": 12,
+      "bytes": 4832
+    },
+    {
+      "unit_id": "BUG-041.3",
+      "task_id": "BUG-041",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-041.3.md",
+      "lines": 12,
+      "bytes": 4657
+    },
+    {
+      "unit_id": "BUG-042.1-through-2",
+      "task_id": "BUG-042",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-042.1-through-2.md",
+      "lines": 13,
+      "bytes": 5148
+    },
+    {
+      "unit_id": "BUG-042.3",
+      "task_id": "BUG-042",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-042.3.md",
+      "lines": 12,
+      "bytes": 4591
+    },
+    {
+      "unit_id": "BUG-043.1",
+      "task_id": "BUG-043",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-043.1.md",
+      "lines": 12,
+      "bytes": 4595
+    },
+    {
+      "unit_id": "BUG-043.2",
+      "task_id": "BUG-043",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-043.2.md",
+      "lines": 12,
+      "bytes": 4770
+    },
+    {
+      "unit_id": "BUG-043.3",
+      "task_id": "BUG-043",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-043.3.md",
+      "lines": 12,
+      "bytes": 4591
+    },
+    {
+      "unit_id": "BUG-044.1",
+      "task_id": "BUG-044",
+      "priority": "P2",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-044.1.md",
+      "lines": 17,
+      "bytes": 5104
+    },
+    {
+      "unit_id": "BUG-050.1",
+      "task_id": "BUG-050",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-050.1.md",
+      "lines": 12,
+      "bytes": 4702
+    },
+    {
+      "unit_id": "BUG-050.2",
+      "task_id": "BUG-050",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-050.2.md",
+      "lines": 12,
+      "bytes": 4671
+    },
+    {
+      "unit_id": "BUG-050.3",
+      "task_id": "BUG-050",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-050.3.md",
+      "lines": 12,
+      "bytes": 4632
+    },
+    {
+      "unit_id": "BUG-051.1",
+      "task_id": "BUG-051",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-051.1.md",
+      "lines": 11,
+      "bytes": 4490
+    },
+    {
+      "unit_id": "BUG-051.2",
+      "task_id": "BUG-051",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-051.2.md",
+      "lines": 11,
+      "bytes": 4505
+    },
+    {
+      "unit_id": "BUG-051.3",
+      "task_id": "BUG-051",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-051.3.md",
+      "lines": 11,
+      "bytes": 4534
+    },
+    {
+      "unit_id": "BUG-051.4",
+      "task_id": "BUG-051",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-051.4.md",
+      "lines": 11,
+      "bytes": 4395
+    },
+    {
+      "unit_id": "BUG-052.1",
+      "task_id": "BUG-052",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-052.1.md",
+      "lines": 11,
+      "bytes": 4493
+    },
+    {
+      "unit_id": "BUG-052.2",
+      "task_id": "BUG-052",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-052.2.md",
+      "lines": 11,
+      "bytes": 4459
+    },
+    {
+      "unit_id": "BUG-053.1",
+      "task_id": "BUG-053",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-053.1.md",
+      "lines": 12,
+      "bytes": 4693
+    },
+    {
+      "unit_id": "BUG-053.2",
+      "task_id": "BUG-053",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-053.2.md",
+      "lines": 12,
+      "bytes": 4690
+    },
+    {
+      "unit_id": "BUG-053.3",
+      "task_id": "BUG-053",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-053.3.md",
+      "lines": 12,
+      "bytes": 4738
+    },
+    {
+      "unit_id": "BUG-053.4",
+      "task_id": "BUG-053",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-053.4.md",
+      "lines": 12,
+      "bytes": 4755
+    },
+    {
+      "unit_id": "BUG-053.5",
+      "task_id": "BUG-053",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-053.5.md",
+      "lines": 12,
+      "bytes": 4628
+    },
+    {
+      "unit_id": "BUG-054.1",
+      "task_id": "BUG-054",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-054.1.md",
+      "lines": 12,
+      "bytes": 4806
+    },
+    {
+      "unit_id": "BUG-054.2",
+      "task_id": "BUG-054",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-054.2.md",
+      "lines": 12,
+      "bytes": 4796
+    },
+    {
+      "unit_id": "BUG-054.3",
+      "task_id": "BUG-054",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-054.3.md",
+      "lines": 12,
+      "bytes": 4896
+    },
+    {
+      "unit_id": "BUG-055.1-through-2",
+      "task_id": "BUG-055",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-055.1-through-2.md",
+      "lines": 13,
+      "bytes": 4811
+    },
+    {
+      "unit_id": "BUG-055.3",
+      "task_id": "BUG-055",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-055.3.md",
+      "lines": 12,
+      "bytes": 4817
+    },
+    {
+      "unit_id": "BUG-055.4",
+      "task_id": "BUG-055",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-055.4.md",
+      "lines": 12,
+      "bytes": 4710
+    },
+    {
+      "unit_id": "BUG-055.5",
+      "task_id": "BUG-055",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-055.5.md",
+      "lines": 12,
+      "bytes": 4605
+    },
+    {
+      "unit_id": "BUG-056.1-through-2",
+      "task_id": "BUG-056",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-056.1-through-2.md",
+      "lines": 12,
+      "bytes": 4665
+    },
+    {
+      "unit_id": "BUG-057.1",
+      "task_id": "BUG-057",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-057.1.md",
+      "lines": 12,
+      "bytes": 4672
+    },
+    {
+      "unit_id": "BUG-057.2",
+      "task_id": "BUG-057",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-057.2.md",
+      "lines": 12,
+      "bytes": 4611
+    },
+    {
+      "unit_id": "BUG-058.1-through-2",
+      "task_id": "BUG-058",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-058.1-through-2.md",
+      "lines": 12,
+      "bytes": 4614
+    },
+    {
+      "unit_id": "BUG-059.1-through-2",
+      "task_id": "BUG-059",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-059.1-through-2.md",
+      "lines": 13,
+      "bytes": 4724
+    },
+    {
+      "unit_id": "BUG-059.3",
+      "task_id": "BUG-059",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-059.3.md",
+      "lines": 12,
+      "bytes": 4648
+    },
+    {
+      "unit_id": "BUG-059.4",
+      "task_id": "BUG-059",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-059.4.md",
+      "lines": 12,
+      "bytes": 4735
+    },
+    {
+      "unit_id": "BUG-060.1",
+      "task_id": "BUG-060",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-060.1.md",
+      "lines": 13,
+      "bytes": 4759
+    },
+    {
+      "unit_id": "BUG-060.2",
+      "task_id": "BUG-060",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-060.2.md",
+      "lines": 13,
+      "bytes": 4649
+    },
+    {
+      "unit_id": "BUG-060.3",
+      "task_id": "BUG-060",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-060.3.md",
+      "lines": 13,
+      "bytes": 4709
+    },
+    {
+      "unit_id": "BUG-060.4",
+      "task_id": "BUG-060",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-060.4.md",
+      "lines": 13,
+      "bytes": 4577
+    },
+    {
+      "unit_id": "BUG-061.1",
+      "task_id": "BUG-061",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-061.1.md",
+      "lines": 11,
+      "bytes": 4392
+    },
+    {
+      "unit_id": "BUG-061.2",
+      "task_id": "BUG-061",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-061.2.md",
+      "lines": 11,
+      "bytes": 4556
+    },
+    {
+      "unit_id": "BUG-061.3",
+      "task_id": "BUG-061",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-061.3.md",
+      "lines": 11,
+      "bytes": 4423
+    },
+    {
+      "unit_id": "BUG-062.1-through-2",
+      "task_id": "BUG-062",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-062.1-through-2.md",
+      "lines": 12,
+      "bytes": 5189
+    },
+    {
+      "unit_id": "BUG-062.3",
+      "task_id": "BUG-062",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-062.3.md",
+      "lines": 11,
+      "bytes": 4423
+    },
+    {
+      "unit_id": "BUG-063",
+      "task_id": "BUG-063",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-063.md",
+      "lines": 13,
+      "bytes": 1751
+    },
+    {
+      "unit_id": "BUG-064",
+      "task_id": "BUG-064",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-064.md",
+      "lines": 13,
+      "bytes": 1751
+    },
+    {
+      "unit_id": "BUG-065",
+      "task_id": "BUG-065",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-065.md",
+      "lines": 13,
+      "bytes": 1751
+    },
+    {
+      "unit_id": "BUG-066",
+      "task_id": "BUG-066",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-066.md",
+      "lines": 13,
+      "bytes": 1751
+    },
+    {
+      "unit_id": "BUG-067",
+      "task_id": "BUG-067",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-067.md",
+      "lines": 13,
+      "bytes": 1751
+    },
+    {
+      "unit_id": "BUG-068",
+      "task_id": "BUG-068",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-068.md",
+      "lines": 13,
+      "bytes": 1751
+    },
+    {
+      "unit_id": "BUG-069",
+      "task_id": "BUG-069",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-069.md",
+      "lines": 13,
+      "bytes": 1751
+    },
+    {
+      "unit_id": "BUG-070",
+      "task_id": "BUG-070",
+      "priority": "P1",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-070.md",
+      "lines": 13,
+      "bytes": 1751
+    },
+    {
+      "unit_id": "BUG-071.1-through-2",
+      "task_id": "BUG-071",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-071.1-through-2.md",
+      "lines": 13,
+      "bytes": 4821
+    },
+    {
+      "unit_id": "BUG-071.3",
+      "task_id": "BUG-071",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-071.3.md",
+      "lines": 12,
+      "bytes": 4764
+    },
+    {
+      "unit_id": "BUG-071.4",
+      "task_id": "BUG-071",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-071.4.md",
+      "lines": 12,
+      "bytes": 4561
+    },
+    {
+      "unit_id": "BUG-072.1-through-2",
+      "task_id": "BUG-072",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-072.1-through-2.md",
+      "lines": 13,
+      "bytes": 4844
+    },
+    {
+      "unit_id": "BUG-072.3",
+      "task_id": "BUG-072",
+      "priority": "P0",
+      "source": "ARCH_01_BUGS.md",
+      "file": "BUG-072.3.md",
+      "lines": 12,
+      "bytes": 4602
+    },
+    {
+      "unit_id": "CL-01",
+      "task_id": "CL-01",
+      "priority": "P1",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "CL-01.md",
+      "lines": 8,
+      "bytes": 1580
+    },
+    {
+      "unit_id": "CL-02.1",
+      "task_id": "CL-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "CL-02.1.md",
+      "lines": 12,
+      "bytes": 4692
+    },
+    {
+      "unit_id": "CL-02.2",
+      "task_id": "CL-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "CL-02.2.md",
+      "lines": 12,
+      "bytes": 4625
+    },
+    {
+      "unit_id": "CODE-001.1",
+      "task_id": "CODE-001",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "CODE-001.1.md",
+      "lines": 11,
+      "bytes": 4477
+    },
+    {
+      "unit_id": "CODE-001.2",
+      "task_id": "CODE-001",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "CODE-001.2.md",
+      "lines": 11,
+      "bytes": 4475
+    },
+    {
+      "unit_id": "CODE-002.1-through-2",
+      "task_id": "CODE-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "CODE-002.1-through-2.md",
+      "lines": 12,
+      "bytes": 4756
+    },
+    {
+      "unit_id": "CODE-002.3",
+      "task_id": "CODE-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "CODE-002.3.md",
+      "lines": 11,
+      "bytes": 4475
+    },
+    {
+      "unit_id": "CODE-003.1",
+      "task_id": "CODE-003",
+      "priority": "P2",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "CODE-003.1.md",
+      "lines": 15,
+      "bytes": 5120
+    },
+    {
+      "unit_id": "CODE-004.1",
+      "task_id": "CODE-004",
+      "priority": "P2",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "CODE-004.1.md",
+      "lines": 14,
+      "bytes": 5047
+    },
+    {
+      "unit_id": "CODE-005.1",
+      "task_id": "CODE-005",
+      "priority": "P2",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "CODE-005.1.md",
+      "lines": 16,
+      "bytes": 5101
+    },
+    {
+      "unit_id": "CODE-006.1",
+      "task_id": "CODE-006",
+      "priority": "P2",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "CODE-006.1.md",
+      "lines": 13,
+      "bytes": 4717
+    },
+    {
+      "unit_id": "CODE-007.1",
+      "task_id": "CODE-007",
+      "priority": "P2",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "CODE-007.1.md",
+      "lines": 17,
+      "bytes": 5083
+    },
+    {
+      "unit_id": "DOC-001.1",
+      "task_id": "DOC-001",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "DOC-001.1.md",
+      "lines": 15,
+      "bytes": 5347
+    },
+    {
+      "unit_id": "DOC-002.1",
+      "task_id": "DOC-002",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "DOC-002.1.md",
+      "lines": 13,
+      "bytes": 4973
+    },
+    {
+      "unit_id": "DOC-003.1",
+      "task_id": "DOC-003",
+      "priority": "P1",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "DOC-003.1.md",
+      "lines": 14,
+      "bytes": 5026
+    },
+    {
+      "unit_id": "DOC-004.1",
+      "task_id": "DOC-004",
+      "priority": "P2",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "DOC-004.1.md",
+      "lines": 13,
+      "bytes": 4994
+    },
+    {
+      "unit_id": "DOC-005.1",
+      "task_id": "DOC-005",
+      "priority": "P2",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "DOC-005.1.md",
+      "lines": 13,
+      "bytes": 5120
+    },
+    {
+      "unit_id": "DOC-006.1",
+      "task_id": "DOC-006",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "DOC-006.1.md",
+      "lines": 12,
+      "bytes": 5176
+    },
+    {
+      "unit_id": "DOC-006.2",
+      "task_id": "DOC-006",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "DOC-006.2.md",
+      "lines": 12,
+      "bytes": 5026
+    },
+    {
+      "unit_id": "DOC-006.3",
+      "task_id": "DOC-006",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "DOC-006.3.md",
+      "lines": 12,
+      "bytes": 5016
+    },
+    {
+      "unit_id": "DOC-006.4",
+      "task_id": "DOC-006",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "DOC-006.4.md",
+      "lines": 12,
+      "bytes": 4901
+    },
+    {
+      "unit_id": "DOC-V1",
+      "task_id": "DOC-V1",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "DOC-V1.md",
+      "lines": 8,
+      "bytes": 1661
+    },
+    {
+      "unit_id": "DOC-V2",
+      "task_id": "DOC-V2",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "DOC-V2.md",
+      "lines": 8,
+      "bytes": 1617
+    },
+    {
+      "unit_id": "DOC-V3",
+      "task_id": "DOC-V3",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "DOC-V3.md",
+      "lines": 8,
+      "bytes": 1687
+    },
+    {
+      "unit_id": "DOC-V4",
+      "task_id": "DOC-V4",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "DOC-V4.md",
+      "lines": 8,
+      "bytes": 1757
+    },
+    {
+      "unit_id": "DOC-V4B.1",
+      "task_id": "DOC-V4B",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "DOC-V4B.1.md",
+      "lines": 11,
+      "bytes": 3541
+    },
+    {
+      "unit_id": "DOC-V5",
+      "task_id": "DOC-V5",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "DOC-V5.md",
+      "lines": 8,
+      "bytes": 1603
+    },
+    {
+      "unit_id": "DOC-V6",
+      "task_id": "DOC-V6",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "DOC-V6.md",
+      "lines": 8,
+      "bytes": 1587
+    },
+    {
+      "unit_id": "DOC-V7.1",
+      "task_id": "DOC-V7",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "DOC-V7.1.md",
+      "lines": 10,
+      "bytes": 3473
+    },
+    {
+      "unit_id": "DOC-V7.2",
+      "task_id": "DOC-V7",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "DOC-V7.2.md",
+      "lines": 10,
+      "bytes": 3449
+    },
+    {
+      "unit_id": "DOC-V7.3",
+      "task_id": "DOC-V7",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "DOC-V7.3.md",
+      "lines": 10,
+      "bytes": 3545
+    },
+    {
+      "unit_id": "DOC-V7.4",
+      "task_id": "DOC-V7",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "DOC-V7.4.md",
+      "lines": 10,
+      "bytes": 3309
+    },
+    {
+      "unit_id": "DSY-01.1",
+      "task_id": "DSY-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-01.1.md",
+      "lines": 12,
+      "bytes": 4726
+    },
+    {
+      "unit_id": "DSY-01.2",
+      "task_id": "DSY-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-01.2.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "DSY-02.1",
+      "task_id": "DSY-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-02.1.md",
+      "lines": 12,
+      "bytes": 4749
+    },
+    {
+      "unit_id": "DSY-02.2",
+      "task_id": "DSY-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-02.2.md",
+      "lines": 12,
+      "bytes": 4783
+    },
+    {
+      "unit_id": "DSY-03.1",
+      "task_id": "DSY-03",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-03.1.md",
+      "lines": 12,
+      "bytes": 4719
+    },
+    {
+      "unit_id": "DSY-03.2",
+      "task_id": "DSY-03",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-03.2.md",
+      "lines": 12,
+      "bytes": 4713
+    },
+    {
+      "unit_id": "DSY-04.1",
+      "task_id": "DSY-04",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-04.1.md",
+      "lines": 12,
+      "bytes": 4679
+    },
+    {
+      "unit_id": "DSY-04.2",
+      "task_id": "DSY-04",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-04.2.md",
+      "lines": 12,
+      "bytes": 4747
+    },
+    {
+      "unit_id": "DSY-05.1",
+      "task_id": "DSY-05",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-05.1.md",
+      "lines": 12,
+      "bytes": 4796
+    },
+    {
+      "unit_id": "DSY-05.2",
+      "task_id": "DSY-05",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-05.2.md",
+      "lines": 12,
+      "bytes": 4720
+    },
+    {
+      "unit_id": "DSY-06.1",
+      "task_id": "DSY-06",
+      "priority": "P1",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-06.1.md",
+      "lines": 10,
+      "bytes": 3189
+    },
+    {
+      "unit_id": "DSY-07.1",
+      "task_id": "DSY-07",
+      "priority": "P1",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-07.1.md",
+      "lines": 12,
+      "bytes": 4611
+    },
+    {
+      "unit_id": "DSY-07.2",
+      "task_id": "DSY-07",
+      "priority": "P1",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-07.2.md",
+      "lines": 12,
+      "bytes": 4661
+    },
+    {
+      "unit_id": "DSY-08.1",
+      "task_id": "DSY-08",
+      "priority": "P1",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-08.1.md",
+      "lines": 13,
+      "bytes": 4889
+    },
+    {
+      "unit_id": "DSY-08.2",
+      "task_id": "DSY-08",
+      "priority": "P1",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "DSY-08.2.md",
+      "lines": 13,
+      "bytes": 4941
+    },
+    {
+      "unit_id": "E2E-GAP-001.1",
+      "task_id": "E2E-GAP-001",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-001.1.md",
+      "lines": 11,
+      "bytes": 3907
+    },
+    {
+      "unit_id": "E2E-GAP-002.1",
+      "task_id": "E2E-GAP-002",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-002.1.md",
+      "lines": 11,
+      "bytes": 3964
+    },
+    {
+      "unit_id": "E2E-GAP-003.1",
+      "task_id": "E2E-GAP-003",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-003.1.md",
+      "lines": 11,
+      "bytes": 3922
+    },
+    {
+      "unit_id": "E2E-GAP-004.1",
+      "task_id": "E2E-GAP-004",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-004.1.md",
+      "lines": 11,
+      "bytes": 3949
+    },
+    {
+      "unit_id": "E2E-GAP-005.1",
+      "task_id": "E2E-GAP-005",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-005.1.md",
+      "lines": 11,
+      "bytes": 3930
+    },
+    {
+      "unit_id": "E2E-GAP-006.1",
+      "task_id": "E2E-GAP-006",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-006.1.md",
+      "lines": 11,
+      "bytes": 3892
+    },
+    {
+      "unit_id": "E2E-GAP-007.1",
+      "task_id": "E2E-GAP-007",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-007.1.md",
+      "lines": 11,
+      "bytes": 3896
+    },
+    {
+      "unit_id": "E2E-GAP-008.1",
+      "task_id": "E2E-GAP-008",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-008.1.md",
+      "lines": 11,
+      "bytes": 3930
+    },
+    {
+      "unit_id": "E2E-GAP-009.1",
+      "task_id": "E2E-GAP-009",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-009.1.md",
+      "lines": 11,
+      "bytes": 3903
+    },
+    {
+      "unit_id": "E2E-GAP-010.1",
+      "task_id": "E2E-GAP-010",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-010.1.md",
+      "lines": 11,
+      "bytes": 3927
+    },
+    {
+      "unit_id": "E2E-GAP-011.1",
+      "task_id": "E2E-GAP-011",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-011.1.md",
+      "lines": 11,
+      "bytes": 3913
+    },
+    {
+      "unit_id": "E2E-GAP-012.1",
+      "task_id": "E2E-GAP-012",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-012.1.md",
+      "lines": 11,
+      "bytes": 3927
+    },
+    {
+      "unit_id": "E2E-GAP-013.1",
+      "task_id": "E2E-GAP-013",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-013.1.md",
+      "lines": 11,
+      "bytes": 3910
+    },
+    {
+      "unit_id": "E2E-GAP-014.1",
+      "task_id": "E2E-GAP-014",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-014.1.md",
+      "lines": 11,
+      "bytes": 3871
+    },
+    {
+      "unit_id": "E2E-GAP-015.1",
+      "task_id": "E2E-GAP-015",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-015.1.md",
+      "lines": 11,
+      "bytes": 3863
+    },
+    {
+      "unit_id": "E2E-GAP-016.1",
+      "task_id": "E2E-GAP-016",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-016.1.md",
+      "lines": 11,
+      "bytes": 3923
+    },
+    {
+      "unit_id": "E2E-GAP-017.1",
+      "task_id": "E2E-GAP-017",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-017.1.md",
+      "lines": 11,
+      "bytes": 3963
+    },
+    {
+      "unit_id": "E2E-GAP-018.1",
+      "task_id": "E2E-GAP-018",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-018.1.md",
+      "lines": 11,
+      "bytes": 3909
+    },
+    {
+      "unit_id": "E2E-GAP-019.1",
+      "task_id": "E2E-GAP-019",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-019.1.md",
+      "lines": 11,
+      "bytes": 3979
+    },
+    {
+      "unit_id": "E2E-GAP-020.1",
+      "task_id": "E2E-GAP-020",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-020.1.md",
+      "lines": 11,
+      "bytes": 3958
+    },
+    {
+      "unit_id": "E2E-GAP-021.1",
+      "task_id": "E2E-GAP-021",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-021.1.md",
+      "lines": 11,
+      "bytes": 3970
+    },
+    {
+      "unit_id": "E2E-GAP-022.1",
+      "task_id": "E2E-GAP-022",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-022.1.md",
+      "lines": 11,
+      "bytes": 3858
+    },
+    {
+      "unit_id": "E2E-GAP-023.1",
+      "task_id": "E2E-GAP-023",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-023.1.md",
+      "lines": 11,
+      "bytes": 3961
+    },
+    {
+      "unit_id": "E2E-GAP-024.1",
+      "task_id": "E2E-GAP-024",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-024.1.md",
+      "lines": 11,
+      "bytes": 3955
+    },
+    {
+      "unit_id": "E2E-GAP-025.1",
+      "task_id": "E2E-GAP-025",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-025.1.md",
+      "lines": 11,
+      "bytes": 3934
+    },
+    {
+      "unit_id": "E2E-GAP-026.1",
+      "task_id": "E2E-GAP-026",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-026.1.md",
+      "lines": 11,
+      "bytes": 3909
+    },
+    {
+      "unit_id": "E2E-GAP-027.1",
+      "task_id": "E2E-GAP-027",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-027.1.md",
+      "lines": 11,
+      "bytes": 3989
+    },
+    {
+      "unit_id": "E2E-GAP-028.1",
+      "task_id": "E2E-GAP-028",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-028.1.md",
+      "lines": 11,
+      "bytes": 3909
+    },
+    {
+      "unit_id": "E2E-GAP-029.1",
+      "task_id": "E2E-GAP-029",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-029.1.md",
+      "lines": 11,
+      "bytes": 3966
+    },
+    {
+      "unit_id": "E2E-GAP-030.1",
+      "task_id": "E2E-GAP-030",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-030.1.md",
+      "lines": 11,
+      "bytes": 3997
+    },
+    {
+      "unit_id": "E2E-GAP-031.1",
+      "task_id": "E2E-GAP-031",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-031.1.md",
+      "lines": 11,
+      "bytes": 3931
+    },
+    {
+      "unit_id": "E2E-GAP-032.1",
+      "task_id": "E2E-GAP-032",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-032.1.md",
+      "lines": 11,
+      "bytes": 3913
+    },
+    {
+      "unit_id": "E2E-GAP-033.1",
+      "task_id": "E2E-GAP-033",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-033.1.md",
+      "lines": 11,
+      "bytes": 4017
+    },
+    {
+      "unit_id": "E2E-GAP-034.1",
+      "task_id": "E2E-GAP-034",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-034.1.md",
+      "lines": 11,
+      "bytes": 3977
+    },
+    {
+      "unit_id": "E2E-GAP-035.1",
+      "task_id": "E2E-GAP-035",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-035.1.md",
+      "lines": 11,
+      "bytes": 4007
+    },
+    {
+      "unit_id": "E2E-GAP-036.1",
+      "task_id": "E2E-GAP-036",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "E2E-GAP-036.1.md",
+      "lines": 11,
+      "bytes": 3944
+    },
+    {
+      "unit_id": "E2E-HARNESS-01.1",
+      "task_id": "E2E-HARNESS-01",
+      "priority": "P0",
+      "source": "ARCH_20_EMULATOR_SPECS.md",
+      "file": "E2E-HARNESS-01.1.md",
+      "lines": 11,
+      "bytes": 3564
+    },
+    {
+      "unit_id": "E2EMATRIX-01.1",
+      "task_id": "E2EMATRIX-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "E2EMATRIX-01.1.md",
+      "lines": 12,
+      "bytes": 5495
+    },
+    {
+      "unit_id": "EC-01.1",
+      "task_id": "EC-01",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "EC-01.1.md",
+      "lines": 12,
+      "bytes": 4500
+    },
+    {
+      "unit_id": "EC-01.2-through-3",
+      "task_id": "EC-01",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "EC-01.2-through-3.md",
+      "lines": 13,
+      "bytes": 4612
+    },
+    {
+      "unit_id": "EC-01.4",
+      "task_id": "EC-01",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "EC-01.4.md",
+      "lines": 12,
+      "bytes": 4477
+    },
+    {
+      "unit_id": "EC-02.1-through-2",
+      "task_id": "EC-02",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "EC-02.1-through-2.md",
+      "lines": 13,
+      "bytes": 4543
+    },
+    {
+      "unit_id": "EC-02.3",
+      "task_id": "EC-02",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "EC-02.3.md",
+      "lines": 12,
+      "bytes": 4473
+    },
+    {
+      "unit_id": "EC-03.1-through-2",
+      "task_id": "EC-03",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "EC-03.1-through-2.md",
+      "lines": 13,
+      "bytes": 4530
+    },
+    {
+      "unit_id": "EC-04.1-through-2",
+      "task_id": "EC-04",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "EC-04.1-through-2.md",
+      "lines": 13,
+      "bytes": 4535
+    },
+    {
+      "unit_id": "EC-05.1",
+      "task_id": "EC-05",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "EC-05.1.md",
+      "lines": 12,
+      "bytes": 4432
+    },
+    {
+      "unit_id": "EC-06.1",
+      "task_id": "EC-06",
+      "priority": "P2",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "EC-06.1.md",
+      "lines": 12,
+      "bytes": 4435
+    },
+    {
+      "unit_id": "EC-06.2",
+      "task_id": "EC-06",
+      "priority": "P2",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "EC-06.2.md",
+      "lines": 12,
+      "bytes": 4458
+    },
+    {
+      "unit_id": "EC-07.1",
+      "task_id": "EC-07",
+      "priority": "P2",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "EC-07.1.md",
+      "lines": 12,
+      "bytes": 4449
+    },
+    {
+      "unit_id": "EMU-01.1",
+      "task_id": "EMU-01",
+      "priority": "P1",
+      "source": "ARCH_20_EMULATOR_SPECS.md",
+      "file": "EMU-01.1.md",
+      "lines": 12,
+      "bytes": 4599
+    },
+    {
+      "unit_id": "EMU-01.2",
+      "task_id": "EMU-01",
+      "priority": "P1",
+      "source": "ARCH_20_EMULATOR_SPECS.md",
+      "file": "EMU-01.2.md",
+      "lines": 12,
+      "bytes": 4601
+    },
+    {
+      "unit_id": "EMU-02.1",
+      "task_id": "EMU-02",
+      "priority": "P1",
+      "source": "ARCH_20_EMULATOR_SPECS.md",
+      "file": "EMU-02.1.md",
+      "lines": 12,
+      "bytes": 4530
+    },
+    {
+      "unit_id": "EMU-02.2",
+      "task_id": "EMU-02",
+      "priority": "P1",
+      "source": "ARCH_20_EMULATOR_SPECS.md",
+      "file": "EMU-02.2.md",
+      "lines": 12,
+      "bytes": 4553
+    },
+    {
+      "unit_id": "EMU-03.1",
+      "task_id": "EMU-03",
+      "priority": "P1",
+      "source": "ARCH_20_EMULATOR_SPECS.md",
+      "file": "EMU-03.1.md",
+      "lines": 12,
+      "bytes": 4691
+    },
+    {
+      "unit_id": "EMU-04.1",
+      "task_id": "EMU-04",
+      "priority": "P1",
+      "source": "ARCH_20_EMULATOR_SPECS.md",
+      "file": "EMU-04.1.md",
+      "lines": 12,
+      "bytes": 4550
+    },
+    {
+      "unit_id": "EMU-05.1",
+      "task_id": "EMU-05",
+      "priority": "P1",
+      "source": "ARCH_20_EMULATOR_SPECS.md",
+      "file": "EMU-05.1.md",
+      "lines": 12,
+      "bytes": 4563
+    },
+    {
+      "unit_id": "EMU-06.1",
+      "task_id": "EMU-06",
+      "priority": "P1",
+      "source": "ARCH_20_EMULATOR_SPECS.md",
+      "file": "EMU-06.1.md",
+      "lines": 12,
+      "bytes": 4547
+    },
+    {
+      "unit_id": "EVIDENCE-01.1",
+      "task_id": "EVIDENCE-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "EVIDENCE-01.1.md",
+      "lines": 12,
+      "bytes": 4794
+    },
+    {
+      "unit_id": "GATE-01",
+      "task_id": "GATE-01",
+      "priority": "P1",
+      "source": "ARCH_06_SUPTO_NAP_READINESS.md",
+      "file": "GATE-01.md",
+      "lines": 6,
+      "bytes": 1462
+    },
+    {
+      "unit_id": "HILMX-01.1",
+      "task_id": "HILMX-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "HILMX-01.1.md",
+      "lines": 10,
+      "bytes": 3319
+    },
+    {
+      "unit_id": "HILMX-01.2",
+      "task_id": "HILMX-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "HILMX-01.2.md",
+      "lines": 10,
+      "bytes": 3319
+    },
+    {
+      "unit_id": "MATRIX-01.1",
+      "task_id": "MATRIX-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "MATRIX-01.1.md",
+      "lines": 12,
+      "bytes": 4945
+    },
+    {
+      "unit_id": "MC-01.1",
+      "task_id": "MC-01",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MC-01.1.md",
+      "lines": 12,
+      "bytes": 4582
+    },
+    {
+      "unit_id": "MC-01.2",
+      "task_id": "MC-01",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MC-01.2.md",
+      "lines": 12,
+      "bytes": 4472
+    },
+    {
+      "unit_id": "MP-01.1-through-2",
+      "task_id": "MP-01",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MP-01.1-through-2.md",
+      "lines": 13,
+      "bytes": 4615
+    },
+    {
+      "unit_id": "MP-01.3",
+      "task_id": "MP-01",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MP-01.3.md",
+      "lines": 12,
+      "bytes": 4478
+    },
+    {
+      "unit_id": "MP-02.1",
+      "task_id": "MP-02",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MP-02.1.md",
+      "lines": 12,
+      "bytes": 4535
+    },
+    {
+      "unit_id": "MP-02.2",
+      "task_id": "MP-02",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MP-02.2.md",
+      "lines": 12,
+      "bytes": 4517
+    },
+    {
+      "unit_id": "MP-03.1-through-2",
+      "task_id": "MP-03",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MP-03.1-through-2.md",
+      "lines": 13,
+      "bytes": 4600
+    },
+    {
+      "unit_id": "MP-03.3",
+      "task_id": "MP-03",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MP-03.3.md",
+      "lines": 12,
+      "bytes": 4496
+    },
+    {
+      "unit_id": "MP-04.1-through-2",
+      "task_id": "MP-04",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MP-04.1-through-2.md",
+      "lines": 13,
+      "bytes": 4553
+    },
+    {
+      "unit_id": "MP-05.1-through-2",
+      "task_id": "MP-05",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MP-05.1-through-2.md",
+      "lines": 13,
+      "bytes": 4523
+    },
+    {
+      "unit_id": "MP-06.1-through-2",
+      "task_id": "MP-06",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MP-06.1-through-2.md",
+      "lines": 13,
+      "bytes": 4507
+    },
+    {
+      "unit_id": "MP-07.1-through-2",
+      "task_id": "MP-07",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "MP-07.1-through-2.md",
+      "lines": 13,
+      "bytes": 4536
+    },
+    {
+      "unit_id": "MQ-01.1",
+      "task_id": "MQ-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "MQ-01.1.md",
+      "lines": 12,
+      "bytes": 4679
+    },
+    {
+      "unit_id": "MQ-01.2",
+      "task_id": "MQ-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "MQ-01.2.md",
+      "lines": 12,
+      "bytes": 4697
+    },
+    {
+      "unit_id": "MQ-02.1",
+      "task_id": "MQ-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "MQ-02.1.md",
+      "lines": 12,
+      "bytes": 4634
+    },
+    {
+      "unit_id": "MQ-02.2",
+      "task_id": "MQ-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "MQ-02.2.md",
+      "lines": 12,
+      "bytes": 4608
+    },
+    {
+      "unit_id": "MQ-03.1",
+      "task_id": "MQ-03",
+      "priority": "P1",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "MQ-03.1.md",
+      "lines": 12,
+      "bytes": 4712
+    },
+    {
+      "unit_id": "NAP-01.1-through-2",
+      "task_id": "NAP-01",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-01.1-through-2.md",
+      "lines": 13,
+      "bytes": 4654
+    },
+    {
+      "unit_id": "NAP-02.1-through-2",
+      "task_id": "NAP-02",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-02.1-through-2.md",
+      "lines": 13,
+      "bytes": 4911
+    },
+    {
+      "unit_id": "NAP-03.1-through-2",
+      "task_id": "NAP-03",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-03.1-through-2.md",
+      "lines": 13,
+      "bytes": 4635
+    },
+    {
+      "unit_id": "NAP-04.1-through-2",
+      "task_id": "NAP-04",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-04.1-through-2.md",
+      "lines": 14,
+      "bytes": 4855
+    },
+    {
+      "unit_id": "NAP-05.1",
+      "task_id": "NAP-05",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-05.1.md",
+      "lines": 13,
+      "bytes": 4927
+    },
+    {
+      "unit_id": "NAP-05.2",
+      "task_id": "NAP-05",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-05.2.md",
+      "lines": 13,
+      "bytes": 4806
+    },
+    {
+      "unit_id": "NAP-05.3",
+      "task_id": "NAP-05",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-05.3.md",
+      "lines": 13,
+      "bytes": 4804
+    },
+    {
+      "unit_id": "NAP-06.1",
+      "task_id": "NAP-06",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-06.1.md",
+      "lines": 13,
+      "bytes": 4821
+    },
+    {
+      "unit_id": "NAP-06.2",
+      "task_id": "NAP-06",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-06.2.md",
+      "lines": 13,
+      "bytes": 4836
+    },
+    {
+      "unit_id": "NAP-06.3",
+      "task_id": "NAP-06",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-06.3.md",
+      "lines": 13,
+      "bytes": 4704
+    },
+    {
+      "unit_id": "NAP-07.1",
+      "task_id": "NAP-07",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-07.1.md",
+      "lines": 12,
+      "bytes": 4721
+    },
+    {
+      "unit_id": "NAP-07.2",
+      "task_id": "NAP-07",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-07.2.md",
+      "lines": 12,
+      "bytes": 4824
+    },
+    {
+      "unit_id": "NAP-07.3",
+      "task_id": "NAP-07",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-07.3.md",
+      "lines": 12,
+      "bytes": 4745
+    },
+    {
+      "unit_id": "NAP-08.1-through-2",
+      "task_id": "NAP-08",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-08.1-through-2.md",
+      "lines": 12,
+      "bytes": 4604
+    },
+    {
+      "unit_id": "NAP-09.1",
+      "task_id": "NAP-09",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-09.1.md",
+      "lines": 12,
+      "bytes": 4835
+    },
+    {
+      "unit_id": "NAP-09.2",
+      "task_id": "NAP-09",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-09.2.md",
+      "lines": 12,
+      "bytes": 4813
+    },
+    {
+      "unit_id": "NAP-10.1-through-2",
+      "task_id": "NAP-10",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-10.1-through-2.md",
+      "lines": 12,
+      "bytes": 4663
+    },
+    {
+      "unit_id": "NAP-11.1",
+      "task_id": "NAP-11",
+      "priority": "P2",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-11.1.md",
+      "lines": 14,
+      "bytes": 4860
+    },
+    {
+      "unit_id": "NAP-12.1-through-2",
+      "task_id": "NAP-12",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-12.1-through-2.md",
+      "lines": 13,
+      "bytes": 4637
+    },
+    {
+      "unit_id": "NAP-13.1-through-2",
+      "task_id": "NAP-13",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-13.1-through-2.md",
+      "lines": 12,
+      "bytes": 3180
+    },
+    {
+      "unit_id": "NAP-14.1",
+      "task_id": "NAP-14",
+      "priority": "P2",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-14.1.md",
+      "lines": 13,
+      "bytes": 5070
+    },
+    {
+      "unit_id": "NAP-15.1",
+      "task_id": "NAP-15",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-15.1.md",
+      "lines": 11,
+      "bytes": 4693
+    },
+    {
+      "unit_id": "NAP-15.2",
+      "task_id": "NAP-15",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-15.2.md",
+      "lines": 11,
+      "bytes": 4591
+    },
+    {
+      "unit_id": "NAP-15.3",
+      "task_id": "NAP-15",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-15.3.md",
+      "lines": 11,
+      "bytes": 4567
+    },
+    {
+      "unit_id": "NAP-15.4",
+      "task_id": "NAP-15",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-15.4.md",
+      "lines": 11,
+      "bytes": 4636
+    },
+    {
+      "unit_id": "NAP-15.5",
+      "task_id": "NAP-15",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-15.5.md",
+      "lines": 11,
+      "bytes": 4696
+    },
+    {
+      "unit_id": "NAP-15.6",
+      "task_id": "NAP-15",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-15.6.md",
+      "lines": 11,
+      "bytes": 4546
+    },
+    {
+      "unit_id": "NAP-15.7",
+      "task_id": "NAP-15",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NAP-15.7.md",
+      "lines": 11,
+      "bytes": 4475
+    },
+    {
+      "unit_id": "NAP-16",
+      "task_id": "NAP-16",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NAP-16.md",
+      "lines": 13,
+      "bytes": 1771
+    },
+    {
+      "unit_id": "NAP-17.1-through-2",
+      "task_id": "NAP-17",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NAP-17.1-through-2.md",
+      "lines": 13,
+      "bytes": 4736
+    },
+    {
+      "unit_id": "NAP-18.1-through-2",
+      "task_id": "NAP-18",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NAP-18.1-through-2.md",
+      "lines": 14,
+      "bytes": 4792
+    },
+    {
+      "unit_id": "NAP-19.1",
+      "task_id": "NAP-19",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NAP-19.1.md",
+      "lines": 13,
+      "bytes": 4633
+    },
+    {
+      "unit_id": "NAP-19.2",
+      "task_id": "NAP-19",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NAP-19.2.md",
+      "lines": 13,
+      "bytes": 4570
+    },
+    {
+      "unit_id": "NAP-19.3",
+      "task_id": "NAP-19",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NAP-19.3.md",
+      "lines": 13,
+      "bytes": 4565
+    },
+    {
+      "unit_id": "NAP-20.1",
+      "task_id": "NAP-20",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NAP-20.1.md",
+      "lines": 12,
+      "bytes": 4558
+    },
+    {
+      "unit_id": "NAP-21.1",
+      "task_id": "NAP-21",
+      "priority": "P2",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NAP-21.1.md",
+      "lines": 12,
+      "bytes": 4589
+    },
+    {
+      "unit_id": "NAP-22",
+      "task_id": "NAP-22",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NAP-22.md",
+      "lines": 9,
+      "bytes": 1558
+    },
+    {
+      "unit_id": "NAP-23.1",
+      "task_id": "NAP-23",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NAP-23.1.md",
+      "lines": 11,
+      "bytes": 3053
+    },
+    {
+      "unit_id": "NAP-N0",
+      "task_id": "NAP-N0",
+      "priority": "P0",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NAP-N0.md",
+      "lines": 13,
+      "bytes": 2310
+    },
+    {
+      "unit_id": "NAP-P-01.1",
+      "task_id": "NAP-P-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "NAP-P-01.1.md",
+      "lines": 11,
+      "bytes": 3299
+    },
+    {
+      "unit_id": "NAP-P-01.2",
+      "task_id": "NAP-P-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "NAP-P-01.2.md",
+      "lines": 11,
+      "bytes": 3299
+    },
+    {
+      "unit_id": "NORM-01",
+      "task_id": "NORM-01",
+      "priority": "P1",
+      "source": "ARCH_06_SUPTO_NAP_READINESS.md",
+      "file": "NORM-01.md",
+      "lines": 6,
+      "bytes": 1462
+    },
+    {
+      "unit_id": "NORM-02",
+      "task_id": "NORM-02",
+      "priority": "P1",
+      "source": "ARCH_06_SUPTO_NAP_READINESS.md",
+      "file": "NORM-02.md",
+      "lines": 6,
+      "bytes": 1462
+    },
+    {
+      "unit_id": "NORM-03",
+      "task_id": "NORM-03",
+      "priority": "P1",
+      "source": "ARCH_06_SUPTO_NAP_READINESS.md",
+      "file": "NORM-03.md",
+      "lines": 6,
+      "bytes": 1462
+    },
+    {
+      "unit_id": "NORM-04",
+      "task_id": "NORM-04",
+      "priority": "P1",
+      "source": "ARCH_06_SUPTO_NAP_READINESS.md",
+      "file": "NORM-04.md",
+      "lines": 6,
+      "bytes": 1462
+    },
+    {
+      "unit_id": "NORM-05",
+      "task_id": "NORM-05",
+      "priority": "P1",
+      "source": "ARCH_06_SUPTO_NAP_READINESS.md",
+      "file": "NORM-05.md",
+      "lines": 6,
+      "bytes": 1462
+    },
+    {
+      "unit_id": "NORM-06",
+      "task_id": "NORM-06",
+      "priority": "P1",
+      "source": "ARCH_06_SUPTO_NAP_READINESS.md",
+      "file": "NORM-06.md",
+      "lines": 6,
+      "bytes": 1462
+    },
+    {
+      "unit_id": "NORM-07",
+      "task_id": "NORM-07",
+      "priority": "P1",
+      "source": "ARCH_06_SUPTO_NAP_READINESS.md",
+      "file": "NORM-07.md",
+      "lines": 6,
+      "bytes": 1462
+    },
+    {
+      "unit_id": "NORM-08",
+      "task_id": "NORM-08",
+      "priority": "P1",
+      "source": "ARCH_06_SUPTO_NAP_READINESS.md",
+      "file": "NORM-08.md",
+      "lines": 6,
+      "bytes": 1462
+    },
+    {
+      "unit_id": "NORM-09",
+      "task_id": "NORM-09",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NORM-09.md",
+      "lines": 6,
+      "bytes": 1476
+    },
+    {
+      "unit_id": "NORM-10",
+      "task_id": "NORM-10",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NORM-10.md",
+      "lines": 6,
+      "bytes": 1476
+    },
+    {
+      "unit_id": "NORM-11",
+      "task_id": "NORM-11",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NORM-11.md",
+      "lines": 6,
+      "bytes": 1476
+    },
+    {
+      "unit_id": "NORM-12",
+      "task_id": "NORM-12",
+      "priority": "P1",
+      "source": "ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md",
+      "file": "NORM-12.md",
+      "lines": 6,
+      "bytes": 1476
+    },
+    {
+      "unit_id": "NORM-13",
+      "task_id": "NORM-13",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NORM-13.md",
+      "lines": 8,
+      "bytes": 1644
+    },
+    {
+      "unit_id": "NORM-14",
+      "task_id": "NORM-14",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NORM-14.md",
+      "lines": 8,
+      "bytes": 1601
+    },
+    {
+      "unit_id": "NORM-15",
+      "task_id": "NORM-15",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NORM-15.md",
+      "lines": 8,
+      "bytes": 1573
+    },
+    {
+      "unit_id": "NORM-16",
+      "task_id": "NORM-16",
+      "priority": "P1",
+      "source": "ARCH_10_NAP_LATEST_CHANGES.md",
+      "file": "NORM-16.md",
+      "lines": 8,
+      "bytes": 1565
+    },
+    {
+      "unit_id": "PA-01.1",
+      "task_id": "PA-01",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "PA-01.1.md",
+      "lines": 12,
+      "bytes": 4507
+    },
+    {
+      "unit_id": "PA-01.2",
+      "task_id": "PA-01",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "PA-01.2.md",
+      "lines": 12,
+      "bytes": 4472
+    },
+    {
+      "unit_id": "PA-02.1",
+      "task_id": "PA-02",
+      "priority": "P1",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "PA-02.1.md",
+      "lines": 12,
+      "bytes": 4444
+    },
+    {
+      "unit_id": "PA-03.1-through-2",
+      "task_id": "PA-03",
+      "priority": "P0",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "PA-03.1-through-2.md",
+      "lines": 13,
+      "bytes": 4512
+    },
+    {
+      "unit_id": "PERSIST-01.1",
+      "task_id": "PERSIST-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "PERSIST-01.1.md",
+      "lines": 11,
+      "bytes": 2307
+    },
+    {
+      "unit_id": "PERSIST-01.7",
+      "task_id": "PERSIST-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "PERSIST-01.7.md",
+      "lines": 11,
+      "bytes": 2983
+    },
+    {
+      "unit_id": "PERSIST-01.8",
+      "task_id": "PERSIST-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "PERSIST-01.8.md",
+      "lines": 11,
+      "bytes": 3680
+    },
+    {
+      "unit_id": "PERSIST-01.2",
+      "task_id": "PERSIST-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "PERSIST-01.2.md",
+      "lines": 11,
+      "bytes": 3500
+    },
+    {
+      "unit_id": "PERSIST-01.3",
+      "task_id": "PERSIST-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "PERSIST-01.3.md",
+      "lines": 11,
+      "bytes": 3612
+    },
+    {
+      "unit_id": "PERSIST-01.4",
+      "task_id": "PERSIST-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "PERSIST-01.4.md",
+      "lines": 11,
+      "bytes": 3545
+    },
+    {
+      "unit_id": "PERSIST-01.5",
+      "task_id": "PERSIST-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "PERSIST-01.5.md",
+      "lines": 11,
+      "bytes": 3561
+    },
+    {
+      "unit_id": "PERSIST-01.6",
+      "task_id": "PERSIST-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "PERSIST-01.6.md",
+      "lines": 11,
+      "bytes": 3652
+    },
+    {
+      "unit_id": "PIPE-01.1",
+      "task_id": "PIPE-01",
+      "priority": "P1",
+      "source": "ARCH_21_DELIVERY_PIPELINE.md",
+      "file": "PIPE-01.1.md",
+      "lines": 12,
+      "bytes": 4473
+    },
+    {
+      "unit_id": "PIPE-02.1",
+      "task_id": "PIPE-02",
+      "priority": "P1",
+      "source": "ARCH_21_DELIVERY_PIPELINE.md",
+      "file": "PIPE-02.1.md",
+      "lines": 12,
+      "bytes": 4597
+    },
+    {
+      "unit_id": "PIPE-03.1",
+      "task_id": "PIPE-03",
+      "priority": "P2",
+      "source": "ARCH_21_DELIVERY_PIPELINE.md",
+      "file": "PIPE-03.1.md",
+      "lines": 12,
+      "bytes": 4562
+    },
+    {
+      "unit_id": "POS-01.1",
+      "task_id": "POS-01",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-01.1.md",
+      "lines": 16,
+      "bytes": 5924
+    },
+    {
+      "unit_id": "POS-02.1",
+      "task_id": "POS-02",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-02.1.md",
+      "lines": 12,
+      "bytes": 4668
+    },
+    {
+      "unit_id": "POS-03.1",
+      "task_id": "POS-03",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-03.1.md",
+      "lines": 11,
+      "bytes": 4447
+    },
+    {
+      "unit_id": "POS-03.2",
+      "task_id": "POS-03",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-03.2.md",
+      "lines": 11,
+      "bytes": 4488
+    },
+    {
+      "unit_id": "POS-04.1",
+      "task_id": "POS-04",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-04.1.md",
+      "lines": 11,
+      "bytes": 4419
+    },
+    {
+      "unit_id": "POS-04.2",
+      "task_id": "POS-04",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-04.2.md",
+      "lines": 11,
+      "bytes": 4528
+    },
+    {
+      "unit_id": "POS-05.1",
+      "task_id": "POS-05",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-05.1.md",
+      "lines": 13,
+      "bytes": 4837
+    },
+    {
+      "unit_id": "POS-06.1",
+      "task_id": "POS-06",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-06.1.md",
+      "lines": 13,
+      "bytes": 4850
+    },
+    {
+      "unit_id": "POS-07.1",
+      "task_id": "POS-07",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-07.1.md",
+      "lines": 14,
+      "bytes": 5173
+    },
+    {
+      "unit_id": "POS-08.1",
+      "task_id": "POS-08",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-08.1.md",
+      "lines": 13,
+      "bytes": 4962
+    },
+    {
+      "unit_id": "POS-09.1",
+      "task_id": "POS-09",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-09.1.md",
+      "lines": 12,
+      "bytes": 4562
+    },
+    {
+      "unit_id": "POS-10.1",
+      "task_id": "POS-10",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-10.1.md",
+      "lines": 12,
+      "bytes": 4515
+    },
+    {
+      "unit_id": "POS-11.1",
+      "task_id": "POS-11",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-11.1.md",
+      "lines": 15,
+      "bytes": 5624
+    },
+    {
+      "unit_id": "POS-12.1",
+      "task_id": "POS-12",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-12.1.md",
+      "lines": 13,
+      "bytes": 4828
+    },
+    {
+      "unit_id": "POS-13.1",
+      "task_id": "POS-13",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-13.1.md",
+      "lines": 14,
+      "bytes": 4875
+    },
+    {
+      "unit_id": "POS-14.1",
+      "task_id": "POS-14",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-14.1.md",
+      "lines": 13,
+      "bytes": 4755
+    },
+    {
+      "unit_id": "POS-15.1",
+      "task_id": "POS-15",
+      "priority": "P1",
+      "source": "ARCH_05_POS_INTEGRATION.md",
+      "file": "POS-15.1.md",
+      "lines": 13,
+      "bytes": 4715
+    },
+    {
+      "unit_id": "POS-BLE-01.1",
+      "task_id": "POS-BLE-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "POS-BLE-01.1.md",
+      "lines": 13,
+      "bytes": 4820
+    },
+    {
+      "unit_id": "POS-BLE-01.2",
+      "task_id": "POS-BLE-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "POS-BLE-01.2.md",
+      "lines": 13,
+      "bytes": 4808
+    },
+    {
+      "unit_id": "POS-BLE-02.1",
+      "task_id": "POS-BLE-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "POS-BLE-02.1.md",
+      "lines": 12,
+      "bytes": 4847
+    },
+    {
+      "unit_id": "POS-BLE-03.1",
+      "task_id": "POS-BLE-03",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "POS-BLE-03.1.md",
+      "lines": 12,
+      "bytes": 3290
+    },
+    {
+      "unit_id": "PRB-01.1",
+      "task_id": "PRB-01",
+      "priority": "P1",
+      "source": "DECISIONS.md",
+      "file": "PRB-01.1.md",
+      "lines": 10,
+      "bytes": 3156
+    },
+    {
+      "unit_id": "PRB-02.1",
+      "task_id": "PRB-02",
+      "priority": "P1",
+      "source": "DECISIONS.md",
+      "file": "PRB-02.1.md",
+      "lines": 10,
+      "bytes": 3156
+    },
+    {
+      "unit_id": "PRB-03.1",
+      "task_id": "PRB-03",
+      "priority": "P1",
+      "source": "DECISIONS.md",
+      "file": "PRB-03.1.md",
+      "lines": 10,
+      "bytes": 3156
+    },
+    {
+      "unit_id": "PRB-04.1",
+      "task_id": "PRB-04",
+      "priority": "P1",
+      "source": "DECISIONS.md",
+      "file": "PRB-04.1.md",
+      "lines": 10,
+      "bytes": 3156
+    },
+    {
+      "unit_id": "PRB-05.1",
+      "task_id": "PRB-05",
+      "priority": "P1",
+      "source": "DECISIONS.md",
+      "file": "PRB-05.1.md",
+      "lines": 10,
+      "bytes": 3156
+    },
+    {
+      "unit_id": "R-01",
+      "task_id": "R-01",
+      "priority": "P1",
+      "source": "ARCH_07_PLAN70_CRITICAL_REVIEW.md",
+      "file": "R-01.md",
+      "lines": 13,
+      "bytes": 1873
+    },
+    {
+      "unit_id": "R-02.1",
+      "task_id": "R-02",
+      "priority": "P1",
+      "source": "ARCH_07_PLAN70_CRITICAL_REVIEW.md",
+      "file": "R-02.1.md",
+      "lines": 11,
+      "bytes": 2047
+    },
+    {
+      "unit_id": "R-03",
+      "task_id": "R-03",
+      "priority": "P1",
+      "source": "ARCH_07_PLAN70_CRITICAL_REVIEW.md",
+      "file": "R-03.md",
+      "lines": 13,
+      "bytes": 1873
+    },
+    {
+      "unit_id": "R-04.1",
+      "task_id": "R-04",
+      "priority": "P1",
+      "source": "ARCH_07_PLAN70_CRITICAL_REVIEW.md",
+      "file": "R-04.1.md",
+      "lines": 11,
+      "bytes": 2139
+    },
+    {
+      "unit_id": "R-05",
+      "task_id": "R-05",
+      "priority": "P1",
+      "source": "ARCH_07_PLAN70_CRITICAL_REVIEW.md",
+      "file": "R-05.md",
+      "lines": 13,
+      "bytes": 1874
+    },
+    {
+      "unit_id": "R-06",
+      "task_id": "R-06",
+      "priority": "P1",
+      "source": "ARCH_07_PLAN70_CRITICAL_REVIEW.md",
+      "file": "R-06.md",
+      "lines": 13,
+      "bytes": 1881
+    },
+    {
+      "unit_id": "REFUND-01.1",
+      "task_id": "REFUND-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "REFUND-01.1.md",
+      "lines": 12,
+      "bytes": 4792
+    },
+    {
+      "unit_id": "REGRESSION-01.1",
+      "task_id": "REGRESSION-01",
+      "priority": "P0",
+      "source": "ARCH_21_DELIVERY_PIPELINE.md",
+      "file": "REGRESSION-01.1.md",
+      "lines": 11,
+      "bytes": 6121
+    },
+    {
+      "unit_id": "S3D-01.1",
+      "task_id": "S3D-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "S3D-01.1.md",
+      "lines": 12,
+      "bytes": 4686
+    },
+    {
+      "unit_id": "S3D-01.2",
+      "task_id": "S3D-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "S3D-01.2.md",
+      "lines": 12,
+      "bytes": 4723
+    },
+    {
+      "unit_id": "S3D-02.1",
+      "task_id": "S3D-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "S3D-02.1.md",
+      "lines": 12,
+      "bytes": 4703
+    },
+    {
+      "unit_id": "S3D-03.1",
+      "task_id": "S3D-03",
+      "priority": "P1",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "S3D-03.1.md",
+      "lines": 12,
+      "bytes": 4725
+    },
+    {
+      "unit_id": "S3FIX-01.1",
+      "task_id": "S3FIX-01",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "S3FIX-01.1.md",
+      "lines": 12,
+      "bytes": 4747
+    },
+    {
+      "unit_id": "S3FIX-02.1",
+      "task_id": "S3FIX-02",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "S3FIX-02.1.md",
+      "lines": 12,
+      "bytes": 4749
+    },
+    {
+      "unit_id": "S3FIX-03.1",
+      "task_id": "S3FIX-03",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "S3FIX-03.1.md",
+      "lines": 12,
+      "bytes": 4722
+    },
+    {
+      "unit_id": "S3FIX-04.1",
+      "task_id": "S3FIX-04",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "S3FIX-04.1.md",
+      "lines": 12,
+      "bytes": 4772
+    },
+    {
+      "unit_id": "S3FIX-05.1",
+      "task_id": "S3FIX-05",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "S3FIX-05.1.md",
+      "lines": 12,
+      "bytes": 4795
+    },
+    {
+      "unit_id": "S3FIX-06.1",
+      "task_id": "S3FIX-06",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "S3FIX-06.1.md",
+      "lines": 12,
+      "bytes": 4814
+    },
+    {
+      "unit_id": "S3FIX-07.1",
+      "task_id": "S3FIX-07",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "S3FIX-07.1.md",
+      "lines": 11,
+      "bytes": 3506
+    },
+    {
+      "unit_id": "S3FIX-07.2",
+      "task_id": "S3FIX-07",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "S3FIX-07.2.md",
+      "lines": 11,
+      "bytes": 3520
+    },
+    {
+      "unit_id": "S3FIX-07.3",
+      "task_id": "S3FIX-07",
+      "priority": "P0",
+      "source": "TRACE_EXISTING_REGISTERS.md",
+      "file": "S3FIX-07.3.md",
+      "lines": 11,
+      "bytes": 3526
+    },
+    {
+      "unit_id": "SCOPE-01",
+      "task_id": "SCOPE-01",
+      "priority": "P1",
+      "source": "ARCH_11_MVP_COMPLETENESS_REVIEW.md",
+      "file": "SCOPE-01.md",
+      "lines": 8,
+      "bytes": 1704
+    },
+    {
+      "unit_id": "SCOPE-02.1",
+      "task_id": "SCOPE-02",
+      "priority": "P2",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "SCOPE-02.1.md",
+      "lines": 12,
+      "bytes": 4797
+    },
+    {
+      "unit_id": "SCOPE-03.1",
+      "task_id": "SCOPE-03",
+      "priority": "P2",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "SCOPE-03.1.md",
+      "lines": 12,
+      "bytes": 4799
+    },
+    {
+      "unit_id": "SCOPE-04.1",
+      "task_id": "SCOPE-04",
+      "priority": "P2",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "SCOPE-04.1.md",
+      "lines": 12,
+      "bytes": 4789
+    },
+    {
+      "unit_id": "SCOPE-05.1",
+      "task_id": "SCOPE-05",
+      "priority": "P2",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "SCOPE-05.1.md",
+      "lines": 12,
+      "bytes": 4807
+    },
+    {
+      "unit_id": "SCOPE-06.1",
+      "task_id": "SCOPE-06",
+      "priority": "P2",
+      "source": "ARCH_13_COMPONENTS_MINIPOS_ADMIN_ERP.md",
+      "file": "SCOPE-06.1.md",
+      "lines": 12,
+      "bytes": 4787
+    },
+    {
+      "unit_id": "SCR-36.1",
+      "task_id": "SCR-36",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCR-36.1.md",
+      "lines": 12,
+      "bytes": 4531
+    },
+    {
+      "unit_id": "SCR-36.2",
+      "task_id": "SCR-36",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCR-36.2.md",
+      "lines": 12,
+      "bytes": 4467
+    },
+    {
+      "unit_id": "SCR-36.3",
+      "task_id": "SCR-36",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCR-36.3.md",
+      "lines": 12,
+      "bytes": 4482
+    },
+    {
+      "unit_id": "SCR-37.1",
+      "task_id": "SCR-37",
+      "priority": "P0",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "SCR-37.1.md",
+      "lines": 12,
+      "bytes": 5059
+    },
+    {
+      "unit_id": "SCR-37.2",
+      "task_id": "SCR-37",
+      "priority": "P0",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "SCR-37.2.md",
+      "lines": 12,
+      "bytes": 5004
+    },
+    {
+      "unit_id": "SCR-37.3",
+      "task_id": "SCR-37",
+      "priority": "P0",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "SCR-37.3.md",
+      "lines": 12,
+      "bytes": 4900
+    },
+    {
+      "unit_id": "SCR-37.4",
+      "task_id": "SCR-37",
+      "priority": "P0",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "SCR-37.4.md",
+      "lines": 12,
+      "bytes": 4834
+    },
+    {
+      "unit_id": "SCR-39.1",
+      "task_id": "SCR-39",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "SCR-39.1.md",
+      "lines": 12,
+      "bytes": 4734
+    },
+    {
+      "unit_id": "SCR-39.2",
+      "task_id": "SCR-39",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "SCR-39.2.md",
+      "lines": 12,
+      "bytes": 4822
+    },
+    {
+      "unit_id": "SCR-39.3",
+      "task_id": "SCR-39",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "SCR-39.3.md",
+      "lines": 12,
+      "bytes": 4634
+    },
+    {
+      "unit_id": "SCR-40.1-through-2",
+      "task_id": "SCR-40",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SCR-40.1-through-2.md",
+      "lines": 11,
+      "bytes": 3426
+    },
+    {
+      "unit_id": "SCRIPT-01.1",
+      "task_id": "SCRIPT-01",
+      "priority": "P0",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-01.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-02.1",
+      "task_id": "SCRIPT-02",
+      "priority": "P0",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-02.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-03.1",
+      "task_id": "SCRIPT-03",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-03.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-04.1",
+      "task_id": "SCRIPT-04",
+      "priority": "P0",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-04.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-05.1",
+      "task_id": "SCRIPT-05",
+      "priority": "P0",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-05.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-06.1",
+      "task_id": "SCRIPT-06",
+      "priority": "P0",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-06.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-07.1",
+      "task_id": "SCRIPT-07",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-07.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-08.1",
+      "task_id": "SCRIPT-08",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-08.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-09.1",
+      "task_id": "SCRIPT-09",
+      "priority": "P0",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-09.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-10.1",
+      "task_id": "SCRIPT-10",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-10.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-11.1",
+      "task_id": "SCRIPT-11",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-11.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-12.1",
+      "task_id": "SCRIPT-12",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-12.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-13.1",
+      "task_id": "SCRIPT-13",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-13.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-14.1",
+      "task_id": "SCRIPT-14",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-14.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-15.1",
+      "task_id": "SCRIPT-15",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-15.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-16.1",
+      "task_id": "SCRIPT-16",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-16.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-17.1",
+      "task_id": "SCRIPT-17",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-17.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-18.1",
+      "task_id": "SCRIPT-18",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-18.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-19.1",
+      "task_id": "SCRIPT-19",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-19.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-20.1",
+      "task_id": "SCRIPT-20",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-20.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-21.1",
+      "task_id": "SCRIPT-21",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-21.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-22.1",
+      "task_id": "SCRIPT-22",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-22.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-23.1",
+      "task_id": "SCRIPT-23",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-23.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-24.1",
+      "task_id": "SCRIPT-24",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-24.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-25.1",
+      "task_id": "SCRIPT-25",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-25.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-26.1",
+      "task_id": "SCRIPT-26",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-26.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-27.1",
+      "task_id": "SCRIPT-27",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-27.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-28.1",
+      "task_id": "SCRIPT-28",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-28.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-29.1",
+      "task_id": "SCRIPT-29",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-29.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-30.1",
+      "task_id": "SCRIPT-30",
+      "priority": "P0",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-30.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-31.1",
+      "task_id": "SCRIPT-31",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-31.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-32.1",
+      "task_id": "SCRIPT-32",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-32.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-33.1",
+      "task_id": "SCRIPT-33",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-33.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-34.1",
+      "task_id": "SCRIPT-34",
+      "priority": "P0",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-34.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-35.1",
+      "task_id": "SCRIPT-35",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-35.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SCRIPT-36.1",
+      "task_id": "SCRIPT-36",
+      "priority": "P1",
+      "source": "ARCH_12_ACCEPTANCE_SCRIPTS.md",
+      "file": "SCRIPT-36.1.md",
+      "lines": 12,
+      "bytes": 4728
+    },
+    {
+      "unit_id": "SECURITY-ROTATION-01",
+      "task_id": "SECURITY-ROTATION-01",
+      "priority": "P0",
+      "source": "DECISIONS.md",
+      "file": "SECURITY-ROTATION-01.md",
+      "lines": 10,
+      "bytes": 1955
+    },
+    {
+      "unit_id": "SEQ-01.1",
+      "task_id": "SEQ-01",
+      "priority": "P0",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "SEQ-01.1.md",
+      "lines": 21,
+      "bytes": 4691
+    },
+    {
+      "unit_id": "SEQ-01.2",
+      "task_id": "SEQ-01",
+      "priority": "P0",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "SEQ-01.2.md",
+      "lines": 21,
+      "bytes": 4691
+    },
+    {
+      "unit_id": "SMS-01.1",
+      "task_id": "SMS-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-01.1.md",
+      "lines": 13,
+      "bytes": 4592
+    },
+    {
+      "unit_id": "SMS-01.2",
+      "task_id": "SMS-01",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-01.2.md",
+      "lines": 13,
+      "bytes": 4641
+    },
+    {
+      "unit_id": "SMS-02.1",
+      "task_id": "SMS-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-02.1.md",
+      "lines": 12,
+      "bytes": 4752
+    },
+    {
+      "unit_id": "SMS-02.2",
+      "task_id": "SMS-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-02.2.md",
+      "lines": 12,
+      "bytes": 4727
+    },
+    {
+      "unit_id": "SMS-02.3",
+      "task_id": "SMS-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-02.3.md",
+      "lines": 12,
+      "bytes": 4673
+    },
+    {
+      "unit_id": "SMS-02.4",
+      "task_id": "SMS-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-02.4.md",
+      "lines": 11,
+      "bytes": 2854
+    },
+    {
+      "unit_id": "SMS-02.5",
+      "task_id": "SMS-02",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-02.5.md",
+      "lines": 11,
+      "bytes": 2871
+    },
+    {
+      "unit_id": "SMS-03.1",
+      "task_id": "SMS-03",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-03.1.md",
+      "lines": 12,
+      "bytes": 4782
+    },
+    {
+      "unit_id": "SMS-03.2",
+      "task_id": "SMS-03",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-03.2.md",
+      "lines": 12,
+      "bytes": 4683
+    },
+    {
+      "unit_id": "SMS-04.1",
+      "task_id": "SMS-04",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-04.1.md",
+      "lines": 12,
+      "bytes": 4816
+    },
+    {
+      "unit_id": "SMS-04.2",
+      "task_id": "SMS-04",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-04.2.md",
+      "lines": 12,
+      "bytes": 4810
+    },
+    {
+      "unit_id": "SMS-04.3",
+      "task_id": "SMS-04",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-04.3.md",
+      "lines": 12,
+      "bytes": 4801
+    },
+    {
+      "unit_id": "SMS-04.4",
+      "task_id": "SMS-04",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-04.4.md",
+      "lines": 12,
+      "bytes": 4841
+    },
+    {
+      "unit_id": "SMS-05.1",
+      "task_id": "SMS-05",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-05.1.md",
+      "lines": 12,
+      "bytes": 4720
+    },
+    {
+      "unit_id": "SMS-05.2",
+      "task_id": "SMS-05",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-05.2.md",
+      "lines": 12,
+      "bytes": 4723
+    },
+    {
+      "unit_id": "SMS-06.1",
+      "task_id": "SMS-06",
+      "priority": "P1",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-06.1.md",
+      "lines": 12,
+      "bytes": 4708
+    },
+    {
+      "unit_id": "SMS-07.1",
+      "task_id": "SMS-07",
+      "priority": "P1",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-07.1.md",
+      "lines": 12,
+      "bytes": 4842
+    },
+    {
+      "unit_id": "SMS-08.1",
+      "task_id": "SMS-08",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-08.1.md",
+      "lines": 12,
+      "bytes": 4909
+    },
+    {
+      "unit_id": "SMS-08.2",
+      "task_id": "SMS-08",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-08.2.md",
+      "lines": 12,
+      "bytes": 4745
+    },
+    {
+      "unit_id": "SMS-09.1",
+      "task_id": "SMS-09",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-09.1.md",
+      "lines": 12,
+      "bytes": 4791
+    },
+    {
+      "unit_id": "SMS-09.2",
+      "task_id": "SMS-09",
+      "priority": "P0",
+      "source": "ARCH_17_MVP_GOAL_PATHS_GAPS.md",
+      "file": "SMS-09.2.md",
+      "lines": 12,
+      "bytes": 4722
+    },
+    {
+      "unit_id": "STYLE-001.1",
+      "task_id": "STYLE-001",
+      "priority": "P2",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "STYLE-001.1.md",
+      "lines": 15,
+      "bytes": 5186
+    },
+    {
+      "unit_id": "STYLE-002.1",
+      "task_id": "STYLE-002",
+      "priority": "P3",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "STYLE-002.1.md",
+      "lines": 13,
+      "bytes": 4843
+    },
+    {
+      "unit_id": "STYLE-003.1",
+      "task_id": "STYLE-003",
+      "priority": "P3",
+      "source": "ARCH_04_ARCHITECTURE_CODE_STYLE_DOCS.md",
+      "file": "STYLE-003.1.md",
+      "lines": 15,
+      "bytes": 4698
+    },
+    {
+      "unit_id": "SUPTO-01.1",
+      "task_id": "SUPTO-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "SUPTO-01.1.md",
+      "lines": 11,
+      "bytes": 3539
+    },
+    {
+      "unit_id": "SUPTO-01.2",
+      "task_id": "SUPTO-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "SUPTO-01.2.md",
+      "lines": 11,
+      "bytes": 3520
+    },
+    {
+      "unit_id": "SUPTO-01.3",
+      "task_id": "SUPTO-01",
+      "priority": "P0",
+      "source": "MVP_GOAL.md",
+      "file": "SUPTO-01.3.md",
+      "lines": 11,
+      "bytes": 3514
+    },
+    {
+      "unit_id": "TG-001.1",
+      "task_id": "TG-001",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-001.1.md",
+      "lines": 12,
+      "bytes": 4807
+    },
+    {
+      "unit_id": "TG-001.2",
+      "task_id": "TG-001",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-001.2.md",
+      "lines": 12,
+      "bytes": 4793
+    },
+    {
+      "unit_id": "TG-001.3",
+      "task_id": "TG-001",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-001.3.md",
+      "lines": 12,
+      "bytes": 4850
+    },
+    {
+      "unit_id": "TG-001.4",
+      "task_id": "TG-001",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-001.4.md",
+      "lines": 12,
+      "bytes": 4872
+    },
+    {
+      "unit_id": "TG-001.5",
+      "task_id": "TG-001",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-001.5.md",
+      "lines": 12,
+      "bytes": 4704
+    },
+    {
+      "unit_id": "TG-001.6",
+      "task_id": "TG-001",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-001.6.md",
+      "lines": 12,
+      "bytes": 4850
+    },
+    {
+      "unit_id": "TG-002.1",
+      "task_id": "TG-002",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-002.1.md",
+      "lines": 13,
+      "bytes": 4925
+    },
+    {
+      "unit_id": "TG-002.2",
+      "task_id": "TG-002",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-002.2.md",
+      "lines": 13,
+      "bytes": 4950
+    },
+    {
+      "unit_id": "TG-002.3",
+      "task_id": "TG-002",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-002.3.md",
+      "lines": 13,
+      "bytes": 4894
+    },
+    {
+      "unit_id": "TG-002.4",
+      "task_id": "TG-002",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-002.4.md",
+      "lines": 13,
+      "bytes": 4891
+    },
+    {
+      "unit_id": "TG-003.1-through-2",
+      "task_id": "TG-003",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-003.1-through-2.md",
+      "lines": 13,
+      "bytes": 5890
+    },
+    {
+      "unit_id": "TG-003.3",
+      "task_id": "TG-003",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-003.3.md",
+      "lines": 12,
+      "bytes": 5626
+    },
+    {
+      "unit_id": "TG-003.4",
+      "task_id": "TG-003",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-003.4.md",
+      "lines": 12,
+      "bytes": 5854
+    },
+    {
+      "unit_id": "TG-003.5",
+      "task_id": "TG-003",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-003.5.md",
+      "lines": 12,
+      "bytes": 5683
+    },
+    {
+      "unit_id": "TG-003.6",
+      "task_id": "TG-003",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-003.6.md",
+      "lines": 12,
+      "bytes": 5600
+    },
+    {
+      "unit_id": "TG-004.1",
+      "task_id": "TG-004",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-004.1.md",
+      "lines": 11,
+      "bytes": 4516
+    },
+    {
+      "unit_id": "TG-004.2",
+      "task_id": "TG-004",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-004.2.md",
+      "lines": 11,
+      "bytes": 4516
+    },
+    {
+      "unit_id": "TG-005.1",
+      "task_id": "TG-005",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-005.1.md",
+      "lines": 11,
+      "bytes": 4534
+    },
+    {
+      "unit_id": "TG-005.2",
+      "task_id": "TG-005",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-005.2.md",
+      "lines": 11,
+      "bytes": 4440
+    },
+    {
+      "unit_id": "TG-006.1-through-2",
+      "task_id": "TG-006",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-006.1-through-2.md",
+      "lines": 12,
+      "bytes": 4590
+    },
+    {
+      "unit_id": "TG-007.1",
+      "task_id": "TG-007",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-007.1.md",
+      "lines": 12,
+      "bytes": 4695
+    },
+    {
+      "unit_id": "TG-007.2",
+      "task_id": "TG-007",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-007.2.md",
+      "lines": 12,
+      "bytes": 4611
+    },
+    {
+      "unit_id": "TG-007.3",
+      "task_id": "TG-007",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-007.3.md",
+      "lines": 12,
+      "bytes": 4553
+    },
+    {
+      "unit_id": "TG-008.1-through-2",
+      "task_id": "TG-008",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-008.1-through-2.md",
+      "lines": 12,
+      "bytes": 3178
+    },
+    {
+      "unit_id": "TG-009.1",
+      "task_id": "TG-009",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-009.1.md",
+      "lines": 13,
+      "bytes": 4926
+    },
+    {
+      "unit_id": "TG-009.2",
+      "task_id": "TG-009",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-009.2.md",
+      "lines": 13,
+      "bytes": 4869
+    },
+    {
+      "unit_id": "TG-009.3",
+      "task_id": "TG-009",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-009.3.md",
+      "lines": 13,
+      "bytes": 4801
+    },
+    {
+      "unit_id": "TG-009.4",
+      "task_id": "TG-009",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-009.4.md",
+      "lines": 13,
+      "bytes": 4719
+    },
+    {
+      "unit_id": "TG-010.1-through-2",
+      "task_id": "TG-010",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-010.1-through-2.md",
+      "lines": 13,
+      "bytes": 4730
+    },
+    {
+      "unit_id": "TG-011.1-through-2",
+      "task_id": "TG-011",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-011.1-through-2.md",
+      "lines": 13,
+      "bytes": 4702
+    },
+    {
+      "unit_id": "TG-012.1",
+      "task_id": "TG-012",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-012.1.md",
+      "lines": 11,
+      "bytes": 4622
+    },
+    {
+      "unit_id": "TG-012.2",
+      "task_id": "TG-012",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-012.2.md",
+      "lines": 11,
+      "bytes": 4476
+    },
+    {
+      "unit_id": "TG-012.3",
+      "task_id": "TG-012",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-012.3.md",
+      "lines": 11,
+      "bytes": 4453
+    },
+    {
+      "unit_id": "TG-013.1",
+      "task_id": "TG-013",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-013.1.md",
+      "lines": 11,
+      "bytes": 4585
+    },
+    {
+      "unit_id": "TG-013.2",
+      "task_id": "TG-013",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-013.2.md",
+      "lines": 11,
+      "bytes": 4501
+    },
+    {
+      "unit_id": "TG-013.3",
+      "task_id": "TG-013",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-013.3.md",
+      "lines": 11,
+      "bytes": 4508
+    },
+    {
+      "unit_id": "TG-013.4",
+      "task_id": "TG-013",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-013.4.md",
+      "lines": 11,
+      "bytes": 4465
+    },
+    {
+      "unit_id": "TG-014.1",
+      "task_id": "TG-014",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-014.1.md",
+      "lines": 13,
+      "bytes": 4748
+    },
+    {
+      "unit_id": "TG-014.2",
+      "task_id": "TG-014",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-014.2.md",
+      "lines": 13,
+      "bytes": 4682
+    },
+    {
+      "unit_id": "TG-014.3",
+      "task_id": "TG-014",
+      "priority": "P1",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-014.3.md",
+      "lines": 13,
+      "bytes": 4631
+    },
+    {
+      "unit_id": "TG-015.1",
+      "task_id": "TG-015",
+      "priority": "P2",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-015.1.md",
+      "lines": 13,
+      "bytes": 4643
+    },
+    {
+      "unit_id": "TG-016.1",
+      "task_id": "TG-016",
+      "priority": "P2",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-016.1.md",
+      "lines": 13,
+      "bytes": 4803
+    },
+    {
+      "unit_id": "TG-017",
+      "task_id": "TG-017",
+      "priority": "P0",
+      "source": "ARCH_02_GAPS_TASKS.md",
+      "file": "TG-017.md",
+      "lines": 14,
+      "bytes": 1999
+    },
+    {
+      "unit_id": "TST-CRIT-01.1",
+      "task_id": "TST-CRIT-01",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "TST-CRIT-01.1.md",
+      "lines": 12,
+      "bytes": 4623
+    },
+    {
+      "unit_id": "TST-CRIT-01.2",
+      "task_id": "TST-CRIT-01",
+      "priority": "P1",
+      "source": "ARCH_16_PLAN_REVIEW_ROUND4.md",
+      "file": "TST-CRIT-01.2.md",
+      "lines": 12,
+      "bytes": 4642
+    },
+    {
+      "unit_id": "TST-CT-01.1",
+      "task_id": "TST-CT-01",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-CT-01.1.md",
+      "lines": 12,
+      "bytes": 4722
+    },
+    {
+      "unit_id": "TST-CT-02.1",
+      "task_id": "TST-CT-02",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-CT-02.1.md",
+      "lines": 12,
+      "bytes": 4722
+    },
+    {
+      "unit_id": "TST-CT-03.1",
+      "task_id": "TST-CT-03",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-CT-03.1.md",
+      "lines": 12,
+      "bytes": 4722
+    },
+    {
+      "unit_id": "TST-CT-04.1",
+      "task_id": "TST-CT-04",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-CT-04.1.md",
+      "lines": 12,
+      "bytes": 4722
+    },
+    {
+      "unit_id": "TST-CT-05.1",
+      "task_id": "TST-CT-05",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-CT-05.1.md",
+      "lines": 12,
+      "bytes": 4722
+    },
+    {
+      "unit_id": "TST-DEEP-01.1",
+      "task_id": "TST-DEEP-01",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-01.1.md",
+      "lines": 12,
+      "bytes": 5255
+    },
+    {
+      "unit_id": "TST-DEEP-01.2",
+      "task_id": "TST-DEEP-01",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-01.2.md",
+      "lines": 12,
+      "bytes": 5154
+    },
+    {
+      "unit_id": "TST-DEEP-02.1",
+      "task_id": "TST-DEEP-02",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-02.1.md",
+      "lines": 12,
+      "bytes": 5086
+    },
+    {
+      "unit_id": "TST-DEEP-02.2",
+      "task_id": "TST-DEEP-02",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-02.2.md",
+      "lines": 12,
+      "bytes": 5112
+    },
+    {
+      "unit_id": "TST-DEEP-03.1",
+      "task_id": "TST-DEEP-03",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-03.1.md",
+      "lines": 12,
+      "bytes": 5135
+    },
+    {
+      "unit_id": "TST-DEEP-03.2",
+      "task_id": "TST-DEEP-03",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-03.2.md",
+      "lines": 12,
+      "bytes": 5117
+    },
+    {
+      "unit_id": "TST-DEEP-04.1",
+      "task_id": "TST-DEEP-04",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-04.1.md",
+      "lines": 12,
+      "bytes": 5226
+    },
+    {
+      "unit_id": "TST-DEEP-04.2",
+      "task_id": "TST-DEEP-04",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-04.2.md",
+      "lines": 12,
+      "bytes": 5114
+    },
+    {
+      "unit_id": "TST-DEEP-05.1",
+      "task_id": "TST-DEEP-05",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-05.1.md",
+      "lines": 12,
+      "bytes": 5146
+    },
+    {
+      "unit_id": "TST-DEEP-05.2",
+      "task_id": "TST-DEEP-05",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-05.2.md",
+      "lines": 12,
+      "bytes": 5156
+    },
+    {
+      "unit_id": "TST-DEEP-06.1",
+      "task_id": "TST-DEEP-06",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-06.1.md",
+      "lines": 12,
+      "bytes": 5222
+    },
+    {
+      "unit_id": "TST-DEEP-06.2",
+      "task_id": "TST-DEEP-06",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-06.2.md",
+      "lines": 12,
+      "bytes": 5200
+    },
+    {
+      "unit_id": "TST-DEEP-07.1",
+      "task_id": "TST-DEEP-07",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-07.1.md",
+      "lines": 12,
+      "bytes": 5108
+    },
+    {
+      "unit_id": "TST-DEEP-07.2",
+      "task_id": "TST-DEEP-07",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-07.2.md",
+      "lines": 12,
+      "bytes": 5085
+    },
+    {
+      "unit_id": "TST-DEEP-08.1",
+      "task_id": "TST-DEEP-08",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-08.1.md",
+      "lines": 12,
+      "bytes": 5120
+    },
+    {
+      "unit_id": "TST-DEEP-08.2",
+      "task_id": "TST-DEEP-08",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-08.2.md",
+      "lines": 12,
+      "bytes": 5123
+    },
+    {
+      "unit_id": "TST-DEEP-09.1",
+      "task_id": "TST-DEEP-09",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-09.1.md",
+      "lines": 12,
+      "bytes": 5110
+    },
+    {
+      "unit_id": "TST-DEEP-09.2",
+      "task_id": "TST-DEEP-09",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-09.2.md",
+      "lines": 12,
+      "bytes": 5148
+    },
+    {
+      "unit_id": "TST-DEEP-10.1",
+      "task_id": "TST-DEEP-10",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-10.1.md",
+      "lines": 12,
+      "bytes": 5227
+    },
+    {
+      "unit_id": "TST-DEEP-10.2",
+      "task_id": "TST-DEEP-10",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-10.2.md",
+      "lines": 12,
+      "bytes": 5223
+    },
+    {
+      "unit_id": "TST-DEEP-11.1",
+      "task_id": "TST-DEEP-11",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-11.1.md",
+      "lines": 12,
+      "bytes": 5056
+    },
+    {
+      "unit_id": "TST-DEEP-11.2",
+      "task_id": "TST-DEEP-11",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-11.2.md",
+      "lines": 12,
+      "bytes": 5100
+    },
+    {
+      "unit_id": "TST-DEEP-12.1",
+      "task_id": "TST-DEEP-12",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-12.1.md",
+      "lines": 12,
+      "bytes": 5205
+    },
+    {
+      "unit_id": "TST-DEEP-12.2",
+      "task_id": "TST-DEEP-12",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-DEEP-12.2.md",
+      "lines": 12,
+      "bytes": 5163
+    },
+    {
+      "unit_id": "TST-DEEP-13.1",
+      "task_id": "TST-DEEP-13",
+      "priority": "P1",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-DEEP-13.1.md",
+      "lines": 12,
+      "bytes": 5142
+    },
+    {
+      "unit_id": "TST-DEEP-14.1",
+      "task_id": "TST-DEEP-14",
+      "priority": "P1",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-DEEP-14.1.md",
+      "lines": 12,
+      "bytes": 5091
+    },
+    {
+      "unit_id": "TST-DEEP-14.2",
+      "task_id": "TST-DEEP-14",
+      "priority": "P1",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-DEEP-14.2.md",
+      "lines": 12,
+      "bytes": 5158
+    },
+    {
+      "unit_id": "TST-E2E-01.1",
+      "task_id": "TST-E2E-01",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-01.1.md",
+      "lines": 12,
+      "bytes": 5112
+    },
+    {
+      "unit_id": "TST-E2E-02.1",
+      "task_id": "TST-E2E-02",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-02.1.md",
+      "lines": 12,
+      "bytes": 5112
+    },
+    {
+      "unit_id": "TST-E2E-03.1",
+      "task_id": "TST-E2E-03",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-03.1.md",
+      "lines": 12,
+      "bytes": 5112
+    },
+    {
+      "unit_id": "TST-E2E-04.1",
+      "task_id": "TST-E2E-04",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-04.1.md",
+      "lines": 12,
+      "bytes": 5112
+    },
+    {
+      "unit_id": "TST-E2E-05.1",
+      "task_id": "TST-E2E-05",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-05.1.md",
+      "lines": 12,
+      "bytes": 5112
+    },
+    {
+      "unit_id": "TST-E2E-06.1",
+      "task_id": "TST-E2E-06",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-06.1.md",
+      "lines": 12,
+      "bytes": 5112
+    },
+    {
+      "unit_id": "TST-E2E-07.1",
+      "task_id": "TST-E2E-07",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-07.1.md",
+      "lines": 12,
+      "bytes": 5134
+    },
+    {
+      "unit_id": "TST-E2E-08.1",
+      "task_id": "TST-E2E-08",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-08.1.md",
+      "lines": 12,
+      "bytes": 5120
+    },
+    {
+      "unit_id": "TST-E2E-09.1",
+      "task_id": "TST-E2E-09",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-09.1.md",
+      "lines": 12,
+      "bytes": 5160
+    },
+    {
+      "unit_id": "TST-E2E-10.1",
+      "task_id": "TST-E2E-10",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-10.1.md",
+      "lines": 12,
+      "bytes": 5136
+    },
+    {
+      "unit_id": "TST-E2E-11.1",
+      "task_id": "TST-E2E-11",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-11.1.md",
+      "lines": 12,
+      "bytes": 5120
+    },
+    {
+      "unit_id": "TST-E2E-12.1",
+      "task_id": "TST-E2E-12",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-12.1.md",
+      "lines": 12,
+      "bytes": 6171
+    },
+    {
+      "unit_id": "TST-E2E-13.1",
+      "task_id": "TST-E2E-13",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-13.1.md",
+      "lines": 12,
+      "bytes": 5119
+    },
+    {
+      "unit_id": "TST-E2E-14.1",
+      "task_id": "TST-E2E-14",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-14.1.md",
+      "lines": 12,
+      "bytes": 5133
+    },
+    {
+      "unit_id": "TST-E2E-15.1",
+      "task_id": "TST-E2E-15",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-15.1.md",
+      "lines": 12,
+      "bytes": 6171
+    },
+    {
+      "unit_id": "TST-E2E-16.1",
+      "task_id": "TST-E2E-16",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-16.1.md",
+      "lines": 11,
+      "bytes": 3441
+    },
+    {
+      "unit_id": "TST-E2E-17.1",
+      "task_id": "TST-E2E-17",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-17.1.md",
+      "lines": 12,
+      "bytes": 5121
+    },
+    {
+      "unit_id": "TST-E2E-18.1",
+      "task_id": "TST-E2E-18",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-18.1.md",
+      "lines": 12,
+      "bytes": 5121
+    },
+    {
+      "unit_id": "TST-E2E-19.1",
+      "task_id": "TST-E2E-19",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-19.1.md",
+      "lines": 12,
+      "bytes": 5127
+    },
+    {
+      "unit_id": "TST-E2E-20.1",
+      "task_id": "TST-E2E-20",
+      "priority": "P1",
+      "source": "ARCH_15_TEST_SPECS_WITH_LOGIC.md",
+      "file": "TST-E2E-20.1.md",
+      "lines": 12,
+      "bytes": 5112
+    },
+    {
+      "unit_id": "TST-E2E-21.1",
+      "task_id": "TST-E2E-21",
+      "priority": "P0",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-E2E-21.1.md",
+      "lines": 12,
+      "bytes": 4970
+    },
+    {
+      "unit_id": "TST-E2E-22.1",
+      "task_id": "TST-E2E-22",
+      "priority": "P0",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-E2E-22.1.md",
+      "lines": 12,
+      "bytes": 4954
+    },
+    {
+      "unit_id": "TST-E2E-23.1",
+      "task_id": "TST-E2E-23",
+      "priority": "P0",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-E2E-23.1.md",
+      "lines": 12,
+      "bytes": 4940
+    },
+    {
+      "unit_id": "TST-E2E-24.1",
+      "task_id": "TST-E2E-24",
+      "priority": "P0",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-E2E-24.1.md",
+      "lines": 12,
+      "bytes": 4941
+    },
+    {
+      "unit_id": "TST-E2E-25.1",
+      "task_id": "TST-E2E-25",
+      "priority": "P1",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-E2E-25.1.md",
+      "lines": 11,
+      "bytes": 3345
+    },
+    {
+      "unit_id": "TST-E2E-25.2",
+      "task_id": "TST-E2E-25",
+      "priority": "P1",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-E2E-25.2.md",
+      "lines": 11,
+      "bytes": 3345
+    },
+    {
+      "unit_id": "TST-E2E-26.1",
+      "task_id": "TST-E2E-26",
+      "priority": "P0",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-E2E-26.1.md",
+      "lines": 11,
+      "bytes": 3444
+    },
+    {
+      "unit_id": "TST-GATE-01.1",
+      "task_id": "TST-GATE-01",
+      "priority": "P0",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-GATE-01.1.md",
+      "lines": 12,
+      "bytes": 4619
+    },
+    {
+      "unit_id": "TST-GO-01.1",
+      "task_id": "TST-GO-01",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-01.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-GO-02.1",
+      "task_id": "TST-GO-02",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-02.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-GO-03.1",
+      "task_id": "TST-GO-03",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-03.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-GO-04.1",
+      "task_id": "TST-GO-04",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-04.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-GO-05.1",
+      "task_id": "TST-GO-05",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-05.1.md",
+      "lines": 12,
+      "bytes": 5708
+    },
+    {
+      "unit_id": "TST-GO-06.1",
+      "task_id": "TST-GO-06",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-06.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-GO-07.1",
+      "task_id": "TST-GO-07",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-07.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-GO-08.1",
+      "task_id": "TST-GO-08",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-08.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-GO-09.1",
+      "task_id": "TST-GO-09",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-09.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-GO-10.1",
+      "task_id": "TST-GO-10",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-10.1.md",
+      "lines": 12,
+      "bytes": 4730
+    },
+    {
+      "unit_id": "TST-GO-11.1",
+      "task_id": "TST-GO-11",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-11.1.md",
+      "lines": 12,
+      "bytes": 4730
+    },
+    {
+      "unit_id": "TST-GO-12.1",
+      "task_id": "TST-GO-12",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-12.1.md",
+      "lines": 12,
+      "bytes": 4730
+    },
+    {
+      "unit_id": "TST-GO-13.1",
+      "task_id": "TST-GO-13",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-13.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-GO-14.1",
+      "task_id": "TST-GO-14",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-GO-14.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-INT-01.1",
+      "task_id": "TST-INT-01",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-INT-01.1.md",
+      "lines": 12,
+      "bytes": 4726
+    },
+    {
+      "unit_id": "TST-INT-02.1",
+      "task_id": "TST-INT-02",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-INT-02.1.md",
+      "lines": 12,
+      "bytes": 4735
+    },
+    {
+      "unit_id": "TST-INT-03.1",
+      "task_id": "TST-INT-03",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-INT-03.1.md",
+      "lines": 12,
+      "bytes": 4734
+    },
+    {
+      "unit_id": "TST-INT-04.1",
+      "task_id": "TST-INT-04",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-INT-04.1.md",
+      "lines": 12,
+      "bytes": 4726
+    },
+    {
+      "unit_id": "TST-INT-05.1",
+      "task_id": "TST-INT-05",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-INT-05.1.md",
+      "lines": 12,
+      "bytes": 4726
+    },
+    {
+      "unit_id": "TST-INT-06.1",
+      "task_id": "TST-INT-06",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-INT-06.1.md",
+      "lines": 12,
+      "bytes": 4726
+    },
+    {
+      "unit_id": "TST-INT-07.1",
+      "task_id": "TST-INT-07",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-INT-07.1.md",
+      "lines": 12,
+      "bytes": 4726
+    },
+    {
+      "unit_id": "TST-KT-01.1",
+      "task_id": "TST-KT-01",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-01.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-02.1",
+      "task_id": "TST-KT-02",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-02.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-03.1",
+      "task_id": "TST-KT-03",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-03.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-04.1",
+      "task_id": "TST-KT-04",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-04.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-05.1",
+      "task_id": "TST-KT-05",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-05.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-06.1",
+      "task_id": "TST-KT-06",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-06.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-07.1",
+      "task_id": "TST-KT-07",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-07.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-08.1",
+      "task_id": "TST-KT-08",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-08.1.md",
+      "lines": 12,
+      "bytes": 4729
+    },
+    {
+      "unit_id": "TST-KT-09.1",
+      "task_id": "TST-KT-09",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-09.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-10.1",
+      "task_id": "TST-KT-10",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-10.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-11.1",
+      "task_id": "TST-KT-11",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-11.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-12.1",
+      "task_id": "TST-KT-12",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-12.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-13.1",
+      "task_id": "TST-KT-13",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-13.1.md",
+      "lines": 12,
+      "bytes": 4731
+    },
+    {
+      "unit_id": "TST-KT-14.1",
+      "task_id": "TST-KT-14",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-14.1.md",
+      "lines": 12,
+      "bytes": 4722
+    },
+    {
+      "unit_id": "TST-KT-15.1",
+      "task_id": "TST-KT-15",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-KT-15.1.md",
+      "lines": 12,
+      "bytes": 4722
+    },
+    {
+      "unit_id": "TST-META-01.1",
+      "task_id": "TST-META-01",
+      "priority": "P1",
+      "source": "ARCH_22_TEST_E2E_REVIEW_ADDENDUM.md",
+      "file": "TST-META-01.1.md",
+      "lines": 12,
+      "bytes": 4570
+    },
+    {
+      "unit_id": "TST-NAP-01.1",
+      "task_id": "TST-NAP-01",
+      "priority": "P1",
+      "source": "ARCH_06_SUPTO_NAP_READINESS.md",
+      "file": "TST-NAP-01.1.md",
+      "lines": 15,
+      "bytes": 5435
+    },
+    {
+      "unit_id": "TST-NAP-02.1",
+      "task_id": "TST-NAP-02",
+      "priority": "P1",
+      "source": "ARCH_06_SUPTO_NAP_READINESS.md",
+      "file": "TST-NAP-02.1.md",
+      "lines": 14,
+      "bytes": 5173
+    },
+    {
+      "unit_id": "TST-POS-01.1",
+      "task_id": "TST-POS-01",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-POS-01.1.md",
+      "lines": 12,
+      "bytes": 4735
+    },
+    {
+      "unit_id": "TST-POS-02.1",
+      "task_id": "TST-POS-02",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-POS-02.1.md",
+      "lines": 12,
+      "bytes": 4735
+    },
+    {
+      "unit_id": "TST-POS-03.1",
+      "task_id": "TST-POS-03",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-POS-03.1.md",
+      "lines": 12,
+      "bytes": 4735
+    },
+    {
+      "unit_id": "TST-POS-04.1",
+      "task_id": "TST-POS-04",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-POS-04.1.md",
+      "lines": 12,
+      "bytes": 4735
+    },
+    {
+      "unit_id": "TST-POS-05.1",
+      "task_id": "TST-POS-05",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-POS-05.1.md",
+      "lines": 12,
+      "bytes": 4735
+    },
+    {
+      "unit_id": "TST-POS-06.1",
+      "task_id": "TST-POS-06",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-POS-06.1.md",
+      "lines": 12,
+      "bytes": 4735
+    },
+    {
+      "unit_id": "TST-POS-07.1",
+      "task_id": "TST-POS-07",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-POS-07.1.md",
+      "lines": 12,
+      "bytes": 4735
+    },
+    {
+      "unit_id": "TST-POS-08.1",
+      "task_id": "TST-POS-08",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-POS-08.1.md",
+      "lines": 12,
+      "bytes": 4735
+    },
+    {
+      "unit_id": "TST-POS-09.1",
+      "task_id": "TST-POS-09",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-POS-09.1.md",
+      "lines": 12,
+      "bytes": 4735
+    },
+    {
+      "unit_id": "TST-S3-01.1",
+      "task_id": "TST-S3-01",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-S3-01.1.md",
+      "lines": 12,
+      "bytes": 3939
+    },
+    {
+      "unit_id": "TST-S3-02.1",
+      "task_id": "TST-S3-02",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-S3-02.1.md",
+      "lines": 12,
+      "bytes": 3840
+    },
+    {
+      "unit_id": "TST-S3-03.1",
+      "task_id": "TST-S3-03",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-S3-03.1.md",
+      "lines": 12,
+      "bytes": 3765
+    },
+    {
+      "unit_id": "TST-S3-04.1",
+      "task_id": "TST-S3-04",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-S3-04.1.md",
+      "lines": 12,
+      "bytes": 3779
+    },
+    {
+      "unit_id": "TST-S3-05.1",
+      "task_id": "TST-S3-05",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-S3-05.1.md",
+      "lines": 12,
+      "bytes": 3845
+    },
+    {
+      "unit_id": "TST-S3-06.1",
+      "task_id": "TST-S3-06",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-S3-06.1.md",
+      "lines": 12,
+      "bytes": 4099
+    },
+    {
+      "unit_id": "TST-VENDOR-01.1",
+      "task_id": "TST-VENDOR-01",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-VENDOR-01.1.md",
+      "lines": 12,
+      "bytes": 4738
+    },
+    {
+      "unit_id": "TST-VENDOR-02.1",
+      "task_id": "TST-VENDOR-02",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-VENDOR-02.1.md",
+      "lines": 12,
+      "bytes": 4738
+    },
+    {
+      "unit_id": "TST-VENDOR-03.1",
+      "task_id": "TST-VENDOR-03",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-VENDOR-03.1.md",
+      "lines": 12,
+      "bytes": 4738
+    },
+    {
+      "unit_id": "TST-VENDOR-04.1",
+      "task_id": "TST-VENDOR-04",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-VENDOR-04.1.md",
+      "lines": 12,
+      "bytes": 4738
+    },
+    {
+      "unit_id": "TST-VENDOR-05.1",
+      "task_id": "TST-VENDOR-05",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-VENDOR-05.1.md",
+      "lines": 12,
+      "bytes": 4738
+    },
+    {
+      "unit_id": "TST-VENDOR-06.1",
+      "task_id": "TST-VENDOR-06",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-VENDOR-06.1.md",
+      "lines": 12,
+      "bytes": 4738
+    },
+    {
+      "unit_id": "TST-VENDOR-07.1",
+      "task_id": "TST-VENDOR-07",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-VENDOR-07.1.md",
+      "lines": 12,
+      "bytes": 4738
+    },
+    {
+      "unit_id": "TST-VENDOR-08.1",
+      "task_id": "TST-VENDOR-08",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-VENDOR-08.1.md",
+      "lines": 12,
+      "bytes": 6540
+    },
+    {
+      "unit_id": "TST-VENDOR-09.1",
+      "task_id": "TST-VENDOR-09",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-VENDOR-09.1.md",
+      "lines": 12,
+      "bytes": 4738
+    },
+    {
+      "unit_id": "TST-VENDOR-10.1",
+      "task_id": "TST-VENDOR-10",
+      "priority": "P1",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "TST-VENDOR-10.1.md",
+      "lines": 12,
+      "bytes": 4738
+    },
+    {
+      "unit_id": "VG-01.1",
+      "task_id": "VG-01",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-01.1.md",
+      "lines": 12,
+      "bytes": 4516
+    },
+    {
+      "unit_id": "VG-01.2",
+      "task_id": "VG-01",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-01.2.md",
+      "lines": 12,
+      "bytes": 4567
+    },
+    {
+      "unit_id": "VG-01.3",
+      "task_id": "VG-01",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-01.3.md",
+      "lines": 12,
+      "bytes": 4529
+    },
+    {
+      "unit_id": "VG-01.4",
+      "task_id": "VG-01",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-01.4.md",
+      "lines": 12,
+      "bytes": 4528
+    },
+    {
+      "unit_id": "VG-01.5",
+      "task_id": "VG-01",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-01.5.md",
+      "lines": 12,
+      "bytes": 4536
+    },
+    {
+      "unit_id": "VG-02.1",
+      "task_id": "VG-02",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-02.1.md",
+      "lines": 12,
+      "bytes": 4536
+    },
+    {
+      "unit_id": "VG-02.2",
+      "task_id": "VG-02",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-02.2.md",
+      "lines": 12,
+      "bytes": 4576
+    },
+    {
+      "unit_id": "VG-02.3",
+      "task_id": "VG-02",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-02.3.md",
+      "lines": 12,
+      "bytes": 4565
+    },
+    {
+      "unit_id": "VG-02.4",
+      "task_id": "VG-02",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-02.4.md",
+      "lines": 12,
+      "bytes": 4559
+    },
+    {
+      "unit_id": "VG-03.1",
+      "task_id": "VG-03",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-03.1.md",
+      "lines": 12,
+      "bytes": 4725
+    },
+    {
+      "unit_id": "VG-03.2",
+      "task_id": "VG-03",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-03.2.md",
+      "lines": 12,
+      "bytes": 4734
+    },
+    {
+      "unit_id": "VG-03.3",
+      "task_id": "VG-03",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-03.3.md",
+      "lines": 12,
+      "bytes": 4751
+    },
+    {
+      "unit_id": "VG-03.4",
+      "task_id": "VG-03",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-03.4.md",
+      "lines": 12,
+      "bytes": 4738
+    },
+    {
+      "unit_id": "VG-04.1",
+      "task_id": "VG-04",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-04.1.md",
+      "lines": 12,
+      "bytes": 4542
+    },
+    {
+      "unit_id": "VG-04.2",
+      "task_id": "VG-04",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-04.2.md",
+      "lines": 12,
+      "bytes": 4544
+    },
+    {
+      "unit_id": "VG-04.3",
+      "task_id": "VG-04",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-04.3.md",
+      "lines": 12,
+      "bytes": 4565
+    },
+    {
+      "unit_id": "VG-04.4",
+      "task_id": "VG-04",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-04.4.md",
+      "lines": 12,
+      "bytes": 4555
+    },
+    {
+      "unit_id": "VG-04.5",
+      "task_id": "VG-04",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-04.5.md",
+      "lines": 12,
+      "bytes": 4546
+    },
+    {
+      "unit_id": "VG-05.1",
+      "task_id": "VG-05",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-05.1.md",
+      "lines": 12,
+      "bytes": 4563
+    },
+    {
+      "unit_id": "VG-05.2",
+      "task_id": "VG-05",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-05.2.md",
+      "lines": 12,
+      "bytes": 4551
+    },
+    {
+      "unit_id": "VG-05.3",
+      "task_id": "VG-05",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-05.3.md",
+      "lines": 12,
+      "bytes": 4590
+    },
+    {
+      "unit_id": "VG-06.1",
+      "task_id": "VG-06",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-06.1.md",
+      "lines": 12,
+      "bytes": 4529
+    },
+    {
+      "unit_id": "VG-06.2",
+      "task_id": "VG-06",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-06.2.md",
+      "lines": 12,
+      "bytes": 4519
+    },
+    {
+      "unit_id": "VG-06.3",
+      "task_id": "VG-06",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-06.3.md",
+      "lines": 12,
+      "bytes": 4514
+    },
+    {
+      "unit_id": "VG-07.1",
+      "task_id": "VG-07",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-07.1.md",
+      "lines": 12,
+      "bytes": 4555
+    },
+    {
+      "unit_id": "VG-07.2",
+      "task_id": "VG-07",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-07.2.md",
+      "lines": 12,
+      "bytes": 4531
+    },
+    {
+      "unit_id": "VG-07.3",
+      "task_id": "VG-07",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-07.3.md",
+      "lines": 12,
+      "bytes": 4538
+    },
+    {
+      "unit_id": "VG-08.1",
+      "task_id": "VG-08",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-08.1.md",
+      "lines": 12,
+      "bytes": 4515
+    },
+    {
+      "unit_id": "VG-08.2",
+      "task_id": "VG-08",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-08.2.md",
+      "lines": 12,
+      "bytes": 4561
+    },
+    {
+      "unit_id": "VG-08.3",
+      "task_id": "VG-08",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-08.3.md",
+      "lines": 12,
+      "bytes": 4556
+    },
+    {
+      "unit_id": "VG-09.1",
+      "task_id": "VG-09",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-09.1.md",
+      "lines": 13,
+      "bytes": 4590
+    },
+    {
+      "unit_id": "VG-09.2",
+      "task_id": "VG-09",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-09.2.md",
+      "lines": 13,
+      "bytes": 4583
+    },
+    {
+      "unit_id": "VG-09.3",
+      "task_id": "VG-09",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-09.3.md",
+      "lines": 13,
+      "bytes": 4538
+    },
+    {
+      "unit_id": "VG-10.1",
+      "task_id": "VG-10",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-10.1.md",
+      "lines": 12,
+      "bytes": 4512
+    },
+    {
+      "unit_id": "VG-10.2",
+      "task_id": "VG-10",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-10.2.md",
+      "lines": 12,
+      "bytes": 4551
+    },
+    {
+      "unit_id": "VG-10.3",
+      "task_id": "VG-10",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-10.3.md",
+      "lines": 12,
+      "bytes": 4497
+    },
+    {
+      "unit_id": "VG-11.1",
+      "task_id": "VG-11",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-11.1.md",
+      "lines": 12,
+      "bytes": 5570
+    },
+    {
+      "unit_id": "VG-11.2",
+      "task_id": "VG-11",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-11.2.md",
+      "lines": 12,
+      "bytes": 5596
+    },
+    {
+      "unit_id": "VG-12.1",
+      "task_id": "VG-12",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-12.1.md",
+      "lines": 12,
+      "bytes": 4540
+    },
+    {
+      "unit_id": "VG-12.2",
+      "task_id": "VG-12",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-12.2.md",
+      "lines": 12,
+      "bytes": 4560
+    },
+    {
+      "unit_id": "VG-13.1",
+      "task_id": "VG-13",
+      "priority": "P2",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-13.1.md",
+      "lines": 12,
+      "bytes": 4525
+    },
+    {
+      "unit_id": "VG-14",
+      "task_id": "VG-14",
+      "priority": "P2",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-14.md",
+      "lines": 12,
+      "bytes": 2275
+    },
+    {
+      "unit_id": "VG-15.1",
+      "task_id": "VG-15",
+      "priority": "P2",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-15.1.md",
+      "lines": 18,
+      "bytes": 5404
+    },
+    {
+      "unit_id": "VG-16.1",
+      "task_id": "VG-16",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-16.1.md",
+      "lines": 13,
+      "bytes": 4812
+    },
+    {
+      "unit_id": "VG-16.2",
+      "task_id": "VG-16",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-16.2.md",
+      "lines": 13,
+      "bytes": 4776
+    },
+    {
+      "unit_id": "VG-16.3",
+      "task_id": "VG-16",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-16.3.md",
+      "lines": 13,
+      "bytes": 4894
+    },
+    {
+      "unit_id": "VG-16.4",
+      "task_id": "VG-16",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-16.4.md",
+      "lines": 13,
+      "bytes": 4776
+    },
+    {
+      "unit_id": "VG-17.1",
+      "task_id": "VG-17",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-17.1.md",
+      "lines": 13,
+      "bytes": 5202
+    },
+    {
+      "unit_id": "VG-17.2",
+      "task_id": "VG-17",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-17.2.md",
+      "lines": 13,
+      "bytes": 5172
+    },
+    {
+      "unit_id": "VG-17.3",
+      "task_id": "VG-17",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-17.3.md",
+      "lines": 13,
+      "bytes": 5159
+    },
+    {
+      "unit_id": "VG-17.4",
+      "task_id": "VG-17",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-17.4.md",
+      "lines": 13,
+      "bytes": 5000
+    },
+    {
+      "unit_id": "VG-18.1",
+      "task_id": "VG-18",
+      "priority": "P2",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-18.1.md",
+      "lines": 11,
+      "bytes": 2472
+    },
+    {
+      "unit_id": "VG-19.1",
+      "task_id": "VG-19",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-19.1.md",
+      "lines": 12,
+      "bytes": 4524
+    },
+    {
+      "unit_id": "VG-19.2",
+      "task_id": "VG-19",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-19.2.md",
+      "lines": 12,
+      "bytes": 4540
+    },
+    {
+      "unit_id": "VG-19.3",
+      "task_id": "VG-19",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-19.3.md",
+      "lines": 12,
+      "bytes": 4516
+    },
+    {
+      "unit_id": "VG-19.4",
+      "task_id": "VG-19",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-19.4.md",
+      "lines": 12,
+      "bytes": 4496
+    },
+    {
+      "unit_id": "VG-20.1",
+      "task_id": "VG-20",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-20.1.md",
+      "lines": 12,
+      "bytes": 4527
+    },
+    {
+      "unit_id": "VG-20.2",
+      "task_id": "VG-20",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-20.2.md",
+      "lines": 12,
+      "bytes": 4519
+    },
+    {
+      "unit_id": "VG-20.3",
+      "task_id": "VG-20",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-20.3.md",
+      "lines": 12,
+      "bytes": 4527
+    },
+    {
+      "unit_id": "VG-20.4",
+      "task_id": "VG-20",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-20.4.md",
+      "lines": 12,
+      "bytes": 4561
+    },
+    {
+      "unit_id": "VG-21.1-through-2",
+      "task_id": "VG-21",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-21.1-through-2.md",
+      "lines": 13,
+      "bytes": 5718
+    },
+    {
+      "unit_id": "VG-22.1-through-2",
+      "task_id": "VG-22",
+      "priority": "P1",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-22.1-through-2.md",
+      "lines": 13,
+      "bytes": 4778
+    },
+    {
+      "unit_id": "VG-23.1",
+      "task_id": "VG-23",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-23.1.md",
+      "lines": 12,
+      "bytes": 4624
+    },
+    {
+      "unit_id": "VG-23.2",
+      "task_id": "VG-23",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-23.2.md",
+      "lines": 12,
+      "bytes": 4666
+    },
+    {
+      "unit_id": "VG-23.3",
+      "task_id": "VG-23",
+      "priority": "P0",
+      "source": "ARCH_09_VENDOR_DOCS_AND_PROTOCOL_GAPS.md",
+      "file": "VG-23.3.md",
+      "lines": 12,
+      "bytes": 4532
+    },
+    {
+      "unit_id": "W0-1.1",
+      "task_id": "W0-1",
+      "priority": "P0",
+      "source": "MASTER_PLAN.md",
+      "file": "W0-1.1.md",
+      "lines": 10,
+      "bytes": 4979
+    },
+    {
+      "unit_id": "W0-2.1",
+      "task_id": "W0-2",
+      "priority": "P0",
+      "source": "ARCH_07_PLAN70_CRITICAL_REVIEW.md",
+      "file": "W0-2.1.md",
+      "lines": 12,
+      "bytes": 4458
+    },
+    {
+      "unit_id": "W0-3.1",
+      "task_id": "W0-3",
+      "priority": "P0",
+      "source": "ARCH_03_TESTS_E2E.md",
+      "file": "W0-3.1.md",
+      "lines": 12,
+      "bytes": 4398
+    }
+  ]
+}

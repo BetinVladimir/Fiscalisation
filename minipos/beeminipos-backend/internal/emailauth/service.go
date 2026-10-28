@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"net/mail"
 	"net/smtp"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -193,6 +194,16 @@ func randomUUID() (string, error) {
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16]), nil
 }
 
+func demoEmailOTPEnabled() bool {
+	return os.Getenv("ENVIRONMENT") == "demo" && os.Getenv("PRODUCTION") != "true"
+}
+func emailOTPCode(numeric string) string {
+	if demoEmailOTPEnabled() {
+		return "demo"
+	}
+	return numeric
+}
+
 func (s *Service) RequestCode(ctx context.Context, email, language string) error {
 	email, err := normalizeEmail(email)
 	if err != nil {
@@ -210,6 +221,7 @@ func (s *Service) RequestCode(ctx context.Context, email, language string) error
 		return err
 	}
 	code := fmt.Sprintf("%06d", (uint32(b[0])<<24|uint32(b[1])<<16|uint32(b[2])<<8|uint32(b[3]))%1000000)
+	code = emailOTPCode(code)
 	challenge, err := randomUUID()
 	if err != nil {
 		return err
@@ -235,6 +247,9 @@ func (s *Service) RequestCode(ctx context.Context, email, language string) error
 }
 
 func (s *Service) VerifyCode(ctx context.Context, email, code string) (VerifyResult, error) {
+	if strings.TrimSpace(code) == "demo" && !demoEmailOTPEnabled() {
+		return VerifyResult{}, errors.New("invalid or expired code")
+	}
 	email, err := normalizeEmail(email)
 	if err != nil {
 		return VerifyResult{}, err

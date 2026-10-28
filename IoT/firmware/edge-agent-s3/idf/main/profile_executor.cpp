@@ -12,12 +12,14 @@
 #include "cJSON.h"
 #include "money_plan.h"
 namespace beefiscal::idf{namespace{
-int write_bytes(void*ctx,const uint8_t*p,size_t n,uint32_t timeout){auto&b=*static_cast<const CompositeBinding*>(ctx);return b.profile==EdgeProfile::DatecsDp150BluePad50?uart_runtime_write(p,n,timeout):usb_cdc_write(p,n,timeout);}
-int read_bytes(void*ctx,uint8_t*p,size_t n,uint32_t timeout){auto&b=*static_cast<const CompositeBinding*>(ctx);return b.profile==EdgeProfile::DatecsDp150BluePad50?uart_runtime_read(p,n,timeout):usb_cdc_read(p,n,timeout);}
+int write_bytes(void*ctx,const uint8_t*p,size_t n,uint32_t timeout){auto&b=*static_cast<const CompositeBinding*>(ctx);if(b.profile==EdgeProfile::DatecsDp150BluePad50)return uart_runtime_write(p,n,timeout);if(b.profile==EdgeProfile::DaisyCompactS01)return usb_cdc_write(p,n,timeout);return -1;}
+int read_bytes(void*ctx,uint8_t*p,size_t n,uint32_t timeout){auto&b=*static_cast<const CompositeBinding*>(ctx);if(b.profile==EdgeProfile::DatecsDp150BluePad50)return uart_runtime_read(p,n,timeout);if(b.profile==EdgeProfile::DaisyCompactS01)return usb_cdc_read(p,n,timeout);return -1;}
 int64_t monotonic_ms(void*){return esp_timer_get_time()/1000;}
 bool exchange(const CompositeBinding&b,uint16_t command,const std::vector<uint8_t>&payload,SerialSession&sequence,bee::ParsedFrame*out=nullptr){
+ if(b.profile==EdgeProfile::Unconfigured)return false;
  SerialTransport transport{const_cast<CompositeBinding*>(&b),write_bytes,read_bytes,monotonic_ms};
- return sequence.exchange(b.profile==EdgeProfile::DatecsDp150BluePad50?SerialProfile::Datecs:SerialProfile::Daisy,transport,command,payload,out);
+ const SerialProfile sp=b.profile==EdgeProfile::DatecsDp150BluePad50?SerialProfile::Datecs:SerialProfile::Daisy;
+ return sequence.exchange(sp,transport,command,payload,out);
 }
 // Vendor-issued document evidence. These queries never print/cancel/refund.
 bool exact_unp_token(const std::string& text,const std::string& unp){
@@ -87,6 +89,15 @@ ExecutionResult finish_receipt(const CompositeBinding&b,const ReceiptPlan&p,Seri
 }
 EspIdfDeviceIo::EspIdfDeviceIo(const CompositeBinding&b,const std::string&password):binding_(b),fiscal_password_(password){}
 std::string EspIdfDeviceIo::preflight(const ReceiptPlan&p){
+ // S3D-03.1: reject unsupported payment types before general plan validation
+ // (payment_slots_bc50.json: CASH=0,CARD=1,CHEQUE=3,VOUCHER=4,COUPON=5;
+ //  NHIF/DEFERRED/INTERNAL_CONSUMPTION are not mapped)
+ if(p.command_type=="SALE_FINALIZE"||p.command_type=="SALE_REVERSE"){
+  for(const auto&payment:p.payments){
+   if(payment.type=="NHIF"||payment.type=="DEFERRED"||payment.type=="INTERNAL_CONSUMPTION")
+    return "PAYMENT_TYPE_UNSUPPORTED";
+  }
+ }
  auto error=receipt_plan_error(binding_,p);if(!error.empty())return error;
  if(!valid_fiscal_password(binding_.profile,fiscal_password_))return "FISCAL_CREDENTIAL_REQUIRED";
  std::vector<uint8_t>payload;std::string message;const bool datecs=binding_.profile==EdgeProfile::DatecsDp150BluePad50;
@@ -146,5 +157,10 @@ ExecutionResult EspIdfDeviceIo::fiscal_receipt_proof(const RecoveryItem&i){
  uint32_t document=status.receiptNumber;const bool proven=binding_.profile==EdgeProfile::DatecsDp150BluePad50?document&&datecs_document_proof(binding_,document,p,serial_):daisy_document_proof(binding_,p,serial_,document);
  return{proven?ExecutionCertainty::Committed:ExecutionCertainty::Unknown,proven?std::to_string(document):"",proven?"":"FISCAL_DOCUMENT_NOT_PROVEN",i.terminal_reference,i.rrn,i.auth_code};
 }
-ExecutionResult EspIdfDeviceIo::recover(const RecoveryItem&i){return fiscal_receipt_proof(i);}
+ExecutionResult EspIdfDeviceIo::recover(const RecoveryItem&i){
+ if(!i.canonical_unp.empty()&&binding_.authority.unp_prefix.size()==8&&
+    (i.canonical_unp.size()<8||i.canonical_unp.substr(0,8)!=binding_.authority.unp_prefix))
+  return{ExecutionCertainty::Unknown,"","FOREIGN_RECEIPT_OWNERSHIP",i.terminal_reference,i.rrn,i.auth_code};
+ return fiscal_receipt_proof(i);
+}
 }

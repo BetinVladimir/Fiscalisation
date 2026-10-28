@@ -47,5 +47,11 @@ int main() {
     check(!bee::DatecsCodec::decode(response(true,481),out,error),"Datecs oversize RX");
     // Deterministic adversarial byte streams: parser must safely reject noise.
     for(size_t n=0;n<550;++n) { Bytes noise(n,0xff);check(!bee::DaisyCodec::decode(noise,out,error),"Daisy noise");check(!bee::DatecsCodec::decode(noise,out,error),"Datecs noise"); }
+    // Golden answer frame: cmd 48 (sale), seq 55, UNP DY000694-OP01-0000018; literal bytes from fixture.
+    {bee::ParsedFrame out48;std::string err48;
+     const Bytes golden48{0x01,0x38,0x37,0x30,0x30,0x30,0x30,0x30,0x30,0x31,0x2c,0x30,0x30,0x30,0x30,0x30,0x30,0x04,0x88,0x80,0x88,0x80,0x80,0xb8,0x05,0x30,0x36,0x35,0x3d,0x03};
+     check(bee::DaisyCodec::decode(golden48,out48,err48)&&out48.command==0x30&&out48.sequence==0x37&&out48.data==Bytes{0x30,0x30,0x30,0x30,0x30,0x31,0x2c,0x30,0x30,0x30,0x30,0x30,0x30}&&out48.status==Bytes{0x88,0x80,0x88,0x80,0x80,0xb8},"Daisy golden RX cmd48 DY000694");
+     auto bad48=golden48;bad48[25]^=1;check(!bee::DaisyCodec::decode(bad48,out48,err48),"Daisy golden RX cmd48 bad BCC");}
+    if(!failures)std::cout<<"golden_daisy_cmd48=pass\n";
     if(failures){std::cerr<<failures<<" failures\n";return 1;} std::cout<<"runtime vendor codec tests: OK\n";
 }

@@ -2,11 +2,14 @@ package com.beeloy.fiscal.bluecash
 
 import org.junit.Assert.assertEquals
 import org.junit.Assert.assertNotNull
+import org.junit.Assert.assertTrue
 import org.junit.Assert.fail
 import org.junit.Test
 import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
+import java.time.Duration
+import java.util.concurrent.atomic.AtomicInteger
 
 class DatecsProtocolTest {
 
@@ -38,6 +41,19 @@ class DatecsProtocolTest {
     assertEquals(19, frame.size)
   }
 
+  // BUG-020.1: CMD_CANCEL_RECEIPT (§4.21) is command 60 with empty payload.
+  @Test fun `cancelReceipt encodes command 60 with empty payload`() {
+    assertEquals(60, DatecsPayloads.CMD_CANCEL_RECEIPT)
+    val payload = DatecsPayloads.cancelReceipt()
+    assertEquals(0, payload.size)
+    // Encode produces a valid Datecs request frame (SOH … ETX).
+    val frame = DatecsFrameCodec.encode(0x20, DatecsPayloads.CMD_CANCEL_RECEIPT, payload)
+    assertEquals(1, frame.first().toInt())   // SOH
+    assertEquals(3, frame.last().toInt())    // ETX
+    // Empty-data frame: 1(SOH)+4(LEN)+1(SEQ)+4(CMD)+0(data)+1(ENQ)+4(BCC)+1(ETX) = 16 bytes.
+    assertEquals(16, frame.size)
+  }
+
   @Test fun `payloads match Datecs documentation vectors`() {
     assertEquals(
         "1\t1\tDY000600-OP01-0000001\t24\t\t",
@@ -50,6 +66,80 @@ class DatecsProtocolTest {
     assertEquals("0\t10.00\t", String(DatecsPayloads.payment(0, "10.00")))
     assertEquals("Z\t", String(DatecsPayloads.report(true)))
     assertEquals("1\t50.00\t", String(DatecsPayloads.cash(true, "50.00")))
+  }
+
+  // ── BUG-029.1: timeout table ──────────────────────────────────────────────
+
+  @Test fun `timeoutsTableXZReports120sReceiptCmds30sOther5s`() {
+    assertEquals(Duration.ofSeconds(120), DatecsTimeouts.forCommand(69)) // X report
+    assertEquals(Duration.ofSeconds(120), DatecsTimeouts.forCommand(70)) // Z report
+    for (cmd in listOf(48, 43, 49, 53, 56, 60, 38, 39, 42, 57)) {
+      assertEquals("cmd=$cmd should be 30s", Duration.ofSeconds(30), DatecsTimeouts.forCommand(cmd))
+    }
+    for (cmd in listOf(62, 99, 100)) {
+      assertEquals("cmd=$cmd should be 5s", Duration.ofSeconds(5), DatecsTimeouts.forCommand(cmd))
+    }
+  }
+
+  // ── BUG-029.2: silent device → DatecsFailure.Unknown after deadline ──────
+
+  @Test fun `silentDeviceTimesOutWithUnknown`() {
+    val neverInput = object : InputStream() {
+      @Volatile var closed = false
+      override fun read(): Int {
+        while (!closed) {
+          try { Thread.sleep(10) } catch (e: InterruptedException) {
+            Thread.currentThread().interrupt()
+            break
+          }
+        }
+        return -1 // EOF → DatecsFailure.Unknown in reader
+      }
+      override fun close() { closed = true }
+    }
+    val proto = DatecsSocketProtocol(
+      neverInput, FakeFlushOutputStream(),
+      timeoutFor = { _ -> 100L } // 100 ms for test
+    )
+    try {
+      proto.execute(48, byteArrayOf())
+      fail("expected DatecsFailure.Unknown from timeout")
+    } catch (e: DatecsFailure) {
+      assertEquals("silent device must produce Unknown", DatecsFailure.Unknown::class, e::class)
+    }
+  }
+
+  // ── BUG-029.3: SYN (0x16) bytes before/between frames are ignored ─────────
+
+  @Test fun `synBytesDoNotCorruptFrame`() {
+    val frame = buildResponseFrame(0x20, 48)
+    val withSyn = listOf(0x16, 0x16) + frame.map { it.toInt() and 0xFF }
+    val proto = DatecsSocketProtocol(
+      FakeInput(withSyn, null), FakeFlushOutputStream(),
+      timeoutFor = { _ -> 1000L }
+    )
+    val result = proto.execute(48, byteArrayOf())
+    assertEquals("SYN bytes must be skipped, sequence intact", 0x20, result.sequence)
+  }
+
+  // ── BUG-029.4: NAK (0x15) → byte-identical retransmit, max 3 tries ───────
+
+  @Test fun `nakTriggersByteIdenticalRetransmit`() {
+    val frame = buildResponseFrame(0x20, 48)
+    val nakThenFrame = listOf(0x15, 0x15) + frame.map { it.toInt() and 0xFF }
+    val writeCount = AtomicInteger(0)
+    val countingOut = object : OutputStream() {
+      override fun write(b: Int) {}
+      override fun write(b: ByteArray, off: Int, len: Int) { writeCount.incrementAndGet() }
+      override fun flush() {}
+    }
+    val proto = DatecsSocketProtocol(
+      FakeInput(nakThenFrame, null), countingOut,
+      timeoutFor = { _ -> 1000L }
+    )
+    val result = proto.execute(48, byteArrayOf())
+    assertEquals("response sequence byte must be 0x20 (unchanged SEQ on retransmit)", 0x20, result.sequence)
+    assertEquals("2 NAKs → 3 writes total (initial + 2 retransmits)", 3, writeCount.get())
   }
 
   @Test fun `codec rejects tampering`() {
@@ -191,6 +281,37 @@ class FakeInput(
     return buf[pos++].and(0xff)
   }
   override fun close() {}
+}
+
+/**
+ * Builds a valid Datecs *response* frame (different layout from request encode).
+ * Response: SOH + LEN(4) + SEQ + CMD(4) + data + EOT + status(8) + ENQ + BCC(4) + ETX
+ * LEN = dataSize + 0x33 (as per decode: dataSize = word(raw,1) - 0x33)
+ */
+fun buildResponseFrame(
+    seq: Int,
+    cmd: Int,
+    data: ByteArray = byteArrayOf(),
+    status: ByteArray = ByteArray(8) { '0'.code.toByte() }
+): ByteArray {
+  require(status.size == 8)
+  val out = ArrayList<Byte>(25 + data.size)
+  fun putNibbles(v: Int) {
+    for (shift in intArrayOf(12, 8, 4, 0)) out.add((0x30 + ((v shr shift) and 15)).toByte())
+  }
+  out.add(1)                        // SOH
+  putNibbles(data.size + 0x33)      // LEN
+  out.add(seq.toByte())             // SEQ
+  putNibbles(cmd)                   // CMD
+  data.forEach { out.add(it) }      // data
+  out.add(4)                        // EOT
+  status.forEach { out.add(it) }    // status (8 bytes)
+  out.add(5)                        // ENQ
+  val checksumAt = 19 + data.size
+  val bcc = (1..checksumAt).sumOf { out[it].toInt() and 255 } and 0xffff
+  putNibbles(bcc)                   // BCC
+  out.add(3)                        // ETX
+  return out.toByteArray()
 }
 
 /**

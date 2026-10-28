@@ -1,0 +1,7 @@
+{
+  "p50_ms": 200,
+  "p95_ms": 800,
+  "p99_ms": 2000,
+  "error_rate_pct": 0.1,
+  "conflict_rate_pct": 1.0
+}

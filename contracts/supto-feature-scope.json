@@ -19,11 +19,14 @@
     },
     "electronic_fiscal_receipts": {
       "in_product_scope": true,
+      "in_mvp_scope": false,
       "annex_requirements": [
         "29.24"
       ],
       "status": "IMPLEMENTATION_REQUIRED",
-      "production_blocked": true
+      "production_blocked": true,
+      "negative_gate": "SendEReceipt always returns ERECEIPT_UNSUPPORTED; delivery implementation must not exist in MVP1",
+      "note": "Owner decision: e-receipt (чл.52т, Прил.32 §29.24) explicitly excluded from MVP1. API rejects every request with ERECEIPT_UNSUPPORTED."
     },
     "tax_groups": {
       "in_product_scope": true,
@@ -48,6 +51,13 @@
         "COUPON"
       ],
       "status": "SOFTWARE_IMPLEMENTED_HIL_REQUIRED"
+    },
+    "fiscal_unit_tremol": {
+      "in_product_scope": false,
+      "in_mvp_scope": false,
+      "status": "NOT_IN_MVP_SCOPE",
+      "capability_gate": "REJECTED_BEFORE_IO",
+      "note": "Tremol fiscal unit adapter not implemented in MVP1; any route targeting a Tremol device must return UNSUPPORTED before any I/O (VG-18, D-1)"
     }
   }
 }

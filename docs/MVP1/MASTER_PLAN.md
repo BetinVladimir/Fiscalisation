@@ -33,7 +33,7 @@
 | D-5 | Судьба `receipt_saga.go` (удалить или довести) — BUG-006 | волна 6 |
 | D-6 | Ответы NORM-01…NORM-16 (NORM-13…16 — в ARCH_10: версия СУПТО при евро, чл.118 ЗДДС, ДВ 82/2026, сторно лв-документов)  ·  Ответы NORM-01…NORM-12 (юрист/НАП; NORM-09…12 — в ARCH_08 §6; **NORM-09 — классификация Beeloy POS** — ключевой) | TG-008/NAP-13, TG-009/NAP-01…03, TG-002, POS-11, NAP-04, NAP-05, NAP-06, NAP-12 |
 | D-7 | Rotation keystore/HMAC-ключей (BUG-060, BUG-011) | закрытие BUG-060 |
-| D-8 | Платёж картой: пинпад самого ФУ (cmd 53 Type=1 / cmd 55, ARCH_09 VG-14) или внешний Datecs Pay + сага (текущий путь) | VG-14; состав HIL карты |
+| D-8 | Платёж картой: пинпад самого ФУ (cmd 53 Type=1 / cmd 55, ARCH_09 VG-14) или внешний Datecs Pay + сага (текущий путь) **DECIDED: internal-terminal** (сохраняем Datecs Pay SDK + saga; cmd 53 Type=1/cmd 55 не реализуем в MVP1; ADR-FISCAL-CARD-PATH-001) | VG-14; состав HIL карты |
 | D-9 | Профиль слотов оплаты ФУ (CHEQUE/VOUCHER/NHIF/DEFERRED/INTERNAL_CONSUMPTION → PaidMode 3/4/5, печатные имена) по модели/прошивке | VG-05, BUG-042 |
 | D-10 | Допустим ли режим валюты ФУ «2» (основная евро, доп. лев) или только «3» (ARCH_10 E1) | VG-09, NAP-16 |
 | DOC-V1…V6 | Вендорные документы и сертификаты (ARCH_09 §1.2) — запросить у Datecs/Daisy/банка/БИМ | VG-09, VG-16, VG-17, GATE-01, HIL карты |

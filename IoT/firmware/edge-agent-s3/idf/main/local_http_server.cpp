@@ -207,9 +207,18 @@ std::string operation_id(const char *uri) {
   if (path.rfind(prefix, 0) != 0)
     return {};
   path.erase(0, prefix.size());
-  const auto suffix = path.find(":reconcile");
-  if (suffix != std::string::npos)
-    path.resize(suffix);
+  {
+    const std::string old_suffix = ":reconcile";
+    const size_t os = path.rfind(old_suffix);
+    if (os != std::string::npos && os + old_suffix.size() == path.size())
+      path.resize(os);
+  }
+  {
+    const std::string new_suffix = "/reconcile";
+    const size_t ns = path.rfind(new_suffix);
+    if (ns != std::string::npos && ns + new_suffix.size() == path.size())
+      path.resize(ns);
+  }
   return path;
 }
 esp_err_t operations(httpd_req_t *request) {

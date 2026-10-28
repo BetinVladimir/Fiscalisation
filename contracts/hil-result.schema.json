@@ -1,0 +1,50 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12",
+  "title": "HIL Test Result",
+  "description": "Schema for hardware-in-the-loop test result artifacts produced by scripts/hil/run.sh",
+  "type": "object",
+  "required": ["status", "scenario", "timestamp"],
+  "additionalProperties": false,
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["PASS", "FAIL"],
+      "description": "Overall result of the HIL test run"
+    },
+    "scenario": {
+      "type": "string",
+      "minLength": 1,
+      "description": "HIL scenario identifier, e.g. HIL-BC-01"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 UTC timestamp when the run completed"
+    },
+    "device": {
+      "type": "string",
+      "description": "Device identifier (serial number or profile name)"
+    },
+    "dry_run": {
+      "type": "boolean",
+      "description": "True when run with --dry-run flag; result must not count as HIL evidence"
+    },
+    "steps": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["name", "status"],
+        "additionalProperties": false,
+        "properties": {
+          "name": { "type": "string" },
+          "status": { "type": "string", "enum": ["PASS", "FAIL", "SKIP"] },
+          "note": { "type": "string" }
+        }
+      }
+    },
+    "notes": {
+      "type": "string",
+      "description": "Free-text observations from the operator"
+    }
+  }
+}

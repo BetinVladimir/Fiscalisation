@@ -395,16 +395,70 @@ esp_err_t IntentProcessor::decode(const CommandView &view, ReceiptPlan &p) {
     total += v.amount_minor;
     p.payments.push_back(std::move(v));
   }
-  return total > 0 ? authorize() : ESP_ERR_INVALID_ARG;
+  if (total <= 0) return ESP_ERR_INVALID_ARG;
+  // BUG-043: validate payment total equals sum of line totals (half-up rounding)
+  {
+    int64_t line_sum = 0;
+    for (const auto &l : p.items) {
+      int64_t unit_cents = 0;
+      if (!money(l.unit_price, unit_cents)) return ESP_ERR_INVALID_ARG;
+      // Parse quantity: "N" (whole) or "N.DDD" (3 decimal places → milli-units)
+      const std::string &q = l.quantity;
+      int64_t qty_milli = 0;
+      auto dot = q.find('.');
+      if (dot == std::string::npos) {
+        for (unsigned char c : q) {
+          if (!isdigit(c)) return ESP_ERR_INVALID_ARG;
+          qty_milli = qty_milli * 10 + (c - '0');
+        }
+        qty_milli *= 1000;
+      } else if (q.size() - dot == 4) {
+        for (size_t i = 0; i < dot; i++) {
+          if (!isdigit((unsigned char)q[i])) return ESP_ERR_INVALID_ARG;
+          qty_milli = qty_milli * 10 + (q[i] - '0');
+        }
+        qty_milli *= 1000;
+        for (size_t i = 0; i < 3; i++) {
+          if (!isdigit((unsigned char)q[dot + 1 + i])) return ESP_ERR_INVALID_ARG;
+          qty_milli = qty_milli + (q[dot + 1 + i] - '0') *
+                      (i == 0 ? 100 : i == 1 ? 10 : 1);
+        }
+      } else {
+        return ESP_ERR_INVALID_ARG;
+      }
+      if (qty_milli <= 0) return ESP_ERR_INVALID_ARG;
+      int64_t lt = (unit_cents * qty_milli + 500) / 1000;
+      if (!l.discount.empty()) {
+        int64_t disc = 0;
+        if (!money(l.discount, disc)) return ESP_ERR_INVALID_ARG;
+        lt -= disc;
+      }
+      line_sum += lt;
+    }
+    if (line_sum != total) return ESP_ERR_INVALID_ARG;  // PAYMENT_SUM_MISMATCH
+  }
+  return authorize();
 }
 esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress, BleReplyOwner ble_reply) {
   if(ingress==Ingress::Mqtt&&!command_valid_now(p.command_issued,p.command_expires,command_clock_))return ESP_ERR_INVALID_STATE;
   const int64_t at = now();
+  // BUG-041: reject if device clock is untrusted (now() returns 0 pre-2024)
+  if (at == 0) return ESP_ERR_INVALID_STATE;
   std::string event = "received-" + p.operation_id;
   // Never consume authority or touch a final device when the durable journal
   // cannot retain the command, result and sync evidence.
   if (!storage_.can_accept_operation())
     return ESP_ERR_NO_MEM;
+  // BUG-040: check FU ready() before reserve_command() to avoid wasting UNP
+  if (!executor_.ready()) {
+    std::string rejected =
+        "{\"error_code\":\"PHYSICAL_DEVICE_UNAVAILABLE\",\"operation_id\":\"" +
+        p.operation_id + "\",\"state\":\"REJECTED_BEFORE_IO\"}";
+    if (result_sink_)
+      result_sink_(p.operation_id.c_str(), rejected.c_str(), ingress,
+                   ble_reply, result_context_);
+    return ESP_ERR_INVALID_STATE;
+  }
   std::vector<InitialPayment> initial;
   for (const auto &v : p.payments)
     initial.push_back({v.id, v.amount_minor});
@@ -428,8 +482,17 @@ esp_err_t IntentProcessor::execute(ReceiptPlan &p, Ingress ingress, BleReplyOwne
                    ingress, ble_reply, result_context_);
     return ESP_OK;
   }
-  if (reserved.status == ReservationStatus::PayloadConflict)
+  if (reserved.status == ReservationStatus::PayloadConflict) {
+    // BUG-044: deliver result before returning so caller is not left waiting
+    if (result_sink_) {
+      std::string conflict =
+          "{\"error_code\":\"PAYLOAD_CONFLICT\",\"operation_id\":\"" +
+          p.operation_id + "\",\"state\":\"FAILED\"}";
+      result_sink_(p.operation_id.c_str(), conflict.c_str(), ingress,
+                   ble_reply, result_context_);
+    }
     return ESP_ERR_INVALID_CRC;
+  }
   if (reserved.status != ReservationStatus::New)
     return ESP_FAIL;
   if (p.command_type != "SALE_REVERSE") p.unp = reserved.authority.unp;

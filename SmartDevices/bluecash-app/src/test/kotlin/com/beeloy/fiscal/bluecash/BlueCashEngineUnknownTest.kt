@@ -27,7 +27,7 @@ class BlueCashEngineUnknownTest {
 
   private val testSale = BlueCashSale(
       operationId = "op-001",
-      unp = "DY000600",
+      unp = "DY000600-A001-0000001",
       operator = 1,
       password = "0000",
       till = 1,

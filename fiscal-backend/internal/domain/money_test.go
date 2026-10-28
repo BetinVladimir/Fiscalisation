@@ -13,9 +13,9 @@ import (
 // and BUG-001 test vectors.
 func TestParseMoney(t *testing.T) {
 	tests := []struct {
-		input    string
-		want     int64
-		wantErr  bool
+		input   string
+		want    int64
+		wantErr bool
 	}{
 		// Valid cases
 		{"0.00", 0, false},
@@ -110,7 +110,7 @@ func TestLineTotal(t *testing.T) {
 		wantErr  bool
 	}{
 		{"332 * 5000 = 1660", 332, 5000, 1660, false},
-		{"half-up: 999 * 333/1000 = 333", 999, 333, 332, false},
+		{"half-up: 999 * 333/1000 = 333", 999, 333, 333, false},
 		{"zero price", 0, 100, 0, false},
 		{"qty_milli=1, price=1 → 0", 1, 1, 0, false},
 		{"qty_milli=500, price=1 → 1 (half-rounds up)", 1, 500, 1, false},
@@ -119,10 +119,10 @@ func TestLineTotal(t *testing.T) {
 		{"qty_milli=1000, price=100 → 100", 100, 1000, 100, false},
 		{"qty_milli=3000, price=100 → 300", 100, 3000, 300, false},
 
-		// Overflow cases
+		// Overflow cases — values chosen so p*q actually overflows int64
 		{"overflow int64", Cents(math.MaxInt64), 100, 0, true},
-		{"large price * large qty", Cents(9999999), 9999999, 0, true},
-		{"max price", 932372036854775, 100, 0, true}, // triggers the (p*q+500)/1000 overflow
+		{"overflow: qty nearly maxint", Cents(100), math.MaxInt64/100 + 1, 0, true},
+		{"overflow: price*2 > maxint", Cents(math.MaxInt64/2 + 1), 2, 0, true},
 		{"negative price", -1, 100, 0, true},
 		{"zero qty", 100, 0, 0, true},
 		{"negative qty", 100, -1, 0, true},
@@ -196,13 +196,30 @@ func TestLineTotalFromGoldenFile(t *testing.T) {
 	for _, v := range vectors {
 		name := fmt.Sprintf("golden_%s", v.Name)
 		t.Run(name, func(t *testing.T) {
-			// formula: (unit_cents * qty_milli + 500) / 1000
-			got, err := LineTotal(Cents(v.UnitCents), v.QtyMilli)
-			if err != nil {
-				t.Fatalf("unexpected error: %v", err)
+			var got Cents
+			if v.DiscountCts == 0 {
+				c, err := LineTotal(Cents(v.UnitCents), v.QtyMilli)
+				if err != nil {
+					t.Fatalf("unexpected error: %v", err)
+				}
+				got = c
+			} else {
+				qty := fmt.Sprintf("%d.%03d", v.QtyMilli/1000, v.QtyMilli%1000)
+				unit := FormatMoney(Cents(v.UnitCents))
+				disc := FormatMoney(Cents(v.DiscountCts))
+				line := SaleLine{
+					Quantity:  qty,
+					UnitPrice: Money{Amount: unit, Currency: "EUR"},
+					Discount:  &Money{Amount: disc, Currency: "EUR"},
+				}
+				c, err := discountedLineTotalCents(line)
+				if err != nil {
+					t.Fatalf("discountedLineTotalCents error: %v", err)
+				}
+				got = Cents(c)
 			}
-			want := int64(v.Expect)
-			if got != Cents(want) {
+			want := Cents(v.Expect)
+			if got != want {
 				t.Errorf("LineTotal(%d, %d) = %d, want %d", v.UnitCents, v.QtyMilli, got, want)
 			}
 		})

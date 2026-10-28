@@ -1,0 +1,40 @@
+{
+  "profiles": [
+    {
+      "id": "BC50",
+      "name": "BlueCash BC-50",
+      "disabled_operator": true,
+      "read_only_auditor": true,
+      "audit_events": ["catalog_view", "storno", "cancel"],
+      "unsupported": ["e_receipt", "operator_login", "operator_logout"],
+      "unsupported_reason": "BC-50 uses external terminal for card payments; operator login/logout not applicable; e-receipt disabled by regulation"
+    },
+    {
+      "id": "DATECS_S3",
+      "name": "Datecs FP via S3",
+      "disabled_operator": false,
+      "read_only_auditor": true,
+      "audit_events": ["login", "logout", "catalog_view", "storno", "cancel"],
+      "unsupported": ["e_receipt"],
+      "unsupported_reason": "E-receipt disabled by regulation for Datecs S3 profile"
+    },
+    {
+      "id": "DAISY_USB",
+      "name": "Daisy Compact via USB",
+      "disabled_operator": false,
+      "read_only_auditor": true,
+      "audit_events": ["login", "logout", "catalog_view", "storno", "cancel"],
+      "unsupported": ["e_receipt", "card_payment", "split_payment"],
+      "unsupported_reason": "Daisy Compact does not support CARD/split payments; e-receipt disabled by regulation"
+    },
+    {
+      "id": "SMART_S",
+      "name": "Smart S Android HTTP",
+      "disabled_operator": false,
+      "read_only_auditor": true,
+      "audit_events": ["catalog_view", "storno", "cancel"],
+      "unsupported": ["e_receipt", "fiscal_number_prod"],
+      "unsupported_reason": "Smart S in PROD returns UNKNOWN (no fiscal number); e-receipt disabled by regulation; fiscal number only in LAB mode"
+    }
+  ]
+}

@@ -110,6 +110,46 @@ func TestMiddlewareRejectsMissingScope(t *testing.T) {
 	}
 }
 
+func TestHMACTokenCannotCarryAdminRoleInProd(t *testing.T) {
+	now := time.Unix(1000, 0)
+	cfg := &ParseTokenConfig{DenyAdminRoles: true}
+	forbidden := []string{
+		`["ADMIN"]`,
+		`["PLATFORM_DEVICE_ADMIN"]`,
+		`["PLATFORM_SECURITY_ADMIN"]`,
+		`["PLATFORM_INTEGRATION_ADMIN"]`,
+		`["PLATFORM_DEVICE_VIEWER"]`,
+	}
+	for _, rolesJSON := range forbidden {
+		raw := token(`{"sub":"u1","tenant_id":"t1","roles":`+rolesJSON+`,"scope":"fiscal.base","exp":2000}`, "secret")
+		if _, err := Parse(raw, []byte("secret"), now, cfg); err == nil {
+			t.Fatalf("role %s accepted with DenyAdminRoles; want HMAC_ADMIN_FORBIDDEN", rolesJSON)
+		}
+	}
+	allowed := []string{`["CASHIER"]`, `["SUPERVISOR"]`, `["SERVICE"]`, `["AUDITOR"]`}
+	for _, rolesJSON := range allowed {
+		raw := token(`{"sub":"u1","tenant_id":"t1","roles":`+rolesJSON+`,"scope":"fiscal.base","exp":2000}`, "secret")
+		if _, err := Parse(raw, []byte("secret"), now, cfg); err != nil {
+			t.Fatalf("role %s rejected with DenyAdminRoles; want acceptance: %v", rolesJSON, err)
+		}
+	}
+}
+
+func TestTokenWithTTLOverLimitRejected(t *testing.T) {
+	now := time.Unix(1000, 0)
+	cfg := &ParseTokenConfig{MaxTTL: 24 * time.Hour}
+	// 25-hour lifetime: nbf=1000, exp=1000+25*3600=91000
+	raw25h := token(`{"sub":"u1","tenant_id":"t1","roles":["CASHIER"],"scope":"fiscal.base","nbf":1000,"exp":91000}`, "secret")
+	if _, err := Parse(raw25h, []byte("secret"), now, cfg); err == nil {
+		t.Fatal("25h token accepted; want rejection")
+	}
+	// 23-hour lifetime: nbf=1000, exp=1000+23*3600=83800
+	raw23h := token(`{"sub":"u1","tenant_id":"t1","roles":["CASHIER"],"scope":"fiscal.base","nbf":1000,"exp":83800}`, "secret")
+	if _, err := Parse(raw23h, []byte("secret"), now, cfg); err != nil {
+		t.Fatalf("23h token rejected; want acceptance: %v", err)
+	}
+}
+
 func TestMiddlewareRequiresExplicitBearerScheme(t *testing.T) {
 	next := http.HandlerFunc(func(w http.ResponseWriter, _ *http.Request) { w.WriteHeader(http.StatusNoContent) })
 	raw := token(`{"sub":"u1","tenant_id":"t1","roles":["CASHIER"],"scope":"fiscal.base","exp":4102444800}`, "secret")

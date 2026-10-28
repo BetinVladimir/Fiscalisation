@@ -488,7 +488,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/operations/{operation_id}:reconcile": {
+    "/operations/{operation_id}/reconcile": {
         parameters: {
             query?: never;
             header?: never;

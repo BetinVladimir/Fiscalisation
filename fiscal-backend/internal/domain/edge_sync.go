@@ -349,6 +349,9 @@ func (s *Service) materializeEdgeResult(p EdgePendingCommand, event DeviceEventE
 	}
 	ref := stringAny(event.Payload, "fiscal_reference", "FiscalReference")
 	op := Operation{ID: p.OperationID, TenantID: p.TenantID, RegisterID: p.RegisterID, Type: p.CommandType, State: state, Version: event.JournalSeq, FiscalReference: ref, Simulated: false, AllowedActions: []string{}, CreatedAt: p.AcceptedAt, UpdatedAt: finishedAt}
+	if state == "FISCALIZED" || state == "REVERSED" {
+		op.FiscalDocumentAt = finishedAt
+	}
 	if strings.HasPrefix(p.CommandType, "FISCAL_SALE_") && p.CommandType != "FISCAL_SALE_PAYMENT" && p.CommandType != "FISCAL_SALE_REVERSAL" {
 		return s.materializeOfflineSaleIntent(p, event, op, finishedAt, materialized)
 	}

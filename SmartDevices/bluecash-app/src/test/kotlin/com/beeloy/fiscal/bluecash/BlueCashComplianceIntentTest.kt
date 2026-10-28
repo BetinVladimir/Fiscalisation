@@ -2,6 +2,7 @@ package com.beeloy.fiscal.bluecash
 
 import org.junit.Assert.*
 import org.junit.Test
+import java.security.MessageDigest
 
 class BlueCashComplianceIntentTest {
   private fun intent(
@@ -182,5 +183,106 @@ class BlueCashComplianceIntentTest {
     )
     assertEquals("FISCALIZED", executor.execute(aggregate)["state"])
     assertEquals(1, card.calls)
+  }
+  @Test
+  fun `aggregate replay after crash returns FISCAL_RESULT_UNKNOWN`() {
+    // Simulate crash: store.put(sale) ran, processor.sale() never completed.
+    // Replay must return FISCAL_RESULT_UNKNOWN, not throw SALE_ALREADY_EXISTS.
+    val fiscal = Fiscal()
+    val card = Card()
+    val journal = SignedMemoryJournal(Signer())
+    val store = MemoryBleLocalSaleStore()
+    var unpAllocations = 0
+    val allocator = object : BleUnpAllocator {
+      override fun next(operatorCode: String): String {
+        unpAllocations++
+        return "DY000600-A001-0000001"
+      }
+    }
+    val processor = BlueCashCommandProcessor(fiscal, card, journal)
+    val executor = BlueCashComplianceIntentExecutor(store, allocator, processor, 1, "1", 24)
+
+    // Build the SALE_FINALIZE intent (must be a LinkedHashMap for deterministic CBOR encoding)
+    val aggregate = linkedMapOf<String, Any?>(
+      "intent_id" to "fin-1",
+      "action" to "SALE_FINALIZE",
+      "client_sale_surrogate_id" to "sale-crash",
+      "operator_code" to "A001",
+      "app_instance_id" to "app-1",
+      "expected_version" to 0,
+      "items" to listOf(line + mapOf("line_id" to "line-1")),
+      "payments" to listOf(mapOf("payment_id" to "p1", "type" to "CARD", "amount" to "2.65"))
+    )
+
+    // Compute the hash the same way execute() does
+    val hash = MessageDigest.getInstance("SHA-256")
+      .digest(BlueCashCanonicalCbor.encode(aggregate))
+      .joinToString("") { "%02x".format(it) }
+
+    // Pre-seed crash state: sale created, intent recorded with null result, UNP assigned
+    store.put(
+      BleLocalSale(
+        surrogateId = "sale-crash",
+        version = 1,
+        state = "PAYMENT_PENDING",
+        lines = listOf(BleLocalLine("line-1", FiscalLine("Coffee", 'B', "2.65", "1.000"))),
+        processed = mapOf("fin-1" to BleIntentRecord(hash, null)),
+        unp = "DY000600-A001-0000001",
+        payments = listOf(SalePayment("p1", "CARD", "2.65")),
+        fiscalOperationId = "fin-1"
+      )
+    )
+
+    // Pre-seed journal with only EXECUTING (no ACCEPTED) — simulates crash after execution
+    // began but before completion; processor sees EXECUTING → no terminal → returns UNKNOWN.
+    journal.append("fin-1", "EXECUTING", "state=EXECUTING")
+
+    // Replay: should return FISCAL_RESULT_UNKNOWN, not throw
+    val result = executor.execute(aggregate)
+    assertEquals("FISCAL_RESULT_UNKNOWN", result["state"])
+
+    // UNP allocator must NOT be called again on replay
+    assertEquals(0, unpAllocations)
+  }
+  @Test
+  fun `aggregate second call with different surrogate throws SALE_ALREADY_EXISTS`() {
+    // Verify the normal guard: a new intent_id against an existing completed sale throws.
+    val executor =
+      BlueCashComplianceIntentExecutor(
+        MemoryBleLocalSaleStore(),
+        RangeBleUnpAllocator("DY000600", 1, 10),
+        BlueCashCommandProcessor(Fiscal(), Card(), SignedMemoryJournal(Signer())),
+        1,
+        "1",
+        24
+      )
+    executor.execute(
+      linkedMapOf<String, Any?>(
+        "intent_id" to "fin-a",
+        "action" to "SALE_FINALIZE",
+        "client_sale_surrogate_id" to "sale-x",
+        "operator_code" to "A001",
+        "app_instance_id" to "app-1",
+        "expected_version" to 0,
+        "items" to listOf(line + mapOf("line_id" to "line-1")),
+        "payments" to listOf(mapOf("payment_id" to "p1", "type" to "CARD", "amount" to "2.65"))
+      )
+    )
+    // A different intent_id on the same surrogate must throw SALE_ALREADY_EXISTS
+    val ex = assertThrows(IllegalArgumentException::class.java) {
+      executor.execute(
+        linkedMapOf<String, Any?>(
+          "intent_id" to "fin-b",
+          "action" to "SALE_FINALIZE",
+          "client_sale_surrogate_id" to "sale-x",
+          "operator_code" to "A001",
+          "app_instance_id" to "app-1",
+          "expected_version" to 0,
+          "items" to listOf(line + mapOf("line_id" to "line-1")),
+          "payments" to listOf(mapOf("payment_id" to "p1", "type" to "CARD", "amount" to "2.65"))
+        )
+      )
+    }
+    assertTrue(ex.message?.contains("SALE_ALREADY_EXISTS") == true)
   }
 }

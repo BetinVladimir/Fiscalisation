@@ -1,0 +1,7 @@
+{
+  "tasks": [
+    {"id": "BAD-01", "title": "Task 1"},
+    {"id": "BAD-02", "title": "Task 2"},
+    {"id": "BAD-03", "title": "Task 3"}
+  ]
+}

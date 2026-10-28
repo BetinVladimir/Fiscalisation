@@ -98,6 +98,7 @@ type ParseTokenConfig struct {
 	ExpectedIssuer string
 	ExpectedAud    string
 	MaxTTL         time.Duration // maximum allowed token lifetime (exp-nbf)
+	DenyAdminRoles bool          // BUG-011: HMAC tokens in prod must not carry ADMIN/PLATFORM_* roles
 }
 
 func hasScope(c Claims, required string) bool {
@@ -232,6 +233,12 @@ func validateClaims(c Claims, now time.Time, cfg *ParseTokenConfig) error {
 	// Not-before check: if set, token must not be used before nbf.
 	if cfg != nil && c.NotBefore > 0 && now.Unix() < c.NotBefore {
 		return errors.New("token not yet valid")
+	}
+	// BUG-011: HMAC tokens in production must not carry ADMIN or PLATFORM_* roles.
+	if cfg != nil && cfg.DenyAdminRoles {
+		if hasAny(c, "ADMIN", "PLATFORM_DEVICE_VIEWER", "PLATFORM_DEVICE_ADMIN", "PLATFORM_SECURITY_ADMIN", "PLATFORM_INTEGRATION_ADMIN") {
+			return errors.New("HMAC_ADMIN_FORBIDDEN")
+		}
 	}
 	// Max TTL: enforce maximum token lifetime (exp - nbf).
 	if cfg != nil && cfg.MaxTTL > 0 && c.NotBefore > 0 {

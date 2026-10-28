@@ -137,6 +137,7 @@ type Operation struct {
 	ReasonCode              string    `json:"reason_code,omitempty"`
 	OriginalDocumentNumber  int64     `json:"original_document_number,omitempty"`
 	OriginalDocumentAt      time.Time `json:"original_document_at,omitempty"`
+	FiscalDocumentAt        time.Time `json:"fiscal_document_at,omitempty"`
 	Simulated               bool      `json:"simulated"`
 	ErrorCode               string    `json:"error_code,omitempty"`
 	AllowedActions          []string  `json:"allowed_actions"`
@@ -253,6 +254,7 @@ type DeviceClockSync struct {
 	TrustedTime   time.Time `json:"trusted_time"`
 	DeviceTime    time.Time `json:"device_time"`
 	DriftSeconds  int64     `json:"drift_seconds"`
+	DriftWarn     bool      `json:"drift_warn,omitempty"`
 	SetPerformed  bool      `json:"set_performed"`
 	Verified      bool      `json:"verified"`
 	OccurredAt    time.Time `json:"occurred_at"`

@@ -1,0 +1,52 @@
+{
+  "schema": 1,
+  "description": "Maps legacy ARCH_07 P40-P44 plan groups to current MVP1 task IDs with evidence gates.",
+  "source": "ARCH_07_PLAN70_CRITICAL_REVIEW.md §P40-P44",
+  "groups": [
+    {
+      "id": "P40",
+      "name": "POS contract",
+      "legacy_description": "POS API JSON Schema contract, generated Go/Kotlin/TS types, CI contract validation",
+      "task_ids": ["ARCH-009", "POS-01", "POS-09", "TG-007", "TG-013"],
+      "evidence_gate": "make contract-test exits 0; git diff --exit-code after type generation",
+      "owner": "codex-first",
+      "manual_gate": false
+    },
+    {
+      "id": "P41",
+      "name": "Backend config and readiness",
+      "legacy_description": "fiscal-backend configuration validation, health endpoint, and production readiness",
+      "task_ids": ["BUG-009", "BUG-010", "VG-10", "SCRIPT-01"],
+      "evidence_gate": "go test ./... exits 0; /healthz returns HTTP 200",
+      "owner": "qwen",
+      "manual_gate": false
+    },
+    {
+      "id": "P42",
+      "name": "BlueCash engine",
+      "legacy_description": "BlueCash runtime isolation (no android.*), journal/aggregate reconciliation",
+      "task_ids": ["BUG-023", "ARCH-007", "ARCH-008", "BUG-020", "BUG-021", "BUG-022", "BUG-024", "BUG-025"],
+      "evidence_gate": "./gradlew :bluecash-app:testProdDebugUnitTest exits 0",
+      "owner": "qwen",
+      "manual_gate": false
+    },
+    {
+      "id": "P43",
+      "name": "Rounding golden",
+      "legacy_description": "Integer-cent arithmetic and half-up rounding; golden receipt 1200+167=1367, CASH 500/CARD 867",
+      "task_ids": ["BUG-001", "TST-GO-01", "SCRIPT-20", "STYLE-001"],
+      "evidence_gate": "scripts/check-golden-vectors.sh exits 0",
+      "owner": "qwen",
+      "manual_gate": false
+    },
+    {
+      "id": "P44",
+      "name": "Operations and pilot",
+      "legacy_description": "Delivery pipeline templates, operator runbooks, pilot calibration (PIPE-03)",
+      "task_ids": ["PIPE-01", "PIPE-02", "PIPE-03", "W0-1", "W0-2", "W0-3"],
+      "evidence_gate": "docs/MVP1/pipeline/ has all 4 template files; mvp1-baseline.sh --fixture exits 0",
+      "owner": "human",
+      "manual_gate": true
+    }
+  ]
+}

@@ -1,0 +1,80 @@
+[
+  {
+    "name": "valid_zero",
+    "currency": "EUR",
+    "amount": "0.00",
+    "want": true
+  },
+  {
+    "name": "valid_price",
+    "currency": "EUR",
+    "amount": "10.99",
+    "want": true
+  },
+  {
+    "name": "valid_max12",
+    "currency": "EUR",
+    "amount": "123456789012.00",
+    "want": true
+  },
+  {
+    "name": "reject_currency",
+    "currency": "USD",
+    "amount": "10.99",
+    "want": false
+  },
+  {
+    "name": "reject_minus",
+    "currency": "EUR",
+    "amount": "-1.00",
+    "want": false
+  },
+  {
+    "name": "reject_plus",
+    "currency": "EUR",
+    "amount": "+1.00",
+    "want": false
+  },
+  {
+    "name": "reject_fraction1",
+    "currency": "EUR",
+    "amount": "1.0",
+    "want": false
+  },
+  {
+    "name": "reject_comma",
+    "currency": "EUR",
+    "amount": "1,00",
+    "want": false
+  },
+  {
+    "name": "reject_fraction3",
+    "currency": "EUR",
+    "amount": "1.005",
+    "want": false
+  },
+  {
+    "name": "reject_unicode",
+    "currency": "EUR",
+    "amount": "１.００",
+    "want": false
+  },
+  {
+    "name": "reject_max13",
+    "currency": "EUR",
+    "amount": "1234567890123.00",
+    "want": false
+  },
+  {
+    "name": "reject_fraction_sign",
+    "currency": "EUR",
+    "amount": "1.+1",
+    "want": false
+  },
+  {
+    "name": "reject_space",
+    "currency": "EUR",
+    "amount": " 1.00",
+    "want": false
+  }
+]

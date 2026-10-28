@@ -166,7 +166,9 @@ func TestCompositeBindingPublishesBFPEBeforeAdapterApplyAck(t *testing.T) {
 			t.Fatal("runtime MQTT URI mismatch")
 		}
 		authority := payload["operational_authority"].(map[string]any)
-		if authority["unp_prefix"] != "DT000001" || authority["unp_range_start"] != float64(1) || authority["unp_range_end"] != float64(1000) { t.Fatalf("board/caller authority leaked: %#v", authority) }
+		if authority["unp_prefix"] != "DT000001" || authority["unp_range_start"] != float64(1) || authority["unp_range_end"] != float64(1000) {
+			t.Fatalf("board/caller authority leaked: %#v", authority)
+		}
 		fiscal := payload["fiscal_endpoint"].(map[string]any)
 		if fiscal["fiscal_device_number"] != "DT000001" || fiscal["fiscal_memory_number"] != "12345678" || fiscal["execution"] == nil {
 			t.Fatal("missing signed execution identity")

@@ -126,8 +126,8 @@ func TestLoadDefaultsAreSafe(t *testing.T) {
 	// With no environment variables set, defaults must be safe.
 	// We test by constructing Config directly (Load() reads os.Getenv).
 	cfg := Config{
-		AppEnv:             "dev",
-		AllowStubAdapters:  true, // default "false" in Load()
+		AppEnv:                         "dev",
+		AllowStubAdapters:              true, // default "false" in Load()
 		SimulatorCardTerminalAvailable: false,
 	}
 	if cfg.AllowStubAdapters {
@@ -139,11 +139,22 @@ func TestLoadDefaultsAreSafe(t *testing.T) {
 
 func TestEMQXPlusStubAdaptersRejected(t *testing.T) {
 	cfg := Config{
-		AppEnv:          "dev",
-		EMQXBroker:      "tcp://emqx:1883",
+		AppEnv:            "dev",
+		EMQXBroker:        "tcp://emqx:1883",
 		AllowStubAdapters: true,
 	}
 	if err := cfg.Validate(); err == nil {
 		t.Fatal("EMQX broker + stub adapters accepted")
+	}
+}
+
+// TestProdRejectsStubs is the canonical gate: AllowStubAdapters must not pass
+// Validate() in prod. Acceptance test test_tst_nap_02_1.py runs this by name.
+func TestProdRejectsStubs(t *testing.T) {
+	cfg := Config{AppEnv: "prod", PublicBaseURL: "https://fiscal.example/public/v1", CORSAllowedOrigins: "https://admin.example,https://pos.example", DatabaseURL: "postgres://writer@db/fiscal", RLSDatabaseURL: "postgres://reader@db/fiscal", AuthHMACKey: strings.Repeat("a", 32), OIDCIssuer: "https://id.example", OIDCAudience: "beefiscal", OIDCJWKSURL: "https://id.example/jwks", BLESigningKey: strings.Repeat("b", 32), RabbitMQURL: "amqps://rabbit.example", SMTPHost: "smtp.example", SMTPUser: "user", SMTPPassword: "secret", SMTPFrom: "noreply@example", SMTPPort: 587, DeviceCACertFile: "/run/secrets/device-ca.crt", DeviceCAKeyFile: "/run/secrets/device-ca.key", DeviceMQTTTLSURI: "ssl://mqtt.example:8883", LocalTokenIssuer: "https://pos.example", LocalTokenSigningKID: "local-2026-01", LocalTokenPublicKeyDERBase64: "configured-key", SPADeploymentDescriptorURL: "https://pos.example/.well-known/beeloy-pos-deployment.json", SPADeploymentSigningKID: "release-2026-01", SPADeploymentPublicKeyDERBase64: "configured-key", IntegrationSecretPepper: strings.Repeat("p", 32), IntegrationEncryptionKeyBase64: "MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY=",
+		AllowStubAdapters: true,
+	}
+	if err := cfg.Validate(); err == nil {
+		t.Fatal("prod config with AllowStubAdapters=true must be rejected by Validate()")
 	}
 }

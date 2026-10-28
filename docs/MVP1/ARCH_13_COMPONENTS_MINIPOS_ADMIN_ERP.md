@@ -374,13 +374,53 @@
 - **DoD:** CDOD; тесты красные до правки и зелёные после; `git diff --stat` не затрагивает файлы вне списка подзадач.
 
 ## 5. Непрочитанное → задачи на дочитывание (статически)
-| Задача | Что прочитать | Что искать |
-|---|---|---|
-| SCOPE-02 | `minipos/beeminipos-backend/internal/domain/service.go` (оставшиеся ~2 000 строк), `persistence/postgres.go` | переходы состояний заказа, идемпотентность, UNKNOWN→COMPLETED/REVERSED, денежная арифметика (округление D-4) |
-| SCOPE-03 | `minipos/BeeMiniPOS/App.tsx`, `src/offline*` | очередь оффлайн-заказов, повторная отправка, ключи идемпотентности (см. AA-02), хранение токенов (SecureStore vs AsyncStorage: 5 файлов с AsyncStorage) |
-| SCOPE-04 | `POS/erp-connector/internal/applier/pg.go`, `cmd/erp/main.go` | порядок ревизий (`revision`), потеря обновлений, ack/nack политика |
-| SCOPE-05 | `BeeloyBackend/public-api-core/internal/handlers/routing/fiscal_orchestration.go`, `fiscal_admin_facade.go` | валидация входа, авторизация tenant, идемпотентность фискальных команд |
-| SCOPE-06 | `BeeFiscalApp/App.tsx` (1 216 стр.), `src/screens/*` | дублирование ключей идемпотентности, обработка 409/UNKNOWN в UI |
+| Задача | Что прочитать | Что искать | Статус |
+|---|---|---|---|
+| SCOPE-02 | `minipos/beeminipos-backend/internal/domain/service.go` (оставшиеся ~2 000 строк), `persistence/postgres.go` | переходы состояний заказа, идемпотентность, UNKNOWN→COMPLETED/REVERSED, денежная арифметика (округление D-4) | DONE → MP-08 |
+| SCOPE-03 | `minipos/BeeMiniPOS/App.tsx`, `src/offline*` | очередь оффлайн-заказов, повторная отправка, ключи идемпотентности (см. AA-02), хранение токенов (SecureStore vs AsyncStorage: 5 файлов с AsyncStorage) | DONE → BF-03 |
+| SCOPE-04 | `POS/erp-connector/internal/applier/pg.go`, `cmd/erp/main.go` | порядок ревизий (`revision`), потеря обновлений, ack/nack политика | DONE → EC-08 |
+| SCOPE-05 | `BeeloyBackend/public-api-core/internal/handlers/routing/fiscal_orchestration.go`, `fiscal_admin_facade.go` | валидация входа, авторизация tenant, идемпотентность фискальных команд | DONE → PA-04 |
+| SCOPE-06 | `BeeFiscalApp/App.tsx` (1 216 стр.), `src/screens/*` | дублирование ключей идемпотентности, обработка 409/UNKNOWN в UI | DONE → BF-04 |
 
 Каждая SCOPE-задача завершается дополнением к этому документу (новые карточки в том же формате) и командой `rg -c "^### " docs/MVP1/ARCH_13_*.md` — число карточек не меньше прежнего + найденного.
+
+## 6. Дочитанные карточки (SCOPE-02..06)
+
+### MP-08 · P2 · minipos/beeminipos-backend (SCOPE-02)
+- **Место:** `minipos/beeminipos-backend/internal/domain/service.go:771-775` (`normalizeTaxRate`)
+- **Проблема:** `normalizeTaxRate` использует `strconv.ParseFloat` для нормализации процентной ставки НДС, затем `strconv.FormatFloat` с форматом `'f', 2, 64`. Ставки вида 5.5 могут пройти через binary float64 и вернуться как «5.50», но ставки с тремя знаками (8.500, которая в Bulgarian VATEX = 8,5%) могут получить ошибку точности. Нарушение инварианта 1 для данных ФУ: ставка — не денежная сумма, но хранится и сравнивается как строка, поэтому float-путь рискует несоответствием при последующей строковой сверке с ФУ.
+- **Исправление:** Принимать строку «8.50» / «20.00» как-есть (regex `^[0-9]{1,3}\.[0-9]{2}$`), не преобразовывать через float.
+- **Тесты (логика проверки):**
+  - TestNormalizeTaxRateNoFloatRoundTrip: Given "8.50" → normalizeTaxRate → "8.50" (не "8.499999" и не "8.5").
+  - TestNormalizeTaxRateRejectsNonNumeric: Given "abc" → error.
+
+### BF-03 · P1 · minipos/BeeMiniPOS (SCOPE-03)
+- **Место:** `minipos/BeeMiniPOS/App.tsx:400-402` (`NativeExecutionAuthority`, `NativeExecutionManager`)
+- **Проблема:** `NativeExecutionManager` и `NativeExecutionAuthority` передаётся `AsyncStorage` для персистенции состояния фискальных исполнений. `AsyncStorage` не шифрован; на устройстве с root/jailbreak его содержимое доступно сторонним процессам. Состояние транзакции (ключи идемпотентности, результаты выполнения) хранится без дополнительного шифрования. Для фискально-критичных данных требуется `expo-secure-store` (KeyChain/Keystore-backed).
+- **Исправление:** Переписать `NativeExecutionAuthority` (или добавить адаптер) на `SecureStore.getItemAsync`/`setItemAsync` для ключей и критичных состояний исполнения; оставить `AsyncStorage` только для UI-состояния.
+- **Тесты (логика проверки):**
+  - TestExecutionAuthorityUsesSecureStorage: мок `AsyncStorage` не вызывается при чтении/записи ключей исполнения; мок `SecureStore` вызывается.
+
+### EC-08 · P2 · POS/erp-connector (SCOPE-04)
+- **Место:** `POS/erp-connector/internal/applier/pg.go:25` (`Apply`), `pg.go:28` (`ApplyMessage`)
+- **Проблема:** `Apply(ctx, tenant, entity, id, revision, payload)` делегирует в `ApplyMessage` с `messageID=""`, отключая inbox-дедупликацию (ветка `if messageID != ""`). При повторной доставке события без `messageID` одно и то же событие может быть применено дважды, если ревизия и данные те же (UPDATE при одинаковом `source_revision` — WHERE не выполнится, RowsAffected=0, но switch-ветка для employee/customer/loyalty выполнится снова). Аудит-trail и downstream triggers могут получить дублирующие вызовы.
+- **Исправление:** Все вызовы из consumer-кода должны передавать `messageID`; либо добавить отдельную дедупликацию по `(tenant, entity, id, revision)` в `Apply`.
+- **Тесты (логика проверки):**
+  - TestApplyWithoutMessageIDDeduplicated: вызов `Apply` дважды с одинаковыми аргументами не должен вызывать `applyEmployee` дважды.
+
+### PA-04 · P1 · BeeloyBackend/public-api-core (SCOPE-05)
+- **Место:** `BeeloyBackend/public-api-core/internal/handlers/routing/fiscal_orchestration.go:154-187` (`retryCanonicalOperation`)
+- **Проблема:** Ретрай генерирует `messageID = uuid.New()` — новый UUID для каждого ретрая. Outbox-event вставляется с новым `messageID`, а downstream-потребитель дедуплицирует по `messageID`, а не по `operationId`. Если два ретрая достигнут downstream, операция будет обработана дважды. Кроме того, UPDATE статуса на ACCEPTED и INSERT в outbox выполняются в разных транзакциях: при падении между ними операция перейдёт в ACCEPTED без события в очереди (потеряна).
+- **Исправление:** (1) Выполнять UPDATE + outbox INSERT в одной транзакции. (2) Использовать детерминированный `messageID = uuid.NewSHA1(namespace, []byte(operationId.String()+"retry:"+retryCount))` или хранить `messageID` ретрая в `company_fiscal_operations`.
+- **Тесты (логика проверки):**
+  - TestRetryOperationIsAtomic: если outbox INSERT падает, статус остаётся FAILED (не ACCEPTED).
+  - TestRetryMessageIDIsDeterministic: два ретрая одной операции не создают два сообщения с разными messageID в outbox.
+
+### BF-04 · P2 · BeeFiscalApp (SCOPE-06)
+- **Место:** `BeeFiscalApp/App.tsx:173` (`bleAppInstance`)
+- **Проблема:** `bleAppInstance` инициализируется как `` `beefiscal-admin-${Date.now()}` `` через `useState`. При каждом hot-reload или пересоздании компонента в dev-сборке генерируется новый `appInstance`, что может аннулировать уже выданные авторизации исполнения, привязанные к старому `appInstance`. В production React Native компонент пересоздаётся при deep-link navigation или Activity recreate. Параметр `appInstance` передаётся как часть запроса авторизации в `NativeExecutionManager`; смена `appInstance` при активной смене будет означать отказ на шаге проверки `app_instance_id`.
+- **Исправление:** Хранить `appInstanceId` в `SecureStore` (генерировать один раз при первом запуске, сохранять навсегда); не использовать `Date.now()` как часть идентификатора.
+- **Тесты (логика проверки):**
+  - TestBleAppInstancePersistsAcrossRemount: при двух монтированиях компонента `bleAppInstance` одинаков (из постоянного хранилища).
+  - TestBleAppInstanceNotDateBased: `bleAppInstance` не содержит временной метки.
 

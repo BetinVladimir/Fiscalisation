@@ -32,7 +32,7 @@ struct State {
  Phase phase{Phase::Stopped};PaymentEndpointBinding config;uint32_t epoch{},serial{},write_id{},completed_id{};
  uint16_t connection{BLE_HS_CONN_HANDLE_NONE},service_start{},service_end{},read_cccd{},power_cccd{};
  Characteristic tx,rx,power,wake;std::vector<uint16_t> definitions;
- bool configured{},host_synced{},active{},fault{},quarantined{},wake_required{},write_pending{};
+ bool configured{},host_synced{},active{},fault{},quarantined{},wake_required{},write_pending{},reverse_pending{};
  int write_status{};int64_t settle_until{},setup_until{},last_byte{};
  std::vector<uint8_t> receive;std::deque<Frame> frames;
 } s;
@@ -178,6 +178,7 @@ bool integer(const Tags&t,uint32_t tag,uint32_t&out){auto i=t.find(tag);if(i==t.
 bool stan(const Tags&t,std::string&out){auto i=t.find(0x9f41);if(i==t.end()||i->second.size()!=4)return false;out.clear();for(auto b:i->second){if((b>>4)>9||(b&15)>9)return false;out+=char('0'+(b>>4));out+=char('0'+(b&15));}return out!="00000000";}
 bool text(const Tags&t,uint32_t tag,std::string&out){auto i=t.find(tag);if(i==t.end()||i->second.empty()||i->second.size()>64)return false;for(auto b:i->second)if(b<32||b>126)return false;out.assign(i->second.begin(),i->second.end());return true;}
 PaymentOutcome purchase(const std::string&id,int64_t amount){
+ {std::lock_guard<std::mutex>lock(state_mutex);if(s.reverse_pending)return {PaymentCertainty::NotSent,"","","","NEW_PURCHASE_BLOCKED"};}
  std::unique_lock<std::mutex>single(operation_mutex,std::try_to_lock);if(!single.owns_lock())return {PaymentCertainty::NotSent,"","","","BLUEPAD_BUSY"};
  if(id.empty()||id.size()>64||amount<=0||uint64_t(amount)>UINT32_MAX||std::any_of(id.begin(),id.end(),[](unsigned char c){return c<32||c>126;}))return {PaymentCertainty::NotSent,"","","","BLUEPAD_ARGUMENT"};
  uint32_t epoch;{std::lock_guard<std::mutex>lock(state_mutex);if(!ready_locked())return {PaymentCertainty::NotSent,"","","","BLUEPAD_UNAVAILABLE"};epoch=s.epoch;s.active=true;s.receive.clear();s.frames.clear();s.last_byte=0;while(xSemaphoreTake(frame_sem,0)==pdTRUE){}}
@@ -221,6 +222,30 @@ void bluepad_ble_on_host_reset(){std::lock_guard<std::recursive_mutex> submissio
 void bluepad_ble_on_host_sync(){std::lock_guard<std::recursive_mutex> submission(submission_mutex);uint8_t address;if(ble_hs_id_infer_auto(0,&address))return;{std::lock_guard<std::mutex>lock(state_mutex);if(!s.configured||s.host_synced)return;s.host_synced=true;own_addr_type=address;}scan();}
 bool bluepad_ble_ready(){std::lock_guard<std::mutex>lock(state_mutex);if(s.connection!=BLE_HS_CONN_HANDLE_NONE&&s.phase!=Phase::Ready&&s.phase!=Phase::Failed&&esp_timer_get_time()>s.setup_until)fault_locked();return ready_locked();}
 PaymentOutcome bluepad_ble_purchase(const std::string&id,int64_t amount){return purchase(id,amount);}
-PaymentOutcome bluepad_ble_lookup(const std::string&){return {PaymentCertainty::NotSent,"","","","BLUEPAD_QUERY_PROFILE_UNVERIFIED"};}
+PaymentOutcome bluepad_ble_lookup(const std::string&id){
+ if(id.empty()||id.size()>64)return {PaymentCertainty::NotSent,"","","","BLUEPAD_ARGUMENT"};
+ std::unique_lock<std::mutex>single(operation_mutex,std::try_to_lock);if(!single.owns_lock())return {PaymentCertainty::NotSent,"","","","BLUEPAD_BUSY"};
+ {std::lock_guard<std::mutex>lock(state_mutex);
+  if(!s.configured)return {PaymentCertainty::NotSent,"","","","BLUEPAD_UNAVAILABLE"};
+  if(!s.quarantined)return {PaymentCertainty::NotSent,"","","","BLUEPAD_QUERY_NOT_APPLICABLE"};
+  s.quarantined=false;s.fault=false;if(s.phase==Phase::Failed)s.phase=Phase::Configured;}
+ scan();
+ const int64_t deadline=esp_timer_get_time()+kTransactionUs;
+ for(;;){bool ready;{std::lock_guard<std::mutex>lock(state_mutex);ready=ready_locked();if(!ready&&esp_timer_get_time()>=deadline)return {PaymentCertainty::NotSent,"","","","BLUEPAD_UNAVAILABLE"};}if(ready)break;xSemaphoreTake(frame_sem,pdMS_TO_TICKS(100));}
+ uint32_t epoch;{std::lock_guard<std::mutex>lock(state_mutex);epoch=s.epoch;s.active=true;s.receive.clear();s.frames.clear();s.last_byte=0;while(xSemaphoreTake(frame_sem,0)==pdTRUE){}}
+ auto finish=[&](PaymentOutcome r,bool q){std::lock_guard<std::mutex>lock(state_mutex);s.active=false;s.receive.clear();s.frames.clear();if(q)fault_locked();return r;};
+ Frame ack;
+ if(send_frame(packet({0x1a}),epoch)!=Send::Sent||!response(ack,epoch))return finish({PaymentCertainty::Unknown,"","","","BLUEPAD_STATUS_UNAVAILABLE"},true);
+ if(ack.data.empty())return finish({PaymentCertainty::Unknown,"","","","BLUEPAD_STATUS_EMPTY"},true);
+ const uint8_t flag=ack.data[0];
+ if(flag!=0){std::lock_guard<std::mutex>lock(state_mutex);s.reverse_pending=true;s.active=false;s.receive.clear();s.frames.clear();fault_locked();return {PaymentCertainty::Unknown,"","","",flag==1?"BLUEPAD_REVERSE_REQUIRED":"BLUEPAD_HANG_PENDING"};}
+ std::vector<uint8_t>qcmd{0x24};tlv(qcmd,0x9f41,std::vector<uint8_t>(id.begin(),id.end()));
+ if(send_frame(packet(qcmd),epoch)!=Send::Sent||!response(ack,epoch))return finish({PaymentCertainty::Unknown,"","","","BLUEPAD_LOOKUP_UNAVAILABLE"},true);
+ Tags tags;uint32_t df05;std::string rrn,auth;
+ if(!parse_tags(ack.data,tags)||!integer(tags,0xdf05,df05))return finish({PaymentCertainty::Unknown,"","","","BLUEPAD_LOOKUP_INVALID"},true);
+ if(df05!=0)return finish({PaymentCertainty::Declined,id,"","","BLUEPAD_NOT_COMMITTED"},false);
+ if(!text(tags,0xdf07,rrn)||!text(tags,0xdf08,auth))return finish({PaymentCertainty::Unknown,"","","","BLUEPAD_LOOKUP_PROOF_MISSING"},true);
+ return finish({PaymentCertainty::Approved,id,rrn,auth,""},false);
+}
 PaymentOutcome bluepad_ble_reverse(const std::string&,int64_t){return {PaymentCertainty::NotSent,"","","","BLUEPAD_REVERSAL_PROFILE_UNVERIFIED"};}
 } // namespace beefiscal::idf

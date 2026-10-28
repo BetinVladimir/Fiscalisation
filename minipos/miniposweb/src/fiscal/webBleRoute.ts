@@ -134,6 +134,7 @@ export class WebBleRoute implements FiscalRoute {
     return this.submitCommand(intent, signal);
   }
   private owner?: BrowserGattOwner;
+  private lastResultUnknown = false;
   async submitCommand(
     intent: { client_operation_id: string },
     signal: AbortSignal,
@@ -222,6 +223,8 @@ export class WebBleRoute implements FiscalRoute {
       await owner.step(() => event.startNotifications());
       live();
       setupDeadline();
+      const skipSend = this.lastResultUnknown;
+      this.lastResultUnknown = false;
       const send = async () => {
         // 185 is a legacy offer, not evidence of negotiated browser ATT capacity.
         for (const frame of await frames(
@@ -235,9 +238,12 @@ export class WebBleRoute implements FiscalRoute {
           live();
         }
       };
-      const [, value] = await owner.wait(Promise.all([send(), result]));
+      const [, value] = await owner.wait(
+        Promise.all([skipSend ? Promise.resolve() : send(), result]),
+      );
       live();
       deadline();
+      if (value.certainty === "UNKNOWN") this.lastResultUnknown = true;
       return value;
     } catch (error) {
       owner.close(error);

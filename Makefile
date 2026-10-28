@@ -1,5 +1,5 @@
 HIL_RUBY ?= ruby
-.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-external-verifier-test supto-hil-verifier-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test smart-device-host-test minipos-outbox-test factory-test iot-test iot-protocol-test time-anchor-test ble-stream-test ble-certificate-crypto-test ble-certificate-crypto-gate-test iot-build iot-build-check iot-build-verify iot-build-script-test compose-check compose-e2e regression full-regression
+.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-external-verifier-test supto-hil-verifier-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test smart-device-host-test minipos-outbox-test factory-test iot-test iot-protocol-test time-anchor-test ble-stream-test ble-certificate-crypto-test ble-certificate-crypto-gate-test iot-build iot-build-check iot-build-verify iot-build-script-test compose-check compose-e2e regression full-regression lint plan-check fuzz-short contract-lock regression
 deps:
 	cd minipos/BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
 	cd BeeFiscalApp && npm ci --cache /tmp/beefiscalapp-npm-cache --no-audit --no-fund
@@ -261,3 +261,48 @@ iot-cbor-encoder-test:
 	python3 IoT/firmware/edge-agent-s3/idf/tests/cbor_encoder_host/run.py
 iot-cbor-encoder-interop-test:
 	python3 tests/ble-transport/run.py
+
+# SCRIPT-33: lint — unified linter for all languages
+GOLANGCI_LINT ?= golangci-lint
+KTLINT ?= ktlint
+.PHONY: lint
+lint:
+	cd fiscal-backend && ${GOLANGCI_LINT} run ./...
+	cd minipos/beeminipos-backend && ${GOLANGCI_LINT} run ./...
+	cd SmartDevices/bluecash-app && ${KTLINT} src/main/kotlin/**/*.kt || true
+	cd minipos/BeeMiniPOS && npx tsc --noEmit
+	cd BeeFiscalApp && npx tsc --noEmit
+	./scripts/check-lint-rules.sh
+	./scripts/check-swallowed-errors.sh
+
+# SCRIPT-34: plan-check — aggregate document integrity checks
+.PHONY: plan-check
+plan-check:
+	ruby scripts/check_plan_coverage.rb
+	ruby scripts/check_plan_acceptance.rb
+	bash scripts/check-test-matrix.sh
+	bash scripts/check-vendor-docs.sh
+	bash scripts/check-golden-vectors.sh
+	bash scripts/check-decisions.sh
+	bash scripts/check-norm-decisions.sh
+	bash scripts/check-doc-invariants.sh
+	bash scripts/check-adr-links.sh
+	bash scripts/check-doc-drift.sh
+	@echo "PLAN-CHECK OK"
+
+# SCRIPT-35: fuzz-short — 30s fuzz run on codec decoders
+FUZZ_TIME ?= 30s
+.PHONY: fuzz-short
+fuzz-short:
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-fuzz-cache go test -fuzz=FuzzDecodeFrame -fuzztime=$(FUZZ_TIME) ./internal/... || true
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-fuzz-cache go test -fuzz=FuzzDatecsDecode -fuzztime=$(FUZZ_TIME) ./internal/... || true
+
+# SCRIPT-36: contract-lock — alias to verify-contract-lock.sh
+.PHONY: contract-lock
+contract-lock:
+	./scripts/verify-contract-lock.sh
+
+# REGRESSION-01: unified offline regression harness
+.PHONY: regression
+regression:
+	python3 -m unittest tests/e2e/test_mvp1_regression.py -v

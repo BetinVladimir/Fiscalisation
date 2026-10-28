@@ -1,0 +1,15 @@
+{
+  "name": "invalid_signature",
+  "topic": "tenants/tenant-01/devices/device-01/commands",
+  "command_type": "FINALIZE",
+  "operation_id": "op-finalize-004",
+  "payload": {
+    "document_type": "SALE",
+    "total_cents": 100,
+    "payments": []
+  },
+  "signature": "INVALID_SIGNATURE_BYTES",
+  "expires_at": "2026-12-31T23:59:59Z",
+  "expect": "REJECTED",
+  "error_code": "SIGNATURE_INVALID"
+}

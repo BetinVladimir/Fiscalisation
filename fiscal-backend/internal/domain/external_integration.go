@@ -78,7 +78,7 @@ func (s *Service) PrepareExternalResource(tenant, system, method, kind, source s
 	record := ResourceRecord{Kind: kind, TenantID: tenant, ID: id, Version: 1, Data: cloneMap(data), CreatedAt: now, UpdatedAt: now}
 	if current != nil {
 		record.ID = stringField(current, "id")
-		record.CreatedAt, _ = current["created_at"].(time.Time)
+		record.CreatedAt, _ = current["created_at"].(time.Time) // best-effort: zero value used if field absent or wrong type
 		if record.CreatedAt.IsZero() {
 			record.CreatedAt = now
 		}

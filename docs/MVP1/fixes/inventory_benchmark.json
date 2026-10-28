@@ -1,0 +1,33 @@
+{
+  "date": "2026-10-25",
+  "python": "3.11.3 (v3.11.3:f3909b8bc8, Apr  4 2023, 20:12:10) [Clang 13.0.0 (clang-1300.0.29.30)]",
+  "dataset": "isolated BeeloyBackend snapshot",
+  "entries": 186553,
+  "runs_per_version": 1,
+  "cache_definition": "cold/warm refer to in-process content digest cache; OS filesystem cache was not flushed",
+  "scope_sample": "10000 evenly selected existing files outside the tested Fiscalisation scopes",
+  "before": {
+    "inventory_cold_seconds": 63.74229250001372,
+    "inventory_warm_seconds": 18.498436499998206,
+    "entries": 186553,
+    "snapshot_sha256": "36f34b26a9c974429d0c3dc9adbd3bb90bbb35b668e594556284ebc4076969ce",
+    "scope_10000_seconds": 3.5680364160216413,
+    "scope_hits": 0
+  },
+  "after": {
+    "inventory_cold_seconds": 51.85596149999765,
+    "inventory_warm_seconds": 6.694127291004406,
+    "entries": 186553,
+    "snapshot_sha256": "36f34b26a9c974429d0c3dc9adbd3bb90bbb35b668e594556284ebc4076969ce",
+    "scope_10000_seconds": 1.2283617080247495,
+    "scope_hits": 0
+  },
+  "speedup": {
+    "inventory_cold_seconds": 1.2292182163089698,
+    "inventory_warm_seconds": 2.763382842279751,
+    "scope_10000_seconds": 2.904711529765263
+  },
+  "snapshot_equal": true,
+  "regression_tests": 110,
+  "notes": "No persistent cache, excluded files, or reduced hash/metadata coverage introduced. Times cover inventory and scope samples, not full task duration."
+}

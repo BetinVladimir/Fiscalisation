@@ -1,0 +1,12 @@
+{
+  "name": "ack_delivery",
+  "topic": "tenants/tenant-01/devices/device-01/commands/acks",
+  "command_type": "ACK",
+  "operation_id": "op-finalize-001",
+  "payload": {
+    "status": "DELIVERED"
+  },
+  "signature": "valid",
+  "expires_at": "2026-12-31T23:59:59Z",
+  "expect": "ACCEPTED"
+}

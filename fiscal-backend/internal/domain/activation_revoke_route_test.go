@@ -11,8 +11,10 @@ func TestRevokeActivatedAdapterInvalidatesAllDependentRoutes(t *testing.T) {
 	r.activationRequests["activation"] = DeviceActivationRequest{ID: "activation", DeviceInstanceID: "adapter", ClaimedTenantID: "tenant", ClaimedRegisterID: "reg", State: "ACTIVE"}
 	put := func(kind, id, tenant string, data map[string]any) {
 		t.Helper()
-        data["code"] = id
-		if kind == "device" { data["serial"] = id }
+		data["code"] = id
+		if kind == "device" {
+			data["serial"] = id
+		}
 		if err := r.PutResource(ResourceRecord{Kind: kind, ID: id, TenantID: tenant, Version: 1, Data: data}); err != nil {
 			t.Fatal(err)
 		}

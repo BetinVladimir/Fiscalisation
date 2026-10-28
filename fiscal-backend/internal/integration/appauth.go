@@ -8,6 +8,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -40,6 +41,15 @@ type AppVerification struct {
 }
 
 func (s *Service) SetAppSigningKey(key []byte) { s.appSigningKey = append([]byte(nil), key...) }
+func demoAppOTPEnabled() bool {
+	return os.Getenv("ENVIRONMENT") == "demo" && os.Getenv("PRODUCTION") != "true"
+}
+func appOTPCode(numeric string) string {
+	if demoAppOTPEnabled() {
+		return "demo"
+	}
+	return numeric
+}
 func appOTPEmail(language, code string) (string, string) {
 	copy, ok := appOTPCopies[strings.ToLower(strings.TrimSpace(language))]
 	if !ok {
@@ -84,7 +94,7 @@ func (s *Service) StartAppChallenge(ctx context.Context, email, appInstance, ip,
 	if known {
 		status = "PENDING"
 		b, _ := random(4)
-		otp = fmtSix(b)
+		otp = appOTPCode(fmtSix(b))
 		otpHash = s.digest(otp)
 	}
 	tx, e := s.db.BeginTx(ctx, nil)
@@ -142,6 +152,9 @@ func appTenantsQuery(ctx context.Context, q appQuerier, email string) ([]AppTena
 	return out, rows.Err()
 }
 func (s *Service) VerifyAppChallenge(ctx context.Context, temporary, code, appInstance string) (AppVerification, error) {
+	if code == "demo" && !demoAppOTPEnabled() {
+		return AppVerification{}, ErrUnauthorized
+	}
 	id, ok := splitToken(temporary, "app_tmp")
 	if !ok {
 		return AppVerification{}, ErrUnauthorized

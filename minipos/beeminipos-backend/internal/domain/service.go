@@ -1636,6 +1636,9 @@ func (s *Service) AddLineExpected(order string, expected int64, v Line) (Order, 
 	if !validUUID(v.LineID) || v.Name == "" || !validMoney(v.UnitPrice) || !validDiscount(v.Discount) || !validTax(v.TaxGroup) || !validQuantity(v.Quantity) {
 		return o, errors.New("invalid line")
 	}
+	if err := ValidateLine(v.UnitPrice, v.Quantity); err != nil {
+		return o, err
+	}
 	if v.ProductID != "" {
 		p, exists := s.products[v.ProductID]
 		if !exists || p.TenantID != o.TenantID {

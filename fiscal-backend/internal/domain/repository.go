@@ -546,24 +546,6 @@ func (r *MemoryRepository) restoreLocked() {
 	}
 }
 
-func (r *MemoryRepository) resetLocked() {
-	r.sales = map[string]Sale{}
-	r.operations = map[string]Operation{}
-	r.devices = map[string]Device{}
-	r.shifts = map[string]Shift{}
-	r.unp = map[string]int64{}
-	r.replays = map[string]ReplayRecord{}
-	r.outbox = map[string]OutboxItem{}
-	r.bleSessions = map[string]BLESessionRecord{}
-	r.syncAcks = map[string]SyncAck{}
-	r.connectivityProbes = map[string]ConnectivityProbe{}
-	r.resources = map[string]ResourceRecord{}
-	r.artifacts = map[string][]byte{}
-	r.audit = []AuditEvent{}
-	r.edgePending = map[string]EdgePendingCommand{}
-	r.activationChallenges = map[string]DeviceActivationChallenge{}
-	r.activationRequests = map[string]DeviceActivationRequest{}
-}
 func (r *MemoryRepository) Replay(k string) (ReplayRecord, bool) {
 	if err := r.ensurePersistenceReady(); err != nil {
 		return *new(ReplayRecord), *new(bool)
@@ -1916,9 +1898,9 @@ func (r *MemoryRepository) commitResourceArtifactsOperationEvents(resource Resou
 	return r.persistLocked()
 }
 func asMap(v any) map[string]any {
-	b, _ := json.Marshal(v)
+	b, _ := json.Marshal(v) // best-effort: Marshal of map[string]any never fails
 	var out map[string]any
-	_ = json.Unmarshal(b, &out)
+	_ = json.Unmarshal(b, &out) // best-effort: round-trip of already-marshalled value
 	return out
 }
 func (r *MemoryRepository) NextUNP(register, operator, tenant string) (string, error) {
@@ -2070,7 +2052,7 @@ func (r *MemoryRepository) CloseShift(id string) (Shift, error) {
 		}
 		v.State = "RECONCILIATION_REQUIRED"
 		r.shifts[id] = v
-		_ = r.persistLocked()
+		_ = r.persistLocked() // best-effort: error already returned to caller
 		return v, errors.New("unresolved register operation blocks close")
 	}
 	now := time.Now().UTC()
