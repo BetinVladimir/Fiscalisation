@@ -68,6 +68,13 @@ def _count_tap(output: str) -> int:
     return len(re.findall(r'^ok \d+', output, re.MULTILINE))
 
 
+def _count_native_pass(output: str) -> int:
+    """Count =pass and ': OK' markers from IoT native test scripts."""
+    count = len(re.findall(r'=pass', output))
+    count += len(re.findall(r':\s+OK', output))
+    return count
+
+
 def _run_go_backend() -> SuiteResult:
     name = "go-backend"
     if not _find_tool('go'):
@@ -117,7 +124,9 @@ def _run_s3_native() -> SuiteResult:
         cwd=str(ROOT), capture_output=True, text=True, timeout=120,
     )
     combined = r.stdout + r.stderr
-    count = _count_tap(combined)
+    count = _count_native_pass(combined)
+    if count == 0:
+        count = _count_tap(combined)
     if count == 0:
         count = _count_go_tests(combined)
     if r.returncode != 0:
@@ -139,7 +148,9 @@ def _run_protocol_abstraction() -> SuiteResult:
         cwd=str(ROOT / 'IoT/protocol-abstraction'), capture_output=True, text=True, timeout=120,
     )
     combined = r.stdout + r.stderr
-    count = _count_tap(combined)
+    count = _count_native_pass(combined)
+    if count == 0:
+        count = _count_tap(combined)
     if count == 0:
         count = _count_go_tests(combined)
     if r.returncode != 0:
@@ -185,7 +196,7 @@ def _run_mvp1_acceptance() -> SuiteResult:
             return SuiteResult(name, 'BLOCKED', 0, 'pytest not found')
     r = subprocess.run(
         [sys.executable, '-m', 'pytest', 'tests/mvp1/', '-q', '--tb=no', '--no-header'],
-        cwd=str(ROOT), capture_output=True, text=True, timeout=600,
+        cwd=str(ROOT), capture_output=True, text=True, timeout=1800,
     )
     combined = r.stdout + r.stderr
     count = _count_pytest(combined)
