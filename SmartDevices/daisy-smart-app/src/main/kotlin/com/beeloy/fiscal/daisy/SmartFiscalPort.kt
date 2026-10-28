@@ -48,6 +48,26 @@ sealed class DeviceResult {
 }
 
 /**
+ * Result of the mixed-payment sale flow (card + fiscal).
+ * Invariant 3: FiscalPending means card committed but no refund until storno confirmed.
+ * Invariant 2: CardUnknown means card status unknown; no retry, no refund.
+ */
+sealed class SaleFlowResult {
+    /** Both card and fiscal succeeded. */
+    data class Done(val fiscalRef: String?, val rrn: String) : SaleFlowResult()
+    /** Card rejected or not committed; fiscal not attempted (fiscalCalls==0). */
+    data class CardRejected(val reason: String = "") : SaleFlowResult()
+    /**
+     * Card committed, fiscal failed or unknown.
+     * Invariant 3: no automatic refund — operator must confirm storno before any reversal.
+     */
+    data class FiscalPending(val rrn: String) : SaleFlowResult()
+    /** Card status unknown after disconnect/timeout. Invariant 2: no retry, no refund. */
+    data class CardUnknown(val reason: String = "") : SaleFlowResult()
+    data class Error(val code: String) : SaleFlowResult()
+}
+
+/**
  * Smart S fiscal port: builds vendor JSON and delegates to SmartFiscalHttpClient.
  * Invariant 1: integer cents → JSON decimal via SmartMoney.
  * Invariant 6: fiscal reference only from FU response; synthetic numbers forbidden.
@@ -129,6 +149,45 @@ class SmartFiscalPort(
         val slots = payments()
         return slots.firstOrNull { it.payTypeNap == 0 && it.currencyRate == 1 }?.id
             ?: throw IllegalStateException("PAYMENT_TYPE_UNSUPPORTED")
+    }
+
+    /**
+     * SMS-05: Mixed-payment sale — card authorisation then fiscal receipt.
+     * Invariant 3: if card committed and fiscal fails → FiscalPending, no automatic refund.
+     * Invariant 2: if card status unknown → CardUnknown, no fiscal attempt.
+     *
+     * @param plan    receipt plan already containing both CASH and CARD payment slots.
+     * @param cardAmountCents amount to charge via bridge (in integer cents; invariant 1).
+     * @param bridge  injectable PaymentBridge for test isolation.
+     * @param bank    bank identifier passed to bridge.pay().
+     */
+    fun paySale(
+        plan: SmartReceiptPlan,
+        cardAmountCents: Long,
+        bridge: PaymentBridge,
+        bank: String,
+    ): SaleFlowResult {
+        return when (val payResult = bridge.pay(plan.operationId, cardAmountCents, bank)) {
+            PaymentResult.Rejected -> SaleFlowResult.CardRejected("REJECTED")
+            PaymentResult.NotCommitted -> SaleFlowResult.CardRejected("NOT_COMMITTED")
+            PaymentResult.Unknown -> SaleFlowResult.CardUnknown("UNKNOWN")
+            PaymentResult.RefundManualRequired -> SaleFlowResult.CardUnknown("REFUND_MANUAL_REQUIRED")
+            is PaymentResult.Committed -> {
+                // Card committed — now attempt fiscal; must not refund on fiscal failure (invariant 3).
+                when (val fiscalResult = sale(plan)) {
+                    is DeviceResult.Committed ->
+                        SaleFlowResult.Done(fiscalResult.fiscalReference, payResult.rrn)
+                    is DeviceResult.Rejected ->
+                        SaleFlowResult.FiscalPending(payResult.rrn)
+                    DeviceResult.Unknown ->
+                        SaleFlowResult.FiscalPending(payResult.rrn)
+                    DeviceResult.NotSent ->
+                        SaleFlowResult.FiscalPending(payResult.rrn)
+                    is DeviceResult.Error ->
+                        SaleFlowResult.FiscalPending(payResult.rrn)
+                }
+            }
+        }
     }
 
     private fun parseCommitted(data: String): DeviceResult {

@@ -14,6 +14,15 @@ sealed class PaymentResult {
 }
 
 /**
+ * Abstraction over the payment bridge, injectable for testing.
+ * Invariant 3: refund must be called only after confirmed fiscal storno.
+ */
+interface PaymentBridge {
+    fun pay(operationId: String, amountCents: Long, bank: String): PaymentResult
+    fun refund(referenceId: String): PaymentResult
+}
+
+/**
  * SMS-09: PaymentBridgeClient — DSK/Viva payment bridge.
  * Invariant 2: timeout/disconnect after send → Unknown + immediate check_status, no retry.
  * Invariant 3: refund is not automatic — RefundManualRequired until Q-P4 is resolved.
@@ -22,9 +31,9 @@ class PaymentBridgeClient(
     private val baseUrl: String,
     private val connectTimeoutMs: Int = 10_000,
     private val readTimeoutMs: Int = 60_000,
-) {
+) : PaymentBridge {
 
-    fun pay(operationId: String, amountCents: Long, bank: String): PaymentResult {
+    override fun pay(operationId: String, amountCents: Long, bank: String): PaymentResult {
         val referenceId = "$operationId-card"
         return try {
             val body = buildPayJson(referenceId, amountCents, bank)
@@ -44,7 +53,7 @@ class PaymentBridgeClient(
         }
     }
 
-    fun refund(@Suppress("UNUSED_PARAMETER") referenceId: String): PaymentResult =
+    override fun refund(@Suppress("UNUSED_PARAMETER") referenceId: String): PaymentResult =
         PaymentResult.RefundManualRequired
 
     private fun checkStatus(referenceId: String): PaymentResult {
