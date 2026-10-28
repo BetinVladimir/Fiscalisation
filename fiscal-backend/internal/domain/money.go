@@ -2,6 +2,7 @@ package domain
 
 import (
 	"errors"
+	"fmt"
 	"math"
 	"strconv"
 	"strings"
@@ -98,4 +99,94 @@ func LineTotal(price Cents, qtyMilli int64) (Cents, error) {
 		return 0, errors.New("line overflow")
 	}
 	return Cents((p*qtyMilli + 500) / 1000), nil
+}
+
+// Extended validation helpers (moved from service.go)
+func validTax(v string) bool { return len(v) == 1 && strings.Contains("ABCDEFGH", v) }
+func validMoney(m Money) bool {
+	if m.Currency != "EUR" {
+		return false
+	}
+	if !moneyPattern.MatchString(m.Amount) {
+		return false
+	}
+	dot := strings.IndexByte(m.Amount, '.')
+	return dot >= 1 && dot <= 12
+}
+func validQuantity(v string) bool { x, e := parseFixed(v, 3); return e == nil && x > 0 }
+func parseFixed(v string, scale int) (int64, error) {
+	parts := strings.Split(v, ".")
+	if len(parts) > 2 || parts[0] == "" {
+		return 0, errors.New("invalid decimal")
+	}
+	frac := ""
+	if len(parts) == 2 {
+		frac = parts[1]
+	}
+	if len(frac) > scale {
+		return 0, errors.New("scale")
+	}
+	for len(frac) < scale {
+		frac += "0"
+	}
+	return strconv.ParseInt(parts[0]+frac, 10, 64)
+}
+func lineTotalCents(price Money, quantity string) (int64, error) {
+	p, err := parseFixed(price.Amount, 2)
+	if err != nil || p < 0 {
+		return 0, errors.New("invalid price")
+	}
+	q, err := parseFixed(quantity, 3)
+	if err != nil || q <= 0 || (p > 0 && q > (math.MaxInt64-500)/p) {
+		return 0, errors.New("invalid quantity or line overflow")
+	}
+	return (p*q + 500) / 1000, nil
+}
+func discountedLineTotalCents(line SaleLine) (int64, error) {
+	gross, err := lineTotalCents(line.UnitPrice, line.Quantity)
+	if err != nil {
+		return 0, err
+	}
+	if line.Discount == nil {
+		return gross, nil
+	}
+	discount, err := parseFixed(line.Discount.Amount, 2)
+	if err != nil || line.Discount.Currency != "EUR" || discount < 0 || discount > gross {
+		return 0, errors.New("invalid line discount")
+	}
+	return gross - discount, nil
+}
+func validDiscount(v *Money) bool {
+	if v == nil {
+		return true
+	}
+	amount, err := parseFixed(v.Amount, 2)
+	return err == nil && amount >= 0 && v.Currency == "EUR"
+}
+func saleTotal(s Sale) (int64, error) {
+	var total int64
+	for _, l := range s.Lines {
+		line, err := discountedLineTotalCents(l)
+		if err != nil || line > math.MaxInt64-total {
+			return 0, errors.New("sale total overflow")
+		}
+		total += line
+	}
+	return total, nil
+}
+func formatFixed(v int64) string {
+	sign := ""
+	if v < 0 {
+		sign = "-"
+		v = -v
+	}
+	return fmt.Sprintf("%s%d.%02d", sign, v/100, v%100)
+}
+func contains(a []string, v string) bool {
+	for _, x := range a {
+		if x == v {
+			return true
+		}
+	}
+	return false
 }
