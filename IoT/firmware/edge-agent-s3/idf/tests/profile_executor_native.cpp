@@ -19,9 +19,10 @@ struct ProtocolFaithfulIo final:DeviceIo{
  PaymentOutcome next_lookup{PaymentCertainty::Approved,"STAN-1","RRN-1","AUTH-1",""};
  PaymentOutcome next_reverse{PaymentCertainty::Approved,"STAN-1","RRN-1","AUTH-1",""};
  int fiscal_calls{},purchase_calls{},lookup_calls{},reverse_calls{};std::vector<std::string> commands;
+ bool currency_is_eur{true};
  explicit ProtocolFaithfulIo(EdgeProfile value):profile(value){}
  bool verified_reversal_profile()const override{return true;}
- bool fiscal_ready()override{return fiscal_up;}bool payment_ready()override{return payment_up;}
+ bool fiscal_ready()override{return fiscal_up&&currency_is_eur;}bool payment_ready()override{return payment_up;}
  // Independent response layout from Daisy v2.0-4 p6 and Datecs PM v2.11.4 sec3.4.
  // Do not use the production request encoder to manufacture a device response.
  static void nibble_word(std::vector<uint8_t>&v,uint16_t n){for(int shift:{12,8,4,0})v.push_back(uint8_t(0x30+((n>>shift)&15)));}
@@ -89,6 +90,19 @@ void receipt_fault_matrix(EdgeProfile profile){
   assert(run(x,journal.storage,plan("SALE_FINALIZE","CASH")).certainty==ExecutionCertainty::Committed);}
  {ProtocolFaithfulIo io(profile);Journal journal;ProfileExecutor x(b,io,&journal.storage);RecoveryItem recovery{};recovery.operation_id="11111111-1111-4111-8111-111111111111";const auto lookups=io.lookup_calls;assert(x.recover(recovery).certainty==ExecutionCertainty::Unknown);assert(io.lookup_calls==lookups);io.fiscal_up=false;assert(run(x,journal.storage,plan("SALE_FINALIZE")).certainty==ExecutionCertainty::DeviceUnavailable);}
 }
+void currency_param_gate(){
+ // DSY-08.2: device with non-EUR currency must return DeviceUnavailable before any I/O.
+ CompositeBinding b=binding(EdgeProfile::DaisyCompactS01);
+ {ProtocolFaithfulIo io(EdgeProfile::DaisyCompactS01);io.currency_is_eur=false;
+  Journal journal;ProfileExecutor x(b,io,&journal.storage);
+  auto r=run(x,journal.storage,plan("SALE_FINALIZE","CASH"));
+  assert(r.certainty==ExecutionCertainty::DeviceUnavailable&&io.fiscal_calls==0);}
+ {ProtocolFaithfulIo io(EdgeProfile::DaisyCompactS01);io.currency_is_eur=true;
+  Journal journal;ProfileExecutor x(b,io,&journal.storage);
+  auto r=run(x,journal.storage,plan("SALE_FINALIZE","CASH"));
+  assert(r.certainty==ExecutionCertainty::Committed&&io.fiscal_calls>0);}
+ std::printf("CurrencyParamGate: PASS\n");
+}
 void profile_unconfigured_no_io(){
  // DSY-03: Unconfigured profile must not attempt any fiscal I/O.
  CompositeBinding b; // b.profile defaults to EdgeProfile::Unconfigured
@@ -99,4 +113,4 @@ void profile_unconfigured_no_io(){
  assert(r.certainty!=ExecutionCertainty::Committed);
  std::printf("profile_unconfigured_no_io: PASS\n");
 }
-int main(){for(auto profile:{EdgeProfile::DatecsDp150BluePad50,EdgeProfile::DaisyCompactS01}){protocol_corruption_matrix(profile);fiscal_matrix(profile);receipt_fault_matrix(profile);}profile_unconfigured_no_io();return 0;}
+int main(){for(auto profile:{EdgeProfile::DatecsDp150BluePad50,EdgeProfile::DaisyCompactS01}){protocol_corruption_matrix(profile);fiscal_matrix(profile);receipt_fault_matrix(profile);}profile_unconfigured_no_io();currency_param_gate();return 0;}
