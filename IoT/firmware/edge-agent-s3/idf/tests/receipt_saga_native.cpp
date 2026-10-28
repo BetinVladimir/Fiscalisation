@@ -7,6 +7,24 @@ struct Payment: PaymentPort{PaymentOutcome buy{PaymentCertainty::Approved,"T1","
 ReceiptPlan card(){ReceiptPlan p;p.operation_id="11111111-1111-4111-8111-111111111111";p.payments.push_back({"p","CARD","10.00",1000});return p;}
 ReceiptPlan cash(){ReceiptPlan p;p.operation_id="22222222-2222-4222-8222-222222222222";p.payments.push_back({"p","CASH","10.00",1000});return p;}
 ReceiptPlan split(){auto p=card();p.payments.insert(p.payments.begin(),{"c","CASH","4.00",400});return p;}
+// DSY-05: reversal amount validation — mirrors storno_matrix.json (7 cases)
+static std::string check_reversal_amount(int64_t original,int64_t&reversed,int64_t request){
+ if(request<=0)return "INVALID_AMOUNT";
+ if(reversed>=original)return "ALREADY_FULLY_REVERSED";
+ if(reversed+request>original)return "REVERSAL_EXCEEDS_REMAINING";
+ reversed+=request;return "OK";
+}
+void storno_matrix_tests(){
+ int pass=0;
+ {int64_t r=0;assert(check_reversal_amount(1200,r,1200)=="OK");pass++;}
+ {int64_t r=0;assert(check_reversal_amount(1200,r,500)=="OK");assert(check_reversal_amount(1200,r,700)=="OK");pass++;}
+ {int64_t r=0;assert(check_reversal_amount(1200,r,500)=="OK");assert(check_reversal_amount(1200,r,800)=="REVERSAL_EXCEEDS_REMAINING");pass++;}
+ {int64_t r=0;assert(check_reversal_amount(1200,r,1200)=="OK");assert(check_reversal_amount(1200,r,1)=="ALREADY_FULLY_REVERSED");pass++;}
+ {int64_t r=0;assert(check_reversal_amount(1200,r,0)=="INVALID_AMOUNT");pass++;}
+ {int64_t r=0;assert(check_reversal_amount(1200,r,-100)=="INVALID_AMOUNT");pass++;}
+ {int64_t r=0;assert(check_reversal_amount(3,r,1)=="OK");assert(check_reversal_amount(3,r,1)=="OK");assert(check_reversal_amount(3,r,1)=="OK");assert(check_reversal_amount(3,r,1)=="ALREADY_FULLY_REVERSED");pass++;}
+ std::printf("storno_matrix pass=%d\n",pass);
+}
 void daisy_receipt_saga_tests(){
  // DSY-04.1: drop after cmd 48 (open receipt) → UNKNOWN, not FAILED; result can be recovered.
  {Fiscal f;f.next.certainty=ExecutionCertainty::Unknown;ReceiptSaga s(f,nullptr);
@@ -45,4 +63,5 @@ int main(){
   {Fiscal f;Payment p;f.next.certainty=ExecutionCertainty::Unknown;ReceiptSaga s(f,profile==2?nullptr:&p);auto r=s.execute(cash());assert(r.certainty==ExecutionCertainty::Unknown);f.found.certainty=ExecutionCertainty::Committed;assert(s.recover(cash(),"EXECUTING").certainty==ExecutionCertainty::Committed);}
  }
  daisy_receipt_saga_tests();
+ storno_matrix_tests();
 }
