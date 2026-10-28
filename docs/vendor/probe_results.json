@@ -1,0 +1,9 @@
+{
+  "PRB-07": {
+    "vid": "0483",
+    "pid": "5740",
+    "description": "Daisy Compact FP USB (STM32 USB CDC Virtual COM Port)",
+    "source": "DSY-06",
+    "notes": "STMicroelectronics VID=0x0483, PID=0x5740 (USB CDC class, standard Daisy Compact/Smart identity)"
+  }
+}
