@@ -25,6 +25,8 @@
 /public/v1/exports/periodized
 /public/v1/locations
 /public/v1/locations/
+/public/v1/operations
+/public/v1/operations/
 /public/v1/operators
 /public/v1/operators/
 /public/v1/operators:bind-identity
