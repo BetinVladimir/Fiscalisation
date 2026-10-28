@@ -298,6 +298,119 @@ object DatecsPayloads {
   }
 }
 
+/**
+ * TG-006: Typed response data classes for Datecs commands.
+ * Invariant 10: parsers never throw externally — they return null on format/logic errors.
+ * Invariant 6: fiscal references come only from FU response, never synthesised.
+ */
+
+/** Cmd 48: Open fiscal receipt — error code only, no document number in response. */
+data class Cmd48Response(val errorCode: Int)
+
+/** Cmd 49: Add fiscal line — error code only. */
+data class Cmd49Response(val errorCode: Int)
+
+/** Cmd 53: Payment in fiscal receipt — error code and optional fields. */
+data class Cmd53Response(val errorCode: Int)
+
+/**
+ * Cmd 56: Close fiscal receipt.
+ * Response: field[0]=errorCode, field[1]=fiscal document reference (non-blank on success).
+ */
+data class Cmd56Response(val fiscalRef: String)
+
+/**
+ * Cmd 43: Open storno fiscal receipt — error code only.
+ * BC-50: cmd43 is used for storno (sторно cmd43, внешний терминал).
+ */
+data class Cmd43Response(val errorCode: Int)
+
+/**
+ * Cmd 69/70 daily report response.
+ * Response: field[0]=errorCode, field[1]=reportCount, field[2..5]=totals A/B/C/D.
+ */
+data class Cmd69Response(
+    val reportCount: String,
+    val totalA: String,
+    val totalB: String,
+    val totalC: String,
+    val totalD: String
+)
+
+/**
+ * Cmd 38: Print fiscal sub-total (intermediate total without closing receipt).
+ * Response: field[0]=errorCode.
+ */
+data class Cmd38Response(val errorCode: Int)
+
+/**
+ * Cmd 39: Print receipt total / close with sub-total.
+ * Response: field[0]=errorCode.
+ */
+data class Cmd39Response(val errorCode: Int)
+
+/**
+ * Cmd 42: Print department sub-total.
+ * Response: field[0]=errorCode.
+ */
+data class Cmd42Response(val errorCode: Int)
+
+// ── Invariant-10-safe parsers (return null on any format failure) ──────────
+
+private fun DatecsResponse.firstField(): Int? =
+    DatecsText.decode(data).split('\t').getOrNull(0)?.trim()?.toIntOrNull()
+
+/** Returns null when data is empty or errorCode is not an integer. */
+fun DatecsResponse.parseCmd48(): Cmd48Response? =
+    firstField()?.let { Cmd48Response(it) }
+
+fun DatecsResponse.parseCmd49(): Cmd49Response? =
+    firstField()?.let { Cmd49Response(it) }
+
+fun DatecsResponse.parseCmd53(): Cmd53Response? =
+    firstField()?.let { Cmd53Response(it) }
+
+/**
+ * Cmd 56: Returns Cmd56Response only when errorCode==0 AND field[1] is non-blank.
+ * Invariant 6: no fiscal ref → null (caller must treat as RECOVERY_REQUIRED).
+ */
+fun DatecsResponse.parseCmd56(): Cmd56Response? {
+    val fields = DatecsText.decode(data).split('\t')
+    val err = fields.getOrNull(0)?.trim()?.toIntOrNull() ?: return null
+    if (err != 0) return null
+    val ref = fields.getOrNull(1)?.trim()?.takeIf { it.isNotBlank() } ?: return null
+    return Cmd56Response(ref)
+}
+
+fun DatecsResponse.parseCmd43(): Cmd43Response? =
+    firstField()?.let { Cmd43Response(it) }
+
+/**
+ * Cmd 69/70 report: returns Cmd69Response only when errorCode==0 and field[1] present.
+ */
+fun DatecsResponse.parseCmd69(): Cmd69Response? {
+    val fields = DatecsText.decode(data).split('\t')
+    val err = fields.getOrNull(0)?.trim()?.toIntOrNull() ?: return null
+    if (err != 0) return null
+    val n = fields.getOrNull(1)?.trim()?.takeIf { it.isNotBlank() } ?: return null
+    return Cmd69Response(
+        reportCount = n,
+        totalA = fields.getOrNull(2)?.trim() ?: "",
+        totalB = fields.getOrNull(3)?.trim() ?: "",
+        totalC = fields.getOrNull(4)?.trim() ?: "",
+        totalD = fields.getOrNull(5)?.trim() ?: ""
+    )
+}
+
+fun DatecsResponse.parseCmd38(): Cmd38Response? =
+    firstField()?.let { Cmd38Response(it) }
+
+fun DatecsResponse.parseCmd39(): Cmd39Response? =
+    firstField()?.let { Cmd39Response(it) }
+
+fun DatecsResponse.parseCmd42(): Cmd42Response? =
+    firstField()?.let { Cmd42Response(it) }
+
 object DatecsTimeouts {
   private val REPORT = setOf(69, 70)
   private val RECEIPT = setOf(38, 39, 42, 43, 48, 49, 53, 56, 57, 60)
