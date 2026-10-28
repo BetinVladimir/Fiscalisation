@@ -42,6 +42,7 @@ kotlin { jvmToolchain(17) }
 
 dependencies {
     implementation(project(":shared"))
+    implementation(project(":shared-runtime"))
     testImplementation("junit:junit:4.13.2")
 }
 
