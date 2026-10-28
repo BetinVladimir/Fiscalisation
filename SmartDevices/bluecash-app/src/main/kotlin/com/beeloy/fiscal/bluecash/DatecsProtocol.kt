@@ -85,6 +85,16 @@ data class FiscalLine(
   val unit: String = ""
 )
 
+/**
+ * VG-15: Response from Datecs cmd 70 (cash in/out, §4.30).
+ * All amounts in the same decimal format as the fiscal device (e.g. "150.00").
+ */
+data class Cmd70Response(
+    val cashIn: java.math.BigDecimal,
+    val cashOut: java.math.BigDecimal,
+    val cashBalance: java.math.BigDecimal
+)
+
 data class DatecsStornoDocument(
   val reason: Int,
   val documentNumber: Long,
@@ -183,6 +193,41 @@ object DatecsPayloads {
   /** Datecs Communication Protocol v2.11.4 §4.21 — cancel an open fiscal receipt. */
   const val CMD_CANCEL_RECEIPT = 60
   fun cancelReceipt(): ByteArray = byteArrayOf()
+
+  /**
+   * VG-15: Parse a cmd 70 (cash in/out, §4.30) response.
+   *
+   * Response format (tab-separated, CP1251):
+   *   [0] error code (0 = OK)
+   *   [1] cash-in total (decimal string, e.g. "150.00")
+   *   [2] cash-out total (decimal string)
+   *   [3] current cash balance (decimal string)
+   *
+   * @return [Cmd70Response] or null if the response cannot be parsed.
+   */
+  fun parseCashInOutResponse(response: DatecsResponse): Cmd70Response? {
+    val text = DatecsText.decode(response.data)
+    val fields = text.split('\t')
+    val errorCode = fields.getOrNull(0)?.trim()?.toIntOrNull() ?: return null
+    if (errorCode != 0) return null
+    val cashIn      = fields.getOrNull(1)?.trim()?.toBigDecimalOrNull() ?: return null
+    val cashOut     = fields.getOrNull(2)?.trim()?.toBigDecimalOrNull() ?: return null
+    val cashBalance = fields.getOrNull(3)?.trim()?.toBigDecimalOrNull() ?: return null
+    return Cmd70Response(cashIn, cashOut, cashBalance)
+  }
+
+  /**
+   * VG-15: Validate that a cash-out amount does not exceed the available cash balance.
+   *
+   * @param amountStr  decimal string (money regex), e.g. "13.67"
+   * @param balance    current cash balance from [Cmd70Response.cashBalance]
+   * @throws IllegalArgumentException("CASH_OUT_EXCEEDS_BALANCE") if amount > balance
+   */
+  fun requireCashAvailable(amountStr: String, balance: BigDecimal) {
+    require(money.matches(amountStr)) { "PAYLOAD_INVALID:cash_amount" }
+    val amount = BigDecimal(amountStr)
+    require(amount <= balance) { "CASH_OUT_EXCEEDS_BALANCE" }
+  }
 
   private val MAX_LINE_TOTAL = BigDecimal("9999999.99")
 
