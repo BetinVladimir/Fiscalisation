@@ -567,6 +567,19 @@ sealed class Outcome {
   object FAILED : Outcome()
 }
 
+/**
+ * VG-08.1: Map a POS reason code to the Datecs storno reason integer (§4.6).
+ *   0 = OPERATOR_ERROR  (operator mistake)
+ *   1 = CUSTOMER_RETURN (customer return / refund)
+ *   2 = TAX_BASE_REDUCTION
+ */
+fun stornoReasonCode(posReason: String): Int = when (posReason.uppercase()) {
+  "OPERATOR_ERROR"         -> 0
+  "CUSTOMER_RETURN"        -> 1
+  "TAX_BASE_REDUCTION"     -> 2
+  else -> throw IllegalArgumentException("UNKNOWN_STORNO_REASON:$posReason")
+}
+
 internal fun datecsPaymentMode(type: String): Int =
   when (type) {
     "CASH" -> 0
