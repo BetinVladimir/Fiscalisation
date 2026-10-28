@@ -72,7 +72,7 @@ async function call(path: string, init: RequestInit = {}, requestToken = runtime
   const headers=new Headers({
     "Content-Type":"application/json",
     "X-Api-Version":version,
-    ...(mutation?{"Idempotency-Key":`${Date.now()}-${Math.random().toString(16).slice(2)}-admin`}:{}),
+    ...(mutation?{"Idempotency-Key":ExpoCrypto.randomUUID()}:{}),
     ...(requestToken?{Authorization:`Bearer ${requestToken}`}:{})
   });
   new Headers(init.headers).forEach((value,name)=>headers.set(name,value));
