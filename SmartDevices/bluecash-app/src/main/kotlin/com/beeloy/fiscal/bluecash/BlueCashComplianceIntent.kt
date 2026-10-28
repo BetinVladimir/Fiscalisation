@@ -22,6 +22,13 @@ data class BleLocalSale(
 interface BleLocalSaleStore {
   fun get(surrogateId: String): BleLocalSale?
   fun put(sale: BleLocalSale)
+  /** ARCH-008: list all persisted sales for aggregate rebuild; unsupported by default. */
+  fun listAll(): List<BleLocalSale> = throw UnsupportedOperationException("listAll not supported by this store")
+}
+
+/** ARCH-008: rebuild in-memory aggregate from a durable store (journal is source of truth). */
+fun rebuildAggregateFromJournal(source: BleLocalSaleStore, target: BleLocalSaleStore) {
+  source.listAll().forEach { target.put(it) }
 }
 
 interface BleUnpAllocator {
@@ -35,6 +42,7 @@ class MemoryBleLocalSaleStore : BleLocalSaleStore {
   override fun put(sale: BleLocalSale) {
     values[sale.surrogateId] = sale
   }
+  @Synchronized override fun listAll(): List<BleLocalSale> = values.values.toList()
 }
 
 class RangeBleUnpAllocator(
