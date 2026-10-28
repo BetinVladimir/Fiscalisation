@@ -10,7 +10,7 @@ STUB_PATTERNS=('//\s*STUB' 'FakeDevice\b' 'SimulatorAdapter\b' 'TODO.*prod' 'FIX
 for pat in "${STUB_PATTERNS[@]}"; do
   if rg --no-messages \
       --glob='*.go' --glob='*.kt' --glob='*.ts' --glob='*.tsx' \
-      --glob='!*_test.*' --glob='!*Test.*' --glob='!*fake*' --glob='!*mock*' \
+      --glob='!*_test.*' --glob='!*Test.*' --glob='!*.spec.*' --glob='!*fake*' --glob='!*mock*' \
       -l "$pat" "$ROOT/fiscal-backend" "$ROOT/SmartDevices" "$ROOT/minipos" 2>/dev/null | grep -q .; then
     echo "PROD-001: stub pattern '$pat' in production source" >&2
     errors=$((errors+1))
