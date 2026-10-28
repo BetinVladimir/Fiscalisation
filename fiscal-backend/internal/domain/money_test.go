@@ -227,14 +227,15 @@ func TestLineTotalFromGoldenFile(t *testing.T) {
 }
 
 func findRepoRoot(t *testing.T) string {
-	// Walk up to find go.mod (indicates repo root).
+	// Walk up to find the topmost go.mod (indicates repo root).
 	dir, err := os.Getwd()
 	if err != nil {
 		t.Fatal("cannot get working dir")
 	}
+	var found string
 	for depth := 0; depth < 20; depth++ {
 		if _, err := os.Stat(filepath.Join(dir, "go.mod")); err == nil {
-			return dir
+			found = dir
 		}
 		parent := filepath.Dir(dir)
 		if parent == dir {
@@ -242,6 +243,8 @@ func findRepoRoot(t *testing.T) string {
 		}
 		dir = parent
 	}
-	t.Fatal("go.mod not found walking up")
-	return ""
+	if found == "" {
+		t.Fatal("go.mod not found walking up")
+	}
+	return found
 }
