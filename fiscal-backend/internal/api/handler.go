@@ -139,6 +139,7 @@ func newHandler(s *domain.Service, c config.Config, integrationHandler http.Hand
 	m.HandleFunc("/metrics", metricsHandler)
 	m.HandleFunc("/healthz", h.ready)
 	m.HandleFunc("/public/v1/version", h.version)
+	m.HandleFunc("/admin/v1/installed-versions", h.installedVersions)
 	m.HandleFunc("/public/v1/sales", h.sales)
 	m.HandleFunc("/public/v1/sales:open-with-line", h.openSaleWithLine)
 	m.HandleFunc("/public/v1/sales/", h.sale)

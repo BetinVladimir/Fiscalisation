@@ -1,0 +1,8 @@
+# Paths that require a SUPTO version bump when changed (VER-002)
+# Any commit touching these paths must also bump fiscal-backend/internal/version/version.go
+# OR include the trailer: Supto-Version-Unchanged: <reason>
+#
+# Basis: чл. 52в(3), чл. 52е1, Прил. 29 (ЗДДС / Наредба Н-18)
+database/fiscal/
+fiscal-backend/internal/api/response_contracts_gen.go
+fiscal-backend/internal/api/response_schema_validator_gen.go
