@@ -1,0 +1,33 @@
+=== RUN   TestAuditPredecessorForwardMigration
+    audit_predecessor_test.go:21: requires disposable Fiscal PostgreSQL runner
+--- SKIP: TestAuditPredecessorForwardMigration (0.00s)
+=== RUN   TestAuditPredecessorMigrationRefusesHistoricalConflict
+    audit_predecessor_test.go:119: requires disposable Fiscal PostgreSQL runner
+--- SKIP: TestAuditPredecessorMigrationRefusesHistoricalConflict (0.00s)
+=== RUN   TestFiscalEvidencePostgres
+=== RUN   TestFiscalEvidencePostgres/secrets_pruned_before_transport_and_immutable_evidence_retained
+=== RUN   TestFiscalEvidencePostgres/snapshot_concurrent_resource_and_audit_insert
+=== RUN   TestFiscalEvidencePostgres/unknown_kinds_never_expand_raw_data
+=== RUN   TestFiscalEvidencePostgres/malformed_allowlisted_value_fails_without_contents
+=== RUN   TestFiscalEvidencePostgres/schema_drift_and_readonly
+=== RUN   TestFiscalEvidencePostgres/audit_is_append_only_actual_db_and_export_no_changes
+--- PASS: TestFiscalEvidencePostgres (112.07s)
+    --- PASS: TestFiscalEvidencePostgres/secrets_pruned_before_transport_and_immutable_evidence_retained (48.59s)
+    --- PASS: TestFiscalEvidencePostgres/snapshot_concurrent_resource_and_audit_insert (14.55s)
+    --- PASS: TestFiscalEvidencePostgres/unknown_kinds_never_expand_raw_data (15.65s)
+    --- PASS: TestFiscalEvidencePostgres/malformed_allowlisted_value_fails_without_contents (15.79s)
+    --- PASS: TestFiscalEvidencePostgres/schema_drift_and_readonly (0.03s)
+    --- PASS: TestFiscalEvidencePostgres/audit_is_append_only_actual_db_and_export_no_changes (16.55s)
+=== RUN   TestPostgresSnapshot
+    export_test.go:19: requires disposable migrated PostgreSQL; see scripts/dossier-postgres-integration.sh
+--- SKIP: TestPostgresSnapshot (0.00s)
+=== RUN   TestMigrationSourceInventory
+--- PASS: TestMigrationSourceInventory (0.01s)
+=== RUN   TestMiniPOSPostgresSnapshot
+    minipos_test.go:18: actual disposable MiniPOS PostgreSQL required; use scripts/dossier-minipos-postgres-integration.sh
+--- SKIP: TestMiniPOSPostgresSnapshot (0.00s)
+=== RUN   TestMiniPOSMigrationSourceInventory
+--- PASS: TestMiniPOSMigrationSourceInventory (0.00s)
+PASS
+ok  	fiscalisation/fiscal-backend/internal/dossier	113.523s
+?   	fiscalisation/fiscal-backend/cmd/dossier-export	[no test files]

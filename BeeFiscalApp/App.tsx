@@ -1,17 +1,41 @@
+import {RequestAuthFence} from './src/requestAuthFence';
+import {reportCopy} from './src/ui/report-copy';
+import {requireFiscalAuthorization} from './src/fiscalAuthorization';
+import {useUiPreferences} from './src/ui/preferences';
+import {shellCopy,shellTabLabel} from './src/ui/shell-copy';
+import {useOwnedDeviceValue} from './src/useOwnedDeviceValue';
+import {parseApiJson} from './src/parseApiJson';
+import * as ExpoCrypto from 'expo-crypto';
+import {ProvisioningDialog} from './src/components/ProvisioningDialog';
+import {connectProvisioningDevice} from './src/provisioningBle';
+import {provisionDevice} from './src/provisioningProtocol';
+import {Surface as SafePaperSurface} from 'react-native-paper';
+import {Surface as PaintedPaperSurface} from 'react-native-paper';
+import { compositeSelectionValid } from './src/compositeSelection';
+import { auditFilterDatesValid } from './src/auditFilters';
+import { AppButton } from './src/ui/app-button';
 import { colors as beeloyColors } from './src/ui/tokens';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { AppPressable as Pressable } from './src/ui/app-pressable';
-import { AppText as Text } from './src/ui/app-text';
 import { ResponsiveScrollView as ScrollView } from './src/ui/responsive-scroll-view';
-import { FormField as TextInput } from './src/ui/form-field';
-import { AuthForm } from './src/ui/auth-form';
+import { AuthScreen } from './src/screens/AuthScreen';
+import { OperationsScreen } from './src/screens/OperationsScreen';
+import { ReportsScreen } from './src/screens/ReportsScreen';
+import { DevicesScreen } from './src/screens/DevicesScreen';
+import { AdministrationScreen, type AdminRequest } from './src/screens/AdministrationScreen';
+import { AuditScreen, type AuditFilters } from './src/screens/AuditScreen';
+import { SettingsScreen } from './src/screens/SettingsScreen';
+import { LanguageThemeControls } from './src/ui/LanguageThemeControls';
+import { ReferencePicker } from './src/components/FiscalControls';
 import { StatusBar } from "expo-status-bar";
-import { useCallback, useEffect, useState } from "react";
-import { StyleSheet, View } from "react-native";
+import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { Platform, StyleSheet, View } from "react-native";
+import { useWindowDimensions } from 'react-native';
+import { Badge, Drawer, List, Surface, Modal, Portal, Text as PaperText, useTheme } from 'react-native-paper';
 import { MVP1_DEVICE_PROFILES } from "./src/deviceProfiles";
-import { fetchWithTimeout } from "./src/http";
+import { fetchTextWithTimeout } from "./src/http";
 import { collectCursorPages } from "./src/pagination";
 import {
+  devicesBoundToRegister,
   isRegisterId,
   registerCollectionPath,
   registerResourcePath,
@@ -31,7 +55,7 @@ const devAuthToken = prodMode
   ? ""
   : process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN || "";
 let runtimeAuthToken = devAuthToken;
-let runtimeUnauthorized: (() => void) | undefined;
+const requestAuthFence=new RequestAuthFence();
 type Item = Record<string, unknown>;
 type AdminLists = {
   locations: Item[];
@@ -40,40 +64,46 @@ type AdminLists = {
   devices: Item[];
 };
 
-async function call(path: string, init: RequestInit = {}) {
+async function call(path: string, init: RequestInit = {}, requestToken = runtimeAuthToken) {
+  requireFiscalAuthorization(prodMode,requestToken);
   // Every mutation is independently idempotent. A PROD 401 clears local
   // authority immediately instead of leaving privileged controls usable.
   const mutation = !!init.method && init.method !== "GET";
-  const r = await fetchWithTimeout(base + path, {
-    ...init,
-    headers: {
-      "Content-Type": "application/json",
-      "X-Api-Version": version,
-      ...(mutation
-        ? {
-            "Idempotency-Key": `${Date.now()}-${Math.random().toString(16).slice(2)}-admin`,
-          }
-        : {}),
-      ...(runtimeAuthToken
-        ? { Authorization: `Bearer ${runtimeAuthToken}` }
-        : {}),
-      ...(init.headers || {}),
-    },
+  const headers=new Headers({
+    "Content-Type":"application/json",
+    "X-Api-Version":version,
+    ...(mutation?{"Idempotency-Key":ExpoCrypto.randomUUID()}:{}),
+    ...(requestToken?{Authorization:`Bearer ${requestToken}`}:{})
   });
-  const text = await r.text();
-  if (r.status === 401 && prodMode) runtimeUnauthorized?.();
-  if (!r.ok) throw new Error(text || `HTTP ${r.status}`);
-  return text ? JSON.parse(text) : {};
+  new Headers(init.headers).forEach((value,name)=>headers.set(name,value));
+  const requestOwner=requestAuthFence.capture(requestToken,headers);
+  const {response:r,text}=await fetchTextWithTimeout(base+path,{...init,headers});
+  if (r.status === 401 && prodMode) requestOwner.unauthorized();
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return text ? parseApiJson(text) : {};
 }
-const collect = (path: string) =>
-  collectCursorPages<Item>(path, (next) => call(next));
+const collect = (path: string, token: string, live: () => boolean) =>
+  collectCursorPages<Item>(path, async next => {
+    if (!live()) throw new Error('STALE_READ');
+    const result = await call(next, {}, token);
+    if (!live()) throw new Error('STALE_READ');
+    return result;
+  });
 const label = (v: unknown) =>
   typeof v === "string" ? v : typeof v === "number" ? String(v) : "—";
 
-export default function App() { return <BeeloyAppProvider><View style={{flex:1}}><AppContent/><DemoBadge/></View></BeeloyAppProvider>; }
-function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<View pointerEvents="none" style={demo.badge}><Text style={demo.text}>DEMO</Text></View>:null}
-const demo=StyleSheet.create({badge:{position:"absolute",right:8,top:8,zIndex:9999,backgroundColor:beeloyColors.error,borderRadius:5,paddingHorizontal:9,paddingVertical:4,elevation:8},text:{color:beeloyColors.onPrimary,fontWeight:"900",fontSize:12,letterSpacing:1}});
+export default function App() { return <BeeloyAppProvider><AppFrame/></BeeloyAppProvider>; }
+function AppFrame(){const theme=useTheme();return <Surface mode="flat" elevation={0} style={{flex:1,minWidth:0,backgroundColor:theme.colors.background}}><DemoBadge/><AppContent/></Surface>;}
+function DemoBadge(){return Constants.expoConfig?.extra?.isDemo?<SafeAreaView edges={['top']} pointerEvents="none" style={{paddingHorizontal:8,paddingVertical:4,alignItems:'flex-end',flexShrink:0}}><Badge testID="fiscal.demo.badge" size={28}>DEMO</Badge></SafeAreaView>:null}
 function AppContent() {
+  const { width } = useWindowDimensions();
+  const compact = width < 600;
+  const {language}=useUiPreferences();
+  const shell=shellCopy(language);
+  const tabLabel=(value:string)=>shellTabLabel(language,value);
+  const theme = useTheme();
+  const [navOpen, setNavOpen] = useState(false);
+  const commandPending = useRef<object | null>(null);
   // Token roles are reduced to explicit UI capabilities. The backend remains
   // authoritative; these guards prevent presenting accidental admin paths.
   const oidc = useEmailOtpAuth();
@@ -94,7 +124,6 @@ function AppContent() {
     ...(canAdminister ? ["Администриране"] : []),
     "Настройки",
   ];
-  runtimeUnauthorized = () => oidc.logout();
   const [tab, setTab] = useState("Устройства"),
     [message, setMessage] = useState("Зареждане на данните от публичния API…"),
     [core, setCore] = useState("CHECKING"),
@@ -138,19 +167,10 @@ function AppContent() {
     [paymentEndpointId, setPaymentEndpointId] = useState(""),
     [expectedRegisterVersion, setExpectedRegisterVersion] = useState("1"),
     [compositeBinding, setCompositeBinding] = useState<Item | null>(null),
-    [diagnostics, setDiagnostics] = useState<Item | null>(null),
-    [deviceHealth, setDeviceHealth] = useState<Item | null>(null),
-    [deviceActivity, setDeviceActivity] = useState<Item[]>([]),
-    [provisioning, setProvisioning] = useState<Item | null>(null),
-    [bleSession, setBleSession] = useState<Item | null>(null),
-    [blueCashActivation, setBlueCashActivation] = useState<Item | null>(null),
     [activationCode, setActivationCode] = useState(""),
-    [activationRequest, setActivationRequest] = useState<Item | null>(null),
     [activationLocationId, setActivationLocationId] = useState(""),
     [blePublicKey, setBlePublicKey] = useState(""),
     [bleAppInstance] = useState(() => `beefiscal-admin-${Date.now()}`),
-    [transportMetrics, setTransportMetrics] = useState<Item | null>(null),
-    [fiscalMetrics, setFiscalMetrics] = useState<Item | null>(null),
     [auditActor, setAuditActor] = useState(""),
     [auditAction, setAuditAction] = useState(""),
     [auditObjectType, setAuditObjectType] = useState(""),
@@ -160,31 +180,117 @@ function AppContent() {
     [auditTo, setAuditTo] = useState(""),
     [adminBusy, setAdminBusy] = useState(false),
     [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState('');
+  const [reportError, setReportError] = useState('');
+  const mounted = useRef(false), readEpoch = useRef(0);
+  const authKey = JSON.stringify([oidc.accessToken, roles]);
+  const authOwner = useRef({ key: authKey });
+  if (authOwner.current.key !== authKey) authOwner.current = { key: authKey };
+  const renderSnapshot = {}, latestRender = useRef(renderSnapshot);
+  useLayoutEffect(() => { latestRender.current = renderSnapshot; });
+  const currentRender = () => mounted.current && latestRender.current === renderSnapshot;
+  const contextKey = JSON.stringify([authKey, tab, register, selected?.id]);
+  const [provisioningOpen,setProvisioningOpen]=useOwnedDeviceValue(contextKey,false);
+  const [provisioningBusy,setProvisioningBusy]=useOwnedDeviceValue(contextKey,false);
+  const provisioningVisible=provisioningOpen && tab==='Устройства' && Boolean(selected) && canAdminister;
+  const shellRef=useRef<View>(null);
+  useLayoutEffect(()=>{
+    if(Platform.OS!=='web')return;
+    const node=shellRef.current as unknown as HTMLElement|null;
+    if(!node)return;
+    const previous=node.inert;node.inert=provisioningVisible;
+    return()=>{node.inert=previous};
+  },[provisioningVisible]);
+  const [diagnostics, setDiagnostics] = useOwnedDeviceValue<Item | null>(contextKey, null);
+  const [deviceHealth, setDeviceHealth] = useOwnedDeviceValue<Item | null>(contextKey, null);
+  const [deviceReadiness, setDeviceReadiness] = useOwnedDeviceValue<Item | null>(contextKey, null);
+  const [deviceActivity, setDeviceActivity] = useOwnedDeviceValue<Item[]>(contextKey, []);
+  const [provisioning, setProvisioning] = useOwnedDeviceValue<Item | null>(contextKey, null);
+  const [bleSession, setBleSession] = useOwnedDeviceValue<Item | null>(contextKey, null);
+  const [blueCashActivation, setBlueCashActivation] = useOwnedDeviceValue<Item | null>(contextKey, null);
+  const [activationRequest, setActivationRequest] = useOwnedDeviceValue<Item | null>(contextKey, null);
+  const [transportMetrics, setTransportMetrics] = useOwnedDeviceValue<Item | null>(contextKey, null);
+  const [fiscalMetrics, setFiscalMetrics] = useOwnedDeviceValue<Item | null>(contextKey, null);
+  const contextRef = useRef({ key: contextKey });
+  if (contextRef.current.key !== contextKey) { contextRef.current = { key: contextKey }; commandPending.current = null; }
+  const contextOwner = contextRef.current;
+  const beginDeviceCommand = () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== 'Устройства') return null;
+    const ticket = {}, owner = contextOwner, auth = authOwner.current, epoch = readEpoch.current;
+    const token = oidc.accessToken || devAuthToken;
+    commandPending.current = ticket; setLoading(true);
+    const live = () => mounted.current && contextRef.current === owner && authOwner.current === auth && readEpoch.current === epoch && commandPending.current === ticket;
+    return {
+      live,
+      call: async (path: string, init: RequestInit = {}) => {
+        if (!live()) throw new Error('STALE_COMMAND');
+        const result = await call(path, init, token);
+        if (!live()) throw new Error('STALE_COMMAND');
+        return result;
+      },
+      finish: () => {
+        if (commandPending.current !== ticket) return;
+        commandPending.current = null;
+        if (mounted.current && contextRef.current === owner && authOwner.current === auth && readEpoch.current === epoch) setLoading(false);
+      },
+    };
+  };
+
+
+  const beginAdminCommand = () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== 'Администриране' || !canAdminister) return null;
+    const ticket = {}, owner = contextOwner, auth = authOwner.current;
+    const token = oidc.accessToken || devAuthToken;
+    commandPending.current = ticket; setAdminBusy(true);
+    const live = () => mounted.current && contextRef.current === owner && authOwner.current === auth && commandPending.current === ticket;
+    return {
+      live,
+      call: async (path: string, init: RequestInit = {}) => {
+        if (!live()) throw new Error('STALE_COMMAND');
+        const result = await call(path, init, token);
+        if (!live()) throw new Error('STALE_COMMAND');
+        return result;
+      },
+      finish: () => {
+        if (commandPending.current !== ticket) return;
+        commandPending.current = null;
+        if (mounted.current && contextRef.current === owner && authOwner.current === auth) setAdminBusy(false);
+      },
+    };
+  };
+  useEffect(() => { if (!commandPending.current) setAdminBusy(false); }, [contextKey]);
+
+  const invalidateReads = () => { readEpoch.current++; authOwner.current = { key: authKey }; };
+  useLayoutEffect(()=>{const token=oidc.accessToken||devAuthToken;runtimeAuthToken=token;return requestAuthFence.activate(token);},[oidc.accessToken]);
+  useLayoutEffect(()=>{requestAuthFence.setUnauthorized(oidc.accessToken||devAuthToken,()=>{runtimeAuthToken='';invalidateReads();void oidc.logout();});});
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; readEpoch.current++; }; }, []);
+
   useEffect(() => {
     // Poll telemetry only while a selected device is visible. This avoids
     // background API load and late updates after navigation.
-    if (tab !== "Устройства" || !selected) return;
-    let active = true;
+    if (tab !== "Устройства" || !selected || (prodMode && !oidc.accessToken.trim())) return;
+    let active = true, pending = false;
+    const owner = authOwner.current, epoch = readEpoch.current, token = oidc.accessToken || devAuthToken;
     const poll = async () => {
       if (
         typeof document !== "undefined" &&
         document.visibilityState === "hidden"
       )
         return;
-      try {
-        const [health, activity] = await Promise.all([
-          call(`/devices/${encodeURIComponent(label(selected.id))}/health`),
-          call(`/devices/${encodeURIComponent(label(selected.id))}/activity`),
-        ]);
-        if (active) {
-          setDeviceHealth(health);
-          setDeviceActivity(
-            Array.isArray(activity.items) ? (activity.items as Item[]) : [],
-          );
-        }
-      } catch {
-        if (active) setDeviceHealth({ effective_state: "STALE" });
-      }
+      if (pending) return;
+      pending = true;
+      const devicePath = `/devices/${encodeURIComponent(label(selected.id))}`;
+      const [readiness, health, activity] = await Promise.allSettled([
+        call(`${devicePath}/readiness`, {}, token),
+        call(`${devicePath}/health`, {}, token),
+        call(`${devicePath}/activity`, {}, token),
+      ]);
+      pending = false;
+      if (!active || !mounted.current || authOwner.current !== owner || readEpoch.current !== epoch) return;
+      setDeviceReadiness(readiness.status === 'fulfilled' ? readiness.value : { ready: false, state: 'UNAVAILABLE' });
+      setDeviceHealth(health.status === 'fulfilled' ? health.value : { effective_state: 'UNKNOWN' });
+      setDeviceActivity(activity.status === 'fulfilled' && Array.isArray(activity.value.items)
+        ? activity.value.items as Item[] : []);
     };
     void poll();
     const timer = setInterval(() => void poll(), 5000);
@@ -192,7 +298,7 @@ function AppContent() {
       active = false;
       clearInterval(timer);
     };
-  }, [tab, selected?.id]);
+  }, [tab, selected?.id, register, oidc.accessToken, roles.join(",")]);
   const transportParameter = (name: string, fallback = "") => {
     try {
       const parsed = JSON.parse(deviceTransportParameters || "{}");
@@ -213,9 +319,23 @@ function AppContent() {
     parsed[name] = numeric ? Number(value) : value;
     setDeviceTransportParameters(JSON.stringify(parsed));
   };
-  const refresh = useCallback(
-    async (next = tab) => {
+  const refresh = async (next = tab, registerOverride = register, continuation = false) => {
+      if ((!currentRender() && !(continuation && mounted.current && contextRef.current === contextOwner)) || !tabs.includes(next)) return false;
+      if (next === "Одит" && !auditFilterDatesValid({ from: auditFrom, to: auditTo })) return false;
+      const owner = authOwner.current, epoch = ++readEpoch.current, token = oidc.accessToken || devAuthToken;
+      const requestCurrent = () => mounted.current && authOwner.current === owner && readEpoch.current === epoch;
+      const read = (path: string) => collect(path, token, requestCurrent);
       setLoading(true);
+      setLoadError('');
+      if (next === 'Устройства' || next === 'Операции' || next === 'Отчети' || next === 'Одит') setItems([]);
+      if (next === 'Устройства') {
+        setSelected(null);
+        setDeviceHealth(null);
+        setDeviceReadiness(null);
+        setDeviceActivity([]);
+        setDiagnostics(null);
+      }
+      if (next === 'Настройки') setPolicy(null);
       try {
         if (next === "Администриране" && !canAdminister)
           throw new Error("ROLE_ADMIN_REQUIRED");
@@ -223,31 +343,40 @@ function AppContent() {
           throw new Error("ROLE_REPORT_READ_REQUIRED");
         if (next === "Одит" && !canReadAudit)
           throw new Error("ROLE_AUDIT_READ_REQUIRED");
-        if (next !== "Администриране" && adminLists.registers.length === 0) {
+        let registersForContext = adminLists.registers;
+        if (next !== "Администриране" && registersForContext.length === 0) {
           const [locations, registers, operators] = await Promise.all([
-            collect("/locations"),
-            collect("/registers"),
-            collect("/operators"),
+            read("/locations"),
+            read("/registers"),
+            read("/operators"),
           ]);
+          if (!requestCurrent()) return false;
           setAdminLists(current => ({ ...current, locations, registers, operators }));
+          registersForContext = registers;
           setLocationId(current => current || label(locations[0]?.id));
           setActivationLocationId(current => current || label(locations[0]?.id));
           setRegister(current => current || label(registers[0]?.id));
           setOperatorId(current => current || label(operators[0]?.id));
         }
         if (next === "Устройства") {
-          const v = await collect("/devices");
-          setItems(v);
-          setSelected((x) => x || v[0] || null);
+          const companyDevices = await read("/devices");
+          if (!requestCurrent()) return false;
+          const registerId = registerOverride || label(registersForContext[0]?.id);
+          const activeRegister = registersForContext.find(item => item.id === registerId);
+          const scopedDevices = devicesBoundToRegister(companyDevices, activeRegister);
+          setItems(scopedDevices);
+          setSelected(scopedDevices[0] || null);
         }
         if (next === "Операции") {
-          const v = await collect(
-            registerCollectionPath("/operations", register),
+          const v = await read(
+            registerCollectionPath("/operations", registerOverride),
           );
+          if (!requestCurrent()) return false;
           setItems(v);
         }
         if (next === "Отчети") {
-          const v = await collect(registerCollectionPath("/reports", register));
+          const v = await read(registerCollectionPath("/reports", registerOverride));
+          if (!requestCurrent()) return false;
           setItems(v);
         }
         if (next === "Одит") {
@@ -257,27 +386,30 @@ function AppContent() {
           if (auditObjectType) params.set("object_type", auditObjectType);
           if (auditObjectId) params.set("object_id", auditObjectId);
           if (auditUnp) params.set("unp", auditUnp);
-          if (auditFrom) params.set("from", auditFrom);
-          if (auditTo) params.set("to", auditTo);
-          setItems(
-            await collect(`/audit-events${params.size ? `?${params}` : ""}`),
-          );
+          if (auditFrom) params.set("from", auditFrom.trim());
+          if (auditTo) params.set("to", auditTo.trim());
+          setItems([]);
+          const events = await read(`/audit-events${params.size ? `?${params}` : ""}`);
+          if (!requestCurrent()) return false;
+          setItems(events);
         }
         if (next === "Настройки") {
           const [p, t] = await Promise.all([
-            call("/country-policy"),
-            call("/tax-groups"),
+            call("/country-policy", {}, token),
+            call("/tax-groups", {}, token),
           ]);
+          if (!requestCurrent()) return false;
           setPolicy({ ...p, tax_groups: t });
           setItems([]);
         }
         if (next === "Администриране") {
           const [locations, registers, operators, devices] = await Promise.all([
-            collect("/locations"),
-            collect("/registers"),
-            collect("/operators"),
-            collect("/devices"),
+            read("/locations"),
+            read("/registers"),
+            read("/operators"),
+            read("/devices"),
           ]);
+          if (!requestCurrent()) return false;
           const lists = {
             locations,
             registers,
@@ -290,11 +422,12 @@ function AppContent() {
           setDeviceId((x) => x || label(lists.devices[0]?.id));
           setOperatorId((x) => x || label(lists.operators[0]?.id));
           setItems([]);
-          const selectedRegister = register || label(lists.registers[0]?.id);
+          const selectedRegister = registerOverride || label(lists.registers[0]?.id);
           if (isRegisterId(selectedRegister)) {
             const history = await call(
-              registerResourcePath(selectedRegister, "/composite-bindings"),
+              registerResourcePath(selectedRegister, "/composite-bindings"), {}, token,
             );
+            if (!requestCurrent()) return false;
             const bindings = Array.isArray(history.items)
               ? (history.items as Item[])
               : [];
@@ -307,38 +440,29 @@ function AppContent() {
             );
           }
         }
-        setMessage(`${next}: данните са обновени от BeeFiscal API`);
+        if (!requestCurrent()) return false;
+        setMessage(language==='en'?`${tabLabel(next)}: data refreshed from BeeFiscal API`:`${next}: данните са обновени от BeeFiscal API`);
         setCore("CORE READY");
+        return true;
       } catch (e) {
+        if (!requestCurrent()) return false;
         setCore("CORE OFFLINE");
-        setMessage(`API отказ: ${e instanceof Error ? e.message : String(e)}`);
+        setLoadError(reportCopy(language).loadError);
+        setMessage(reportCopy(language).loadError);
+        return false;
       } finally {
-        setLoading(false);
+        if (requestCurrent()) setLoading(false);
       }
-    },
-    [
-      register,
-      adminLists.registers.length,
-      tab,
-      canAdminister,
-      canReadAudit,
-      roles.join(","),
-      auditActor,
-      auditAction,
-      auditObjectType,
-      auditObjectId,
-      auditUnp,
-      auditFrom,
-      auditTo,
-    ],
-  );
+  };
   useEffect(() => {
     runtimeAuthToken = oidc.accessToken || devAuthToken;
     if (prodMode && !oidc.accessToken) {
+      setItems([]); setSelected(null); setAdminLists({ locations: [], registers: [], operators: [], devices: [] });
       setCore("AUTH REQUIRED");
       setMessage("Влезте с персоналния си административен профил");
       return;
     }
+    setTab("Устройства");
     void refresh("Устройства");
   }, [oidc.accessToken]);
   useEffect(() => {
@@ -348,10 +472,27 @@ function AppContent() {
     }
   }, [roles.join(","), tab]);
   const changeTab = (next: string) => {
+    if (!currentRender() || commandPending.current || adminBusy || !tabs.includes(next)) return;
     setTab(next);
+    setItems([]);
+    setLoadError('');
+    setReportError('');
     void refresh(next);
   };
+  const selectRegisterContext = (nextRegister: string) => {
+    if (!currentRender() || nextRegister === register || !adminLists.registers.some(item => item.id === nextRegister)) return;
+    setRegister(nextRegister);
+    setItems([]);
+    setSelected(null);
+    setDeviceHealth(null);
+    setDeviceReadiness(null);
+    setDeviceActivity([]);
+    setDiagnostics(null);
+    setReportError('');
+    void refresh(tab, nextRegister);
+  };
   const probe = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!isRegisterId(register)) {
       setMessage("Изберете валиден Fiscal register UUID преди сквозния probe");
       return;
@@ -360,14 +501,17 @@ function AppContent() {
       setMessage("Няма регистрирано устройство за probe");
       return;
     }
+    const command = beginDeviceCommand(); if (!command) return;
     setMessage("Проверка на cloud route, Edge, driver и крайното ФУ…");
     try {
       const id = label(selected.id);
-      const route = await call(
+      const route = await command.call(
         registerResourcePath(register, "/connectivity-probes"),
         { method: "POST", body: "{}" },
       );
-      const device = await call(`/devices/${encodeURIComponent(id)}/readiness`);
+      if (!command.live()) return;
+      const device = await command.call(`/devices/${encodeURIComponent(id)}/readiness`);
+      if (!command.live()) return;
       setTransportMetrics({
         state: route.state,
         hops: route.hops,
@@ -382,92 +526,92 @@ function AppContent() {
         `Cloud ${route.hops?.cloud?.state || route.state} → Edge ${route.hops?.edge?.state || "?"} → Driver ${device.driver} → ФУ ${device.fiscal_device}`,
       );
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `Probe отказан: ${e instanceof Error ? e.message : String(e)}`,
       );
-    }
+    } finally { command.finish(); }
   };
   const loadDiagnostics = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!selected || !canDiagnose) {
       setMessage("Диагностиката изисква роля ADMIN или SERVICE");
       return;
     }
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
       const id = encodeURIComponent(label(selected.id));
       const [capabilities, details] = await Promise.all([
-        call(`/devices/${id}/capabilities`),
-        call(`/devices/${id}/diagnostics`),
+        command.call(`/devices/${id}/capabilities`),
+        command.call(`/devices/${id}/diagnostics`),
       ]);
+      if (!command.live()) return;
       setDiagnostics({ capabilities, details });
       setMessage("Диагностиката е заредена с приложени server redactions");
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `Диагностиката е отказана: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const printerTest = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!selected || !canDiagnose) {
       setMessage("Тестът на принтера изисква ADMIN или SERVICE");
       return;
     }
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
-      const result = await call(
+      const result = await command.call(
         `/devices/${encodeURIComponent(label(selected.id))}/tests/printer`,
         { method: "POST", body: "{}" },
       );
+      if (!command.live()) return;
       setMessage(
         `Тест на принтера: ${label(result.state)} • ${label(result.id)}`,
       );
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `Тестът на принтера е отказан: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const startProvisioning = async () => {
-    if (!selected || !canAdminister) {
-      setMessage("Provisioning изисква роля ADMIN");
-      return;
-    }
-    setLoading(true);
-    try {
-      const result = await call(
-        `/devices/${encodeURIComponent(label(selected.id))}/provisioning-sessions`,
-        { method: "POST", body: "" },
-      );
-      setProvisioning(result);
-      setMessage(
-        `Provisioning сесия ${label(result.session_id)} • ${label(result.state)}`,
-      );
-    } catch (e) {
-      setMessage(
-        `Provisioning е отказан: ${e instanceof Error ? e.message : String(e)}`,
-      );
-    } finally {
-      setLoading(false);
-    }
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
+    if (!selected || !canAdminister) {setMessage("Настройката изисква роля ADMIN");return;}
+    setProvisioningOpen(true);
+  };
+  const installProvisioning = async (settings:{ssid:string;wifiPassword:string;fiscalPassword:string}) => {
+    if (!currentRender() || !selected || !canAdminister || tab!=="Устройства" || !compositeBinding) return;
+    const deviceID=label(selected.id),deviceKID=label(selected.transaction_signing_kid);
+    if(compositeBinding.adapter_device_id!==deviceID||compositeBinding.register_id!==register||!deviceKID||!compositeBinding.payload_sha256){setMessage("Изберете адаптера и подписаната конфигурация за текущата каса");return;}
+    const command=beginDeviceCommand();if(!command)return;setProvisioningBusy(true);
+    try{
+      const result=await provisionDevice({target:{deviceID,deviceKID,bindingID:label(compositeBinding.id),bindingSHA256:label(compositeBinding.payload_sha256),generation:Number(compositeBinding.generation)},settings,connect:connectProvisioningDevice,live:command.live,call:(path,body)=>command.call(path,{method:'POST',body:JSON.stringify(body)}),sha256:async(bytes)=>{const digest=await ExpoCrypto.digest(ExpoCrypto.CryptoDigestAlgorithm.SHA256,new Uint8Array(bytes));return Array.from(new Uint8Array(digest),b=>b.toString(16).padStart(2,'0')).join('')}});
+      if(!command.live())return;setProvisioning(result);setProvisioningOpen(false);setMessage("Инсталацията е потвърдена от адаптера. Проверете свързаните устройства преди работа.");
+    }catch(error){if(command.live())setMessage(`Настройката не е потвърдена: ${error instanceof Error?error.message:String(error)}`)}finally{settings.wifiPassword='';settings.fiscalPassword='';setProvisioningBusy(false);command.finish();}
   };
   const issueBleSession = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!canIssueBleSession) {
       setMessage("BLE сесията изисква оперативна роля");
       return;
     }
-    if (!isRegisterId(register) || !operatorId || !blePublicKey.trim()) {
+    if (!isRegisterId(register) || !adminLists.registers.some(item => item.id === register) || !adminLists.operators.some(item => item.id === operatorId) || !blePublicKey.trim()) {
       setMessage(
         "BLE сесията изисква валиден register UUID, operator и предварително подготвен client public key",
       );
       return;
     }
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
-      const result = await call(
+      const result = await command.call(
         registerResourcePath(register, "/ble-sessions"),
         {
           method: "POST",
@@ -478,30 +622,33 @@ function AppContent() {
           }),
         },
       );
+      if (!command.live()) return;
       setBleSession(result);
       setMessage(
         `BLE сесия ${label(result.ble_session_id)} • валидна до ${label(result.expires_at)}`,
       );
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `BLE сесията е отказана: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const activateBlueCash = async () => {
-    if (!activationRequest || !canAdminister) {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
+    if (!activationRequest || !canAdminister || typeof activationRequest.activation_request_id !== "string" || !activationRequest.activation_request_id.trim() || !activationCode.trim()) {
       setMessage("Първо намерете чакащата заявка с QR/краткия код");
       return;
     }
-    if (!isRegisterId(activationLocationId) || !isRegisterId(register)) {
+    if (!isRegisterId(activationLocationId) || !adminLists.locations.some(item => item.id === activationLocationId) || !isRegisterId(register) || !adminLists.registers.some(item => item.id === register)) {
       setMessage("Изберете валидни търговска точка и касово място");
       return;
     }
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
-      const confirmed = await call(
+      const confirmed = await command.call(
         `/device-activation-requests/${encodeURIComponent(label(activationRequest.activation_request_id))}:confirm`,
         {
           method: "POST",
@@ -513,83 +660,105 @@ function AppContent() {
           }),
         },
       );
+      if (!command.live()) return;
       setBlueCashActivation(confirmed);
       setActivationRequest(null);
       setMessage(
         `Заявката е потвърдена. Организацията е взета от вашия tenant token; устройството ще завърши key-bound activation.`,
       );
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `BlueCash activation е отказан: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const lookupActivation = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!canAdminister || !activationCode.trim()) return;
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
-      const pending = await call(
+      const pending = await command.call(
         `/device-activation-requests:lookup?user_code=${encodeURIComponent(activationCode.trim().toUpperCase())}`,
       );
+      if (!command.live()) return;
+      if (typeof pending.activation_request_id !== "string" || !pending.activation_request_id.trim() || !Array.isArray(pending.requested_roles) || !pending.requested_roles.every((role: unknown) => typeof role === "string")) throw new Error("INVALID_ACTIVATION_REQUEST");
       setActivationRequest(pending);
       setMessage(
         "Проверете vendor, model, serial, FMIN и key thumbprint преди потвърждение",
       );
     } catch (e) {
+      if (!command.live()) return;
       setActivationRequest(null);
       setMessage(
         `Заявката не е намерена: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const disconnectDevice = async () => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || tab !== "Устройства") return;
     if (!selected || !canAdminister) return;
-    setLoading(true);
+    const command = beginDeviceCommand(); if (!command) return;
     try {
-      await call(
+      await command.call(
         `/devices/${encodeURIComponent(label(selected.id))}:disconnect`,
         { method: "POST", body: "{}" },
       );
+      if (!command.live()) return;
       setMessage(
         "Устройството, credential-ът, BLE сесиите и register bindings са оттеглени",
       );
-      await refresh("Устройства");
+      await refresh("Устройства", register, true);
+      if (!command.live()) return;
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `Отключването е отказано: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      command.finish();
     }
   };
   const report = async (type: string) => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || !["X", "Z", "KLEN", "FISCAL_MEMORY"].includes(type)) return;
     if (!canRunReports) {
-      setMessage("Командата за отчет изисква роля SUPERVISOR или ADMIN");
+      setMessage(reportCopy(language).roleError);
       return;
     }
     if (!isRegisterId(register)) {
-      setMessage("Командата за отчет изисква валиден Fiscal register UUID");
+      setMessage(reportCopy(language).registerError);
       return;
     }
-    setMessage(`${type} отчет…`);
+    const ticket = {}; commandPending.current = ticket;
+    const commandLive = () => mounted.current && contextRef.current === contextOwner && commandPending.current === ticket;
+    const token = oidc.accessToken || devAuthToken;
+    setLoading(true);
+    setReportError('');
+    setMessage(reportCopy(language).pending.replace('{type}',type));
     try {
       const v = await call(registerResourcePath(register, "/reports"), {
         method: "POST",
         body: JSON.stringify({ type }),
-      });
+      }, token);
+      if (!commandLive()) return;
       setMessage(`${type}: ${v.state} • ${v.fiscal_reference || v.id}`);
-      await refresh("Отчети");
+      await refresh("Отчети", register, true);
     } catch (e) {
+      if (!commandLive()) return;
+      setReportError(reportCopy(language).commandError);
       setMessage(
-        `Отчетът е отказан: ${e instanceof Error ? e.message : String(e)}`,
+        reportCopy(language).commandError,
       );
+    } finally {
+      if (commandPending.current === ticket) { commandPending.current = null; if (mounted.current && contextRef.current === contextOwner) setLoading(false); }
     }
   };
   const reconcileOperation = async (operation: Item) => {
+    if (!currentRender() || loading || adminBusy || commandPending.current || !items.includes(operation) || typeof operation.id !== "string" || !operation.id.trim()) return;
     if (!canReconcile) {
       setMessage("Reconciliation изисква роля SUPERVISOR или ADMIN");
       return;
@@ -601,47 +770,61 @@ function AppContent() {
       setMessage("Reconciliation е блокирано: backend не го разрешава");
       return;
     }
+    const ticket = {}; commandPending.current = ticket;
+    const commandLive = () => mounted.current && contextRef.current === contextOwner && commandPending.current === ticket;
+    const token = oidc.accessToken || devAuthToken;
     setLoading(true);
     setMessage(`Reconciliation ${label(operation.id)}…`);
     try {
       const result = await call(
         `/operations/${encodeURIComponent(label(operation.id))}/reconcile`,
-        { method: "POST", body: "{}" },
+        { method: "POST", body: "{}" }, token,
       );
+      if (!commandLive()) return;
       setMessage(
         `Reconciliation: ${label(result.state)} • ${label(result.operation_id || result.id)}`,
       );
-      await refresh("Операции");
+      await refresh("Операции", register, true);
     } catch (e) {
+      if (!commandLive()) return;
       setMessage(
         `Reconciliation е отказано: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setLoading(false);
+      if (commandPending.current === ticket) { commandPending.current = null; if (mounted.current && contextRef.current === contextOwner) setLoading(false); }
     }
   };
   const mutateAdmin = async (
     description: string,
-    action: () => Promise<unknown>,
+    action: (request: AdminRequest) => Promise<unknown>,
   ) => {
-    setAdminBusy(true);
+    const command = beginAdminCommand(); if (!command) return;
     setMessage(`${description}…`);
     try {
-      await action();
-      setMessage(`${description}: готово`);
-      await refresh("Администриране");
+      const result = await action(command.call);
+      if (!command.live()) return;
+      const commit = result && typeof result === 'object' ? result as { apply?: unknown; registerId?: unknown } : null;
+      const targetRegister = typeof commit?.registerId === 'string' ? commit.registerId : register;
+      const epoch = readEpoch.current;
+      const refreshed = await refresh("Администриране", targetRegister, true);
+      if (!command.live() || readEpoch.current !== epoch + 1) return;
+      if (typeof commit?.apply === 'function') commit.apply();
+      setMessage(refreshed ? `${description}: готово` : `${description}: записано, но списъкът не се обнови`);
     } catch (e) {
-      setMessage(
-        `${description}: ${e instanceof Error ? e.message : String(e)}`,
-      );
-    } finally {
-      setAdminBusy(false);
-    }
+      if (!command.live()) return;
+      setMessage(`${description}: ${e instanceof Error ? e.message : String(e)}`);
+    } finally { command.finish(); }
   };
   const stageCompositeBinding = async () => {
-    setAdminBusy(true);
+    if (!isRegisterId(register) || !adminLists.registers.some(item => item.id === register)
+      || !compositeSelectionValid(compositeProfile,adapterDeviceId,fiscalEndpointId,paymentEndpointId,adminLists.devices)
+      || !adminLists.devices.some(item => item.id === adapterDeviceId)
+      || !adminLists.devices.some(item => item.id === fiscalEndpointId)
+      || (paymentEndpointId && !adminLists.devices.some(item => item.id === paymentEndpointId))
+      || !Number.isSafeInteger(Number(expectedRegisterVersion)) || Number(expectedRegisterVersion) < 1) return;
+    const command = beginAdminCommand(); if (!command) return;
     try {
-      const v = await call(
+      const v = await command.call(
         registerResourcePath(register, "/composite-bindings"),
         {
           method: "POST",
@@ -656,21 +839,25 @@ function AppContent() {
           }),
         },
       );
+      if (!command.live()) return;
       setCompositeBinding(v);
       setMessage(`Composite generation ${label(v.generation)} е подготвена`);
     } catch (e) {
+      if (!command.live()) return;
       setMessage(
         `Composite binding: ${e instanceof Error ? e.message : String(e)}`,
       );
     } finally {
-      setAdminBusy(false);
+      command.finish();
     }
   };
   const disableCompositeBinding = async () => {
-    if (!compositeBinding) return;
-    setAdminBusy(true);
+    if (!compositeBinding || !isRegisterId(register) || !isRegisterId(String(compositeBinding.binding_id || ''))
+      || compositeBinding.register_id !== register || compositeBinding.status === 'REVOKED'
+      || !Number.isSafeInteger(compositeBinding.version) || Number(compositeBinding.version) < 1) return;
+    const command = beginAdminCommand(); if (!command) return;
     try {
-      const v = await call(
+      const v = await command.call(
         registerResourcePath(register, "/composite-bindings/disable"),
         {
           method: "POST",
@@ -680,1224 +867,224 @@ function AppContent() {
           }),
         },
       );
+      if (!command.live()) return;
       setCompositeBinding(v);
-      setExpectedRegisterVersion(String(Number(expectedRegisterVersion) + 1));
+      // Disabling a pending binding does not increment the register version.
+      // Read the authoritative version instead of guessing +1.
+      const currentRegister = await command.call(registerResourcePath(register));
+      if (!command.live()) return;
+      if (currentRegister.id !== register || !Number.isSafeInteger(currentRegister.version) || Number(currentRegister.version) < 1) throw new Error('INVALID_REGISTER_RESPONSE');
+      setExpectedRegisterVersion(String(currentRegister.version));
       setMessage(
         "Composite binding е изключен; може да бъде подготвена нова връзка",
       );
     } catch (e) {
+      if (!command.live()) return;
       setMessage(`Disable: ${e instanceof Error ? e.message : String(e)}`);
     } finally {
-      setAdminBusy(false);
+      command.finish();
     }
   };
   if (prodMode && !oidc.accessToken) {
-    return (
-      <SafeAreaView style={s.root}>
-        <StatusBar style="auto" />
-        <AuthForm testID="admin-login" style={s.login}>
-          <Text style={s.loginTitle}>BeeFiscal • административен вход</Text>
-          <Text style={s.loginText}>
-            Вход с код по email. Доступ разрешён только ранее зарегистрированным пользователям Fiscal.
-          </Text>
-          {oidc.error ? <Text style={s.loginError}>{oidc.error}</Text> : null}
-          {!oidc.temporary ? <>
-            <TextInput style={s.input} placeholder="Email" autoCapitalize="none" keyboardType="email-address" value={oidc.email} onChangeText={oidc.setEmail}/>
-            <Pressable testID="admin-login-start" accessibilityRole="button" disabled={!oidc.ready||!oidc.email} style={s.loginButton} onPress={() => void oidc.requestCode()}><Text style={s.loginButtonText}>Получить код</Text></Pressable>
-          </> : oidc.tenants.length === 0 ? <>
-            <TextInput style={s.input} placeholder="Код из email" keyboardType="number-pad" value={oidc.code} onChangeText={oidc.setCode}/>
-            <Pressable accessibilityRole="button" disabled={!oidc.ready||oidc.code.length!==6} style={s.loginButton} onPress={() => void oidc.verifyCode()}><Text style={s.loginButtonText}>Подтвердить</Text></Pressable>
-          </> : <View style={{gap:8}}><Text style={s.loginText}>Выберите компанию</Text>{oidc.tenants.map(t=><Pressable key={t.tenant_id} style={s.loginButton} onPress={()=>void oidc.selectTenant(t.tenant_id)}><Text style={s.loginButtonText}>{t.display_name}</Text></Pressable>)}</View>}
-        </AuthForm>
-      </SafeAreaView>
-    );
+    return <AuthScreen auth={oidc} />;
   }
   return (
-    <SafeAreaView style={s.root}>
-      <StatusBar style="auto" />
-      <View style={s.header}>
-        <View>
-          <Text style={s.title}>BeeFiscal</Text>
-          <Text style={s.sub}>
-            BG • EUR • публичен API • без локално симулирани записи
-          </Text>
-        </View>
-        <View
+    <><SafePaperSurface ref={shellRef} aria-hidden={provisioningVisible} accessibilityElementsHidden={provisioningVisible} importantForAccessibility={provisioningVisible?"no-hide-descendants":"auto"} mode="flat" elevation={0} style={{flex:1,backgroundColor:theme.colors.background}}><SafeAreaView style={[s.root, { }]}>
+      <StatusBar style={theme.dark ? 'light' : 'dark'} />
+      <LanguageThemeControls testPrefix="shell" title={tabLabel(tab)} menu={{testID:"nav.open",disabled:adminBusy||Boolean(commandPending.current),onPress:()=>{if(currentRender()&&!commandPending.current&&!adminBusy)setNavOpen(true);}}} />
+      {navOpen ? <Portal>
+        <Modal testID="shell.navigation.modal" visible={navOpen} onDismiss={() => setNavOpen(false)} contentContainerStyle={{ margin: 16, maxHeight: '80%', borderRadius: 16, padding: 12, backgroundColor: theme.colors.surface }}>
+          <ScrollView>
+            <Drawer.Section title="BeeFiscal">
+              {tabs.map(x => <List.Item key={x} testID={`tab-${x}`} disabled={adminBusy||Boolean(commandPending.current)} title={tabLabel(x)} titleNumberOfLines={0} titleMaxFontSizeMultiplier={0} titleStyle={{ color: tab === x ? theme.colors.onSecondaryContainer : theme.colors.onSurface }} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 12, marginVertical: 4, backgroundColor: tab === x ? theme.colors.secondaryContainer : theme.colors.surface }} accessibilityRole="button" accessibilityState={{ selected: tab === x }} accessibilityLabel={shell.open.replace('{name}',tabLabel(x))} onPress={() => { if(!currentRender())return;setNavOpen(false); changeTab(x); }} />)}
+            </Drawer.Section>
+          </ScrollView>
+        </Modal>
+      </Portal> : null}
+      <PaintedPaperSurface mode="flat" elevation={0} style={[s.header, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }, compact && { flexWrap: 'wrap', gap: 8, padding: 12 }]}>
+        <Surface elevation={0}
           testID="status-fiscal-device"
-          accessibilityRole="text"
           accessibilityLiveRegion="polite"
-          accessibilityLabel={`Състояние на Fiscal Core: ${core}`}
-          style={[s.ready, core.includes("OFFLINE") && s.offline]}
+          style={[s.ready, { backgroundColor: core.includes("OFFLINE") ? theme.colors.errorContainer : theme.colors.secondaryContainer }]}
         >
-          <Text style={s.readyText}>{core}</Text>
-        </View>
-        {prodMode && oidc.tenants.length > 1 ? <View style={s.actions}>{oidc.tenants.map(t=><Pressable key={t.tenant_id} disabled={t.tenant_id===oidc.currentTenant?.tenant_id} style={s.logout} onPress={()=>{setItems([]);setSelected(null);setAdminLists({locations:[],registers:[],operators:[],devices:[]});void oidc.switchTenant(t.tenant_id)}}><Text style={s.readyText}>{t.display_name}</Text></Pressable>)}</View>:null}
+          <PaperText style={{minWidth:0,flexShrink:1,flexWrap:"wrap",color: core.includes("OFFLINE") ? theme.colors.onErrorContainer : theme.colors.onSecondaryContainer}}>Fiscal Core: {core}</PaperText>
+        </Surface>
+        {prodMode && oidc.tenants.length > 1 ? <View style={s.actions}>{oidc.tenants.map(t=><AppButton key={t.tenant_id} mode={t.tenant_id===oidc.currentTenant?.tenant_id ? 'contained-tonal' : 'outlined'} contentStyle={{ minHeight: 48 }} disabled={!oidc.ready || loading || adminBusy || Boolean(commandPending.current) || t.tenant_id===oidc.currentTenant?.tenant_id} accessibilityLabel={shell.company.replace('{name}',t.display_name)} onPress={()=>{if(!currentRender()||!oidc.ready||loading||adminBusy||commandPending.current||t.tenant_id===oidc.currentTenant?.tenant_id)return;invalidateReads();setItems([]);setSelected(null);setRegister('');setAdminLists({locations:[],registers:[],operators:[],devices:[]});void oidc.switchTenant(t.tenant_id)}}>{t.display_name}</AppButton>)}</View>:null}
         {prodMode ? (
-          <Pressable
+          <AppButton
             testID="admin-logout"
-            accessibilityRole="button"
-            accessibilityLabel="Излез от административния профил"
-            style={s.logout}
+            disabled={loading||adminBusy||Boolean(commandPending.current)}
+            mode="outlined"
+            contentStyle={{ minHeight: 48 }}
+            accessibilityLabel={shell.logoutLabel}
             onPress={() => {
-              runtimeAuthToken = "";
+              if(!currentRender()||loading||adminBusy||commandPending.current)return;
+              invalidateReads();
+              requestAuthFence.revoke();runtimeAuthToken = "";
               void oidc.logout();
             }}
-          >
-            <Text style={s.readyText}>Излез</Text>
-          </Pressable>
+          >{shell.logout}</AppButton>
         ) : null}
-      </View>
+      </PaintedPaperSurface>
       <View style={s.body}>
-        <View style={s.nav}>
-          {tabs.map((x) => (
-            <Pressable
-              key={x}
-              testID={`tab-${x}`}
-              accessibilityRole="tab"
-              accessibilityState={{ selected: tab === x }}
-              accessibilityLabel={`Отвори ${x}`}
-              style={[s.navItem, tab === x && s.active]}
-              onPress={() => changeTab(x)}
-            >
-              <Text style={[s.navText, tab === x && s.activeText]}>{x}</Text>
-            </Pressable>
-          ))}
-        </View>
-        <ScrollView style={s.content}>
+        {!compact ? <PaintedPaperSurface testID="shell.navigation.surface" mode="flat" elevation={0} style={[s.nav,{padding:0,gap:0,backgroundColor:theme.colors.surface}]}><ScrollView contentContainerStyle={{ paddingHorizontal: 0 }} style={s.nav}>
+          <Drawer.Section>
+            {tabs.map(x => <List.Item key={x} testID={`tab-${x}`} disabled={adminBusy||Boolean(commandPending.current)} title={tabLabel(x)} titleNumberOfLines={0} titleMaxFontSizeMultiplier={0} titleStyle={{ color: tab === x ? theme.colors.onSecondaryContainer : theme.colors.onSurface }} style={{ minHeight: 48, borderWidth: 1, borderColor: theme.colors.outline, borderRadius: 12, marginVertical: 4, backgroundColor: tab === x ? theme.colors.secondaryContainer : theme.colors.surface }} accessibilityRole="button" accessibilityState={{ selected: tab === x }} accessibilityLabel={shell.open.replace('{name}',tabLabel(x))} onPress={() => changeTab(x)} />)}
+          </Drawer.Section>
+        </ScrollView></PaintedPaperSurface> : null}
+        <PaintedPaperSurface testID="shell.content.surface" mode="flat" elevation={0} style={[s.content,{backgroundColor:theme.colors.background}]}><ScrollView testID="operational.content" style={s.content}
+          contentContainerStyle={{ paddingVertical: compact ? 16 : 20 }}>
           {loading ? (
-            <Text
+            <PaperText
               testID="screen-loading"
               accessibilityLiveRegion="polite"
-              style={s.loadingText}
+              style={[s.loadingText, { color: theme.colors.onSurfaceVariant, backgroundColor: theme.colors.surfaceVariant }]}
             >
-              Зареждане от BeeFiscal API…
-            </Text>
+              {language==='en'?'Loading from BeeFiscal API…':'Зареждане от BeeFiscal API…'}
+            </PaperText>
           ) : null}
-          <View style={s.toolbar}>
-            <Text style={s.section}>{tab}</Text>
-            <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>changeTab("Администриране")}/>
-            <Pressable
-              accessibilityRole="button"
-              accessibilityLabel={`Обнови ${tab}`}
-              accessibilityState={{ disabled: loading }}
-              disabled={loading}
-              style={s.secondary}
-              onPress={() => refresh()}
-            >
-              <Text style={s.probeText}>{loading ? "…" : "Обнови"}</Text>
-            </Pressable>
+          <View style={[s.toolbar, compact && { flexWrap: 'wrap' }]}>
+            <ReferencePicker disabled={adminBusy} label={shell.register} items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={selectRegisterContext} onEmpty={()=>changeTab("Администриране")}/>
+            <AppButton mode="contained-tonal" contentStyle={{ minHeight: 48 }} accessibilityLabel={language==='en'?`Refresh ${tabLabel(tab)}`:`Обнови ${tab}`} disabled={loading || adminBusy} onPress={() => refresh()}>{loading ? '…' : language==='en'?'Refresh':'Обнови'}</AppButton>
           </View>
           {tab === "Устройства" ? (
-            <>
-              {items.map((d) => (
-                <Pressable
-                  key={label(d.id)}
-                  accessibilityRole="button"
-                  accessibilityState={{ selected: selected?.id === d.id }}
-                  accessibilityLabel={`${label(d.vendor)} ${label(d.model)}, състояние ${label(d.status || d.state)}`}
-                  style={[s.card, selected?.id === d.id && s.selected]}
-                  onPress={() => {
-                    setSelected(d);
-                    setMessage(`${label(d.name || d.id)} е избрано`);
-                  }}
-                >
-                  <View>
-                    <Text style={s.device}>
-                      {label(d.name || d.model || d.id)}
-                    </Text>
-                    <Text style={s.meta}>
-                      {label(d.vendor)} • {label(d.model)} •{" "}
-                      {label(d.connection_type || d.transport)}
-                    </Text>
-                  </View>
-                  <View style={s.state}>
-                    <Text style={s.stateText}>
-                      {label(d.status || d.state)}
-                    </Text>
-                  </View>
-                </Pressable>
-              ))}
-              <View testID="device-control-plane" style={s.panel}>
-                <Text style={s.panelTitle}>
-                  Provisioning, BLE и ограничена диагностика
-                </Text>
-                <Text style={s.meta}>
-                  Transport/cloud и достижимостта на крайното ФУ са отделни
-                  групи метрики.
-                </Text>
-                <View style={s.actions}>
-                  {canDiagnose ? (
-                    <Action
-                      testID="device-diagnostics"
-                      label="Диагностика"
-                      disabled={loading || !selected}
-                      onPress={() => void loadDiagnostics()}
-                    />
-                  ) : null}
-                  {canDiagnose ? (
-                    <Action
-                      testID="device-printer-test"
-                      label="Тест на принтера"
-                      disabled={loading || !selected}
-                      onPress={() => void printerTest()}
-                    />
-                  ) : null}
-                  {canAdminister ? (
-                    <Action
-                      testID="device-provision"
-                      label="Нова provisioning сесия"
-                      disabled={loading || !selected}
-                      onPress={() => void startProvisioning()}
-                    />
-                  ) : null}
-                </View>
-                {canIssueBleSession ? (
-                  <>
-                    <ReferencePicker label="Оператор за BLE" items={adminLists.operators} value={operatorId} labelFor={(x)=>`${label(x.operator_code)} ${label(x.first_name)} ${label(x.last_name)}`} onSelect={setOperatorId} onEmpty={()=>changeTab("Администриране")}/>
-                    <Field
-                      label="Подготвен X25519 client public key"
-                      value={blePublicKey}
-                      onChangeText={setBlePublicKey}
-                      testID="ble-client-public-key"
-                    />
-                    <Action
-                      testID="ble-session-issue"
-                      label="Издай BLE сесия"
-                      disabled={
-                        loading ||
-                        !isRegisterId(register) ||
-                        !operatorId ||
-                        !blePublicKey.trim()
-                      }
-                      onPress={() => void issueBleSession()}
-                    />
-                  </>
-                ) : null}
-                {canAdminister ? (
-                  <>
-                    <Text style={s.panelTitle}>Активация на SmartDevice</Text>
-                    <Field
-                      label="QR / еднократен кратък код"
-                      value={activationCode}
-                      onChangeText={setActivationCode}
-                      testID="smart-device-activation-code"
-                    />
-                    <Action
-                      testID="smart-device-activation-lookup"
-                      label="Намери чакащото устройство"
-                      disabled={loading || !activationCode.trim()}
-                      onPress={() => void lookupActivation()}
-                    />
-                    {activationRequest ? (
-                      <Text
-                        testID="smart-device-activation-preview"
-                        style={s.json}
-                      >
-                        {JSON.stringify(activationRequest, null, 2)}
-                      </Text>
-                    ) : null}
-                    <ReferencePicker label="Търговска точка" items={adminLists.locations} value={activationLocationId} labelFor={(x)=>label(x.name || x.code)} onSelect={setActivationLocationId} onEmpty={()=>changeTab("Администриране")}/>
-                    <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>changeTab("Администриране")}/>
-                    <Action
-                      testID="bluecash-activate"
-                      label="Потвърди и привържи устройството"
-                      disabled={
-                        loading ||
-                        !activationRequest ||
-                        !isRegisterId(activationLocationId) ||
-                        !isRegisterId(register)
-                      }
-                      onPress={() => void activateBlueCash()}
-                    />
-                    <Action
-                      testID="smart-device-disconnect"
-                      label="Изключи избраното устройство от компанията"
-                      disabled={loading || !selected}
-                      onPress={() => void disconnectDevice()}
-                    />
-                  </>
-                ) : null}
-                {transportMetrics ? (
-                  <Text testID="transport-metrics" style={s.json}>
-                    Transport: {JSON.stringify(transportMetrics, null, 2)}
-                  </Text>
-                ) : null}
-                {deviceHealth ? (
-                  <Text testID="device-realtime-health" style={s.json}>
-                    Realtime MQTT→REST: {JSON.stringify(deviceHealth, null, 2)}
-                  </Text>
-                ) : null}
-                {deviceActivity.length ? (
-                  <Text testID="device-activity-timeline" style={s.json}>
-                    Последни преходи:{" "}
-                    {JSON.stringify(deviceActivity.slice(0, 20), null, 2)}
-                  </Text>
-                ) : null}
-                {fiscalMetrics ? (
-                  <Text testID="fiscal-device-metrics" style={s.json}>
-                    Крайно ФУ: {JSON.stringify(fiscalMetrics, null, 2)}
-                  </Text>
-                ) : null}
-                {diagnostics ? (
-                  <Text testID="diagnostics-result" style={s.json}>
-                    {JSON.stringify(diagnostics, null, 2)}
-                  </Text>
-                ) : null}
-                {provisioning ? (
-                  <Text testID="provisioning-result" style={s.json}>
-                    {JSON.stringify(provisioning, null, 2)}
-                  </Text>
-                ) : null}
-                {bleSession ? (
-                  <Text testID="ble-session-result" style={s.json}>
-                    {JSON.stringify(bleSession, null, 2)}
-                  </Text>
-                ) : null}
-                {blueCashActivation ? (
-                  <Text testID="bluecash-activation-result" style={s.json}>
-                    {JSON.stringify(blueCashActivation, null, 2)}
-                  </Text>
-                ) : null}
-              </View>
-            </>
+            <DevicesScreen
+              dataOwnerKey={contextKey}
+              devices={items} selected={selected} loading={loading} error={loadError}
+              canDiagnose={canDiagnose} canAdminister={canAdminister} canIssueBleSession={canIssueBleSession}
+              lists={adminLists}
+              context={{ register, operatorId, blePublicKey, activationCode, activationRequest, activationLocationId }}
+              telemetry={{ transportMetrics, deviceHealth, deviceReadiness, deviceActivity, fiscalMetrics, diagnostics, provisioning, bleSession, blueCashActivation }}
+              actions={{
+                retry: () => void refresh('Устройства'),
+                selectDevice: device => { if (!currentRender() || loading || loadError || !items.includes(device)) return; setSelected(device); setDeviceHealth(null); setDeviceReadiness(null); setDeviceActivity([]); setDiagnostics(null); setMessage(language==='en'?`${label(device.name || device.id)} selected`:`${label(device.name || device.id)} е избрано`); },
+                openAdministration: () => changeTab('Администриране'),
+                diagnostics: () => void loadDiagnostics(),
+                printerTest: () => void printerTest(),
+                provisioning: () => void startProvisioning(),
+                selectOperator: id => { if (currentRender() && !loading && !commandPending.current && adminLists.operators.some(item => item.id === id)) setOperatorId(id); },
+                changeBlePublicKey: value => { if (currentRender() && !loading && !commandPending.current) setBlePublicKey(value); },
+                issueBleSession: () => void issueBleSession(),
+                changeActivationCode: value => { if (currentRender() && !loading && !commandPending.current) { setActivationCode(value); setActivationRequest(null); setBlueCashActivation(null); } },
+                lookupActivation: () => void lookupActivation(),
+                selectActivationLocation: id => { if (currentRender() && !loading && !commandPending.current && adminLists.locations.some(item => item.id === id)) setActivationLocationId(id); },
+                selectRegister: selectRegisterContext,
+                confirmActivation: () => void activateBlueCash(),
+                disconnectDevice: () => void disconnectDevice(),
+              }}
+            />
           ) : tab === "Операции" ? (
-            items.map((o) => (
-              <View
-                key={label(o.id)}
-                testID={
-                  String(o.state).includes("UNKNOWN") &&
-                  Array.isArray(o.allowed_actions) &&
-                  o.allowed_actions.includes("RECONCILE")
-                    ? "operation-unknown"
-                    : undefined
-                }
-                accessibilityLabel={`Операция ${label(o.type)}, състояние ${label(o.state)}, УНП ${label(o.unp)}`}
-                style={s.card}
-              >
-                <View>
-                  <Text style={s.device}>
-                    {label(o.type)} • {label(o.state)}
-                  </Text>
-                  <Text style={s.meta}>
-                    {label(o.id)} • УНП {label(o.unp)} • {label(o.created_at)}
-                  </Text>
-                  <Text style={s.meta}>
-                    Разрешени действия:{" "}
-                    {Array.isArray(o.allowed_actions) &&
-                    o.allowed_actions.length > 0
-                      ? o.allowed_actions.join(", ")
-                      : "няма"}
-                  </Text>
-                </View>
-                {canReconcile &&
-                  Array.isArray(o.allowed_actions) &&
-                  o.allowed_actions.includes("RECONCILE") && (
-                    <Pressable
-                      testID={`operation-reconcile-${label(o.id)}`}
-                      accessibilityRole="button"
-                      accessibilityLabel={`Reconcile операция ${label(o.id)}`}
-                      accessibilityState={{ disabled: loading }}
-                      disabled={loading}
-                      style={s.action}
-                      onPress={() => void reconcileOperation(o)}
-                    >
-                      <Text style={s.probeText}>Reconcile</Text>
-                    </Pressable>
-                  )}
-              </View>
-            ))
+            <OperationsScreen loadError={loadError} onRetry={() => void refresh('Операции')} operations={items} loading={loading} canReconcile={canReconcile} onReconcile={(operation) => void reconcileOperation(operation)} />
           ) : tab === "Отчети" ? (
-            <>
-              <View style={s.panel}>
-                <Text style={s.panelTitle}>
-                  Команда към фискалното устройство
-                </Text>
-                <Text style={s.meta}>
-                  UI показва само резултати и артефакти, получени от BeeFiscal
-                  API.
-                </Text>
-                {canRunReports ? (
-                  <View style={s.actions}>
-                    {["X", "Z", "KLEN", "FISCAL_MEMORY"].map((x) => (
-                      <Pressable
-                        key={x}
-                        accessibilityRole="button"
-                        accessibilityLabel={`Създай ${x} отчет`}
-                        accessibilityState={{
-                          disabled: loading || !isRegisterId(register),
-                        }}
-                        disabled={loading || !isRegisterId(register)}
-                        style={s.action}
-                        onPress={() => report(x)}
-                      >
-                        <Text style={s.probeText}>{x}</Text>
-                      </Pressable>
-                    ))}
-                  </View>
-                ) : (
-                  <Text style={s.meta}>
-                    Преглед само за одитор; създаването на отчет изисква
-                    SUPERVISOR или ADMIN.
-                  </Text>
-                )}
-              </View>
-              {items.map((r) => (
-                <View key={label(r.id)} style={s.card}>
-                  <View>
-                    <Text style={s.device}>
-                      {label(r.type)} • {label(r.state)}
-                    </Text>
-                    <Text style={s.meta}>
-                      {label(r.fiscal_reference || r.id)} •{" "}
-                      {label(r.created_at)}
-                    </Text>
-                  </View>
-                </View>
-              ))}
-            </>
+            <ReportsScreen reports={items} loading={loading} canRunReports={canRunReports} registerValid={isRegisterId(register)} loadError={loadError} commandError={reportError} onReport={(type) => void report(type)} onRetry={() => void refresh('Отчети')} />
           ) : tab === "Одит" && canReadAudit ? (
-            <View
-              testID="audit-events"
-              accessibilityLabel="Неизменим одитен журнал"
-            >
-              <View style={s.card} testID="audit-filters">
-                <Text style={s.device}>Филтри на одитния журнал</Text>
-                <Field
-                  label="Оператор/участник"
-                  value={auditActor}
-                  onChangeText={setAuditActor}
-                />
-                <Field
-                  label="Действие"
-                  value={auditAction}
-                  onChangeText={setAuditAction}
-                />
-                <Field
-                  label="Тип обект"
-                  value={auditObjectType}
-                  onChangeText={setAuditObjectType}
-                />
-                <Field
-                  label="Идентификатор на обект"
-                  value={auditObjectId}
-                  onChangeText={setAuditObjectId}
-                />
-                <Field
-                  label="УНП"
-                  value={auditUnp}
-                  onChangeText={setAuditUnp}
-                />
-                <Field
-                  label="От (RFC 3339)"
-                  value={auditFrom}
-                  onChangeText={setAuditFrom}
-                />
-                <Field
-                  label="До (RFC 3339)"
-                  value={auditTo}
-                  onChangeText={setAuditTo}
-                />
-                <Pressable
-                  testID="apply-audit-filters"
-                  style={s.action}
-                  onPress={() => void refresh("Одит")}
-                >
-                  <Text style={s.probeText}>Приложи филтрите</Text>
-                </Pressable>
-              </View>
-              {items.map((event) => (
-                <View
-                  key={label(event.event_id)}
-                  testID={`audit-event-${label(event.event_id)}`}
-                  accessibilityLabel={`Одит ${label(event.action)}, обект ${label(event.object_type)} ${label(event.object_id)}, участник ${label(event.actor_id)}, време ${label(event.occurred_at)}`}
-                  style={s.card}
-                >
-                  <View>
-                    <Text style={s.device}>
-                      {label(event.action)} • {label(event.object_type)}
-                    </Text>
-                    <Text style={s.meta}>
-                      {label(event.object_id)} • участник{" "}
-                      {label(event.actor_id)}
-                    </Text>
-                    <Text style={s.meta}>
-                      {label(event.occurred_at)} • УНП {label(event.unp)}
-                    </Text>
-                    <Text style={s.meta}>Hash: {label(event.event_hash)}</Text>
-                  </View>
-                </View>
-              ))}
-            </View>
+            <AuditScreen events={items} loading={loading} error={loadError}
+              filters={{ actor: auditActor, action: auditAction, objectType: auditObjectType, objectId: auditObjectId, unp: auditUnp, from: auditFrom, to: auditTo }}
+              onChange={(name: keyof AuditFilters, value: string) => {
+                if(!currentRender()||loading||commandPending.current||tab!=="Одит"||!canReadAudit)return;
+                const setters = { actor: setAuditActor, action: setAuditAction, objectType: setAuditObjectType, objectId: setAuditObjectId, unp: setAuditUnp, from: setAuditFrom, to: setAuditTo };
+                setters[name](value);
+              }} onApply={() => void refresh('Одит')} />
           ) : tab === "Администриране" && canAdminister ? (
-            <View testID="admin-editors" style={s.adminGrid}>
-              <AdminCard
-                title="Точка на продажба"
-                count={adminLists.locations.length}
-              >
-                <Choices
-                  items={adminLists.locations}
-                  selectedId={locationId}
-                  labelFor={(x) => `${label(x.code)} • ${label(x.name)}`}
-                  onSelect={(x) => {
-                    setLocationId(label(x.id));
-                    setLocationCode(label(x.code));
-                    setLocationName(label(x.name));
-                    setLocationAddress(label(x.address));
-                  }}
-                />
-                <Field
-                  label="Код на точката"
-                  value={locationCode}
-                  onChangeText={setLocationCode}
-                  testID="admin-location-code"
-                />
-                <Field
-                  label="Име на точката"
-                  value={locationName}
-                  onChangeText={setLocationName}
-                />
-                <Field
-                  label="Адрес"
-                  value={locationAddress}
-                  onChangeText={setLocationAddress}
-                />
-                <Action
-                  label="Запази точка"
-                  disabled={adminBusy}
-                  testID="admin-location-save"
-                  onPress={() =>
-                    mutateAdmin("Запис на точка", async () => {
-                      const current = adminLists.locations.find(
-                        (x) => x.id === locationId,
-                      );
-                      const v = await call(
-                        current
-                          ? `/locations/${encodeURIComponent(locationId)}`
-                          : "/locations",
-                        {
-                          method: current ? "PATCH" : "POST",
-                          headers: current
-                            ? { "If-Match": String(current.version) }
-                            : {},
-                          body: JSON.stringify({
-                            code: locationCode,
-                            name: locationName,
-                            address: locationAddress,
-                            status: "ACTIVE",
-                          }),
-                        },
-                      );
-                      setLocationId(label(v.id));
-                    })
-                  }
-                />
-              </AdminCard>
-              <AdminCard
-                title="Касово място"
-                count={adminLists.registers.length}
-              >
-                <Choices
-                  items={adminLists.registers}
-                  selectedId={register}
-                  labelFor={(x) => label(x.code)}
-                  onSelect={(x) => {
-                    setRegister(label(x.id));
-                    setRegisterCode(label(x.code));
-                    setLocationId(label(x.location_id));
-                  }}
-                />
-                <ReferencePicker label="Търговска точка" items={adminLists.locations} value={locationId} labelFor={(x)=>label(x.name || x.code)} onSelect={setLocationId} onEmpty={()=>setMessage("Първо създайте търговска точка в картата по-горе.")}/>
-                <Field
-                  label="Код на касата"
-                  value={registerCode}
-                  onChangeText={setRegisterCode}
-                />
-                <Action
-                  label="Запази каса"
-                  disabled={adminBusy}
-                  testID="admin-register-save"
-                  onPress={() =>
-                    mutateAdmin("Запис на каса", async () => {
-                      const current = adminLists.registers.find(
-                        (x) => x.id === register,
-                      );
-                      const v = await call(
-                        current ? registerResourcePath(register) : "/registers",
-                        {
-                          method: current ? "PATCH" : "POST",
-                          headers: current
-                            ? { "If-Match": String(current.version) }
-                            : {},
-                          body: JSON.stringify({
-                            location_id: locationId,
-                            code: registerCode,
-                            status: "ACTIVE",
-                            fiscal_device_id: current?.fiscal_device_id,
-                            payment_terminal_id: current?.payment_terminal_id,
-                          }),
-                        },
-                      );
-                      setRegister(label(v.id));
-                    })
-                  }
-                />
-              </AdminCard>
-              <AdminCard
-                title="Фискален оператор"
-                count={adminLists.operators.length}
-              >
-                <Choices
-                  items={adminLists.operators}
-                  selectedId={operatorId}
-                  labelFor={(x) =>
-                    `${label(x.code)} • ${label(x.first_name)} ${label(x.last_name)}`
-                  }
-                  onSelect={(x) => {
-                    setOperatorId(label(x.id));
-                    setOperatorCode(label(x.code));
-                    setOperatorFirstName(label(x.first_name));
-                    setOperatorLastName(label(x.last_name));
-                  }}
-                />
-                <Field
-                  label="Код (4 символа)"
-                  value={operatorCode}
-                  onChangeText={setOperatorCode}
-                  testID="admin-operator-code"
-                />
-                <Field
-                  label="Име"
-                  value={operatorFirstName}
-                  onChangeText={setOperatorFirstName}
-                />
-                <Field
-                  label="Фамилия"
-                  value={operatorLastName}
-                  onChangeText={setOperatorLastName}
-                />
-                <Action
-                  label="Запази оператор"
-                  disabled={adminBusy}
-                  testID="admin-operator-save"
-                  onPress={() =>
-                    mutateAdmin("Запис на оператор", async () => {
-                      const current = adminLists.operators.find(
-                        (x) => x.id === operatorId,
-                      );
-                      const v = await call(
-                        current
-                          ? `/operators/${encodeURIComponent(operatorId)}`
-                          : "/operators",
-                        {
-                          method: current ? "PATCH" : "POST",
-                          headers: current
-                            ? { "If-Match": String(current.version) }
-                            : {},
-                          body: JSON.stringify({
-                            code: operatorCode,
-                            first_name: operatorFirstName,
-                            last_name: operatorLastName,
-                            roles: current?.roles || ["CASHIER"],
-                            active_from:
-                              current?.active_from || new Date().toISOString(),
-                            active_to: current?.active_to || null,
-                          }),
-                        },
-                      );
-                      setOperatorId(label(v.id));
-                    })
-                  }
-                />
-              </AdminCard>
-              <AdminCard
-                title="Фискално устройство"
-                count={adminLists.devices.length}
-              >
-                <Choices
-                  items={adminLists.devices}
-                  selectedId={deviceId}
-                  labelFor={(x) =>
-                    `${label(x.vendor)} ${label(x.model)} • ${label(x.serial)}`
-                  }
-                  onSelect={(x) => {
-                    setDeviceId(label(x.id));
-                    setDeviceVendor(label(x.vendor));
-                    setDeviceModel(label(x.model));
-                    setDeviceSerial(label(x.serial));
-                    setDeviceKind(label(x.kind));
-                    setDeviceDriverId(label(x.driver_id || "datecs"));
-                    setDeviceProtocolId(label(x.protocol_id || "datecs-fp"));
-                    setDeviceProtocolVersion(
-                      label(x.protocol_version || "2.11.4"),
-                    );
-                    setDeviceTransport(label(x.transport || "RS232"));
-                    setDeviceTransportParameters(
-                      JSON.stringify(x.transport_parameters || {}, null, 2),
-                    );
-                    setBindingRole(
-                      label(x.kind) === "PAYMENT_TERMINAL"
-                        ? "OPTIONAL_PAYMENT_TERMINAL"
-                        : "FISCAL_DEVICE",
-                    );
-                  }}
-                />
-                <View style={s.actions}>
-                  <Action
-                    label="Фискално устройство"
-                    disabled={adminBusy}
-                    testID="admin-device-kind-fiscal"
-                    onPress={() => {
-                      setDeviceKind("FISCAL_DEVICE");
-                      setBindingRole("FISCAL_DEVICE");
-                    }}
-                  />
-                  <Action
-                    label="Опционален POS терминал"
-                    disabled={adminBusy}
-                    testID="admin-device-kind-terminal"
-                    onPress={() => {
-                      setDeviceKind("PAYMENT_TERMINAL");
-                      setBindingRole("OPTIONAL_PAYMENT_TERMINAL");
-                    }}
-                  />
-                </View>
-                <Text style={s.meta}>
-                  Capability: {deviceKind} • binding: {bindingRole}
-                </Text>
-                <Field
-                  label="Производител"
-                  value={deviceVendor}
-                  onChangeText={setDeviceVendor}
-                />
-                <Field
-                  label="Модел"
-                  value={deviceModel}
-                  onChangeText={setDeviceModel}
-                />
-                <Field
-                  label="Сериен номер"
-                  value={deviceSerial}
-                  onChangeText={setDeviceSerial}
-                  testID="admin-device-serial"
-                />
-                <Field
-                  label="Driver ID"
-                  value={deviceDriverId}
-                  onChangeText={setDeviceDriverId}
-                  testID="admin-device-driver"
-                />
-                <Field
-                  label="Protocol ID"
-                  value={deviceProtocolId}
-                  onChangeText={setDeviceProtocolId}
-                  testID="admin-device-protocol"
-                />
-                <Field
-                  label="Protocol version"
-                  value={deviceProtocolVersion}
-                  onChangeText={setDeviceProtocolVersion}
-                  testID="admin-device-protocol-version"
-                />
-                <View style={s.actions}>
-                  <Action
-                    testID="transport-rs232"
-                    label="RS-232"
-                    disabled={adminBusy}
-                    onPress={() => {
-                      setDeviceTransport("RS232");
-                      setDeviceTransportParameters(
-                        '{"baud":115200,"data_bits":8,"parity":"N","stop_bits":1,"tx_pin":17,"rx_pin":18}',
-                      );
-                    }}
-                  />
-                  <Action
-                    testID="transport-usb"
-                    label="USB CDC"
-                    disabled={adminBusy}
-                    onPress={() => {
-                      setDeviceTransport("USB_SERIAL");
-                      setDeviceTransportParameters(
-                        '{"vid":0,"pid":0,"interface":0}',
-                      );
-                    }}
-                  />
-                  <Action
-                    testID="transport-ble"
-                    label="BLE GATT"
-                    disabled={adminBusy}
-                    onPress={() => {
-                      setDeviceTransport("BLE_GATT");
-                      setDeviceTransportParameters(
-                        '{"address_policy":"ADVERTISING_IDENTITY"}',
-                      );
-                    }}
-                  />
-                </View>
-                <Text style={s.meta}>Избран transport: {deviceTransport}</Text>
-                {deviceTransport === "RS232" ? (
-                  <>
-                    <Field
-                      label="Baud"
-                      value={transportParameter("baud", "115200")}
-                      onChangeText={(v) =>
-                        setTransportParameter("baud", v, true)
-                      }
-                    />
-                    <Field
-                      label="Data bits"
-                      value={transportParameter("data_bits", "8")}
-                      onChangeText={(v) =>
-                        setTransportParameter("data_bits", v, true)
-                      }
-                    />
-                    <Field
-                      label="Parity (N/E/O)"
-                      value={transportParameter("parity", "N")}
-                      onChangeText={(v) => setTransportParameter("parity", v)}
-                    />
-                    <Field
-                      label="Stop bits"
-                      value={transportParameter("stop_bits", "1")}
-                      onChangeText={(v) =>
-                        setTransportParameter("stop_bits", v, true)
-                      }
-                    />
-                    <Field
-                      label="TX pin"
-                      value={transportParameter("tx_pin", "17")}
-                      onChangeText={(v) =>
-                        setTransportParameter("tx_pin", v, true)
-                      }
-                    />
-                    <Field
-                      label="RX pin"
-                      value={transportParameter("rx_pin", "18")}
-                      onChangeText={(v) =>
-                        setTransportParameter("rx_pin", v, true)
-                      }
-                    />
-                  </>
-                ) : null}
-                {deviceTransport === "USB_SERIAL" ? (
-                  <>
-                    <Field
-                      label="USB VID"
-                      value={transportParameter("vid", "0")}
-                      onChangeText={(v) =>
-                        setTransportParameter("vid", v, true)
-                      }
-                    />
-                    <Field
-                      label="USB PID"
-                      value={transportParameter("pid", "0")}
-                      onChangeText={(v) =>
-                        setTransportParameter("pid", v, true)
-                      }
-                    />
-                    <Field
-                      label="CDC interface"
-                      value={transportParameter("interface", "0")}
-                      onChangeText={(v) =>
-                        setTransportParameter("interface", v, true)
-                      }
-                    />
-                    <Field
-                      label="Очакван USB serial"
-                      value={transportParameter("serial", "")}
-                      onChangeText={(v) => setTransportParameter("serial", v)}
-                    />
-                  </>
-                ) : null}
-                {deviceTransport === "BLE_GATT" ? (
-                  <>
-                    <Field
-                      label="Advertising identity"
-                      value={transportParameter("advertising_identity", "")}
-                      onChangeText={(v) =>
-                        setTransportParameter("advertising_identity", v)
-                      }
-                    />
-                    <Field
-                      label="Service UUID"
-                      value={transportParameter("service_uuid", "")}
-                      onChangeText={(v) =>
-                        setTransportParameter("service_uuid", v)
-                      }
-                    />
-                    <Field
-                      label="TX characteristic UUID"
-                      value={transportParameter("tx_characteristic_uuid", "")}
-                      onChangeText={(v) =>
-                        setTransportParameter("tx_characteristic_uuid", v)
-                      }
-                    />
-                    <Field
-                      label="RX characteristic UUID"
-                      value={transportParameter("rx_characteristic_uuid", "")}
-                      onChangeText={(v) =>
-                        setTransportParameter("rx_characteristic_uuid", v)
-                      }
-                    />
-                  </>
-                ) : null}
-                <Field
-                  label="Advanced transport JSON (read-only contract preview)"
-                  value={deviceTransportParameters}
-                  onChangeText={setDeviceTransportParameters}
-                  testID="admin-device-transport-parameters"
-                />
-                <Action
-                  label="Запази DEV ФУ"
-                  disabled={adminBusy}
-                  testID="admin-device-save"
-                  onPress={() =>
-                    mutateAdmin("Запис на ФУ", async () => {
-                      const current = adminLists.devices.find(
-                        (x) => x.id === deviceId,
-                      );
-                      const v = await call(
-                        current
-                          ? `/devices/${encodeURIComponent(deviceId)}`
-                          : "/devices",
-                        {
-                          method: current ? "PATCH" : "POST",
-                          headers: current
-                            ? { "If-Match": String(current.version) }
-                            : {},
-                          body: JSON.stringify({
-                            kind: deviceKind,
-                            vendor: deviceVendor,
-                            model: deviceModel,
-                            serial: deviceSerial,
-                            driver_id: deviceDriverId,
-                            protocol_id: deviceProtocolId,
-                            protocol_version: deviceProtocolVersion,
-                            transport: deviceTransport,
-                            transport_parameters: JSON.parse(
-                              deviceTransportParameters || "{}",
-                            ),
-                            status: current?.status || "DRAFT",
-                            environment: current?.environment || "DEV",
-                            simulated: current?.simulated ?? true,
-                            approved_type_evidence_id:
-                              current?.approved_type_evidence_id,
-                            service_contract_evidence_id:
-                              current?.service_contract_evidence_id,
-                          }),
-                        },
-                      );
-                      setDeviceId(label(v.id));
-                    })
-                  }
-                />
-                {(() => {
-                  const current = adminLists.devices.find(
-                    (x) => x.id === deviceId,
-                  );
-                  const target =
-                    current?.status === "DRAFT"
-                      ? "PENDING_SERVICE_ACTIVATION"
-                      : current?.status === "PENDING_SERVICE_ACTIVATION"
-                        ? "ACTIVE"
-                        : "";
-                  if (!current || !target) return null;
-                  return (
-                    <Action
-                      label={
-                        target === "ACTIVE"
-                          ? "Активирай ФУ"
-                          : "Предай към сервизна активация"
-                      }
-                      disabled={adminBusy}
-                      testID="admin-device-activate"
-                      onPress={() =>
-                        mutateAdmin("Промяна на lifecycle", () =>
-                          call(`/devices/${encodeURIComponent(deviceId)}`, {
-                            method: "PATCH",
-                            headers: { "If-Match": String(current.version) },
-                            body: JSON.stringify({
-                              ...current,
-                              status: target,
-                              id: undefined,
-                              version: undefined,
-                              created_at: undefined,
-                              updated_at: undefined,
-                            }),
-                          }),
-                        )
-                      }
-                    />
-                  );
-                })()}
-              </AdminCard>
-              <AdminCard title="Привързване към касата" count={0}>
-                <ReferencePicker label="Касово място" items={adminLists.registers} value={register} labelFor={(x)=>label(x.code || x.name)} onSelect={setRegister} onEmpty={()=>setMessage("Първо създайте касово място.")}/>
-                <View style={s.actions}>
-                  <Action
-                    label="Роля ФУ"
-                    disabled={adminBusy}
-                    testID="admin-binding-role-fiscal"
-                    onPress={() => setBindingRole("FISCAL_DEVICE")}
-                  />
-                  <Action
-                    label="Роля POS"
-                    disabled={adminBusy}
-                    testID="admin-binding-role-terminal"
-                    onPress={() => setBindingRole("OPTIONAL_PAYMENT_TERMINAL")}
-                  />
-                </View>
-                <ReferencePicker label="Устройство" items={adminLists.devices} value={deviceId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setDeviceId} onEmpty={()=>setMessage("Първо създайте устройство.")}/>
-                <Action
-                  label="Привържи ФУ"
-                  disabled={adminBusy || !isRegisterId(register)}
-                  testID="admin-binding-save"
-                  onPress={() =>
-                    mutateAdmin("Привързване на ФУ", () =>
-                      call(registerResourcePath(register, "/bindings"), {
-                        method: "POST",
-                        body: JSON.stringify({
-                          device_id: deviceId,
-                          role: bindingRole,
-                        }),
-                      }),
-                    )
-                  }
-                />
-                <Text style={s.meta}>
-                  Composite profile — активира се само след apply ACK от
-                  адаптера
-                </Text>
-                <View style={s.actions}>
-                  {MVP1_DEVICE_PROFILES.map((profile) => (
-                    <Action
-                      key={profile.id}
-                      label={profile.id}
-                      disabled={adminBusy}
-                      testID={`composite-profile-${profile.id}`}
-                      onPress={() => setCompositeProfile(profile.id)}
-                    />
-                  ))}
-                </View>
-                <ReferencePicker label="Адаптер" items={adminLists.devices} value={adapterDeviceId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setAdapterDeviceId} onEmpty={()=>setMessage("Първо създайте устройство-адаптер.")}/>
-                <ReferencePicker label="Фискално устройство" items={adminLists.devices.filter((x)=>x.kind === "FISCAL_DEVICE")} value={fiscalEndpointId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setFiscalEndpointId} onEmpty={()=>setMessage("Първо създайте фискално устройство.")}/>
-                <ReferencePicker label="Платежен терминал (незадължително)" items={adminLists.devices.filter((x)=>x.kind === "PAYMENT_TERMINAL")} value={paymentEndpointId} labelFor={(x)=>`${label(x.vendor)} ${label(x.model)} · ${label(x.serial)}`} onSelect={setPaymentEndpointId} required={false}/>
-                <Field
-                  label="Expected register version"
-                  value={expectedRegisterVersion}
-                  onChangeText={setExpectedRegisterVersion}
-                  testID="composite-register-version"
-                />
-                <Action
-                  label="Подготви composite binding"
-                  disabled={adminBusy || !isRegisterId(register)}
-                  testID="composite-binding-save"
-                  onPress={stageCompositeBinding}
-                />
-                {compositeBinding ? (
-                  <>
-                    <Text testID="composite-binding-state" style={s.meta}>
-                      Статус: {label(compositeBinding.status)} • generation{" "}
-                      {label(compositeBinding.generation)} • applied generation{" "}
-                      {label(compositeBinding.applied_generation || "—")}
-                    </Text>
-                    {compositeBinding.status === "PENDING" ? (
-                      <Text
-                        testID="composite-binding-awaiting-adapter"
-                        style={s.meta}
-                      >
-                        Очаква се подписано apply потвърждение от адаптера
-                      </Text>
-                    ) : null}
-                    <View style={s.actions}>
-                      <Action
-                        label="Изключи / rebind"
-                        disabled={
-                          adminBusy || compositeBinding.status === "REVOKED"
-                        }
-                        testID="composite-binding-disable"
-                        onPress={disableCompositeBinding}
-                      />
-                    </View>
-                  </>
-                ) : null}
-              </AdminCard>
-            </View>
+            <AdministrationScreen {...{
+              adminLists,
+              adminBusy: adminBusy || loading,
+              compositeBinding,
+              compositeProfile,
+              mutateAdmin,
+              stageCompositeBinding,
+              disableCompositeBinding,
+              transportParameter,
+              setTransportParameter,
+              locationCode,
+              locationName,
+              locationAddress,
+              registerCode,
+              locationId,
+              operatorCode,
+              operatorId,
+              operatorFirstName,
+              operatorLastName,
+              deviceVendor,
+              deviceModel,
+              deviceSerial,
+              deviceKind,
+              deviceDriverId,
+              deviceProtocolId,
+              deviceProtocolVersion,
+              deviceTransport,
+              deviceTransportParameters,
+              bindingRole,
+              deviceId,
+              adapterDeviceId,
+              fiscalEndpointId,
+              paymentEndpointId,
+              expectedRegisterVersion,
+              register,
+              setLocationCode,
+              setLocationName,
+              setLocationAddress,
+              setRegisterCode,
+              setLocationId,
+              setOperatorCode,
+              setOperatorId,
+              setOperatorFirstName,
+              setOperatorLastName,
+              setDeviceVendor,
+              setDeviceModel,
+              setDeviceSerial,
+              setDeviceKind,
+              setDeviceDriverId,
+              setDeviceProtocolId,
+              setDeviceProtocolVersion,
+              setDeviceTransport,
+              setDeviceTransportParameters,
+              setBindingRole,
+              setDeviceId,
+              setAdapterDeviceId,
+              setFiscalEndpointId,
+              setPaymentEndpointId,
+              setExpectedRegisterVersion,
+              setRegister,
+              setCompositeProfile,
+              setMessage,
+            }} />
           ) : (
-            <View style={s.panel}>
-              <Text style={s.panelTitle}>Ефективна регулаторна политика</Text>
-              <Text style={s.meta}>
-                ID: {label(policy?.policy_id || policy?.id)} • валута{" "}
-                {label(policy?.currency)} • държава{" "}
-                {label(policy?.country_code)}
-              </Text>
-              <Text style={s.json}>
-                {policy
-                  ? JSON.stringify(policy, null, 2)
-                  : "Политиката не е заредена"}
-              </Text>
-            </View>
+            <SettingsScreen policy={policy} loading={loading} error={loadError} onRetry={() => void refresh('Настройки')} />
           )}
           {items.length === 0 &&
           tab !== "Настройки" &&
+          tab !== "Устройства" &&
+          tab !== "Одит" &&
           tab !== "Отчети" &&
+          tab !== "Операции" &&
           tab !== "Администриране" ? (
-            <Text style={s.empty}>Няма записи в API за избрания филтър.</Text>
+            <PaperText variant="bodyMedium" style={{ paddingVertical: 32, textAlign: 'center' }}>Няма записи в API за избрания филтър.</PaperText>
           ) : null}
-        </ScrollView>
+        </ScrollView></PaintedPaperSurface>
       </View>
-      <View
+      <PaintedPaperSurface mode="flat" elevation={0}
         testID="status-transport"
-        accessibilityRole="text"
         accessibilityLiveRegion="polite"
-        accessibilityLabel={`Състояние: ${message}`}
-        style={s.footer}
+        style={[s.footer, { backgroundColor: theme.colors.surface, borderColor: theme.colors.outlineVariant }, compact && { flexWrap: 'wrap', gap: 8 }]}
       >
-        <Text style={s.footerText}>{message}</Text>
-        <Pressable
+        <PaperText style={[s.footerText, { color: theme.colors.onSurface }]}>{language==='en'&&message==='Зареждане на данните от публичния API…'?'Loading data from the public API…':message}</PaperText>
+        <AppButton
           testID="readiness-probe"
-          accessibilityRole="button"
-          accessibilityLabel="Провери cloud, Edge, driver и крайното фискално устройство"
-          style={s.probe}
+          mode="contained"
+          contentStyle={{ minHeight: 48 }}
+          accessibilityLabel={language==='en'?'Check cloud, Edge, driver and fiscal device':'Провери cloud, Edge, driver и крайното фискално устройство'}
+          disabled={loading || adminBusy || tab !== "Устройства" || !selected || !isRegisterId(register)}
           onPress={probe}
-        >
-          <Text style={s.probeText}>Сквозен probe</Text>
-        </Pressable>
-      </View>
-    </SafeAreaView>
-  );
-}
-
-function Field({
-  label: fieldLabel,
-  value,
-  onChangeText,
-  testID,
-}: {
-  label: string;
-  value: string;
-  onChangeText: (value: string) => void;
-  testID?: string;
-}) {
-  return (
-    <TextInput
-      testID={testID}
-      accessibilityLabel={fieldLabel}
-      value={value}
-      onChangeText={onChangeText}
-      style={s.adminInput}
-      placeholder={fieldLabel}
-    />
-  );
-}
-
-function Action({
-  label: actionLabel,
-  onPress,
-  disabled,
-  testID,
-}: {
-  label: string;
-  onPress: () => void;
-  disabled: boolean;
-  testID: string;
-}) {
-  return (
-    <Pressable
-      testID={testID}
-      accessibilityRole="button"
-      accessibilityLabel={actionLabel}
-      accessibilityState={{ disabled }}
-      disabled={disabled}
-      style={[s.action, disabled && s.disabled]}
-      onPress={onPress}
-    >
-      <Text style={s.probeText}>{actionLabel}</Text>
-    </Pressable>
-  );
-}
-
-function AdminCard({
-  title,
-  count,
-  children,
-}: {
-  title: string;
-  count: number;
-  children: React.ReactNode;
-}) {
-  return (
-    <View style={s.adminCard}>
-      <Text style={s.panelTitle}>{title}</Text>
-      {count > 0 ? <Text style={s.meta}>Регистрирани: {count}</Text> : null}
-      {children}
-    </View>
-  );
-}
-
-function ReferencePicker({label: title,items,value,labelFor,onSelect,onEmpty,required=true}:{label:string;items:Item[];value:string;labelFor:(item:Item)=>string;onSelect:(id:string)=>void;onEmpty?:()=>void;required?:boolean}) {
-  const [query,setQuery]=useState("");
-  const visible=items.filter((item)=>labelFor(item).toLowerCase().includes(query.trim().toLowerCase()));
-  return <View style={{gap:8,minWidth:220}}><Text style={s.meta}>{title}</Text>{items.length?<><TextInput accessibilityLabel={`Търсене: ${title}`} style={s.input} placeholder={`Търсене: ${title}`} value={query} onChangeText={setQuery}/><View style={s.choices}>{visible.map((item)=><Pressable key={label(item.id)} accessibilityRole="button" accessibilityState={{selected:item.id===value}} style={[s.choice,item.id===value&&s.selected]} onPress={()=>onSelect(label(item.id))}><Text style={s.meta}>{labelFor(item)}</Text></Pressable>)}</View>{!visible.length?<Text style={s.meta}>Няма съвпадения.</Text>:null}</>:<><Text style={s.meta}>{required?"Справочникът е празен.":"Няма налични записи."}</Text>{required&&onEmpty?<Pressable accessibilityRole="button" style={s.secondary} onPress={onEmpty}><Text style={s.probeText}>Попълни справочника</Text></Pressable>:null}</>}</View>;
-}
-
-function Choices({
-  items,
-  selectedId,
-  labelFor,
-  onSelect,
-}: {
-  items: Item[];
-  selectedId: string;
-  labelFor: (item: Item) => string;
-  onSelect: (item: Item) => void;
-}) {
-  if (items.length === 0) {
-    return <Text style={s.meta}>Все още няма записи.</Text>;
-  }
-  return (
-    <ScrollView
-      horizontal
-      accessibilityLabel="Съществуващи записи"
-      contentContainerStyle={s.choices}
-    >
-      {items.map((item) => (
-        <Pressable
-          key={label(item.id)}
-          accessibilityRole="button"
-          accessibilityState={{ selected: item.id === selectedId }}
-          style={[s.choice, item.id === selectedId && s.selected]}
-          onPress={() => onSelect(item)}
-        >
-          <Text style={s.meta}>{labelFor(item)}</Text>
-        </Pressable>
-      ))}
-    </ScrollView>
+        >{language==='en'?'Connectivity check':'Сквозен probe'}</AppButton>
+      </PaintedPaperSurface>
+    </SafeAreaView></SafePaperSurface>
+    <ProvisioningDialog key={contextKey} visible={provisioningVisible} busy={provisioningBusy} onCancel={()=>setProvisioningOpen(false)} onSubmit={installProvisioning}/></>
   );
 }
 
 const s = StyleSheet.create({
-  root: { flex: 1, backgroundColor: beeloyColors.background },
-  login: {
-    alignSelf: "center",
-    width: "90%",
-    maxWidth: 540,
-    marginTop: 80,
-    padding: 28,
-    backgroundColor: beeloyColors.surface,
-    borderRadius: 16,
-    gap: 18,
-  },
-  loginTitle: { fontSize: 24, fontWeight: "900", color: beeloyColors.tertiary },
-  loginText: { fontSize: 16, color: beeloyColors.tertiary, lineHeight: 23 },
-  loginError: { fontSize: 15, color: beeloyColors.error, fontWeight: "700" },
-  loginButton: {
-    minHeight: 56,
-    backgroundColor: beeloyColors.success,
-    borderRadius: 10,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loginButtonText: { color: beeloyColors.onPrimary, fontSize: 17, fontWeight: "800" },
+  root: { flex: 1 },
   logout: {
     minHeight: 48,
     paddingHorizontal: 14,
@@ -1906,6 +1093,8 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   header: {
+    flexWrap: 'wrap',
+    gap: 8,
     padding: 20,
     backgroundColor: beeloyColors.surface,
     flexDirection: "row",
@@ -1914,9 +1103,12 @@ const s = StyleSheet.create({
     borderBottomWidth: 1,
     borderColor: beeloyColors.tertiaryContainer,
   },
-  title: { fontSize: 29, fontWeight: "900", color: beeloyColors.tertiary },
+  title: { flexShrink: 1 },
   sub: { color: beeloyColors.tertiary, marginTop: 3 },
   ready: {
+    minWidth: 0,
+    maxWidth: '100%',
+    flexShrink: 1,
     backgroundColor: beeloyColors.successContainer,
     padding: 10,
     borderRadius: 20,
@@ -1926,40 +1118,19 @@ const s = StyleSheet.create({
   offline: { backgroundColor: beeloyColors.errorContainer },
   readyText: { color: beeloyColors.success, fontWeight: "900" },
   body: { flex: 1, flexDirection: "row" },
-  nav: { width: 190, backgroundColor: beeloyColors.tertiary, padding: 12, gap: 6 },
-  navItem: {
-    padding: 14,
-    borderRadius: 10,
-    minHeight: 48,
-    justifyContent: "center",
-  },
-  active: { backgroundColor: beeloyColors.tertiary },
-  navText: { color: beeloyColors.tertiary, fontWeight: "700" },
-  activeText: { color: beeloyColors.onPrimary },
-  content: { flex: 1, padding: 20 },
+  nav: { width: 190, flexBasis: 190, flexGrow: 0, flexShrink: 0, padding: 12, gap: 6 },
+  content: { flex: 1 },
   toolbar: {
+    flexWrap: 'wrap',
     flexDirection: "row",
     gap: 10,
     alignItems: "center",
     marginBottom: 16,
   },
-  section: { fontSize: 25, fontWeight: "900", color: beeloyColors.tertiary, flex: 1 },
-  input: {
-    backgroundColor: beeloyColors.surface,
-    borderWidth: 1,
-    borderColor: beeloyColors.tertiaryContainer,
-    padding: 10,
-    borderRadius: 9,
-    minWidth: 150,
-    minHeight: 48,
-  },
-  secondary: {
-    backgroundColor: beeloyColors.tertiary,
-    padding: 11,
-    borderRadius: 9,
-    minHeight: 48,
-    justifyContent: "center",
-  },
+  section: {
+    flexBasis: '100%',
+    maxWidth: '100%',
+    flexShrink: 1, flex: 1 },
   card: {
     backgroundColor: beeloyColors.surface,
     padding: 18,
@@ -2006,12 +1177,6 @@ const s = StyleSheet.create({
     justifyContent: "center",
   },
   disabled: { opacity: 0.55 },
-  adminGrid: {
-    flexDirection: "row",
-    flexWrap: "wrap",
-    gap: 14,
-    paddingBottom: 24,
-  },
   adminCard: {
     backgroundColor: beeloyColors.surface,
     borderRadius: 14,
@@ -2041,20 +1206,11 @@ const s = StyleSheet.create({
   json: { marginTop: 16, fontFamily: "monospace", color: beeloyColors.tertiary },
   footer: {
     padding: 12,
-    backgroundColor: beeloyColors.surface,
     borderTopWidth: 1,
-    borderColor: beeloyColors.tertiaryContainer,
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
   },
   footerText: { color: beeloyColors.tertiary, flex: 1 },
-  probe: {
-    backgroundColor: beeloyColors.success,
-    padding: 11,
-    borderRadius: 9,
-    minHeight: 56,
-    justifyContent: "center",
-  },
   probeText: { color: beeloyColors.onPrimary, fontWeight: "800" },
 });

@@ -1,0 +1,8 @@
+module	test_command	cwd	wave	status
+fiscal-backend	go test ./...	fiscal-backend	1	active
+s3	bash IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh	.	2	active
+protocols	bash IoT/protocol-abstraction/run-tests.sh	.	2	active
+smartdevices	./gradlew :bluecash-app:testProdDebugUnitTest :bluecash-app:testDemoDebugUnitTest :daisy-smart-app:testProdDebugUnitTest :daisy-smart-app:testDemoDebugUnitTest --no-daemon --rerun-tasks	SmartDevices	3	active
+pos	npx --no-install jest --runInBand	../POS/pos-app	3	active
+minipos	npx --no-install vitest run	minipos/miniposweb	3	active
+e2e	make compose-e2e	.	4	active

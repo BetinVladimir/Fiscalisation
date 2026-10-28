@@ -1,0 +1,9 @@
+{
+  "scope": "local Make entrypoint PASS; remote CI execution OPEN",
+  "raw_log_sha256": "060f5d25978fc4d00e4fb53e55e42a05aae66afdf775128007c85f28e116ad23",
+  "gzip_log_sha256": "4dcac3133211c272be96d628f722c84fe2d1127978aca366b13f999a09b28eff",
+  "source_sha256": {
+    "Makefile": "827cec58757bf61af2bd7c10ce6bdb63148b8aef1c34708bc681ed7b6e9079d9",
+    ".github/workflows/ble-stream.yml": "e28e82b81fa60d7da2160b382eca2f10397d4e8154e6a36837bb4ea7fbba7c4c"
+  }
+}

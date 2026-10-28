@@ -1,0 +1,12 @@
+{
+  "scope": "40 actual C++/mbedTLS interval cases and existing proof/cache/NVS tests PASS; default provider unavailable; no full anchor implementation",
+  "root_log": {
+    "raw_sha256": "df503ff32b1ffb401e8568732a069ad0d52c3cc171dc8d28a411f293a41b4d6a",
+    "gzip_sha256": "dd890ef086b4f4d957413c715dbd60af24c84b47c4756a4db2d93b621e1b6e70"
+  },
+  "changed_source_sha256": {
+    "IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.h": "b572d64e33194a80a6900843f761714d97decb673da10f03960a0e19d42911ba",
+    "IoT/firmware/edge-agent-s3/idf/main/ble_certificate_proof.cpp": "5554dda12f272b52c9b08a89f6b712f4cf5ab0d27aa3d32e06203bf1f7ce4e3a",
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_proof_host/proof_native.cpp": "63736abd953f33bc4e09a1f0e795ad31dcbfb8229e5cada45cc7d99462c16a2b"
+  }
+}

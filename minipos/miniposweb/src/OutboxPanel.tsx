@@ -1,12 +1,13 @@
 import { useId } from 'react';
 import { AppButton as Button } from './ui/app-button';
 import { ActivityIndicator, Card, HelperText, Text } from "react-native-paper";
-import type { OutboxRow } from "./storage/outbox";
+import { isProvenTerminal, type OutboxRow } from "./storage/outbox";
 import { translations } from "./ui/workTranslations.generated";
 import type { Language } from "./ui/PreferenceControls";
 
 function statusKey(row: OutboxRow): keyof typeof translations.en {
   if (!row.result) return "outboxAwaiting";
+  if (!isProvenTerminal(row.result)) return "outboxUncertain";
   if (["UNKNOWN", "RECOVERY_REQUIRED", "EXECUTING", "RESERVED"].includes(row.result.state)) return "outboxUncertain";
   if (["FAILED", "REJECTED"].includes(row.result.state)) return "outboxFailed";
   if (row.posSync && !row.posSync.synced_at) return "outboxPendingSync";
@@ -34,7 +35,7 @@ export function OutboxPanel({ rows, loading, error, language, onRefresh }: {
         <Card key={row.intent.client_operation_id} mode="outlined" testID={`offline-outbox-row-${row.intent.client_operation_id}`}>
           <Card.Content style={{ gap: 4 }}>
             <Text variant="titleMedium" testID={`offline-outbox-status-${row.intent.client_operation_id}`}>{t[statusKey(row)]}</Text>
-            <Text variant="bodySmall" selectable style={{ flexShrink: 1 }}>{row.intent.client_operation_id}</Text>
+            <Text variant="bodySmall" style={{ flexShrink: 1 }}>{(row.intent.items??[]).map(item=>`${item.name} × ${item.quantity}`).join(", ")}</Text>
           </Card.Content>
         </Card>) : null}
     </Card.Content>

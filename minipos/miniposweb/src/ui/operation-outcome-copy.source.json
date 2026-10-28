@@ -1,0 +1,8 @@
+{
+ "confirmedTitle":"Operation completed",
+ "confirmedBody":"The operation result is confirmed.",
+ "failedTitle":"Operation not completed",
+ "failedBody":"The operation did not complete. Check the details before continuing.",
+ "pendingTitle":"Awaiting confirmation",
+ "pendingBody":"The result is not confirmed. Do not repeat the payment; check the operation status."
+}

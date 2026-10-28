@@ -3,7 +3,7 @@ import { readFile, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { extname, join, normalize } from 'node:path';
 
-const dir = new URL('../.playwright-e2e-web', import.meta.url).pathname;
+const dir = process.env.E2E_WEB_DIR || new URL('../.playwright-e2e-web', import.meta.url).pathname;
 const port = Number(process.env.E2E_PORT || 19200);
 if (!existsSync(dir)) {
   console.error(`Missing E2E build: ${dir}. Run npm run build:e2e first.`);

@@ -1,3 +1,4 @@
+import { demoEmailOtpEnabled, validEmailOtp } from '../emailOtpCode';
 import {Surface as SafePaperSurface} from 'react-native-paper';
 import { AppButton } from '../ui/app-button';
 import { FormField } from '../ui/form-field';
@@ -19,6 +20,7 @@ type AuthState = ReturnType<typeof useEmailOtpAuth>;
 
 export function AuthScreen({ auth }: { auth: AuthState }) {
   const theme = useTheme();
+  const demoCode = demoEmailOtpEnabled();
   const errorId = `beefiscal-auth-error-${useId().replace(/:/g, '')}`;
   const { language } = useUiPreferences();
   const copy = authCopy[language];
@@ -45,7 +47,7 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
 
 
   return (
-    <SafePaperSurface mode="flat" elevation={0} style={{flex:1,backgroundColor:theme.colors.background}}><SafeAreaView testID="auth.root" style={{ flex: 1 }}>
+    <SafePaperSurface testID="auth.surface" mode="flat" elevation={0} style={{flex:1,backgroundColor:theme.colors.background}}><SafeAreaView testID="auth.root" style={{ flex: 1 }}>
       <StatusBar style={theme.dark ? 'light' : 'dark'} />
       <LanguageThemeControls />
       <ScrollView contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingVertical: 16 }} keyboardShouldPersistTaps="handled">
@@ -55,7 +57,7 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
               <Text variant="headlineSmall" accessibilityRole="header">{copy.title}</Text>
               <Text variant="bodyMedium">{copy.description}</Text>
 
-              {auth.error ? <HelperText nativeID={errorId} type="error" visible accessibilityRole="alert" accessibilityLiveRegion="polite">{auth.error}</HelperText> : null}
+              {auth.error ? <HelperText testID="auth.error" nativeID={errorId} type="error" visible accessibilityRole="alert" accessibilityLiveRegion="polite">{foundationCopy[language].error}</HelperText> : null}
 
               {stage === 'email' ? <>
                 <FormField
@@ -79,9 +81,10 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
                   editable={auth.ready}
                   aria-describedby={Platform.OS === 'web' && auth.error ? errorId : undefined}
                   mode="outlined"
-                  label={copy.code}
-                  accessibilityLabel={copy.code}
-                  keyboardType="number-pad"
+                  label={demoCode ? `${copy.code}: demo` : copy.code}
+                  accessibilityLabel={demoCode ? `${copy.code}: demo` : copy.code}
+                  keyboardType={demoCode ? "default" : "number-pad"}
+                  autoCapitalize="none" autoCorrect={false}
                   textContentType="oneTimeCode"
                   autoComplete="one-time-code"
                   maxLength={6}
@@ -89,7 +92,7 @@ export function AuthScreen({ auth }: { auth: AuthState }) {
                   onChangeText={auth.setCode}
                   onSubmitEditing={() => { if (auth.ready) void auth.verifyCode(); }}
                 />
-                <AppButton testID="admin-login-verify" mode="contained" contentStyle={{ minHeight: 48 }} disabled={!auth.ready || !/^\d{6}$/.test(auth.code)} onPress={() => void auth.verifyCode()}>{copy.verify}</AppButton>
+                <AppButton testID="admin-login-verify" mode="contained" contentStyle={{ minHeight: 48 }} disabled={!auth.ready || !validEmailOtp(auth.code, demoCode)} onPress={() => void auth.verifyCode()}>{copy.verify}</AppButton>
               </> : <>
                 <Text variant="titleMedium" accessibilityRole="header">{copy.chooseCompany}</Text>
                 {auth.tenants.map(tenant => (

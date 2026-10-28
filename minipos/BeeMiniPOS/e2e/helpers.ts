@@ -207,6 +207,9 @@ export async function setupFiscalRoutes(page: Page, overrides: FiscalOverrides =
     const method = route.request().method();
     const path = new URL(url).pathname;
 
+    if (path.endsWith('/registers') && method === 'GET')
+      return json(route, { items: [{ id: REGISTER_ID, code: 'R01', status: 'ACTIVE', fiscal_device_id: '00000000-0000-4000-8000-000000000003' }], page: { has_more: false } });
+
     if (path.endsWith('/clock-sync') && method === 'POST')
       return json(route, { state: 'VERIFIED' });
 
@@ -291,7 +294,7 @@ export async function setupFiscalRoutes(page: Page, overrides: FiscalOverrides =
       });
     }
 
-    if (/\/operations\/[^/:]+:reconcile$/.test(path) && method === 'POST') {
+    if (/\/operations\/[^/]+\/reconcile$/.test(path) && method === 'POST') {
       lastSale = { ...lastSale, state: 'COMPLETED', version: Number(lastSale.version) + 1 };
       return json(route, {
         operation_id: `fiscal-${fiscalSaleCounter}`,

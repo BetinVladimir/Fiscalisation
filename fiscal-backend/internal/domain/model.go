@@ -26,6 +26,8 @@ type PaymentRecord struct {
 	CreatedAt       time.Time `json:"created_at"`
 }
 type FiscalDeviceSnapshot struct {
+	AdapterDeviceID    string `json:"adapter_device_id,omitempty"`
+	BindingGeneration  int64  `json:"binding_generation,omitempty"`
 	DeviceID           string `json:"device_id"`
 	BindingVersion     int64  `json:"binding_version,omitempty"`
 	Serial             string `json:"serial,omitempty"`
@@ -135,6 +137,7 @@ type Operation struct {
 	ReasonCode              string    `json:"reason_code,omitempty"`
 	OriginalDocumentNumber  int64     `json:"original_document_number,omitempty"`
 	OriginalDocumentAt      time.Time `json:"original_document_at,omitempty"`
+	FiscalDocumentAt        time.Time `json:"fiscal_document_at,omitempty"`
 	Simulated               bool      `json:"simulated"`
 	ErrorCode               string    `json:"error_code,omitempty"`
 	AllowedActions          []string  `json:"allowed_actions"`
@@ -206,15 +209,20 @@ type SyncOperationResult struct {
 	Version     int64  `json:"version"`
 }
 type EdgePendingCommand struct {
-	OperationID       string         `json:"operation_id"`
-	TenantID          string         `json:"tenant_id"`
-	RegisterID        string         `json:"register_id"`
-	DeviceID          string         `json:"device_id"`
-	CommandType       string         `json:"command_type"`
-	Payload           map[string]any `json:"payload"`
-	OperationSequence int64          `json:"operation_sequence"`
-	UNPSequence       int64          `json:"unp_sequence"`
-	AcceptedAt        time.Time      `json:"accepted_at"`
+	Acceptance        *EdgeAcceptanceEvidence `json:"acceptance_evidence,omitempty"`
+	ResultPayload     map[string]any          `json:"result_payload,omitempty"`
+	ResultDigest      string                  `json:"result_digest,omitempty"`
+	ResultState       string                  `json:"result_state,omitempty"`
+	ProjectedSaleID   string                  `json:"projected_sale_id,omitempty"`
+	OperationID       string                  `json:"operation_id"`
+	TenantID          string                  `json:"tenant_id"`
+	RegisterID        string                  `json:"register_id"`
+	DeviceID          string                  `json:"device_id"`
+	CommandType       string                  `json:"command_type"`
+	Payload           map[string]any          `json:"payload"`
+	OperationSequence int64                   `json:"operation_sequence"`
+	UNPSequence       int64                   `json:"unp_sequence"`
+	AcceptedAt        time.Time               `json:"accepted_at"`
 }
 type ConnectivityProbe struct {
 	ProbeID              string                    `json:"probe_id"`
@@ -246,6 +254,7 @@ type DeviceClockSync struct {
 	TrustedTime   time.Time `json:"trusted_time"`
 	DeviceTime    time.Time `json:"device_time"`
 	DriftSeconds  int64     `json:"drift_seconds"`
+	DriftWarn     bool      `json:"drift_warn,omitempty"`
 	SetPerformed  bool      `json:"set_performed"`
 	Verified      bool      `json:"verified"`
 	OccurredAt    time.Time `json:"occurred_at"`

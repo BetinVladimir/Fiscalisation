@@ -9,29 +9,47 @@ CommandSink sink; void* ctx;AckSink ack_sink;void*ack_ctx;ProvisioningSink bindi
 const char* commands;const char*bindings; const char* sync_topic;const char*acks;
 const char*applied_tenant;const char*applied_device;const char*applied_register;int64_t applied_generation;
 std::vector<uint8_t> assembly;int expected_length;bool assembling_command;bool assembling_ack;bool assembling_binding;
+std::string assembly_topic;
+void reset_assembly(){assembly.clear();expected_length=0;assembling_command=false;assembling_ack=false;assembling_binding=false;assembly_topic.clear();}
+bool exact_topic(const esp_mqtt_event_handle_t e,const char* value){return value&&e->topic&&e->topic_len==(int)strlen(value)&&memcmp(e->topic,value,e->topic_len)==0;}
+bool ack_topic(const esp_mqtt_event_handle_t e){
+  if(!acks||!e->topic||e->topic_len<1)return false;
+  const size_t base=strlen(acks),length=(size_t)e->topic_len;
+  if(length<=base+1||memcmp(e->topic,acks,base)!=0||e->topic[base]!='/')return false;
+  for(size_t i=base+1;i<length;++i)if(e->topic[i]=='/'||e->topic[i]=='+'||e->topic[i]=='#'||e->topic[i]=='\0')return false;
+  return true;
+}
 void event(void*,esp_event_base_t,int32_t id,void* raw){
-  auto*e=(esp_mqtt_event_handle_t)raw;
-  if(id==MQTT_EVENT_CONNECTED){esp_mqtt_client_subscribe(client,commands,1);if(bindings)esp_mqtt_client_subscribe(client,bindings,1);if(acks)esp_mqtt_client_subscribe(client,acks,1);if(applied_generation>0)mqtt_publish_binding_applied(applied_tenant,applied_device,applied_register,applied_generation);return;}
+  if(id==MQTT_EVENT_DISCONNECTED){reset_assembly();return;}
+  if(id==MQTT_EVENT_CONNECTED){reset_assembly();esp_mqtt_client_subscribe(client,commands,1);if(bindings)esp_mqtt_client_subscribe(client,bindings,1);if(acks){const std::string filter=std::string(acks)+"/+";esp_mqtt_client_subscribe(client,filter.c_str(),1);}if(applied_generation>0)mqtt_publish_binding_applied(applied_tenant,applied_device,applied_register,applied_generation);return;}
   if(id!=MQTT_EVENT_DATA||!sink)return;
+  auto*e=(esp_mqtt_event_handle_t)raw;
+  if(!e){reset_assembly();return;}
   if(e->current_data_offset==0){
-    assembling_command=e->topic_len==(int)strlen(commands)&&memcmp(e->topic,commands,e->topic_len)==0;
-    assembling_ack=acks&&e->topic_len==(int)strlen(acks)&&memcmp(e->topic,acks,e->topic_len)==0;
-    assembling_binding=bindings&&e->topic_len==(int)strlen(bindings)&&memcmp(e->topic,bindings,e->topic_len)==0;
-    expected_length=e->total_data_len;assembly.clear();
-    if((!assembling_command&&!assembling_ack&&!assembling_binding)||expected_length<1||expected_length>8192){assembling_command=false;assembling_ack=false;assembling_binding=false;return;}
-    assembly.reserve(expected_length);
+    reset_assembly();
+    assembling_command=exact_topic(e,commands);
+    assembling_ack=ack_topic(e);
+    assembling_binding=exact_topic(e,bindings);
+    expected_length=e->total_data_len;
+    if((!assembling_command&&!assembling_ack&&!assembling_binding)||expected_length<1||expected_length>8192){reset_assembly();return;}
+    assembly_topic.assign(e->topic,(size_t)e->topic_len);
+    assembly.reserve((size_t)expected_length);
   }
-  if((!assembling_command&&!assembling_ack&&!assembling_binding)||e->current_data_offset!=(int)assembly.size()||
-     assembly.size()+e->data_len>(size_t)expected_length){assembling_command=false;assembly.clear();return;}
+  const bool foreign_topic=e->topic_len<0||(e->topic_len>0&&(!e->topic||assembly_topic.size()!=(size_t)e->topic_len||memcmp(e->topic,assembly_topic.data(),(size_t)e->topic_len)!=0));
+  if((!assembling_command&&!assembling_ack&&!assembling_binding)||foreign_topic||e->total_data_len!=expected_length||
+     e->current_data_offset!=(int)assembly.size()||e->data_len<1||!e->data||
+     (size_t)e->data_len>(size_t)expected_length-assembly.size()){reset_assembly();return;}
   assembly.insert(assembly.end(),(const uint8_t*)e->data,(const uint8_t*)e->data+e->data_len);
-  if((int)assembly.size()==expected_length){if(assembling_command)sink({assembly.data(),assembly.size(),Ingress::Mqtt},ctx);else if(assembling_binding&&binding_sink)binding_sink(assembly.data(),assembly.size(),binding_ctx);else if(ack_sink)ack_sink(assembly.data(),assembly.size(),ack_ctx);
-    assembling_command=false;assembling_ack=false;assembling_binding=false;assembly.clear();}
+  if((int)assembly.size()==expected_length){if(assembling_command)sink({assembly.data(),assembly.size(),Ingress::Mqtt},ctx);else if(assembling_binding&&binding_sink)binding_sink(assembly.data(),assembly.size(),binding_ctx);else if(assembling_ack&&ack_sink)ack_sink(assembly.data(),assembly.size(),ack_ctx);
+    reset_assembly();}
 }}
+
 esp_err_t mqtt_runtime_start(const MqttConfig& value,CommandSink command_sink,void* context,AckSink acksink,void*ackcontext,ProvisioningSink bindingsink,void*bindingcontext){
   if(!command_sink)return ESP_ERR_INVALID_ARG;
   if(!value.uri||strncmp(value.uri,"mqtts://",8)!=0||!value.command_topic||!value.binding_topic||
      !value.sync_topic||!value.ack_topic||!value.client_id||!value.root_ca_pem||
      !value.client_certificate_pem||!value.client_key_pem)return ESP_ERR_INVALID_STATE;
+  reset_assembly();
   sink=command_sink;ctx=context;ack_sink=acksink;ack_ctx=ackcontext;binding_sink=bindingsink;binding_ctx=bindingcontext;commands=value.command_topic;bindings=value.binding_topic;sync_topic=value.sync_topic;acks=value.ack_topic;
   applied_tenant=value.applied_tenant;applied_device=value.applied_device;applied_register=value.applied_register;applied_generation=value.applied_generation;
   esp_mqtt_client_config_t cfg{};

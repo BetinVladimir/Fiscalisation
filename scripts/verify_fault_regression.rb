@@ -5,6 +5,8 @@ root = File.expand_path('..', __dir__)
 matrix = JSON.parse(File.read(File.join(root, 'contracts/fault-regression-matrix.json')))
 cases = matrix.fetch('cases')
 abort 'fault matrix must contain at least 20 executable cases' if cases.length < 20
+open_cases = cases.select { |item| item['status'] == 'OPEN' }
+abort "S3 behavioral evidence OPEN: #{open_cases.map { |item| item['id'] }.join(', ')}" unless open_cases.empty?
 ids = cases.map { |item| item.fetch('id') }
 abort 'duplicate fault IDs' unless ids.uniq.length == ids.length
 required = %w[device ble authority restart sync storage retention clock routing]

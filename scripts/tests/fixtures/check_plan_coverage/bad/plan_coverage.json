@@ -1,0 +1,40 @@
+{
+  "schema": 1,
+  "groups": [
+    {
+      "id": "P40",
+      "name": "Foundation",
+      "description": "Core infrastructure tasks",
+      "task_ids": ["BAD-01", "BAD-02", "NONEXISTENT-99"],
+      "evidence_gate": "all tasks merged"
+    },
+    {
+      "id": "P41",
+      "name": "Protocol",
+      "description": "Protocol tasks",
+      "task_ids": ["BAD-03"],
+      "evidence_gate": "protocol green"
+    },
+    {
+      "id": "P42",
+      "name": "Business",
+      "description": "Business tasks",
+      "task_ids": ["BAD-01"],
+      "evidence_gate": "business green"
+    },
+    {
+      "id": "P43",
+      "name": "Integration",
+      "description": "Integration tasks",
+      "task_ids": ["BAD-02"],
+      "evidence_gate": "integration green"
+    },
+    {
+      "id": "P44",
+      "name": "Pipeline",
+      "description": "Pipeline tasks",
+      "task_ids": ["BAD-03"],
+      "evidence_gate": "pipeline green"
+    }
+  ]
+}

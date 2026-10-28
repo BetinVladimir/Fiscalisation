@@ -1,0 +1,7 @@
+# Total HTTP deadlines for MiniPOS and Fiscal administration
+
+2026-10-21: fixed a software gap where AbortSignal alone could leave a noncooperative fetch pending, and the timeout was cleared after headers before reading a stalled response body. The public API helpers now use `fetchTextWithTimeout`: one independent deadline covers both fetch and full response text. Original Response status and headers remain available for existing HTTP error handling. Cancellation races observe late request rejection; already-cancelled requests do not start transport. The headers-only helper remains explicitly documented for callers that only need headers.
+
+[Evidence and exact source hashes](evidence/http-deadlines-2026-10-21/README.md):16 HTTP regressions across both apps; complete Node47/77, UI95/104 and both TypeScript checks PASS. API write idempotency and lookup/recovery rules are preserved. The fix covers the MiniPOS/Fiscal administration public API wrappers; other authentication, provisioning and transport-specific network code requires its own review.
+
+Remaining work: integrate the independent keyboard/focus fixes, rerun ordinary browser suites on the merged source, distinguish final cloud checkout failure from UNKNOWN, confirm authoritative source order before dropping its durable checkout journal, and preserve local offline fiscal evidence until synchronization. Full software, native/HIL and legal gates remain OPEN.

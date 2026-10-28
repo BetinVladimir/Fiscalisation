@@ -1,0 +1,78 @@
+[
+  {
+    "case": "ordinary manager OTP/config404/dirty logout",
+    "status": "PASS"
+  },
+  {
+    "case": "cashier",
+    "status": "PASS",
+    "requests": 7,
+    "posts": [
+      {
+        "path": "/public/v1/minipos/auth/request-code",
+        "idempotency": false
+      },
+      {
+        "path": "/public/v1/minipos/auth/verify-code",
+        "idempotency": false
+      }
+    ],
+    "financialWrites": 0
+  },
+  {
+    "case": "current",
+    "status": "PASS",
+    "requests": 8,
+    "posts": [
+      {
+        "path": "/public/v1/minipos/auth/request-code",
+        "idempotency": false
+      },
+      {
+        "path": "/public/v1/minipos/auth/verify-code",
+        "idempotency": false
+      }
+    ],
+    "financialWrites": 0
+  },
+  {
+    "case": "stale",
+    "status": "PASS",
+    "requests": 18,
+    "posts": [
+      {
+        "path": "/public/v1/minipos/auth/request-code",
+        "idempotency": false
+      },
+      {
+        "path": "/public/v1/minipos/auth/verify-code",
+        "idempotency": false
+      },
+      {
+        "path": "/public/v1/minipos/operator-session",
+        "idempotency": true
+      },
+      {
+        "path": "/public/v1/minipos/auth/request-code",
+        "idempotency": false
+      },
+      {
+        "path": "/public/v1/minipos/auth/verify-code",
+        "idempotency": false
+      }
+    ],
+    "financialWrites": 0
+  },
+  {
+    "case": "Fiscal ordinary OTP/retry/tenant/login",
+    "status": "PASS",
+    "requests": 8,
+    "financialWrites": 0
+  },
+  {
+    "case": "Fiscal current401 after theme",
+    "status": "PASS",
+    "requests": 9,
+    "financialWrites": 0
+  }
+]

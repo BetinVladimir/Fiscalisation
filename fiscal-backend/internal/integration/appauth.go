@@ -8,7 +8,9 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"errors"
+	"os"
 	"strconv"
+	"strings"
 	"time"
 
 	"fiscalisation/fiscal-backend/internal/auth"
@@ -39,7 +41,24 @@ type AppVerification struct {
 }
 
 func (s *Service) SetAppSigningKey(key []byte) { s.appSigningKey = append([]byte(nil), key...) }
-func (s *Service) StartAppChallenge(ctx context.Context, email, appInstance, ip string) (AppChallenge, error) {
+func demoAppOTPEnabled() bool {
+	return os.Getenv("ENVIRONMENT") == "demo" && os.Getenv("PRODUCTION") != "true"
+}
+func appOTPCode(numeric string) string {
+	if demoAppOTPEnabled() {
+		return "demo"
+	}
+	return numeric
+}
+func appOTPEmail(language, code string) (string, string) {
+	copy, ok := appOTPCopies[strings.ToLower(strings.TrimSpace(language))]
+	if !ok {
+		copy = appOTPCopies["en"]
+	}
+	return copy.subject, copy.prefix + code
+}
+
+func (s *Service) StartAppChallenge(ctx context.Context, email, appInstance, ip, language string) (AppChallenge, error) {
 	normalized, e := normalizeEmail(email)
 	if e != nil {
 		return AppChallenge{}, e
@@ -75,7 +94,7 @@ func (s *Service) StartAppChallenge(ctx context.Context, email, appInstance, ip 
 	if known {
 		status = "PENDING"
 		b, _ := random(4)
-		otp = fmtSix(b)
+		otp = appOTPCode(fmtSix(b))
 		otpHash = s.digest(otp)
 	}
 	tx, e := s.db.BeginTx(ctx, nil)
@@ -88,7 +107,8 @@ func (s *Service) StartAppChallenge(ctx context.Context, email, appInstance, ip 
 		return out, e
 	}
 	if known {
-		_, e = tx.ExecContext(ctx, `insert into fiscal.fiscal_email_outbox(purpose,recipient,subject,body_text) values('BEEFISCAL_APP_OTP',$1,'BeeFiscal sign-in code',$2)`, normalized, "Your BeeFiscal sign-in code is: "+otp)
+		subject, body := appOTPEmail(language, otp)
+		_, e = tx.ExecContext(ctx, `insert into fiscal.fiscal_email_outbox(purpose,recipient,subject,body_text) values('BEEFISCAL_APP_OTP',$1,$2,$3)`, normalized, subject, body)
 		if e != nil {
 			return out, e
 		}
@@ -132,6 +152,9 @@ func appTenantsQuery(ctx context.Context, q appQuerier, email string) ([]AppTena
 	return out, rows.Err()
 }
 func (s *Service) VerifyAppChallenge(ctx context.Context, temporary, code, appInstance string) (AppVerification, error) {
+	if code == "demo" && !demoAppOTPEnabled() {
+		return AppVerification{}, ErrUnauthorized
+	}
 	id, ok := splitToken(temporary, "app_tmp")
 	if !ok {
 		return AppVerification{}, ErrUnauthorized
@@ -295,7 +318,7 @@ func (s *Service) IsAppTokenRevoked(ctx context.Context, jti string) bool {
 }
 
 func (s *Service) AppTenantsForAccess(ctx context.Context, raw string) ([]AppTenant, error) {
-	claims, e := auth.Parse(raw, s.appSigningKey, s.now())
+	claims, e := auth.Parse(raw, s.appSigningKey, s.now(), nil)
 	if e != nil || claims.JTI == "" || s.IsAppTokenRevoked(ctx, claims.JTI) {
 		return nil, ErrUnauthorized
 	}

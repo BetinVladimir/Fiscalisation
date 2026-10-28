@@ -1,0 +1,12 @@
+# NAP-13.1-through-2 · P1 · ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md
+
+Dependencies: W0-1
+External requires: NORM-01
+Notes: Актуальная спецификация повторного ревью в поле spec. Противоречащие исторические notes/карточки отменены; использовать текущие unit requirements и source decisions.
+
+Цель: POS + MiniPOS, MQTT и BLE, BlueCash, Datecs/S3/COM, BluePay/S3/BLE, Daisy Compact/S3/USB, Smart S/Android/HTTP. D-1…D-20: последние подтверждённые решения DECISIONS §5 приоритетнее старых карточек. Транзакции до HIL. Деньги: целые центы, half-up; golden 1200+167=1367, CASH 500/CARD 867. UNKNOWN после записи: только lookup, никаких повторных денежных команд/автовозврата. Сторно до refund; crash/timeout refund сохраняет отдельное durable состояние. Compact: CARD/split запрещены до I/O. Smart S: только LAB без номера; PROD UNKNOWN, не синтетический номер. E-чек выключен: проверять отказ, не реализовывать отправку. BC-50: сторно cmd43, внешний терминал; часы читать cmd62, WARN >5мин/BLOCK >2ч, business_date Europe/Sofia; валютный режим 2/3. Datecs SEQ 0x20..0x7f, Daisy 0x20..0xff, CP1251. Статусы исторического трекера не доказывают готовность. Никогда не менять status.json и не записывать HIL PASS по эмулятору.
+
+Подзадача NAP-13.1-through-2: выполнить свою часть актуальной спецификации: E-чек вне MVP: явное исключение и технический negative gate; отсутствие функции не скрывать как IMPLEMENTED. Реализацию доставки/экспорта24 не создавать до изменения решения. Адресный unittest-harness: python3 -m unittest discover -s tests/mvp1 -p test_nap_13_1_through_2.py. Native runtime/scripts реально вызываются; skips/no tests не допускаются; временные данные/evidence в MVP1_ARTIFACT_DIR. Контроллер сначала проверяет реальный assertion FAIL, затем green без изменения red-тестов. Для test-only работы разрешена временная мутация scoped production файла: контроллер восстановит его исходные байты перед green. Native subprocess обязан захватывать stdout/stderr и выдавать реальные ненулевые test counts (Go JSON, JUnit XML, unittest, pytest, TAP, GTest/Jest/CTest); python --version/echo/import без вызова продукта не являются runtime evidence.
+
+Source: ARCH_08_SUPTO_NAP_COMPLIANCE_STUDY.md
+Task: NAP-13  Unit: NAP-13.1-through-2

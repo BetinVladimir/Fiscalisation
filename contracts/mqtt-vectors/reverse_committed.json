@@ -1,0 +1,15 @@
+{
+  "name": "reverse_committed",
+  "topic": "tenants/tenant-01/devices/device-01/commands",
+  "command_type": "REVERSAL",
+  "operation_id": "op-reversal-001",
+  "payload": {
+    "original_operation_id": "op-finalize-001",
+    "document_number": 42,
+    "document_datetime": "26-08-01 10:00:00",
+    "fiscal_memory_number": "12345678"
+  },
+  "signature": "valid",
+  "expires_at": "2026-12-31T23:59:59Z",
+  "expect": "ACCEPTED"
+}

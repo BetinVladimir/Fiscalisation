@@ -7,7 +7,6 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"os"
 	"reflect"
 	"strings"
 	"testing"
@@ -62,15 +61,9 @@ func assertJSONEqual(t *testing.T, wantRaw, gotRaw []byte) {
 }
 
 func TestPostgresRowStoreRestart(t *testing.T) {
-	url := os.Getenv("PG_INTEGRATION_URL")
-	if url == "" {
-		t.Skip("PG_INTEGRATION_URL not set")
-	}
+	url, _ := isolatedPostgresFixture(t)
 	p, err := Open(url)
 	if err != nil {
-		t.Fatal(err)
-	}
-	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows; delete from fiscal.fiscal_state_meta; delete from fiscal.runtime_snapshots where aggregate='fiscal'`); err != nil {
 		t.Fatal(err)
 	}
 	raw := []byte(`{"sales":{},"operations":{},"devices":{"device-1":{"id":"device-1"}},"shifts":{},"unp":{},"replays":{},"outbox":{"event-1":{"id":"event-1","event":{"event_id":"event-1","event_type":"sale.updated","tenant_id":"tenant-1","resource_id":"sale-1"},"attempts":0,"next_attempt":"2026-08-08T10:00:00Z"}},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
@@ -100,10 +93,7 @@ func TestPostgresRowStoreRestart(t *testing.T) {
 }
 
 func TestPostgresVersionedSaveRejectsStaleInstance(t *testing.T) {
-	url := os.Getenv("PG_INTEGRATION_URL")
-	if url == "" {
-		t.Skip("PG_INTEGRATION_URL not set")
-	}
+	url, _ := isolatedPostgresFixture(t)
 	p1, err := Open(url)
 	if err != nil {
 		t.Fatal(err)
@@ -114,9 +104,6 @@ func TestPostgresVersionedSaveRejectsStaleInstance(t *testing.T) {
 		t.Fatal(err)
 	}
 	defer p2.Close()
-	if _, err = p1.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.runtime_snapshots where aggregate='fiscal'`); err != nil {
-		t.Fatal(err)
-	}
 	_, generation1, err := p1.LoadVersioned()
 	if err != nil || generation1 != 0 {
 		t.Fatal(generation1, err)
@@ -141,18 +128,12 @@ func TestPostgresVersionedSaveRejectsStaleInstance(t *testing.T) {
 }
 
 func TestPostgresDeltaSaveTouchesOnlyExplicitFiscalRows(t *testing.T) {
-	url := os.Getenv("PG_INTEGRATION_URL")
-	if url == "" {
-		t.Skip("PG_INTEGRATION_URL not set")
-	}
+	url, _ := isolatedPostgresFixture(t)
 	p, err := Open(url)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.runtime_snapshots where aggregate='fiscal'`); err != nil {
-		t.Fatal(err)
-	}
 	baseline := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	generation, err := p.SaveVersioned(baseline, 0)
 	if err != nil {
@@ -172,19 +153,13 @@ func TestPostgresDeltaSaveTouchesOnlyExplicitFiscalRows(t *testing.T) {
 }
 
 func TestPostgresMigratesLegacySnapshotAtomically(t *testing.T) {
-	url := os.Getenv("PG_INTEGRATION_URL")
-	if url == "" {
-		t.Skip("PG_INTEGRATION_URL not set")
-	}
+	url, _ := isolatedPostgresFixture(t)
 	p, err := Open(url)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer p.Close()
 	raw := []byte(`{"sales":{"legacy-sale":{"sale_id":"legacy-sale","tenant_id":"tenant-migration","external_id":"legacy-external","register_id":"register-1","operator_id":"A001","state":"DRAFT","version":1,"lines":[],"payments":[],"created_at":"2026-08-08T10:00:00Z","updated_at":"2026-08-08T10:00:00Z"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
-	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows; delete from fiscal.fiscal_state_meta; delete from fiscal.fiscal_runtime_sales`); err != nil {
-		t.Fatal(err)
-	}
 	if _, err = p.db.Exec(`insert into fiscal.runtime_snapshots(aggregate,payload,version,updated_at) values('fiscal',$1::jsonb,1,now()) on conflict(aggregate) do update set payload=excluded.payload`, string(raw)); err != nil {
 		t.Fatal(err)
 	}
@@ -209,19 +184,13 @@ func TestPostgresMigratesLegacySnapshotAtomically(t *testing.T) {
 }
 
 func TestPostgresEmptyStateDoesNotResurrectLegacySnapshot(t *testing.T) {
-	url := os.Getenv("PG_INTEGRATION_URL")
-	if url == "" {
-		t.Skip("PG_INTEGRATION_URL not set")
-	}
+	url, _ := isolatedPostgresFixture(t)
 	p, err := Open(url)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer p.Close()
 	legacy := `{"sales":{"must-not-return":{"id":"must-not-return"}},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`
-	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows; delete from fiscal.fiscal_state_meta`); err != nil {
-		t.Fatal(err)
-	}
 	if _, err = p.db.Exec(`insert into fiscal.runtime_snapshots(aggregate,payload,version,updated_at) values('fiscal',$1::jsonb,1,now()) on conflict(aggregate) do update set payload=excluded.payload`, legacy); err != nil {
 		t.Fatal(err)
 	}
@@ -241,18 +210,12 @@ func TestPostgresEmptyStateDoesNotResurrectLegacySnapshot(t *testing.T) {
 }
 
 func TestPostgresDifferentialSavePreservesUntouchedRows(t *testing.T) {
-	url := os.Getenv("PG_INTEGRATION_URL")
-	if url == "" {
-		t.Skip("PG_INTEGRATION_URL not set")
-	}
+	url, _ := isolatedPostgresFixture(t)
 	p, err := Open(url)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows; delete from fiscal.fiscal_state_meta`); err != nil {
-		t.Fatal(err)
-	}
 	first := []byte(`{"sales":{},"operations":{},"devices":{"same":{"id":"same"},"changed":{"id":"changed","version":1},"removed":{"id":"removed"}},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(first); err != nil {
 		t.Fatal(err)
@@ -289,18 +252,12 @@ func TestPostgresDifferentialSavePreservesUntouchedRows(t *testing.T) {
 }
 
 func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
-	url := os.Getenv("PG_INTEGRATION_URL")
-	if url == "" {
-		t.Skip("PG_INTEGRATION_URL not set")
-	}
-	p, err := OpenWithReader(url, os.Getenv("PG_RLS_INTEGRATION_URL"))
+	url, readerURL := isolatedPostgresFixture(t)
+	p, err := OpenWithReader(url, readerURL)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.fiscal_runtime_operations;delete from fiscal.fiscal_runtime_sales;delete from fiscal.fiscal_runtime_shifts`); err != nil {
-		t.Fatal(err)
-	}
 	base := `{"sales":{"sale-typed":{"sale_id":"sale-typed","tenant_id":"tenant-a","external_id":"external-a","register_id":"register-a","operator_id":"A001","state":"DRAFT","version":%d,"lines":[],"payments":[],"fiscal_device":{"device_id":"device-typed","serial":"SN-TYPED","fiscal_device_number":"FD-TYPED","fiscal_memory_number":"FM-TYPED","vendor":"Datecs","model":"DP-150 MX","firmware":"2026-EUR"},"created_at":"2026-08-07T10:00:00Z","updated_at":"%s"}},"operations":{},"devices":{},"shifts":{"shift-typed":{"id":"shift-typed","tenant_id":"tenant-a","register_id":"register-a","operator_id":"A001","state":"OPEN","version":1,"opened_at":"2026-08-07T09:00:00Z"}},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{"device:device-typed":{"kind":"device","tenant_id":"tenant-a","id":"device-typed","version":1,"data":{"vendor":"Datecs","serial":"SN-TYPED"},"created_at":"2026-08-07T08:00:00Z","updated_at":"2026-08-07T08:00:00Z"}},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`
 	if err = p.Save([]byte(fmt.Sprintf(base, 1, "2026-08-07T10:00:00Z"))); err != nil {
 		t.Fatal(err)
@@ -379,18 +336,12 @@ func TestPostgresTypedProjectionIsAtomicAndDifferential(t *testing.T) {
 }
 
 func TestPostgresTypedTechnicalAggregatesAreTenantBound(t *testing.T) {
-	url := os.Getenv("PG_INTEGRATION_URL")
-	if url == "" {
-		t.Skip("PG_INTEGRATION_URL not set")
-	}
-	p, err := OpenWithReader(url, os.Getenv("PG_RLS_INTEGRATION_URL"))
+	url, readerURL := isolatedPostgresFixture(t)
+	p, err := OpenWithReader(url, readerURL)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.fiscal_runtime_outbox;delete from fiscal.fiscal_runtime_ble_sessions;delete from fiscal.fiscal_runtime_connectivity_probes;delete from fiscal.fiscal_runtime_edge_pending;delete from fiscal.fiscal_runtime_audit;delete from fiscal.fiscal_runtime_replays;delete from fiscal.fiscal_runtime_unp_sequences`); err != nil {
-		t.Fatal(err)
-	}
 	state := `{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{"tenant-tech\nregister-1":7},"replays":{"tenant-tech POST /public/v1/sales replay-key-00001":{"hash":"def","status":201,"body":"e30="}},"outbox":{"outbox-1":{"id":"outbox-1","event":{"event_id":"event-1","event_type":"sale.updated","api_version":"2026-08-07","tenant_id":"tenant-tech","resource_id":"sale-1","resource_version":1,"occurred_at":"2026-08-08T10:00:00Z","data":{}},"attempts":0,"next_attempt":"2026-08-08T10:01:00Z"}},"ble_sessions":{"ble-1":{"session_id":"ble-1","tenant_id":"tenant-tech","location_id":"location-1","register_id":"register-1","operator_id":"A001","app_instance_id":"app-1","actor_subject":"subject-1","device_id":"edge-1","fiscal_device_id":"fiscal-device-1","scopes":["fiscal.execute"],"fencing_token":1,"expires_at":"2026-08-08T18:00:00Z","revoked":false,"nonce":"nonce"}},"sync_acks":{},"connectivity_probes":{"probe-1":{"probe_id":"probe-1","tenant_id":"tenant-tech","register_id":"register-1","state":"SUCCEEDED","observed_at":"2026-08-08T10:00:00Z","hops":{},"recommended_transport":"REST"}},"resources":{},"artifacts":{},"audit":[{"event_id":"audit-1","tenant_id":"tenant-tech","actor_id":"A001","action":"UPSERT","object_type":"sale","object_id":"sale-1","occurred_at":"2026-08-08T10:00:00Z","before":{},"after":{},"event_hash":"abc"}],"edge_pending":{"operation-1":{"operation_id":"operation-1","tenant_id":"tenant-tech","register_id":"register-1","device_id":"edge-1","command_type":"FISCAL_SALE","payload":{},"operation_sequence":1,"unp_sequence":1,"accepted_at":"2026-08-08T10:00:00Z"}}}`
 	if err = p.Save([]byte(state)); err != nil {
 		t.Fatal(err)
@@ -456,24 +407,44 @@ func TestPostgresTypedTechnicalAggregatesAreTenantBound(t *testing.T) {
 		t.Fatal("failed technical mutation was not atomic", tenant, err)
 	}
 	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
-	if err = p.Save(empty); err != nil {
+	before, generationBefore, err := p.LoadVersioned()
+	if err != nil {
 		t.Fatal(err)
+	}
+	var sourceBefore string
+	if err = p.db.QueryRow(`select to_jsonb(a)::text from fiscal.fiscal_runtime_audit a where event_id='audit-1'`).Scan(&sourceBefore); err != nil {
+		t.Fatal(err)
+	}
+	if err = p.Save(empty); !isAuditImmutableError(err) {
+		t.Fatal("audit removal must fail with the immutability error", err)
+	}
+	after, generationAfter, err := p.LoadVersioned()
+	if err != nil || generationAfter != generationBefore {
+		t.Fatal("rejected deletion changed repository generation", generationBefore, generationAfter, err)
+	}
+	assertJSONEqual(t, before, after)
+	if _, err = p.db.Exec(`delete from fiscal.fiscal_runtime_audit where event_id='audit-1'`); !isAuditImmutableError(err) {
+		t.Fatal("direct audit deletion must remain refused", err)
+	}
+	var sourceAfter string
+	if err = p.db.QueryRow(`select to_jsonb(a)::text from fiscal.fiscal_runtime_audit a where event_id='audit-1'`).Scan(&sourceAfter); err != nil || sourceBefore != sourceAfter {
+		t.Fatal("rejected mutation changed source audit", err)
+	}
+	for _, table := range []string{"fiscal_runtime_outbox", "fiscal_runtime_ble_sessions", "fiscal_runtime_connectivity_probes", "fiscal_runtime_edge_pending", "fiscal_runtime_audit", "fiscal_runtime_replays", "fiscal_runtime_unp_sequences"} {
+		var count int
+		if err = p.db.QueryRow(`select count(*) from fiscal.` + table + ` where tenant_id='tenant-tech'`).Scan(&count); err != nil || count != 1 {
+			t.Fatal("audit deletion did not roll back technical rows", table, count, err)
+		}
 	}
 }
 
 func TestPostgresTypedArtifactsAreTenantBound(t *testing.T) {
-	url := os.Getenv("PG_INTEGRATION_URL")
-	if url == "" {
-		t.Skip("PG_INTEGRATION_URL not set")
-	}
-	p, err := OpenWithReader(url, os.Getenv("PG_RLS_INTEGRATION_URL"))
+	url, readerURL := isolatedPostgresFixture(t)
+	p, err := OpenWithReader(url, readerURL)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.fiscal_runtime_artifacts`); err != nil {
-		t.Fatal(err)
-	}
 	state := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{"tenant-artifact\nreceipt-1":"aGVsbG8="},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(state); err != nil {
 		t.Fatal(err)
@@ -530,18 +501,12 @@ func TestPostgresTypedArtifactsAreTenantBound(t *testing.T) {
 }
 
 func TestPostgresTypedSyncAcksAreTenantBound(t *testing.T) {
-	url := os.Getenv("PG_INTEGRATION_URL")
-	if url == "" {
-		t.Skip("PG_INTEGRATION_URL not set")
-	}
-	p, err := OpenWithReader(url, os.Getenv("PG_RLS_INTEGRATION_URL"))
+	url, readerURL := isolatedPostgresFixture(t)
+	p, err := OpenWithReader(url, readerURL)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.fiscal_runtime_sync_acks`); err != nil {
-		t.Fatal(err)
-	}
 	state := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{"tenant-sync\nedge-1":{"ack_id":"ack-1","edge_id":"edge-1","committed_through_seq":3,"committed_event_hash":"2cf24dba5fb0a30e26e83b2ac5b9e29e1b161e5c1fa7425e73043362938b9824","committed_at":"2026-08-08T10:00:00Z","operation_results":[],"rejected":[],"signature":"sig"}},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	if err = p.Save(state); err != nil {
 		t.Fatal(err)
@@ -580,18 +545,12 @@ func TestPostgresTypedSyncAcksAreTenantBound(t *testing.T) {
 }
 
 func TestFiscalTypedOnlyRestartAndRollback(t *testing.T) {
-	url := os.Getenv("PG_INTEGRATION_URL")
-	if url == "" {
-		t.Skip("PG_INTEGRATION_URL not set")
-	}
+	url, _ := isolatedPostgresFixture(t)
 	p, err := Open(url)
 	if err != nil {
 		t.Fatal(err)
 	}
 	defer p.Close()
-	if _, err = p.db.Exec(`delete from fiscal.fiscal_state_rows;delete from fiscal.fiscal_state_meta;delete from fiscal.fiscal_runtime_sales;delete from fiscal.fiscal_runtime_operations;delete from fiscal.fiscal_runtime_shifts;delete from fiscal.fiscal_runtime_resources;delete from fiscal.fiscal_runtime_outbox;delete from fiscal.fiscal_runtime_ble_sessions;delete from fiscal.fiscal_runtime_connectivity_probes;delete from fiscal.fiscal_runtime_edge_pending;delete from fiscal.fiscal_runtime_audit;delete from fiscal.fiscal_runtime_replays;delete from fiscal.fiscal_runtime_unp_sequences;delete from fiscal.fiscal_runtime_artifacts;delete from fiscal.fiscal_runtime_sync_acks`); err != nil {
-		t.Fatal(err)
-	}
 	empty := []byte(`{"sales":{},"operations":{},"devices":{},"shifts":{},"unp":{},"replays":{},"outbox":{},"ble_sessions":{},"sync_acks":{},"connectivity_probes":{},"resources":{},"artifacts":{},"audit":[],"edge_pending":{},"activation_challenges":{},"activation_requests":{}}`)
 	generation, err := p.SaveVersioned(empty, 0)
 	if err != nil {

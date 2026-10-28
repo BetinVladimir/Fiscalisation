@@ -148,28 +148,30 @@ type Line struct {
 	TaxGroup  string `json:"tax_group"`
 }
 type Order struct {
-	ID                      string         `json:"id"`
-	TenantID                string         `json:"tenant_id"`
-	ExternalID              string         `json:"external_id"`
-	ShiftID                 string         `json:"shift_id"`
-	RegisterID              string         `json:"register_id"`
-	OperatorCode            string         `json:"operator_code"`
-	State                   string         `json:"state"`
-	Lines                   []Line         `json:"lines"`
-	Total                   Money          `json:"total"`
-	Payments                []OrderPayment `json:"payments,omitempty"`
-	FiscalSaleID            string         `json:"fiscal_sale_id,omitempty"`
-	FiscalOperationID       string         `json:"fiscal_operation_id,omitempty"`
-	ReceiptReference        string         `json:"receipt_reference,omitempty"`
-	CheckoutOperationID     string         `json:"checkout_operation_id,omitempty"`
-	ReceiptSessionID        string         `json:"receipt_session_id,omitempty"`
-	ReversalOperationID     string         `json:"reversal_operation_id,omitempty"`
-	ReversalFiscalReference string         `json:"reversal_fiscal_reference,omitempty"`
-	ReversalReasonCode      string         `json:"reversal_reason_code,omitempty"`
-	FiscalVersion           int64          `json:"fiscal_version,omitempty"`
-	Version                 int64          `json:"version"`
-	CreatedAt               time.Time      `json:"created_at"`
-	UpdatedAt               time.Time      `json:"updated_at"`
+	ID                       string         `json:"id"`
+	TenantID                 string         `json:"tenant_id"`
+	ExternalID               string         `json:"external_id"`
+	ShiftID                  string         `json:"shift_id"`
+	RegisterID               string         `json:"register_id"`
+	OperatorCode             string         `json:"operator_code"`
+	State                    string         `json:"state"`
+	Lines                    []Line         `json:"lines"`
+	Total                    Money          `json:"total"`
+	Payments                 []OrderPayment `json:"payments,omitempty"`
+	FiscalRegisterID         string         `json:"fiscal_register_id,omitempty"`
+	ExecutionAuthorizationID string         `json:"execution_authorization_id,omitempty"`
+	FiscalSaleID             string         `json:"fiscal_sale_id,omitempty"`
+	FiscalOperationID        string         `json:"fiscal_operation_id,omitempty"`
+	ReceiptReference         string         `json:"receipt_reference,omitempty"`
+	CheckoutOperationID      string         `json:"checkout_operation_id,omitempty"`
+	ReceiptSessionID         string         `json:"receipt_session_id,omitempty"`
+	ReversalOperationID      string         `json:"reversal_operation_id,omitempty"`
+	ReversalFiscalReference  string         `json:"reversal_fiscal_reference,omitempty"`
+	ReversalReasonCode       string         `json:"reversal_reason_code,omitempty"`
+	FiscalVersion            int64          `json:"fiscal_version,omitempty"`
+	Version                  int64          `json:"version"`
+	CreatedAt                time.Time      `json:"created_at"`
+	UpdatedAt                time.Time      `json:"updated_at"`
 }
 
 type OrderPayment struct {
@@ -225,28 +227,31 @@ type ReversalResult struct {
 // Fiscal API. It never allocates regulatory identifiers or implements device
 // commands; those decisions stay inside the fiscalization boundary.
 type Service struct {
-	mu                sync.RWMutex
-	products          map[string]Product
-	taxGroups         map[string]TaxGroup
-	employees         map[string]Employee
-	identityBindings  map[string]IdentityBinding
-	operatorSessions  map[string]OperatorSessionRecord
-	shifts            map[string]Shift
-	orders            map[string]Order
-	checkouts         map[string]Order
-	checkoutHashes    map[string]string
-	apiReplays        map[string]APIReplay
-	webhookInbox      map[string]WebhookInboxRecord
-	configurations    map[string]Configuration
-	fiscal, version   string
-	client            *http.Client
-	authToken         string
-	authProvider      AccessTokenProvider
-	store             Store
-	sequence          uint64
-	generation        int64
-	confirmedSnapshot []byte
-	fiscalReadiness   func(tenant, register string) bool
+	mu                         sync.RWMutex
+	products                   map[string]Product
+	taxGroups                  map[string]TaxGroup
+	employees                  map[string]Employee
+	identityBindings           map[string]IdentityBinding
+	operatorSessions           map[string]OperatorSessionRecord
+	shifts                     map[string]Shift
+	orders                     map[string]Order
+	checkouts                  map[string]Order
+	checkoutHashes             map[string]string
+	apiReplays                 map[string]APIReplay
+	webhookInbox               map[string]WebhookInboxRecord
+	configurations             map[string]Configuration
+	fiscal, version            string
+	client                     *http.Client
+	authToken                  string
+	authProvider               AccessTokenProvider
+	store                      Store
+	sequence                   uint64
+	generation                 int64
+	confirmedSnapshot          []byte
+	snapshotEstablished        bool
+	persistenceRecoveryPending bool
+	recoveryReadEpoch          uint64
+	fiscalReadiness            func(tenant, register string) bool
 }
 
 func (s *Service) SetFiscalReadinessCheck(v func(tenant, register string) bool) {
@@ -314,6 +319,7 @@ func NewPersistentService(f, v string, store Store) (*Service, error) {
 		return nil, e
 	}
 	s.confirmedSnapshot = append([]byte(nil), b...)
+	s.snapshotEstablished = len(b) > 0
 	if len(b) > 0 {
 		var x snapshot
 		if e = json.Unmarshal(b, &x); e != nil {
@@ -388,6 +394,13 @@ func (s *Service) nextID(_ string) string {
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16])
 }
 func (s *Service) persistLocked() error {
+	s.recoveryReadEpoch++
+	if s.persistenceRecoveryPending {
+		// An error may mean COMMIT succeeded. Never overwrite authoritative
+		// state from fallback memory; refresh first, then require a retry.
+		s.restoreLocked()
+		return errors.New("persistence outcome uncertain; authoritative recovery and retry required")
+	}
 	if s.store == nil {
 		return nil
 	}
@@ -400,6 +413,7 @@ func (s *Service) persistLocked() error {
 		if err == nil {
 			s.generation = generation
 			s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
+			s.snapshotEstablished = true
 			return nil
 		}
 		s.restoreLocked()
@@ -410,6 +424,7 @@ func (s *Service) persistLocked() error {
 		if err == nil {
 			s.generation = generation
 			s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
+			s.snapshotEstablished = true
 			return nil
 		}
 		s.restoreLocked()
@@ -419,24 +434,49 @@ func (s *Service) persistLocked() error {
 		s.restoreLocked()
 		return err
 	}
+	s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
+	s.snapshotEstablished = true
 	return nil
 }
 func (s *Service) restoreLocked() {
 	var b []byte
 	var err error
+	generation := s.generation
 	if versioned, ok := s.store.(VersionedStore); ok {
-		b, s.generation, err = versioned.LoadVersioned()
+		b, generation, err = versioned.LoadVersioned()
 	} else {
 		b, err = s.store.Load()
 	}
-	if err != nil || len(b) == 0 {
-		return
+	// Store.Load(nil,nil) denotes an authoritative initially empty store.
+	// Versioned stores must also report generation zero. Empty cannot erase
+	// any acknowledged nonempty snapshot.
+	loadedNonempty := len(b) > 0
+	authoritativeEmpty := err == nil && len(b) == 0 && !s.snapshotEstablished && generation == 0
+	if authoritativeEmpty {
+		b = []byte("{}")
 	}
-	s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
 	var x snapshot
-	if json.Unmarshal(b, &x) != nil {
-		return
+	if err != nil || len(b) == 0 || (!authoritativeEmpty && !validRecoverySnapshotShape(b, s.confirmedSnapshot)) || json.Unmarshal(b, &x) != nil {
+		s.persistenceRecoveryPending = true
+		// A storage outage can affect both Save and its recovery read. Restore
+		// the last acknowledged state rather than expose the failed mutation.
+		b = s.confirmedSnapshot
+		generation = s.generation
+		if len(b) == 0 {
+			b = []byte("{}")
+		}
+		x = snapshot{}
+		if json.Unmarshal(b, &x) != nil {
+			return
+		}
+	} else {
+		s.persistenceRecoveryPending = false
+		if loadedNonempty {
+			s.snapshotEstablished = true
+		}
 	}
+	s.generation = generation
+	s.confirmedSnapshot = append(s.confirmedSnapshot[:0], b...)
 	s.products, s.taxGroups, s.employees, s.identityBindings, s.operatorSessions, s.shifts, s.orders = x.Products, x.TaxGroups, x.Employees, x.IdentityBindings, x.OperatorSessions, x.Shifts, x.Orders
 	if s.identityBindings == nil {
 		s.identityBindings = map[string]IdentityBinding{}
@@ -1596,6 +1636,9 @@ func (s *Service) AddLineExpected(order string, expected int64, v Line) (Order, 
 	if !validUUID(v.LineID) || v.Name == "" || !validMoney(v.UnitPrice) || !validDiscount(v.Discount) || !validTax(v.TaxGroup) || !validQuantity(v.Quantity) {
 		return o, errors.New("invalid line")
 	}
+	if err := ValidateLine(v.UnitPrice, v.Quantity); err != nil {
+		return o, err
+	}
 	if v.ProductID != "" {
 		p, exists := s.products[v.ProductID]
 		if !exists || p.TenantID != o.TenantID {
@@ -1740,6 +1783,28 @@ func (s *Service) applyFiscalEventLinkedForTenant(tenant, aggregateID, externalI
 		if o.FiscalSaleID != aggregateID && (externalID == "" || o.ExternalID != externalID) {
 			continue
 		}
+		// A delayed webhook cannot undo a proven terminal checkout/return.
+		if o.State == "REVERSED" {
+			if state != "REVERSED" {
+				return nil
+			}
+			if (o.ReversalOperationID != "" && operation != o.ReversalOperationID) || (o.ReversalFiscalReference != "" && fiscalReference != "" && o.ReversalFiscalReference != fiscalReference) {
+				return errors.New("reversal proof conflict")
+			}
+			return nil
+		}
+		if o.CheckoutOperationID != "" && state != "REVERSED" && operation != o.CheckoutOperationID {
+			return errors.New("checkout operation association conflict")
+		}
+		if o.State == "COMPLETED" && o.ReceiptReference != "" && state != "FISCALIZED" && state != "REVERSED" {
+			return errors.New("terminal fiscal projection conflict")
+		}
+		if o.State == "COMPLETED" && o.ReceiptReference != "" && state == "FISCALIZED" && o.FiscalOperationID != "" && operation != o.FiscalOperationID {
+			return errors.New("checkout operation conflict")
+		}
+		if state == "FISCALIZED" && o.ReceiptReference != "" && fiscalReference != "" && o.ReceiptReference != fiscalReference {
+			return errors.New("fiscal reference conflict")
+		}
 		if version <= o.FiscalVersion && operation != o.ReversalOperationID && !(state == "REVERSED" && o.State == "UNKNOWN") {
 			return nil
 		}
@@ -1769,7 +1834,7 @@ func (s *Service) applyFiscalEventLinkedForTenant(tenant, aggregateID, externalI
 			o.FiscalSaleID = aggregateID
 		}
 		o.FiscalVersion = version
-		o.Version = version
+		o.Version++
 		s.orders[id] = o
 		return s.persistLocked()
 	}
@@ -2184,6 +2249,8 @@ func normalizedOrderPayments(payments []map[string]any) []OrderPayment {
 	out := make([]OrderPayment, 0, len(payments))
 	for _, raw := range payments {
 		payment := OrderPayment{}
+		payment.PaymentID, _ = raw["payment_id"].(string)
+		payment.TerminalPolicy, _ = raw["terminal_policy"].(string)
 		payment.Type, _ = raw["type"].(string)
 		switch amount := raw["amount"].(type) {
 		case map[string]any:

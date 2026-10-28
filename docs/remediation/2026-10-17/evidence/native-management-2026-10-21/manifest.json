@@ -1,0 +1,38 @@
+{
+  "base_commit": "775cfcc",
+  "source_sha256": {
+    "minipos/BeeMiniPOS/App.tsx": "4242b5ad6574f73075438c2b8819f0aaf0ab54cda97402d8f4dd452dcb549e4a",
+    "minipos/BeeMiniPOS/src/useManagementAccess.ts": "0aed0e60cecc57774fffd0e90df603cc508e52a3dc685b246edfcd8c6d4ebb7f",
+    "minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx": "967d40c1fcc17431129bb09ca0689003e1832cf3fd5b075a398b8caba6743055"
+  },
+  "logs": {
+    "node": {
+      "raw_sha256": "708436729d78405be28253cfef40c9596e9e078647df40034ec3b625948a78a6",
+      "exit_code": 0
+    },
+    "ui": {
+      "raw_sha256": "5fabfbf261e9ff623a0935d657b5c9cec8f41d54c60a8104f0e632915992a8d5",
+      "exit_code": 0
+    },
+    "ts": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "exit_code": 0
+    },
+    "report-render-red": {
+      "raw_sha256": "a8a8bc792a25a1690c40371096c3759bae71503bd8b16ce06e40b7c10619bf3b",
+      "expected_failure": true
+    },
+    "write-ownership-red": {
+      "raw_sha256": "9b0dfe2623fd22afe51faf6e931843811d0f182293b1c89bbfe09eaa8d458b98",
+      "expected_failure": true
+    }
+  },
+  "scope": "Actual MiniPosApp React management paths with mocked transport; not device/HIL or full production browser acceptance",
+  "results": {
+    "node": 147,
+    "ui_suites": 19,
+    "ui": 127,
+    "ts": "PASS",
+    "targeted_management": 23
+  }
+}

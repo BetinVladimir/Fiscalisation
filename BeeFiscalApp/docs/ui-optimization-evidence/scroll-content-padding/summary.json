@@ -1,0 +1,15 @@
+{
+  "status": "IN_PROGRESS",
+  "scope": "Operational ScrollView owns viewport/background; vertical padding moved to contentContainerStyle and redundant outer horizontal padding removed, preserving responsive inner gutter. No test or Axe rule excluded.",
+  "diagnostic": "Real expanded audit icon ancestor already aria-hidden=true; Axe still reports nonBmp for visible icon font. Reports empty text is visually within bounds after scrollIntoViewIfNeeded yet Axe reports elmPartiallyObscured with scrolling ancestor. Padding alone does not resolve this.",
+  "checks": "types/demoexportPASS;18reports strict16PASS2xs empty FAIL/incomplete,0violations/2incomplete nodes.88default functionalPASS. Diagnostic capture is not AA proof.",
+  "open": [
+    "Reports remaining obscuration/virtual-stack investigation",
+    "Audit decorative icon graphical contrast proof and review",
+    "Auth-menuARIA/native/manual/full11criteria"
+  ],
+  "hashes": {
+    "App.tsx": "6d10e1ba1da65c084b1f10bf555fda3921fad9fa67c40877dc30f3b6620dc6a5"
+  },
+  "evidence": "docs/ui-optimization-evidence/scroll-content-padding"
+}

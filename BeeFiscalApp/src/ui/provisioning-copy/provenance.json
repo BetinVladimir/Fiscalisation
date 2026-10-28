@@ -1,0 +1,9 @@
+{
+  "model": "translategemma:12b",
+  "sourceKeys": 7,
+  "sourceSha256": "9f413285926b91f66b90495da33973b48142354c8d82da6016a8fa3cdf59e44c",
+  "generatedAt": "2026-10-18T13:09:19.440100+00:00",
+  "review": "BG/RU reviewed; two explicit BG wording overrides; remaining22 locales OPEN",
+  "remainingLocales": "OPEN",
+  "runtimeSha256": "b112dd4d0797613b8c3f621c2237840c24ae2f544d2337a9a3219f34618e79e2"
+}

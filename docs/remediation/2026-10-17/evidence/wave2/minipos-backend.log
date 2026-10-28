@@ -1,0 +1,11 @@
+ok  	fiscalisation/beeminipos-backend/cmd/beeminipos-backend	0.449s
+ok  	fiscalisation/beeminipos-backend/internal/api	1.848s
+ok  	fiscalisation/beeminipos-backend/internal/auth	1.454s
+ok  	fiscalisation/beeminipos-backend/internal/config	0.561s
+ok  	fiscalisation/beeminipos-backend/internal/domain	2.241s
+ok  	fiscalisation/beeminipos-backend/internal/emailauth	2.718s
+ok  	fiscalisation/beeminipos-backend/internal/fiscalintegration	3.951s
+ok  	fiscalisation/beeminipos-backend/internal/migrations	3.499s
+?   	fiscalisation/beeminipos-backend/internal/mqttclient	[no test files]
+ok  	fiscalisation/beeminipos-backend/internal/persistence	0.982s
+ok  	fiscalisation/beeminipos-backend/internal/startup	3.047s

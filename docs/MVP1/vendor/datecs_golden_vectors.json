@@ -1,0 +1,88 @@
+{
+ "cmd33_clear_display": {
+  "seq": 36,
+  "cmd": 33,
+  "data_hex": "",
+  "request_hex": "01 30 30 32 3A 24 30 30 32 31 05 30 31 3B 38 03",
+  "match_encoder": true
+ },
+ "cmd56_close": {
+  "seq": 41,
+  "cmd": 56,
+  "data_hex": "",
+  "request_hex": "01 30 30 32 3A 29 30 30 33 38 05 30 31 3C 35 03",
+  "match_encoder": true
+ },
+ "cmd60_cancel": {
+  "seq": 67,
+  "cmd": 60,
+  "data_hex": "",
+  "request_hex": "01 30 30 32 3A 43 30 30 33 3C 05 30 31 3E 33 03",
+  "match_encoder": true
+ },
+ "cmd76_txn_status": {
+  "seq": 50,
+  "cmd": 76,
+  "data_hex": "",
+  "request_hex": "01 30 30 32 3A 32 30 30 34 3C 05 30 31 3D 33 03",
+  "match_encoder": true
+ },
+ "cmd103_receipt_info": {
+  "seq": 64,
+  "cmd": 103,
+  "data_hex": "",
+  "request_hex": "01 30 30 32 3A 40 30 30 36 37 05 30 31 3D 3E 03",
+  "match_encoder": true
+ },
+ "cmd62_read_datetime": {
+  "seq": 69,
+  "cmd": 62,
+  "data_hex": "",
+  "request_hex": "01 30 30 32 3A 45 30 30 33 3E 05 30 31 3E 37 03",
+  "match_encoder": true
+ },
+ "cmd48_open_syntax1": {
+  "seq": 44,
+  "cmd": 48,
+  "data_hex": "310931093234094909",
+  "request_hex": "01 30 30 33 33 2C 30 30 33 30 31 09 31 09 32 34 09 49 09 05 30 32 3E 3F 03",
+  "match_encoder": true
+ },
+ "cmd48_open_syntax2": {
+  "seq": 50,
+  "cmd": 48,
+  "data_hex": "3109310944543633363533332d303032302d303031303131300931094909",
+  "request_hex": "01 30 30 34 38 32 30 30 33 30 31 09 31 09 44 54 36 33 36 35 33 33 2D 30 30 32 30 2D 30 30 31 30 31 31 30 09 31 09 49 09 05 30 37 31 30 03",
+  "match_encoder": true
+ },
+ "cmd53_pay_cash": {
+  "seq": 239,
+  "cmd": 53,
+  "data_hex": "3009313009",
+  "request_hex": "01 30 30 32 3F EF 30 30 33 35 30 09 31 30 09 05 30 33 33 30 03",
+  "match_encoder": true
+ },
+ "cmd74_status": {
+  "seq": 49,
+  "cmd": 74,
+  "data_hex": "",
+  "request_hex": "01 30 30 32 3A 31 30 30 34 3A 05 30 31 3D 30 03",
+  "match_encoder": true
+ },
+ "cmd49_sale_cp1251": {
+  "seq": 54,
+  "cmd": 49,
+  "data_hex": "d2eeefe5edee20f1e8f0e5ede5093209322e3635093309320935093209",
+  "request_hex": "01 30 30 34 37 36 30 30 33 31 D2 EE EF E5 ED EE 20 F1 E8 F0 E5 ED E5 09 32 09 32 2E 36 35 09 33 09 32 09 35 09 32 09 05 30 3E 3E 31 03",
+  "match_encoder": true,
+  "note": "name Топено сирене must be windows-1251 (D2 EE EF E5 ED EE ...), UTF-8 gives D0 A2 D0 BE ..."
+ },
+ "cmd56_answer": {
+  "response_hex": "01 30 30 33 39 29 30 30 33 38 30 09 32 36 39 09 04 80 80 80 80 80 82 80 80 05 30 36 3A 3E 03",
+  "bcc_ok": true
+ },
+ "cmd76_answer": {
+  "response_hex": "01 30 30 34 37 32 30 30 34 3C 30 09 30 09 35 31 37 09 30 09 30 2E 30 30 09 30 2E 30 30 09 04 80 80 80 80 86 9A 80 80 05 30 38 3D 35 03",
+  "bcc_ok": true
+ }
+}

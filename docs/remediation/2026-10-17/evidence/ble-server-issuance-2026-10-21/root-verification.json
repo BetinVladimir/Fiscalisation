@@ -1,0 +1,34 @@
+{
+  "scope": "ble-server-issuance-2026-10-21",
+  "logs": {
+    "fiscal-ble-issuance-root-full-20261021.log.gz": {
+      "raw_sha256": "837adc9430afcaf4b15343550cf99a8abc6312d9a2dca398d65e38fad047fb68",
+      "gzip_sha256": "6588b92d4ec821a490b696c565bdbe85379fa57029cddddddf1090474c66c1fe"
+    },
+    "fiscal-ble-issuance-root-race-20261021.log.gz": {
+      "raw_sha256": "c1c104aa8da3e21b34510d14936955fa2c7aa1978fc17616f1b43dc5874e1879",
+      "gzip_sha256": "c82277b1b48398a835691caff3550b25462a48c320a59649642b8aad9a1a3856"
+    },
+    "fiscal-ble-issuance-root-mbedtls-20261021.log.gz": {
+      "raw_sha256": "636ffaf5566f8e9822e3d448830760d005c732001f052bb9767552fa682d4270",
+      "gzip_sha256": "4210a55a6b297bda4e2e351fb0f2709913b72c3d5ce76d64ceaa30629b211210"
+    },
+    "fiscal-ble-pki-a-validation-red.log.gz": {
+      "raw_sha256": "aa29caac270e519a40b8de67bee991e6eda11066cb4743b7a8505650aea8a68b",
+      "gzip_sha256": "b97dd6089653e041233fb1cf286fce239b50d452b233177431aeac7b4b94cc39"
+    }
+  },
+  "sources": {
+    "fiscal-backend/internal/domain/ble_server_challenge_test.go": "f77ddfd0a74b3414e9ed9258f9c9504402f5e48748fb37838e94f13be9ff703f",
+    "fiscal-backend/internal/domain/ble_server_challenge.go": "39651272f91c35d61d90b9354a55102761967684616363e3535ec1c4228d1524",
+    "fiscal-backend/internal/domain/ble_server_validation_test.go": "b4f58f12acf80fdb664a6a10846c351980114c3c3b09edd6e7c78deb500b2191",
+    "fiscal-backend/internal/domain/ble_server_ca_test.go": "d631d2f6d5b69c944c14967ea338c867317bbcb180ad69c7ca39f117e45a104d",
+    "fiscal-backend/internal/domain/ble_server_tls_test.go": "a42e6f406a3255c523498b3aff854d24ed9903847acad79547f1a014112ac523",
+    "fiscal-backend/internal/domain/ble_server_repository.go": "3bf1db49b8924bb70d37cae62ac7729cfab8948e466d2eda07ddab726d9ac699",
+    "fiscal-backend/internal/domain/ble_server_ca.go": "27ff1bec665a81819b22d1bf498673c3607fca602263f114d76d22b6e8a8aa78",
+    "fiscal-backend/internal/domain/service.go": "3d5f3102105652f660ed575675cb40e400134535ac653596e0e53bec32ef526c",
+    "fiscal-backend/internal/domain/edge_sync_repository.go": "80ae07b92eb31ccf28c5c3eef2f149d765c3b0289f0230f0cf2269cacf2e67f3",
+    "scripts/verify-ble-server-certificate-profile.sh": "06ee5f9543e0565a3763033645b0bd38b1635764cdf14c189f83f40348173e67",
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_server_certificate/verify_profile.c": "277e1ee32a1d299d33904308b41ad93fe534a50682c4bcde25a8a45511d51eee"
+  }
+}

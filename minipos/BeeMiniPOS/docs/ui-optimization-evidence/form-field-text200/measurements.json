@@ -1,0 +1,80 @@
+[
+  {
+    "size": "lg",
+    "theme": "dark",
+    "metrics": {
+      "text": "Данъчен идентификатор",
+      "original": 14,
+      "size": 28,
+      "width": 448,
+      "scrollWidth": 448,
+      "height": 40,
+      "scrollHeight": 40
+    }
+  },
+  {
+    "size": "xs",
+    "theme": "dark",
+    "metrics": {
+      "text": "Данъчен идентификатор",
+      "original": 14,
+      "size": 28,
+      "width": 296,
+      "scrollWidth": 296,
+      "height": 80,
+      "scrollHeight": 80
+    }
+  },
+  {
+    "size": "lg",
+    "theme": "light",
+    "metrics": {
+      "text": "Данъчен идентификатор",
+      "original": 14,
+      "size": 28,
+      "width": 448,
+      "scrollWidth": 448,
+      "height": 40,
+      "scrollHeight": 40
+    }
+  },
+  {
+    "size": "md",
+    "theme": "light",
+    "metrics": {
+      "text": "Данъчен идентификатор",
+      "original": 14,
+      "size": 28,
+      "width": 448,
+      "scrollWidth": 448,
+      "height": 40,
+      "scrollHeight": 40
+    }
+  },
+  {
+    "size": "xs",
+    "theme": "light",
+    "metrics": {
+      "text": "Данъчен идентификатор",
+      "original": 14,
+      "size": 28,
+      "width": 296,
+      "scrollWidth": 296,
+      "height": 80,
+      "scrollHeight": 80
+    }
+  },
+  {
+    "size": "md",
+    "theme": "dark",
+    "metrics": {
+      "text": "Данъчен идентификатор",
+      "original": 14,
+      "size": 28,
+      "width": 448,
+      "scrollWidth": 448,
+      "height": 40,
+      "scrollHeight": 40
+    }
+  }
+]

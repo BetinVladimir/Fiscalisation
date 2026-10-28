@@ -1,0 +1,43 @@
+import {test,expect} from '@playwright/test';
+for(const [size,width,height] of [['xs',320,800],['md',768,900],['lg',1440,1000]] as const)for(const theme of ['light','dark'] as const){
+ test(`Paper menu keyboard ${size}/${theme}`,async({page})=>{
+  await page.setViewportSize({width,height});await page.emulateMedia({colorScheme:theme,reducedMotion:'reduce'});await page.goto('/');
+  const trigger=page.getByTestId('language-menu-open');await trigger.focus();await page.keyboard.press('Enter');
+  await expect(page.getByTestId('language-bg')).toBeFocused();
+  await expect(page.getByTestId('language-bg')).toHaveAttribute('role','menuitemradio');
+  await expect(trigger).toHaveAttribute('aria-expanded','true');
+  await expect(page.getByTestId('app-root')).toHaveAttribute('inert','');
+  await page.getByTestId('operator-login-email').evaluate(el=>(el as HTMLElement).focus());
+  await expect(page.getByTestId('operator-login-email')).not.toBeFocused();
+  await expect(page.getByTestId('language-bg')).toBeFocused();
+  await expect(page.getByTestId('language-bg')).toHaveAttribute('aria-checked','true');
+  await expect(page.getByTestId('language-hr')).toHaveAttribute('aria-checked','false');
+  await expect(page.locator('[role="menuitemradio"][tabindex="0"]')).toHaveCount(1);
+  await page.keyboard.press('Tab');await expect(page.getByRole('button',{name:'Назад',exact:true})).toBeFocused();
+  await page.keyboard.press('Tab');await expect(page.getByTestId('language-bg')).toBeFocused();
+  await page.keyboard.press('Shift+Tab');await expect(page.getByRole('button',{name:'Назад',exact:true})).toBeFocused();
+  await page.keyboard.press('Shift+Tab');await expect(page.getByTestId('language-bg')).toBeFocused();
+  await page.keyboard.press('ArrowDown');await expect(page.getByTestId('language-hr')).toBeFocused();
+  await page.keyboard.press('End');await expect(page.getByTestId('language-ru')).toBeFocused();
+  const last = await page.getByTestId('language-ru').boundingBox();
+  const menu = await page.getByTestId('language-menu-scroll').boundingBox();
+  expect(last).not.toBeNull(); expect(menu).not.toBeNull();
+  expect(last!.y).toBeGreaterThanOrEqual(menu!.y - 1);
+  expect(last!.y + last!.height).toBeLessThanOrEqual(menu!.y + menu!.height + 1);
+  expect(menu!.x).toBeGreaterThanOrEqual(0);
+  expect(menu!.x + menu!.width).toBeLessThanOrEqual(width + 1);
+  await page.keyboard.press('ArrowDown');await expect(page.getByTestId('language-bg')).toBeFocused();
+  await page.keyboard.press('ArrowUp');await expect(page.getByTestId('language-ru')).toBeFocused();
+  await page.keyboard.press('Home');await expect(page.getByTestId('language-bg')).toBeFocused();
+  await page.keyboard.press('Escape');await expect(page.getByTestId('language-menu-scroll')).not.toBeVisible();await expect(trigger).toBeFocused();await expect(trigger).toHaveAttribute('aria-expanded','false');await expect(page.getByTestId('app-root')).not.toHaveAttribute('inert');
+  const themeTrigger=page.getByTestId('theme-menu-open');await themeTrigger.focus();await page.keyboard.press('Enter');
+  await expect(page.getByTestId('theme-system')).toBeFocused();await expect(page.getByTestId('theme-system')).toHaveAttribute('aria-checked','true');
+  await expect(page.locator('[role="menuitemradio"][tabindex="0"]')).toHaveCount(1);
+  await page.keyboard.press('Tab');await expect(page.getByRole('button',{name:'Назад',exact:true})).toBeFocused();
+  await page.keyboard.press('Shift+Tab');await expect(page.getByTestId('theme-system')).toBeFocused();
+  await page.keyboard.press('ArrowDown');await expect(page.getByTestId('theme-light')).toBeFocused();
+  await page.keyboard.press('End');await expect(page.getByTestId('theme-dark')).toBeFocused();
+  await page.keyboard.press('Home');await expect(page.getByTestId('theme-system')).toBeFocused();
+  await page.keyboard.press('Escape');await expect(page.getByTestId('theme-system')).not.toBeVisible();await expect(themeTrigger).toBeFocused();
+ });
+}

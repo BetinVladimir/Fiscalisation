@@ -1,0 +1,52 @@
+CREATE EXTENSION
+CREATE SCHEMA
+CREATE SCHEMA
+CREATE FUNCTION
+CREATE TABLE
+ALTER TABLE
+ALTER TABLE
+CREATE TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+CREATE INDEX
+ALTER TABLE
+CREATE TABLE
+ALTER TABLE
+CREATE INDEX
+ALTER TABLE
+CREATE TABLE
+ALTER TABLE
+CREATE INDEX
+CREATE TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+CREATE POLICY
+ALTER TABLE
+CREATE TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+ALTER TABLE
+CREATE TABLE
+ALTER TABLE
+CREATE INDEX
+ALTER TABLE
+ok  	fiscalisation/fiscal-backend/internal/domain	0.500s
+[WebServer] (node:64191) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 1 test using 1 worker
+
+(node:64205) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:64205) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+UPSTREAM /public/v1/minipos/fiscal-route-health 503 {"code":"MINIPOS_ERROR","detail":"fiscal cloud route unavailable","retryable":false,"status":503,"title":"MINIPOS_ERROR","trace_id":"20261018140822.284752000","type":"urn:beeminipos:error:minipos_error"}
+
+  ✓  1 tests/browser/execution-http-pipeline.spec.mjs:5:1 › real MiniPOS JWT → persisted source → root HTTP issuer → actual App → production firmware (8.0s)
+
+  1 passed (9.0s)
+Private test evidence: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/fiscal-http-pipeline-1twxlnfl

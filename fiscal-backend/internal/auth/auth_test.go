@@ -20,14 +20,14 @@ func token(payload, key string) string {
 func TestParse(t *testing.T) {
 	now := time.Unix(1000, 0)
 	raw := token(`{"sub":"u1","tenant_id":"t1","roles":["cashier"],"scope":"fiscal.base","exp":2000}`, "secret")
-	c, e := Parse(raw, []byte("secret"), now)
+	c, e := Parse(raw, []byte("secret"), now, nil)
 	if e != nil || c.TenantID != "t1" {
 		t.Fatalf("%+v %v", c, e)
 	}
-	if _, e = Parse(raw+"x", []byte("secret"), now); e == nil {
+	if _, e = Parse(raw+"x", []byte("secret"), now, nil); e == nil {
 		t.Fatal("tampering accepted")
 	}
-	if _, e = Parse(raw, []byte("secret"), time.Unix(3000, 0)); e == nil {
+	if _, e = Parse(raw, []byte("secret"), time.Unix(3000, 0), nil); e == nil {
 		t.Fatal("expired accepted")
 	}
 }
@@ -84,7 +84,7 @@ func TestRBACLeastPrivilege(t *testing.T) {
 
 func TestParseRejectsUnknownRole(t *testing.T) {
 	raw := token(`{"sub":"u1","tenant_id":"t1","roles":["ROOT"],"scope":"fiscal.base","exp":2000}`, "secret")
-	if _, err := Parse(raw, []byte("secret"), time.Unix(1000, 0)); err == nil {
+	if _, err := Parse(raw, []byte("secret"), time.Unix(1000, 0), nil); err == nil {
 		t.Fatal("unknown role accepted")
 	}
 }
@@ -107,6 +107,46 @@ func TestMiddlewareRejectsMissingScope(t *testing.T) {
 	Middleware("secret", next).ServeHTTP(w, r)
 	if w.Code != http.StatusForbidden {
 		t.Fatalf("missing scope status=%d", w.Code)
+	}
+}
+
+func TestHMACTokenCannotCarryAdminRoleInProd(t *testing.T) {
+	now := time.Unix(1000, 0)
+	cfg := &ParseTokenConfig{DenyAdminRoles: true}
+	forbidden := []string{
+		`["ADMIN"]`,
+		`["PLATFORM_DEVICE_ADMIN"]`,
+		`["PLATFORM_SECURITY_ADMIN"]`,
+		`["PLATFORM_INTEGRATION_ADMIN"]`,
+		`["PLATFORM_DEVICE_VIEWER"]`,
+	}
+	for _, rolesJSON := range forbidden {
+		raw := token(`{"sub":"u1","tenant_id":"t1","roles":`+rolesJSON+`,"scope":"fiscal.base","exp":2000}`, "secret")
+		if _, err := Parse(raw, []byte("secret"), now, cfg); err == nil {
+			t.Fatalf("role %s accepted with DenyAdminRoles; want HMAC_ADMIN_FORBIDDEN", rolesJSON)
+		}
+	}
+	allowed := []string{`["CASHIER"]`, `["SUPERVISOR"]`, `["SERVICE"]`, `["AUDITOR"]`}
+	for _, rolesJSON := range allowed {
+		raw := token(`{"sub":"u1","tenant_id":"t1","roles":`+rolesJSON+`,"scope":"fiscal.base","exp":2000}`, "secret")
+		if _, err := Parse(raw, []byte("secret"), now, cfg); err != nil {
+			t.Fatalf("role %s rejected with DenyAdminRoles; want acceptance: %v", rolesJSON, err)
+		}
+	}
+}
+
+func TestTokenWithTTLOverLimitRejected(t *testing.T) {
+	now := time.Unix(1000, 0)
+	cfg := &ParseTokenConfig{MaxTTL: 24 * time.Hour}
+	// 25-hour lifetime: nbf=1000, exp=1000+25*3600=91000
+	raw25h := token(`{"sub":"u1","tenant_id":"t1","roles":["CASHIER"],"scope":"fiscal.base","nbf":1000,"exp":91000}`, "secret")
+	if _, err := Parse(raw25h, []byte("secret"), now, cfg); err == nil {
+		t.Fatal("25h token accepted; want rejection")
+	}
+	// 23-hour lifetime: nbf=1000, exp=1000+23*3600=83800
+	raw23h := token(`{"sub":"u1","tenant_id":"t1","roles":["CASHIER"],"scope":"fiscal.base","nbf":1000,"exp":83800}`, "secret")
+	if _, err := Parse(raw23h, []byte("secret"), now, cfg); err != nil {
+		t.Fatalf("23h token rejected; want acceptance: %v", err)
 	}
 }
 

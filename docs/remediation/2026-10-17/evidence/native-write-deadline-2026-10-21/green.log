@@ -1,0 +1,376 @@
+
+> beeminipos@0.1.0 test
+> node --experimental-strip-types --test src/*.test.ts
+
+TAP version 13
+# (node:64424) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: BLE discovery accepts only the REST-authorized advertising identity
+ok 1 - BLE discovery accepts only the REST-authorized advertising identity
+  ---
+  duration_ms: 0.544167
+  ...
+# Subtest: BLE discovery rejects missing or oversized advertising authority
+ok 2 - BLE discovery rejects missing or oversized advertising authority
+  ---
+  duration_ms: 0.196542
+  ...
+# Subtest: BLE advertising identity is bound to the signed Edge identity
+ok 3 - BLE advertising identity is bound to the signed Edge identity
+  ---
+  duration_ms: 0.067458
+  ...
+# (node:64425) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: BLE authority accepts the server-owned tenant and matches register and final device
+ok 4 - BLE authority accepts the server-owned tenant and matches register and final device
+  ---
+  duration_ms: 0.656208
+  ...
+# (node:64426) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: assembler reports gaps, accepts identical duplicate and completes in order
+ok 5 - assembler reports gaps, accepts identical duplicate and completes in order
+  ---
+  duration_ms: 0.717542
+  ...
+# Subtest: assembler enforces one in-flight message and duplicate consistency
+ok 6 - assembler enforces one in-flight message and duplicate consistency
+  ---
+  duration_ms: 0.3055
+  ...
+# Subtest: ACK carries contiguous progress and missing bitmap
+ok 7 - ACK carries contiguous progress and missing bitmap
+  ---
+  duration_ms: 0.369708
+  ...
+# Subtest: NACK contains only protocol reason
+ok 8 - NACK contains only protocol reason
+  ---
+  duration_ms: 0.089125
+  ...
+# (node:64427) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: client frame matches BLE v1 header, MTU and monotonic counter
+ok 9 - client frame matches BLE v1 header, MTU and monotonic counter
+  ---
+  duration_ms: 3.276166
+  ...
+# Subtest: frame validation rejects unsafe metadata
+ok 10 - frame validation rejects unsafe metadata
+  ---
+  duration_ms: 0.779167
+  ...
+# Subtest: directional peers decrypt and reject replay/bad tag
+ok 11 - directional peers decrypt and reject replay/bad tag
+  ---
+  duration_ms: 1.572917
+  ...
+# (node:64428) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: BFF1 fragments and restores an 8 KiB message
+ok 12 - BFF1 fragments and restores an 8 KiB message
+  ---
+  duration_ms: 6.814417
+  ...
+# Subtest: BFF1 rejects order and digest corruption
+ok 13 - BFF1 rejects order and digest corruption
+  ---
+  duration_ms: 0.597125
+  ...
+# (node:64429) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: Go and TypeScript share the complete BLE handshake context vector
+ok 14 - Go and TypeScript share the complete BLE handshake context vector
+  ---
+  duration_ms: 0.36325
+  ...
+# Subtest: encrypted client handshake gates fiscal execution until READY
+ok 15 - encrypted client handshake gates fiscal execution until READY
+  ---
+  duration_ms: 42.604416
+  ...
+# Subtest: handshake rejects expired session and READY replay
+ok 16 - handshake rejects expired session and READY replay
+  ---
+  duration_ms: 1.554292
+  ...
+# Subtest: handshake requires the private key prepared before REST issuance
+ok 17 - handshake requires the private key prepared before REST issuance
+  ---
+  duration_ms: 1.121708
+  ...
+# Subtest: outer BLE identity cannot differ from the signed ticket
+ok 18 - outer BLE identity cannot differ from the signed ticket
+  ---
+  duration_ms: 1.0885
+  ...
+# Subtest: BLE bootstrap reset permits safe session re-issuance
+ok 19 - BLE bootstrap reset permits safe session re-issuance
+  ---
+  duration_ms: 0.13625
+  ...
+# (node:64430) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: correlated result resolves exactly one waiter
+ok 20 - correlated result resolves exactly one waiter
+  ---
+  duration_ms: 3.844334
+  ...
+# Subtest: message and operation correlation mismatch rejects
+ok 21 - message and operation correlation mismatch rejects
+  ---
+  duration_ms: 0.344209
+  ...
+# Subtest: timeout and send rejection do not leak waiter
+ok 22 - timeout and send rejection do not leak waiter
+  ---
+  duration_ms: 100.959583
+  ...
+# (node:64431) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: canonical CBOR matches RFC 8949 ordering used by Edge
+ok 23 - canonical CBOR matches RFC 8949 ordering used by Edge
+  ---
+  duration_ms: 1.133167
+  ...
+# (node:64432) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: checkout survives restart with the exact operation receipt and payments
+ok 24 - checkout survives restart with the exact operation receipt and payments
+  ---
+  duration_ms: 0.793292
+  ...
+# Subtest: corrupt checkout fails closed
+ok 25 - corrupt checkout fails closed
+  ---
+  duration_ms: 0.835375
+  ...
+# Subtest: pending checkout is recovered after process restart with operation correlation
+ok 26 - pending checkout is recovered after process restart with operation correlation
+  ---
+  duration_ms: 0.146959
+  ...
+# Subtest: journal refuses operation/payload replacement and preserves signed bytes across restart
+ok 27 - journal refuses operation/payload replacement and preserves signed bytes across restart
+  ---
+  duration_ms: 0.598334
+  ...
+# Subtest: concurrent writers cannot replace the first operation
+ok 28 - concurrent writers cannot replace the first operation
+  ---
+  duration_ms: 0.208416
+  ...
+# Subtest: ambiguous authorization preparation survives restart and permits only one signed transition
+ok 29 - ambiguous authorization preparation survives restart and permits only one signed transition
+  ---
+  duration_ms: 0.331667
+  ...
+# (node:64433) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: checkout plan remains stable and legacy unsigned BLE builder fails before I/O
+ok 30 - checkout plan remains stable and legacy unsigned BLE builder fails before I/O
+  ---
+  duration_ms: 0.633958
+  ...
+# (node:64434) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: one failure does not fail over and recovery uses hysteresis
+ok 31 - one failure does not fail over and recovery uses hysteresis
+  ---
+  duration_ms: 0.622208
+  ...
+# Subtest: ping is HEAD against lightweight path
+ok 32 - ping is HEAD against lightweight path
+  ---
+  duration_ms: 35.427458
+  ...
+# (node:64437) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: resolves the active Fiscal device from the public register resource
+ok 33 - resolves the active Fiscal device from the public register resource
+  ---
+  duration_ms: 0.613792
+  ...
+# Subtest: fails closed for mismatched, inactive, unbound or malformed resources
+ok 34 - fails closed for mismatched, inactive, unbound or malformed resources
+  ---
+  duration_ms: 0.22525
+  ...
+# Subtest: permits an explicit DEV fallback only after the public register is active
+ok 35 - permits an explicit DEV fallback only after the public register is active
+  ---
+  duration_ms: 0.051375
+  ...
+# (node:64438) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: accepts canonical UUIDs
+ok 36 - accepts canonical UUIDs
+  ---
+  duration_ms: 0.63525
+  ...
+# Subtest: rejects aliases and blanks
+ok 37 - rejects aliases and blanks
+  ---
+  duration_ms: 0.110417
+  ...
+# Subtest: fails closed before a public Fiscal API call
+ok 38 - fails closed before a public Fiscal API call
+  ---
+  duration_ms: 0.193333
+  ...
+# (node:64439) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: bounded fetch aborts a hung request
+ok 39 - bounded fetch aborts a hung request
+  ---
+  duration_ms: 101.717875
+  ...
+# Subtest: bounded fetch returns a completed response and validates policy
+ok 40 - bounded fetch returns a completed response and validates policy
+  ---
+  duration_ms: 10.826125
+  ...
+# (node:64440) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: onboarding legal copy exists for every supported language
+ok 41 - onboarding legal copy exists for every supported language
+  ---
+  duration_ms: 1.211209
+  ...
+# (node:64441) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: actual transport frames at negotiated MTU and matches operation/result identity
+ok 42 - actual transport frames at negotiated MTU and matches operation/result identity
+  ---
+  duration_ms: 33.986125
+  ...
+# Subtest: small MTU and unsigned command fail before any write
+ok 43 - small MTU and unsigned command fail before any write
+  ---
+  duration_ms: 0.451916
+  ...
+# Subtest: partial write is uncertain and concurrent money operations cannot interleave
+ok 44 - partial write is uncertain and concurrent money operations cannot interleave
+  ---
+  duration_ms: 5.539209
+  ...
+# Subtest: reconnect fences old callbacks and resets partial assembly
+ok 45 - reconnect fences old callbacks and resets partial assembly
+  ---
+  duration_ms: 12.565375
+  ...
+# Subtest: malformed and oversized notifications cannot escape callback or consume active operation
+ok 46 - malformed and oversized notifications cannot escape callback or consume active operation
+  ---
+  duration_ms: 6.561875
+  ...
+# Subtest: invalid wait arguments do not strand active operation or send bytes
+ok 47 - invalid wait arguments do not strand active operation or send bytes
+  ---
+  duration_ms: 6.15925
+  ...
+# Subtest: synchronous disconnection during subscription registration removes returned stale listener
+ok 48 - synchronous disconnection during subscription registration removes returned stale listener
+  ---
+  duration_ms: 0.179791
+  ...
+# Subtest: non-settling write times out, fences late completion and requires reconnect
+ok 49 - non-settling write times out, fences late completion and requires reconnect
+  ---
+  duration_ms: 105.635375
+  ...
+# Subtest: early result does not cancel the deadline of a hung native write
+ok 50 - early result does not cancel the deadline of a hung native write
+  ---
+  duration_ms: 106.945542
+  ...
+# (node:64442) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: native signing service produces exact DER proof, offline null and Go wire bytes
+ok 51 - native signing service produces exact DER proof, offline null and Go wire bytes
+  ---
+  duration_ms: 4.842875
+  ...
+# Subtest: online requires exact prepared payload/hash/IDs before native sign
+ok 52 - online requires exact prepared payload/hash/IDs before native sign
+  ---
+  duration_ms: 2.224
+  ...
+# Subtest: scope/route/expiry/revocation fail closed and online grant never replaces offline cache
+ok 53 - scope/route/expiry/revocation fail closed and online grant never replaces offline cache
+  ---
+  duration_ms: 5.920792
+  ...
+# Subtest: revocation fences an authorization issuance already in flight
+ok 54 - revocation fences an authorization issuance already in flight
+  ---
+  duration_ms: 0.54625
+  ...
+# Subtest: signing is refused after expiry without asking native provider
+ok 55 - signing is refused after expiry without asking native provider
+  ---
+  duration_ms: 0.84125
+  ...
+# (node:64443) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: OIDC refresh is scheduled before access-token expiry
+ok 56 - OIDC refresh is scheduled before access-token expiry
+  ---
+  duration_ms: 0.793291
+  ...
+# Subtest: OIDC token without refresh authority expires exactly at its deadline
+ok 57 - OIDC token without refresh authority expires exactly at its deadline
+  ---
+  duration_ms: 0.064125
+  ...
+# Subtest: already due and opaque or malformed tokens expire or refresh immediately
+ok 58 - already due and opaque or malformed tokens expire or refresh immediately
+  ---
+  duration_ms: 0.070709
+  ...
+# (node:64444) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: collectCursorPages returns every page and preserves filters
+ok 59 - collectCursorPages returns every page and preserves filters
+  ---
+  duration_ms: 0.807583
+  ...
+# Subtest: collectCursorPages rejects repeated cursors
+ok 60 - collectCursorPages rejects repeated cursors
+  ---
+  duration_ms: 0.220167
+  ...
+# (node:64445) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: portable crypto primitives work without WebCrypto
+ok 61 - portable crypto primitives work without WebCrypto
+  ---
+  duration_ms: 24.725375
+  ...
+# Subtest: base64url codec has no browser globals
+ok 62 - base64url codec has no browser globals
+  ---
+  duration_ms: 0.395916
+  ...
+# Subtest: Go TypeScript and ESP32 crypto golden vector
+ok 63 - Go TypeScript and ESP32 crypto golden vector
+  ---
+  duration_ms: 1.99875
+  ...
+# (node:64446) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# Subtest: selected register state and short cart tab have localized text in every supported language
+ok 64 - selected register state and short cart tab have localized text in every supported language
+  ---
+  duration_ms: 0.444417
+  ...
+1..64
+# tests 64
+# suites 0
+# pass 64
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 845.580083

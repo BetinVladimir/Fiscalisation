@@ -5,6 +5,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"errors"
 	"fiscalisation/fiscal-backend/internal/domain"
 	"fmt"
 	"testing"
@@ -24,6 +25,20 @@ func (f *fakeSync) ActivateDeviceCredential(id, credential, nonce, signature str
 }
 func (f *fakeSync) SignDeviceActivationAcknowledgement(unsigned []byte) (string, error) {
 	return base64.RawURLEncoding.EncodeToString(append([]byte("test-signature:"), unsigned...)), f.err
+}
+
+// countingSync is a minimal syncService that counts how many times the sync
+// handler is invoked, used to verify TOPIC_FORBIDDEN stops before the handler.
+type countingSync struct {
+	fakeSync
+	onSync func()
+}
+
+func (c *countingSync) ProcessEdgeSyncBatch(tenant string, batch domain.EdgeSyncBatch) (domain.EdgeSyncBatch, error) {
+	if c.onSync != nil {
+		c.onSync()
+	}
+	return batch, nil
 }
 
 type publishToken struct{ err error }
@@ -51,7 +66,7 @@ func TestBridgeCommandUsesRecursivelyCanonicalSignedPayload(t *testing.T) {
 	client := &captureClient{}
 	bridge := NewBridge(key)
 	bridge.bind(client)
-	sale := domain.Sale{ID: "sale-1", TenantID: "tenant-1", ExternalID: "external-1", LocationID: "loc-1", RegisterID: "reg-1", OperatorID: "operator-1", UNP: "DY000600-OP01-0000001", Lines: []domain.SaleLine{{LineID: "line-1", Name: "Coffee", Quantity: "1.000", UnitPrice: domain.Money{Amount: "2.65", Currency: "EUR"}, TaxGroup: "B"}}, FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "device-1", BindingVersion: 7}}
+	sale := domain.Sale{OperatorCode: "OP01", ID: "sale-1", TenantID: "tenant-1", ExternalID: "external-1", LocationID: "loc-1", RegisterID: "reg-1", OperatorID: "operator-1", UNP: "DY000600-OP01-0000001", Lines: []domain.SaleLine{{LineID: "line-1", Name: "Coffee", Quantity: "1.000", UnitPrice: domain.Money{Amount: "2.65", Currency: "EUR"}, TaxGroup: "B"}}, FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "device-1", BindingVersion: 7}}
 	payment := domain.PaymentRequest{PaymentID: "pay-1", Type: "CARD", Amount: domain.Money{Amount: "2.65", Currency: "EUR"}}
 	if err := bridge.Queue(domain.Operation{ID: "op-1", Type: "FISCAL_SALE"}, sale, payment); err != nil {
 		t.Fatal(err)
@@ -78,7 +93,7 @@ func TestBridgeCommandUsesRecursivelyCanonicalSignedPayload(t *testing.T) {
 
 func TestBridgeBuildsDatecsReversalPayload(t *testing.T) {
 	bridge := NewBridge("0123456789abcdef0123456789abcdef")
-	sale := domain.Sale{ID: "sale-1", TenantID: "tenant-1", ExternalID: "external-1", LocationID: "loc-1", RegisterID: "reg-1", OperatorID: "A001", UNP: "DY000600-OP01-0000001", FiscalOperationID: "original-op", Lines: []domain.SaleLine{{LineID: "line-1", Name: "Coffee", Quantity: "1.000", UnitPrice: domain.Money{Amount: "2.65", Currency: "EUR"}, TaxGroup: "B"}}, Payments: []domain.PaymentRecord{{PaymentID: "pay-1", Type: "CARD", Amount: domain.Money{Amount: "2.65", Currency: "EUR"}}}, FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "device-1", BindingVersion: 7, FiscalMemoryNumber: "12345678"}}
+	sale := domain.Sale{OperatorCode: "A001", ID: "sale-1", TenantID: "tenant-1", ExternalID: "external-1", LocationID: "loc-1", RegisterID: "reg-1", OperatorID: "A001", UNP: "DY000600-OP01-0000001", FiscalOperationID: "original-op", Lines: []domain.SaleLine{{LineID: "line-1", Name: "Coffee", Quantity: "1.000", UnitPrice: domain.Money{Amount: "2.65", Currency: "EUR"}, TaxGroup: "B"}}, Payments: []domain.PaymentRecord{{PaymentID: "pay-1", Type: "CARD", Amount: domain.Money{Amount: "2.65", Currency: "EUR"}}}, FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "device-1", BindingVersion: 7, FiscalMemoryNumber: "12345678"}}
 	op := domain.Operation{ID: "reversal-op", Type: "REVERSAL", ReasonCode: "CUSTOMER_RETURN", OriginalDocumentNumber: 269, OriginalDocumentAt: time.Date(2026, 8, 11, 9, 30, 45, 0, time.UTC)}
 	command, err := bridge.Prepare(op, sale, domain.PaymentRequest{})
 	if err != nil {
@@ -187,5 +202,257 @@ func TestProcessorBindsActivationToDeviceTopicAndSignsAck(t *testing.T) {
 	}
 	if _, _, err = p.Process("beefiscal/v1/devices/other-device/activation", payload); err == nil {
 		t.Fatal("cross-device activation accepted")
+	}
+}
+
+func TestBridgeUsesInternalSaleIDForEdgeMaterialization(t *testing.T) {
+	bridge := NewBridge("0123456789abcdef0123456789abcdef")
+	for _, kind := range []string{"FISCAL_SALE", "SALE_FINALIZE"} {
+		sale := domain.Sale{OperatorID: "A001", UNP: "AB123456-A001-0005000", OperatorCode: "A001", ID: "internal-sale", ExternalID: "merchant-order", TenantID: "tenant", FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "device", BindingVersion: 1}}
+		command, err := bridge.Prepare(domain.Operation{ID: "operation", Type: kind}, sale, domain.PaymentRequest{})
+		if err != nil {
+			t.Fatal(err)
+		}
+		var envelope map[string]any
+		if err = json.Unmarshal([]byte(command.Data["body"].(string)), &envelope); err != nil {
+			t.Fatal(err)
+		}
+		payload := envelope["payload"].(map[string]any)
+		if payload["operator_code"] != sale.OperatorCode || payload["server_sale_id"] != sale.ID || payload["external_id"] != sale.ExternalID {
+			t.Fatalf("%s misidentifies sale: %#v", kind, payload)
+		}
+	}
+}
+
+func TestBridgeRoutesImmutableCompositeSnapshotToAdapter(t *testing.T) {
+	repo := domain.NewMemoryRepository()
+	repo.PutResource(domain.ResourceRecord{Kind: "device", ID: "adapter", Version: 1, TenantID: "tenant", Data: map[string]any{"credential_id": "adapter-credential"}})
+	bridge := NewBridge("0123456789abcdef0123456789abcdef", repo)
+	sale := domain.Sale{OperatorID: "A001", UNP: "AB123456-A001-0005000", OperatorCode: "A001", ID: "sale", TenantID: "tenant", RegisterID: "register", FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "fiscal", AdapterDeviceID: "adapter", BindingVersion: 99, BindingGeneration: 7}}
+	command, err := bridge.Prepare(domain.Operation{ID: "operation", Type: "SALE_FINALIZE"}, sale, domain.PaymentRequest{})
+	if err != nil {
+		t.Fatal(err)
+	}
+	if command.Data["topic"] != "tenants/tenant/devices/adapter/commands" || command.Data["device_id"] != "adapter" {
+		t.Fatalf("wrong adapter route: %#v", command.Data)
+	}
+	var envelope map[string]any
+	json.Unmarshal([]byte(command.Data["body"].(string)), &envelope)
+	if envelope["device_id"] != "adapter" || envelope["fencing_token"] != float64(7) {
+		t.Fatalf("wrong adapter authority: %#v", envelope)
+	}
+	signature := envelope["signature"]
+	delete(envelope, "signature")
+	unsigned, _ := json.Marshal(envelope)
+	key := domain.DeriveDeviceTransportKey([]byte("0123456789abcdef0123456789abcdef"), "command", "adapter", "adapter-credential")
+	mac := hmac.New(sha256.New, key)
+	mac.Write(unsigned)
+	if signature != base64.RawURLEncoding.EncodeToString(mac.Sum(nil)) {
+		t.Fatal("command signed with wrong endpoint credential")
+	}
+}
+
+func outcomeFixture(t *testing.T) (*domain.MemoryRepository, *domain.Service, *Processor) {
+	t.Helper()
+	repo := domain.NewMemoryRepository()
+	now := time.Now().UTC()
+	sale := domain.Sale{OperatorID: "A001", UNP: "AB123456-A001-0005000", OperatorCode: "A001", ID: "scope-sale", TenantID: "tenant-a", RegisterID: "register", State: "PAYMENT_PENDING", Version: 1, CreatedAt: now, UpdatedAt: now}
+	op := domain.Operation{ID: "scope-command", TenantID: "tenant-a", SaleID: sale.ID, State: "EXECUTING", Type: "SALE_FINALIZE", Version: 1, CreatedAt: now, UpdatedAt: now}
+	for _, err := range []error{repo.PutSale(sale), repo.PutOperation(op), repo.PutResource(domain.ResourceRecord{Kind: "device_command_outbox", ID: op.ID, TenantID: "tenant-a", Version: 1, Data: map[string]any{"device_id": "old-adapter", "topic": "tenants/tenant-a/devices/old-adapter/commands"}})} {
+		if err != nil {
+			t.Fatal(err)
+		}
+	}
+	svc := domain.NewService(repo, nil)
+	return repo, svc, NewProcessor(svc)
+}
+func outcomeTopic(tenant, device string) string {
+	return "beeloy/v1/tenants/" + tenant + "/devices/" + device + "/commands/scope-command/result"
+}
+
+var outcomeBody = []byte(`{"command_id":"scope-command","status":"SUCCEEDED","result":{"fiscal_reference":"receipt-1"}}`)
+
+func TestProcessorDeviceResultsRequireImmutableScope(t *testing.T) {
+	for _, tc := range []struct {
+		name, tenant, device string
+		mutate               func(*domain.MemoryRepository)
+	}{
+		{"foreign-tenant", "tenant-b", "old-adapter", nil},
+		{"foreign-device", "tenant-a", "new-adapter", nil},
+		{"missing-device-authority", "tenant-a", "old-adapter", func(r *domain.MemoryRepository) {
+			c, _ := r.Resource("device_command_outbox", "scope-command")
+			c.Kind = "unrelated" /* a different command ID cannot authorize this operation */
+			c.ID = "different-command"
+			r.PutResource(c)
+			original, _ := r.Resource("device_command_outbox", "scope-command")
+			original.Data = map[string]any{}
+			original.Version++
+			if err := r.PutResource(original); err != nil {
+				panic(err)
+			}
+		}},
+		{"outbox-foreign-tenant", "tenant-a", "old-adapter", func(r *domain.MemoryRepository) {
+			c, _ := r.Resource("device_command_outbox", "scope-command")
+			c.TenantID = "tenant-b"
+			c.Version++
+			if err := r.PutResource(c); err != nil {
+				panic(err)
+			}
+		}},
+		{"operation-foreign-tenant", "tenant-a", "old-adapter", func(r *domain.MemoryRepository) {
+			o, _ := r.Operation("scope-command")
+			o.TenantID = "tenant-b"
+			r.PutOperation(o)
+		}},
+		{"sale-foreign-tenant", "tenant-a", "old-adapter", func(r *domain.MemoryRepository) { s, _ := r.Sale("scope-sale"); s.TenantID = "tenant-b"; r.PutSale(s) }},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r, _, p := outcomeFixture(t)
+			if tc.mutate != nil {
+				tc.mutate(r)
+			}
+			beforeOp, _ := r.Operation("scope-command")
+			beforeSale, _ := r.Sale("scope-sale")
+			beforeEvents := len(r.PendingOutbox(time.Now().UTC()))
+			if _, _, err := p.Process(outcomeTopic(tc.tenant, tc.device), outcomeBody); err == nil {
+				t.Fatal("unscoped device result accepted")
+			}
+			afterOp, _ := r.Operation("scope-command")
+			afterSale, _ := r.Sale("scope-sale")
+			if beforeOp.Version != afterOp.Version || beforeOp.State != afterOp.State || beforeSale.Version != afterSale.Version || beforeSale.State != afterSale.State || len(r.PendingOutbox(time.Now().UTC())) != beforeEvents {
+				t.Fatal("rejected result changed domain state/evidence")
+			}
+		})
+	}
+}
+func TestProcessorDeviceResultUsesHistoricalOutboxAfterRegisterRebind(t *testing.T) {
+	r, _, p := outcomeFixture(t)
+	r.PutResource(domain.ResourceRecord{Kind: "register", ID: "register", Version: 1, TenantID: "tenant-a", Data: map[string]any{"adapter_device_id": "new-adapter"}})
+	if _, _, err := p.Process(outcomeTopic("tenant-a", "old-adapter"), outcomeBody); err != nil {
+		t.Fatal(err)
+	}
+	before, _ := r.Operation("scope-command")
+	beforeSale, _ := r.Sale("scope-sale")
+	events := len(r.PendingOutbox(time.Now().UTC()))
+	if before.State != "FISCALIZED" {
+		t.Fatal(before)
+	}
+	if _, _, err := p.Process(outcomeTopic("tenant-a", "old-adapter"), outcomeBody); err != nil {
+		t.Fatal(err)
+	}
+	after, _ := r.Operation("scope-command")
+	afterSale, _ := r.Sale("scope-sale")
+	if after.Version != before.Version || afterSale.Version != beforeSale.Version || len(r.PendingOutbox(time.Now().UTC())) != events {
+		t.Fatal("replay changed state")
+	}
+	for _, topic := range []string{outcomeTopic("tenant-b", "old-adapter"), outcomeTopic("tenant-a", "new-adapter")} {
+		if _, _, err := p.Process(topic, outcomeBody); err == nil {
+			t.Fatal("terminal early-return bypassed scope validation")
+		}
+	}
+}
+
+func TestProcessorRejectsMissingCommandOutbox(t *testing.T) {
+	source, _, _ := outcomeFixture(t)
+	r := domain.NewMemoryRepository()
+	op, _ := source.Operation("scope-command")
+	sale, _ := source.Sale("scope-sale")
+	if err := r.PutOperation(op); err != nil {
+		t.Fatal(err)
+	}
+	if err := r.PutSale(sale); err != nil {
+		t.Fatal(err)
+	}
+	p := NewProcessor(domain.NewService(r, nil))
+	if _, _, err := p.Process(outcomeTopic("tenant-a", "old-adapter"), outcomeBody); err == nil {
+		t.Fatal("outcome without durable command accepted")
+	}
+	after, _ := r.Operation(op.ID)
+	if after.State != op.State || after.Version != op.Version || len(r.PendingOutbox(time.Now().UTC())) != 0 {
+		t.Fatal("missing outbox result changed state")
+	}
+}
+func TestBridgeRejectsMissingOrAmbiguousTransportAuthorityBeforePublish(t *testing.T) {
+	for _, tc := range []struct {
+		name, adapter, kind, tenant, credential string
+		generation                              int64
+		repo, device                            bool
+		valid                                   bool
+	}{
+		{name: "composite-no-generation", adapter: "adapter", repo: true, device: true, tenant: "tenant", credential: "cred"},
+		{name: "composite-no-repository", adapter: "adapter", generation: 7},
+		{name: "composite-missing-device", adapter: "adapter", generation: 7, repo: true},
+		{name: "composite-foreign-device", adapter: "adapter", generation: 7, repo: true, device: true, tenant: "foreign", credential: "cred"},
+		{name: "composite-no-credential", adapter: "adapter", generation: 7, repo: true, device: true, tenant: "tenant"},
+		{name: "legacy-physical-requires-migration", kind: "FISCAL_DEVICE", repo: true, device: true, tenant: "tenant", credential: "cred"},
+		{name: "legacy-unclassified-requires-migration", repo: true, device: true, tenant: "tenant", credential: "cred"},
+		{name: "legacy-smart-no-credential", kind: "SMART_DEVICE", repo: true, device: true, tenant: "tenant"},
+		{name: "standalone-smart", kind: "SMART_DEVICE", repo: true, device: true, tenant: "tenant", credential: "cred", valid: true},
+		{name: "standalone-simulator-without-repo", valid: true},
+	} {
+		t.Run(tc.name, func(t *testing.T) {
+			r := domain.NewMemoryRepository()
+			transport := "fiscal"
+			if tc.adapter != "" {
+				transport = tc.adapter
+			}
+			if tc.device {
+				if err := r.PutResource(domain.ResourceRecord{Kind: "device", ID: transport, TenantID: tc.tenant, Version: 1, Data: map[string]any{"kind": tc.kind, "credential_id": tc.credential}}); err != nil {
+					t.Fatal(err)
+				}
+			}
+			b := NewBridge("0123456789abcdef0123456789abcdef")
+			if tc.repo {
+				b = NewBridge("0123456789abcdef0123456789abcdef", r)
+			}
+			c := &captureClient{}
+			b.bind(c)
+			sale := domain.Sale{OperatorID: "A001", UNP: "AB123456-A001-0005000", OperatorCode: "A001", ID: "sale", TenantID: "tenant", FiscalDevice: domain.FiscalDeviceSnapshot{DeviceID: "fiscal", AdapterDeviceID: tc.adapter, BindingVersion: 99, BindingGeneration: tc.generation}}
+			err := b.Queue(domain.Operation{ID: "op", Type: "SALE_FINALIZE"}, sale, domain.PaymentRequest{})
+			if tc.valid {
+				if err != nil || c.topic == "" {
+					t.Fatalf("valid route failed: %v", err)
+				}
+			} else if err == nil || c.topic != "" {
+				t.Fatalf("ambiguous authority published command: topic=%q err=%v", c.topic, err)
+			}
+		})
+	}
+}
+
+// TestDeviceTimeReturnsErrorWhenNotMeasured verifies BUG-005.5:
+// DeviceTime must never return the host clock — it must return an error
+// until the fiscal device clock is actually read via cmd62.
+func TestDeviceTimeReturnsErrorWhenNotMeasured(t *testing.T) {
+	b := &Bridge{}
+	_, err := b.DeviceTime()
+	if err == nil || err.Error() != "DEVICE_CLOCK_NOT_MEASURED" {
+		t.Errorf("DeviceTime() error = %v, want DEVICE_CLOCK_NOT_MEASURED", err)
+	}
+}
+
+// TestForeignTenantRejected verifies that a Processor scoped to one tenant
+// rejects MQTT messages whose topic contains a different tenant, returning
+// ErrTopicForbidden without invoking the domain service handler (handlerCalls==0).
+func TestForeignTenantRejected(t *testing.T) {
+	handlerCalls := 0
+	svc := &countingSync{onSync: func() { handlerCalls++ }}
+	p := NewProcessor(svc).WithAllowedTenant("tenant-allowed")
+
+	// Foreign tenant — should be rejected before domain handler is called.
+	body, _ := json.Marshal(domain.EdgeSyncBatch{EdgeID: "device-1"})
+	_, _, err := p.Process("tenants/tenant-other/devices/device-1/sync/batches/b1", body)
+	if !errors.Is(err, ErrTopicForbidden) {
+		t.Fatalf("expected ErrTopicForbidden, got %v", err)
+	}
+	if handlerCalls != 0 {
+		t.Fatalf("handler called %d times, expected 0 for foreign tenant", handlerCalls)
+	}
+
+	// Own tenant — should be accepted (may fail for other reasons, but no TOPIC_FORBIDDEN).
+	ownBody, _ := json.Marshal(domain.EdgeSyncBatch{EdgeID: "device-1"})
+	_, _, err = p.Process("tenants/tenant-allowed/devices/device-1/sync/batches/b2", ownBody)
+	if errors.Is(err, ErrTopicForbidden) {
+		t.Fatalf("own-tenant message incorrectly rejected with TOPIC_FORBIDDEN")
 	}
 }

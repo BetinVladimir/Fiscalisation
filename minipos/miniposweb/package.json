@@ -8,18 +8,32 @@
     "build": "tsc --noEmit && vite build",
     "deployment": "node scripts/generate-deployment.mjs dist",
     "test": "vitest run",
-    "test:e2e": "playwright test"
+    "translations:sync-auth": "node scripts/sync-auth-translations.mjs",
+    "translations:sync-work": "node scripts/sync-work-translations.mjs",
+    "test:e2e": "playwright test",
+    "e2e:wcag": "playwright test e2e/auth-wcag.spec.ts e2e/management-wcag.spec.ts e2e/sale-wcag.spec.ts e2e/outbox.spec.ts e2e/session-recovery.spec.ts",
+    "ui:manifest": "node scripts/check-ui-manifest.mjs --structure-only",
+    "ui:check": "node scripts/check-ui-manifest.mjs",
+    "postinstall": "node ../../../BeeloyBackend/mobile/shared-ui/scripts/install-paper-patches.mjs",
+    "typecheck:e2e": "tsc --noEmit -p tsconfig.e2e.json"
   },
   "dependencies": {
+    "@beeloy/design-tokens": "file:../../../BeeloyBackend/mobile/design-tokens",
     "cbor-x": "1.6.4",
-    "react": "19.0.0",
-    "react-dom": "19.0.0"
+    "react": "^19.1.0",
+    "react-dom": "^19.1.0",
+    "react-native": "^0.81.5",
+    "react-native-paper": "^5.15.3",
+    "react-native-safe-area-context": "^5.6.2",
+    "react-native-web": "^0.21.2"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@playwright/test": "1.62.1",
-    "@types/react": "19.0.10",
-    "@types/react-dom": "19.0.4",
+    "@types/react": "^19.1.0",
+    "@types/react-dom": "^19.1.0",
     "@vitejs/plugin-react": "4.3.4",
+    "fake-indexeddb": "6.2.4",
     "jsdom": "26.0.0",
     "prettier": "^3.6.2",
     "typescript": "5.8.3",

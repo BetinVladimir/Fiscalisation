@@ -1,0 +1,120 @@
+{
+  "sourceSha256": "bf9a5b43d4b1a51984b2a5c17f45f0832faba8129e7643e003e139e22fca953f",
+  "baseModel": "translategemma:12b",
+  "baseEvidence": "docs/ollama-reconciliation-r469/validated-release-r470.json",
+  "scope": "Manual semantic review of real model-derived EN/BG/RU release copy; all22 other locale editorial review OPEN",
+  "changes": [
+    {
+      "language": "bg",
+      "key": "explanation",
+      "modelText": "Този запис документира банкови доказателства. Той не доказва фискален документ, не позволява повторно извършване на плащане или възстановяване на фискални средства.",
+      "editorialText": "Записва само документирани банкови данни. Това не издава и не потвърждава фискален бон, не повтаря покупка и не разрешава незавършена фискална операция.",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "bg",
+      "key": "expected",
+      "modelText": "Очаквано трайно състояние",
+      "editorialText": "Очаквано съхранено състояние",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "bg",
+      "key": "stateCARD_APPROVED",
+      "modelText": "Карта одобрена",
+      "editorialText": "Плащането с карта е одобрено",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "bg",
+      "key": "stateCARD_DECLINED",
+      "modelText": "Карта отхвърлена",
+      "editorialText": "Плащането с карта е отказано",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "bg",
+      "key": "stateCARD_NOT_SENT",
+      "modelText": "Заявка за карта не е изпратена",
+      "editorialText": "Заявката за плащане с карта не е изпратена",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "bg",
+      "key": "stateCARD_UNKNOWN",
+      "modelText": "Резултат от картата е неизвестен",
+      "editorialText": "Резултатът от плащането с карта е неизвестен",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "bg",
+      "key": "stateREVERSED",
+      "modelText": "Плащане отменено",
+      "editorialText": "Плащането с карта е анулирано",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "bg",
+      "key": "stateREVERSAL_FAILED",
+      "modelText": "Отмяната е неуспешна",
+      "editorialText": "Анулирането на плащането с карта е неуспешно",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "ru",
+      "key": "explanation",
+      "modelText": "Этот раздел содержит задокументированные банковские данные. Он не подтверждает наличие фискального чека, не позволяет повторить покупку и не отменяет фискальный возврат. ",
+      "editorialText": "Фиксирует только документально подтверждённые банковские данные. Это не выдаёт и не подтверждает фискальный чек, не повторяет покупку и не разрешает незавершённую фискальную операцию.",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "ru",
+      "key": "expected",
+      "modelText": "Ожидаемый постоянный статус",
+      "editorialText": "Ожидаемое сохранённое состояние",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "ru",
+      "key": "stateCARD_APPROVED",
+      "modelText": "Карта одобрена",
+      "editorialText": "Оплата картой одобрена",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "ru",
+      "key": "stateCARD_DECLINED",
+      "modelText": "Карта отклонена",
+      "editorialText": "Оплата картой отклонена",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "ru",
+      "key": "stateCARD_NOT_SENT",
+      "modelText": "Запрос карты не отправлен",
+      "editorialText": "Запрос на оплату картой не отправлен",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "ru",
+      "key": "stateCARD_UNKNOWN",
+      "modelText": "Статус карты неизвестен",
+      "editorialText": "Результат оплаты картой неизвестен",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "ru",
+      "key": "stateREVERSED",
+      "modelText": "Платеж отменен",
+      "editorialText": "Карточный платёж отменён",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    },
+    {
+      "language": "ru",
+      "key": "stateREVERSAL_FAILED",
+      "modelText": "Отмена не удалась",
+      "editorialText": "Отмена карточного платежа не удалась",
+      "reason": "Clarify card payment versus issuing a card; fiscal recovery means resolving an outstanding fiscal operation, not a fiscal refund; durable means persisted, not permanent."
+    }
+  ]
+}

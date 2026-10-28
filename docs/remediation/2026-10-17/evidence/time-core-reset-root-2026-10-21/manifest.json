@@ -1,0 +1,79 @@
+{
+  "scope": "Root host verification only; no target firmware, TLS channel, trusted time provider, real devices or legal acceptance",
+  "source_commits": [
+    "b988208",
+    "15216f9"
+  ],
+  "source_sha256": {
+    "IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.h": "3eed4e8afc427eea60ec096423189cc6fc8fa85a7ecfcc61de1e74e94b394991",
+    "IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.cpp": "9cb345e26c20cd5f3996def767d7d3560e395d4c218ff63c6f6d745606b65ad9",
+    "IoT/firmware/edge-agent-s3/idf/tests/time_anchor_host/core_native.cpp": "eb79fbfa6e82496f533288f28f007522d2c5c622dc44b1c02e58135fc180daeb",
+    "IoT/firmware/edge-agent-s3/idf/tests/time_anchor_host/run_oracle.py": "42caa60a1dd2c431ba61dca8491f1faa9efb3d7503d49686c061ca5458a81603",
+    "IoT/firmware/edge-agent-s3/idf/tests/time_anchor_host/run_counterfactuals.py": "39ca5d6c761ab97378932bb3ab510aa37de320f460ae4fbe77886ad26eb8eaab",
+    "IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp": "c165f5eac08f512c9bed3e518c43e049027308c13114fdb7fd08024e37dd44f4",
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_runtime_native.cpp": "1e96d7ee4649e505e1be075390a6414df3b41fe2d4523446f792b9ac1785bc03",
+    "IoT/firmware/edge-agent-s3/idf/tests/ble_native_include/fake_ble.h": "a176b1300e503accbe39fa1e8dc6e9e1e6235b1be917d9ec4cf9d2b323d4ee13",
+    "IoT/firmware/edge-agent-s3/idf/tests/run_native_ble.sh": "8f2c7eb95fe13f46abe7513bac822447d647a010f0e40b1888daa9c8f78a130c"
+  },
+  "runs": [
+    {
+      "log_basename": "fiscal-time-core-root-20261021.log",
+      "log_sha256": "0eb4ad0aaed0c535337e2e62b65518d52dc438ad5a0b4830d13da191b9982a82",
+      "exit_code": 0,
+      "raw_log_policy": "local only, not included in this published manifest"
+    },
+    {
+      "log_basename": "fiscal-time-core-red-root-20261021.log",
+      "log_sha256": "51d9a92e73de463bd11b211461a118f6e2776ab4b06e54ef5bdc84a8bd52d1d1",
+      "exit_code": 0,
+      "raw_log_policy": "local only, not included in this published manifest"
+    },
+    {
+      "log_basename": "fiscal-time-core-make-root-20261021.log",
+      "log_sha256": "771d080f7a000b5f649be6c61213ca0a9b15026fb841cce3da9b67ceff48e8b9",
+      "exit_code": 0,
+      "raw_log_policy": "local only, not included in this published manifest"
+    },
+    {
+      "log_basename": "fiscal-ble-reset-root-20261021.log",
+      "log_sha256": "cac257eadb70b9dd119f024dc87dedc0d67e8b09de7ad1ea683e23a5c4c42575",
+      "exit_code": 0,
+      "raw_log_policy": "local only, not included in this published manifest"
+    },
+    {
+      "log_basename": "fiscal-ble-reset-gcc-root-20261021.log",
+      "log_sha256": "cac257eadb70b9dd119f024dc87dedc0d67e8b09de7ad1ea683e23a5c4c42575",
+      "exit_code": 0,
+      "raw_log_policy": "local only, not included in this published manifest"
+    },
+    {
+      "log_basename": "fiscal-ble-reset-bluepad-root-20261021.log",
+      "log_sha256": "e250444c301c6cfab3bfa7b1a85c9aced44a3fcf4f0366f85d0dec76df44d565",
+      "exit_code": 0,
+      "raw_log_policy": "local only, not included in this published manifest"
+    }
+  ],
+  "asserted_cases": {
+    "time_oracle": 5229,
+    "time_refresh_lifecycle": 10050,
+    "time_counterfactuals_expected_red": 3,
+    "bluepad_scenarios": 38,
+    "ble_runtime_runs_per_invocation": 3
+  },
+  "target_compile_only": {
+    "compiler": "xtensa-esp32s3-elf-g++ esp-14.2.0_20260121 GCC14.2.0",
+    "compiler_binary_sha256": "ead8e9ef74832ee73a251ba1aae645737202766687345e52d6e519935f2f4699",
+    "flags": [
+      "-std=gnu++2b",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-c"
+    ],
+    "input": "IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.cpp",
+    "exit_code": 0,
+    "object_sha256": "62bdea948d57412025ba212ea74bde562244770e05ace8fb8b9718c4a2d6bfe3",
+    "log_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "scope": "Standalone production core compilation only; no host-test macro, no firmware CMake link/runtime/HIL claim"
+  }
+}

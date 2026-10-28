@@ -1,5 +1,13 @@
 # System Overview
 
+## Readiness update — 2026-10-17
+
+Current target MiniPOS/S3/BlueCash readiness: **SOFTWARE_GAPS_OPEN**.
+The [runtime audit, remediation tasks and acceptance tests](remediation/2026-10-17/README.md)
+supersede earlier blanket software-complete claims. Hardware, vendor and
+production gates remain separate; this audit changed documentation only.
+
+
 Этот документ фиксирует суть платформы как общеевропейского middleware-слоя
 для фискальных устройств и cloud ERP.
 

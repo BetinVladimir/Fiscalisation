@@ -1,0 +1,430 @@
+{
+  "model": "translategemma:12b",
+  "sourceSha256": "8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b",
+  "keys": 8,
+  "locales": [
+    "en",
+    "bg",
+    "hr",
+    "cs",
+    "da",
+    "nl",
+    "et",
+    "fi",
+    "fr",
+    "de",
+    "el",
+    "hu",
+    "ga",
+    "it",
+    "lv",
+    "lt",
+    "mt",
+    "pl",
+    "pt",
+    "ro",
+    "sk",
+    "sl",
+    "es",
+    "sv",
+    "ru"
+  ],
+  "copy": {
+    "en": {
+      "confirmedTitle": "Operation completed",
+      "confirmedBody": "The operation result is confirmed.",
+      "failedTitle": "Operation not completed",
+      "failedBody": "The operation did not complete. Check the details before continuing.",
+      "pendingTitle": "Awaiting confirmation",
+      "pendingBody": "The result is not confirmed. Do not repeat the payment; check the operation status.",
+      "closeShiftBody": "Closing the shift requests a Z report. You can start a new shift on this register only after closure is confirmed.",
+      "reconcileShiftBody": "Check the Z report result to confirm whether this shift is closed. A new shift on this register remains unavailable until closure is confirmed."
+    },
+    "bg": {
+      "confirmedTitle": "Операцията е завършена",
+      "confirmedBody": "Резултатът от операцията е потвърден.",
+      "failedTitle": "Операцията не е завършена",
+      "failedBody": "Операцията не беше завършена. Проверете детайлите, преди да продължите.",
+      "pendingTitle": "Очаква се потвърждение",
+      "pendingBody": "Резултатът все още не е потвърден. Не повтаряйте плащането; проверете статуса на операцията.",
+      "closeShiftBody": "Затварянето на смяната изисква Z отчет. Нова смяна на този регистър може да бъде стартирана само след потвърждаване на затварянето.",
+      "reconcileShiftBody": "Проверете резултата от Z отчета, за да потвърдите дали тази смяна е затворена. Нова смяна на този регистър остава недостъпна, докато затварянето не бъде потвърдено."
+    },
+    "hr": {
+      "confirmedTitle": "Operacija je uspješno završena",
+      "confirmedBody": "Rezultat operacije je potvrđen.",
+      "failedTitle": "Operacija nije uspješno završena",
+      "failedBody": "Operacija nije završena. Provjerite detalje prije nastavka.",
+      "pendingTitle": "Čeka se potvrda",
+      "pendingBody": "Rezultat nije potvrđen. Ne ponavljajte plaćanje; provjerite status operacije.",
+      "closeShiftBody": "Zatvaranje smjene zahtijeva izvještaj Z. Novu smjenu na ovom uređaju možete započeti tek nakon potvrde zatvaranja.",
+      "reconcileShiftBody": "Provjerite rezultat izvješća Z kako biste potvrdili je li ova smjena zatvorena. Nova smjena na ovom uređaju ostaje nedostupna dok se zatvaranje ne potvrdi."
+    },
+    "cs": {
+      "confirmedTitle": "Operace dokončena",
+      "confirmedBody": "Výsledek operace je potvrzen.",
+      "failedTitle": "Operace nebyla dokončena",
+      "failedBody": "Operace nebyla dokončena. Před pokračováním zkontrolujte podrobnosti.",
+      "pendingTitle": "Čekání na potvrzení",
+      "pendingBody": "Výsledek není potvrzen. Neopakujte platbu; zkontrolujte stav operace.",
+      "closeShiftBody": "Ukončení směny vyžaduje Z report. Novou směnu na tomto zařízení můžete zahájit až po potvrzení ukončení.",
+      "reconcileShiftBody": "Zkontrolujte výsledek Z reportu, abyste potvrdili, zda je tato směna ukončena. Nová směna na tomto zařízení zůstává nedostupná, dokud není ukončení potvrzeno."
+    },
+    "da": {
+      "confirmedTitle": "Operation gennemført",
+      "confirmedBody": "Resultatet af operationen er bekræftet.",
+      "failedTitle": "Operation ikke gennemført",
+      "failedBody": "Operationen blev ikke gennemført. Kontroller detaljerne, før du fortsætter.",
+      "pendingTitle": "Afventer bekræftelse",
+      "pendingBody": "Resultatet er ikke bekræftet. Gentag ikke betalingen; tjek status for operationen.",
+      "closeShiftBody": "Lukning af skiftet anmoder om en Z-rapport. Du kan kun starte et nyt skift på denne registrering, efter at lukningen er bekræftet.",
+      "reconcileShiftBody": "Kontroller resultatet af Z-rapporten for at bekræfte, om dette skift er lukket. Et nyt skift på denne registrering er stadig ikke tilgængeligt, før lukningen er bekræftet."
+    },
+    "nl": {
+      "confirmedTitle": "Operatie voltooid",
+      "confirmedBody": "Het resultaat van de operatie is bevestigd.",
+      "failedTitle": "Operatie niet voltooid",
+      "failedBody": "De operatie is niet voltooid. Controleer de details voordat u verdergaat.",
+      "pendingTitle": "Wacht op bevestiging",
+      "pendingBody": "Het resultaat is nog niet bevestigd. Herhaal de betaling niet; controleer de status van de operatie.",
+      "closeShiftBody": "Het sluiten van de dienst vraagt om een Z-rapport. U kunt een nieuwe dienst op deze kassa pas starten nadat het sluiten is bevestigd.",
+      "reconcileShiftBody": "Controleer het resultaat van het Z-rapport om te bevestigen of deze dienst is gesloten. Een nieuwe dienst op deze kassa blijft onbeschikbaar totdat het sluiten is bevestigd."
+    },
+    "et": {
+      "confirmedTitle": "Operācija veiksmīgi pabeigta",
+      "confirmedBody": "Operācijas rezultāts ir apstiprināts.",
+      "failedTitle": "Operācija nav pabeigta",
+      "failedBody": "Operācija nav pabeigta. Pārbaudiet detaļas, pirms turpināt.",
+      "pendingTitle": "Gaida apstiprinājumu",
+      "pendingBody": "Rezultāts nav apstiprināts. Neatkārtojiet maksājumu; pārbaudiet operācijas statusu.",
+      "closeShiftBody": "Darba maiņas slēgšana ietver Z-atskaites ģenerēšanu. Jaunu darba maiņu šajā reģistrā var sākt tikai pēc tam, kad slēgšana ir apstiprināta.",
+      "reconcileShiftBody": "Pārbaudiet Z-atskaites rezultātu, lai apstiprinātu, vai šī darba maiņa ir slēgta. Jauna darba maiņa šajā reģistrā nav pieejama, līdz slēgšana ir apstiprināta."
+    },
+    "fi": {
+      "confirmedTitle": "Toiminto suoritettu",
+      "confirmedBody": "Toiminnon tulos on vahvistettu.",
+      "failedTitle": "Toiminto ei valmistunut",
+      "failedBody": "Toiminto ei valmistunut. Tarkista tiedot ennen jatkamista.",
+      "pendingTitle": "Odotetaan vahvistusta",
+      "pendingBody": "Tulos ei ole vahvistettu. Älä toista maksua; tarkista toiminnon tila.",
+      "closeShiftBody": "Vuoron sulkeminen vaatii Z-raportin. Uuden vuoron voi aloittaa tällä kassalla vasta, kun sulkeminen on vahvistettu.",
+      "reconcileShiftBody": "Tarkista Z-raportin tulos varmistaaksesi, onko tämä vuoro suljettu. Uusi vuoro tällä kassalla ei ole käytettävissä ennen kuin sulkeminen on vahvistettu."
+    },
+    "fr": {
+      "confirmedTitle": "Opération terminée",
+      "confirmedBody": "Le résultat de l'opération est confirmé.",
+      "failedTitle": "Opération non terminée",
+      "failedBody": "L'opération n'a pas été effectuée. Vérifiez les détails avant de continuer.",
+      "pendingTitle": "En attente de confirmation",
+      "pendingBody": "Le résultat n'est pas confirmé. Ne répétez pas le paiement ; vérifiez le statut de l'opération.",
+      "closeShiftBody": "La fermeture de la caisse demande un rapport Z. Vous ne pouvez démarrer une nouvelle caisse sur ce terminal qu'après confirmation de la fermeture.",
+      "reconcileShiftBody": "Vérifiez le résultat du rapport Z pour confirmer si cette caisse est fermée. Une nouvelle caisse sur ce terminal reste indisponible jusqu'à confirmation de la fermeture."
+    },
+    "de": {
+      "confirmedTitle": "Vorgang abgeschlossen",
+      "confirmedBody": "Das Ergebnis des Vorgangs wurde bestätigt.",
+      "failedTitle": "Vorgang nicht abgeschlossen",
+      "failedBody": "Der Vorgang wurde nicht abgeschlossen. Überprüfen Sie die Details, bevor Sie fortfahren.",
+      "pendingTitle": "Wartet auf Bestätigung",
+      "pendingBody": "Das Ergebnis wurde noch nicht bestätigt. Wiederholen Sie die Zahlung nicht; überprüfen Sie den Status des Vorgangs.",
+      "closeShiftBody": "Das Schließen der Schicht erfordert einen Z-Bericht. Eine neue Schicht an diesem Gerät kann erst nach Bestätigung der Schließung gestartet werden.",
+      "reconcileShiftBody": "Überprüfen Sie das Ergebnis des Z-Berichts, um zu bestätigen, ob diese Schicht geschlossen wurde. Eine neue Schicht an diesem Gerät bleibt bis zur Bestätigung der Schließung nicht verfügbar."
+    },
+    "el": {
+      "confirmedTitle": "Η λειτουργία ολοκληρώθηκε",
+      "confirmedBody": "Το αποτέλεσμα της λειτουργίας έχει επιβεβαιωθεί.",
+      "failedTitle": "Η λειτουργία δεν ολοκληρώθηκε",
+      "failedBody": "Η λειτουργία δεν ολοκληρώθηκε. Ελέγξτε τις λεπτομέρειες πριν συνεχίσετε.",
+      "pendingTitle": "Αναμονή επιβεβαίωσης",
+      "pendingBody": "Το αποτέλεσμα δεν έχει επιβεβαιωθεί. Μην επαναλάβετε την πληρωμή. Ελέγξτε την κατάσταση της λειτουργίας.",
+      "closeShiftBody": "Το κλείσιμο της βάρδιας απαιτεί μια αναφορά Z. Μπορείτε να ξεκινήσετε μια νέα βάρδια σε αυτό το ταμείο μόνο αφού το κλείσιμο επιβεβαιωθεί.",
+      "reconcileShiftBody": "Ελέγξτε το αποτέλεσμα της αναφοράς Z για να επιβεβαιώσετε εάν η βάρδια έχει κλείσει. Μια νέα βάρδια σε αυτό το ταμείο παραμένει διαθέσιμη μόνο αφού το κλείσιμο επιβεβαιωθεί."
+    },
+    "hu": {
+      "confirmedTitle": "Művelet sikeres",
+      "confirmedBody": "A művelet eredménye megerősítve.",
+      "failedTitle": "Művelet nem sikerült",
+      "failedBody": "A művelet nem fejeződött be. Ellenőrizze a részleteket, mielőtt folytatná.",
+      "pendingTitle": "Megerősítés alatt",
+      "pendingBody": "Az eredmény még nem megerősítve. Ne ismételje meg a fizetést; ellenőrizze a művelet állapotát.",
+      "closeShiftBody": "A műszak lezárása egy Z-jelentést igényel. Csak a lezárás megerősítése után kezdhet új műszakot ezen a kasszán.",
+      "reconcileShiftBody": "Ellenőrizze a Z-jelentés eredményét annak megerősítéséhez, hogy ez a műszak le van-e zárva. A műszak újbóli megnyitása ezen a kasszán csak a lezárás megerősítése után lehetséges."
+    },
+    "ga": {
+      "confirmedTitle": "İşlem tamamlandı",
+      "confirmedBody": "İşlem sonucu doğrulandı.",
+      "failedTitle": "İşlem tamamlanmadı",
+      "failedBody": "İşlem tamamlanmadı. Devam etmeden önce ayrıntıları kontrol edin.",
+      "pendingTitle": "Onay bekleniyor",
+      "pendingBody": "Sonuç henüz doğrulanmadı. Ödemeyi tekrarlamayın; işlemin durumunu kontrol edin.",
+      "closeShiftBody": "Vardiya kapatma işlemi, bir Z raporu talep eder. Bu kayıt cihazında yeni bir vardiyaya yalnızca kapanış doğrulandıktan sonra başlayabilirsiniz.",
+      "reconcileShiftBody": "Vardiyanın kapatılıp kapatılmadığını doğrulamak için Z raporu sonucunu kontrol edin. Kapanış doğrulandığına kadar bu kayıt cihazında yeni bir vardiyaya başlanamaz."
+    },
+    "it": {
+      "confirmedTitle": "Operação concluída",
+      "confirmedBody": "O resultado da operação foi confirmado.",
+      "failedTitle": "Operação não concluída",
+      "failedBody": "A operação não foi concluída. Verifique os detalhes antes de continuar.",
+      "pendingTitle": "Aguardando confirmação",
+      "pendingBody": "O resultado não foi confirmado. Não repita o pagamento; verifique o status da operação.",
+      "closeShiftBody": "Fechar o turno solicita um relatório Z. Você só pode iniciar um novo turno neste registrador após a confirmação do fechamento.",
+      "reconcileShiftBody": "Verifique o resultado do relatório Z para confirmar se este turno foi fechado. Um novo turno neste registrador permanece indisponível até que o fechamento seja confirmado."
+    },
+    "lv": {
+      "confirmedTitle": "Operācija veiksmīgi pabeigta",
+      "confirmedBody": "Operācijas rezultāts ir apstiprināts.",
+      "failedTitle": "Operācija nav pabeigta",
+      "failedBody": "Operācija nav pabeigta. Pirms turpināšanas pārbaudiet detalizēto informāciju.",
+      "pendingTitle": "Gaida apstiprinājumu",
+      "pendingBody": "Rezultāts nav apstiprināts. Neatkārtojiet maksājumu; pārbaudiet operācijas statusu.",
+      "closeShiftBody": "Darba maiņas slēgšana ietver Z-atskaites ģenerēšanu. Jaunu darba maiņu šajā reģistrā var sākt tikai pēc tam, kad slēgšana ir apstiprināta.",
+      "reconcileShiftBody": "Pārbaudiet Z-atskaites rezultātu, lai apstiprinātu, vai šī darba maiņa ir slēgta. Jauna darba maiņa šajā reģistrā nav pieejama, līdz slēgšana ir apstiprināta."
+    },
+    "lt": {
+      "confirmedTitle": "Operacija sėkmingai atlikta",
+      "confirmedBody": "Operacijos rezultatas patvirtintas.",
+      "failedTitle": "Operacija nebaigta",
+      "failedBody": "Operacija nebaigta. Patikrinkite detales prieš tęsiant.",
+      "pendingTitle": "Laukiama patvirtinimo",
+      "pendingBody": "Rezultatas dar nepatvirtintas. Nelyginkite mokėjimo; patikrinkite operacijos būseną.",
+      "closeShiftBody": "Pamainos uždarymas reikalauja Z ataskaitos. Naują pamainą šiame kasos aparate galite pradėti tik po to, kai uždarymas bus patvirtintas.",
+      "reconcileShiftBody": "Patikrinkite Z ataskaitos rezultatą, kad patvirtintumėte, ar ši pamaina yra uždaryta. Nauja pamaina šiame kasos aparate lieka neprieinama, kol uždarymas nebus patvirtintas."
+    },
+    "mt": {
+      "confirmedTitle": "Operazione completata",
+      "confirmedBody": "Il risultato dell'operazione è confermato.",
+      "failedTitle": "Operazione non completata",
+      "failedBody": "L'operazione non è stata completata. Controllare i dettagli prima di procedere.",
+      "pendingTitle": "In attesa di conferma",
+      "pendingBody": "Il risultato non è confermato. Non ripetere il pagamento; controllare lo stato dell'operazione.",
+      "closeShiftBody": "La chiusura del turno richiede un rapporto Z. È possibile avviare un nuovo turno su questo registratore solo dopo che la chiusura è stata confermata.",
+      "reconcileShiftBody": "Controllare il risultato del rapporto Z per confermare se questo turno è chiuso. Un nuovo turno su questo registratore rimane non disponibile fino a quando la chiusura non è confermata."
+    },
+    "pl": {
+      "confirmedTitle": "Operacja zakończona",
+      "confirmedBody": "Wynik operacji został potwierdzony.",
+      "failedTitle": "Operacja nie została zakończona",
+      "failedBody": "Operacja nie została zakończona. Sprawdź szczegóły przed kontynuowaniem.",
+      "pendingTitle": "Oczekuje na potwierdzenie",
+      "pendingBody": "Wynik nie został potwierdzony. Nie powtarzaj płatności; sprawdź status operacji.",
+      "closeShiftBody": "Zakończenie zmiany wymaga wygenerowania raportu Z. Możesz rozpocząć nową zmianę na tym urządzeniu tylko po potwierdzeniu zamknięcia.",
+      "reconcileShiftBody": "Sprawdź wynik raportu Z, aby potwierdzić, czy ta zmiana została zamknięta. Rozpoczęcie nowej zmiany na tym urządzeniu pozostaje niedostępne do czasu potwierdzenia zamknięcia."
+    },
+    "pt": {
+      "confirmedTitle": "Operação concluída",
+      "confirmedBody": "O resultado da operação foi confirmado.",
+      "failedTitle": "Operação não concluída",
+      "failedBody": "A operação não foi concluída. Verifique os detalhes antes de continuar.",
+      "pendingTitle": "Aguardando confirmação",
+      "pendingBody": "O resultado não foi confirmado. Não repita o pagamento; verifique o status da operação.",
+      "closeShiftBody": "Fechar o turno solicita um relatório Z. Você só pode iniciar um novo turno neste registrador após a confirmação do fechamento.",
+      "reconcileShiftBody": "Verifique o resultado do relatório Z para confirmar se este turno está fechado. Um novo turno neste registrador permanece indisponível até que o fechamento seja confirmado."
+    },
+    "ro": {
+      "confirmedTitle": "Operațiune finalizată",
+      "confirmedBody": "Rezultatul operațiunii este confirmat.",
+      "failedTitle": "Operațiune nereușită",
+      "failedBody": "Operațiunea nu a fost finalizată. Verificați detaliile înainte de a continua.",
+      "pendingTitle": "În așteptarea confirmării",
+      "pendingBody": "Rezultatul nu este confirmat. Nu repetați plata; verificați starea operațiunii.",
+      "closeShiftBody": "Închiderea turei solicită un raport Z. Puteți începe o nouă tură pe acest registru numai după ce închiderea este confirmată.",
+      "reconcileShiftBody": "Verificați rezultatul raportului Z pentru a confirma dacă această tură este închisă. O nouă tură pe acest registru rămâne indisponibilă până la confirmarea închiderii."
+    },
+    "sk": {
+      "confirmedTitle": "Operácia dokončená",
+      "confirmedBody": "Výsledok operácie je potvrdený.",
+      "failedTitle": "Operácia nebola dokončená",
+      "failedBody": "Operácia sa nedokončila. Skontrolujte detaily pred pokračovaním.",
+      "pendingTitle": "Čaká sa na potvrdenie",
+      "pendingBody": "Výsledok nie je potvrdený. Neopakovujte platbu; skontrolujte stav operácie.",
+      "closeShiftBody": "Ukončenie zmeny vyžaduje generovanie Z reportu. Novú zmenu na tomto pokladni môže začať až po potvrdení ukončenia.",
+      "reconcileShiftBody": "Skontrolujte výsledok Z reportu, aby ste potvrdili, či je táto zmena ukončená. Nová zmena na tejto pokladni zostáva nedostupná, kým nie je ukončenie potvrdené."
+    },
+    "sl": {
+      "confirmedTitle": "Operacija je uspešno zaključena",
+      "confirmedBody": "Rezultat operacije je potrjen.",
+      "failedTitle": "Operacija ni bila uspešno zaključena",
+      "failedBody": "Operacija ni bila uspešno zaključena. Preverite podrobnosti, preden nadaljujete.",
+      "pendingTitle": "Čakanje na potrditev",
+      "pendingBody": "Rezultat še ni potrjen. Ne ponavljajte plačila; preverite stanje operacije.",
+      "closeShiftBody": "Zapiranje izmene zahteva poročilo Z. Na tem registratorju lahko začnete novo izmeno šele po potrditvi zaprtja.",
+      "reconcileShiftBody": "Preverite rezultat poročila Z, da potrdite, ali je ta izmena zaprta. Na tem registratorju nova izmena ostane nedostopna, dokler zaprtje ni potrjeno."
+    },
+    "es": {
+      "confirmedTitle": "Operación completada",
+      "confirmedBody": "El resultado de la operación está confirmado.",
+      "failedTitle": "Operación no completada",
+      "failedBody": "La operación no se completó. Revise los detalles antes de continuar.",
+      "pendingTitle": "En espera de confirmación",
+      "pendingBody": "El resultado no está confirmado. No repita el pago; verifique el estado de la operación.",
+      "closeShiftBody": "Cerrar la jornada requiere un informe Z. Puede iniciar una nueva jornada en este registrador solo después de que se confirme el cierre.",
+      "reconcileShiftBody": "Revise el resultado del informe Z para confirmar si esta jornada está cerrada. Una nueva jornada en este registrador permanece inhabilitada hasta que se confirme el cierre."
+    },
+    "sv": {
+      "confirmedTitle": "Operationen genomförd",
+      "confirmedBody": "Resultatet av operationen är bekräftat.",
+      "failedTitle": "Operationen genomfördes inte",
+      "failedBody": "Operationen slutfördes inte. Kontrollera detaljerna innan du fortsätter.",
+      "pendingTitle": "Väntar på bekräftelse",
+      "pendingBody": "Resultatet är inte bekräftat. Upprepa inte betalningen; kontrollera operationens status.",
+      "closeShiftBody": "Att stänga skiftet kräver en Z-rapport. Du kan inte starta ett nytt skift på denna enhet förrän stängningen är bekräftad.",
+      "reconcileShiftBody": "Kontrollera resultatet av Z-rapporten för att bekräfta om detta skift är stängt. Ett nytt skift på denna enhet är inte tillgängligt förrän stängningen är bekräftad."
+    },
+    "ru": {
+      "confirmedTitle": "Операция завершена",
+      "confirmedBody": "Результат операции подтвержден.",
+      "failedTitle": "Операция не завершена",
+      "failedBody": "Операция не была завершена. Проверьте детали перед продолжением.",
+      "pendingTitle": "Ожидание подтверждения",
+      "pendingBody": "Результат не подтвержден. Не повторяйте платеж; проверьте статус операции.",
+      "closeShiftBody": "Закрытие смены требует формирования Z-отчета. Начать новую смену на этом терминале можно только после подтверждения закрытия.",
+      "reconcileShiftBody": "Проверьте результат Z-отчета, чтобы убедиться, что смена закрыта. Начало новой смены на этом терминале остается недоступным до подтверждения закрытия."
+    }
+  },
+  "provenance": [
+    {
+      "language": "bg",
+      "file": "bg-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "9a2aac1cd33a0442069ae1067affb2de688ad391c3741fd3dcf93dab7999224a",
+      "promptSha256": "882630b32480e067a5f997392b71fecf0636109c0c4beeb1d0d2602203498e24"
+    },
+    {
+      "language": "hr",
+      "file": "hr-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "dbc398111b17b70f1aecb9b412cffc38b8640c39ebe664de7518c9f15ce0edca",
+      "promptSha256": "4c222ec0ee4cd8ab8d7c134867855ef3a51dc05e303be5e429d17089440d7e54"
+    },
+    {
+      "language": "cs",
+      "file": "cs-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "e16d7c16fa050e44991b7492e8ed8bd0220c6b3ce12f67eaed17439fe71b45a4",
+      "promptSha256": "120920342837ddb85e3649041cace9906b2a8c3d4bc7672dec5306283f2e9b4f"
+    },
+    {
+      "language": "da",
+      "file": "da-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "42bf7bbda406c9548113419475d515de554e8745a342f30e6e09faf48a683166",
+      "promptSha256": "bbb773a922b6c99fc70f9f6be11d53c72fe4f1d8acd7e9210732fa5be607f9b7"
+    },
+    {
+      "language": "nl",
+      "file": "nl-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "3078a3d6e432ba52e66f2c9da88d07acaaf3840763edd9b8d69a0f0fc652de04",
+      "promptSha256": "2fbf836271ece8b2255e0279913734e9c67e9d7fe07772616dc49ba4da041f9e"
+    },
+    {
+      "language": "et",
+      "file": "et-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "283421eb88d47446a51ccd1fcb9904285f4a8d43fbf8c402e1e39fcad0c98469",
+      "promptSha256": "f786c9be43c09394c65a8b985f952e2e9ae4a73bb123d06fdf9709a4bded53f8"
+    },
+    {
+      "language": "fi",
+      "file": "fi-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "b4275e5b89d79f53fcb9e1ad037853c513a26a0a3b2e13203d174e216145ef4d",
+      "promptSha256": "df7309d758625eaf79e428802e5a4e182ca7509fc79f634b1507e2061edb2f20"
+    },
+    {
+      "language": "fr",
+      "file": "fr-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "1c723ccb53ba8d6b15edf420ddaea69528a7a19640c4400d44661744d469840e",
+      "promptSha256": "b52d9027007062653e8643616e2fb663f617597b3618cdf6f82e3ea7702f7f61"
+    },
+    {
+      "language": "de",
+      "file": "de-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "b949b94f74d0518b999aa90a944bf3cba9e0d9f9490d0fb32082076a9665e17d",
+      "promptSha256": "28be3fd9f279a9b89b7c98e4cf49e26fe3f64082d999415af691f62e6cc37975"
+    },
+    {
+      "language": "el",
+      "file": "el-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "1564fbc7a1816750e802372db262a392f0bc11b97eb4b11f87ac1aa2ebde8d25",
+      "promptSha256": "3a2a9dc455bc8af8e159ecaf6dae2f6996645599fc4c32755b7a647d31bf7d83"
+    },
+    {
+      "language": "hu",
+      "file": "hu-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "33607d8996b9c50f69e13397291f438601a2f76fb8b3b252b0fb3a994cd80485",
+      "promptSha256": "e3495b8898df901af685b470e676e14a4aeb0c853b95abe1c1ae7c4d7aee1399"
+    },
+    {
+      "language": "ga",
+      "file": "ga-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "09db4a071ea56aeb33e9c0018b7371b430e12920a5b3feaf62b0a838e75d7b3d",
+      "promptSha256": "ab6316d9763711fa7285dbbaf219681b90c47d501f6436f9248e46130c16b9fe"
+    },
+    {
+      "language": "it",
+      "file": "it-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "15fb7e85189adcdbe250cc842d632be0c6a3d598d8dcfa4e10a5478c05b16af0",
+      "promptSha256": "08faeae6227387af45ba4d8622704be45240a8d3dd427db4dd97f8d4fdabecc0"
+    },
+    {
+      "language": "lv",
+      "file": "lv-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "ef1fe63ce7d7627d758ca42120e60605e5645cac946906bca93d1b8a34a1f60c",
+      "promptSha256": "8b739ddf9652e67898fe5ff51454dfc56789cc426c7fc7d3c124635fc3bd593c"
+    },
+    {
+      "language": "lt",
+      "file": "lt-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "c6a8b6a740c7460d7531860c7c1d63eee0c50af2c7e9df2f18d7403aab1302d0",
+      "promptSha256": "853ccc98e5e5f6219b025a0704fb1ceedd6f96ac52d67c84251f69cbe15ffa36"
+    },
+    {
+      "language": "mt",
+      "file": "mt-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "a3a145d898295a67cee2b1dab9762e20b2004b99f7ae5635fa53dd6474f721a3",
+      "promptSha256": "98a2417267835c4de5609da9cebf5287ee12d554dd64739d381af57cb1ee198d"
+    },
+    {
+      "language": "pl",
+      "file": "pl-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "84455e5b4199dc14d7c9af7363c28af37da2966bb4c64c7bfe99d3b7ca993850",
+      "promptSha256": "a2bbd7fbe442af9dbbc929b19ee33933eee97cc8a504478e97b129660ad5c99d"
+    },
+    {
+      "language": "pt",
+      "file": "pt-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "5a9a957c2ddfbb9d99cc0ad88458228178f3e3178f625dbb4d724be4270fc7d4",
+      "promptSha256": "0203636d17d8da378fe4950e763af4e66476caecc116f31267f5539bf901f45e"
+    },
+    {
+      "language": "ro",
+      "file": "ro-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "4b424ae926585b1dd5d2be822d87158c72039b93c00d80d3d8b8e908038ff3a9",
+      "promptSha256": "7b911e2b7e47070aa61e93a589180265b5d3ec3129289045192abace1da4d481"
+    },
+    {
+      "language": "sk",
+      "file": "sk-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "61074b95c1cf564631a0f241a01c9c1b749e73a399645413d711c106f670ba04",
+      "promptSha256": "6139074738730ab27f8fc97de93ddfe719b09c8188dc7ee58af9b046cd5fed89"
+    },
+    {
+      "language": "sl",
+      "file": "sl-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "3d127212e8a9b1bdf1ba75b49f459cc249f49452741e700248ab46344a1e3d59",
+      "promptSha256": "754822e09f90f356fd76700b236e29c55aca209ba63657fc2716c9a18970814a"
+    },
+    {
+      "language": "es",
+      "file": "es-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "4249beb967b362f6c531c0b53c126d0ea64d219a7f0e5cd73bc73c31152a7e90",
+      "promptSha256": "b1eb077584fbcd43771c44327878db5c04745cca1978bdd64325f50080faa8e2"
+    },
+    {
+      "language": "sv",
+      "file": "sv-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "d2745a0297e5f4eeabe5b0c8d2e550cc586267c59f556ad4a13ba526ee370cfa",
+      "promptSha256": "b568751e8abeb170f3da855da2a0ba8f1c92438d009c12c543608acb0d01c4db"
+    },
+    {
+      "language": "ru",
+      "file": "ru-8a670ccc02a228c1e0182b405f2e4203cb30f79060479d03d8563e9df9b7434b-0.json",
+      "rawSha256": "2ebac524bc5a99e790efe44950d31ec50639c5ca7a68dc07217c488b1f966fe3",
+      "promptSha256": "cc4b0433f562323229b3ca0d5581940429e9688eed569f81360141d4cb364856"
+    }
+  ]
+}

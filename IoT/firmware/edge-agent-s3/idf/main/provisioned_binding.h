@@ -6,8 +6,9 @@
 
 namespace beefiscal::idf {
 enum class EdgeProfile:uint8_t{Unconfigured,DatecsDp150BluePad50,DaisyCompactS01};
-struct FiscalEndpointBinding{std::string device_id,vendor,model,transport,driver_id,protocol_id,protocol_version,usb_serial;
-  uint32_t uart_baud{};uint8_t uart_data_bits{};char uart_parity{'N'};uint8_t uart_stop_bits{};
+struct FiscalExecutionConfig{bool present{};uint8_t operator_number{},operator_count{};uint32_t till_number{};std::string operator_password_ref,device_configuration_id;int datecs_card_mode{-1};char daisy_card_code{};};
+struct FiscalEndpointBinding{std::string device_id,vendor,model,transport,driver_id,protocol_id,protocol_version,usb_serial,fiscal_memory_number,fiscal_device_number;
+  FiscalExecutionConfig execution;uint32_t uart_baud{};uint8_t uart_data_bits{};char uart_parity{'N'};uint8_t uart_stop_bits{};
   int uart_tx_pin{-1},uart_rx_pin{-1};uint16_t usb_vid{},usb_pid{};uint8_t usb_interface{};};
 struct PaymentEndpointBinding{bool present{};std::string device_id,vendor,model,transport,driver_id,protocol_id,protocol_version,
   ble_identity,service_uuid,tx_characteristic_uuid,rx_characteristic_uuid;};
@@ -34,7 +35,8 @@ class ProvisionedBindingStore final{
   ProvisionedBindingStore&operator=(const ProvisionedBindingStore&)=delete;
   esp_err_t open(const char* nvs_namespace="edge-binding");void close();
   esp_err_t load(CompositeBinding&);esp_err_t install(const SignedBindingEnvelope&,
-    CompositeBinding* installed=nullptr);int64_t generation()const{return generation_;}
+    CompositeBinding* installed=nullptr);int64_t generation()const;
+  esp_err_t validate(const SignedBindingEnvelope&,CompositeBinding&)const;
   static esp_err_t decode_and_validate(const char*,size_t,CompositeBinding&);
  private:struct Impl;Impl*impl_;const char*public_key_;const char*key_id_;int64_t generation_{};
   esp_err_t verify(const SignedBindingEnvelope&)const;

@@ -1,0 +1,240 @@
+[
+ {
+  "name": "u199_q333_d0",
+  "unit_cents": 199,
+  "qty_milli": 333,
+  "discount_cents": 0,
+  "expect_line_cents": 66
+ },
+ {
+  "name": "u1_q500_d0",
+  "unit_cents": 1,
+  "qty_milli": 500,
+  "discount_cents": 0,
+  "expect_line_cents": 1
+ },
+ {
+  "name": "u1_q499_d0",
+  "unit_cents": 1,
+  "qty_milli": 499,
+  "discount_cents": 0,
+  "expect_line_cents": 0
+ },
+ {
+  "name": "u1_q501_d0",
+  "unit_cents": 1,
+  "qty_milli": 501,
+  "discount_cents": 0,
+  "expect_line_cents": 1
+ },
+ {
+  "name": "u9999999_q999_d0",
+  "unit_cents": 9999999,
+  "qty_milli": 999,
+  "discount_cents": 0,
+  "expect_line_cents": 9989999
+ },
+ {
+  "name": "u9999999_q1000_d0",
+  "unit_cents": 9999999,
+  "qty_milli": 1000,
+  "discount_cents": 0,
+  "expect_line_cents": 9999999
+ },
+ {
+  "name": "u100_q1000_d0",
+  "unit_cents": 100,
+  "qty_milli": 1000,
+  "discount_cents": 0,
+  "expect_line_cents": 100
+ },
+ {
+  "name": "u100_q3000_d0",
+  "unit_cents": 100,
+  "qty_milli": 3000,
+  "discount_cents": 0,
+  "expect_line_cents": 300
+ },
+ {
+  "name": "u250_q120000_d0",
+  "unit_cents": 250,
+  "qty_milli": 120000,
+  "discount_cents": 0,
+  "expect_line_cents": 30000
+ },
+ {
+  "name": "u1_q1_d0",
+  "unit_cents": 1,
+  "qty_milli": 1,
+  "discount_cents": 0,
+  "expect_line_cents": 0
+ },
+ {
+  "name": "u5_q100_d0",
+  "unit_cents": 5,
+  "qty_milli": 100,
+  "discount_cents": 0,
+  "expect_line_cents": 1
+ },
+ {
+  "name": "u5_q150_d0",
+  "unit_cents": 5,
+  "qty_milli": 150,
+  "discount_cents": 0,
+  "expect_line_cents": 1
+ },
+ {
+  "name": "u333_q3000_d0",
+  "unit_cents": 333,
+  "qty_milli": 3000,
+  "discount_cents": 0,
+  "expect_line_cents": 999
+ },
+ {
+  "name": "u199_q1500_d0",
+  "unit_cents": 199,
+  "qty_milli": 1500,
+  "discount_cents": 0,
+  "expect_line_cents": 299
+ },
+ {
+  "name": "u1000_q500_d100",
+  "unit_cents": 1000,
+  "qty_milli": 500,
+  "discount_cents": 100,
+  "expect_line_cents": 400
+ },
+ {
+  "name": "u1000_q1000_d1000",
+  "unit_cents": 1000,
+  "qty_milli": 1000,
+  "discount_cents": 1000,
+  "expect_line_cents": 0
+ },
+ {
+  "name": "u1234_q2500_d34",
+  "unit_cents": 1234,
+  "qty_milli": 2500,
+  "discount_cents": 34,
+  "expect_line_cents": 3051
+ },
+ {
+  "name": "u99_q333_d0",
+  "unit_cents": 99,
+  "qty_milli": 333,
+  "discount_cents": 0,
+  "expect_line_cents": 33
+ },
+ {
+  "name": "u99_q334_d0",
+  "unit_cents": 99,
+  "qty_milli": 334,
+  "discount_cents": 0,
+  "expect_line_cents": 33
+ },
+ {
+  "name": "u10_q50_d0",
+  "unit_cents": 10,
+  "qty_milli": 50,
+  "discount_cents": 0,
+  "expect_line_cents": 1
+ },
+ {
+  "name": "u10_q49_d0",
+  "unit_cents": 10,
+  "qty_milli": 49,
+  "discount_cents": 0,
+  "expect_line_cents": 0
+ },
+ {
+  "name": "u7_q500_d0",
+  "unit_cents": 7,
+  "qty_milli": 500,
+  "discount_cents": 0,
+  "expect_line_cents": 4
+ },
+ {
+  "name": "u7_q499_d0",
+  "unit_cents": 7,
+  "qty_milli": 499,
+  "discount_cents": 0,
+  "expect_line_cents": 3
+ },
+ {
+  "name": "u15_q1500_d0",
+  "unit_cents": 15,
+  "qty_milli": 1500,
+  "discount_cents": 0,
+  "expect_line_cents": 23
+ },
+ {
+  "name": "u1999_q1000_d199",
+  "unit_cents": 1999,
+  "qty_milli": 1000,
+  "discount_cents": 199,
+  "expect_line_cents": 1800
+ },
+ {
+  "name": "u2_q250_d0",
+  "unit_cents": 2,
+  "qty_milli": 250,
+  "discount_cents": 0,
+  "expect_line_cents": 1
+ },
+ {
+  "name": "u2_q249_d0",
+  "unit_cents": 2,
+  "qty_milli": 249,
+  "discount_cents": 0,
+  "expect_line_cents": 0
+ },
+ {
+  "name": "u999_q999_d0",
+  "unit_cents": 999,
+  "qty_milli": 999,
+  "discount_cents": 0,
+  "expect_line_cents": 998
+ },
+ {
+  "name": "u500_q2000_d0",
+  "unit_cents": 500,
+  "qty_milli": 2000,
+  "discount_cents": 0,
+  "expect_line_cents": 1000
+ },
+ {
+  "name": "u1_q1000_d0",
+  "unit_cents": 1,
+  "qty_milli": 1000,
+  "discount_cents": 0,
+  "expect_line_cents": 1
+ },
+ {
+  "name": "u12345_q333_d45",
+  "unit_cents": 12345,
+  "qty_milli": 333,
+  "discount_cents": 45,
+  "expect_line_cents": 4066
+ },
+ {
+  "name": "u88_q125_d0",
+  "unit_cents": 88,
+  "qty_milli": 125,
+  "discount_cents": 0,
+  "expect_line_cents": 11
+ },
+ {
+  "name": "u88_q124_d0",
+  "unit_cents": 88,
+  "qty_milli": 124,
+  "discount_cents": 0,
+  "expect_line_cents": 11
+ },
+ {
+  "name": "u3_q167_d0",
+  "unit_cents": 3,
+  "qty_milli": 167,
+  "discount_cents": 0,
+  "expect_line_cents": 1
+ }
+]

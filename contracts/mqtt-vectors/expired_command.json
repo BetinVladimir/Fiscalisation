@@ -1,0 +1,15 @@
+{
+  "name": "expired_command",
+  "topic": "tenants/tenant-01/devices/device-01/commands",
+  "command_type": "FINALIZE",
+  "operation_id": "op-finalize-005",
+  "payload": {
+    "document_type": "SALE",
+    "total_cents": 100,
+    "payments": []
+  },
+  "signature": "valid",
+  "expires_at": "2020-01-01T00:00:00Z",
+  "expect": "REJECTED",
+  "error_code": "COMMAND_EXPIRED"
+}

@@ -14,6 +14,7 @@ async function json<T>(
   appInstance?: string,
 ): Promise<T> {
   const headers = new Headers(init.headers);
+  if (!headers.has("X-Api-Version")) headers.set("X-Api-Version", "2026-08-07");
   headers.set("Accept", "application/json");
   if (init.body) headers.set("Content-Type", "application/json");
   if (token) headers.set("Authorization", `Bearer ${token}`);
@@ -41,6 +42,7 @@ export type Employee = {
 export type AuthTokens = { access_token: string; refresh_token: string; expires_in: number };
 export type VerifyCodeResult = AuthTokens & { onboarding_required: boolean; onboarding_token?: string };
 export type OperatorSession = {
+  session_id: string;
   authenticated: boolean;
   employee: Employee;
   expires_at: string;
@@ -51,6 +53,9 @@ export type Shift = {
   employee_id: string;
   state: string;
   version: number;
+  allowed_actions?: Array<"SALE"|"CLOSE"|"READ"|"RECONCILE">;
+  z_operation_id?: string|null;
+  z_fiscal_reference?: string|null;
 };
 export type PosConfiguration = {
   location_id: string;
@@ -79,6 +84,9 @@ export class LocalFiscalClient {
       { signal },
       this.token(),
     );
+  }
+  submitReconciliation(command: import('../fiscal/paymentReconciliation').ReconciliationCommand, signal?:AbortSignal) {
+    return json<FiscalOperation>(`${this.baseUrl}/intents`,{method:'POST',body:JSON.stringify(command),signal,headers:{'Idempotency-Key':command.client_operation_id,'X-Beeloy-API-Version':'2026-08-14'}},this.token());
   }
   submit(intent: FiscalIntent, signal?: AbortSignal) {
     return json<FiscalOperation>(
@@ -116,6 +124,15 @@ export class MiniPosClient {
       this.token(),
       this.appInstance,
     );
+  }
+  authorizePaymentReconciliation(shift:string,decision:import('../fiscal/paymentReconciliation').ReconciliationDecision,key:string){return json<import('../fiscal/paymentReconciliation').ReconciliationCommand>(`${this.baseUrl}/payment-reconciliations:authorize`,{method:'POST',headers:{'X-Api-Version':'2026-08-07','Idempotency-Key':key},body:JSON.stringify({shift_id:shift,decision})},this.token(),this.appInstance);}
+  executionIdentity(shift:string){return json<{tenant_id:string;actor_subject:string;source_session_id:string;app_instance_id:string}>(`${this.baseUrl}/execution-authorizations?shift_id=${encodeURIComponent(shift)}`,{headers:{"X-Api-Version":"2026-08-07"}},this.token(),this.appInstance);}
+  executionAuthorization(body:{shift_id:string;client_signing_public_key_der_base64:string;order_id?:string;payments?:SalePayment[]},idempotency:string){return json<{authorization:import('../fiscal/executionAuthorization').AuthorizationEnvelope;canonical_payload?:Record<string,unknown>;transport_token:string;transport_token_expires_at:string}>(`${this.baseUrl}/execution-authorizations`,{method:'POST',headers:{'X-Api-Version':'2026-08-07','Idempotency-Key':idempotency},body:JSON.stringify(body)},this.token(),this.appInstance);}
+  async dispatchExecution(orderId:string,intent:FiscalIntent,signal?:AbortSignal):Promise<FiscalOperation>{
+   const value=await json<Record<string,unknown>>(`${this.baseUrl}/execution-authorizations:dispatch`,{method:'POST',signal,headers:{'X-Api-Version':'2026-08-07','Idempotency-Key':intent.client_operation_id},body:JSON.stringify({order_id:orderId})},this.token(),this.appInstance);
+   if(value.operation_id!==intent.intent_id||value.client_operation_id!==intent.intent_id||value.receipt_session_id!==intent.receipt_session_id||value.sale_id!==intent.server_sale_id||value.register_id!==intent.register_id)throw new Error('FISCAL_OPERATION_IDENTITY_MISMATCH');
+   const state=String(value.state??'UNKNOWN');const reference=typeof value.fiscal_reference==='string'?value.fiscal_reference:undefined;if(state==='FISCALIZED'&&!reference)throw new Error('FISCAL_OPERATION_PROOF_MISSING');
+   return {operation_id:intent.intent_id,state,certainty:state==='FISCALIZED'&&reference?'PROVEN_SUCCESS':'UNKNOWN',fiscal_reference:reference,updated_at:String(value.updated_at??new Date().toISOString())};
   }
   configuration() {
     return json<PosConfiguration>(
@@ -163,16 +180,22 @@ export class MiniPosClient {
       `${this.baseUrl}/shifts`,
       {
         method: "POST",
+        headers: { "Idempotency-Key": crypto.randomUUID() },
         body: JSON.stringify({ register_id: register, employee_id: employee }),
       },
       this.token(),
       this.appInstance,
     );
   }
+  closeShift(shiftId:string, key:string, reconcile=false) {
+    return json<Shift>(`${this.baseUrl}/shifts/${encodeURIComponent(shiftId)}/${reconcile?'reconcile':'close'}`, {
+      method:'POST', headers:{'Idempotency-Key':key}, body:'{}',
+    },this.token(),this.appInstance);
+  }
   createOrder(shiftId: string) {
     return json<{ id: string; external_id: string; version: number }>(
       `${this.baseUrl}/orders`,
-      { method: "POST", body: JSON.stringify({ shift_id: shiftId }) },
+      { method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() }, body: JSON.stringify({ shift_id: shiftId }) },
       this.token(),
       this.appInstance,
     );
@@ -193,6 +216,22 @@ export class MiniPosClient {
       this.token(),
       this.appInstance,
     );
+  }
+  async operation(orderId: string, clientOperationId: string, signal?: AbortSignal): Promise<FiscalOperation> {
+    const value = await json<Record<string, unknown>>(
+      `${this.baseUrl}/orders/${encodeURIComponent(orderId)}/operations/${encodeURIComponent(clientOperationId)}`,
+      { signal, headers: { "X-Api-Version": "2026-08-07" } }, this.token(), this.appInstance,
+    );
+    if (value.operation_id !== clientOperationId || value.client_operation_id !== clientOperationId)
+      throw new Error("FISCAL_OPERATION_IDENTITY_MISMATCH");
+    const state = String(value.state ?? "UNKNOWN");
+    const reference = typeof value.fiscal_reference === "string" ? value.fiscal_reference : undefined;
+    if (state === "FISCALIZED" && !reference) throw new Error("FISCAL_OPERATION_PROOF_MISSING");
+    return { operation_id: clientOperationId, state,
+      certainty: state === "FISCALIZED" && reference ? "PROVEN_SUCCESS" : "UNKNOWN",
+      fiscal_reference: reference, error_code: typeof value.error_code === "string" ? value.error_code : undefined,
+      updated_at: String(value.updated_at ?? new Date().toISOString()),
+    };
   }
   checkout(
     orderId: string,

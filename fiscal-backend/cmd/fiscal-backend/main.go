@@ -56,6 +56,7 @@ func main() {
 		driver = mqttBridge
 	}
 	svc := domain.NewService(repo, driver)
+	svc.SetSimulated(cfg.AppEnv != "prod")
 	svc.SetRequireHardwareSyncSignatures(cfg.AppEnv == "prod" || cfg.EMQXBroker != "")
 	svc.SetBLESigningKey(cfg.BLESigningKey)
 	svc.SetLocalTokenTrust(cfg.LocalTokenIssuer, cfg.LocalTokenSigningKID, cfg.LocalTokenPublicKeyDERBase64)
@@ -92,7 +93,7 @@ func main() {
 		}
 		defer integrationService.Close()
 		integrationService.SetAppSigningKey([]byte(cfg.AuthHMACKey))
-		integrationHTTP = &integration.HTTPHandler{Service: integrationService, PublicBaseURL: cfg.PublicBaseURL}
+		integrationHTTP = &integration.HTTPHandler{Service: integrationService, PublicBaseURL: cfg.PublicBaseURL, ExecutionAuthorizations: svc}
 	}
 	var revoked func(context.Context, string) bool
 	if integrationService != nil {

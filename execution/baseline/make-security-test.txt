@@ -1,0 +1,3 @@
+ruby scripts/verify_security_regression.rb
+S3 behavioral evidence OPEN: S23-010, S23-011, S23-012, S23-016, S23-020, S23-021, S23-022, S23-023, S23-031, S23-032, S23-051
+make: *** [security-test] Error 1

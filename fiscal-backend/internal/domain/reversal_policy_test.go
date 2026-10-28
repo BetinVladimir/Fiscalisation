@@ -37,6 +37,44 @@ func TestOperatorErrorDeadlineHandlesYearAndDSTBoundaries(t *testing.T) {
 	}
 }
 
+// TestReversalPolicy_SR01 — SR-01 чл.31(1): OPERATOR_ERROR допустим через 7-й день месяца Europe/Sofia.
+func TestReversalPolicy_SR01(t *testing.T) {
+	original := sofiaTime(t, "2026-01-31 23:59:00")
+	if !reversalAllowed("OPERATOR_ERROR", original, sofiaTime(t, "2026-02-07 23:59:59")) {
+		t.Fatal("SR-01: operator error reversal within deadline was rejected")
+	}
+	if reversalAllowed("OPERATOR_ERROR", original, sofiaTime(t, "2026-02-08 00:00:00")) {
+		t.Fatal("SR-01: operator error reversal after deadline was accepted")
+	}
+}
+
+// TestReversalPolicy_SR02 — SR-02 чл.31(1): CUSTOMER_RETURN без срок.
+func TestReversalPolicy_SR02(t *testing.T) {
+	original := sofiaTime(t, "2026-01-01 12:00:00")
+	now := sofiaTime(t, "2026-12-31 12:00:00")
+	if !reversalAllowed("CUSTOMER_RETURN", original, now) {
+		t.Fatal("SR-02: CUSTOMER_RETURN was rejected")
+	}
+}
+
+// TestReversalPolicy_SR03 — SR-03 чл.31(1): CUSTOMER_COMPLAINT без срок.
+func TestReversalPolicy_SR03(t *testing.T) {
+	original := sofiaTime(t, "2026-01-01 12:00:00")
+	now := sofiaTime(t, "2026-12-31 12:00:00")
+	if !reversalAllowed("CUSTOMER_COMPLAINT", original, now) {
+		t.Fatal("SR-03: CUSTOMER_COMPLAINT was rejected")
+	}
+}
+
+// TestReversalPolicy_SR04 — SR-04 чл.31(1): TAX_BASE_REDUCTION без срок.
+func TestReversalPolicy_SR04(t *testing.T) {
+	original := sofiaTime(t, "2026-01-01 12:00:00")
+	now := sofiaTime(t, "2026-12-31 12:00:00")
+	if !reversalAllowed("TAX_BASE_REDUCTION", original, now) {
+		t.Fatal("SR-04: TAX_BASE_REDUCTION was rejected")
+	}
+}
+
 func TestReversalReasonsFailClosed(t *testing.T) {
 	original := sofiaTime(t, "2026-01-01 12:00:00")
 	now := sofiaTime(t, "2026-08-01 12:00:00")

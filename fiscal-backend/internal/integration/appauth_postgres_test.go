@@ -3,7 +3,11 @@ package integration
 import (
 	"context"
 	"errors"
+	"fmt"
+	"net/http"
+	"net/http/httptest"
 	"os"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -82,6 +86,28 @@ func assertOneWinner(t *testing.T, errs []error) int {
 		t.Fatalf("expected one success and one rejected replay, got %v", errs)
 	}
 	return winner
+}
+
+func TestAppChallengeStoresEmailInRequestedLanguage(t *testing.T) {
+	s := appAuthTestService(t)
+	email, instance, _ := seedAppMembership(t, s)
+	t.Cleanup(func() {
+		_, _ = s.db.Exec(`delete from fiscal.fiscal_email_outbox where recipient=$1 and purpose='BEEFISCAL_APP_OTP'`, email)
+	})
+	request := httptest.NewRequest(http.MethodPost, "/public/v1/app-auth/challenges", strings.NewReader(fmt.Sprintf(`{"email":%q,"app_instance_id":%q,"language":"ru"}`, email, instance)))
+	request.RemoteAddr = "127.0.0.1:12345"
+	response := httptest.NewRecorder()
+	(&HTTPHandler{Service: s}).ServeHTTP(response, request)
+	if response.Code != http.StatusAccepted {
+		t.Fatalf("challenge request returned %d: %s", response.Code, response.Body.String())
+	}
+	var subject, body string
+	if err := s.db.QueryRow(`select subject,body_text from fiscal.fiscal_email_outbox where recipient=$1 and purpose='BEEFISCAL_APP_OTP' order by created_at desc limit 1`, email).Scan(&subject, &body); err != nil {
+		t.Fatal(err)
+	}
+	if !strings.Contains(subject, "Код входа") || !strings.Contains(body, "Ваш код входа") {
+		t.Fatalf("requested Russian OTP email was not queued: %q %q", subject, body)
+	}
 }
 
 func TestAppTenantSelectionTokenIsConsumedAtomically(t *testing.T) {

@@ -63,12 +63,10 @@ abort "duplicate operationId(s): #{duplicates.keys.join(', ')}" unless duplicate
 
 fiscal_router = File.read(File.join(ROOT, "fiscal-backend/internal/api/handler.go"))
 minipos_router = File.read(File.join(ROOT, "minipos/beeminipos-backend/internal/api/handler.go"))
-edge_router = File.read(File.join(ROOT, "edge-agent/localapi/handler.go"))
 missing = []
 all.each do |method, path, operation_id|
   if path.start_with?("/internal/") || path.start_with?("/local/")
-    source = edge_router
-    expected = path.gsub(/\{[^}]+\}/, "")
+    abort "retired Go runtime route remains in canonical/runtime contract: #{path}"
   elsif path.start_with?("/minipos/") || path == "/fiscal-webhooks"
     source = minipos_router
     expected = registration_path(path)

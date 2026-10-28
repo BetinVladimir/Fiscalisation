@@ -34,7 +34,7 @@ for (const [size, width, height] of [['xs', 360, 800], ['md', 960, 900], ['lg', 
       await page.keyboard.press('Space');
       await page.keyboard.press('End');
       await page.keyboard.press('Enter');
-      await expect(trigger).toContainText('RU');
+      await expect(trigger).toHaveAccessibleName(/: RU$/);
       await expect(trigger).toBeFocused();
       await expect(list).toHaveCount(0);
       await page.keyboard.press('Space');
@@ -72,7 +72,7 @@ for (const theme of ['light', 'dark'] as const) {
     expect(bounds).not.toBeNull();
     expect(bounds!.y + bounds!.height).toBeLessThanOrEqual(480);
     await page.keyboard.press('Enter');
-    await expect(trigger).toContainText('RU');
+    await expect(trigger).toHaveAccessibleName(/: RU$/);
     await expect(list).toHaveCount(0);
     await trigger.click();
     await expect(page.getByTestId('shell.language.ru')).toHaveAttribute('aria-checked', 'true');

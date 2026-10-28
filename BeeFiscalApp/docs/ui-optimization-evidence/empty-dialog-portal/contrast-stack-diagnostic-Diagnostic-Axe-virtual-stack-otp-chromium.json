@@ -1,0 +1,659 @@
+[
+  {
+    "target": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvibr\" data-testid=\"auth.theme.toggle-text\" style=\"direction: ltr; color: rgb(73, 49, 122); font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Системна</div>",
+    "stacks": [
+      [
+        {
+          "html": "<div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvibr\" data-testid=\"auth.theme.toggle-text\" style=\"direction: ltr; color: rgb(73, 49, 122); font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Системна</div>",
+          "same": true,
+          "inside": true,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1awozwy r-18u37iz r-1777fci\" style=\"min-height: 48px;\"><div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lrvibr\" data-testid=\"auth.theme.toggle-text\" style=\"direction: ltr; color: rgb(73, 49, 122); font-family: Roboto_500Medium; letter-spacing: 0.1px; font-weight: 500; line-height: 20px; font-size: 14px;\">Систе",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<button aria-label=\"Тема: Системна\" role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x\" data-testid=\"auth.theme.toggle\" type=\"button\" style=\"border-radius: 19px;\"><div class=\"css-g5y9jx r-1awozwy r-18u37iz r-1777fci\" style=\"min-height: 48px;\"><div dir=\"auto\" class=\"css-146c3p1 r-dnmrzs r-1udh08x r-1udbk01 r-3s2u2q r-1iln25a r-q4m81j r-bplmwz r-14mg64r r-lr",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"auth.theme.toggle-container\" style=\"background-color: rgba(0, 0, 0, 0); border-color: rgb(111, 104, 116); border-width: 1px; border-radius: 20px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;\"><button aria-label=\"Тема: Системна\" role=\"button\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-1udh08x\" data-testid=\"a",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"auth.language.open-container\" style=\"background-color: rgba(0, 0, 0, 0); border-color: rgb(111, 104, 116); border-width: 1px; border-radius: 20px; box-shadow: rgba(0, 0, 0, 0) 0px 0px 0px;\"><button aria-label=\"Език: BG\" role=\"button\" tabindex=\"0\" ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"auth.language.open-container\" style=\"background-color: rgba(0, 0, 0, 0); border-color: rgb(111, 104, 116); border-width: 1px; border-radius: 20px;",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"auth.language.open-conta",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justi",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeFiscal</title>\n    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->\n",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        }
+      ]
+    ]
+  },
+  {
+    "target": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1>",
+    "stacks": [
+      [
+        {
+          "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1>",
+          "same": true,
+          "inside": true,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"dire",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1><di",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgb(255, 251, 255);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direc",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgb(255, 251, 255);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding: 16px; flex-grow: 1; justify-content: center;\"><div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116);",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\"><div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding: 16px; flex-grow: 1; justify-content: center;\"><div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"auth.language.open-conta",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justi",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeFiscal</title>\n    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->\n",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        }
+      ],
+      [
+        {
+          "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1>",
+          "same": true,
+          "inside": true,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"dire",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1><di",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgb(255, 251, 255);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direc",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgb(255, 251, 255);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding: 16px; flex-grow: 1; justify-content: center;\"><div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116);",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\"><div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding: 16px; flex-grow: 1; justify-content: center;\"><div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"auth.language.open-conta",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justi",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeFiscal</title>\n    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->\n",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        }
+      ],
+      [
+        {
+          "html": "<h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1>",
+          "same": true,
+          "inside": true,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"dire",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1><di",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgb(255, 251, 255);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direc",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgb(255, 251, 255);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding: 16px; flex-grow: 1; justify-content: center;\"><div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116);",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\"><div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding: 16px; flex-grow: 1; justify-content: center;\"><div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"auth.language.open-conta",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justi",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeFiscal</title>\n    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->\n",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        }
+      ]
+    ]
+  },
+  {
+    "target": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolicy=\"auto\" aria-label=\"Код от имейл\" class=\"css-11aywtz r-6taxm2 r-16y2uox r-crgep1\" data-testid=\"admin-login-code\" value=\"\" style=\"--placeholderTextColor: transparent; height: 56px; padding: 0px 16px; font-family: Roboto_400Regular; letter-spacing: 0.15px; line-height: 19.2",
+    "stacks": [
+      [
+        {
+          "html": "<span style=\"position: absolute; pointer-events: none; background-color: rgba(255, 255, 255, 0.12); border-radius: 50%; transition-duration: 250ms; transition-timing-function: linear; transform-origin: center center; transform: translate3d(-50%, -50%, 0px) scale3d(1, 1, 1); opacity: 0; left: 147px; top: 24px; width: 588px; height: 588px;\"></span>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "auto",
+          "position": "absolute"
+        },
+        {
+          "html": "<input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolicy=\"auto\" aria-label=\"Код от имейл\" class=\"css-11aywtz r-6taxm2 r-16y2uox r-crgep1\" data-testid=\"admin-login-code\" value=\"\" style=\"--placeholderTextColor: transparent; height: 56px; padding: 0px 16px; font-family: Roboto_400Regular; letter-spacing: 0.15px; line-height: 19.2",
+          "same": true,
+          "inside": true,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-16y2uox r-1mdbw0j\" style=\"padding-top: 0px; min-height: 56px;\"><input autocapitalize=\"sentences\" autocomplete=\"on\" autocorrect=\"on\" dir=\"auto\" rows=\"1\" spellcheck=\"true\" virtualkeyboardpolicy=\"auto\" aria-label=\"Код от имейл\" class=\"css-11aywtz r-6taxm2 r-16y2uox r-crgep1\" data-testid=\"admin-login-code\" value=\"\" style=\"--placeholderTextColor: transparent; height: 56px; padd",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao\" data-testid=\"text-input-outline\" style=\"background-color: rgb(247, 245, 249); border-radius: 4px; border-width: 1px; border-color: rgb(111, 104, 116);\"></div>",
+          "same": false,
+          "inside": false,
+          "ancestor": false,
+          "zIndex": "0",
+          "position": "absolute"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1p0dtai r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-633pao\" data-testid=\"text-input-outline\" style=\"background-color: rgb(247, 245, 249); border-radius: 4px; border-width: 1px; border-color: rgb(111, 104, 116);\"></div><div class=\"css-g5y9jx r-16y2uox r-1mdbw0j\" style=\"padding-top: 0px; min-height: 56px;\"><input autocapitalize=\"sentences\" autocomplete=\"on\"",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"gap: 4px; min-width: 0px;\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" data-testid=\"admin-login-code.label\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Код от имейл</div><div class=\"css-g5y9jx\"><div class=\"css-g5y9jx r-1p0dtai r-1d2f490 r",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"dire",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 32px; font-size: 24px;\">BeeFiscal • административен вход</h1><di",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgb(255, 251, 255);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: 16px; padding-top: 24px; padding-bottom: 24px;\"><h1 dir=\"auto\" role=\"heading\" class=\"css-146c3p1 r-fdjqy7\" style=\"direc",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116); background-color: rgb(255, 251, 255);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a\" style=\"gap: ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding: 16px; flex-grow: 1; justify-content: center;\"><div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card-container\" style=\"border-radius: 12px; border-width: 1px; border-color: rgb(111, 104, 116);",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\"><div class=\"css-g5y9jx\" style=\"width: 100%; max-width: 1440px; align-self: center; padding: 16px; flex-grow: 1; justify-content: center;\"><div class=\"css-g5y9jx\" data-testid=\"admin-login\" style=\"gap: 12px; width: 100%; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"card",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-105ug2t\" data-testid=\"auth.language.open-conta",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><div class=\"css-g5y9jx r-1phboty r-1q8sk3r r-",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justify-content: flex-end; gap: 8px;\"><",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y9jx\" style=\"flex-flow: wrap; justi",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div class=\"css-g5y",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "0",
+          "position": "relative"
+        },
+        {
+          "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx\" data-testid=\"auth.root\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249); padding: 0px;\"><div class=\"css-g5y9jx\" style=\"padding-right: 16px; padding-left: 16px; padding-top: 8px; gap: 8px;\"><div",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" style=\"flex: 1 ",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        },
+        {
+          "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeFiscal</title>\n    <!-- The `react-native-web` recommended style reset: https://necolas.github.io/react-native-web/docs/setup/#root-element -->\n",
+          "same": false,
+          "inside": false,
+          "ancestor": true,
+          "zIndex": "auto",
+          "position": "static"
+        }
+      ]
+    ]
+  }
+]

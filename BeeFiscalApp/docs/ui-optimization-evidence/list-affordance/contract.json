@@ -1,0 +1,22 @@
+{
+  "status": "IN_PROGRESS",
+  "sourceSha256": {
+    "App.tsx": "4c3f744b83afbab3c13cc708c08fb1a2cf390394f347a6764b6c7150eb0a9bd0",
+    "src/components/FiscalControls.tsx": "b0bdfe9ec554c19c53f9a5aaa9a765782d5b45697e564ac9fda02459b0cf4140",
+    "src/screens/DevicesScreen.tsx": "ef275985428b36d0ddc03cdd29e5b95c1507881cb53943aaf9f4a94d149f0a8c",
+    "src/ui/LanguageThemeControls.tsx": "27d90532d8016590696b61bdd33b08b9df0e631e9b9c74bc4279f4c8ac2265da",
+    "src/ui/feedback.tsx": "6778bf5ac2018a2af851656685a1ee4e6ebef3294ef8b49d9978a2e3be5148e9"
+  },
+  "change": "Persistent theme outline frame on genuine Paper Drawer.Item, selectable List.Item devices/references/choices/languages; actual Paper alert Buttons outlined. Existing handlers unchanged.",
+  "verification": {
+    "functional": "62 PASS; six device frame/solid/nontransparent/48height/Enter-selection assertions xs/md/lg light/dark; shell language option frame/height and selection/scroll/persistence",
+    "types": "PASS",
+    "staticUI": "PASS"
+  },
+  "limits": [
+    "Reference/Choices/nav/alert frames source inspected only; dedicated geometry/keyboard/visual evidence required",
+    "Strict WCAG reports before this source edit are historical; refresh required",
+    "Nontext/focus contrast not adjudicated",
+    "Native/manual/200%/all25/full11 criteria open"
+  ]
+}

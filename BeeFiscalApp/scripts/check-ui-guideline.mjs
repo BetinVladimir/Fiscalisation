@@ -2,7 +2,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const ignored = new Set(['node_modules', '.git', '.expo', '.store-build', 'dist', 'dist-cloudflare', 'coverage', 'dist-web', '__tests__', 'test', 'scripts']);
+const ignored = new Set(['node_modules', '.git', '.expo', '.store-build', 'dist', 'dist-cloudflare', 'coverage', 'dist-web', 'playwright-report', 'test-results', '__tests__', 'test', 'scripts']);
 const forbiddenNative = new Set(['Alert', 'ActivityIndicator', 'Dimensions', 'Pressable', 'SafeAreaView', 'ScrollView', 'Text', 'TextInput', 'TouchableOpacity']);
 const failures = [];
 
@@ -19,6 +19,10 @@ function walk(directory) {
     if (relative.startsWith(path.join('src', 'ui'))) continue;
     const source = fs.readFileSync(absolute, 'utf8');
     const withoutComments = source.replace(/\/\*[\s\S]*?\*\//g, '').replace(/\/\/.*$/gm, '');
+
+    if (relative === 'App.tsx' && /(?:AppPressable|AppText|FormField|<Pressable\b|<Text\b|<TextInput\b)/.test(withoutComments)) {
+      failures.push('App.tsx: interactive and text leaves must use actual Paper components');
+    }
 
     if (/Dimensions\.get\s*\(/.test(withoutComments)) failures.push(`${relative}: use useWindowDimensions/useResponsiveLayout instead of Dimensions.get`);
     if (/#[0-9a-f]{3,8}\b/i.test(withoutComments)) failures.push(`${relative}: move hard-coded colors to semantic UI tokens`);
@@ -44,12 +48,22 @@ for (const required of ['src/ui/provider.tsx', 'src/ui/theme.ts', 'src/ui/respon
 
 const providerSource = fs.readFileSync(path.join(root, 'src/ui/provider.tsx'), 'utf8');
 const themeSource = fs.readFileSync(path.join(root, 'src/ui/theme.ts'), 'utf8');
+const themeReexport=themeSource.match(/from ['"]([^'"]*shared-ui\/src\/theme\/paper)['"]/);
+const themeCheckSource=themeReexport?fs.readFileSync(themeReexport[1].startsWith('.')?path.resolve(root,'src/ui',themeReexport[1]+'.ts'):path.resolve(root,'../shared-ui/src/theme/paper.ts'),'utf8'):themeSource;
 const pressableSource = fs.readFileSync(path.join(root, 'src/ui/app-pressable.tsx'), 'utf8');
+const appSource = fs.readFileSync(path.join(root, 'App.tsx'), 'utf8');
+const devicesSource = fs.readFileSync(path.join(root, 'src/screens/DevicesScreen.tsx'), 'utf8');
+const administrationSource = fs.readFileSync(path.join(root, 'src/screens/AdministrationScreen.tsx'), 'utf8');
+const controlsSource = fs.readFileSync(path.join(root, 'src/components/FiscalControls.tsx'), 'utf8');
+if (!appSource.includes('<DevicesScreen') || appSource.includes('testID="device-control-plane"')) failures.push('App.tsx: device branch must delegate to DevicesScreen');
+if (!appSource.includes('<AdministrationScreen') || appSource.includes('testID="admin-editors"')) failures.push('App.tsx: administration branch must delegate to AdministrationScreen');
+if (!devicesSource.includes("from 'react-native-paper'") || !controlsSource.includes("from 'react-native-paper'")) failures.push('DevicesScreen/FiscalControls: actual Paper components are required');
+if (!administrationSource.includes("from 'react-native-paper'")) failures.push('AdministrationScreen: actual Paper components are required');
 if (!providerSource.includes('PaperProvider')) failures.push('src/ui/provider.tsx: PaperProvider is required at the app root');
-if (!themeSource.includes('MD3LightTheme') || !themeSource.includes('MD3DarkTheme')) failures.push('src/ui/theme.ts: both standard Paper MD3 light and dark themes are required');
+if (!themeCheckSource.includes('MD3LightTheme') || !themeCheckSource.includes('MD3DarkTheme')) failures.push('src/ui/theme.ts: both standard Paper MD3 light and dark themes are required');
 if (!pressableSource.includes('TouchableRipple') || /import\s*\{[^}]*Pressable[^}]*\}\s*from\s*['"]react-native['"]/.test(pressableSource)) failures.push('src/ui/app-pressable.tsx: use Paper TouchableRipple instead of native Pressable');
 
-if (!themeSource.includes('lightColors') || !themeSource.includes('darkColors')) {
+if (!themeCheckSource.includes('lightColors') || !themeCheckSource.includes('darkColors')) {
   failures.push('src/ui/theme.ts: the approved high-contrast Paper palettes are required for both themes');
 }
 
@@ -58,4 +72,3 @@ if (failures.length) {
   process.exit(1);
 }
 console.log('UI guideline static check passed');
-

@@ -1,0 +1,12 @@
+{
+  "scans": 6,
+  "violations": 0,
+  "incomplete": {
+    "aria-valid-attr-value": 6,
+    "color-contrast": 138
+  },
+  "status": "INCOMPLETE",
+  "command": "npx playwright test --config playwright.auth-wcag.config.ts --grep language list",
+  "bundle": "AppEntry-272f577ec7e6cde795e509ac44997088.js",
+  "sourceSha256": "2da8b6180d6cde13f6560dbc7f701870fa9eb754b5f985e00d5817a196df3d6d"
+}

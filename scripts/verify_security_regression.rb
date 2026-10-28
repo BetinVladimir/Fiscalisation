@@ -4,6 +4,8 @@ require 'json'
 root = File.expand_path('..', __dir__)
 cases = JSON.parse(File.read(File.join(root, 'contracts/security-regression-matrix.json'))).fetch('cases')
 abort 'security matrix must contain at least 18 executable cases' if cases.length < 18
+open_cases = cases.select { |item| item['status'] == 'OPEN' }
+abort "S3 behavioral evidence OPEN: #{open_cases.map { |item| item['id'] }.join(', ')}" unless open_cases.empty?
 ids = cases.map { |item| item.fetch('id') }
 abort 'duplicate security IDs' unless ids.uniq.length == ids.length
 required = %w[authentication authorization webhook ssrf replay revoke rate_limit idempotency production_guard secret_rotation ota supply_chain]

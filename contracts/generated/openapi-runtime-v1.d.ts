@@ -4,6 +4,147 @@
  */
 
 export interface paths {
+    "/minipos/orders/{order_id}/lines/{line_id}": {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                order_id: components["parameters"]["OrderId"];
+                line_id: components["parameters"]["LineId"];
+            };
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post?: never;
+        /** @description Remove an owned source line before fiscal preparation. Exact version and editable state checked atomically; no financial side effects. */
+        delete: operations["deleteMiniPosSourceOrderLine"];
+        options?: never;
+        head?: never;
+        /** @description Owned source order only. Requires current version and an editable, never-prepared order; nonzero discounts require SUPERVISOR or ADMIN. */
+        patch: operations["updateMiniPosSourceOrderLine"];
+        trace?: never;
+    };
+    "/payment-reconciliations:bind-administrator": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Explicit ADMIN mapping for delegated bank decision authority; never inferred from sale authority. */
+        post: operations["bindReconciliationAdministrator"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/minipos/payment-reconciliations:authorize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description Requires authenticated and persisted source ADMIN, active caller-owned app session/shift, explicit root delegation capability and persisted root ADMIN mapping. Does not prove fiscalization. */
+        post: operations["authorizeMiniPosPaymentReconciliation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/payment-reconciliations:authorize": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** @description ADMIN only. Exact durable-row bank decision; does not prove fiscalization or release unresolved terminal claims. */
+        post: operations["authorizePaymentReconciliation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/execution-authorizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["issueExecutionAuthorization"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/operators:bind-identity": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["bindOperatorActorIdentity"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/devices/{device_id}/provisioning-deliveries": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["prepareEncryptedProvisioningDelivery"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/devices/{device_id}/provisioning-deliveries/{delivery_id}:confirm": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["confirmEncryptedProvisioningInstallation"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/registers/{register_id}/composite-bindings": {
         parameters: {
             query?: never;
@@ -347,7 +488,7 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
-    "/operations/{operation_id}:reconcile": {
+    "/operations/{operation_id}/reconcile": {
         parameters: {
             query?: never;
             header?: never;
@@ -678,6 +819,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/minipos/execution-authorizations:dispatch": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        post: operations["dispatchMiniPosPreparedExecution"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/minipos/execution-authorizations": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Returns fiscal identity namespace for an authenticated caller-owned active session and open shift; grants no execution authority. */
+        get: operations["getMiniPosExecutionIdentity"];
+        put?: never;
+        /** @description Issues a root-signed P256-client-bound authorization via an explicitly privileged tenant/source integration credential and ADMIN-configured namespaced actor mapping. */
+        post: operations["issueMiniPosExecutionAuthorization"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/minipos/fiscal-local-tokens": {
         parameters: {
             query?: never;
@@ -813,6 +988,40 @@ export interface paths {
         patch?: never;
         trace?: never;
     };
+    "/minipos/orders/{order_id}/recovery": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read-only recovery capability from persisted source association, authorized by tenant, shift actor and active operator session. READ never authorizes prepare, dispatch or payment retry; an absent association remains refreshable without a fabricated client grant. */
+        get: operations["getMiniPosOrderRecoveryPermission"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/minipos/orders/{order_id}/operations/{client_operation_id}": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** @description Read-only recovery of the original checkout operation, authorized by order tenant and shift actor. Lookup errors or missing association never permit resubmission. */
+        get: operations["getMiniPosCheckoutOperation"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/minipos/orders/{order_id}/checkout-batch": {
         parameters: {
             query?: never;
@@ -857,71 +1066,6 @@ export interface paths {
         get?: never;
         put?: never;
         post: operations["receiveFiscalWebhookAtMiniPos"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/internal/v1/final-device": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["probeFinalDeviceForHIL"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/internal/v1/commands": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        post: operations["executeCanonicalEdgeCommandForHIL"];
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/internal/v1/storage": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get: operations["getEdgeStorageStatusForHIL"];
-        put?: never;
-        post?: never;
-        delete?: never;
-        options?: never;
-        head?: never;
-        patch?: never;
-        trace?: never;
-    };
-    "/local/v1/intents": {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        get?: never;
-        put?: never;
-        /** @description Loopback-only POS intent surface with the same server-owned sale semantics as the cloud gateway. It never accepts a vendor fiscal command or a caller-generated regulatory identifier. */
-        post: operations["executeLocalComplianceIntent"];
         delete?: never;
         options?: never;
         head?: never;
@@ -1462,7 +1606,7 @@ export interface components {
         };
         PeriodizedComplianceExportRequest: {
             /** @enum {string} */
-            type: "SUPTO_18_1" | "SUPTO_18_2" | "SUPTO_18_3" | "SUPTO_18_4" | "SUPTO_18_5" | "SUPTO_18_9" | "KLEN" | "FISCAL_MEMORY";
+            type: "SUPTO_18_1" | "SUPTO_18_2" | "SUPTO_18_3" | "SUPTO_18_4" | "SUPTO_18_5" | "SUPTO_18_6" | "SUPTO_18_7" | "SUPTO_18_8" | "SUPTO_18_9" | "KLEN" | "FISCAL_MEMORY";
             /**
              * Format: date-time
              * @description Inclusive interval start
@@ -1565,6 +1709,49 @@ export interface components {
             status: "ACTIVE";
         } & {
             [key: string]: unknown;
+        };
+        MiniPosExecutionIdentity: {
+            tenant_id: string;
+            actor_subject: string;
+            source_session_id: string;
+            app_instance_id: string;
+        };
+        MiniPosExecutionAuthorizationRequest: {
+            /** Format: uuid */
+            shift_id: string;
+            client_signing_public_key_der_base64: string;
+            /** Format: uuid */
+            order_id?: string;
+            payments?: components["schemas"]["MiniPosOfflinePayment"][];
+        };
+        MiniPosExecutionAuthorizationResponse: {
+            authorization: {
+                /** @constant */
+                algorithm: "ES256_DER";
+                key_id: string;
+                payload: string;
+                sha256: string;
+                signature: string;
+            };
+            workstation_session: {
+                /** Format: uuid */
+                session_id: string;
+                tenant_id: string;
+                workstation_id: string;
+                operator_id: string;
+                operator_code: string;
+                app_instance_id: string;
+                /** Format: date-time */
+                expires_at: string;
+                /** Format: date-time */
+                created_at: string;
+            };
+            transport_token: string;
+            /** Format: date-time */
+            transport_token_expires_at: string;
+            canonical_payload?: {
+                [key: string]: unknown;
+            };
         };
         MiniPosOperatorSession: {
             /** @constant */
@@ -1719,7 +1906,39 @@ export interface components {
             /** @enum {string} */
             terminal_policy?: "REQUIRED" | "AUTO_IF_AVAILABLE" | "NONE";
         };
+        MiniPosEditableOrder: components["schemas"]["MiniPosOrderRuntimeState"] & {
+            external_id: string;
+            /** Format: uuid */
+            shift_id: string;
+            lines: components["schemas"]["MiniPosOfflineLine"][];
+            total: components["schemas"]["Money"];
+        };
+        MiniPosOrderRecoveryPermission: {
+            order_id: string;
+            shift_id: string;
+            register_id: string;
+            operator_code: string;
+            external_id: string;
+            order_version: number;
+            state: string;
+            allowed_actions: "READ"[];
+            client_operation_id: string;
+            receipt_session_id: string;
+            fiscal_sale_id: string;
+            fiscal_register_id: string;
+        };
         MiniPosOrderRuntimeState: {
+            checkout_confirmation?: components["schemas"]["MiniPosCheckoutConfirmation"];
+            shift_id?: string;
+            register_id?: string;
+            operator_code?: string;
+            external_id?: string;
+            fiscal_sale_id?: string;
+            fiscal_operation_id?: string;
+            checkout_operation_id?: string;
+            receipt_session_id?: string;
+            fiscal_version?: number;
+            total?: components["schemas"]["Money"];
             /** Format: uuid */
             id: string;
             /** @enum {string} */
@@ -1729,6 +1948,13 @@ export interface components {
             allowed_actions: ("ADD_LINE" | "CHECKOUT" | "READ" | "RECEIPT" | "REVERSE")[];
         } & {
             [key: string]: unknown;
+        };
+        /** @description Safe commitment to the immutable server-prepared tender plan. Private payment and execution authorization fields remain redacted. Digest is lowercase SHA256 of canonical UTF-8 JSON of the ordered normalized payment array; each item includes type and amount (amount/currency), with nonempty payment_id and terminal_policy only. No provider/card metadata is included. */
+        MiniPosCheckoutConfirmation: {
+            /** @constant */
+            version: 1;
+            root_register_id: string;
+            payments_sha256: string;
         };
         MiniPosTender: {
             /** Format: uuid */
@@ -2004,6 +2230,389 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    deleteMiniPosSourceOrderLine: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                order_id: components["parameters"]["OrderId"];
+                line_id: components["parameters"]["LineId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Updated source order */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosEditableOrder"];
+                };
+            };
+            409: components["responses"]["Problem"];
+            428: components["responses"]["Problem"];
+        };
+    };
+    updateMiniPosSourceOrderLine: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+                "If-Match": components["parameters"]["IfMatch"];
+            };
+            path: {
+                order_id: components["parameters"]["OrderId"];
+                line_id: components["parameters"]["LineId"];
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MiniPosOfflineLine"];
+            };
+        };
+        responses: {
+            /** @description Updated source order */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosEditableOrder"];
+                };
+            };
+            403: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            428: components["responses"]["Problem"];
+        };
+    };
+    bindReconciliationAdministrator: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    operator_id: string;
+                    external_system_id: string;
+                    source_operator_id: string;
+                    identity_issuer: string;
+                    identity_subject: string;
+                    enabled: boolean;
+                    expected_version: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Administrator mapping persisted */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description ADMIN required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Mapping identity or version conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    authorizeMiniPosPaymentReconciliation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    shift_id: string;
+                    decision: {
+                        operation_id: string;
+                        payment_id: string;
+                        /** @enum {string} */
+                        observed_state: "CARD_APPROVED" | "CARD_DECLINED" | "CARD_NOT_SENT" | "REVERSED" | "REVERSAL_FAILED";
+                        terminal_reference?: string;
+                        rrn?: string;
+                        auth_code?: string;
+                        reversal_reference?: string;
+                        reversal_rrn?: string;
+                        reversal_auth_code?: string;
+                        evidence_reference: string;
+                        evidence_sha256: string;
+                    };
+                };
+            };
+        };
+        responses: {
+            /** @description Signed single-use decision capability */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        command: "PAYMENT_RECONCILE";
+                        /** Format: uuid */
+                        client_operation_id: string;
+                        reconciliation_authorization: {
+                            algorithm: string;
+                            key_id: string;
+                            payload: string;
+                            sha256: string;
+                            signature: string;
+                        };
+                    };
+                };
+            };
+            /** @description Caller session inactive */
+            401: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Administrator authority denied */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    authorizePaymentReconciliation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    operation_id: string;
+                    payment_id: string;
+                    /** @enum {string} */
+                    observed_state: "CARD_APPROVED" | "CARD_DECLINED" | "CARD_NOT_SENT" | "REVERSED" | "REVERSAL_FAILED";
+                    terminal_reference?: string;
+                    rrn?: string;
+                    auth_code?: string;
+                    reversal_reference?: string;
+                    reversal_rrn?: string;
+                    reversal_auth_code?: string;
+                    evidence_reference: string;
+                    evidence_sha256: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Signed single-use decision capability */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        command: "PAYMENT_RECONCILE";
+                        /** Format: uuid */
+                        client_operation_id: string;
+                        reconciliation_authorization: {
+                            algorithm: string;
+                            key_id: string;
+                            payload: string;
+                            sha256: string;
+                            signature: string;
+                        };
+                    };
+                };
+            };
+            /** @description ADMIN required */
+            403: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Snapshot or evidence conflict */
+            409: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    issueExecutionAuthorization: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    workstation_session_id: string;
+                    client_signing_public_key_der_base64: string;
+                    server_sale_id?: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful authenticated operation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        algorithm: "ES256_DER";
+                        key_id: string;
+                        payload: string;
+                        sha256: string;
+                        signature: string;
+                    };
+                };
+            };
+        };
+    };
+    bindOperatorActorIdentity: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    operator_id: string;
+                    actor_subject: string;
+                    expected_version: number;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful authenticated operation */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    prepareEncryptedProvisioningDelivery: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                device_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    binding_id: string;
+                    setup_nonce: string;
+                    ssid: string;
+                    wifi_password: string;
+                    fiscal_password: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful authenticated operation */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** Format: uuid */
+                        delivery_id: string;
+                        package_base64: string;
+                        package_sha256: string;
+                        binding_sha256: string;
+                        generation: number;
+                        /** @constant */
+                        state: "ISSUED";
+                    };
+                };
+            };
+        };
+    };
+    confirmEncryptedProvisioningInstallation: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path: {
+                device_id: string;
+                delivery_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** @constant */
+                    state: "INSTALLED";
+                    device_kid: string;
+                    binding_sha256: string;
+                    package_sha256: string;
+                    generation: number;
+                    signature: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Successful authenticated operation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": {
+                        /** @constant */
+                        state: "INSTALLED";
+                        /** Format: uuid */
+                        binding_id: string;
+                        binding_sha256: string;
+                        generation: number;
+                    };
+                };
+            };
+        };
+    };
     listCompositeDeviceBindings: {
         parameters: {
             query?: never;
@@ -3286,6 +3895,101 @@ export interface operations {
             503: components["responses"]["Problem"];
         };
     };
+    dispatchMiniPosPreparedExecution: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "X-App-Instance-Id": components["parameters"]["AppInstanceId"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": {
+                    /** Format: uuid */
+                    order_id: string;
+                };
+            };
+        };
+        responses: {
+            /** @description Exact prepared operation dispatched through the durable MQTT outbox */
+            202: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosFiscalOperation"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+        };
+    };
+    getMiniPosExecutionIdentity: {
+        parameters: {
+            query: {
+                shift_id: string;
+            };
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "X-App-Instance-Id": components["parameters"]["AppInstanceId"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Server-derived source session and fiscal identity namespace */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosExecutionIdentity"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+        };
+    };
+    issueMiniPosExecutionAuthorization: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+                "X-App-Instance-Id": components["parameters"]["AppInstanceId"];
+                /** @description Stable caller idempotency key. Fiscal sale mutations additionally require the MiniPOS-generated UUID client_operation_id profile. */
+                "Idempotency-Key": components["parameters"]["IdempotencyKey"];
+            };
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["MiniPosExecutionAuthorizationRequest"];
+            };
+        };
+        responses: {
+            /** @description Immutable root authorization and caller-owned fiscal workstation session */
+            201: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosExecutionAuthorizationResponse"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+        };
+    };
     issueMiniPosLocalFiscalToken: {
         parameters: {
             query?: never;
@@ -3581,6 +4285,64 @@ export interface operations {
             404: components["responses"]["Problem"];
         };
     };
+    getMiniPosOrderRecoveryPermission: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path: {
+                order_id: components["parameters"]["OrderId"];
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Bound recovery read permission, including terminal orders awaiting client journal confirmation */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosOrderRecoveryPermission"];
+                };
+            };
+            401: components["responses"]["Problem"];
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
+        };
+    };
+    getMiniPosCheckoutOperation: {
+        parameters: {
+            query?: never;
+            header: {
+                "X-Api-Version": components["parameters"]["ApiVersion"];
+            };
+            path: {
+                order_id: components["parameters"]["OrderId"];
+                client_operation_id: string;
+            };
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Associated operation fetched with the company's Fiscal credential */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["MiniPosFiscalOperation"];
+                };
+            };
+            403: components["responses"]["Problem"];
+            404: components["responses"]["Problem"];
+            409: components["responses"]["Problem"];
+            502: components["responses"]["Problem"];
+            503: components["responses"]["Problem"];
+        };
+    };
     checkoutMiniPosOrderBatch: {
         parameters: {
             query?: never;
@@ -3675,108 +4437,6 @@ export interface operations {
             };
             401: components["responses"]["Problem"];
             409: components["responses"]["Problem"];
-        };
-    };
-    probeFinalDeviceForHIL: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description Final device is reachable */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DeviceProbeResult"];
-                };
-            };
-            /** @description Final device is unavailable; fiscal sale must be blocked */
-            503: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["DeviceProbeResult"];
-                };
-            };
-        };
-    };
-    executeCanonicalEdgeCommandForHIL: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["EdgeRuntimeCommand"];
-            };
-        };
-        responses: {
-            /** @description Durable command result or replayed terminal result */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EdgeRuntimeResult"];
-                };
-            };
-            409: components["responses"]["Problem"];
-            422: components["responses"]["Problem"];
-        };
-    };
-    getEdgeStorageStatusForHIL: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody?: never;
-        responses: {
-            /** @description SQLite durable-media occupancy and threshold state */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["EdgeStorageStatus"];
-                };
-            };
-            503: components["responses"]["Problem"];
-        };
-    };
-    executeLocalComplianceIntent: {
-        parameters: {
-            query?: never;
-            header?: never;
-            path?: never;
-            cookie?: never;
-        };
-        requestBody: {
-            content: {
-                "application/json": components["schemas"]["ComplianceIntent"];
-            };
-        };
-        responses: {
-            /** @description Durable local result or idempotently replayed result */
-            200: {
-                headers: {
-                    [name: string]: unknown;
-                };
-                content: {
-                    "application/json": components["schemas"]["ComplianceIntentResult"];
-                };
-            };
-            409: components["responses"]["Problem"];
-            422: components["responses"]["Problem"];
         };
     };
     listMiniPosTaxGroups: {

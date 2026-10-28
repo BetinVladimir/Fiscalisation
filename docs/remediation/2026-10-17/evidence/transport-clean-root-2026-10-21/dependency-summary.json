@@ -1,0 +1,10 @@
+{
+  "registry_entries": 109,
+  "package_sha256": "4212cc877d645fceca861baa12a5ba601811170168c2fb7f779219fd1b3c9924",
+  "lock_sha256": "8e494d6864a7fa90489144bd62442d9985db77a84207eaa261615de2fb78286e",
+  "origins_sha256": "9b7b302556f4906ee0f1b91d56aeaedd68a85f6079532b06356ce274ea24eaa4",
+  "installed": {
+    "count": 55,
+    "sha256": "7839e85299357c6488c73de107870cefc2b9a2c5eecac469b7a6d29b55f6a771"
+  }
+}

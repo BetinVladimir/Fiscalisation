@@ -1,0 +1,12 @@
+{
+  "source": "src/screens/AuditScreen.tsx",
+  "sha256": "215933c69386c2939c51d8a1dd6e8f3ef37187320a00fa0f686cc417cac426b5",
+  "case": "AuditEventCard expand/collapse action text-only to actualPaperButtonoutlined,minHeight48,wrappinglabel. Existing eventfields/hash/filtercallbacks/localexpanded/labels unchanged.",
+  "baseline": "62functionalPASS;newframeassert6FAIL beforepatch",
+  "verified": "62functionalPASS afterpatch;6xs/md/lg-lightdarkcases frame+48px+sameHashdisclosure/showhide/footerbounds.Typecheck/uiPASS. IsolatedmockAPI,notrealrecords.",
+  "open": [
+    "Paper installedButton overwrites accessibilityState withdisabled;expandedprop retained butnotforwardedproof.Need accessibleexpansion/nativecontract followup.",
+    "Auditcopy all25/200%/focus/nontextcontrast/strictAA/manual/native",
+    "OtherBeeFiscal/app11criteria"
+  ]
+}

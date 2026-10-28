@@ -1,0 +1,73 @@
+python3 -m unittest discover -s IoT/firmware/edge-agent-s3/idf/tests -p 'test_*.py'
+................................
+----------------------------------------------------------------------
+Ran 32 tests in 0.066s
+
+OK
+IoT/firmware/edge-agent-s3/idf/tests/run_native_saga.sh
+receipt saga native fault matrix PASS
+bash IoT/firmware/edge-agent-s3/idf/tests/run_native_mqtt.sh
+actual MQTT runtime host tests: OK
+bash IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh
+actual serial runtime tests: OK
+bash IoT/firmware/edge-agent-s3/idf/tests/run_native_ble.sh
+actual BLE runtime host tests: OK
+sh IoT/firmware/edge-agent-s3/idf/tests/run_storage_host.sh
+recovery-json PASS (actual recovery + SQLite, reopened)
+json-result PASS (actual IntentProcessor + SQLite, reopened)
+checkpoint PASS (actual IntentProcessor + SQLite, reopened)
+outbox PASS (actual IntentProcessor + SQLite, reopened)
+receipt PASS (actual IntentProcessor + SQLite, reopened)
+payment PASS (actual IntentProcessor + SQLite, reopened)
+collision PASS (actual IntentProcessor + SQLite, reopened)
+normal PASS (actual IntentProcessor + SQLite, reopened)
+cards PASS (actual IntentProcessor + SQLite, reopened)
+recovery-outbox PASS (actual recovery + SQLite, reopened)
+recovery-receipt PASS (actual recovery + SQLite, reopened)
+recovery-normal PASS (actual recovery + SQLite, reopened)
+recovery-progress PASS (actual recovery + SQLite, reopened)
+recovery-preserve-cards PASS (actual recovery + SQLite, reopened)
+recovery-storage-error PASS (closed SQLite fails explicitly)
+recovery-missing-receipt PASS (legacy incomplete context fails closed)
+sh IoT/firmware/edge-agent-s3/idf/tests/run_sync_host.sh
+normal PASS (actual sync runtime, durable SQLite restart)
+duplicate PASS (actual sync runtime, durable SQLite restart)
+interleaving PASS (writer queued while ACK holds storage mutex)
+large-sequence PASS
+concurrent-append PASS (concurrent actual SQLite writer/ACK)
+publish-failure PASS (actual sync runtime, durable SQLite restart)
+changed-row PASS (actual sync runtime, durable SQLite restart)
+ack-fault PASS (actual sync runtime, durable SQLite restart)
+delete-fault PASS (actual sync runtime, durable SQLite restart)
+freeze-fault PASS
+IoT/common-modules/daisy/run-tests.sh
+Daisy protocol tests passed
+IoT/common-modules/datecs/run-tests.sh
+Datecs protocol tests passed
+IoT/common-modules/datecspay/run-tests.sh
+Datecs Pay protocol tests passed
+IoT/protocol-abstraction/run-tests.sh
+protocol-abstraction tests: OK
+runtime vendor codec tests: OK
+cd IoT/device-manufacturing && PYTHONPATH=src python3 -m unittest discover -s tests -v
+test_evidence_is_deterministic (test_evidence.EvidenceTest.test_evidence_is_deterministic) ... ok
+test_file_hash (test_evidence.EvidenceTest.test_file_hash) ... ok
+test_actual_cli_passes_verified_segments_and_cleans_staging (test_flash_manifest.FlashManifestTest.test_actual_cli_passes_verified_segments_and_cleans_staging) ... ok
+test_all_partition_entries_respect_vendor_layout_invariants (test_flash_manifest.FlashManifestTest.test_all_partition_entries_respect_vendor_layout_invariants) ... ok
+test_app_only_uses_verified_nonzero_offset (test_flash_manifest.FlashManifestTest.test_app_only_uses_verified_nonzero_offset) ... ok
+test_bad_layout_and_magic (test_flash_manifest.FlashManifestTest.test_bad_layout_and_magic) ... ok
+test_cli_parser_requires_manifest (test_flash_manifest.FlashManifestTest.test_cli_parser_requires_manifest) ... usage: beefiscal-factory flash [-h] --port PORT --manifest MANIFEST
+                               --expected-manifest-sha256
+                               EXPECTED_MANIFEST_SHA256
+beefiscal-factory flash: error: the following arguments are required: --manifest, --expected-manifest-sha256
+ok
+test_duplicates_wrong_kind_and_overlap (test_flash_manifest.FlashManifestTest.test_duplicates_wrong_kind_and_overlap) ... ok
+test_failed_subprocess_cleans_verified_staging (test_flash_manifest.FlashManifestTest.test_failed_subprocess_cleans_verified_staging) ... ok
+test_invalid_offsets (test_flash_manifest.FlashManifestTest.test_invalid_offsets) ... ok
+test_manifest_and_artifact_hash_mismatch (test_flash_manifest.FlashManifestTest.test_manifest_and_artifact_hash_mismatch) ... ok
+test_merged_requires_explicit_zero_and_embedded_layout (test_flash_manifest.FlashManifestTest.test_merged_requires_explicit_zero_and_embedded_layout) ... ok
+
+----------------------------------------------------------------------
+Ran 12 tests in 0.041s
+
+OK

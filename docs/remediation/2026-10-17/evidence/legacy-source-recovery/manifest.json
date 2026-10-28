@@ -1,0 +1,54 @@
+{
+  "kind": "SYNTHETIC_LEGACY_SOURCE_RECOVERY",
+  "baseline_patch_sha256": "7301f8cd2dacfadb89639d26434e7b55141e8439fb064f274237f5379b78f9f5",
+  "files": {
+    "minipos/BeeMiniPOS/App.tsx": {
+      "baseline_sha256": "abc8b9f4078a55e8b1cc1c15bdfd33b4086aeb2713f87859cd32d220be2afceb",
+      "candidate_sha256": "7d98f5fd60a562df47c342dbc754161eda6740a9dcd6eb82aadaf495f85ac473"
+    },
+    "minipos/BeeMiniPOS/src/checkoutJournal.ts": {
+      "baseline_sha256": "22c3b304a31a8b7d0b4b3d9299b3bc5cb3fbc7c482bb2b35b4382ea2f4526167",
+      "candidate_sha256": "805c8bb015f58cf64a51c381773ea2e009bef6681b790cbe68dc8d83e60186dd"
+    },
+    "minipos/BeeMiniPOS/src/legacyCheckoutRecovery.ts": {
+      "baseline_sha256": null,
+      "candidate_sha256": "da13da2beeeb546ab03794e9023e9b4e7ceb1dea851cb32488ddde89c0b6cb4d"
+    },
+    "minipos/BeeMiniPOS/src/legacyCheckoutRecovery.test.ts": {
+      "baseline_sha256": null,
+      "candidate_sha256": "9f658c0549dce412e41d79c4022639fefd354454ce766d9b49dcea97b4cbdeb6"
+    },
+    "minipos/BeeMiniPOS/src/cloudCheckoutApp.test.ts": {
+      "baseline_sha256": "b42549629e01de56998828ce7fd722a729d079c8f1d69dab680de1f224164073",
+      "candidate_sha256": "c25d97a9edcc15c27bb5827d05a03f367c987637a24bd5565d699f2aebb8209b"
+    },
+    "minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx": {
+      "baseline_sha256": "57a787eb2712d4ea2039bb3d14a7d327c619c52b85a945c6afd788b66bcc4467",
+      "candidate_sha256": "4cb2dffed35e1894b2f10b1c92c06326c1a7aca9a4a7137b79fe94aae0291e02"
+    }
+  },
+  "gates": {
+    "node": "234 PASS",
+    "ui": "19 configured suites166 PASS; nested UI discovery parent-owned",
+    "typescript": "PASS",
+    "actual_app_initial_red": "2 FAIL on MP004 baseline missing discovery/export controls",
+    "actual_app_scope_red": "3 FAIL config/operator/operator ABA; auth case PASS on previous legacy implementation",
+    "actual_app_scope_green": "all4 delayed export/retained callback scenarios PASS; minimal financial privacy actual App assertion PASS"
+  },
+  "evidence": {
+    "legacy-app-red.log.gz": "ab74fe718190453db650fed9877b67cb146d9c8404fd8a246b0e57a84053af39",
+    "legacy-ui.log.gz": "7713ba2234fd1274ff2385c06e58c54674e15d3356ce606816be2cc411151a57",
+    "legacy-node-full.log.gz": "b007c308631bbf9d9326199e02cd95fefd2806ccdce6d859f82ef147718062a9",
+    "legacy-ts.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "legacy-scope-node.log.gz": "a64582c8796522d1bc8aef8a6972c827a5adb751b558c23836fba8fb0573c798",
+    "legacy-scope-ui.log.gz": "bba30ff023184b2a37cfe6c105515c023c661279c7b946b3d552b084c8300720",
+    "legacy-scope-ts.log.gz": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+    "legacy-scope-red.log.gz": "5e63e101645e0fd9162f429eaba8dac626c848c3f78828fc4af4dc7acb90546b"
+  },
+  "limitations": [
+    "no signed source anchors => persistent quarantine, no automatic financial resolution",
+    "no physical device/browser acceptance",
+    "source linkage checks require existing owner-scoped server metadata; missing legacy metadata remains unresolved"
+  ],
+  "export_authority": "Committed auth/cloud/recovery/pending journal/full fiscal route and selected operator; global unowned journal exports hash and enum diagnostics only."
+}

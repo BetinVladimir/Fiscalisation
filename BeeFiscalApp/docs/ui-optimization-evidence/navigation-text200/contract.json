@@ -1,0 +1,15 @@
+{
+  "status": "IN_PROGRESS",
+  "sourceSha256": "57d87e14bad98646af5e2f26538b5a585589ce67253a16761a0cbe26f5ebb669",
+  "contexts": 6,
+  "scope": "Three reference/navigation/Choices actions x xs/md/lg x light/dark with CSS fontSize/lineHeight doubled, measured before mutation; not true browser zoom or native DynamicType",
+  "fix": "Genuine Paper List.Item multiline navigation replacing one-line Drawer.Item; header/title/toolbar wrap; scrollable nav constrained190; same routes/handlers",
+  "baseline": "6 FAIL clipped navigation; after multiline md2 FAIL horizontaloverflow; first ScrollView visually consumed halfscreen despite functional PASS; bounded190 corrected and asserted",
+  "final": "6 CSS200 PASS; action labels doubled/not horizontally clipped, frames/focus contrast/keyboard/bounds/no mutation preserved; md-light screenshot visually inspected",
+  "open": [
+    "All other labels including Paper input labels not proven at200",
+    "Full strictAA refresh after production change",
+    "Pixel/native/manual/all25/truezoom/full11 criteria"
+  ],
+  "normalRegression": "69 PASS;types/ui PASS"
+}

@@ -1,0 +1,24 @@
+[WebServer] (node:20715) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 11 tests using 1 worker
+
+(node:20717) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:20717) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 tests/browser/execution-authorization.spec.mjs:9:1 › actual CryptoKey persists, is nonextractable and converges across tabs (869ms)
+  ✓   2 tests/browser/execution-authorization.spec.mjs:22:1 › actual browser P256 PoP DER verifies independently with OpenSSL and binds plan (165ms)
+  ✓   3 tests/browser/execution-authorization.spec.mjs:28:1 › logout fences stale context and issuance cache and does not revive key (112ms)
+  ✓   4 tests/browser/execution-authorization.spec.mjs:33:1 › logout fences a key generation already in flight (71ms)
+Browser-owned root-issued authority fixture: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/browser-authority-A2uTwf/browser-issuer-fixture.json
+  ✓   5 tests/browser/execution-authorization.spec.mjs:37:34 › actual Go root issuer and web builder preserve offline null sale/surrogate (2.3s)
+Browser-owned root-issued authority fixture: /var/folders/zn/16h36p5x7cd4nyt9gsvsy3p40000gp/T/browser-authority-Z2KquI/browser-issuer-fixture.json
+  ✓   6 tests/browser/execution-authorization.spec.mjs:37:34 › actual Go root issuer and web builder preserve server sale/UNP (698ms)
+  ✓   7 tests/browser/execution-authorization.spec.mjs:51:74 › manager lifecycle identity401 preserves only bounded authority or revokes confirmed denial (111ms)
+  ✓   8 tests/browser/execution-authorization.spec.mjs:51:74 › manager lifecycle issuance403 preserves only bounded authority or revokes confirmed denial (104ms)
+  ✓   9 tests/browser/execution-authorization.spec.mjs:51:74 › manager lifecycle network preserves only bounded authority or revokes confirmed denial (102ms)
+  ✓  10 tests/browser/execution-authorization.spec.mjs:51:74 › manager lifecycle 503 preserves only bounded authority or revokes confirmed denial (86ms)
+  ✓  11 tests/browser/execution-authorization.spec.mjs:51:74 › manager lifecycle 409 preserves only bounded authority or revokes confirmed denial (93ms)
+
+  11 passed (6.0s)

@@ -1,0 +1,83 @@
+{
+  "base_commit": "234c13d",
+  "scope": "Full ordinary optimized real App with demo-auth before HTTP update; fresh merged API regressions after HTTP update. Static/native/device/legal acceptance separate.",
+  "source_sha256": {
+    "BeeFiscalApp/App.tsx": "1fd337afc26e7d6a08a2f7c2752d62a787de92536dc0d6d2264c68d995792244",
+    "BeeFiscalApp/src/http.ts": "3f90b5e1ab615bd40661f00238e7dd04ac67ac2326666b2512e6cc43e4203a9d",
+    "BeeFiscalApp/src/http.test.ts": "7069c38e960e384161f6fd3593a1cb42c7e168c0a97d95a7fc0c1ee041413576",
+    "BeeFiscalApp/src/components/FiscalControls.tsx": "be673ae31463f5bda770191fff44bf1ac047f5cf58e8553661242a6bdf8cecc6",
+    "BeeFiscalApp/__tests__/fiscal-control-owner-current.test.tsx": "0c8ecaa092b6ad2d1c0a3cd76399fa51d4ad735a713510fe32c6ec6a6d33a697",
+    "BeeFiscalApp/e2e/action-affordance.spec.ts": "b3805c689cab08acaf8712c2d6d905509507f6af62d4b3514cb83dd8824dbf26",
+    "BeeFiscalApp/e2e/admin-command-ownership.spec.ts": "d08d01977feb266028eadb4f4a280dfc53b39378c824922f4adeaaa4672dfa15",
+    "BeeFiscalApp/e2e/device-command-ownership.spec.ts": "c91868c39a101297058f2bf74abae871a4f69681f0e01987803ce82a9d5447a9",
+    "BeeFiscalApp/e2e/admin-flows.spec.ts": "b309331352e70420d8c80b5dd8b036efc5f44e7c2b0f2e645b5bde41dc65a4cd"
+  },
+  "logs": {
+    "baseline": {
+      "file": "baseline.log.gz",
+      "raw_sha256": "b5024640f2be922a8eb09a7729ca7b9aa774a885892a8c63c5ae002d0e310ac9",
+      "gzip_sha256": "dd6432155d1d8d6621d1c0de78a9915f2f845db6e55c926d09f65cb09b7b152c",
+      "terminal_exit_code": 1
+    },
+    "full-pre-http": {
+      "file": "full-pre-http.log.gz",
+      "raw_sha256": "7c304c088f677f3c21b4b406ce9c15edbcefbe9ee61e25c968a0710400e947d1",
+      "gzip_sha256": "7c5f6d1669111c9f8c9859e7a8f0f4dd7e8d50e66c645612d4197c24ed8f5a3d",
+      "terminal_exit_code": 0
+    },
+    "merged-api": {
+      "file": "merged-api.log.gz",
+      "raw_sha256": "3f817380f39e63e3f8213e2df56b2992745df350940f87aeb5a6aa9be75ab97b",
+      "gzip_sha256": "e213a64f417f3152b52056b6d58f720eeb1f9c0d2fad9f3ca3ebcf3292da3aa1",
+      "terminal_exit_code": 0
+    },
+    "merged-build": {
+      "file": "merged-build.log.gz",
+      "raw_sha256": "539344f3b16df804d7632a179b9584744b6ac1d22ed495918b440f0abb358f97",
+      "gzip_sha256": "66d08f13832421d20ade2635feb70578e0564f6751ff6e186fed00554889ce18",
+      "terminal_exit_code": 0
+    },
+    "merged-node": {
+      "file": "merged-node.log.gz",
+      "raw_sha256": "b154f91b795cb6d925e8e3391c2769f025df52ea328a9e52fef2873a64b25c72",
+      "gzip_sha256": "aa3d4ebbbabf2ec3d70fe46ae9feae52a58a0d9908a02c8cceca397630112129",
+      "terminal_exit_code": 0
+    },
+    "merged-ui": {
+      "file": "merged-ui.log.gz",
+      "raw_sha256": "cabb2abf358e473fcf7ac93dc8eeed478eae0edc5f943183c80ce0369bb01613",
+      "gzip_sha256": "8a7e11a7e8cf2e64f7294ca2caef60236a8539e3f4589fc1c2de96b49c54e711",
+      "terminal_exit_code": 0
+    },
+    "merged-ts": {
+      "file": "merged-ts.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837",
+      "terminal_exit_code": 0
+    },
+    "owner-red": {
+      "file": "owner-red.log.gz",
+      "raw_sha256": "69deeebb0d7e0ec66dde706e2df4a81c8bbdf18aa5732b5a0a775405f06fd2fe",
+      "gzip_sha256": "e7b1e222b2aa9eef5e375889aa045a613df8574a9f6f2e8c143ea4897580d59c",
+      "terminal_exit_code": 1
+    },
+    "owner-green": {
+      "file": "owner-green.log.gz",
+      "raw_sha256": "e53bdd337c6ac08199ca420f87b4cd2fad48847940270b5a4a5c445fbe3dc7f2",
+      "gzip_sha256": "40660a26982cf886d76bbe3cc858c8e0b5d98d0745349f15817d82f1a16a560c",
+      "terminal_exit_code": 0
+    },
+    "provisioning-backend": {
+      "file": "provisioning-backend.log.gz",
+      "raw_sha256": "125f4b2f963ab7fd3470fa5811a147432d706cc38e4753fb9bf24a016e83ca55",
+      "gzip_sha256": "642c727b6f4b5a868c69ab3d62c5e67232e78df3fc6b72007afdfa952a133711",
+      "terminal_exit_code": 0
+    },
+    "provisioning-protocol": {
+      "file": "provisioning-protocol.log.gz",
+      "raw_sha256": "d6b4358df5d4d7d7e80e88da8d94723faddfbe81476fefe7305a458e893a41e5",
+      "gzip_sha256": "af3cf12b7aa664d0ec9a8903a74b78c4def8fcf5dba87ec7e19bc8f79f0fe703",
+      "terminal_exit_code": 0
+    }
+  }
+}

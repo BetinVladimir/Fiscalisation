@@ -1,0 +1,30 @@
+# Functions requiring Invariants/Failure modes/Idempotency/Side effects doc-comments.
+# Format: <relative-path-from-repo-root> <function-name-pattern>
+# One entry per line; lines starting with # are comments.
+
+# fiscal-backend Go domain — money and saga paths
+fiscal-backend/internal/domain/receipt_plan.go receiptMoneyCents
+fiscal-backend/internal/domain/receipt_plan.go ValidateReceiptPlan
+fiscal-backend/internal/domain/service.go finalizeSaleForTenant
+fiscal-backend/internal/domain/service.go reserveFiscalOperation
+fiscal-backend/internal/domain/service.go SyncWorkstationClock
+fiscal-backend/internal/domain/service.go executeReservedFiscalOperation
+fiscal-backend/internal/domain/service.go FinalizeSaleForTenant
+fiscal-backend/internal/domain/service.go CreateSale
+fiscal-backend/internal/domain/service.go reverseForTenant
+fiscal-backend/internal/domain/payment_reconciliation.go IssuePaymentReconciliation
+fiscal-backend/internal/persistence/postgres.go AllocateUNP
+fiscal-backend/internal/domain/exports.go ValidateZTotals
+fiscal-backend/internal/domain/reconciler.go ReconcileOperation
+fiscal-backend/internal/domain/reconciler.go FindStuckOperations
+
+# Kotlin BlueCash — fiscal execution path
+SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt sale
+SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/DatecsProtocol.kt execute
+SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/AndroidJournal.kt append
+SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/AndroidJournal.kt acknowledge
+SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashEngine.kt append
+SmartDevices/bluecash-app/src/main/kotlin/com/beeloy/fiscal/bluecash/BlueCashComplianceIntent.kt execute
+
+# C++ IoT edge agent
+IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp IntentProcessor::execute

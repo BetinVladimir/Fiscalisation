@@ -1,0 +1,21 @@
+{
+  "status": "IN_PROGRESS",
+  "productionCommit": "dc902b6",
+  "contexts": 6,
+  "localeSelections": 150,
+  "textComparisons": 150,
+  "frameComparisons": 300,
+  "minTextRatio": 14.92204805144478,
+  "minFrameRatio": 5.24404507120121,
+  "result": "6scenarios PASS; all25 actual names read canonical preferencesSource literal, no duplicate fixturelocale list; real CSSfont200 metrics, no labelclip, item>=48, list<=225, focused item fits menu viewport, arrows/select/return/persist, zero API mutations/pageerrors/horizontaloverflow;typesPASS",
+  "method": "Computed sRGB/RGBA, reject unsupportedlayers; focus-visible matches measured but fullfocusoutline contrast not added here; CSS200 not actualbrowserzoom/nativeDynamicType",
+  "initialHarness": "Importing native preferences.tsx into Playwright Node failed native Flow typeof parse; read canonical literal without eval instead, appsource unchanged",
+  "testSha256": "9ac76b73087da3e7fe5e747ec622c2780bfb79d3b5c9d0a1703b4b8dc904eed4",
+  "productionSha256": "2da8b6180d6cde13f6560dbc7f701870fa9eb754b5f985e00d5817a196df3d6d",
+  "open": [
+    "Full app translations not proved",
+    "Native/manual/otherbrowsers/realzoom",
+    "6ARIA/138contrast strict incomplete stillopen",
+    "Full11 criteria"
+  ]
+}

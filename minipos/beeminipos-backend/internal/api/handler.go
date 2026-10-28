@@ -2,6 +2,7 @@ package api
 
 import (
 	"bytes"
+	"context"
 	"crypto/hmac"
 	"crypto/sha256"
 	"encoding/base64"
@@ -21,11 +22,17 @@ import (
 	"time"
 )
 
+type fiscalOperationReader interface {
+	GetFiscalOperation(context.Context, string, string) (fiscalintegration.FiscalOperation, error)
+	GetFiscalSale(context.Context, string, string) (fiscalintegration.FiscalSale, error)
+}
 type handler struct {
-	s *domain.Service
-	c config.Config
-	a *emailauth.Service
-	f *fiscalintegration.Client
+	operations fiscalOperationReader
+	execution  fiscalExecutionAuthorizer
+	s          *domain.Service
+	c          config.Config
+	a          *emailauth.Service
+	f          *fiscalintegration.Client
 }
 
 func New(s *domain.Service, c config.Config) http.Handler {
@@ -36,6 +43,10 @@ func NewWithEmailAuth(s *domain.Service, c config.Config, email *emailauth.Servi
 }
 func NewWithIntegrations(s *domain.Service, c config.Config, email *emailauth.Service, fiscal *fiscalintegration.Client) http.Handler {
 	h := &handler{s: s, c: c, a: email, f: fiscal}
+	if fiscal != nil {
+		h.operations = fiscal
+		h.execution = fiscal
+	}
 	m := http.NewServeMux()
 	m.HandleFunc("/livez", h.health)
 	m.HandleFunc("/readyz", h.health)
@@ -60,6 +71,9 @@ func NewWithIntegrations(s *domain.Service, c config.Config, email *emailauth.Se
 	m.HandleFunc("/public/v1/minipos/employees/", h.employee)
 	m.HandleFunc("/public/v1/minipos/operator-session", h.operatorSession)
 	m.HandleFunc("/public/v1/minipos/fiscal-local-tokens", h.localFiscalToken)
+	m.HandleFunc("/public/v1/minipos/execution-authorizations", h.executionAuthorization)
+	m.HandleFunc("/public/v1/minipos/payment-reconciliations:authorize", h.authorizePaymentReconciliation)
+	m.HandleFunc("/public/v1/minipos/execution-authorizations:dispatch", h.dispatchExecutionAuthorization)
 	m.HandleFunc("/public/v1/minipos/fiscal-route-health", h.fiscalRouteHealth)
 	m.HandleFunc("/public/v1/minipos/shifts", h.shifts)
 	m.HandleFunc("/public/v1/minipos/shifts/", h.shift)
@@ -1060,7 +1074,21 @@ func (h *handler) order(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 	p := strings.Split(strings.Trim(r.URL.Path[i+len("/orders/"):], "/"), "/")
+	if len(p) == 2 && p[1] == "recovery" && r.Method == http.MethodGet {
+		h.orderRecovery(w, r, p[0])
+		return
+	}
+
 	if len(p) > 0 && !h.authorizeOrder(w, r, p[0]) {
+		return
+	}
+	if len(p) == 3 && p[1] == "lines" && (r.Method == http.MethodPatch || r.Method == http.MethodDelete) {
+		h.mutateNativeOrderLine(w, r, p[0], p[2])
+		return
+	}
+
+	if len(p) == 3 && p[1] == "operations" && r.Method == http.MethodGet {
+		h.orderOperation(w, r, p[0], p[2])
 		return
 	}
 	if len(p) == 1 && r.Method == "GET" {
@@ -1251,6 +1279,25 @@ func publicOrder(order domain.Order) map[string]any {
 	result := map[string]any{}
 	_ = json.Unmarshal(raw, &result)
 	delete(result, "payments")
+	delete(result, "fiscal_register_id")
+	delete(result, "execution_authorization_id")
+	// Expose a commitment to the prepared tender plan, never its private fields.
+	if order.FiscalRegisterID != "" && order.CheckoutOperationID != "" && len(order.Payments) > 0 {
+		payments := make([]map[string]any, 0, len(order.Payments))
+		for _, payment := range order.Payments {
+			item := map[string]any{"type": payment.Type, "amount": map[string]string{"amount": payment.Amount.Amount, "currency": payment.Amount.Currency}}
+			if payment.PaymentID != "" {
+				item["payment_id"] = payment.PaymentID
+			}
+			if payment.TerminalPolicy != "" {
+				item["terminal_policy"] = payment.TerminalPolicy
+			}
+			payments = append(payments, item)
+		}
+		encoded, _ := json.Marshal(payments)
+		digest := sha256.Sum256(encoded)
+		result["checkout_confirmation"] = map[string]any{"version": 1, "root_register_id": order.FiscalRegisterID, "payments_sha256": hex.EncodeToString(digest[:])}
+	}
 	return result
 }
 func problem(w http.ResponseWriter, s int, d string) {
@@ -1362,7 +1409,7 @@ func cors(allowed string, next http.Handler) http.Handler {
 				w.Header().Set("Vary", "Origin")
 			}
 			w.Header().Set("Access-Control-Allow-Headers", "Authorization, Content-Type, Idempotency-Key, If-Match, X-Api-Version, X-App-Instance-Id")
-			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, OPTIONS")
+			w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PATCH, DELETE, OPTIONS")
 		}
 		if r.Method == "OPTIONS" {
 			if !wildcard && (origin == "" || !set[origin]) {

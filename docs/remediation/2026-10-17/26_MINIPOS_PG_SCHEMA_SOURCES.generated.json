@@ -1,0 +1,25 @@
+{
+  "scope": "Original migration inputs for disposable PostgreSQL16.10 minipos namespace fixture; pre-022 DDL mapped only by reviewed fixture preparer; not external BeeloyDB migration acceptance",
+  "sha256": {
+    "database/minipos/001_init.sql": "654c8ec0c50d2c0df10a8d9447bdbb76270021e089d8cc4224d2e63567ced7de",
+    "database/minipos/002_tenant_rls.sql": "f7dc3ee706d92dd3122e0e8fa88b1504f6827ec9e731e042a0f241660114adc6",
+    "database/minipos/003_runtime_typed.sql": "085fc20a3e32ff7291a4e1fbf5f41211d356de76efa28141c9d29b7df2dab44f",
+    "database/minipos/004_product_barcode.sql": "bacd9ab475e2d510d0c2a2d624e7f7352e548aa02c98b50ac3254ebe17318496",
+    "database/minipos/004_runtime_login.sh": "41bd3319185fbecadd300283e0b2286ccbe70ed1a525aed666588b4b0057e489",
+    "database/minipos/005_shift_z_report.sql": "5dc3334fdfa5c96ca6558061dfbadccc7e07ab01b8a0d921d66d730d5951f6fa",
+    "database/minipos/005_typed_only_runtime.sql": "1d77db6a5c15b81c6e989f09513993e773e64f007924a2c10ce7026f19a86d10",
+    "database/minipos/006_operator_identity.sql": "b3faaa356085aabef7ef689b945f8a43445a42ef1bd8aba6d157116f3cb71aaa",
+    "database/minipos/007_order_reversal_evidence.sql": "b63667a2e6a186bdfd8acba9d7b2791d78a62dfaefef05677776bc08ca1895b0",
+    "database/minipos/008_order_fiscal_reference.sql": "50795c772b2471cd129ef013f8272315dadb50130a47a43b6f00d9552ed73b38",
+    "database/minipos/009_order_payment_evidence.sql": "acac8c10ff083d1081311f02d9db43b20c8eec1b5ccdad8084a8d95fa07ab904",
+    "database/minipos/010_api_idempotency_claim.sql": "7de6c1350244379788eefe8a987b5c1f82ff8c63251b450535fd5d365632c167",
+    "database/minipos/011_catalog_authority_consistency.sql": "362102472f4bc5b986facee0936091d9864ad0ec5769b2e85ab888d25bb4fb96",
+    "database/minipos/012_order_line_discount.sql": "0ee28ccdbdbfe87c9e07058681847ed0e06aad9f95ad614556c7e75d1d59964d",
+    "database/minipos/013_local_adapter_configuration.sql": "cffd6d64b16f9e1f5003f72c714b36a72685cfecbf45fabaeb3c7969b47b1095",
+    "database/minipos/014_tax_groups.sql": "48184e914778072d168a5720b660e090e41d20d193ab5f2b83f8b339fd8068ed"
+  },
+  "fixture_preparer": {
+    "path": "scripts/prepare-fiscal-pg-fixture.py",
+    "sha256": "d144b6cab337676e95e71ffdc982ee27c7b263e5bcd440b0725dab84f94bc330"
+  }
+}

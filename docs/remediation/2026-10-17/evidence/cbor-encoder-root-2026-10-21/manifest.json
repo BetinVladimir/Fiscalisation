@@ -1,0 +1,43 @@
+{
+  "scope": "Root host/golden/Go/actual client transport evidence; no full target/hardware/monetary/legal acceptance",
+  "source_sha256": {
+    "IoT/firmware/edge-agent-s3/idf/main/canonical_cbor.cpp": "ab4017e3d5c7f825c03ebd6685dbf781daacc0f4dc176132c2c31e3b0d4ce585",
+    "IoT/firmware/edge-agent-s3/idf/main/canonical_cbor.h": "193e98085e8aa9436df7456be45c2bb2fea965c321f5e67aeb9dd4b8d9f6d400",
+    "IoT/firmware/edge-agent-s3/idf/main/go_json.cpp": "5674f31ba67f2bae50b0fd541656c3a65e9fe532c64257612242f6550c43dcc0",
+    "IoT/firmware/edge-agent-s3/idf/main/go_json.h": "b4932cf0d5823f5c20e0417585cd709509134060ded183dfb20e9a5916527e0f",
+    "IoT/firmware/edge-agent-s3/idf/main/ble_result_delivery.cpp": "865bc5a6b38fa6e1c0d89f4091eea23943ae879a129de411c0fa9d8de29bfa0d"
+  },
+  "passed_runs": [
+    {
+      "local_log": "fiscal-cbor-encoder-root-20261021.log",
+      "sha256": "476ecec3e619989fb2e2db30da6e81b7de91b0316c648153c8d718c17736674a",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-encoder-go-json-root-20261021.log",
+      "sha256": "06b134a90989d6ff939cdeea33dc36986278fe766513a95a7d7281f612dca69d",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-encoder-encoder-asan-root-20261021.log",
+      "sha256": "cef3697076bcdcb6bf6e10bdd7856a43a70a41a2cf6eddec6028ef465c36474e",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-encoder-origin-asan-root-20261021.log",
+      "sha256": "859ce1a146a5ba0d52a71a4881b02afee43aa3bbc8852856c72965f193d6543a",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-encoder-time-crypto-root-20261021.log",
+      "sha256": "1a46a410a21af18efed49c35c44568e2c432b20cfe700dc71b81b0f10f8a01d7",
+      "exit_code": 0
+    }
+  ],
+  "case_inventory": {
+    "transport_vectors_per_Go_waiters_and_each_browser": 12,
+    "origin_sanitized_scenarios": 13,
+    "Go_JSON_oracle": 2055
+  },
+  "raw_logs_private_fixtures": "Local only, not published"
+}

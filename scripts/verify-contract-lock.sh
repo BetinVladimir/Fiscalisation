@@ -8,7 +8,7 @@ check() {
   actual=$(shasum -a 256 "$file" | awk '{print $1}')
   test "$actual" = "$expected" || { echo "contract drift: $file" >&2; exit 1; }
 }
-check 5aeacae5be26b5f8c6cb19b48e6725bb751dd7ad2ce6bee2773044964cdce203 "$docs/api/openapi-public-v1.yaml"
+check e705067f12b695581922327ab9f85269ad622fcf9a5355050ff1a1235fe38b8c "$docs/api/openapi-public-v1.yaml"
 check 16c9ebb272c272189d08843739b1e6ca439aff16844e7d307cab835212cfe797 "$docs/events/asyncapi-device-v1.yaml"
-check 9c299e5f932d9d860049caa9b92a4cbc487550e490b392c0c854b91959de3bf8 "$root/contracts/openapi-runtime-v1.yaml"
-check b46b930eb09fcc1a284238b546e92b8bf663ba2cd27956a5504046f2ff6fca1a "$root/contracts/openapi-corrections-v1.yaml"
+check bb3e183ee60f0f8e5766c15dedb2439f316cef0412bb0a223011ce85d3a87ce5 "$root/contracts/openapi-runtime-v1.yaml"
+check 54517a6826003ce5b7cf42d067ca8a6f76014943c5c2959ddfa327dd22e7884b "$root/contracts/openapi-corrections-v1.yaml"

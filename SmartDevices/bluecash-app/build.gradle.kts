@@ -43,6 +43,7 @@ kotlin { jvmToolchain(17) }
 
 dependencies {
     implementation(project(":shared"))
+    implementation(project(":shared-runtime"))
     implementation(files("libs/com.android.fiscal.jar", "libs/com.android.pinpad.jar"))
     implementation("org.eclipse.paho:org.eclipse.paho.client.mqttv3:1.2.5")
     implementation("org.json:json:20240303")

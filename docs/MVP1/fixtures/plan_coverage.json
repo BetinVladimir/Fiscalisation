@@ -1,0 +1,41 @@
+{
+  "schema": 1,
+  "description": "Maps legacy ARCH_07 plan groups (P40-P44) to current MVP1 task IDs and evidence gates.",
+  "groups": [
+    {
+      "id": "P40",
+      "name": "POS contract",
+      "description": "POS API contract: JSON Schema, generated types Go/Kotlin/TS, CI contract test",
+      "task_ids": ["ARCH-009", "POS-01", "POS-09", "TG-007", "TG-013", "DOC-003"],
+      "evidence_gate": "make contract-test exits 0; git diff --exit-code after generation"
+    },
+    {
+      "id": "P41",
+      "name": "Backend config and readiness",
+      "description": "fiscal-backend configuration, health check, and production-readiness checks",
+      "task_ids": ["BUG-009", "BUG-010", "VG-10", "SCRIPT-01"],
+      "evidence_gate": "go test ./... exits 0; /healthz returns 200"
+    },
+    {
+      "id": "P42",
+      "name": "BlueCash engine",
+      "description": "BlueCash runtime isolation, journal/aggregate reconciliation, compliance",
+      "task_ids": ["BUG-023", "ARCH-007", "ARCH-008", "BUG-020", "BUG-021", "BUG-022", "BUG-024", "BUG-025"],
+      "evidence_gate": "./gradlew :bluecash-app:testProdDebugUnitTest exits 0"
+    },
+    {
+      "id": "P43",
+      "name": "Rounding golden",
+      "description": "Integer-cent arithmetic, half-up rounding, golden receipt vectors: 1200+167=1367, CASH 500/CARD 867",
+      "task_ids": ["BUG-001", "TST-GO-01", "SCRIPT-20", "STYLE-001"],
+      "evidence_gate": "scripts/check-golden-vectors.sh exits 0; rounding_golden.json fixture matches implementation"
+    },
+    {
+      "id": "P44",
+      "name": "Operations and pilot",
+      "description": "Delivery pipeline, prompt templates, operator runbooks, pilot calibration",
+      "task_ids": ["PIPE-01", "PIPE-02", "PIPE-03", "W0-1", "W0-2", "W0-3"],
+      "evidence_gate": "docs/MVP1/pipeline/ has all 4 template files; mvp1-baseline.sh runs clean"
+    }
+  ]
+}

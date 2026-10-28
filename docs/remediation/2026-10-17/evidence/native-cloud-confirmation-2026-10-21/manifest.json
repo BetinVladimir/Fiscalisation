@@ -1,0 +1,92 @@
+{
+  "base_commit": "b2ae5ef",
+  "patch_sha256": "e9fc2f670d816e07f54ee90ccfaa433ec5a1241f22519701018cd85fbaf890d0",
+  "logs": {
+    "node": {
+      "raw_sha256": "262487b9269d1634563f939821bbd5dcb5943505aed424cc4b2d9fcc0968d791",
+      "bytes": 31110,
+      "exit_code": 0
+    },
+    "ui": {
+      "raw_sha256": "30361014d07c2a404550534c51ca521149485448b91bcc3a777ac4a4d3c1aae2",
+      "bytes": 1206204,
+      "exit_code": 0
+    },
+    "ts": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "exit_code": 0
+    },
+    "harness-final": {
+      "raw_sha256": "87360233672dbf9adfeb4b0e037cd578abf840d85f1ada9fd6209faefb570405",
+      "bytes": 6247,
+      "exit_code": 0
+    },
+    "drift": {
+      "raw_sha256": "f3d4a7d8cdb30d0a4e451361bc03b1260137a4c25c32c8ca58b72866dd406d6b",
+      "bytes": 151,
+      "exit_code": 0
+    },
+    "interop": {
+      "raw_sha256": "9c8de9c7cc3a5d67e1606e8de4f7d87eb11eda533afc0e1f300bff8bebebbcd8",
+      "bytes": 671,
+      "exit_code": 0
+    },
+    "backend": {
+      "raw_sha256": "fbef879deade62f85b2128ef2e42f9a8d8dbf7f958c58bc743253589aa50fbbb",
+      "bytes": 794,
+      "exit_code": 0
+    }
+  },
+  "staged_source_sha256": {
+    "contracts/generated/openapi-runtime-v1.d.ts": "26c28938c1d81af508153e9b3a2baa49c2500b1db443a088c49b720e979fa3bf",
+    "contracts/openapi-runtime-v1.yaml": "d21c47241323915eb67d17d924eb2261915edf416c43991c338e9d18f7640397",
+    "docs/remediation/2026-10-17/44_NATIVE_CLOUD_CONFIRMATION.md": "b92a3732036dea03b74813049153cc85163eb7b1268e4c43fdeb59c2812af4fb",
+    "minipos/BeeMiniPOS/App.tsx": "9ea5f147cac638d405df82eaa698c96846802e3e9395337385262ef33ea525ce",
+    "minipos/BeeMiniPOS/e2e/native-mvp-fixture.mjs": "399a92c2bc53d18dacf4222b4c3e93caa0ce08f506f37845549f51aa11369113",
+    "minipos/BeeMiniPOS/e2e/native-mvp-fixture.test.mjs": "86e5913dcfd8e6f05d7b746008fa9c397c49a2689c19722ecd4ac80e378fe9a7",
+    "minipos/BeeMiniPOS/scripts/cloud-confirmation-interop.mts": "3cec285824a63778fe90a5de11047763adda1b020453be04ee8c0f1f2b2e12e3",
+    "minipos/BeeMiniPOS/src/checkoutJournal.test.ts": "32d46cec2f459772c0249b6b41e319b5f71acfa56458c540522261baccb32e30",
+    "minipos/BeeMiniPOS/src/checkoutJournal.ts": "6e591457872e5ceba330595530c52083a147ef6d4c45fb9e60810041c6b834bf",
+    "minipos/BeeMiniPOS/src/cloudCheckoutApp.test.ts": "6a41b826297ebaf621ca0a525bca08d120b4e6f78e570356b55626d9b7aadce6",
+    "minipos/BeeMiniPOS/src/cloudCheckoutConfirmation.test.ts": "c716214bdecfac76af987d545cff603ffd9ba076c20c8214b9c0e11aaf830f60",
+    "minipos/BeeMiniPOS/src/cloudCheckoutConfirmation.ts": "63ef0a3efc95e633c39474c9f294a7190c509322c78e99b29334c38cba9694f0",
+    "minipos/BeeMiniPOS/src/sourceOrders.ts": "5293c643297eb2e06f696d4327038b2cc5c061cb5db21610bf02b76e7d035eb8",
+    "minipos/beeminipos-backend/internal/api/cloud_confirmation_interop_test.go": "543c52c380f9334c3cee0f6e8e699ece766245ed20265ad8af84ecb84059a903",
+    "minipos/beeminipos-backend/internal/api/handler.go": "f8e50d00d4f10a8403e9bad44d2fe5bee65a68aa4d821b4e36b63e9a288bb1d9",
+    "minipos/beeminipos-backend/internal/api/order_operation_test.go": "2282824ea21e2b19a45d426a368c95c06805a78bcae6b531d26a68d8e2003642",
+    "minipos/beeminipos-backend/internal/api/response_contracts_gen.go": "d86c6e980857b06d6a883ca03deb102949bd5e81cb42e2cfb8c4f004ef7b9cc5",
+    "minipos/beeminipos-backend/internal/domain/checkout_lookup.go": "5accd003deca98b70e9c59e952f67d88fffece26f916c2fa6a9a3b281bd12ade",
+    "minipos/beeminipos-backend/internal/domain/checkout_lookup_test.go": "27e582a9bcd8b704690ec787b83518ccdabf54d7942745049b04ac6093dae6c2",
+    "scripts/test-native-cloud-confirmation.sh": "30249d3fd7e6de73cdf0b2a7d34eef55cb879edce326705b6bb9da4d8fc14d03"
+  },
+  "root_tested_worktree_sha256": {
+    "contracts/generated/openapi-runtime-v1.d.ts": "26c28938c1d81af508153e9b3a2baa49c2500b1db443a088c49b720e979fa3bf",
+    "contracts/openapi-runtime-v1.yaml": "d21c47241323915eb67d17d924eb2261915edf416c43991c338e9d18f7640397",
+    "docs/remediation/2026-10-17/44_NATIVE_CLOUD_CONFIRMATION.md": "b92a3732036dea03b74813049153cc85163eb7b1268e4c43fdeb59c2812af4fb",
+    "minipos/BeeMiniPOS/App.tsx": "b4667f914de97437b6452367adefcaddff6c3fd024c90dcfd975b236c5a4610a",
+    "minipos/BeeMiniPOS/e2e/native-mvp-fixture.mjs": "399a92c2bc53d18dacf4222b4c3e93caa0ce08f506f37845549f51aa11369113",
+    "minipos/BeeMiniPOS/e2e/native-mvp-fixture.test.mjs": "86e5913dcfd8e6f05d7b746008fa9c397c49a2689c19722ecd4ac80e378fe9a7",
+    "minipos/BeeMiniPOS/scripts/cloud-confirmation-interop.mts": "3cec285824a63778fe90a5de11047763adda1b020453be04ee8c0f1f2b2e12e3",
+    "minipos/BeeMiniPOS/src/checkoutJournal.test.ts": "32d46cec2f459772c0249b6b41e319b5f71acfa56458c540522261baccb32e30",
+    "minipos/BeeMiniPOS/src/checkoutJournal.ts": "6e591457872e5ceba330595530c52083a147ef6d4c45fb9e60810041c6b834bf",
+    "minipos/BeeMiniPOS/src/cloudCheckoutApp.test.ts": "6a41b826297ebaf621ca0a525bca08d120b4e6f78e570356b55626d9b7aadce6",
+    "minipos/BeeMiniPOS/src/cloudCheckoutConfirmation.test.ts": "c716214bdecfac76af987d545cff603ffd9ba076c20c8214b9c0e11aaf830f60",
+    "minipos/BeeMiniPOS/src/cloudCheckoutConfirmation.ts": "63ef0a3efc95e633c39474c9f294a7190c509322c78e99b29334c38cba9694f0",
+    "minipos/BeeMiniPOS/src/sourceOrders.ts": "5293c643297eb2e06f696d4327038b2cc5c061cb5db21610bf02b76e7d035eb8",
+    "minipos/beeminipos-backend/internal/api/cloud_confirmation_interop_test.go": "543c52c380f9334c3cee0f6e8e699ece766245ed20265ad8af84ecb84059a903",
+    "minipos/beeminipos-backend/internal/api/handler.go": "f8e50d00d4f10a8403e9bad44d2fe5bee65a68aa4d821b4e36b63e9a288bb1d9",
+    "minipos/beeminipos-backend/internal/api/order_operation_test.go": "2282824ea21e2b19a45d426a368c95c06805a78bcae6b531d26a68d8e2003642",
+    "minipos/beeminipos-backend/internal/api/response_contracts_gen.go": "d86c6e980857b06d6a883ca03deb102949bd5e81cb42e2cfb8c4f004ef7b9cc5",
+    "minipos/beeminipos-backend/internal/domain/checkout_lookup.go": "5accd003deca98b70e9c59e952f67d88fffece26f916c2fa6a9a3b281bd12ade",
+    "minipos/beeminipos-backend/internal/domain/checkout_lookup_test.go": "27e582a9bcd8b704690ec787b83518ccdabf54d7942745049b04ac6093dae6c2",
+    "scripts/test-native-cloud-confirmation.sh": "30249d3fd7e6de73cdf0b2a7d34eef55cb879edce326705b6bb9da4d8fc14d03"
+  },
+  "scope_notes": [
+    "Root tests included uncommitted first management fix: UI114 vs agent exact financial patch UI104. Both PASS; source hashes distinguish scope.",
+    "Node147 PASS; live Go HTTP to actual TS helper FISCALIZED/FAILED/CANCELLED PASS; full source backend PASS.",
+    "Native harness30 PASS includes actual helper consuming updated synthetic fixture proof. No new native artifact/device run.",
+    "Initial sandbox-denied loopback/cache checks rerun with authorization; only completed successful reruns packaged.",
+    "Webhook simultaneous persistence/recovery outage remains separate patch."
+  ]
+}

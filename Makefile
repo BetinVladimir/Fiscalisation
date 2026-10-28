@@ -1,4 +1,5 @@
-.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test iot-test compose-check compose-e2e regression full-regression
+HIL_RUBY ?= ruby
+.PHONY: deps generate-openapi test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test supto-unp-test country-profile-test regulatory-identifier-binding-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test supto-software-acceptance supto-external-verifier-test supto-hil-verifier-test supto-hil-verify supto-release-verify supto-legal-verify supto-full-acceptance boundary-test postgres-integration typecheck contract-test roadmap-acceptance-test mvp1-software-gate bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test beefiscalapp-e2e handover-test web-build native-bundle android-build ios-build native-regression smart-device-test smart-device-host-test minipos-outbox-test factory-test iot-test iot-protocol-test time-anchor-test ble-stream-test ble-certificate-crypto-test ble-certificate-crypto-gate-test iot-build iot-build-check iot-build-verify iot-build-script-test compose-check compose-e2e regression full-regression lint plan-check fuzz-short contract-lock regression
 deps:
 	cd minipos/BeeMiniPOS && npm ci --cache /tmp/beeminipos-npm-cache --no-audit --no-fund
 	cd BeeFiscalApp && npm ci --cache /tmp/beefiscalapp-npm-cache --no-audit --no-fund
@@ -7,21 +8,19 @@ generate-openapi:
 test:
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./...
 	cd minipos/beeminipos-backend && GOCACHE=/tmp/beeminipos-go-cache go test ./...
-	cd edge-agent && GOCACHE=/tmp/edge-go-cache go test ./...
 test-race:
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test -race ./...
 	cd minipos/beeminipos-backend && GOCACHE=/tmp/beeminipos-go-cache go test -race ./...
-	cd edge-agent && GOCACHE=/tmp/edge-go-cache go test -race ./...
 vet:
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-vet-cache go vet ./...
 	cd minipos/beeminipos-backend && GOCACHE=/tmp/beeminipos-go-vet-cache go vet ./...
-	cd edge-agent && GOCACHE=/tmp/edge-go-vet-cache go vet ./...
 governance-test:
 	ruby scripts/verify_governance.rb
 readiness-doc-test:
 	ruby scripts/verify_readiness_documentation.rb
 supto-trace-test:
 	ruby scripts/verify_supto_trace.rb
+	ruby scripts/tests/supto_scope_guard_test.rb
 supto-document-policy-test:
 	ruby scripts/verify_document_policy.rb
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test(CustomerSaleCanNeverBecomeServiceBon|NonFiscalTemplateRejectsFiscalWording|DocumentPurposeMappingIsClosed)'
@@ -42,21 +41,25 @@ supto-export-test:
 	cd fiscal-backend && GOCACHE=/tmp/beefiscal-go-cache go test ./internal/domain -run 'Test.*Export'
 supto-offline-equivalence-test:
 	ruby scripts/verify_offline_equivalence.rb
-	cd edge-agent && GOCACHE=/tmp/edge-go-cache go test ./gateway ./runtime ./localapi
 supto-security-test: security-test
+supto-external-verifier-test:
+	$(HIL_RUBY) scripts/tests/verify_external_evidence_test.rb
+supto-hil-verifier-test:
+	$(HIL_RUBY) scripts/tests/verify_hil_evidence_test.rb
 supto-hil-verify:
-	ruby scripts/verify_hil_evidence.rb "$(EVIDENCE_DIR)"
+	$(HIL_RUBY) scripts/verify_hil_evidence.rb "$(EVIDENCE_DIR)"
 supto-release-verify:
 	ruby scripts/verify_release_evidence.rb "$(EVIDENCE_DIR)"
 supto-legal-verify:
-	ruby scripts/verify_legal_evidence.rb "$(EVIDENCE_DIR)"
-supto-software-acceptance: supto-trace-test supto-unp-test country-profile-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test contract-test typecheck
+	$(HIL_RUBY) scripts/verify_legal_evidence.rb "$(EVIDENCE_DIR)"
+supto-software-acceptance: supto-external-verifier-test supto-trace-test supto-unp-test country-profile-test supto-sale-lifecycle-test supto-readiness-test supto-time-test supto-audit-test supto-export-test supto-offline-equivalence-test supto-security-test contract-test typecheck
 	ruby scripts/verify_supto_software_acceptance.rb
 supto-full-acceptance: regression postgres-integration compose-e2e supto-software-acceptance
 	ruby scripts/verify_supto_full_acceptance.rb
 boundary-test:
 	ruby scripts/verify_product_boundary.rb
-postgres-integration:
+	ruby scripts/tests/product_boundary_fixture_test.rb
+postgres-integration: typed-projection-test pg-fixture-preparation-test
 	./scripts/postgres-integration.sh
 typecheck:
 	cd minipos/BeeMiniPOS && npx tsc --noEmit
@@ -94,6 +97,7 @@ security-test:
 	ruby scripts/verify_security_regression.rb
 	./scripts/verify_sensitive_data.sh
 ui-acceptance-test:
+	ruby scripts/test_verify_ui_acceptance.rb
 	ruby scripts/verify_ui_acceptance.rb
 handover-test:
 	ruby scripts/verify_handover.rb
@@ -111,6 +115,7 @@ beefiscalapp-e2e:
 	cd BeeFiscalApp && npm run test:e2e
 
 evidence-test:
+	ruby scripts/tests/release_npm_inventory_test.rb
 	ruby scripts/generate_release_evidence.rb /tmp/beeloy-release-evidence-test
 	ruby scripts/verify_release_evidence.rb /tmp/beeloy-release-evidence-test
 	./scripts/test-release-evidence-signing.sh
@@ -135,22 +140,71 @@ android-build:
 ios-build:
 	cd minipos/BeeMiniPOS/ios && pod install
 	cd minipos/BeeMiniPOS/ios && xcodebuild -workspace BeeMiniPOS.xcworkspace -scheme BeeMiniPOS -configuration Debug -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' CODE_SIGNING_ALLOWED=NO build
-native-regression: native-bundle android-build ios-build
-smart-device-test:
-	ruby scripts/verify_bluecash_release_composition.rb
-	cd minipos/BeeMiniPOS/android && ./gradlew -p ../../../SmartDevices :daisy-smart-app:testDebugUnitTest :bluecash-app:testDebugUnitTest :daisy-smart-app:assembleDebug :daisy-smart-app:assembleRelease :bluecash-app:assembleDebug :bluecash-app:assembleRelease --no-daemon
-	test -f SmartDevices/daisy-smart-app/build/outputs/apk/debug/daisy-smart-app-debug.apk
-	test -f SmartDevices/daisy-smart-app/build/outputs/apk/release/daisy-smart-app-release-unsigned.apk
-	test -f SmartDevices/bluecash-app/build/outputs/apk/debug/bluecash-app-debug.apk
-	test -f SmartDevices/bluecash-app/build/outputs/apk/release/bluecash-app-release-unsigned.apk
-	rg -q 'BuildConfig.STUB_ADAPTER && BuildConfig.DEBUG' SmartDevices/daisy-smart-app/src/main/kotlin/com/beeloy/fiscal/daisy/DaisySmartStub.kt
-iot-test:
-	python3 -m unittest discover -s IoT/firmware/edge-agent-s3/idf/tests -p 'test_*.py'
-	IoT/firmware/edge-agent-s3/idf/tests/run_native_saga.sh
+.PHONY: native-interop-runner-test
+native-interop-runner-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s minipos/BeeMiniPOS/tests/native-authority-interop -p 'test_*.py' -v
+native-regression: native-interop-runner-test native-bundle android-build ios-build
+smart-device-host-test:
+	python3 SmartDevices/bluecash-app/tests/host/run-datecs-codec.py
+	python3 SmartDevices/bluecash-app/tests/host/run-go-json.py
+smart-device-test: smart-device-host-test
+	cd SmartDevices && ./gradlew :daisy-smart-app:testProdDebugUnitTest :daisy-smart-app:testDemoDebugUnitTest :bluecash-app:testProdDebugUnitTest :bluecash-app:testDemoDebugUnitTest :daisy-smart-app:assembleProdDebug :daisy-smart-app:assembleDemoDebug :bluecash-app:assembleProdDebug :bluecash-app:assembleDemoDebug --no-daemon
+	test -f SmartDevices/daisy-smart-app/build/outputs/apk/prod/debug/daisy-smart-app-prod-debug.apk
+	test -f SmartDevices/daisy-smart-app/build/outputs/apk/demo/debug/daisy-smart-app-demo-debug.apk
+	test -f SmartDevices/bluecash-app/build/outputs/apk/prod/debug/bluecash-app-prod-debug.apk
+	test -f SmartDevices/bluecash-app/build/outputs/apk/demo/debug/bluecash-app-demo-debug.apk
+minipos-outbox-test:
+	cd minipos/miniposweb && npx vitest run tests/routeController.test.ts --cache=false
+	cd minipos/miniposweb && npx playwright test -c playwright.outbox-idb.config.mjs
+factory-test:
+	cd IoT/device-manufacturing && PYTHONPATH=src python3 -m unittest discover -s tests -v
+S3_BUILD_DIR ?= $(CURDIR)/.build/s3-idf556
+S3_BUILD_SCRIPT := IoT/firmware/edge-agent-s3/idf/tools/build_idf.py
+iot-build-script-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s IoT/firmware/edge-agent-s3/idf/tests -p test_official_build_gate.py -v
+iot-build-check:
+	python3 $(S3_BUILD_SCRIPT) check
+iot-build:
+	python3 $(S3_BUILD_SCRIPT) build --build-dir "$(S3_BUILD_DIR)"
+iot-build-verify:
+	python3 $(S3_BUILD_SCRIPT) verify --build-dir "$(S3_BUILD_DIR)"
+BLE_STREAM_EVIDENCE_DIR ?= $(CURDIR)/.build/ble-stream-evidence
+ble-stream-test:
+	python3 IoT/common-modules/ble-stream/reproduce.py --repo "$(CURDIR)" --evidence "$(BLE_STREAM_EVIDENCE_DIR)"
+time-anchor-test:
+	python3 IoT/firmware/edge-agent-s3/idf/tests/time_anchor_host/run_oracle.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/time_anchor_host/run_counterfactuals.py
+iot-protocol-test:
 	IoT/common-modules/daisy/run-tests.sh
 	IoT/common-modules/datecs/run-tests.sh
 	IoT/common-modules/datecspay/run-tests.sh
 	IoT/protocol-abstraction/run-tests.sh
+iot-test: time-anchor-test iot-protocol-test
+	bash IoT/firmware/edge-agent-s3/idf/tests/run_identity_entropy_host.sh
+	python3 IoT/firmware/edge-agent-s3/idf/tests/terminal_guard_host/run.py
+	python3 -m unittest discover -s tests -p '*sqlite_export.py' -v
+	python3 IoT/firmware/edge-agent-s3/idf/tests/bluepad_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/execution_auth_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/authority_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/reconciliation_host/run.py
+	bash IoT/firmware/edge-agent-s3/idf/tests/run_provisioning_host.sh
+	python3 IoT/firmware/edge-agent-s3/idf/tests/go_json_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/cbor_typed_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/cbor_encoder_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/ble_origin_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/go_wire_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py
+	python3 IoT/firmware/edge-agent-s3/idf/tests/receipt_host/run.py
+	python3 -m unittest discover -s IoT/firmware/edge-agent-s3/idf/tests -p 'test_*.py'
+	IoT/firmware/edge-agent-s3/idf/tests/run_native_saga.sh
+	bash IoT/firmware/edge-agent-s3/idf/tests/run_native_mqtt.sh
+	bash IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh
+	bash IoT/firmware/edge-agent-s3/idf/tests/run_native_ble.sh
+	sh IoT/firmware/edge-agent-s3/idf/tests/run_storage_host.sh
+	sh IoT/firmware/edge-agent-s3/idf/tests/run_sync_host.sh
+	sh IoT/firmware/edge-agent-s3/idf/tests/run_money_host.sh
+	sh IoT/firmware/edge-agent-s3/idf/tests/run_saga_storage_host.sh
+	sh IoT/firmware/edge-agent-s3/idf/tests/run_tender_recovery_host.sh
 compose-check:
 	docker compose --env-file .env.example -f compose.fiscalisation.yaml -f compose.fiscalisation.dev.yaml config >/dev/null
 	docker compose --env-file .env.example -f compose.minipos.yaml -f compose.minipos.dev.yaml config >/dev/null
@@ -160,5 +214,95 @@ compose-check:
 	MINIPOS_DB_PASSWORD=test MINIPOS_RLS_DB_PASSWORD=test-rls AUTH_HMAC_KEY=production-minipos-auth-key-at-least-32-bytes MINIPOS_RABBITMQ_URL=amqps://fiscal:rabbit-password@rabbit.example.test/ FISCAL_PUBLIC_BASE_URL=https://fiscal.example.test/public/v1 FISCAL_OAUTH_TOKEN_URL=https://id.example.test/token FISCAL_OAUTH_CLIENT_ID=minipos FISCAL_OAUTH_CLIENT_SECRET=production-client-secret FISCAL_SYSTEM_TOKEN=production-fiscal-system-token-at-least-32-bytes FISCAL_CREDENTIAL_ENCRYPTION_KEY_BASE64=MDEyMzQ1Njc4OWFiY2RlZjAxMjM0NTY3ODlhYmNkZWY= FISCAL_CREDENTIAL_KEK_ID=fiscal-kek-2026-01 WEBHOOK_VERIFICATION_KEY=production-webhook-key-at-least-32-bytes LOCAL_FISCAL_TOKEN_SIGNING_KEY_PEM=test-private-key LOCAL_FISCAL_TOKEN_SIGNING_KID=local-2026-01 MINIPOS_SITE=https://pos.example.test MINIPOS_CORS_ALLOWED_ORIGINS=https://pos.example.test MINIPOS_SMTP_HOST=smtp.example.test MINIPOS_SMTP_USER=minipos-smtp-user MINIPOS_SMTP_PASSWORD=production-smtp-password MINIPOS_SMTP_FROM=noreply@example.test DAP_MINIO_ROOT_USER=dap-admin DAP_MINIO_ROOT_PASSWORD=production-minio-password-at-least-32-bytes docker compose -f compose.minipos.yaml -f compose.minipos.prod.yaml config >/dev/null
 compose-e2e:
 	./scripts/e2e-two-compose.sh
-regression: test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test boundary-test typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test evidence-test web-build native-bundle smart-device-test iot-test compose-check
+regression: ble-certificate-crypto-test iot-cbor-encoder-interop-test test-race vet governance-test readiness-doc-test supto-trace-test supto-document-policy-test boundary-test typecheck contract-test roadmap-acceptance-test bg-trace-test driver-coverage-test fault-regression-test soak-regression-test security-test ui-acceptance-test ui-interaction-test handover-test evidence-test native-harness-test native-cloud-confirmation-test web-build native-bundle smart-device-test minipos-outbox-test factory-test iot-test ble-stream-test compose-check
 full-regression: regression postgres-integration compose-e2e
+
+.PHONY: nap-local-extraction-test
+nap-local-extraction-test:
+	python3 -m unittest discover -s tests -p '*sqlite_export.py' -v
+
+.PHONY: nap-postgres-extraction-test
+nap-postgres-extraction-test:
+	sh scripts/dossier-postgres-integration.sh
+
+.PHONY: nap-minipos-postgres-extraction-test
+nap-minipos-postgres-extraction-test:
+	sh scripts/dossier-minipos-postgres-integration.sh
+
+.PHONY: nap-evidence-postgres-extraction-test
+nap-evidence-postgres-extraction-test:
+	sh scripts/dossier-evidence-postgres-integration.sh
+
+.PHONY: typed-projection-test pg-fixture-preparation-test presentation-build-test
+typed-projection-test:
+	./scripts/typed-projection-postgres-integration.sh
+pg-fixture-preparation-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s scripts -p 'test_prepare_fiscal_pg_fixture.py' -v
+presentation-build-test:
+	PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s BeeFiscalApp/scripts -p 'test_build_device_data_presentation.py' -v
+	cd BeeFiscalApp && node --experimental-strip-types --test e2e/presentation-build-guard.test.mjs e2e/verify-device-data-readable.test.mjs
+
+.PHONY: native-harness-test
+native-harness-test:
+	node --test BeeFiscalApp/e2e/native*.test.mjs minipos/BeeMiniPOS/e2e/native*.test.mjs
+
+.PHONY: native-cloud-confirmation-test
+native-cloud-confirmation-test:
+	sh scripts/test-native-cloud-confirmation.sh
+
+BLE_CERTIFICATE_CRYPTO_EVIDENCE_DIR ?= $(CURDIR)/.build/ble-certificate-crypto-evidence
+ble-certificate-crypto-gate-test:
+	python3 scripts/tests/test_ble_certificate_crypto_gate.py
+ble-certificate-crypto-test: ble-certificate-crypto-gate-test
+	python3 scripts/run-ble-certificate-crypto.py --repo "$(CURDIR)" --evidence "$(BLE_CERTIFICATE_CRYPTO_EVIDENCE_DIR)"
+
+.PHONY: iot-cbor-encoder-test iot-cbor-encoder-interop-test
+iot-cbor-encoder-test:
+	python3 IoT/firmware/edge-agent-s3/idf/tests/cbor_encoder_host/run.py
+iot-cbor-encoder-interop-test:
+	python3 tests/ble-transport/run.py
+
+# SCRIPT-33: lint — unified linter for all languages
+GOLANGCI_LINT ?= golangci-lint
+KTLINT ?= ktlint
+.PHONY: lint
+lint:
+	cd fiscal-backend && ${GOLANGCI_LINT} run ./...
+	cd minipos/beeminipos-backend && ${GOLANGCI_LINT} run ./...
+	cd SmartDevices/bluecash-app && ${KTLINT} src/main/kotlin/**/*.kt || true
+	cd minipos/BeeMiniPOS && npx tsc --noEmit
+	cd BeeFiscalApp && npx tsc --noEmit
+	./scripts/check-lint-rules.sh
+	./scripts/check-swallowed-errors.sh
+
+# SCRIPT-34: plan-check — aggregate document integrity checks
+.PHONY: plan-check
+plan-check:
+	ruby scripts/check_plan_coverage.rb
+	ruby scripts/check_plan_acceptance.rb
+	bash scripts/check-test-matrix.sh
+	bash scripts/check-vendor-docs.sh
+	bash scripts/check-golden-vectors.sh
+	bash scripts/check-decisions.sh
+	bash scripts/check-norm-decisions.sh
+	bash scripts/check-doc-invariants.sh
+	bash scripts/check-adr-links.sh
+	bash scripts/check-doc-drift.sh
+	@echo "PLAN-CHECK OK"
+
+# SCRIPT-35: fuzz-short — 30s fuzz run on codec decoders
+FUZZ_TIME ?= 30s
+.PHONY: fuzz-short
+fuzz-short:
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-fuzz-cache go test -fuzz=FuzzDecodeFrame -fuzztime=$(FUZZ_TIME) ./internal/... || true
+	cd fiscal-backend && GOCACHE=/tmp/beefiscal-fuzz-cache go test -fuzz=FuzzDatecsDecode -fuzztime=$(FUZZ_TIME) ./internal/... || true
+
+# SCRIPT-36: contract-lock — alias to verify-contract-lock.sh
+.PHONY: contract-lock
+contract-lock:
+	./scripts/verify-contract-lock.sh
+
+# REGRESSION-01: unified offline regression harness
+.PHONY: regression
+regression:
+	python3 -m unittest tests/e2e/test_mvp1_regression.py -v

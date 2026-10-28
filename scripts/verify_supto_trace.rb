@@ -20,17 +20,25 @@ rows.each do |row|
 end
 abort "cancelled Annex row must be N/A" unless rows[2]["status"] == "NOT_APPLICABLE"
 features = scope.fetch("features")
-%w[inventory supplies electronic_fiscal_receipts].each do |name|
+%w[inventory supplies].each do |name|
   value = features.fetch(name)
   abort "feature scope #{name} is not fail-closed" unless value["in_product_scope"] == false && value["status"] == "NOT_IN_PRODUCT_SCOPE"
 end
-abort "electronic receipt requirement/scope mismatch" unless rows[23]["status"] == "NOT_APPLICABLE"
+electronic = features.fetch("electronic_fiscal_receipts")
+abort "electronic receipt feature silently removed from product scope" unless electronic["in_product_scope"] == true
+abort "unimplemented electronic receipt feature lacks explicit production block" unless electronic["status"] == "IMPLEMENTATION_REQUIRED" && electronic["production_blocked"] == true
+abort "electronic receipt requirement/scope mismatch" unless rows[23]["status"] == "FAIL" && rows[23]["production_blocked"] == true
 adrs = %w[ADR-SUPTO-001-thin-pos.md ADR-SUPTO-002-local-compliance-gateway.md ADR-SUPTO-003-fmin-unp.md ADR-SUPTO-004-offline-ranges.md]
 adrs.each { |name| abort "missing SUPTO decision #{name}" unless File.exist?(File.join(root, "docs/decisions", name)) }
 pos_sources = Dir.glob(File.join(root, "minipos/BeeMiniPOS", "{App.tsx,src/**/*.ts}")).reject { |path| path.end_with?(".test.ts") }.map { |path| File.read(path) }.join("\n")
 forbidden_pos_authority = %w[setCart fiscalCheckout OfflineSaleInput buildOfflineSaleEnvelope chooseTransport sendFiscalCommand /orders/checkout]
 forbidden_pos_authority.each { |token| abort "thin POS regained fiscal authority: #{token}" if pos_sources.include?(token) }
-abort "first-tap atomic API disappeared from POS" unless pos_sources.include?("/sales:open-with-line")
+# Source carts no longer masquerade as root sale IDs. Preparation is issued by
+# trusted source/root endpoints; the journal freezes the signed response before I/O.
+%w[NativeExecutionManager buildAuthorizedFinalizeIntent AUTHORIZING SIGNED LEGACY_ROOT_CART_RECONCILIATION_REQUIRED /execution-authorizations:dispatch].each do |token|
+  abort "trusted native execution boundary missing: #{token}" unless pos_sources.include?(token)
+end
+abort "native source-order projection disappeared" unless pos_sources.include?("projectSourceOrder")
 abort "POS does not render opaque regulatory identifiers" unless pos_sources.include?("regulatory_identifiers")
 bg = JSON.parse(File.read(File.join(root, "contracts/bg-requirements-trace.json"))).fetch("requirements").find { |r| r["id"] == "BG-014" }
 abort "BG-014 must remain externally blocked until trusted activation evidence" unless bg && bg["status"] == "EXTERNAL_BLOCKED"

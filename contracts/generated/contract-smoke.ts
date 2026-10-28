@@ -1,5 +1,5 @@
 import type { operations as PublicOperations, paths as PublicPaths } from "./openapi-public-v1";
-import type { operations as RuntimeOperations, paths as RuntimePaths } from "./openapi-runtime-v1";
+import type { operations as RuntimeOperations, paths as RuntimePaths, components as RuntimeComponents } from "./openapi-runtime-v1";
 import { createFiscalOpenApiClient, createRuntimeOpenApiClient } from "../../minipos/BeeMiniPOS/src/openapiClients";
 
 type Assert<T extends true> = T;
@@ -16,12 +16,15 @@ type PublicSurface = [
 type RuntimeSurface = [
   Assert<Has<"getMiniPosConfiguration", RuntimeOperations>>,
   Assert<Has<"receiveFiscalWebhookAtMiniPos", RuntimeOperations>>,
-  Assert<Has<"executeCanonicalEdgeCommandForHIL", RuntimeOperations>>,
+  Assert<Has<"issueMiniPosExecutionAuthorization", RuntimeOperations>>,
+  Assert<Has<"authorizePaymentReconciliation", RuntimeOperations>>,
+  Assert<Has<"DeviceCommandEnvelope", RuntimeComponents["schemas"]>>,
+  Assert<Has<"EdgeStorageStatus", RuntimeComponents["schemas"]>>,
   Assert<Has<"createPeriodizedComplianceExport", RuntimeOperations>>,
   Assert<Has<"getPeriodizedComplianceExport", RuntimeOperations>>,
   Assert<Has<"downloadPeriodizedComplianceExportArtifact", RuntimeOperations>>,
   Assert<Has<"/minipos/configuration", RuntimePaths>>,
-  Assert<Has<"/internal/v1/storage", RuntimePaths>>,
+  Assert<Has<"/minipos/execution-authorizations", RuntimePaths>>,
   Assert<Has<"/exports/periodized", RuntimePaths>>,
 ];
 

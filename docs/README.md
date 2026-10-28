@@ -1,5 +1,18 @@
 # Документация Fiscalisation
 
+## Проверка контуров и статусы — 2026-10-21
+
+[Текущий срез, протоколы и112 критериев unit-тестов](fiscal-contour-review-20261021/README.md). На этом срезе contract-lock **VERIFIED_FAIL**: runtime OpenAPI расходится с lock/script; остальные прежние PASS требуют source/scope сверки и здесь не перезапускались. MiniPOS iOS native dependencies расходятся с package.json; полный demo/native/device цикл не принят. Это дополнение к подробному remediation, не отмена его требований. Исторические сводные количества endpoint/tests и blanket readiness ниже не переносить на текущую версию без повторного gate.
+
+
+## Актуализация 2026-10-17
+
+Текущий статус целевых MiniPOS/S3/BlueCash сквозных paths — **SOFTWARE_GAPS_OPEN**.
+Новые подтверждённые разрывы и задания: [аудит и план доработок](remediation/2026-10-17/README.md).
+Исторический `SOFTWARE_COMPLETE_HIL_PENDING` от 2026-08-14 не применять к текущему
+рабочему срезу. Machine trace PASS также требует проверки фактически исполняемого runtime.
+
+
 Этот каталог содержит документацию реализованной системы. Источники истины имеют
 следующий приоритет:
 
@@ -15,8 +28,8 @@
 
 ## Актуальная архитектура и интеграция
 
-- [`MVP1/README.md`](MVP1/README.md) — актуальный as-built статус
-  `SOFTWARE_COMPLETE_HIL_PENDING` и перечень оставшихся внешних gates.
+- [`MVP1/README.md`](MVP1/README.md) — исторический as-built отчёт с актуальным
+  предупреждением о программных разрывах; текущий план — [remediation](remediation/2026-10-17/README.md).
 - [`system-overview.md`](system-overview.md) — состав системы, границы продуктов
   и текущие production gates.
 - [`EXTERNAL_POS_INTEGRATION_PROTOCOL.md`](EXTERNAL_POS_INTEGRATION_PROTOCOL.md) —

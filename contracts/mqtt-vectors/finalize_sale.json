@@ -1,0 +1,23 @@
+{
+  "name": "finalize_sale",
+  "topic": "tenants/tenant-01/devices/device-01/commands",
+  "command_type": "FINALIZE",
+  "operation_id": "op-finalize-001",
+  "payload": {
+    "document_type": "SALE",
+    "total_cents": 1367,
+    "payments": [
+      {
+        "type": "CASH",
+        "amount_cents": 500
+      },
+      {
+        "type": "CARD",
+        "amount_cents": 867
+      }
+    ]
+  },
+  "signature": "valid",
+  "expires_at": "2026-12-31T23:59:59Z",
+  "expect": "ACCEPTED"
+}

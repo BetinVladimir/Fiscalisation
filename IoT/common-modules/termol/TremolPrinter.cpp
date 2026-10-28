@@ -14,6 +14,7 @@
  */
 
 #include "TremolProtocol.h"
+#include <cstdio>
 
 // ─── Internal helpers ─────────────────────────────────────────────────────────
 

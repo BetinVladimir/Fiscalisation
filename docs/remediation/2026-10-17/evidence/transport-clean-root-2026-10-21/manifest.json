@@ -1,0 +1,55 @@
+{
+  "status": "PASS",
+  "stage": "complete",
+  "dependencies": {
+    "registry_entries": 109,
+    "package_sha256": "4212cc877d645fceca861baa12a5ba601811170168c2fb7f779219fd1b3c9924",
+    "lock_sha256": "8e494d6864a7fa90489144bd62442d9985db77a84207eaa261615de2fb78286e",
+    "origins_sha256": "9b7b302556f4906ee0f1b91d56aeaedd68a85f6079532b06356ce274ea24eaa4"
+  },
+  "git_commit": "32ce5c0fe3b1e351ecf1d2c3bf75cd68b155a80d",
+  "source_snapshot": "git checkout",
+  "runner_sha256": "823d8df21efce0785072890093d7c324bc52b0ad1fc407b01efc6deb5b8d4137",
+  "checker_sha256": "71273361cd69fe247ecd5976b9e9d7f862df7bf1815bf175728ed6e4fddc16d2",
+  "config_sha256": "4996d859f029e6f711c9ad93f04cc450e280fc6f766fff095eca8de17395ba57",
+  "home_preserved": true,
+  "toolchain": {
+    "node": "v22.14.0",
+    "npm": "10.9.2",
+    "go": "go version go1.26.3 darwin/arm64",
+    "cc": "gcc-15 (Homebrew GCC 15.2.0) 15.2.0",
+    "cxx": "g++-15 (Homebrew GCC 15.2.0) 15.2.0"
+  },
+  "source_sha256": {
+    "minipos/BeeMiniPOS/src/webBle.ts": "fa03105cf5b7665a4cfa88337399945f48a42548d42ccf8ae9f961acb372ef99",
+    "minipos/BeeMiniPOS/src/browserGatt.ts": "52e6c56e781ff6aa55b8d083eac29556e5a6b6e2f76d95678cbf03fa49193ac6",
+    "minipos/BeeMiniPOS/src/bleAdvertising.ts": "824328c562940671d9319625252299f1cfa636e2950abffe13b25d2abe41befe",
+    "minipos/BeeMiniPOS/src/bleFrames.ts": "8edb8630f8b704a016b52e8bbe8d6c8544483dd8b9a1de6fc9462e0cf8c61103",
+    "minipos/BeeMiniPOS/src/portableCrypto.ts": "259a96778ff969a16e20da8c2fff62fd9d54aeb87f2464e46dc559066cc2c8c8",
+    "minipos/BeeMiniPOS/src/bleResult.ts": "24eba541109eb07b9a15efc1a5d1f14a4bdb50e728eaf0ffdd2f84295cd46929",
+    "minipos/BeeMiniPOS/src/cbor.ts": "35230addb344ff7991f0db3ba25c77a5e6973637681a51ad85c73898bbe401ff",
+    "minipos/BeeMiniPOS/src/cborDelivery.test.ts": "2d019edafe3d692e08fbb93d6a6a9ebe517c03a14c876f1f85faab485949e5dc",
+    "minipos/miniposweb/src/fiscal/webBleRoute.ts": "a84b1c0af7efbd16bbf0a40f095ef46100ab96e14c1b136d98fdee1cb53dfcc8",
+    "minipos/miniposweb/src/fiscal/browserGatt.ts": "52e6c56e781ff6aa55b8d083eac29556e5a6b6e2f76d95678cbf03fa49193ac6",
+    "minipos/miniposweb/tests/webBleLifecycle.test.ts": "4594bb210603bdb46dfa608ff61182aecde38079b0646ad357ded52888a406d4"
+  },
+  "clean_install": {
+    "node_modules_absent": true,
+    "cache_absent": true,
+    "empty_userconfig_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+    "empty_globalconfig_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855"
+  },
+  "installed_packages": {
+    "count": 55,
+    "sha256": "7839e85299357c6488c73de107870cefc2b9a2c5eecac469b7a6d29b55f6a771"
+  },
+  "fixture": {
+    "rows": 12,
+    "sha256": "8e5e25a16d908cc81553fdc7d72c991ccad667bcbb078f842310399e845ffb00"
+  },
+  "reports": {
+    "mini_waiter_tests": 1,
+    "vitest_passed": 66,
+    "fixture_projection_tests": 2
+  }
+}

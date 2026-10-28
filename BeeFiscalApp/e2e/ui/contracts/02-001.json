@@ -1,0 +1,212 @@
+{
+  "ticket": "02-001",
+  "status": "IN_PROGRESS",
+  "partialEmptyPortalCardVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Closed Feedback/Confirm Paper Dialog portals unmounted; genuine Auth and language-panel Paper Card remain, mode contained + theme border/background on container instead of full-area decorative outlined layer. No standard Axe rules disabled.",
+    "baseline": "24 scans0VI/30incomplete270nodes; portal-only24 scans0VI/30incomplete228nodes. Direct Axe stack captures proved card-outline absolute z2 above heading/input.",
+    "final": {
+      "scans": 24,
+      "violations": 0,
+      "incomplete": 17,
+      "nodes": 97,
+      "color-contrast": 91,
+      "aria-valid-attr-value": 6
+    },
+    "testResult": "Strict24tests13PASS11FAIL/incomplete;14auth functionalPASS;2 separate diagnostic capturesPASS (not AA). Types/UI/exportPASS.",
+    "nextEvidence": "Remaining OTP stack puts transient Paper ripple span above input; investigate animation state/reduced motion and scan stability. Language menu still aria-valid-attr-value needsReview plus contrast incomplete.",
+    "open": [
+      "Resolve97 remaining incomplete nodes",
+      "Active dialog/native/manual/other operational screens/all11 fullcriteria"
+    ],
+    "hashes": {
+      "src/ui/feedback.tsx": "db1bd0dee39e24118609f01dc41dd45b273c857806350e1031b05401e9823dcc",
+      "src/ui/confirm-dialog.tsx": "dc3eb606347e135d3a8b5599038ac4bff8a56871dd7235448e3841685d9208d4",
+      "src/screens/AuthScreen.tsx": "ca1ccacb6d4fce8c42bce816a0874c87bb5d443ba3fc11b0d36cf3a89e2c8fdd",
+      "src/ui/LanguageThemeControls.tsx": "2d0aee37a5e6a0ee8a57c894225cd41642c07cf6d5d7e7f264bdda3cad5d21fa",
+      "e2e/contrast-stack-diagnostic.spec.ts": "501926861262f244f40f42d19e79fd8c9b0272e39817bedc3875c261e81c9cd4"
+    },
+    "evidence": "docs/ui-optimization-evidence/empty-dialog-portal"
+  },
+  "partialReducedMotionVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Single genuine PaperProvider listens to web prefers-reduced-motion changes and native AccessibilityInfo query/event, cleans subscriptions; official settings rippleEffectEnabled false and theme.animation.scale0 when reduced. Standard ripple restored when preference off. Colors/inputs/handlers retained.",
+    "prior": "13 strict testsPASS11incomplete97nodes; separate actual Axe OTP stack identified transient Paper ripple span above input.",
+    "final": "18 strictPASS6 language-menu FAIL/incomplete;24scans0VI/12incomplete78nodes (72color+6aria).14auth functionalPASS,6 live reduced-motion testsPASS xs/md/lg light/dark real mouse down/up with ripple present->absent->present and cleanup counts. Types/UI/exportPASS.",
+    "open": [
+      "Language-menu72color+6aria incomplete resolution",
+      "Native event/device/manual/screen-reader verification",
+      "All operational screens/all11 fullcriteria"
+    ],
+    "hashes": {
+      "src/ui/provider.tsx": "08f977bc1d2100f93327d1e6aaf76148d60068adaa27baac9913c241605afd08",
+      "e2e/reduced-motion.spec.ts": "8cea66e5c50fc609974ed208d26b3e0b1fd5ef58b04522a8032b7e2b3a7d445c"
+    },
+    "evidence": "docs/ui-optimization-evidence/reduced-motion"
+  },
+  "partialMenuClipVerification": {
+    "ticket": "02-020",
+    "status": "IN_PROGRESS",
+    "scope": "Genuine Paper language Card clips its bounded scrolling content with overflow hidden. Added test:e2e:language-text200 command explicitly building demo variant for existing operational fixture.",
+    "baseline": "24 scans0VI/12incomplete78nodes (72color+6aria); color message elmPartiallyObscured for off-scroll language labels related to outer Card",
+    "final": "24strict scans0VI/6aria incomplete6nodes;0color incomplete.18strictPASS6menuFAIL/INCOMPLETE retained.14authPASS;6all25 CSS200 operational casesPASS/150locale choices aftercorrectdemo export, persistent storage/focus/text/frame contrast/no-clipping assertions. Types/UI/production+demo exportsPASS.",
+    "harness": "First CSS200 run used prod auth fixture, timed out waiting CORE READY. Preserved failed log, rebuilt demo without changing authguards. New script spells out proven compatible build/test commands.",
+    "open": [
+      "6aria needsReview manual resolution",
+      "Native/manual/truezoom/alloperational/full11 criteria"
+    ],
+    "hashes": {
+      "src/ui/LanguageThemeControls.tsx": "253a3e640e6d38520fc19c7032ec2bde4bccea7e51ed64eb5bf1835d3486f753",
+      "package.json": "6a449935a561cc8f65da99291f5431c2cfb0add3c5c344389af1f928a53e0a2e"
+    },
+    "evidence": "docs/ui-optimization-evidence/menu-clip"
+  },
+  "partialShellPortalVerification": {
+    "ticket": "02-001",
+    "status": "IN_PROGRESS",
+    "scope": "Genuine Paper navigation Modal/Portal mounts only compact&&navOpen. Default E2E explicit demo build; production-only reduced-motion/contrast-stack tests separated into dedicated config/scripts, analogous existing auth suite. No WCAG exclusions altered.",
+    "baseline": "12matched device-populated/admin-top scans2VI/12incomplete398nodes",
+    "finalFull": {
+      "scans": 54,
+      "violations": 0,
+      "incomplete": 54,
+      "nodes": 608
+    },
+    "finalPaired": {
+      "scans": 12,
+      "violations": 0,
+      "nodes": 172
+    },
+    "functional": "Full compatible demo88PASS30.2s;types/UI/demoexportPASS. Dedicated configs --list identify6motion/2diagnostic tests; those behaviors previously passed onprod but configs themselves onlylistedthisrun.",
+    "open": [
+      "608contrast incomplete operational Card decoration diagnosis/fix",
+      "Active nav/modal focus/native/manual",
+      "All operational other state suites/all11 fullcriteria"
+    ],
+    "hashes": {
+      "App.tsx": "f3e0e1a5d5a062740efd3cacf4b77fd6099a4304502804008cf1b7facb273ac4",
+      "package.json": "0194033da6cb2a74a2c3a59fe0450b06ed9a8c3d7364dd7531ae66a2f09f1534",
+      "playwright.config.ts": "788ec49609a3c320429bd5f968d77be4903211118ef8e7c471be0eb7046652b6",
+      "playwright.reduced-motion.config.ts": "6d8028b95cdeabcc6273191c1d7aa40938775b2172b45152c9fb860fe1ae13f7",
+      "playwright.contrast-stack.config.ts": "55cf0acd7ef46a5b47e733df73d5fd5d0d8fc0c70f8d48654031fe4a219aea4b"
+    },
+    "evidence": "docs/ui-optimization-evidence/shell-closed-portal"
+  },
+  "partialOperationalCardVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Genuine Paper AdminCard and Devices error/control-plane Card use contained mode and theme outline border/background on host; no decorative full-area card-outline above text. Buttons/handlers unchanged.",
+    "baseline": "Previous matching54 devices/admin scans:0violations/54color incomplete608nodes.",
+    "final": "54 strict devices/admin scans PASS,0violations/0incomplete. Nine states x xs/md/lg x light/dark. Full88 default functionalPASS; types/UI/demo exportPASS. No Axe rule disabled.",
+    "open": [
+      "Other operational states and authentication menu aria needsReview",
+      "Native/manual/screen readers/true browser zoom/full11 criteria"
+    ],
+    "hashes": {
+      "src/components/FiscalControls.tsx": "cf029a4825e13efdecf2985aed66fad56ab5460ebfd6af75404513502513fa7a",
+      "src/screens/DevicesScreen.tsx": "90bec6980a79ab431e2db3457c79aa1cf6a312860b5d54bf2ee837a614091fb6"
+    },
+    "evidence": "docs/ui-optimization-evidence/operational-card-borders"
+  },
+  "partialExtendedCardVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Genuine Paper Card host outline/background on Operations, Reports, Audit and Settings. Existing real Paper buttons retain visible fill/frame; callbacks unchanged.",
+    "results": {
+      "extended": {
+        "operations": {
+          "scans": 6,
+          "violations": 0,
+          "incomplete": 6,
+          "nodes": 24
+        },
+        "reports": {
+          "scans": 18,
+          "violations": 0,
+          "incomplete": 18,
+          "nodes": 132
+        },
+        "audit": {
+          "scans": 24,
+          "violations": 0,
+          "incomplete": 24,
+          "nodes": 332
+        },
+        "settings": {
+          "scans": 18,
+          "violations": 0,
+          "incomplete": 18,
+          "nodes": 120
+        }
+      },
+      "extended-current": {
+        "operations": {
+          "scans": 6,
+          "violations": 0,
+          "incomplete": 0,
+          "nodes": 0
+        },
+        "reports": {
+          "scans": 18,
+          "violations": 0,
+          "incomplete": 2,
+          "nodes": 2
+        },
+        "audit": {
+          "scans": 24,
+          "violations": 0,
+          "incomplete": 6,
+          "nodes": 6
+        },
+        "settings": {
+          "scans": 18,
+          "violations": 0,
+          "incomplete": 0,
+          "nodes": 0
+        }
+      }
+    },
+    "checks": "Types/UI/demoexportPASS;88 default functionalPASS. Current strict66 tests58PASS8FAIL/incomplete,0violations. No rules disabled.",
+    "open": [
+      "Reports empty xs/light+dark: text partially clipped by content ScrollView",
+      "Audit expanded six contexts: decorative PUA icon nonBmp needsReview",
+      "Auth menu ARIA/native/manual/realzoom/all11 criteria"
+    ],
+    "hashes": {
+      "src/screens/OperationsScreen.tsx": "c305e5107bc088132737a699b3437256f0207cada56cb5c6f30df259dd34c981",
+      "src/screens/ReportsScreen.tsx": "34d62045493e326eec367704f44161b0ed67b265cb9aa098ef0a1fe116caec66",
+      "src/screens/AuditScreen.tsx": "be2ef3e10a242b8bfdfd6d36c240ba6470fa51049dd6f6d89defb7e4710cf528",
+      "src/screens/SettingsScreen.tsx": "93e26eab580c761612b63c6e5506342c52da6833e0c4eaacc473b332e8355258"
+    },
+    "evidence": "docs/ui-optimization-evidence/operational-card-borders"
+  },
+  "partialScrollContentVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Operational ScrollView owns viewport/background; vertical padding moved to contentContainerStyle and redundant outer horizontal padding removed, preserving responsive inner gutter. No test or Axe rule excluded.",
+    "diagnostic": "Real expanded audit icon ancestor already aria-hidden=true; Axe still reports nonBmp for visible icon font. Reports empty text is visually within bounds after scrollIntoViewIfNeeded yet Axe reports elmPartiallyObscured with scrolling ancestor. Padding alone does not resolve this.",
+    "checks": "types/demoexportPASS;18reports strict16PASS2xs empty FAIL/incomplete,0violations/2incomplete nodes.88default functionalPASS. Diagnostic capture is not AA proof.",
+    "open": [
+      "Reports remaining obscuration/virtual-stack investigation",
+      "Audit decorative icon graphical contrast proof and review",
+      "Auth-menuARIA/native/manual/full11criteria"
+    ],
+    "hashes": {
+      "App.tsx": "6d10e1ba1da65c084b1f10bf555fda3921fad9fa67c40877dc30f3b6620dc6a5"
+    },
+    "evidence": "docs/ui-optimization-evidence/scroll-content-padding"
+  },
+  "partialVisibleStateAndIconVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Reports strict scan now scrolls actual target state into view and asserts entire target fits operational scroll viewport. Genuine Paper audit icon supplemental test checks >=3:1 composited graphic contrast, aria-hidden ancestor, expanded semantics and actual Enter toggle/focus xs/md/lg light/dark.",
+    "diagnostic": "Previous empty report target was y746..766, below viewport bottom727; visibility assertion alone did not prove viewport intersection. Real Axe stack shows target itself on top. After scrolling target fits, top headings/labels are outside viewport and flagged partially obscured.",
+    "checks": "18strictreports:0VI/6incomplete12nodes,12PASS6xsFAIL retained, previous16PASS2emptyFAIL.8 diagnostic/icon testsPASS;6icon reports min8.86894808172468.94defaultfunctionalPASS/typesPASS. Supplemental color check not full AA proof; all native/manual criteria OPEN.",
+    "open": [
+      "Review off-scroll text background geometry without rule exclusion",
+      "Audit6nonBmp strict needsReview remains despite supplemental checks",
+      "Auth6aria/native/manual/all11fullcriteria"
+    ],
+    "hashes": {
+      "e2e/reports-wcag.spec.ts": "3c07d2b89b962e9e86f73158d719d8c8ac2ab4507148c4076c43c23cf5502c30",
+      "e2e/audit-icon-contrast.spec.ts": "b6683d9bec749da266b0491c55c60d82b23634121f39d0a81419539d45b4db81"
+    },
+    "evidence": "docs/ui-optimization-evidence/reports-state-visibility"
+  }
+}

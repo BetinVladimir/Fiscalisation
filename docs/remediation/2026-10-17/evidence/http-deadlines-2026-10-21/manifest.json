@@ -1,0 +1,51 @@
+{
+  "base_commit": "99b95d8",
+  "scope": "MiniPOS/Fiscal administration public API fetch and full response text deadlines; not all auth/provisioning network code",
+  "source_sha256": {
+    "BeeFiscalApp/App.tsx": "1fd337afc26e7d6a08a2f7c2752d62a787de92536dc0d6d2264c68d995792244",
+    "BeeFiscalApp/src/http.ts": "3f90b5e1ab615bd40661f00238e7dd04ac67ac2326666b2512e6cc43e4203a9d",
+    "BeeFiscalApp/src/http.test.ts": "7069c38e960e384161f6fd3593a1cb42c7e168c0a97d95a7fc0c1ee041413576",
+    "minipos/BeeMiniPOS/App.tsx": "98720b93649addf78f17e87fcbcd4da459ffded8c043353f1c8af674df7969cf",
+    "minipos/BeeMiniPOS/src/http.ts": "3f90b5e1ab615bd40661f00238e7dd04ac67ac2326666b2512e6cc43e4203a9d",
+    "minipos/BeeMiniPOS/src/http.test.ts": "7069c38e960e384161f6fd3593a1cb42c7e168c0a97d95a7fc0c1ee041413576",
+    "minipos/BeeMiniPOS/__tests__/admin-header-policy-current.test.tsx": "393c3eea87d9b3a96d9bf23be3edc393695bfc4ce3a7c0d3b1f233ee92c08e53"
+  },
+  "logs": {
+    "admin-node": {
+      "file": "admin-node.log.gz",
+      "raw_sha256": "a4cc19de05591c1ecb8651bc90193a68e1ed2ae0eba7ea66076dd97bf47e0ef9",
+      "gzip_sha256": "f41bb0906bd0b583716820de6babe4b64b4ce94b74eb785c8ffb437826bb13f8",
+      "terminal_exit_code": 0
+    },
+    "admin-ui": {
+      "file": "admin-ui.log.gz",
+      "raw_sha256": "d35d9089f82573e484ef92fb407b5619dfaae7956dd660d358132825daf9ee68",
+      "gzip_sha256": "d4b906ecdf5e75c7047139349a46897de72da3cc440f1105b21eacecb3f6e362",
+      "terminal_exit_code": 0
+    },
+    "admin-ts": {
+      "file": "admin-ts.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837",
+      "terminal_exit_code": 0
+    },
+    "minipos-node": {
+      "file": "minipos-node.log.gz",
+      "raw_sha256": "5b58e3faa580e42d37e4e25eef78a6779be9d3126b1c6a315898f1b6c4bd4138",
+      "gzip_sha256": "08a966ced0fe16f9544336ed0e267e03cdef4a922a163ce2fc98c52be9fedc48",
+      "terminal_exit_code": 0
+    },
+    "minipos-ui": {
+      "file": "minipos-ui.log.gz",
+      "raw_sha256": "fc90c29e7d4e11f10c70e6c4687b3ee215c19cad989207bee79c9734a518d90c",
+      "gzip_sha256": "b15d4907c3fcb8090bf03d02f5a9c0b89dfb34f75c5cae6f7df9d12ec192af64",
+      "terminal_exit_code": 0
+    },
+    "minipos-ts": {
+      "file": "minipos-ts.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837",
+      "terminal_exit_code": 0
+    }
+  }
+}

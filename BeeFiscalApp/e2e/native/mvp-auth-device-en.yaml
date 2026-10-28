@@ -1,0 +1,122 @@
+appId: ${APP_ID}
+---
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "admin-login-email"
+    timeout: 30000
+- tapOn:
+    id: "auth.language.open"
+# Inline menu is a separate scroll fragment; center-screen scroll targets the form.
+- repeat:
+    times: 3
+    commands:
+      - runFlow:
+          when:
+            notVisible:
+              id: "auth.language.en"
+          commands:
+            - swipe:
+                from:
+                  id: "auth.language.list"
+                direction: UP
+- assertVisible:
+    id: "auth.language.en"
+- tapOn:
+    id: "auth.language.en"
+- repeat:
+    times: 2
+    commands:
+      - runFlow:
+          when:
+            notVisible: "Theme: ${THEME}"
+          commands:
+            - tapOn:
+                id: "auth.theme.toggle"
+- assertVisible: "Theme: ${THEME}"
+- takeScreenshot: guest
+- tapOn:
+    id: "admin-login-email"
+- inputText: "bad"
+- hideKeyboard
+- assertVisible:
+    id: "admin-login-start"
+    enabled: false
+- tapOn:
+    id: "admin-login-email"
+- eraseText: 3
+- inputText: "qa@example.test"
+- hideKeyboard
+- tapOn:
+    id: "admin-login-start"
+- assertVisible: "Something went wrong. Please try again."
+- assertNotVisible: ".*PRIVATE_BACKEND_FAILURE.*|.*PRIVATE_SQL_TABLE.*"
+- assertVisible: "qa@example.test"
+- takeScreenshot: auth-error
+- tapOn:
+    id: "admin-login-start"
+- extendedWaitUntil:
+    visible:
+      id: "admin-login-code"
+    timeout: 30000
+- tapOn:
+    id: "admin-login-code"
+- inputText: "000000"
+- hideKeyboard
+- tapOn:
+    id: "admin-login-verify"
+- assertVisible: "Something went wrong. Please try again."
+- assertNotVisible: ".*PRIVATE_INVALID_OTP.*"
+- tapOn:
+    id: "admin-login-code"
+- eraseText: 6
+- inputText: "123456"
+- hideKeyboard
+- tapOn:
+    id: "admin-login-verify"
+- extendedWaitUntil:
+    visible: "Choose company Test Fiscal Company"
+    timeout: 30000
+- takeScreenshot: company
+- tapOn: "Choose company Test Fiscal Company"
+- extendedWaitUntil:
+    visible:
+      id: "admin-logout"
+    timeout: 30000
+- assertVisible: "Sign out"
+- assertVisible: "Devices"
+- takeScreenshot: shell
+- scrollUntilVisible:
+    element:
+      id: "device-readiness"
+    direction: DOWN
+    centerElement: true
+    timeout: 30000
+- extendedWaitUntil:
+    visible: "Readiness: Ready"
+    timeout: 30000
+- assertVisible: "Datecs counter"
+- takeScreenshot: device
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "admin-logout"
+    timeout: 30000
+- assertVisible: "Sign out"
+- takeScreenshot: resumed
+- tapOn:
+    id: "admin-logout"
+- extendedWaitUntil:
+    visible:
+      id: "admin-login-email"
+    timeout: 30000
+- stopApp
+- launchApp
+- extendedWaitUntil:
+    visible:
+      id: "admin-login-email"
+    timeout: 30000
+- assertNotVisible:
+    id: "admin-logout"
+- takeScreenshot: signed-out

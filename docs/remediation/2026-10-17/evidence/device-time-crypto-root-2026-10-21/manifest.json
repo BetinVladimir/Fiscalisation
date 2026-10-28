@@ -1,0 +1,59 @@
+{
+  "scope": "Integrated crypto foundation, host verified; actual target/runtime lifecycle/provider/HIL/legal acceptance pending",
+  "source_sha256": {
+    "IoT/firmware/edge-agent-s3/idf/main/device_identity.h": "bfdfa618a10b02eb2b031fc8294d6744590aeaed31a84fcc0b9b0cb3a03d5561",
+    "IoT/firmware/edge-agent-s3/idf/main/device_identity.cpp": "bc7e0a31586624aaa23ff7229d87c2e75334354488cf628c45bb0a1c712ea6ab",
+    "IoT/firmware/edge-agent-s3/idf/main/device_time_anchor.h": "a225b021096b70415dec0f9028711f55c4a799f231400be0dd34c1837cb023eb",
+    "IoT/firmware/edge-agent-s3/idf/main/device_time_anchor.cpp": "60d24af76e17cc899bb90ae190eb2c8ed247365c3f957bc9d6605e6e233ab4ea",
+    "IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.h": "0a400f20b8993d0882500bf7ab90ca63680bc5b30fe841c1d0419b9780706f44",
+    "IoT/firmware/edge-agent-s3/idf/main/time_anchor_core.cpp": "a183355a1c98ea2cade3287e02f94b3c9f1e80e8e4fd26b95554afea757f7a02",
+    "IoT/firmware/edge-agent-s3/idf/main/CMakeLists.txt": "6ed5ab44535efffa2825489cf8914e7d1b59456387b569daf34ee5f9360072fc"
+  },
+  "passed_runs": [
+    {
+      "local_log": "fiscal-time-crypto-root-20261021.log",
+      "sha256": "0ea480a09ff76c18b85b065cef4e89a4f8dc126fdaeb04dc31487a10e70b76e1",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-time-crypto-ble-regression-root-20261021.log",
+      "sha256": "8bfdb5ac298e898b229ccedf0f0068e9f7661fec74fd46f86d96f4ccecf1625e",
+      "exit_code": 0
+    },
+    {
+      "local_log": "fiscal-time-crypto-core-regression-root-20261021.log",
+      "sha256": "2e87c0e20b4955b8106787beb656d40da5a0ab896c471d55067838bd33a29270",
+      "exit_code": 0
+    }
+  ],
+  "reviewed_build": {
+    "binary_sha256": "7802cebd21def009bda16fd522c5379f09f2632e04407fe6928f77881b8ea9e4",
+    "compiler": "g++-15",
+    "compile_flags": [
+      "-std=c++17",
+      "-Wall",
+      "-Wextra",
+      "-Werror",
+      "-pthread",
+      "-DBEEFISCAL_TIME_ANCHOR_CRYPTO_HOST_TEST"
+    ],
+    "host_test_root_injection": true,
+    "synthetic_core_permit_factory": false,
+    "identity_drbg_budget_fault_host_only": true,
+    "linked_libraries": [
+      "libmbedx509.a",
+      "libmbedcrypto.a"
+    ],
+    "libraries_sha256": {
+      "libmbedtls.a": "f9828558f8ee30f33dd044fa4334003316cf4a8b5415388401655cb598c49ae4",
+      "libmbedx509.a": "9ab45096686e75ebd8ae221f0b8b412ca115efbf1260d7472beca3f7c19fb9c3",
+      "libmbedcrypto.a": "caf20f61567a5c0f89881bef853f440eac0033fb4cb31e2bb3137dddaae0c637"
+    },
+    "cjson_object_sha256": "903f8d32c34fb6a855c36826bca00897d61927c580e7d24f262ca2309c02d70a",
+    "cjson_sources_sha256": {
+      "cJSON.c": "75c51de8fa40ac9d7a99319c6330719bd692eb81c0a869265f3d4c682533f9b9",
+      "cJSON.h": "0578cc29132912edbc88f83207a8fc76e5db3db0605497e909a9384ef3cc474b"
+    }
+  },
+  "raw_logs_and_keys": "Local only; no raw logs/private fixtures published"
+}

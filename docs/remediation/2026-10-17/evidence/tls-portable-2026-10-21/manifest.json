@@ -1,0 +1,55 @@
+{
+  "base_commit": "9b76cc9",
+  "source_sha256": {
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/.gitignore": "e3f8a6bbcf291fc26c4eeded1dac1d6807761b08f34a3b6378eb60c38dd2e8f6",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/browser.cjs": "57abbf9a137a5c7874fcd9596af70d62e222d300029b730fe77c0957ca6b7f97",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/counterfactual.py": "30fe0430e4e5d33727f25232ed73b8c529dfedf6f8f4cb9793d1e255d5d8e90e",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/engine.c": "8828bfe8ece378de6dac7b4a67ebd4fd00a9a560361a68a6a04ea8af70b73a15",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/gen.go": "b76836e399ff6e4dcbb59deea19ada4442a57e0522c9bf2204bbec964e99b1a7",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/index.html": "02c080f14a707951bf902fc9a8dbcb713eab7cf8bf8ac91ac947478659c0590d",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/interop.go": "b5cad1890125537ca194768190b2f510a76a41a6a142313d6db922049d872575",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/main.c": "47eee2457855fb4d370ed65e371bb079f0b4864d6239139573cdc5ccc6ea12d5",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/make_assets.py": "f075792b0af3ce5cbc7e2b5c285bb4c7bda4d5de402bd82bcfac31ace5e40b77",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/peer_client.c": "d3ee532bd0681004aa319169c387bb273c17d2e0d5bf702c0acca6c279559375",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/peer_server.go": "492b58ab3a8621b6276d5841ab9d5034805aa7830d649211dbb3a9ed954c6333",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/reproduce-cross.sh": "2e4e28d7d8c13078bee8172062a66395f4b0ffb6876d5b468d8f96ad84711092",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/reproduce-host.sh": "bddb31cac0e7874576e0f3a70e03111c3f9aecc4994bbd238fc1cc958625b340",
+    "IoT/firmware/edge-agent-s3/idf/tests/tls_feasibility/reproduce-portable.md": "fa8553c58bb1779628e5889d2c7356d88b416fff386615bff62217a26bb62442"
+  },
+  "logs": {
+    "root-host": {
+      "raw_sha256": "5a96b427bfd7bb5657122953db737fbff33469ef42bd59e06dd93ffc078bbd94",
+      "exit_code": 0
+    },
+    "root-cross": {
+      "raw_sha256": "7c0d8e2e4b98441a3cdc93a5510b513ce9ab6c1a8edd3080439cc38ed31bcfc4",
+      "exit_code": 0
+    },
+    "root-browser": {
+      "raw_sha256": "20c09aafda98caf2a36bb7e2a6a649d17e1e00cd01a75f36d479c173de60a012",
+      "exit_code": 0
+    },
+    "initial-sdk-build-failure": {
+      "raw_sha256": "8f014bf1f8dc520352902cb9e99ebdd2629c65b74450a4d07f8432d92052bc52",
+      "exit_code": 1
+    },
+    "initial-memory-bio-build-failure": {
+      "raw_sha256": "7274eeadb36ff13fd2078a56c95f98de9c19eb1ee9a3416b9d443ae7ce9698eb",
+      "exit_code": 1
+    },
+    "root-host-eku-final": {
+      "raw_sha256": "3227e5c392a6fc4d68878983e95f47f7a7e25fd793f30032e8824f966c19f04f",
+      "exit_code": 0,
+      "scope": "Final common engine source; includes independent Go server forcing ClientAuth-only leaf, actual C client rejection, positive control and disabled-verification counterfactual."
+    }
+  },
+  "upstream_mbedtls": "068ff080b369adfac81509f9b57b2afabaf82dc5",
+  "framework_submodule": "dde0c4a0e448a0552f18817dcea633bb851fd288",
+  "scope": [
+    "Host actual C\u2194C and independent Go\u2194C TLS1.3 PASS; exact negative rejection and counterfactual forbidden-success RED detected.",
+    "Actual Chromium/WASM four scenarios PASS. Androidarm64+iOSdevice/simulatorarm64 compile/link only, not native runtime.",
+    "No production secure channel, reliable GATT, SPKI/binding pin wrapper or physical heap acceptance.",
+    "Historical SDK failures retained; later official clean full-app TLS1.3 build supersedes only compile blocker, tracked separately."
+  ],
+  "source_corrections": "Pinned clean dependencies; clean iOS simulator configure; Go watchdog; exact negative rejection stages/flags and cleanup; independent forced-EKU server/client and counterfactual. Earlier cross/browser evidence predates added host-only independent EKU fixtures; shared engine/main unchanged."
+}

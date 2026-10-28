@@ -1,0 +1,122 @@
+{
+  "createdAt": "2026-10-21T12:30:14.491071+00:00",
+  "scope": "selected-source-review-not-full-runtime-test",
+  "contractLockResult": "FAIL-runtime-drift",
+  "files": [
+    {
+      "path": "README.md",
+      "sha256": "0b98b7ffba22fdffd4179c638d5d65d87adac1a52c24f57ae827f61a161908ab",
+      "size": 17396
+    },
+    {
+      "path": "IMPLEMENTATION_STATUS.md",
+      "sha256": "24351cb93b37c3a5ebb87b2189234f33fa7e43765a6f3a5a1744fee34c343762",
+      "size": 104488
+    },
+    {
+      "path": "MVP_GATES.md",
+      "sha256": "a71934febda3197f56ae83d0144d2b2157e9e4f74126c28baa05c515f53ab860",
+      "size": 1795
+    },
+    {
+      "path": "contracts/CONTRACT_LOCK.md",
+      "sha256": "92d261cfc0e3db213606638dcde72739c91731d0d9b7c8009b543a3ba917c66c",
+      "size": 4687
+    },
+    {
+      "path": "contracts/openapi-runtime-v1.yaml",
+      "sha256": "6e0f350e740977ec87d682d7f85f151c26aea4d6962ab36455a5d37a11d16960",
+      "size": 118549
+    },
+    {
+      "path": "contracts/openapi-corrections-v1.yaml",
+      "sha256": "54517a6826003ce5b7cf42d067ca8a6f76014943c5c2959ddfa327dd22e7884b",
+      "size": 9168
+    },
+    {
+      "path": "scripts/verify-contract-lock.sh",
+      "sha256": "176a1ac5f4c7f8c46f095b1ac26361260c85b4c5270602446c7366472626cf11",
+      "size": 752
+    },
+    {
+      "path": "fiscal-backend/internal/domain/service.go",
+      "sha256": "3d5f3102105652f660ed575675cb40e400134535ac653596e0e53bec32ef526c",
+      "size": 68300
+    },
+    {
+      "path": "minipos/beeminipos-backend/internal/fiscalintegration/operation.go",
+      "sha256": "2b5716c02057dfbddca1625f529e1f7217e004edc85df877b04f98f5e4f87469",
+      "size": 3176
+    },
+    {
+      "path": "minipos/beeminipos-backend/internal/fiscalintegration/client.go",
+      "sha256": "655fa6bc849c3d92bc8882048d9194dd9784399e9d8f317d6bc713a59a68e87a",
+      "size": 17835
+    },
+    {
+      "path": "minipos/BeeMiniPOS/package.json",
+      "sha256": "9b92520030ed078ae37e8f512832cead597e5ac1c953a1f5cddcef5a3aea980b",
+      "size": 3832
+    },
+    {
+      "path": "minipos/BeeMiniPOS/ios/Podfile.lock",
+      "sha256": "8ec4fed90fee2a10c91f67360b15883d450bda0f2bfa1a5f859d5f450ed3f73d",
+      "size": 60145
+    },
+    {
+      "path": "IoT/firmware/edge-agent-s3/idf/main/intent_processor.cpp",
+      "sha256": "edab775c17913f05f58375d923667ebd50b0543a20a2627b71baccd4f5722625",
+      "size": 29739
+    },
+    {
+      "path": "IoT/firmware/edge-agent-s3/idf/main/receipt_saga.cpp",
+      "sha256": "126d04ad0cd1d32f07ef3244481b04e2816f6582c2473ecae628ac3a03060bf0",
+      "size": 2224
+    },
+    {
+      "path": "IoT/firmware/edge-agent-s3/idf/main/profile_executor.h",
+      "sha256": "1962c094a3cc334f6c2f72a23932bd0dff5019aa43377528a83bde7711a2cef2",
+      "size": 2992
+    },
+    {
+      "path": "IoT/firmware/edge-agent-s3/idf/main/durable_storage.h",
+      "sha256": "9b305b18dff0786921c8d80d75c7d83de1bbd436a62f5c12966d0d16199e4385",
+      "size": 6797
+    },
+    {
+      "path": "IoT/firmware/edge-agent-s3/idf/main/payment_reconciliation.cpp",
+      "sha256": "6f940bcfd737482d1b5153a6deaf287608b30a476d2a0064e14a64ce8fae90d1",
+      "size": 7900
+    },
+    {
+      "path": "IoT/protocol-abstraction/README.md",
+      "sha256": "e27cbaaba0a5b3c185a4190d594f3f7cf66b9cc7002ad4788c0a3c21fb398700",
+      "size": 5347
+    },
+    {
+      "path": "docs/remediation/2026-10-17/30_ELECTRONIC_RECEIPT_GAP.md",
+      "sha256": "117b872445bce7ab3cecba255dca7f76fcbe9d10c32550e65576dcd17d03476d",
+      "size": 2014
+    },
+    {
+      "path": "docs/remediation/2026-10-17/66_TRUSTED_TIME_PRODUCTION_VERTICAL.md",
+      "sha256": "5f02c2f77acf5d91803aea1f3e154d09451b24ab38e4127678fa836b105d969d",
+      "size": 24842
+    },
+    {
+      "path": "docs/remediation/2026-10-17/68_INSTALLED_TIME_LIFECYCLE.md",
+      "sha256": "09496742a75c04ccd7d6b458a7345b3afa64e5c307fe8a40c6b5bdc4b02a8b31",
+      "size": 3899
+    },
+    {
+      "path": "docs/remediation/2026-10-17/69_NATIVE_APPLICATION_BUILD_CHECKPOINT.md",
+      "sha256": "2218ecfc9ed40f2cb1a851dc601a88e75364b4c908a5c233d2d559c5a8dab572",
+      "size": 3210
+    },
+    {
+      "path": "docs/remediation/2026-10-17/70_FULL_PRE_HIL_REMEDIATION_PLAN_FOR_SMALL_MODEL.md",
+      "sha256": "0d39caf814f4702460f69ed40e81cea48782e38afdb33220440a79ac5f70c1f6",
+      "size": 336723
+    }
+  ]
+}

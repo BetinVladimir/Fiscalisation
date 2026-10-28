@@ -21,21 +21,27 @@ end
 
 sources = {
   "fiscal-backend/internal/api/handler.go" => [
-    "/public/v1/sales:open-with-line", ":finalize", "/public/v1/workstations/", "/public/v1/exports/periodized", "/public/v1/exports/", "activation-tokens",
+    "/public/v1/payment-reconciliations:authorize", "/public/v1/sales:open-with-line", "/public/v1/workstations/", "/public/v1/exports/periodized", "/public/v1/exports/",
     "/platform/v1/manufacturing/devices:register", "/platform/v1/devices"
   ],
+  "fiscal-backend/internal/api/handlers_sales.go" => [":finalize"],
+  "fiscal-backend/internal/api/handlers_devices.go" => ["activation-tokens"],
   "minipos/beeminipos-backend/internal/api/handler.go" => [
-    "/public/v1/minipos/configuration", "/public/v1/minipos/employees/", "/public/v1/minipos/operator-session",
+    "/public/v1/minipos/execution-authorizations", "/public/v1/minipos/execution-authorizations:dispatch", "/public/v1/minipos/configuration", "/public/v1/minipos/employees/", "/public/v1/minipos/operator-session",
     "/public/v1/minipos/shifts", "/public/v1/minipos/shifts/", "/public/v1/minipos/orders/",
     "identity-binding", "checkout-batch", "reversals", "/public/v1/fiscal-webhooks",
     "/public/v1/minipos/fiscal-enrollment", "/public/v1/minipos/tax-groups"
   ],
-  "edge-agent/localapi/handler.go" => ["/internal/v1/final-device", "/internal/v1/commands", "/internal/v1/storage", "/local/v1/intents"],
 }
 sources.each do |relative, routes|
   source = File.read(File.join(root, relative))
   routes.each { |route| abort "runtime route disappeared: #{route}" unless source.include?(route) }
 end
 
-abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 64
+abort "runtime OpenAPI operation count changed without verifier review: #{operations.length}" unless operations.length == 74
+# Nine reviewed additions to the 65-operation base: execution authorization,
+# source line PATCH/DELETE and explicit delegated ADMIN binding/issuance.
+%w[authorizePaymentReconciliation dispatchMiniPosPreparedExecution getMiniPosExecutionIdentity issueMiniPosExecutionAuthorization bindReconciliationAdministrator authorizeMiniPosPaymentReconciliation updateMiniPosSourceOrderLine deleteMiniPosSourceOrderLine bindMiniPosEmployeeIdentity].each do |id|
+  abort "reviewed authorization operation missing: #{id}" unless operations.include?(id)
+end
 puts "runtime OpenAPI coverage OK: #{operations.length} operations"

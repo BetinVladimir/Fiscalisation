@@ -1,0 +1,15 @@
+*.pem
+assets.h
+build-*/
+counterfactual/
+*.o
+*.a
+*.so
+*.dylib
+*.wasm
+c-fixture*
+emsdk/
+mbedtls-*/
+node_modules/
+.pio/
+c-peer-client

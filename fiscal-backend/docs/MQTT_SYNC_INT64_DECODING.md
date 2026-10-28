@@ -1,0 +1,9 @@
+# MQTT sync integer preservation
+
+2026-10-18. A signed event with nested JSON integer 9007199254740993 failed actual `mqttclient.Processor.Process` → `Service.SyncBatchForTenant` with `batch hash chain mismatch`: json.Unmarshal decoded map values through float64 before signature/hash validation. The executable regression signs the exact event and batch using P256/P1363 and the production signing verification path; it includes signed-int64 extrema and nested arrays/maps. It does not replace the service with a mock.
+
+Using json.Decoder.UseNumber at MQTT ingress fixed the first failure, then exposed a second after repository restart: persisted EdgePendingCommand payload integers again became float64 (MaxInt64 serialized as 9223372036854776000). A targeted EdgePendingCommand.UnmarshalJSON now preserves Payload and ResultPayload numbers across snapshot/entity reload. Typed int64 fields remain typed; generic resource/nomenclature decoding is unchanged. Existing downstream intAny explicitly supports json.Number and is exercised with a value above 2^53.
+
+The MQTT decoder requires exactly one JSON value; trailing objects, arrays, null and malformed text fail before backend mutation. JSON trailing whitespace remains accepted. Production hardware signatures, exact hash validation and tenant/device binding remain required.
+
+Validation: TestMQTTSignedNestedInt64ActualBackendAndRestart (actual signed MQTT ingress, durable pending context, restart, exact replay), TestMQTTSyncRejectsTrailingJSONBeforeBackendMutation, TestPendingCommandJSONPreservesResultAndPayloadNumbers; full domain/MQTT race suites pass. Isolated red evidence: baseline rejected valid signature/hash input; ingress-only fix then failed persisted-number assertion after restart. These tests cover software wire/persistence behavior and make no claim of physical hardware validation.

@@ -1430,7 +1430,7 @@ export interface components {
         };
         ComplianceExportRequest: {
             /** @enum {string} */
-            type: "SUPTO_18_1" | "SUPTO_18_2" | "SUPTO_18_3" | "SUPTO_18_4" | "SUPTO_18_5" | "SUPTO_18_9" | "KLEN" | "FISCAL_MEMORY";
+            type: "SUPTO_18_1" | "SUPTO_18_2" | "SUPTO_18_3" | "SUPTO_18_4" | "SUPTO_18_5" | "SUPTO_18_6" | "SUPTO_18_7" | "SUPTO_18_8" | "SUPTO_18_9" | "KLEN" | "FISCAL_MEMORY";
             /** Format: date-time */
             from: string;
             /** Format: date-time */

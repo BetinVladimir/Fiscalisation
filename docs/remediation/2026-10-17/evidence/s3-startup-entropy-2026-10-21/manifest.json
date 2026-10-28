@@ -1,0 +1,42 @@
+{
+  "base_commit": "14457fe",
+  "scope": "S3 internal NVS identity startup entropy only; no ATECC; no physical flash",
+  "logs": {
+    "root-final-entropy.log": {
+      "raw_sha256": "8cfe7b2d21ffe7dedc4aa4dbcb5787469c3e9758204b98065a45b891431b28da",
+      "bytes": 696,
+      "exit_code": 0
+    },
+    "root-full-iot-before-budget-fixture.log": {
+      "raw_sha256": "e6db054522c0ab4c999ddb700b8baa65fe743d8f8a0b7097eb2c05a71c82572a",
+      "bytes": 69957,
+      "exit_code": 0
+    },
+    "idf-target-build.log": {
+      "raw_sha256": "3ef299f712138cf3a1c7bd0cdab9c2889de25041f6c391e4e528a15b9e8e828f",
+      "bytes": 2177,
+      "exit_code": 0
+    },
+    "host-sanitized.log": {
+      "raw_sha256": "5ba5a2c2d58129213563c5d399a1ba87f318d1d56e112ad2823fd1edd1e523d1",
+      "bytes": 98,
+      "exit_code": 0
+    },
+    "restored-sdk-rebuild.log": {
+      "raw_sha256": "f589df4d91433037cc37fe7ddfe3d6fa263e65a00f45ebd841d9a39f6a35e95b",
+      "bytes": 1713,
+      "exit_code": 0
+    }
+  },
+  "artifacts": {
+    "firmware.bin": "9ae3d988a975ed1bd9664757991829a7acd0f54202c1c3eb3ee3a26e51c11051",
+    "firmware.elf": "370a5a80078180962192db4252d0a6eb4f4f75d2c76a8ac2bc0f0fed9f02c55d"
+  },
+  "toolchain": "PlatformIO espressif32 6.10.0; ESP-IDF 5.4.0; mbedTLS 3.6.2; xtensa 14.2.0",
+  "limitations": [
+    "Full iot-test predates only final budget-test extension; final entropy runner includes extension. Production code identical.",
+    "Sanitized identity wrapper does not establish full instrumentation of vendor library.",
+    "SDK security advisory baseline remains OPEN; successful target compilation is not security maintenance acceptance.",
+    "No silicon entropy, device HIL, existing-key provenance or dynamic heap acceptance."
+  ]
+}

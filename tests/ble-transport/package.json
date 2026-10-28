@@ -1,0 +1,19 @@
+{
+  "name": "@beeloy/fiscal-transport-test",
+  "version": "0.0.0",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": "22.14.0",
+    "npm": "10.9.2"
+  },
+  "packageManager": "npm@10.9.2",
+  "devDependencies": {
+    "@noble/ciphers": "2.3.0",
+    "@noble/curves": "2.3.0",
+    "@noble/hashes": "2.3.0",
+    "cbor-x": "1.6.4",
+    "vite": "6.1.0",
+    "vitest": "3.0.7"
+  }
+}

@@ -1,0 +1,19 @@
+import {NativeExecutionAuthority,type ExecutionScope,type AuthorizedContext,type AuthorizationEnvelope} from './nativeExecutionAuthority.ts';
+import {base64urlEncode,hash256} from './portableCrypto.ts';
+export class NativeExecutionManager {
+ private scope?:ExecutionScope; private readonly index:string;
+ private authority:NativeExecutionAuthority;private store:{getItem(k:string):Promise<string|null>;setItem(k:string,v:string):Promise<void>;removeItem(k:string):Promise<void>};
+ private request:<T>(path:string,init?:RequestInit)=>Promise<T>;private source:{backend:string;token:string;appInstance:string;shiftID:string};private uuid:()=>string;
+ constructor(authority:NativeExecutionAuthority,store:NativeExecutionManager['store'],request:NativeExecutionManager['request'],source:NativeExecutionManager['source'],uuid:()=>string){this.authority=authority;this.store=store;this.request=request;this.source=source;this.uuid=uuid;this.index='beeminipos:execution-manager:v1:'+source.backend+':'+source.appInstance+':'+base64urlEncode(hash256(new TextEncoder().encode(source.token)))+':'+source.shiftID;}
+ private async active(){if(await this.store.getItem(this.index+':revoked'))throw Error('AUTHENTICATED_SESSION_REVOKED');}
+ async restore(){await this.active();const saved=await this.store.getItem(this.index);if(!saved)return;const scope=JSON.parse(saved) as ExecutionScope;const tokenHash=base64urlEncode(hash256(new TextEncoder().encode(this.source.token)));if(scope.backend!==this.source.backend||scope.appInstance!==this.source.appInstance||scope.sessionID!==tokenHash)throw Error('EXECUTION_IDENTITY_MISMATCH');this.scope=scope;const context=await this.authority.restore(scope);await this.active();return context;}
+ async issue(order?:{id:string;payments:unknown[]},requestKey?:string):Promise<{context:AuthorizedContext;canonicalPayload?:Record<string,unknown>}>{try{
+  await this.active();const identity=await this.request<{tenant_id:string;actor_subject:string;source_session_id:string;app_instance_id:string}>('/execution-authorizations?shift_id='+encodeURIComponent(this.source.shiftID));await this.active();
+  const tokenHash=base64urlEncode(hash256(new TextEncoder().encode(this.source.token)));
+  if(identity.source_session_id!==tokenHash||identity.app_instance_id!==this.source.appInstance||!identity.tenant_id||!identity.actor_subject)throw Error('EXECUTION_IDENTITY_MISMATCH');
+  const scope:ExecutionScope={backend:this.source.backend,tenant:identity.tenant_id,actorSubject:identity.actor_subject,appInstance:identity.app_instance_id,sessionID:identity.source_session_id};this.scope=scope;await this.store.setItem(this.index,JSON.stringify(scope));
+  const publicKey=await this.authority.publicKey(scope);await this.active();const response=await this.request<{authorization:AuthorizationEnvelope;canonical_payload?:Record<string,unknown>;transport_token?:string}>('/execution-authorizations',{method:'POST',headers:{'Idempotency-Key':requestKey??this.uuid()},body:JSON.stringify({shift_id:this.source.shiftID,client_signing_public_key_der_base64:publicKey,...(order?{order_id:order.id,payments:order.payments}:{})})});await this.active();
+  const context=await this.authority.accept(scope,response.authorization,response.transport_token);await this.active();if(order&&(!context.claims.unp_authority||!response.canonical_payload))throw Error('SERVER_PREPARED_AUTHORITY_REQUIRED');return {context,canonicalPayload:response.canonical_payload};
+ }catch(error){if([401,403].includes(Number((error as {status?:number})?.status)))await this.revoke();throw error;}}
+ async revoke(){await this.store.setItem(this.index+':revoked','1');let scope=this.scope;const saved=await this.store.getItem(this.index);if(!scope&&saved)scope=JSON.parse(saved);await this.store.removeItem(this.index);if(scope)await this.authority.revoke(scope);}
+}

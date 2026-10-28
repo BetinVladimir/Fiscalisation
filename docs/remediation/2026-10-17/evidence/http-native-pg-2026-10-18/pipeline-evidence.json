@@ -1,0 +1,109 @@
+{
+  "source_order_id": "aa8ec83c-67b2-4db8-b6f5-34152e0ceacf",
+  "fiscal_sale_id": "sale-59455040-1a2f-fe5c-46a6-5225a055485a",
+  "operation_id": "bbea3c8b-4dee-4425-ae88-b8a44cfde6a1",
+  "receipt_session_id": "f920813a-d82a-4bca-a38d-b712322bd285",
+  "unp": "AB123456-A001-0002001",
+  "tenant_id": "10000000-0000-4000-8000-000000000001",
+  "authorizations": 2,
+  "submissions": 1,
+  "firmware_events": {
+    "accepted": {
+      "acceptance_evidence": {
+        "authority": {
+          "binding_sha256": "bf10ad329ebae47a70ca8dcb96cd8360ff683e715a20a8c9985349625da76a97",
+          "range_end": 1000,
+          "range_start": 1,
+          "unp_prefix": "AB123456"
+        },
+        "binding_sha256": "bf10ad329ebae47a70ca8dcb96cd8360ff683e715a20a8c9985349625da76a97",
+        "client_sale_surrogate_id": "aa8ec83c-67b2-4db8-b6f5-34152e0ceacf",
+        "fiscal_device_id": "fiscal-1",
+        "generation": 7,
+        "ingress": "HTTP",
+        "payload_sha256": "6d0978553b2149e3bc6a0121851f246bb8897c8199f13867bbafbf4bde7649b9",
+        "proof_state": "AUTHORIZED",
+        "receipt_session_id": "f920813a-d82a-4bca-a38d-b712322bd285",
+        "server_sale_id": "sale-59455040-1a2f-fe5c-46a6-5225a055485a",
+        "session_evidence": {
+          "authorization_id": "1d4aa9da-2599-46fd-8a43-d3431077bdf4",
+          "authorization_sha256": "2c313070082d212f34cc01d6dcea728c677fb5ff0fbd9d5898470213028c23cf",
+          "client_proof_sha256": "78459335a65f05c157ff988954c6c6659a8ee24637846333a16859fc367999fe"
+        },
+        "unp": "AB123456-A001-0002001",
+        "unp_source": "SERVER_ASSIGNED",
+        "version": 2
+      },
+      "command": {
+        "command_type": "SALE_FINALIZE",
+        "device_id": "adapter-1",
+        "operation_id": "bbea3c8b-4dee-4425-ae88-b8a44cfde6a1",
+        "payload": {
+          "currency": "EUR",
+          "external_id": "integration-order:22126c585121aa21c53ee13a242c00343fa7c0008e948df56a3c68769f79a136",
+          "items": [
+            {
+              "line_id": "4aaee900-2b41-482b-aef3-8436f52c8321",
+              "name": "Coffee",
+              "quantity": "1.000",
+              "tax_group": "B",
+              "unit_price": {
+                "amount": "2.50",
+                "currency": "EUR"
+              }
+            }
+          ],
+          "location_id": "location-1",
+          "metadata": {},
+          "operator_code": "A001",
+          "operator_id": "operator-1",
+          "payments": [
+            {
+              "amount": {
+                "amount": "2.50",
+                "currency": "EUR"
+              },
+              "payment_id": "5549c260-4598-4587-b760-ab3d29d60f2f",
+              "type": "CASH"
+            }
+          ],
+          "server_sale_id": "sale-59455040-1a2f-fe5c-46a6-5225a055485a",
+          "unp": "AB123456-A001-0002001",
+          "unp_source": "SERVER_ASSIGNED"
+        },
+        "register_id": "register-1",
+        "tenant_id": "10000000-0000-4000-8000-000000000001"
+      },
+      "operation_sequence": 1,
+      "unp_sequence": 0
+    },
+    "result": {
+      "auth_code": "",
+      "error_code": "",
+      "fiscal_reference": "470",
+      "operation_id": "bbea3c8b-4dee-4425-ae88-b8a44cfde6a1",
+      "operation_type": "SALE_FINALIZE",
+      "payload_sha256": "6d0978553b2149e3bc6a0121851f246bb8897c8199f13867bbafbf4bde7649b9",
+      "payment_evidence": [
+        {
+          "amount_minor": 250,
+          "auth_code": "",
+          "payment_id": "5549c260-4598-4587-b760-ab3d29d60f2f",
+          "reversal_auth_code": "",
+          "reversal_reference": "",
+          "reversal_rrn": "",
+          "rrn": "",
+          "state": "FISCALIZED_CASH",
+          "terminal_reference": "",
+          "type": "CASH"
+        }
+      ],
+      "receipt_session_id": "f920813a-d82a-4bca-a38d-b712322bd285",
+      "rrn": "",
+      "state": "COMMITTED",
+      "terminal_reference": "",
+      "unp": "AB123456-A001-0002001"
+    }
+  },
+  "physical_device": false
+}

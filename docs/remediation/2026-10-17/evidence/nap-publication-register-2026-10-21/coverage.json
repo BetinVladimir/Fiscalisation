@@ -1,0 +1,5735 @@
+{
+  "status": "PUBLICATION_REGISTER_COVERAGE_VERIFIED_FULL_ART118_AND_APPLICABILITY_OPEN",
+  "retrieved_on": "2026-10-21",
+  "source_archive": "https://dv.parliament.bg/DVWeb/broeveList.faces",
+  "inclusive_from": "2025-05-23",
+  "inclusive_to": "2026-10-21",
+  "issues": 170,
+  "official_section_publications": 1908,
+  "fulltexts_retrieved_and_title_date_verified": 522,
+  "fulltext_selection": "All Parliament399, FinanceMinistry24, VAS53, ConstitutionalCourt41; additional thematicCouncil3/BNB2. Lexical screening, not full semantic legal review.",
+  "checks": [
+    "All issue numbers2025:42..115 and2026:1..96 present",
+    "All17 resultpages and allwithinissue materialpages traversed",
+    "Perissue publicationcount equals officialreportedcount",
+    "All1908 materialIDs unique",
+    "All170 contentsdate/number verified",
+    "All522 fulltexts match exacttitle/date"
+  ],
+  "raw_html_not_published": true,
+  "cookie_session_and_browser_data_not_published": true,
+  "all_publication_metadata_sha256": "910c9ace0c1f8b09db95ed8378aabca964af3b23e547d900386a7d94a99ab9ec",
+  "per_issue": [
+    {
+      "date": "2026-10-20",
+      "number": 96,
+      "issue_id": "12704",
+      "official_publication_count": 26,
+      "raw_response_sha256": [
+        "284b440cb90fa5eebd12d238841a3ffb6814d87aaf213f8f2c801dddcd90ec58"
+      ]
+    },
+    {
+      "date": "2026-10-16",
+      "number": 95,
+      "issue_id": "12703",
+      "official_publication_count": 6,
+      "raw_response_sha256": [
+        "dfa2d9ca3ab3e520819487539806c49aade874bd47008f5f6933bac16121b525"
+      ]
+    },
+    {
+      "date": "2026-10-13",
+      "number": 94,
+      "issue_id": "12702",
+      "official_publication_count": 16,
+      "raw_response_sha256": [
+        "b66668887381dce246b5ce12be00a0bff45d36e46d211779625e92ffd298146b"
+      ]
+    },
+    {
+      "date": "2026-10-09",
+      "number": 93,
+      "issue_id": "12701",
+      "official_publication_count": 4,
+      "raw_response_sha256": [
+        "5a2b4efc076b5eaa5f5257e62c255b528a10951a4ee4714170c463da28ad955a"
+      ]
+    },
+    {
+      "date": "2026-10-06",
+      "number": 92,
+      "issue_id": "12700",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "1f87c162aa07a855072210e8b48eaa6fd7f31a93c00362cb089bc4d8c77d4cd8"
+      ]
+    },
+    {
+      "date": "2026-10-02",
+      "number": 91,
+      "issue_id": "12647",
+      "official_publication_count": 14,
+      "raw_response_sha256": [
+        "cbe5487f0b7a64203d2c935e641916d7278d5b69d6b59cee5bd61d545001fa72"
+      ]
+    },
+    {
+      "date": "2026-09-30",
+      "number": 90,
+      "issue_id": "12719",
+      "official_publication_count": 4,
+      "raw_response_sha256": [
+        "b886f35ae2f5dd65348c38f4a46f8d362522eaee0789895a899488983d3d0022"
+      ]
+    },
+    {
+      "date": "2026-09-29",
+      "number": 89,
+      "issue_id": "12646",
+      "official_publication_count": 22,
+      "raw_response_sha256": [
+        "1cc8537be02cdf136bb4de25699c5abe9efb922c1ce3722d4ae9300b57f59e3d"
+      ]
+    },
+    {
+      "date": "2026-09-25",
+      "number": 88,
+      "issue_id": "12645",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "9274ecda4d7b0b7942c237741701cd77d077738b30ff63264ae337822419ac91"
+      ]
+    },
+    {
+      "date": "2026-09-24",
+      "number": 87,
+      "issue_id": "12699",
+      "official_publication_count": 11,
+      "raw_response_sha256": [
+        "091d4eaedd819245c0bc7ba1861a9e7d13d8e23da5abdba9d392ca38cbcfdc5e"
+      ]
+    },
+    {
+      "date": "2026-09-18",
+      "number": 86,
+      "issue_id": "12644",
+      "official_publication_count": 4,
+      "raw_response_sha256": [
+        "00378e708105288e5aa3c45cabf4e8cad6b060a2727a05f25462782918688d4d"
+      ]
+    },
+    {
+      "date": "2026-09-15",
+      "number": 85,
+      "issue_id": "12643",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "cfe77f93e19d8a12f37dd3239b6d4feebaad88df7ff025d54dabbd9a2276a07b"
+      ]
+    },
+    {
+      "date": "2026-09-11",
+      "number": 84,
+      "issue_id": "12642",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "6c6a87eea603f73b56ded72fbf69926627690cc0c1b3641db8f20448303d0e5a"
+      ]
+    },
+    {
+      "date": "2026-09-10",
+      "number": 83,
+      "issue_id": "12679",
+      "official_publication_count": 1,
+      "raw_response_sha256": [
+        "acb8fdd54f195c1db3edb842a4daef4afbc036634dc0c82efbfa70e740b2ef79"
+      ]
+    },
+    {
+      "date": "2026-09-08",
+      "number": 82,
+      "issue_id": "12641",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "03fa502c3334bd6f93af32226af548eae54c5699de17e85e363f3915996b4a72"
+      ]
+    },
+    {
+      "date": "2026-09-04",
+      "number": 81,
+      "issue_id": "12640",
+      "official_publication_count": 20,
+      "raw_response_sha256": [
+        "f871448dabe217ef43df76a8ed43938d159a049b2e9a0a9890ea85ff9c0ef6c8"
+      ]
+    },
+    {
+      "date": "2026-09-01",
+      "number": 80,
+      "issue_id": "12660",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "ce2bed4b3e2045b2d23d474aad467445ed70e3df2f08669e97a9438f598261d2"
+      ]
+    },
+    {
+      "date": "2026-08-28",
+      "number": 79,
+      "issue_id": "12626",
+      "official_publication_count": 6,
+      "raw_response_sha256": [
+        "87946a45e98a90bb84614323167925e8e5334e5a450b758afd9091d2d4c406f3"
+      ]
+    },
+    {
+      "date": "2026-08-26",
+      "number": 78,
+      "issue_id": "12659",
+      "official_publication_count": 7,
+      "raw_response_sha256": [
+        "76a6e2fcdf48565c2773868f7ec01d7c8b51215b85b1a1d84cb14babdd610870"
+      ]
+    },
+    {
+      "date": "2026-08-25",
+      "number": 77,
+      "issue_id": "12625",
+      "official_publication_count": 13,
+      "raw_response_sha256": [
+        "0e718ad0c35de112ba77bf3caf2b2543d75e87f0d2a3ed160303a10adb23fa07"
+      ]
+    },
+    {
+      "date": "2026-08-21",
+      "number": 76,
+      "issue_id": "12624",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "d98fcb555d10742e76cf23c7e8770764afae25c85f3fe4fe5ccb65496f690198"
+      ]
+    },
+    {
+      "date": "2026-08-19",
+      "number": 75,
+      "issue_id": "12639",
+      "official_publication_count": 2,
+      "raw_response_sha256": [
+        "718c0ab8eefeeff8c62831a384c2417f871e06d78ca0877bb7c234c302f2ee43"
+      ]
+    },
+    {
+      "date": "2026-08-18",
+      "number": 74,
+      "issue_id": "12623",
+      "official_publication_count": 5,
+      "raw_response_sha256": [
+        "76a63501ac54d29d7de81c5f96364f1e12368d4fb58ba4009ff12b9dcd7f3513"
+      ]
+    },
+    {
+      "date": "2026-08-14",
+      "number": 73,
+      "issue_id": "12622",
+      "official_publication_count": 7,
+      "raw_response_sha256": [
+        "86a7909dcaec00547ad02aa52b36b13a913c0ce592544c5be0ffb19b97db23b7"
+      ]
+    },
+    {
+      "date": "2026-08-11",
+      "number": 72,
+      "issue_id": "12621",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "d92e34c8fc0a9990725ad782604524f56d2929eca7c45895032878d1779aa566"
+      ]
+    },
+    {
+      "date": "2026-08-07",
+      "number": 71,
+      "issue_id": "12620",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "13f072fc45c0820f94752d32c7667f6b1977eea9162aeb6ed2c59e932d69f225"
+      ]
+    },
+    {
+      "date": "2026-08-04",
+      "number": 70,
+      "issue_id": "12619",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "de7466209f536a4469ad3489186c4894ff649b48a2fe4b08984483ccb19875a8"
+      ]
+    },
+    {
+      "date": "2026-07-31",
+      "number": 69,
+      "issue_id": "12606",
+      "official_publication_count": 7,
+      "raw_response_sha256": [
+        "9502aafb784422cecc9f96f6a0f37da5987d8a2a4e4e25988fe69067fe177f85"
+      ]
+    },
+    {
+      "date": "2026-07-28",
+      "number": 68,
+      "issue_id": "12605",
+      "official_publication_count": 12,
+      "raw_response_sha256": [
+        "70dff3b735fd5213af79a62cfc0c1e885fe5218bea196daba4a5f5fa5d327445"
+      ]
+    },
+    {
+      "date": "2026-07-24",
+      "number": 67,
+      "issue_id": "12604",
+      "official_publication_count": 12,
+      "raw_response_sha256": [
+        "88371863d36be7ef0e8207e54def140aec90a98def10048c8114616961a126c4"
+      ]
+    },
+    {
+      "date": "2026-07-21",
+      "number": 66,
+      "issue_id": "12603",
+      "official_publication_count": 11,
+      "raw_response_sha256": [
+        "6fe680b23f83532926bd821503aea0db36d84dc85c6fe55f5fb35a94f97215f3"
+      ]
+    },
+    {
+      "date": "2026-07-17",
+      "number": 65,
+      "issue_id": "12602",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "37217def0c32a0c52a359ec791bf4913aa5888512b21aebae78bca69e370d218"
+      ]
+    },
+    {
+      "date": "2026-07-14",
+      "number": 64,
+      "issue_id": "12601",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "d275edc17e9063b7902c2c81c957dbef70db56b7b6bf3af2cef706c0fc68020c"
+      ]
+    },
+    {
+      "date": "2026-07-10",
+      "number": 63,
+      "issue_id": "12600",
+      "official_publication_count": 11,
+      "raw_response_sha256": [
+        "816908f7dc14326253611abb5e8d6fe151ca75849a0271eb683b0b3a2e768880"
+      ]
+    },
+    {
+      "date": "2026-07-07",
+      "number": 62,
+      "issue_id": "12599",
+      "official_publication_count": 17,
+      "raw_response_sha256": [
+        "e01c925c838ad775a2553c042b9d7554719e68afc3aeb3c4f5f58eee575108f7"
+      ]
+    },
+    {
+      "date": "2026-07-03",
+      "number": 61,
+      "issue_id": "12598",
+      "official_publication_count": 17,
+      "raw_response_sha256": [
+        "781d2ee330acdbd02520dc3b350b50b00389d761dd643771d7a28c125c9b6dbc"
+      ]
+    },
+    {
+      "date": "2026-07-01",
+      "number": 60,
+      "issue_id": "12618",
+      "official_publication_count": 2,
+      "raw_response_sha256": [
+        "75adb7a4e0c0c425ef0bfb91f010a44e849b7aa44026c0c7784b05c792c036e9"
+      ]
+    },
+    {
+      "date": "2026-06-30",
+      "number": 59,
+      "issue_id": "12566",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "f79482b91be02dda4d2722b9036365cc4b8cec74c2f2eca83e32153e22bad792"
+      ]
+    },
+    {
+      "date": "2026-06-26",
+      "number": 58,
+      "issue_id": "12565",
+      "official_publication_count": 12,
+      "raw_response_sha256": [
+        "0994416352da249528f070e12cf1553ee418ed671ab5c9a052dd1309ac34c79d"
+      ]
+    },
+    {
+      "date": "2026-06-23",
+      "number": 57,
+      "issue_id": "12564",
+      "official_publication_count": 16,
+      "raw_response_sha256": [
+        "4f26c150550e26266ff944862dc3d029b3ce24200efc7e7f285f9ac912198bed"
+      ]
+    },
+    {
+      "date": "2026-06-19",
+      "number": 56,
+      "issue_id": "12563",
+      "official_publication_count": 13,
+      "raw_response_sha256": [
+        "3212cefbd76a66f5a8ff99e42a33deb0ec47bad146bdb471351b87ca77ec637d"
+      ]
+    },
+    {
+      "date": "2026-06-16",
+      "number": 55,
+      "issue_id": "12562",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "7d22ba481488ff2ccb314dd8684eba66e6f98ca9e94b674b4a3aff8f044b9923"
+      ]
+    },
+    {
+      "date": "2026-06-12",
+      "number": 54,
+      "issue_id": "12561",
+      "official_publication_count": 27,
+      "raw_response_sha256": [
+        "dd44e007e66368b8b2e3c72931bb696784145d6ecfc36ba906c0dbc42af2dc9c"
+      ]
+    },
+    {
+      "date": "2026-06-09",
+      "number": 53,
+      "issue_id": "12560",
+      "official_publication_count": 4,
+      "raw_response_sha256": [
+        "64cd91b9d1fd365f87399d18c49b0eda9726a99066470d7e3b1b2494421e5e5d"
+      ]
+    },
+    {
+      "date": "2026-06-08",
+      "number": 52,
+      "issue_id": "12578",
+      "official_publication_count": 2,
+      "raw_response_sha256": [
+        "94f01ea2fe0735c56c8687337be0c16ee6376085e05a673530604b9c7f6f7eb0"
+      ]
+    },
+    {
+      "date": "2026-06-05",
+      "number": 51,
+      "issue_id": "12559",
+      "official_publication_count": 4,
+      "raw_response_sha256": [
+        "d020c03ab22dc3e2145f57fb090d9f643431e74204947f951ecd910326c69864"
+      ]
+    },
+    {
+      "date": "2026-06-02",
+      "number": 50,
+      "issue_id": "12558",
+      "official_publication_count": 6,
+      "raw_response_sha256": [
+        "f0219acb7f0ae76674d5700019d31ae8491e782b6569363b0c1f5f9a4c03c459"
+      ]
+    },
+    {
+      "date": "2026-05-29",
+      "number": 49,
+      "issue_id": "12505",
+      "official_publication_count": 2,
+      "raw_response_sha256": [
+        "4a0708b8bdea12afe08423cda0ee5a56640eb3affccff124214464be60581cc9"
+      ]
+    },
+    {
+      "date": "2026-05-26",
+      "number": 48,
+      "issue_id": "12504",
+      "official_publication_count": 3,
+      "raw_response_sha256": [
+        "eb366a422f01d84e043d7d70d1eab538a8a7c2bc3dfe77121d321b42915247c0"
+      ]
+    },
+    {
+      "date": "2026-05-22",
+      "number": 47,
+      "issue_id": "12503",
+      "official_publication_count": 5,
+      "raw_response_sha256": [
+        "9f9b21c4f0560bcb97e8af50af77ebd8ff06a03a2f34b7244fa4ade735626490"
+      ]
+    },
+    {
+      "date": "2026-05-19",
+      "number": 46,
+      "issue_id": "12502",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "b48cd869ba392ecc985f27c3ff1a9869eea9e0838ba2d41579f172dc4d82a077"
+      ]
+    },
+    {
+      "date": "2026-05-15",
+      "number": 45,
+      "issue_id": "12501",
+      "official_publication_count": 17,
+      "raw_response_sha256": [
+        "bdf210ff5b1648625158b1fc37e015ceec70fc28f1a9befafb4bdcfad111956e"
+      ]
+    },
+    {
+      "date": "2026-05-14",
+      "number": 44,
+      "issue_id": "12538",
+      "official_publication_count": 7,
+      "raw_response_sha256": [
+        "40c66d9e903ddf46535c29f8687304d27b2a7891c9b370f090ae4631bc5109e5"
+      ]
+    },
+    {
+      "date": "2026-05-12",
+      "number": 43,
+      "issue_id": "12500",
+      "official_publication_count": 25,
+      "raw_response_sha256": [
+        "7f8a8460192fa061060a3a608b346e2bb42b8c15a1f3ef8fc4f7dd01e517cd70"
+      ]
+    },
+    {
+      "date": "2026-05-08",
+      "number": 42,
+      "issue_id": "12499",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "278ac28b6d1c6d08c67e31737b2d0118a01f4cf7662297fa6c5f43fc65eda438"
+      ]
+    },
+    {
+      "date": "2026-05-05",
+      "number": 41,
+      "issue_id": "12498",
+      "official_publication_count": 14,
+      "raw_response_sha256": [
+        "af24a121b4178ebd27b981961b0b67854e30aa549b885d9ef182385968d0ffcd"
+      ]
+    },
+    {
+      "date": "2026-04-29",
+      "number": 40,
+      "issue_id": "12518",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "8c5ff37f7463441ac17e3c3956af2235b4115db250d9ecfddb99c234b9fe1aa5"
+      ]
+    },
+    {
+      "date": "2026-04-28",
+      "number": 39,
+      "issue_id": "12464",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "90d28c24835ee702f7d3e7aa05236e0b99fc35e18849f54bf914c7205bc16665"
+      ]
+    },
+    {
+      "date": "2026-04-24",
+      "number": 38,
+      "issue_id": "12463",
+      "official_publication_count": 4,
+      "raw_response_sha256": [
+        "7867e5bfe70bf769aac8cdf3603cbda5ea15ebc105b096ff4914ed8f0cf5afac"
+      ]
+    },
+    {
+      "date": "2026-04-21",
+      "number": 37,
+      "issue_id": "12462",
+      "official_publication_count": 5,
+      "raw_response_sha256": [
+        "bd1beca49b22b8b44dec9390554e862e3b0ad13c52520ecd3e248674e77b2368"
+      ]
+    },
+    {
+      "date": "2026-04-17",
+      "number": 36,
+      "issue_id": "12461",
+      "official_publication_count": 12,
+      "raw_response_sha256": [
+        "891283315fe18bf43b8b44610c0b2764b45f476213d447e779fac440fb8bb242"
+      ]
+    },
+    {
+      "date": "2026-04-14",
+      "number": 35,
+      "issue_id": "12460",
+      "official_publication_count": 6,
+      "raw_response_sha256": [
+        "90651e4db267664994dfe0882b6c8c2989c393254a20f634798d177022ba2984"
+      ]
+    },
+    {
+      "date": "2026-04-07",
+      "number": 34,
+      "issue_id": "12459",
+      "official_publication_count": 6,
+      "raw_response_sha256": [
+        "11743daec3e347e94c66b6f9dcdb7d53a71bf5b760159e8dbde745fb441c8273"
+      ]
+    },
+    {
+      "date": "2026-04-03",
+      "number": 33,
+      "issue_id": "12458",
+      "official_publication_count": 7,
+      "raw_response_sha256": [
+        "d9b9e1df0834266e148b6971b915991b63b5c5f7a273477f2a36eb8028f60be8"
+      ]
+    },
+    {
+      "date": "2026-04-01",
+      "number": 32,
+      "issue_id": "12478",
+      "official_publication_count": 3,
+      "raw_response_sha256": [
+        "cae9f61ec38bac828cdbfb276b563e0e5b79375ca717353a2a4008ddb7c2bad6"
+      ]
+    },
+    {
+      "date": "2026-03-31",
+      "number": 31,
+      "issue_id": "12445",
+      "official_publication_count": 6,
+      "raw_response_sha256": [
+        "da5fd35b4cfafaab35f002a09f49c58e52bc6a24b4c4849a7c4416ad70301045"
+      ]
+    },
+    {
+      "date": "2026-03-27",
+      "number": 30,
+      "issue_id": "12444",
+      "official_publication_count": 16,
+      "raw_response_sha256": [
+        "7cda7483a2147053a5053c3e9f588d4ff291e6a5afb7cf03f08e0687e4bea281"
+      ]
+    },
+    {
+      "date": "2026-03-24",
+      "number": 29,
+      "issue_id": "12443",
+      "official_publication_count": 4,
+      "raw_response_sha256": [
+        "b9c3efc94c949fabc764eb19e6588db676eb3f4a9b469e5d34b719fcb4b24ebc"
+      ]
+    },
+    {
+      "date": "2026-03-20",
+      "number": 28,
+      "issue_id": "12442",
+      "official_publication_count": 11,
+      "raw_response_sha256": [
+        "98154d52e6579410bc0def92e5be21c2f0efba94684f09e21b65299163af05ef"
+      ]
+    },
+    {
+      "date": "2026-03-17",
+      "number": 27,
+      "issue_id": "12441",
+      "official_publication_count": 3,
+      "raw_response_sha256": [
+        "0672ec409841c472adc656cc6cc2fe50141e36a746600f8300b5e84ee2b9b993"
+      ]
+    },
+    {
+      "date": "2026-03-13",
+      "number": 26,
+      "issue_id": "12440",
+      "official_publication_count": 3,
+      "raw_response_sha256": [
+        "550ce00cbbfed65299a80a373786fea3ca39654ba0b9ffe75dfcfa05f46e7d3a"
+      ]
+    },
+    {
+      "date": "2026-03-10",
+      "number": 25,
+      "issue_id": "12439",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "610691377da53980afd72c17e68432c3cffcd907febb25f78c776e0f9ef1bd2a"
+      ]
+    },
+    {
+      "date": "2026-03-06",
+      "number": 24,
+      "issue_id": "12438",
+      "official_publication_count": 25,
+      "raw_response_sha256": [
+        "261bfebbfc0a4e44e818b369d52229196a802a319922bb3816e3da2a9e9a983f"
+      ]
+    },
+    {
+      "date": "2026-02-27",
+      "number": 23,
+      "issue_id": "12386",
+      "official_publication_count": 16,
+      "raw_response_sha256": [
+        "77527bd8bfbd850f297cfd05f8e3df4a4f8819adcc0cb72e054e15f95ff766f0"
+      ]
+    },
+    {
+      "date": "2026-02-24",
+      "number": 22,
+      "issue_id": "12385",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "e861a45780fc0e5f195384c2b9094d2f11beb0bad968f7ab60074c85e6667f9c"
+      ]
+    },
+    {
+      "date": "2026-02-21",
+      "number": 21,
+      "issue_id": "12419",
+      "official_publication_count": 1,
+      "raw_response_sha256": [
+        "f25eecc49ac3bd47a2351239594d140c28b388dfd2d8d5a82cfc82a411f78c8b"
+      ]
+    },
+    {
+      "date": "2026-02-20",
+      "number": 20,
+      "issue_id": "12384",
+      "official_publication_count": 7,
+      "raw_response_sha256": [
+        "a4876a23e52d1ab39fec5444fbbfacc621324eb51b730b81ae29f23fab33bca7"
+      ]
+    },
+    {
+      "date": "2026-02-19",
+      "number": 19,
+      "issue_id": "12418",
+      "official_publication_count": 4,
+      "raw_response_sha256": [
+        "06a0bafeeb520ef0297d149e831e255006b71d5a12e553a63e35655d20230574"
+      ]
+    },
+    {
+      "date": "2026-02-17",
+      "number": 18,
+      "issue_id": "12383",
+      "official_publication_count": 7,
+      "raw_response_sha256": [
+        "1e79eb0b76acfafe83befea5c46790b52dc2d7741e19084602ba670addad317c"
+      ]
+    },
+    {
+      "date": "2026-02-13",
+      "number": 17,
+      "issue_id": "12382",
+      "official_publication_count": 15,
+      "raw_response_sha256": [
+        "274ba14e7b0f68e09214bd90ce9534fea1e081f3fc1fd3a26254b4b17c1c9257"
+      ]
+    },
+    {
+      "date": "2026-02-10",
+      "number": 16,
+      "issue_id": "12381",
+      "official_publication_count": 19,
+      "raw_response_sha256": [
+        "ab63aa5d88477d1a826044ded7f953ce974ebae58ab7e5be5ac1cb2ceabb6d21"
+      ]
+    },
+    {
+      "date": "2026-02-06",
+      "number": 15,
+      "issue_id": "12380",
+      "official_publication_count": 7,
+      "raw_response_sha256": [
+        "17ed163f81cc50121007bdf5a7ddc42f6b4ae9cc8c4e166590c2255510d28289"
+      ]
+    },
+    {
+      "date": "2026-02-04",
+      "number": 14,
+      "issue_id": "12398",
+      "official_publication_count": 1,
+      "raw_response_sha256": [
+        "92f5523de27192fd396298a7ede20cabbc3a2807ab9f4bd830fe6ff698d93501"
+      ]
+    },
+    {
+      "date": "2026-02-03",
+      "number": 13,
+      "issue_id": "12379",
+      "official_publication_count": 16,
+      "raw_response_sha256": [
+        "a86b3e78de7672b104d8fb049975e1a81f53598cb3cfc14102206686b80dcf5c"
+      ]
+    },
+    {
+      "date": "2026-01-30",
+      "number": 12,
+      "issue_id": "12306",
+      "official_publication_count": 12,
+      "raw_response_sha256": [
+        "6595ab25d3f43c82b9b3dbd4861795893d29fed634b1a620de048fb9aa024c19"
+      ]
+    },
+    {
+      "date": "2026-01-29",
+      "number": 11,
+      "issue_id": "12378",
+      "official_publication_count": 4,
+      "raw_response_sha256": [
+        "3fc70405442eafeb441e1e358b054839b5283133f6c1898b129b1b29a82efbb4"
+      ]
+    },
+    {
+      "date": "2026-01-27",
+      "number": 10,
+      "issue_id": "12305",
+      "official_publication_count": 19,
+      "raw_response_sha256": [
+        "9924f11a265f7e89d73a4ab2e7adbfb6f829e0c171cfa91cad4c087c58ccd8d2"
+      ]
+    },
+    {
+      "date": "2026-01-23",
+      "number": 9,
+      "issue_id": "12304",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "cd9264aab05db939ebf8596d61e4da1d31ccb45d2ab8bc8d511d71e8848e8f76"
+      ]
+    },
+    {
+      "date": "2026-01-21",
+      "number": 8,
+      "issue_id": "12358",
+      "official_publication_count": 1,
+      "raw_response_sha256": [
+        "bd8c364c59f91bcb88d2fd090be888a32be8e38324389cf508e4c86304e730a0"
+      ]
+    },
+    {
+      "date": "2026-01-20",
+      "number": 7,
+      "issue_id": "12303",
+      "official_publication_count": 14,
+      "raw_response_sha256": [
+        "6aa6529b99fdefc1fb89401055813ae197b8ad9de2905cced4da3cac43bd167c"
+      ]
+    },
+    {
+      "date": "2026-01-16",
+      "number": 6,
+      "issue_id": "12302",
+      "official_publication_count": 17,
+      "raw_response_sha256": [
+        "2f70b337d6690a23759038fcb96460b5a7adf20a8d05302d60a7159f19026742"
+      ]
+    },
+    {
+      "date": "2026-01-15",
+      "number": 5,
+      "issue_id": "12338",
+      "official_publication_count": 11,
+      "raw_response_sha256": [
+        "2d6455bf42ef02cf53d37e9ab9fef3602ec8f697a41bd723b6b59f2939301a9b"
+      ]
+    },
+    {
+      "date": "2026-01-13",
+      "number": 4,
+      "issue_id": "12301",
+      "official_publication_count": 14,
+      "raw_response_sha256": [
+        "d9b3428a7a4f614614ece2091fb31b628d116542445a54e1f2e12b76ffad5dc6"
+      ]
+    },
+    {
+      "date": "2026-01-09",
+      "number": 3,
+      "issue_id": "12300",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "45ff98290a13bda8632c92bcb385076b809159cece1973f3d4517dc5e1cf620b"
+      ]
+    },
+    {
+      "date": "2026-01-08",
+      "number": 2,
+      "issue_id": "12318",
+      "official_publication_count": 5,
+      "raw_response_sha256": [
+        "20efe2c9f57f1e05bc081615656be72f1ef47ec4ef141e299435c76fa4d4deb5"
+      ]
+    },
+    {
+      "date": "2026-01-06",
+      "number": 1,
+      "issue_id": "12299",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "f80d230616520b00556043f935f3a59a619bd9e2f804eda265ce2c0426dd88cd"
+      ]
+    },
+    {
+      "date": "2025-12-30",
+      "number": 115,
+      "issue_id": "12225",
+      "official_publication_count": 42,
+      "raw_response_sha256": [
+        "e7bc3fd9cb4d96debb1d8d6b105cffde1f0e0444580b9de180f584601702531f",
+        "2a160f7bb6e7aff6919f1af5978d13419900d9139e9573e20d79c0577148fe71"
+      ]
+    },
+    {
+      "date": "2025-12-24",
+      "number": 114,
+      "issue_id": "12298",
+      "official_publication_count": 19,
+      "raw_response_sha256": [
+        "156745b7acbe6eb4d6b6193a38818f0f6b0bb00ef481eb6e6ca0c58105717db2"
+      ]
+    },
+    {
+      "date": "2025-12-23",
+      "number": 113,
+      "issue_id": "12224",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "f6258a3c1b4fcae1c6f039fdee82b47b84198486ab0a1b223c3dd1747bdb63d6"
+      ]
+    },
+    {
+      "date": "2025-12-19",
+      "number": 112,
+      "issue_id": "12223",
+      "official_publication_count": 41,
+      "raw_response_sha256": [
+        "4c748dfb6286ec8c2141d42bcfe7c120ef806bd8fa3b9ea478aef496273be408",
+        "1f7aae975d62f802b28f8c0663756120de506b7b019a444abe4d492b633b4e85"
+      ]
+    },
+    {
+      "date": "2025-12-18",
+      "number": 111,
+      "issue_id": "12278",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "00e57f27a6dd66a15721e67412436badc2c3c7053b48dab17789fb30faa440ad"
+      ]
+    },
+    {
+      "date": "2025-12-17",
+      "number": 110,
+      "issue_id": "12259",
+      "official_publication_count": 6,
+      "raw_response_sha256": [
+        "630b42cd3f8a64e44ad6b5483eb53bbe657dfde8432e3dab5ca958e044984e6a"
+      ]
+    },
+    {
+      "date": "2025-12-16",
+      "number": 109,
+      "issue_id": "12222",
+      "official_publication_count": 35,
+      "raw_response_sha256": [
+        "36d8bc9820602fc202111f4b0f84999166262905219cf12ca72ef34979c339d5",
+        "5abd8eaa287876d81844173b92eafcf92b8a1bf93348ab1c87f16bbde7a2e90a"
+      ]
+    },
+    {
+      "date": "2025-12-13",
+      "number": 108,
+      "issue_id": "12258",
+      "official_publication_count": 6,
+      "raw_response_sha256": [
+        "dd2ec7a6f475534e9a7bd101cc8230de87098d639a5ca3c09b79adc39e184f00"
+      ]
+    },
+    {
+      "date": "2025-12-12",
+      "number": 107,
+      "issue_id": "12221",
+      "official_publication_count": 14,
+      "raw_response_sha256": [
+        "f9b93ac01cc5ee38fd488b125b66e334522588f908fcac1ef452c1337fff22cf"
+      ]
+    },
+    {
+      "date": "2025-12-09",
+      "number": 106,
+      "issue_id": "12220",
+      "official_publication_count": 28,
+      "raw_response_sha256": [
+        "a38978d8e9356f94689c3a3856b25115cbcc9986c3ddbbdeb8524d0b6e048b1b"
+      ]
+    },
+    {
+      "date": "2025-12-06",
+      "number": 105,
+      "issue_id": "12238",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "34d0650c005e1b546a68304996a6ece2986054b700d427a596a8ad4a8ce187db"
+      ]
+    },
+    {
+      "date": "2025-12-05",
+      "number": 104,
+      "issue_id": "12219",
+      "official_publication_count": 13,
+      "raw_response_sha256": [
+        "24ca000252ab34cf7e85b2096c227c1e0b39c4a3d494f25d2944a4a0e7cbea4d"
+      ]
+    },
+    {
+      "date": "2025-12-02",
+      "number": 103,
+      "issue_id": "12218",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "43d8f2f4f52a22e095f37f8815cc8be040dc297b3800928bdfb3f0ce76d5342d"
+      ]
+    },
+    {
+      "date": "2025-11-28",
+      "number": 102,
+      "issue_id": "12185",
+      "official_publication_count": 21,
+      "raw_response_sha256": [
+        "30ca4edeb6366f78088906d83925a883c6201b229b18f05e2dd726552fb73629"
+      ]
+    },
+    {
+      "date": "2025-11-27",
+      "number": 101,
+      "issue_id": "12226",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "754bd3ec21c1f12fda6439d7f3fda9d0e9360c02538168ddc572976817b926fd"
+      ]
+    },
+    {
+      "date": "2025-11-25",
+      "number": 100,
+      "issue_id": "12184",
+      "official_publication_count": 12,
+      "raw_response_sha256": [
+        "ee4147163692d38506f03352748dfa4bf5fac32ee726995a78c5c365ee0dd736"
+      ]
+    },
+    {
+      "date": "2025-11-21",
+      "number": 99,
+      "issue_id": "12183",
+      "official_publication_count": 24,
+      "raw_response_sha256": [
+        "dd1896c1ee509d1403ed3209d1728728fe35ddff3a8f3ac4eaa8b68482a05afe"
+      ]
+    },
+    {
+      "date": "2025-11-18",
+      "number": 98,
+      "issue_id": "12182",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "a31df73e09b93deedd8d59ad8767dedf2788123fbf68e4a6167f762d74613fc3"
+      ]
+    },
+    {
+      "date": "2025-11-14",
+      "number": 97,
+      "issue_id": "12181",
+      "official_publication_count": 25,
+      "raw_response_sha256": [
+        "343712f6bc580fa57bb02623cf7e8cf84c31a5e59980b36a2b023607c10c546e"
+      ]
+    },
+    {
+      "date": "2025-11-11",
+      "number": 96,
+      "issue_id": "12180",
+      "official_publication_count": 23,
+      "raw_response_sha256": [
+        "73366ca1c59d3a4cbfcfdd20aa49ee612f3c84f41e1b8c67e7d6460e27c18320"
+      ]
+    },
+    {
+      "date": "2025-11-07",
+      "number": 95,
+      "issue_id": "12179",
+      "official_publication_count": 20,
+      "raw_response_sha256": [
+        "aed3cbd1db3c3bd2df635e1a0c03a89e4a2dd079d8befe460727e4f627fb9cd6"
+      ]
+    },
+    {
+      "date": "2025-11-04",
+      "number": 94,
+      "issue_id": "12178",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "0bcfec6c7ff4098639e7ba1eb452d2504a5c841f2aad1911eaecc27248aeed77"
+      ]
+    },
+    {
+      "date": "2025-11-01",
+      "number": 93,
+      "issue_id": "12198",
+      "official_publication_count": 3,
+      "raw_response_sha256": [
+        "8d333c6a7c429d783feb9cc003054ae246eeb0d46f10891a9e83f217493bec0a"
+      ]
+    },
+    {
+      "date": "2025-10-31",
+      "number": 92,
+      "issue_id": "12126",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "49ad33cbdba17cf2e995e6d6951a8fcfb6ca7f96a277357ab58ad1eda0951cf6"
+      ]
+    },
+    {
+      "date": "2025-10-30",
+      "number": 91,
+      "issue_id": "12186",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "efcb6f9c3b4744f69d72d671008548ab1984a55eeaeb92df279679e2eca93909"
+      ]
+    },
+    {
+      "date": "2025-10-28",
+      "number": 90,
+      "issue_id": "12125",
+      "official_publication_count": 17,
+      "raw_response_sha256": [
+        "6c5692011e69849cc0afd8aaddafbcc0aa457173860b89d449454046bca17796"
+      ]
+    },
+    {
+      "date": "2025-10-24",
+      "number": 89,
+      "issue_id": "12124",
+      "official_publication_count": 16,
+      "raw_response_sha256": [
+        "ff3075316530c5d7a07203b6622d0ffa85d8cc530b6f4050456bc63be700c176"
+      ]
+    },
+    {
+      "date": "2025-10-21",
+      "number": 88,
+      "issue_id": "12123",
+      "official_publication_count": 17,
+      "raw_response_sha256": [
+        "09083c3136284f2ac8cfac9772430cd75c0d86f552977192ad74222f6c8316b2"
+      ]
+    },
+    {
+      "date": "2025-10-17",
+      "number": 87,
+      "issue_id": "12122",
+      "official_publication_count": 15,
+      "raw_response_sha256": [
+        "1ae6415595a1b06fbf27ddaa284c2ca4c66c0e1620a107f95a62d7cda043844c"
+      ]
+    },
+    {
+      "date": "2025-10-16",
+      "number": 86,
+      "issue_id": "12158",
+      "official_publication_count": 11,
+      "raw_response_sha256": [
+        "9d4637532449ecaf293cc2d0d8d9bc97099725b5fbb6a0fc10428efbd0a16468"
+      ]
+    },
+    {
+      "date": "2025-10-14",
+      "number": 85,
+      "issue_id": "12121",
+      "official_publication_count": 16,
+      "raw_response_sha256": [
+        "a13d181e03657250bac364ec49245337d076f0ffd349adfbd4fecdbec304336a"
+      ]
+    },
+    {
+      "date": "2025-10-10",
+      "number": 84,
+      "issue_id": "12120",
+      "official_publication_count": 11,
+      "raw_response_sha256": [
+        "bf218c6f33c74121947092fb72fe9f11a8624a2787f7c2b1d6bd4407acb3b2d8"
+      ]
+    },
+    {
+      "date": "2025-10-09",
+      "number": 83,
+      "issue_id": "12138",
+      "official_publication_count": 2,
+      "raw_response_sha256": [
+        "86a6cf394040e43047a8b7a29a7b94fa43b202c0ee51da557af1cadbdafc94cc"
+      ]
+    },
+    {
+      "date": "2025-10-07",
+      "number": 82,
+      "issue_id": "12119",
+      "official_publication_count": 7,
+      "raw_response_sha256": [
+        "3cde19b7a814bb4a2811c2bcd0a3604ae851451b977f5acdfa969c26c6d958b9"
+      ]
+    },
+    {
+      "date": "2025-10-03",
+      "number": 81,
+      "issue_id": "12118",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "2bc88affc90cddb8eecc9e10e1336751f611bb62fd7effe22463a740eb90ac74"
+      ]
+    },
+    {
+      "date": "2025-09-30",
+      "number": 80,
+      "issue_id": "12106",
+      "official_publication_count": 12,
+      "raw_response_sha256": [
+        "eb196f1c1d71e68c41dc859f2f4c2a8b0f040516d49f2a2800766cf795cf16b3"
+      ]
+    },
+    {
+      "date": "2025-09-26",
+      "number": 79,
+      "issue_id": "12105",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "9dedbf2b2a823cd4e613859380bbca77fd5b845fe43f0250cd15c491c161bc48"
+      ]
+    },
+    {
+      "date": "2025-09-23",
+      "number": 78,
+      "issue_id": "12104",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "de80ae4c8912745c6dd56b34fbef34b432d85dfb728dade843fddcb34d7cd144"
+      ]
+    },
+    {
+      "date": "2025-09-19",
+      "number": 77,
+      "issue_id": "12103",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "a65ea7fbc47374f19b2c2cc4dec55299f466ab9999c99c3eb23e6408ef8f82aa"
+      ]
+    },
+    {
+      "date": "2025-09-16",
+      "number": 76,
+      "issue_id": "12102",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "f8fd5554d4da66f5dadaef40f8ea723ef649d332973e6d1182380c5f536b343c"
+      ]
+    },
+    {
+      "date": "2025-09-12",
+      "number": 75,
+      "issue_id": "12101",
+      "official_publication_count": 7,
+      "raw_response_sha256": [
+        "99da7440f650e0cd1d7a6aed513f4130f7432ccdbdd75e685291b931e6469140"
+      ]
+    },
+    {
+      "date": "2025-09-09",
+      "number": 74,
+      "issue_id": "12100",
+      "official_publication_count": 14,
+      "raw_response_sha256": [
+        "7d698785e92d96d5ed0f7e46c71253753f6fb061b352154e84c4c2442c076c45"
+      ]
+    },
+    {
+      "date": "2025-09-05",
+      "number": 73,
+      "issue_id": "12099",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "1633cfbb0d522f768caed5f63454fc3494e84bf83e0141736c98556cebf5e0a6"
+      ]
+    },
+    {
+      "date": "2025-09-02",
+      "number": 72,
+      "issue_id": "12098",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "1ddc88f409e36c3da297597208758d04322e3cc0dc38de23cec18c08693def5c"
+      ]
+    },
+    {
+      "date": "2025-08-29",
+      "number": 71,
+      "issue_id": "12066",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "835213aae3c3dfc54cbfe32f6fb73919098ab9eafabaef23f298e755163907f2"
+      ]
+    },
+    {
+      "date": "2025-08-26",
+      "number": 70,
+      "issue_id": "12065",
+      "official_publication_count": 3,
+      "raw_response_sha256": [
+        "1c71289e6a2ff6b423aaffe4a36fd8bc5bad15cc413b3212cc16b330ab0b63c2"
+      ]
+    },
+    {
+      "date": "2025-08-22",
+      "number": 69,
+      "issue_id": "12064",
+      "official_publication_count": 4,
+      "raw_response_sha256": [
+        "41cce2a9ffcb5b7ec08510fbfe551159a738fb61e1e08dfad23e4b75e9b3e59b"
+      ]
+    },
+    {
+      "date": "2025-08-19",
+      "number": 68,
+      "issue_id": "12063",
+      "official_publication_count": 13,
+      "raw_response_sha256": [
+        "ca65dadf0bbb409a406fea0dc1630bf91f5fb861b01d33d52d90d58fdc5897cf"
+      ]
+    },
+    {
+      "date": "2025-08-15",
+      "number": 67,
+      "issue_id": "12062",
+      "official_publication_count": 10,
+      "raw_response_sha256": [
+        "a733520d0dca6b4aa6d3976b64774c7bdb83cc4e5c28d6ddb08aa6bac6769ddf"
+      ]
+    },
+    {
+      "date": "2025-08-12",
+      "number": 66,
+      "issue_id": "12061",
+      "official_publication_count": 7,
+      "raw_response_sha256": [
+        "80d8eedef51a2b61fe3892afe3f2f3cbdfa9b8e3ee1de3df9a01fb2706cebe1c"
+      ]
+    },
+    {
+      "date": "2025-08-08",
+      "number": 65,
+      "issue_id": "12060",
+      "official_publication_count": 14,
+      "raw_response_sha256": [
+        "caebabc53c56da313c853d4662dd0602ffee408efc93fa1c25f32bd7cfb80c9e"
+      ]
+    },
+    {
+      "date": "2025-08-05",
+      "number": 64,
+      "issue_id": "12059",
+      "official_publication_count": 14,
+      "raw_response_sha256": [
+        "d0e1077abe75475510f967c78eabb347f8984716ee7be0f2b7e79ad30fd2a26b"
+      ]
+    },
+    {
+      "date": "2025-08-01",
+      "number": 63,
+      "issue_id": "12058",
+      "official_publication_count": 15,
+      "raw_response_sha256": [
+        "8d5fe271d47d660bf51461dca8e0d2dc5ad1a92eb15351cb0bd04107ad6dcb99"
+      ]
+    },
+    {
+      "date": "2025-07-30",
+      "number": 62,
+      "issue_id": "12078",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "0c874023cf7e6e2b0769fd37a5948fa00066dc089d97770b5f832525ae444371"
+      ]
+    },
+    {
+      "date": "2025-07-29",
+      "number": 61,
+      "issue_id": "12046",
+      "official_publication_count": 15,
+      "raw_response_sha256": [
+        "02508b2b8ed15808b0fe159ee9e523c3b9319ad01b21c0b0bb3aebb43fb2694c"
+      ]
+    },
+    {
+      "date": "2025-07-25",
+      "number": 60,
+      "issue_id": "12045",
+      "official_publication_count": 11,
+      "raw_response_sha256": [
+        "461688d1e57e84c12da7f9ce6a1d791f6f400681f940432447713f9ea0f22916"
+      ]
+    },
+    {
+      "date": "2025-07-22",
+      "number": 59,
+      "issue_id": "12044",
+      "official_publication_count": 15,
+      "raw_response_sha256": [
+        "a660c4e35271ac46f98c2831a44343485064370d308b74c2869212eac34bd090"
+      ]
+    },
+    {
+      "date": "2025-07-18",
+      "number": 58,
+      "issue_id": "12043",
+      "official_publication_count": 5,
+      "raw_response_sha256": [
+        "0860095a9cc5facc6fd8d5c06de6233ec1def4ce4fcbde6fa85a5196b9bbbdf9"
+      ]
+    },
+    {
+      "date": "2025-07-15",
+      "number": 57,
+      "issue_id": "12042",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "a0604bbc3cd43a8b3818aac173c1e4decec4f4c5530be8be1f9fdd1c989b8c3a"
+      ]
+    },
+    {
+      "date": "2025-07-11",
+      "number": 56,
+      "issue_id": "12041",
+      "official_publication_count": 6,
+      "raw_response_sha256": [
+        "8897945f48e724acb42c7341702d8189be0f313f96620c228fd7cc8b4e98be91"
+      ]
+    },
+    {
+      "date": "2025-07-08",
+      "number": 55,
+      "issue_id": "12040",
+      "official_publication_count": 12,
+      "raw_response_sha256": [
+        "acbf76f9eac2f54398ddf91894d5b7d290323f84adc785eed6cc4c629a7ba5d2"
+      ]
+    },
+    {
+      "date": "2025-07-04",
+      "number": 54,
+      "issue_id": "12039",
+      "official_publication_count": 17,
+      "raw_response_sha256": [
+        "4a61eacb3ee172ac411d1629ca69ed4c6d199744a2cb85ab4f17796ccc327a4e"
+      ]
+    },
+    {
+      "date": "2025-07-01",
+      "number": 53,
+      "issue_id": "12038",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "ad724e70aeb9132a52a4f1b5e4371c814f1e937b9b458e155c2012673aac6540"
+      ]
+    },
+    {
+      "date": "2025-06-27",
+      "number": 52,
+      "issue_id": "12025",
+      "official_publication_count": 18,
+      "raw_response_sha256": [
+        "56b42e32cd34325e5ddb7dd9c001c2029eac8082d5a7761d19e050b725a13a08"
+      ]
+    },
+    {
+      "date": "2025-06-24",
+      "number": 51,
+      "issue_id": "12024",
+      "official_publication_count": 13,
+      "raw_response_sha256": [
+        "0e8b95e8de522940876b2e77f10dfb5bbed6b516a1cb6de1c20971f078458c07"
+      ]
+    },
+    {
+      "date": "2025-06-20",
+      "number": 50,
+      "issue_id": "12023",
+      "official_publication_count": 9,
+      "raw_response_sha256": [
+        "3346a6e4ac3fb7394a67dd76bebcf80e71f0e13f1248dd5d11e50d080ac354f0"
+      ]
+    },
+    {
+      "date": "2025-06-17",
+      "number": 49,
+      "issue_id": "12022",
+      "official_publication_count": 15,
+      "raw_response_sha256": [
+        "9de2710fd6787d4ce798330df93f032c95fd208e7eddbe87ca410e4b3679c01f"
+      ]
+    },
+    {
+      "date": "2025-06-13",
+      "number": 48,
+      "issue_id": "12021",
+      "official_publication_count": 15,
+      "raw_response_sha256": [
+        "5e9a35e28266babfe5a76d9f5afa805733c5b765dbe435aa1b4d226453618cfa"
+      ]
+    },
+    {
+      "date": "2025-06-10",
+      "number": 47,
+      "issue_id": "12020",
+      "official_publication_count": 17,
+      "raw_response_sha256": [
+        "15784a7dc9ca66210ff51320cc5310287e44117ca2a644e621f6067855c75bb0"
+      ]
+    },
+    {
+      "date": "2025-06-06",
+      "number": 46,
+      "issue_id": "12019",
+      "official_publication_count": 5,
+      "raw_response_sha256": [
+        "b0e73ac731a523074fb07b5880c542e1ed64a3757d7adf4fcb0b7b37bb204b19"
+      ]
+    },
+    {
+      "date": "2025-06-03",
+      "number": 45,
+      "issue_id": "12018",
+      "official_publication_count": 25,
+      "raw_response_sha256": [
+        "920eaf23ba4f48933bbbef496e0b1481147a4a09299a9d2dac288796df33b302"
+      ]
+    },
+    {
+      "date": "2025-05-30",
+      "number": 44,
+      "issue_id": "12007",
+      "official_publication_count": 15,
+      "raw_response_sha256": [
+        "c0b22f71ec9baae7fe5ac0e5f615600d3e9bf39239550c7d671f8024381f0e5b"
+      ]
+    },
+    {
+      "date": "2025-05-27",
+      "number": 43,
+      "issue_id": "12006",
+      "official_publication_count": 8,
+      "raw_response_sha256": [
+        "3a1acc62fda79cc41e39078553815db5cce789782b520557db9057c4ff933314"
+      ]
+    },
+    {
+      "date": "2025-05-23",
+      "number": 42,
+      "issue_id": "12005",
+      "official_publication_count": 27,
+      "raw_response_sha256": [
+        "80c5113f7cabc06a4cc6d13c64c25a33a66853785b06a2553fbaad13d8a8445a"
+      ]
+    }
+  ],
+  "fulltext_sources": [
+    {
+      "date": "2026-10-20",
+      "issue": 96,
+      "material_id": "246470",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246470",
+      "sha256": "5183746e16613a0e1886aa110681484ffe935b7c80a7216abb09f08c2b00ea7f",
+      "bytes": 59897
+    },
+    {
+      "date": "2026-10-20",
+      "issue": 96,
+      "material_id": "246631",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246631",
+      "sha256": "62d035d9524cba11bcf32da0f2cfc3d26fe8beb2f3be0bb7a507315838feab83",
+      "bytes": 7695
+    },
+    {
+      "date": "2026-10-20",
+      "issue": 96,
+      "material_id": "246482",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246482",
+      "sha256": "731db1c9b8d9da2989b5ff7730ab139057dfb951a9fe462ae7b0276266838296",
+      "bytes": 52904
+    },
+    {
+      "date": "2026-10-20",
+      "issue": 96,
+      "material_id": "246483",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246483",
+      "sha256": "06362f158ff162aab0cfcb8216edbc79bc6a13b5d664803194f08e95672bcf90",
+      "bytes": 64526
+    },
+    {
+      "date": "2026-10-20",
+      "issue": 96,
+      "material_id": "246593",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246593",
+      "sha256": "136c8b2f298255414358dd638d4b4423e04ff673b85bf88ae0bf3488ed7abbd7",
+      "bytes": 15036
+    },
+    {
+      "date": "2026-10-20",
+      "issue": 96,
+      "material_id": "246628",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246628",
+      "sha256": "c24ccba5002c84a3dbd9daf4b016bd40ee164e35f38f749d99b7b2198aabc7ad",
+      "bytes": 36451
+    },
+    {
+      "date": "2026-10-16",
+      "issue": 95,
+      "material_id": "246270",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246270",
+      "sha256": "80702af7c97bd10a869a2e95d77c6aa7a511157c0bf1ef6dcaa3d98fe7f8bf14",
+      "bytes": 13222
+    },
+    {
+      "date": "2026-10-16",
+      "issue": 95,
+      "material_id": "246506",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246506",
+      "sha256": "c7ca7886ed282fefacf205187c8683b05f44c664940547860a1fcc4f15892616",
+      "bytes": 10181
+    },
+    {
+      "date": "2026-10-16",
+      "issue": 95,
+      "material_id": "246507",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246507",
+      "sha256": "208b45698c854d330300e76dffe49aab2f4e2d98751024fe4f36f98fd5b1c9cf",
+      "bytes": 12612
+    },
+    {
+      "date": "2026-10-13",
+      "issue": 94,
+      "material_id": "246505",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246505",
+      "sha256": "dfa4402a5ca9ee4c72e6fd5a64ff9cc961ad9c58c4a30151b33467dc3fc0462c",
+      "bytes": 7584
+    },
+    {
+      "date": "2026-10-06",
+      "issue": 92,
+      "material_id": "246095",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246095",
+      "sha256": "5c4293ac96afb99fa1e4d49fd0210397808f71f9e78f66b7b90c43c15b7779b2",
+      "bytes": 12304
+    },
+    {
+      "date": "2026-10-06",
+      "issue": 92,
+      "material_id": "246208",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246208",
+      "sha256": "f0e181b148481a070334879fed70f29cf12b33aded59ad9592fd687ffe80d9bb",
+      "bytes": 46891
+    },
+    {
+      "date": "2026-10-06",
+      "issue": 92,
+      "material_id": "246271",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246271",
+      "sha256": "2d9062c5b259600730758a92a7be9b0de8bbef7c9c11a84b829224cf0ea38ff7",
+      "bytes": 16045
+    },
+    {
+      "date": "2026-10-06",
+      "issue": 92,
+      "material_id": "246272",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246272",
+      "sha256": "2b3de72277d7f5b133ad108dc57a9aa68c9ea0826de8c7b94190255fdb67c878",
+      "bytes": 12121
+    },
+    {
+      "date": "2026-10-06",
+      "issue": 92,
+      "material_id": "246201",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246201",
+      "sha256": "305a6bd915e29f259cefdfc9105bb8e8eecd60b4dde7321e2d22b88baa08ded3",
+      "bytes": 100173
+    },
+    {
+      "date": "2026-09-30",
+      "issue": 90,
+      "material_id": "246125",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246125",
+      "sha256": "c3604e6a9311034200b9d94d48feeaa6b962ddd17bc5534b2eef8a477b176168",
+      "bytes": 12028
+    },
+    {
+      "date": "2026-09-30",
+      "issue": 90,
+      "material_id": "246103",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246103",
+      "sha256": "c057ca3c6358275de5ee0a294e894124964da7e91304244882167f58071d507b",
+      "bytes": 71531
+    },
+    {
+      "date": "2026-09-30",
+      "issue": 90,
+      "material_id": "246058",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246058",
+      "sha256": "8fbafaa280ab83d9c391277f51f36fdd9f59c325a882d1e88ec16435990ebc33",
+      "bytes": 12659
+    },
+    {
+      "date": "2026-09-29",
+      "issue": 89,
+      "material_id": "246111",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246111",
+      "sha256": "9f26a5ad24c8ddefa1d074f67964bcde2312b601c45d735ebbd7b4dcf05cf305",
+      "bytes": 18209
+    },
+    {
+      "date": "2026-09-29",
+      "issue": 89,
+      "material_id": "246094",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246094",
+      "sha256": "d77f9c99815103326f2fd1a9e1cfa10dd417b8e26716d925963e00653511b071",
+      "bytes": 8881
+    },
+    {
+      "date": "2026-09-25",
+      "issue": 88,
+      "material_id": "245997",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245997",
+      "sha256": "04ba68621fc0ca8d5c6ce7a7cbc912e735405e5a18e5957ce9e1dd422e7ad3f9",
+      "bytes": 10092
+    },
+    {
+      "date": "2026-09-25",
+      "issue": 88,
+      "material_id": "245999",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245999",
+      "sha256": "d2e9e7531a91c9d70c9ae1d2836e87a2c33494e3fc33a4feb57babf6709700ab",
+      "bytes": 58242
+    },
+    {
+      "date": "2026-09-25",
+      "issue": 88,
+      "material_id": "245998",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245998",
+      "sha256": "bf3f0ce92ef8a4ca1ca60ce280e9d25d66bb23dfdb4a50fdc6707e1eab4c3154",
+      "bytes": 64385
+    },
+    {
+      "date": "2026-09-24",
+      "issue": 87,
+      "material_id": "245888",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245888",
+      "sha256": "847c3060c1453942f44ba410b4199155bbd0ab43d6804564811277fe7be0c44b",
+      "bytes": 173784
+    },
+    {
+      "date": "2026-09-24",
+      "issue": 87,
+      "material_id": "246026",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=246026",
+      "sha256": "b95c7567445893a450f9caf3e2730ef69e7dbfbfe5dd43f96d116d8a5051637e",
+      "bytes": 7422
+    },
+    {
+      "date": "2026-09-24",
+      "issue": 87,
+      "material_id": "245929",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245929",
+      "sha256": "049c410444bc519c6699da1bea1e2303b49f71b1ffee1eacc42e120c9865ecaf",
+      "bytes": 60636
+    },
+    {
+      "date": "2026-09-18",
+      "issue": 86,
+      "material_id": "245887",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245887",
+      "sha256": "d3a201a1ad815afbd0fbb2be95ea8f6f5d4b4c19a1198f686d838cc63adf55f6",
+      "bytes": 8802
+    },
+    {
+      "date": "2026-09-15",
+      "issue": 85,
+      "material_id": "245803",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245803",
+      "sha256": "2f3c72eb387011aef43efae8afe805b1590e08f58c8ec02c2fe688f11ca1a95f",
+      "bytes": 26952
+    },
+    {
+      "date": "2026-09-15",
+      "issue": 85,
+      "material_id": "245860",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245860",
+      "sha256": "dbd76a82dc2d7e0056472f143f9e2447656841e601620c2f6ebbd7b872118702",
+      "bytes": 10724
+    },
+    {
+      "date": "2026-09-15",
+      "issue": 85,
+      "material_id": "245886",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245886",
+      "sha256": "f9d93c8ebeb87d5f534af338eebb26aa3207dcb4a11ede71fda8689db7677718",
+      "bytes": 212390
+    },
+    {
+      "date": "2026-09-11",
+      "issue": 84,
+      "material_id": "245695",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245695",
+      "sha256": "fcfb40e1b687252d385d414152edd6f04538257555481e298673aff3c16ccaf6",
+      "bytes": 227285
+    },
+    {
+      "date": "2026-09-08",
+      "issue": 82,
+      "material_id": "245668",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245668",
+      "sha256": "d350d128441d43ba8ca75638433b33dd041caf04b44ae32d4a4365296989c67e",
+      "bytes": 14496
+    },
+    {
+      "date": "2026-09-08",
+      "issue": 82,
+      "material_id": "245785",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245785",
+      "sha256": "fc6d8a5b91aead3a09c86b5f48715a33040e34c1da21d243f9b736b17178d4fe",
+      "bytes": 10915
+    },
+    {
+      "date": "2026-09-08",
+      "issue": 82,
+      "material_id": "245810",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245810",
+      "sha256": "b7c171c0329fc5094c967353c819418a9a9dcfb36c8307e1bcdc11e55242b080",
+      "bytes": 8598
+    },
+    {
+      "date": "2026-09-08",
+      "issue": 82,
+      "material_id": "245811",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245811",
+      "sha256": "211b3c6341093e2927dff741f148d6fba117fbbd1e908cbec175e0abca6fd2bd",
+      "bytes": 8569
+    },
+    {
+      "date": "2026-09-08",
+      "issue": 82,
+      "material_id": "245706",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245706",
+      "sha256": "4acdaa62191ce6b9eb0872b1b61f84a2dc70f4225d91e2a49e1e4efd2e65ab53",
+      "bytes": 32595
+    },
+    {
+      "date": "2026-09-04",
+      "issue": 81,
+      "material_id": "245637",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245637",
+      "sha256": "8f9cc94bc5d60db8078adadaef2636cd6ebfbca564528802bd1e5dc9318be6bd",
+      "bytes": 16048
+    },
+    {
+      "date": "2026-09-04",
+      "issue": 81,
+      "material_id": "245638",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245638",
+      "sha256": "3e910ce3bc385adcaae5b633e7963e145bba7814d8146984ae2259ed15dabc26",
+      "bytes": 14078
+    },
+    {
+      "date": "2026-09-04",
+      "issue": 81,
+      "material_id": "245630",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245630",
+      "sha256": "5c02936ba296b9a1e731e6f3fede64855e1f7788806d8c4dab779bfb918fa2f4",
+      "bytes": 249311
+    },
+    {
+      "date": "2026-08-28",
+      "issue": 79,
+      "material_id": "245443",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245443",
+      "sha256": "03be52f9262cb7f3899cb5c89fd48f83e270bc142795fa58d0cc727f08cb30f1",
+      "bytes": 66623
+    },
+    {
+      "date": "2026-08-26",
+      "issue": 78,
+      "material_id": "245592",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245592",
+      "sha256": "320737b748b7c8900175505ee4520c15d83dde1af07667ed6a4a837ec6c5ec81",
+      "bytes": 53043
+    },
+    {
+      "date": "2026-08-25",
+      "issue": 77,
+      "material_id": "245406",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245406",
+      "sha256": "e58ee771785e570cc55d8b05d6c69a0633ba4e13d0d0bcda638160c85535dc5d",
+      "bytes": 42004
+    },
+    {
+      "date": "2026-08-14",
+      "issue": 73,
+      "material_id": "245145",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245145",
+      "sha256": "295b0a1edb3b4cd09953e767a0fbe5dafff74e401eaacab8268e400609b294a4",
+      "bytes": 51917
+    },
+    {
+      "date": "2026-08-07",
+      "issue": 71,
+      "material_id": "245132",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245132",
+      "sha256": "f57209907899ed97cea7d36458366708c6f57bf8750a4df08bbec5145037cbcb",
+      "bytes": 78636
+    },
+    {
+      "date": "2026-08-07",
+      "issue": 71,
+      "material_id": "245129",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245129",
+      "sha256": "f2f6d1449d31f548561dbcfdfc98fcb24e40718c8e4cdf8d6efce56a550f3045",
+      "bytes": 13303
+    },
+    {
+      "date": "2026-08-07",
+      "issue": 71,
+      "material_id": "245131",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245131",
+      "sha256": "322df5e413182ad992c0f5af34ec15b189b181312c775a39d33b7c2482bbaece",
+      "bytes": 426370
+    },
+    {
+      "date": "2026-08-07",
+      "issue": 71,
+      "material_id": "245130",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245130",
+      "sha256": "e1f3e6a5c3b2ab38f14d249b562ac44a5d87c09c6bd417b5c3bd69d8213d4691",
+      "bytes": 12019
+    },
+    {
+      "date": "2026-08-04",
+      "issue": 70,
+      "material_id": "245095",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245095",
+      "sha256": "152ee6e9944716fb667b60034b765dc56ec13e161c212661bae8491ebc4347df",
+      "bytes": 13196
+    },
+    {
+      "date": "2026-08-04",
+      "issue": 70,
+      "material_id": "245107",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245107",
+      "sha256": "31afacc23d13a6f1288033ddab20d84a37300beaf888c8cc13c4d30a5b39aff9",
+      "bytes": 66250
+    },
+    {
+      "date": "2026-08-04",
+      "issue": 70,
+      "material_id": "245108",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245108",
+      "sha256": "a49621dcca32955c716cc39452f9d9a9d717a52018bd6d71e29442e9a2685a20",
+      "bytes": 66242
+    },
+    {
+      "date": "2026-08-04",
+      "issue": 70,
+      "material_id": "245109",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245109",
+      "sha256": "1bcb4c792a6e46d798d74275561c707704b1b3912fdc1ab182078aa58b2d4e04",
+      "bytes": 8589
+    },
+    {
+      "date": "2026-08-04",
+      "issue": 70,
+      "material_id": "245134",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245134",
+      "sha256": "23a8683b43b82f109ecd786ef7e6e3474e93e64d0e93edf9936f992930be8108",
+      "bytes": 101584
+    },
+    {
+      "date": "2026-08-04",
+      "issue": 70,
+      "material_id": "245127",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245127",
+      "sha256": "f71abb02d4cc453856e7bb38a25c34771a9307763ca71a57485408f175bf4040",
+      "bytes": 8072
+    },
+    {
+      "date": "2026-08-04",
+      "issue": 70,
+      "material_id": "245135",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245135",
+      "sha256": "12210392e00e1845c93cc2f4f3ece1da671dc926ac87b29765df8dc904ff6c78",
+      "bytes": 5942
+    },
+    {
+      "date": "2026-08-04",
+      "issue": 70,
+      "material_id": "244954",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244954",
+      "sha256": "7329d8b6ce6c65927cd8f6609e673cdc259ba7e44dfdf848e97b6216e3dd4b58",
+      "bytes": 79906
+    },
+    {
+      "date": "2026-07-31",
+      "issue": 69,
+      "material_id": "245041",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245041",
+      "sha256": "d468a5fec3976d5c7432eb3965815dfd82fe7f9c4cbf2fc11c62e3c2f3d55829",
+      "bytes": 5655187
+    },
+    {
+      "date": "2026-07-31",
+      "issue": 69,
+      "material_id": "245094",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245094",
+      "sha256": "b618881300ee9e65b57baaa81c1dcc920fb16edee0febd4a047f0b37f2fda1a1",
+      "bytes": 10931
+    },
+    {
+      "date": "2026-07-31",
+      "issue": 69,
+      "material_id": "244941",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244941",
+      "sha256": "8912bdc653d69a6e1126f256fa1b4895dd2753b0f0849c620d0479c3c75b66b7",
+      "bytes": 98037
+    },
+    {
+      "date": "2026-07-28",
+      "issue": 68,
+      "material_id": "244982",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244982",
+      "sha256": "8962f3d86a90002827d3ce7a2358ca7e02fe0bf50a0df14f5ee606ba95a55a42",
+      "bytes": 1612264
+    },
+    {
+      "date": "2026-07-28",
+      "issue": 68,
+      "material_id": "244981",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244981",
+      "sha256": "12be73f773715effdbe2db27f1a602a6b98ea269ed7664a4220580982b63cb45",
+      "bytes": 191120
+    },
+    {
+      "date": "2026-07-28",
+      "issue": 68,
+      "material_id": "245040",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=245040",
+      "sha256": "04f43bae7093b63f2b407252bcb4b08d8bb7095aa0f679162a8933d338721816",
+      "bytes": 9155
+    },
+    {
+      "date": "2026-07-24",
+      "issue": 67,
+      "material_id": "244694",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244694",
+      "sha256": "660988202dd4f52723b3320ab1cc595ed9d6123f31314c39822749e28e19a66a",
+      "bytes": 543319
+    },
+    {
+      "date": "2026-07-24",
+      "issue": 67,
+      "material_id": "244845",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244845",
+      "sha256": "340debd3e58fe8ecdec326a6b2ed328059974518d2e94794ecfe0b2b56736ccc",
+      "bytes": 10281
+    },
+    {
+      "date": "2026-07-24",
+      "issue": 67,
+      "material_id": "244905",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244905",
+      "sha256": "68f8b69af761e040be2c13f606eafea9d6ea5264b8644d5db1edd9312373b4e1",
+      "bytes": 10803
+    },
+    {
+      "date": "2026-07-24",
+      "issue": 67,
+      "material_id": "244967",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244967",
+      "sha256": "3c33ecd2020234b418565e0e52a9ffd20e5b208336f20c4e63cdb84468f08515",
+      "bytes": 8141
+    },
+    {
+      "date": "2026-07-24",
+      "issue": 67,
+      "material_id": "244975",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244975",
+      "sha256": "c94fc09e4d1e623205deff39cb1e441f920641b59a191beca74a099b16f62594",
+      "bytes": 9732
+    },
+    {
+      "date": "2026-07-24",
+      "issue": 67,
+      "material_id": "244976",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244976",
+      "sha256": "4e70f1a257044599e2c3bbedf966b75c5dc2879f0e6b7a03f2fa11cdeadf5c7b",
+      "bytes": 8327
+    },
+    {
+      "date": "2026-07-21",
+      "issue": 66,
+      "material_id": "244731",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244731",
+      "sha256": "f2e8632edeb8f672ad16d2399b2963c816fec861864da94c1ec153578dce5211",
+      "bytes": 10347
+    },
+    {
+      "date": "2026-07-21",
+      "issue": 66,
+      "material_id": "244673",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244673",
+      "sha256": "aa35708e0c13ce0ccb25f0a57c7319379b0f5f78c7d7b801b023080cb8a05519",
+      "bytes": 102048
+    },
+    {
+      "date": "2026-07-17",
+      "issue": 65,
+      "material_id": "244696",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244696",
+      "sha256": "10cf980de4e471d08785625caebc0fc15491acec9f33a7c98c300e7527aa52db",
+      "bytes": 88165
+    },
+    {
+      "date": "2026-07-17",
+      "issue": 65,
+      "material_id": "244697",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244697",
+      "sha256": "ff0c08f594418aebd462a1836c99437df7ea3d58c31b856e5766091738e9e2bd",
+      "bytes": 52257
+    },
+    {
+      "date": "2026-07-14",
+      "issue": 64,
+      "material_id": "244729",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244729",
+      "sha256": "b16b1ff03155796c320cf704c5287258fe05855201f7dfa20fd3e42ab2e62701",
+      "bytes": 7737
+    },
+    {
+      "date": "2026-07-14",
+      "issue": 64,
+      "material_id": "244730",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244730",
+      "sha256": "c8df83801d0c14310f2db1f0d0cede5a4a818fd71a59b5d4bbae3470478ad04d",
+      "bytes": 8581
+    },
+    {
+      "date": "2026-07-14",
+      "issue": 64,
+      "material_id": "244630",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244630",
+      "sha256": "cba995eeb1ddb8e4d7b2ea941884c6e8daca1c463c7c561e118280c9e83f3e39",
+      "bytes": 141688
+    },
+    {
+      "date": "2026-07-10",
+      "issue": 63,
+      "material_id": "244648",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244648",
+      "sha256": "4c888a0a045d2ed71829d830166aab91b6b9817cc4042da89ad09bcb7a849ea9",
+      "bytes": 8107
+    },
+    {
+      "date": "2026-07-10",
+      "issue": 63,
+      "material_id": "244665",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244665",
+      "sha256": "fc354ac18b31d562abb1fe375686e5ded5e487bdc477dd618b712b2382b25789",
+      "bytes": 62608
+    },
+    {
+      "date": "2026-07-10",
+      "issue": 63,
+      "material_id": "244671",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244671",
+      "sha256": "414e9123bbb6e9e64386d6c401277ad44f0f9c76d86fd7bf75a9906f61b9d1c7",
+      "bytes": 6217
+    },
+    {
+      "date": "2026-07-07",
+      "issue": 62,
+      "material_id": "244524",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244524",
+      "sha256": "58491e43e32c9fdcc1e81059b6a7e1620435518a3566a65b798f4befe68f1876",
+      "bytes": 73746
+    },
+    {
+      "date": "2026-07-07",
+      "issue": 62,
+      "material_id": "244585",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244585",
+      "sha256": "0cad6ad2fd53b60360029e39bf2ac93276e80bb59ce28d4d37b35c4f1ac479a5",
+      "bytes": 10514
+    },
+    {
+      "date": "2026-07-07",
+      "issue": 62,
+      "material_id": "244586",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244586",
+      "sha256": "2fdc835ac85414866526d293c91adbbc1d7b12fb86d9c1a5501cc37cfc30a120",
+      "bytes": 9396
+    },
+    {
+      "date": "2026-07-07",
+      "issue": 62,
+      "material_id": "244587",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244587",
+      "sha256": "6cb49b49c55593fedb1ae198876490f339e0b12f760420d8c4bd9b05fd91a3c9",
+      "bytes": 12673
+    },
+    {
+      "date": "2026-07-07",
+      "issue": 62,
+      "material_id": "244593",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244593",
+      "sha256": "b477ac1dde2a934e867c4b1b4b88f5035f732b9854bbafaee3471dfbda3e302e",
+      "bytes": 10086
+    },
+    {
+      "date": "2026-07-07",
+      "issue": 62,
+      "material_id": "244404",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244404",
+      "sha256": "d1b240316e28b96241d9417f52f039c1ec4d479bb0eed5c18ad5f05016b480d1",
+      "bytes": 40207
+    },
+    {
+      "date": "2026-07-07",
+      "issue": 62,
+      "material_id": "244352",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244352",
+      "sha256": "d6948a8bd7cbcb73f5d8b62bc8fc2335c03990ce2b8dbfb1e0e2ac40f13fa693",
+      "bytes": 90028
+    },
+    {
+      "date": "2026-07-07",
+      "issue": 62,
+      "material_id": "244353",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244353",
+      "sha256": "36588651a2c14bf296759dd17e457483a2d5dd4e021fe0de106e6b78e63f0439",
+      "bytes": 84139
+    },
+    {
+      "date": "2026-07-07",
+      "issue": 62,
+      "material_id": "244397",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244397",
+      "sha256": "80796bff1d925c42fce02a62b55643c5ad16843d06593a94babb3a7ba1eff246",
+      "bytes": 60419
+    },
+    {
+      "date": "2026-07-07",
+      "issue": 62,
+      "material_id": "244398",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244398",
+      "sha256": "ac8f76f28361b149ea9fc7014baa0145ccc2764430dd11cd2a76b654150c3ac1",
+      "bytes": 24385
+    },
+    {
+      "date": "2026-07-03",
+      "issue": 61,
+      "material_id": "244512",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244512",
+      "sha256": "9fd5d414a25767d89db70d8d33f0338238b281c5b49328a48d68c2cafb02d071",
+      "bytes": 8571
+    },
+    {
+      "date": "2026-07-03",
+      "issue": 61,
+      "material_id": "244513",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244513",
+      "sha256": "114c9374afabb3aaae56817c87e8192669992f52140e98ec4269a4ce457dcbd5",
+      "bytes": 8571
+    },
+    {
+      "date": "2026-07-03",
+      "issue": 61,
+      "material_id": "244514",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244514",
+      "sha256": "2bf6592706d9ae8c20b1c362e727b0dc073d937212e6ad5221c153f0802affe0",
+      "bytes": 8347
+    },
+    {
+      "date": "2026-07-03",
+      "issue": 61,
+      "material_id": "244515",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244515",
+      "sha256": "d05432ae399dc1f824498fcb57702405c384f1a5443d44328a23bc2118a78f05",
+      "bytes": 8227
+    },
+    {
+      "date": "2026-07-03",
+      "issue": 61,
+      "material_id": "244516",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244516",
+      "sha256": "25e093853ac2d3dc584642a4a1041a10991e6eed3325186e9fdb49330f239bab",
+      "bytes": 8170
+    },
+    {
+      "date": "2026-07-03",
+      "issue": 61,
+      "material_id": "244525",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244525",
+      "sha256": "3b80d4ad3fa7a09c8ef7434be18b0fb212c46b7f1916adae6cc8cdda0eba456c",
+      "bytes": 8191
+    },
+    {
+      "date": "2026-07-03",
+      "issue": 61,
+      "material_id": "244526",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244526",
+      "sha256": "ef27eda4bb268abe4245ae5f556b90accb4d9dbe9e00170be09dddd982efcb5f",
+      "bytes": 8200
+    },
+    {
+      "date": "2026-07-03",
+      "issue": 61,
+      "material_id": "244527",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244527",
+      "sha256": "7cfbad47502a1669b2feb0fe4f84e8710d315fe9e1a04a010d30e1a4d10fbfaa",
+      "bytes": 8834
+    },
+    {
+      "date": "2026-07-01",
+      "issue": 60,
+      "material_id": "244426",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244426",
+      "sha256": "27f25f6ae3439c1e7449db10695752c26cc7333c621c8fbfb91004ad6c02dddb",
+      "bytes": 82301
+    },
+    {
+      "date": "2026-07-01",
+      "issue": 60,
+      "material_id": "244329",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244329",
+      "sha256": "e0026ab0310bb8be8d4548330ae84a8da814df701464b5a49695943c07517aa1",
+      "bytes": 81459
+    },
+    {
+      "date": "2026-06-30",
+      "issue": 59,
+      "material_id": "244229",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244229",
+      "sha256": "9c8be6667b847794f999c06116f0abc8c5e26c32d78f228d6d33f16a0dd10721",
+      "bytes": 216427
+    },
+    {
+      "date": "2026-06-30",
+      "issue": 59,
+      "material_id": "244268",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244268",
+      "sha256": "f5efbafc9a65dcc36c7b47c2c7807fc4a0d8f3ef0c85d485e633b1e0be3aabea",
+      "bytes": 11307
+    },
+    {
+      "date": "2026-06-30",
+      "issue": 59,
+      "material_id": "244240",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244240",
+      "sha256": "fc52c66f1c2b27e77061ddbc4009edd3d5f47b2f4012caaad8ee33d84096c773",
+      "bytes": 36688
+    },
+    {
+      "date": "2026-06-30",
+      "issue": 59,
+      "material_id": "244270",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244270",
+      "sha256": "20d51bf60f41f9b48ef937fa39e461ebfe9dd1b61825bbf65d1c1f7510a87119",
+      "bytes": 46196
+    },
+    {
+      "date": "2026-06-30",
+      "issue": 59,
+      "material_id": "244271",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244271",
+      "sha256": "573e3c5218d1466e314d5d7f750500acc78f9db0d5265194b9b4b76a21aa6b91",
+      "bytes": 48167
+    },
+    {
+      "date": "2026-06-26",
+      "issue": 58,
+      "material_id": "244128",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244128",
+      "sha256": "5e2ab57fc0a4503b6c401b52f3914b4e29bc1e9f158552f3919e97322f043cb4",
+      "bytes": 35858
+    },
+    {
+      "date": "2026-06-26",
+      "issue": 58,
+      "material_id": "244129",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244129",
+      "sha256": "2413c2aabf08c331adfd8f0b8fd91a08430904b1443aa9ad8015433b2a8a0826",
+      "bytes": 82088
+    },
+    {
+      "date": "2026-06-26",
+      "issue": 58,
+      "material_id": "244343",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244343",
+      "sha256": "fc6d39318e601d1d0ddc1b9548342c8900823902f787747400ec3bb936e9c4cc",
+      "bytes": 7416
+    },
+    {
+      "date": "2026-06-26",
+      "issue": 58,
+      "material_id": "244364",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244364",
+      "sha256": "bbf864cfed4d9b8e4989226f1d2f3ee2b3937fb32a4caad8a1dfeed3af4f614e",
+      "bytes": 63475
+    },
+    {
+      "date": "2026-06-26",
+      "issue": 58,
+      "material_id": "244200",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244200",
+      "sha256": "99e1aa80423db7ea223a98da4011de84ebf3f9eba876c3fe4b1c32b1c1270b2d",
+      "bytes": 95907
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244228",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244228",
+      "sha256": "5a9297871b318c38af83bb0595eed87a341265b6e23023485f236d2d2884346f",
+      "bytes": 19740
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244227",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244227",
+      "sha256": "8968ac789e35be047df0fc3c17b73b71e35f34af64b86b2d5f1bf15137bf773c",
+      "bytes": 12481
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244258",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244258",
+      "sha256": "e8e52c59e8baa467ff99ed11c6e3d3c284ea964983e73e9cb939bf0f8e312299",
+      "bytes": 15437
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244259",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244259",
+      "sha256": "46ea30251c0ab0a745a1a48c7951b48ab286ef9797877bdc9dc153ab40ee6a88",
+      "bytes": 10252
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244260",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244260",
+      "sha256": "db1872e080b9821715740a26d439c668e81421166fa3ed5eb98cb72f999d9b71",
+      "bytes": 10721
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244261",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244261",
+      "sha256": "19d6db91256706cd50e341bf0f3fb87ac4adc9896243e24f3808097f834fdea8",
+      "bytes": 15127
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244262",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244262",
+      "sha256": "3855b4366a399ea9f3357d92231d32873a9fce5917064e2cae88720bbd468742",
+      "bytes": 11292
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244263",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244263",
+      "sha256": "da1a4af8f807e3d6bb58820f474fc42cba9bf8f4aa4dd3497225cd1b946b1821",
+      "bytes": 11829
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244264",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244264",
+      "sha256": "18fd456f1989df0073851a8bfcfd50d0222e1aa3770cb09322834fbb7adf0fa4",
+      "bytes": 12856
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244265",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244265",
+      "sha256": "44759949c2d3550b29fc2385fc3ab232647bbf2a4783a0e17ab37c23982d848b",
+      "bytes": 10740
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244266",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244266",
+      "sha256": "183468ea3df0ac0d48b22f50e4d045e1b518b8d5fc75fa75fbc386c149e2979e",
+      "bytes": 11505
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244267",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244267",
+      "sha256": "f08665ab5d84e5733dc6fd04c45bee3ed3d6e71d26453aad4aa5f02c95a88cf2",
+      "bytes": 12819
+    },
+    {
+      "date": "2026-06-23",
+      "issue": 57,
+      "material_id": "244231",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244231",
+      "sha256": "386671bd7fef9d92302bf528dc866a71e85faa2666327e6885dd8e15be1f4e81",
+      "bytes": 54617
+    },
+    {
+      "date": "2026-06-19",
+      "issue": 56,
+      "material_id": "244149",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244149",
+      "sha256": "c29143f2904a184eae127fb49f39e2e6be2e39dbd6bf0f841121118d0be51b6a",
+      "bytes": 66608
+    },
+    {
+      "date": "2026-06-19",
+      "issue": 56,
+      "material_id": "244150",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244150",
+      "sha256": "943d846b678e0b3431f3327b9b118fc2ba3f3bd796bae96de69a2c1fe0b96fc2",
+      "bytes": 8260
+    },
+    {
+      "date": "2026-06-19",
+      "issue": 56,
+      "material_id": "244151",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244151",
+      "sha256": "17616de6da89451a6d3e73cc4445a1030b2b4ff44a1296082401965cbb852fea",
+      "bytes": 7459
+    },
+    {
+      "date": "2026-06-19",
+      "issue": 56,
+      "material_id": "244152",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244152",
+      "sha256": "466725785a3faaa83962173afd3b1355d37edb604f3b1df0c20a597f3ffb8c97",
+      "bytes": 8122
+    },
+    {
+      "date": "2026-06-19",
+      "issue": 56,
+      "material_id": "244153",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244153",
+      "sha256": "fad5d366db42194048d3dcfb91be728af672f70865378f8efaa242fd97876db6",
+      "bytes": 8314
+    },
+    {
+      "date": "2026-06-19",
+      "issue": 56,
+      "material_id": "244154",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244154",
+      "sha256": "0bfb262a19223fdbf87cb4f01d5df528a94132c69d14e9b18a77ceca372cba51",
+      "bytes": 8384
+    },
+    {
+      "date": "2026-06-19",
+      "issue": 56,
+      "material_id": "244103",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244103",
+      "sha256": "981109cac82c01813036584b0c0cc00120abd29a791da725ac9c00d020916034",
+      "bytes": 31527
+    },
+    {
+      "date": "2026-06-16",
+      "issue": 55,
+      "material_id": "243856",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243856",
+      "sha256": "0d5a0723bc1fe124087a6407db6df719d2d33f7f07bec084f75ca545ecce1e5d",
+      "bytes": 17798
+    },
+    {
+      "date": "2026-06-16",
+      "issue": 55,
+      "material_id": "243857",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243857",
+      "sha256": "dddce331f1ccf67015e43bdc90bc12654fc2535bcf6d25cd0004b797ea815fb8",
+      "bytes": 165473
+    },
+    {
+      "date": "2026-06-16",
+      "issue": 55,
+      "material_id": "244102",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244102",
+      "sha256": "e89a01bfb30e6801bf2edb370bc28434cdf8678598af3fb3eb8a8e7d0ab84152",
+      "bytes": 7690
+    },
+    {
+      "date": "2026-06-16",
+      "issue": 55,
+      "material_id": "243841",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243841",
+      "sha256": "f4bc047d8095af5563a00c45e30f5dd9d794ad4a1ce9efbae029c0b3634a636d",
+      "bytes": 35887
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "243992",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243992",
+      "sha256": "04f929dc40609084307fac7a4f1b5a7805567454673da4ae105f0f0cdcb70a17",
+      "bytes": 11117
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "243993",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243993",
+      "sha256": "dab4d655ca9ae6109ada689fa1113ef62e1ab4f1f6b362e03233f69901827eee",
+      "bytes": 10935
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "243994",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243994",
+      "sha256": "2da0bf66db0a22e39edac244e5359b52ff70f39a8bdcdfa52d17578830c0016b",
+      "bytes": 11239
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "243995",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243995",
+      "sha256": "432fb588c95f45e583628fd74aa4732986be15e5f66812f6432096f74fc9c8b3",
+      "bytes": 11023
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "243996",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243996",
+      "sha256": "5d6bf498adb2314f147dbb8898080e2819d7a5bec831db978ab42fde8e9e3644",
+      "bytes": 11370
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "243997",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243997",
+      "sha256": "9266ab42ba7532494ae50b4acc5fc5131758c0d286151edd70af6cfe4aa4180f",
+      "bytes": 10803
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "243998",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243998",
+      "sha256": "90eddf59cf7962ececd712b6dd7db7e2cf0726f168e60a87210514a8e64388c9",
+      "bytes": 10722
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "243999",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243999",
+      "sha256": "da8df36c36d220c76af66439d6a2edfeb2f476a44e6b5cdc81d045b140a52a0a",
+      "bytes": 10600
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244000",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244000",
+      "sha256": "5b873f33d6a232df402539175237caa053e5818057267b7c0b49eb84cf1eba69",
+      "bytes": 10667
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244001",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244001",
+      "sha256": "0df00ef9262ae6881306bbb42d86ae2ee03a14d14a21ea5c2eb1b8d52a708133",
+      "bytes": 11081
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244002",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244002",
+      "sha256": "4f828d4d3ff110ba7908192359d7391966b0bbb53c0a3873f37f234471ca3c2b",
+      "bytes": 10850
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244003",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244003",
+      "sha256": "58ecd04c19a24296e0245b1bcd9f26d1da7f2e079943630997f7e749ff14e70b",
+      "bytes": 11101
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244004",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244004",
+      "sha256": "01ca3ca415fd1ac42c2661f4378cc12fb19fea83f764fed8a93341cdb4d52982",
+      "bytes": 10931
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244005",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244005",
+      "sha256": "c4cc769658e37f27a597de8ae06cf50cc12343d6e353e63a4b218316ee0a5a77",
+      "bytes": 10740
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244006",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244006",
+      "sha256": "cd07ca3cb2bf22a44e4d94f40f4f2e58d1ee339e1a764c91e96501075df26b6c",
+      "bytes": 10831
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244007",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244007",
+      "sha256": "343769416c8822e364806cdd5914932b88504760c564d5daca739baa9ef1a3dd",
+      "bytes": 10625
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244008",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244008",
+      "sha256": "a01d0d9f799a9cee3d66fe50b8af3fa731d737d3882bb346c2eaf0da91d6f8c5",
+      "bytes": 10710
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244009",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244009",
+      "sha256": "0fec612edbbd7a8f708c72479a6eb311c01089887bab4a5465a0bbe049a26147",
+      "bytes": 10535
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244010",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244010",
+      "sha256": "d2edb298513ff552ed6a73fed8aa8e4eca3142ba23f69d372f81a53cec8615c7",
+      "bytes": 9168
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244011",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244011",
+      "sha256": "59da79715039dc733cf26a3d86b5d69794d08c93e0602f8a96e01a94aa57efd1",
+      "bytes": 10769
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244012",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244012",
+      "sha256": "dbf63d64379e138b766dff1244db7dabc4ebc16cf0d886a01c70b9f16ef4af85",
+      "bytes": 10675
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244013",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244013",
+      "sha256": "ba02be64d4a6db31422fb778a084bb427c5623abacab7797e08e3245e7c24130",
+      "bytes": 10394
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244014",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244014",
+      "sha256": "331f7763d0aeda1a251c0ba482ef283352b8b91f80ca49776a527a216238b9e1",
+      "bytes": 10748
+    },
+    {
+      "date": "2026-06-12",
+      "issue": 54,
+      "material_id": "244015",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=244015",
+      "sha256": "e47d7d0984b89f28dee447b050618b92912abc3f424528928afeeff5b21f6315",
+      "bytes": 10322
+    },
+    {
+      "date": "2026-06-08",
+      "issue": 52,
+      "material_id": "243854",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243854",
+      "sha256": "ce977be0e8d77019393b297cdc5edb1700544343ef27e85f9162796f84d6dc88",
+      "bytes": 64115
+    },
+    {
+      "date": "2026-06-08",
+      "issue": 52,
+      "material_id": "243855",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243855",
+      "sha256": "bd3a3d75e7691908b14d59a993eaa9de009e8ca6abb1714c7ef5ed3ecdbc3dc9",
+      "bytes": 16918
+    },
+    {
+      "date": "2026-06-05",
+      "issue": 51,
+      "material_id": "243769",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243769",
+      "sha256": "36a460fbaeb5a7778d40945e7600de0f1a7aaa339223e76aa6abfee9c8f8bb76",
+      "bytes": 571078
+    },
+    {
+      "date": "2026-06-02",
+      "issue": 50,
+      "material_id": "243580",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243580",
+      "sha256": "ef8fb2a7ac2abc49c04648ca4db23672a359987b24c5e113187a56f172e7980a",
+      "bytes": 14630
+    },
+    {
+      "date": "2026-06-02",
+      "issue": 50,
+      "material_id": "243751",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243751",
+      "sha256": "62f364d3082431496272b9e17b8f67f989810d3af0118073607b1b2ad5e4886d",
+      "bytes": 449630
+    },
+    {
+      "date": "2026-06-02",
+      "issue": 50,
+      "material_id": "243627",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243627",
+      "sha256": "d1db9b259944d4d4c4fa5e85657c98af02587f6eee262298a5896f2ac7b0e728",
+      "bytes": 53302
+    },
+    {
+      "date": "2026-06-02",
+      "issue": 50,
+      "material_id": "243628",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243628",
+      "sha256": "a40bdedd3ea306ca8e5df7e80b274b9680697e910b1ed8c1b7141518d087c7ab",
+      "bytes": 18047
+    },
+    {
+      "date": "2026-05-26",
+      "issue": 48,
+      "material_id": "243557",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243557",
+      "sha256": "32ca19e7dd5450ebc63b5b2c3070d5046f40f28a36f2b3edcf2c28d883781da7",
+      "bytes": 30120
+    },
+    {
+      "date": "2026-05-22",
+      "issue": 47,
+      "material_id": "243448",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243448",
+      "sha256": "93fada17b5979e51b48fcf4087dffb15839c22025370a845ecc7be7c19fff3c2",
+      "bytes": 62782
+    },
+    {
+      "date": "2026-05-15",
+      "issue": 45,
+      "material_id": "243431",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243431",
+      "sha256": "9e1832fe43bf8e2051b487c1b09bdc163db180f17dac0bfa4e142c1c0f2a0d5a",
+      "bytes": 7411
+    },
+    {
+      "date": "2026-05-15",
+      "issue": 45,
+      "material_id": "243432",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243432",
+      "sha256": "6283525728385d7ece2edb8fb608492507aa53af6f7c9f043f8dc740e4b286aa",
+      "bytes": 7399
+    },
+    {
+      "date": "2026-05-15",
+      "issue": 45,
+      "material_id": "243433",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243433",
+      "sha256": "857df1651e7d868a5a97e9dbb20c8dd18707520627ecd8801e617878c78f465c",
+      "bytes": 7433
+    },
+    {
+      "date": "2026-05-12",
+      "issue": 43,
+      "material_id": "243387",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243387",
+      "sha256": "595a2cadabf43c8dd87d4bd7fd27eea3407c6b8c86bb89ea7e433ce1b3cb8313",
+      "bytes": 8038
+    },
+    {
+      "date": "2026-05-12",
+      "issue": 43,
+      "material_id": "243388",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243388",
+      "sha256": "583de2347e67ea1d0d89575d48513be744e308b8538e2b64f84429bf57985eb6",
+      "bytes": 11603
+    },
+    {
+      "date": "2026-05-12",
+      "issue": 43,
+      "material_id": "243332",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243332",
+      "sha256": "7f4f90c42f8e2b2d3a725b4487221f5eb0da84c557ff68eaba51327aaa5cb2e3",
+      "bytes": 8217
+    },
+    {
+      "date": "2026-05-12",
+      "issue": 43,
+      "material_id": "243333",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243333",
+      "sha256": "ea7125b76ccf63b6ca584cbd0b5f342af9944eeee91605978841e6693cc4a653",
+      "bytes": 11557
+    },
+    {
+      "date": "2026-05-12",
+      "issue": 43,
+      "material_id": "243334",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243334",
+      "sha256": "949c568551755350d1581e6fecff5dd0d064885f57a8f453823f540f4b1f4c4a",
+      "bytes": 11296
+    },
+    {
+      "date": "2026-05-12",
+      "issue": 43,
+      "material_id": "243389",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243389",
+      "sha256": "7672a594759e1149d96ea395ddc991365d7be683c0c83258715414bc4fff8b15",
+      "bytes": 12088
+    },
+    {
+      "date": "2026-05-12",
+      "issue": 43,
+      "material_id": "243390",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243390",
+      "sha256": "867d365b559a2bcb164abe3ae323ee8c0247a3baf1bbdbb9b049a54620319282",
+      "bytes": 12112
+    },
+    {
+      "date": "2026-05-12",
+      "issue": 43,
+      "material_id": "243173",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243173",
+      "sha256": "bae235a35141e69f36b6c71a45dceb8fbb27f0affcde7c335ff94ff052b7c787",
+      "bytes": 37910
+    },
+    {
+      "date": "2026-05-12",
+      "issue": 43,
+      "material_id": "243174",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243174",
+      "sha256": "30f2891a2572bad2a047110ce35aa7a11438f3330481637b199be8e01b0aa7f8",
+      "bytes": 30648
+    },
+    {
+      "date": "2026-05-08",
+      "issue": 42,
+      "material_id": "243155",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243155",
+      "sha256": "06404017f59aba17e5cadb98eaedccd7e0f6eb895e415a3fc6cbae431ab85fee",
+      "bytes": 62412
+    },
+    {
+      "date": "2026-05-05",
+      "issue": 41,
+      "material_id": "243226",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243226",
+      "sha256": "ef96fc55a617f519bcc97d446062cbfd73ea95e0352f1804285582c6f7046e88",
+      "bytes": 9682
+    },
+    {
+      "date": "2026-05-05",
+      "issue": 41,
+      "material_id": "243227",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243227",
+      "sha256": "1aeb8b109d413cd17fdb0fb346905d569da500f51edcc510324d41f67c82939b",
+      "bytes": 7366
+    },
+    {
+      "date": "2026-05-05",
+      "issue": 41,
+      "material_id": "243228",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243228",
+      "sha256": "4a4f382303a85e063c16006ea1fbaeea3a7961570bfdbee2237c8bed5366f7dd",
+      "bytes": 9627
+    },
+    {
+      "date": "2026-05-05",
+      "issue": 41,
+      "material_id": "243229",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243229",
+      "sha256": "b8c1ff967c4f5741bd2185ac953cd6503d98727d6dd3ec21d0c7e66509c3e640",
+      "bytes": 8772
+    },
+    {
+      "date": "2026-05-05",
+      "issue": 41,
+      "material_id": "243230",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243230",
+      "sha256": "12dc22ada1498278ffe8b4c68c786d0d7c6bfc1ebf9f5e2f6bf31fbea399fcc3",
+      "bytes": 8275
+    },
+    {
+      "date": "2026-05-05",
+      "issue": 41,
+      "material_id": "243231",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=243231",
+      "sha256": "037d858202ba46044bdf629d48e9a775e915963939410a39e42552c554c5b557",
+      "bytes": 8878
+    },
+    {
+      "date": "2026-05-05",
+      "issue": 41,
+      "material_id": "242982",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242982",
+      "sha256": "c5e2b84a42ac4afdb060f3ee2b423259eaa7c7bc0a0229b424b0cf72460b241f",
+      "bytes": 42408
+    },
+    {
+      "date": "2026-04-21",
+      "issue": 37,
+      "material_id": "242558",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242558",
+      "sha256": "a0f3dd42fee538e5c28392e39e4de738f3d27fe83c0fcd1a88062c3842b71ffc",
+      "bytes": 67767
+    },
+    {
+      "date": "2026-04-21",
+      "issue": 37,
+      "material_id": "242559",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242559",
+      "sha256": "4788beafa9485965d1d0a328785027dd14e6a90ee67a3af302e97293be1144f9",
+      "bytes": 44933
+    },
+    {
+      "date": "2026-04-21",
+      "issue": 37,
+      "material_id": "242638",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242638",
+      "sha256": "40365883876338fb750d510c5d5459ed2c4fc6f4d1b3118a518fd28c89f2e9ea",
+      "bytes": 52041
+    },
+    {
+      "date": "2026-04-21",
+      "issue": 37,
+      "material_id": "242639",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242639",
+      "sha256": "910dfbd716246c785cae5af233de2571020b4448fdd7992b247002fe37883ec0",
+      "bytes": 28355
+    },
+    {
+      "date": "2026-04-17",
+      "issue": 36,
+      "material_id": "242682",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242682",
+      "sha256": "3fdfc25d7433bca4b11439cc004ed984f4469f987b567b34602476f572cff71c",
+      "bytes": 64205
+    },
+    {
+      "date": "2026-04-17",
+      "issue": 36,
+      "material_id": "242681",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242681",
+      "sha256": "62069b514cbc54a740d5be3bfef31f58b5c683b8ae9b98a074bd1a9bce078008",
+      "bytes": 35047
+    },
+    {
+      "date": "2026-04-07",
+      "issue": 34,
+      "material_id": "242502",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242502",
+      "sha256": "0d18dea6ab8ee92a85601134d4225eb8b9a60a76e06c82fd81afbb83283a090e",
+      "bytes": 9073
+    },
+    {
+      "date": "2026-04-01",
+      "issue": 32,
+      "material_id": "242222",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242222",
+      "sha256": "f803afc44299a8ef88be159589400543b6dc5ee026858ec8573cff6d8746c771",
+      "bytes": 51422
+    },
+    {
+      "date": "2026-04-01",
+      "issue": 32,
+      "material_id": "242220",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242220",
+      "sha256": "8a15adebd42551b3a6905e8e067b59498d16c424196ff21b150dd9e95bc5204a",
+      "bytes": 299665
+    },
+    {
+      "date": "2026-03-31",
+      "issue": 31,
+      "material_id": "242165",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242165",
+      "sha256": "9e647e772cb074a7ad76c42af82341c11ef68685844ed06fd874c3e8053f542d",
+      "bytes": 87579
+    },
+    {
+      "date": "2026-03-31",
+      "issue": 31,
+      "material_id": "242166",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242166",
+      "sha256": "3f7cf865a492ec20fdc232143e2e0883f9fc58487de381f3f21d5f762c28be41",
+      "bytes": 115165
+    },
+    {
+      "date": "2026-03-31",
+      "issue": 31,
+      "material_id": "242175",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242175",
+      "sha256": "f40104e61928df57776b78128bcfad8a35535a6a223ad0dd7f746b61ebd2c23d",
+      "bytes": 42936
+    },
+    {
+      "date": "2026-03-31",
+      "issue": 31,
+      "material_id": "242176",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242176",
+      "sha256": "37d25ee6ebb737bb89f2effc357e1c2b8be0e642834183f6602da4cb871b63e4",
+      "bytes": 69007
+    },
+    {
+      "date": "2026-03-27",
+      "issue": 30,
+      "material_id": "241982",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241982",
+      "sha256": "59b6675be6f2203cae6332299223fbe1004db6163e9d0d44cdc8ea1c6aec818c",
+      "bytes": 18928
+    },
+    {
+      "date": "2026-03-27",
+      "issue": 30,
+      "material_id": "241981",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241981",
+      "sha256": "c040bb56fff8e23abff1f164652a6ff5208de512e55bda26dbea60ef83a0642d",
+      "bytes": 11773
+    },
+    {
+      "date": "2026-03-27",
+      "issue": 30,
+      "material_id": "242046",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242046",
+      "sha256": "366f2c4192add9c00c4fd5e5a133298099ac07b7130c7ae0cc30def967364b9c",
+      "bytes": 46885
+    },
+    {
+      "date": "2026-03-27",
+      "issue": 30,
+      "material_id": "242169",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242169",
+      "sha256": "0d0992b792fe72dafe5382a14c6d9c4944de5ee6ece4ed6819303ce70339311b",
+      "bytes": 16583
+    },
+    {
+      "date": "2026-03-27",
+      "issue": 30,
+      "material_id": "242170",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242170",
+      "sha256": "154fcf135d32ec62ded09dca8632ceb9c727cef60c7dea08923f98f300db002d",
+      "bytes": 67047
+    },
+    {
+      "date": "2026-03-27",
+      "issue": 30,
+      "material_id": "242171",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242171",
+      "sha256": "ee7965d601bab6b60ef55c6b6e043426fb9012e674ca2f775666ffb6a9c74a8e",
+      "bytes": 20241
+    },
+    {
+      "date": "2026-03-27",
+      "issue": 30,
+      "material_id": "242221",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242221",
+      "sha256": "331c38d97d0adee61233a659dc309a3a891be7ebb4b3cfc802775de433ef6a46",
+      "bytes": 83939
+    },
+    {
+      "date": "2026-03-27",
+      "issue": 30,
+      "material_id": "242115",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242115",
+      "sha256": "ffa43b754a48c5a9b7f2a18ba576046504baa7c8cdffee0831b94c894ee42710",
+      "bytes": 90183
+    },
+    {
+      "date": "2026-03-27",
+      "issue": 30,
+      "material_id": "242116",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242116",
+      "sha256": "5da05d8f50095732e15e71e5464130bb2c4ce3651026d7ef9204808537a5ca1b",
+      "bytes": 93730
+    },
+    {
+      "date": "2026-03-24",
+      "issue": 29,
+      "material_id": "242219",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242219",
+      "sha256": "d6c39d8c5ef65dffc900773ee6efd9e6f4d653313a5e731d3ed7c516e913e98a",
+      "bytes": 9416
+    },
+    {
+      "date": "2026-03-20",
+      "issue": 28,
+      "material_id": "242072",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242072",
+      "sha256": "3a6463348780e3c36f90df4ebec7cbf6aeb2eac3132f93d86c04238571f70a85",
+      "bytes": 17181
+    },
+    {
+      "date": "2026-03-20",
+      "issue": 28,
+      "material_id": "242073",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242073",
+      "sha256": "aeb494fa218e9d493dfd6da2c0d818f5b790c3210d0f305a3b6dd0696a82cdba",
+      "bytes": 8910
+    },
+    {
+      "date": "2026-03-20",
+      "issue": 28,
+      "material_id": "242074",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242074",
+      "sha256": "2838db6bfb3402419e208668de78039ffa39678e57e81e2d51d1c09e933e97ac",
+      "bytes": 9679
+    },
+    {
+      "date": "2026-03-20",
+      "issue": 28,
+      "material_id": "242161",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242161",
+      "sha256": "36d0f72eae210671a3dbb7e93b4e00409482054cdc39b945e65294b8ce72c89c",
+      "bytes": 16118
+    },
+    {
+      "date": "2026-03-20",
+      "issue": 28,
+      "material_id": "242006",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=242006",
+      "sha256": "17271576d5b9513fd30c22a23edcd4dd89809352592ee6024cd6be183c470b19",
+      "bytes": 46660
+    },
+    {
+      "date": "2026-03-17",
+      "issue": 27,
+      "material_id": "241833",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241833",
+      "sha256": "55bba36c0986b9aac59d2b39989cf8777954800fe28e75bcd565daa70d302a04",
+      "bytes": 19332
+    },
+    {
+      "date": "2026-03-17",
+      "issue": 27,
+      "material_id": "241886",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241886",
+      "sha256": "a4f3513d1b2be79222ffb37ede8a59bfa4a7b5bffde6fcf85f3cf0acf6f05b6d",
+      "bytes": 655897
+    },
+    {
+      "date": "2026-03-10",
+      "issue": 25,
+      "material_id": "241741",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241741",
+      "sha256": "e4d2ea8c0a719762ae69f10b132016cc050fff6c429f45d2b9c4427bb97b08a6",
+      "bytes": 11090
+    },
+    {
+      "date": "2026-03-10",
+      "issue": 25,
+      "material_id": "241742",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241742",
+      "sha256": "ad309b29ad59656530bf546ab3a7e6bcb1f4697c896dfb00c8e8ddc75934b942",
+      "bytes": 324934
+    },
+    {
+      "date": "2026-03-10",
+      "issue": 25,
+      "material_id": "241744",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241744",
+      "sha256": "579efeb9df8dbe12a182233b5c08fd1149cc5b19389370dc5b0794c47c31e346",
+      "bytes": 12412
+    },
+    {
+      "date": "2026-03-10",
+      "issue": 25,
+      "material_id": "241743",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241743",
+      "sha256": "64ad61bc750cbbd1f069f50216bda8dd1c78d50b3721f9f7ed830451df95ce8d",
+      "bytes": 11975
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241627",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241627",
+      "sha256": "bf5325aed7a8d2282a989708a588d2869db22ab4edbdf2d8365a43fc17d08264",
+      "bytes": 399356
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241626",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241626",
+      "sha256": "9397e6f82d606613dd908d23636b8683de768b12c41c0ff29ee189835977bf5a",
+      "bytes": 11252
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241775",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241775",
+      "sha256": "d6417de1e36836cd702b6a6388087bea0af723e89304385eb0aa659eaa865f7b",
+      "bytes": 8102
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241776",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241776",
+      "sha256": "f14802743fad472f292df878c33cca25be29461c473e8fc19fba54b52be811e0",
+      "bytes": 7526
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241777",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241777",
+      "sha256": "30e2ead27e55f058dd858d4481930fdbc41516e8e4345cfeb5363cd76554495c",
+      "bytes": 8326
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241778",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241778",
+      "sha256": "23c6b859420f7bf6441e48890238703ecd6ec6d30bd7f0e4b6a80b8d2aac6851",
+      "bytes": 8601
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241779",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241779",
+      "sha256": "5e20b48326b09e189151d80afe8dd4092b3fcc16b9e0c5d07dd15d7c385cfe84",
+      "bytes": 7599
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241780",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241780",
+      "sha256": "9ec5115400f28a2a3ae84ecaab5dd9b6fd54bf2d62a0a6bb304737aa6b61565b",
+      "bytes": 7486
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241781",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241781",
+      "sha256": "892033728a3d008ba2fe9fe23f20c9157e59dd479ae04d66c75bf3f9c7d695bb",
+      "bytes": 8222
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241782",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241782",
+      "sha256": "ff2c434abc18e58f0679c61a58e03ff1debc1714088d65d68e323d6f1fbd4a19",
+      "bytes": 7609
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241783",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241783",
+      "sha256": "100b3cac1198439ae197ea881ed4b1bc321d96dbcee57935888ed218a8b32513",
+      "bytes": 8418
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241784",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241784",
+      "sha256": "20f3ccf817ea3749fec159be24a7c8df3f4527719daaa9e24c93806b0a45aff1",
+      "bytes": 7614
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241785",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241785",
+      "sha256": "7b0efc05e26be033aa70ae63fe91404ba792527842f0b157ea688989a29ade93",
+      "bytes": 7405
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241786",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241786",
+      "sha256": "9f3b32ffeacb4b507487fde5e54f141b36f31a0f6cfc623468c6460598bcbf36",
+      "bytes": 7730
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241787",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241787",
+      "sha256": "dcdcd29ff45b8cdb8ff93aca654ea875027da600e493882006e449a122527269",
+      "bytes": 7496
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241788",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241788",
+      "sha256": "dce2158056c08548c923f8e54269f0417e18e270d7f7501ee38997b9504934b3",
+      "bytes": 6061
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241789",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241789",
+      "sha256": "8337aadf8f6a5e390db0c39dac38a9f5e7529c5559c5a0ea91545dc007329fb8",
+      "bytes": 7552
+    },
+    {
+      "date": "2026-03-06",
+      "issue": 24,
+      "material_id": "241790",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241790",
+      "sha256": "f341aa9ebe23d89e3d799409a4e9e3b69c34b9f994cda93775183b5eb9a4363c",
+      "bytes": 7982
+    },
+    {
+      "date": "2026-02-27",
+      "issue": 23,
+      "material_id": "241619",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241619",
+      "sha256": "ab0b98ba75da9ca0f2469184033771ed4060f28bc8f2b4cc619bc6850755e056",
+      "bytes": 11819
+    },
+    {
+      "date": "2026-02-27",
+      "issue": 23,
+      "material_id": "241618",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241618",
+      "sha256": "4bbbcd4c64bc636cb3d843c5bf5fdf8ad0068a65cec6ed001253e335b4cdc7b1",
+      "bytes": 13957
+    },
+    {
+      "date": "2026-02-27",
+      "issue": 23,
+      "material_id": "241537",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241537",
+      "sha256": "9b33bfb6ea35db47ef328f0baf529fd44d8c3e54033cc6f3d8ad6cc3f01d384d",
+      "bytes": 11518
+    },
+    {
+      "date": "2026-02-27",
+      "issue": 23,
+      "material_id": "241669",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241669",
+      "sha256": "ca2b9c91e9c0f9859a6b085955a152cc7326d573d695ad9d9146138e02de7779",
+      "bytes": 16889
+    },
+    {
+      "date": "2026-02-27",
+      "issue": 23,
+      "material_id": "241690",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241690",
+      "sha256": "cba77c5f01fc82dd06a970235530c022becf88449718fadfd167ff88cc591175",
+      "bytes": 53372
+    },
+    {
+      "date": "2026-02-27",
+      "issue": 23,
+      "material_id": "241569",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241569",
+      "sha256": "01835d079cfb1c7e57611e388b683311b65af912cf894d09bd43275533df4257",
+      "bytes": 57462
+    },
+    {
+      "date": "2026-02-27",
+      "issue": 23,
+      "material_id": "241568",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241568",
+      "sha256": "232abfe402b5e91b5ff7f6f204b5e8cae6b5afe2829514b96f5f58a90a0c4a5a",
+      "bytes": 16347
+    },
+    {
+      "date": "2026-02-27",
+      "issue": 23,
+      "material_id": "241489",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241489",
+      "sha256": "4bb58ecf91af0689e362cb73e2418b032e4de3f411dbca0afaa2fc8998d7eb86",
+      "bytes": 43448
+    },
+    {
+      "date": "2026-02-27",
+      "issue": 23,
+      "material_id": "241594",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241594",
+      "sha256": "98f5dd74665bcdbda40e9b175af0faee5eed2bb8a7ed4e5cad04dffd23f02f01",
+      "bytes": 31774
+    },
+    {
+      "date": "2026-02-27",
+      "issue": 23,
+      "material_id": "241595",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241595",
+      "sha256": "f7092d6bd243ed05c52fb58c9a18fb1d5f02b2839183e59d9d955769691d8a0d",
+      "bytes": 61415
+    },
+    {
+      "date": "2026-02-24",
+      "issue": 22,
+      "material_id": "241407",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241407",
+      "sha256": "7a0a0bf38d5b8d47dbe0d96084ed30424e1c29e01399bef7501abe834b3d4bc3",
+      "bytes": 10903
+    },
+    {
+      "date": "2026-02-24",
+      "issue": 22,
+      "material_id": "241428",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241428",
+      "sha256": "a723617397dd69c7d7ceab68e384b33192701b8504470645dbf6be88e4f3b378",
+      "bytes": 12858
+    },
+    {
+      "date": "2026-02-19",
+      "issue": 19,
+      "material_id": "241406",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241406",
+      "sha256": "edf20a7c6e0a8bf6a876a062c9866af0295d1412fa9d3dd786882d9a2a3c6019",
+      "bytes": 8588
+    },
+    {
+      "date": "2026-02-17",
+      "issue": 18,
+      "material_id": "241250",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241250",
+      "sha256": "cf728911035c85a157207bbde7c008215d2db0c8c6c68ae51503529739aa2232",
+      "bytes": 24071
+    },
+    {
+      "date": "2026-02-13",
+      "issue": 17,
+      "material_id": "241067",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241067",
+      "sha256": "4cb02d8b9be06f81f07e98d54b394108734c02609cd0e36278ae229b602a3116",
+      "bytes": 61140
+    },
+    {
+      "date": "2026-02-13",
+      "issue": 17,
+      "material_id": "241234",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241234",
+      "sha256": "985c4276e6e2584d8c5f82f3a86e194e065724bdd5a4643c0115a1293f708c2e",
+      "bytes": 361747
+    },
+    {
+      "date": "2026-02-13",
+      "issue": 17,
+      "material_id": "241330",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241330",
+      "sha256": "467bca265f1af80ce8ce46072ffd4d1327994e888982afef00fe8ebaa46527ed",
+      "bytes": 14747
+    },
+    {
+      "date": "2026-02-13",
+      "issue": 17,
+      "material_id": "241113",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241113",
+      "sha256": "611c647cf8631f5975c0ff9b45bae8fbb4fd9eaa62db41e08a3de3a9600fe53b",
+      "bytes": 45797
+    },
+    {
+      "date": "2026-02-13",
+      "issue": 17,
+      "material_id": "241114",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241114",
+      "sha256": "1c0212a1624baa7743fb6171a5a9a94d0bf5930e17d6bff1d3f4805bd7ed395e",
+      "bytes": 22912
+    },
+    {
+      "date": "2026-02-13",
+      "issue": 17,
+      "material_id": "241160",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241160",
+      "sha256": "13af758ad96f96c9bd627dc89602d7b83a3dfa202ceafa94ecf516b3d4e0a35c",
+      "bytes": 39746
+    },
+    {
+      "date": "2026-02-13",
+      "issue": 17,
+      "material_id": "241161",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241161",
+      "sha256": "a7af4d9006eaaf1329208b4a2fe6f71f23cd2dc50dfa3d32d06cf66f2861d506",
+      "bytes": 28389
+    },
+    {
+      "date": "2026-02-10",
+      "issue": 16,
+      "material_id": "241027",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241027",
+      "sha256": "25d364e98ecd9751c2594f67a065051996a642d4165cda61c6dd51f4eccfbdb8",
+      "bytes": 12248
+    },
+    {
+      "date": "2026-02-10",
+      "issue": 16,
+      "material_id": "241028",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241028",
+      "sha256": "538830aace658f03f2781cf4269b76769494755c2f48981499406bfc835a349d",
+      "bytes": 23819
+    },
+    {
+      "date": "2026-02-10",
+      "issue": 16,
+      "material_id": "241026",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241026",
+      "sha256": "4e1bbdcb172a489027ea35fce0fffc38185429b4705aa9d7be36742dd77ca62a",
+      "bytes": 13953
+    },
+    {
+      "date": "2026-02-10",
+      "issue": 16,
+      "material_id": "241045",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241045",
+      "sha256": "1778dae06bb14e8d386c3ca11faf5e36aaca22b88d63e59f31a20828ecd2e6af",
+      "bytes": 160099
+    },
+    {
+      "date": "2026-02-10",
+      "issue": 16,
+      "material_id": "241044",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241044",
+      "sha256": "35f72d6131f2e1f389f567ab7b14ebc361bfe056c1102446512bdfba6fcf92df",
+      "bytes": 389888
+    },
+    {
+      "date": "2026-02-10",
+      "issue": 16,
+      "material_id": "241068",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241068",
+      "sha256": "c0141213feeba6161f9fae8f1b58198f2585154af2affee7257badec6aec7284",
+      "bytes": 11072
+    },
+    {
+      "date": "2026-02-10",
+      "issue": 16,
+      "material_id": "241090",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241090",
+      "sha256": "56bdab58c910b78f6d345021a8628965f3cb41a5bde4eb2c6c1d1ed931c99d26",
+      "bytes": 45035
+    },
+    {
+      "date": "2026-02-10",
+      "issue": 16,
+      "material_id": "241092",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241092",
+      "sha256": "f23216f475a6dc6b879157f1944b2cad8b9dfca9bf37ec28253b269d9876e03a",
+      "bytes": 11836
+    },
+    {
+      "date": "2026-02-10",
+      "issue": 16,
+      "material_id": "241091",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241091",
+      "sha256": "51e4308cb4de2e2bbb252af333faa0dedffbe7245e95837422f2a7ed72c7f629",
+      "bytes": 46382
+    },
+    {
+      "date": "2026-02-06",
+      "issue": 15,
+      "material_id": "241088",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241088",
+      "sha256": "3141addfa2be908dd1340d25e68681e96c87ee290b09a1fd0c55d9df27666266",
+      "bytes": 7821
+    },
+    {
+      "date": "2026-02-06",
+      "issue": 15,
+      "material_id": "241157",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=241157",
+      "sha256": "f5513d0f9d329b4208860378ba19d36017b840b6e213b25083dbc8a9e5beec9a",
+      "bytes": 36104
+    },
+    {
+      "date": "2026-02-03",
+      "issue": 13,
+      "material_id": "240866",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240866",
+      "sha256": "ce00f9cac82ee1bedfe5bd794c384414c3f931e733b2d6ce315813e42bf7be25",
+      "bytes": 273656
+    },
+    {
+      "date": "2026-02-03",
+      "issue": 13,
+      "material_id": "240955",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240955",
+      "sha256": "4fbe2697243cb7bd532ea9087285c26641bd2130838cef3983908661042b8436",
+      "bytes": 67741
+    },
+    {
+      "date": "2026-01-30",
+      "issue": 12,
+      "material_id": "240926",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240926",
+      "sha256": "2463d8a9ae3ce0577ef04fb073f1b259658edae9cb93fd1f39a0e04a6d97eb81",
+      "bytes": 31515
+    },
+    {
+      "date": "2026-01-27",
+      "issue": 10,
+      "material_id": "240911",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240911",
+      "sha256": "672921fa9ff6da1ea8093dfbdbdc1d00b187579b9baa8a786cc073d8d13e32f1",
+      "bytes": 15320
+    },
+    {
+      "date": "2026-01-27",
+      "issue": 10,
+      "material_id": "240770",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240770",
+      "sha256": "c1fd156b0f82160c58a889fc9e3f56c4b07c2943a3e18fba447cd90cc531cca2",
+      "bytes": 757189
+    },
+    {
+      "date": "2026-01-23",
+      "issue": 9,
+      "material_id": "240706",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240706",
+      "sha256": "3d666b68fc24ff095514fc12c816a634dff329960519d9c84ff21378ede85f02",
+      "bytes": 9235
+    },
+    {
+      "date": "2026-01-20",
+      "issue": 7,
+      "material_id": "240587",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240587",
+      "sha256": "56a19f488e3d4058b9c0c98604b3d7ce944e49c7442458cbcb49111512c4ae6c",
+      "bytes": 13348
+    },
+    {
+      "date": "2026-01-16",
+      "issue": 6,
+      "material_id": "240472",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240472",
+      "sha256": "53260505378e30bf80d4698d99f3ef24826bdb401de47138f7d7bc435bbe1876",
+      "bytes": 99661
+    },
+    {
+      "date": "2026-01-13",
+      "issue": 4,
+      "material_id": "240498",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240498",
+      "sha256": "7e1ea14419ab7c5d2fdab2da80aaa2744ac172bd6294d72eb469fe478b5a3855",
+      "bytes": 53176
+    },
+    {
+      "date": "2025-12-30",
+      "issue": 115,
+      "material_id": "240167",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240167",
+      "sha256": "f9b21be20444836530ab836b7078069d6f164a19bb62c63a123aafd28def8afb",
+      "bytes": 245493
+    },
+    {
+      "date": "2025-12-30",
+      "issue": 115,
+      "material_id": "240168",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240168",
+      "sha256": "2b5019552e854ea5e09afc70cd1591cd409c5823fddcd818b2effa9bc04a31c5",
+      "bytes": 11394
+    },
+    {
+      "date": "2025-12-30",
+      "issue": 115,
+      "material_id": "240237",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240237",
+      "sha256": "4f49816cfbb6dead0cf6490ccd214909cd4f8c46aee6c221e0de092330817bac",
+      "bytes": 40529
+    },
+    {
+      "date": "2025-12-30",
+      "issue": 115,
+      "material_id": "240235",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240235",
+      "sha256": "06969b78401ad80f5ea78f69d84789074ca82bc9ef4a89cb112714d439bf0800",
+      "bytes": 9827
+    },
+    {
+      "date": "2025-12-30",
+      "issue": 115,
+      "material_id": "240236",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240236",
+      "sha256": "56c6c424691bb7a932d2376b5acbbf591c3f9d947d6f33badb41d6ee18c8ee4d",
+      "bytes": 40271
+    },
+    {
+      "date": "2025-12-30",
+      "issue": 115,
+      "material_id": "240242",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240242",
+      "sha256": "72d4293f66cb8a90cbdcb7a46df9d3b27349187aaaa30a49c4cd84570354f976",
+      "bytes": 13777
+    },
+    {
+      "date": "2025-12-30",
+      "issue": 115,
+      "material_id": "240106",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240106",
+      "sha256": "fa586d4ccc8b03583bf209e542510b271eb662f90713e7f9ea6dbc782252b8be",
+      "bytes": 382623
+    },
+    {
+      "date": "2025-12-24",
+      "issue": 114,
+      "material_id": "240221",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240221",
+      "sha256": "ec0ef65eca22b46f5202010b280777b67ea30e5c92d3e7386334ddc8eeb3393c",
+      "bytes": 9359
+    },
+    {
+      "date": "2025-12-24",
+      "issue": 114,
+      "material_id": "240212",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240212",
+      "sha256": "32cc2bceb56a8736dae65816136056fdb88ca9b3eec15c6833dec18d3c6963af",
+      "bytes": 29876
+    },
+    {
+      "date": "2025-12-23",
+      "issue": 113,
+      "material_id": "240166",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240166",
+      "sha256": "4a000c1ae7f15a98c2c994a06bde8aa588c3390a7b80029c7fa5cc676bbd5bf6",
+      "bytes": 79570
+    },
+    {
+      "date": "2025-12-23",
+      "issue": 113,
+      "material_id": "240165",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240165",
+      "sha256": "6a64d98bbe5782ecbbb6289f16271306b745ba9ce16437819709bfcaf0254d93",
+      "bytes": 19595
+    },
+    {
+      "date": "2025-12-23",
+      "issue": 113,
+      "material_id": "240066",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240066",
+      "sha256": "282945a64894101da5beac49c09ce2420087ed76c2ed1c876b4bd378970e0ded",
+      "bytes": 34609
+    },
+    {
+      "date": "2025-12-23",
+      "issue": 113,
+      "material_id": "240116",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240116",
+      "sha256": "2b680361ebbdbfc5a261a745f3644e4e2faae2f646bf2ce08a205adc8d08f871",
+      "bytes": 35380
+    },
+    {
+      "date": "2025-12-19",
+      "issue": 112,
+      "material_id": "239842",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239842",
+      "sha256": "ca20924e7bf491b7be3639bec638a8bc81ec024e766d623a4d011e4dee2ed2a0",
+      "bytes": 12698
+    },
+    {
+      "date": "2025-12-19",
+      "issue": 112,
+      "material_id": "239841",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239841",
+      "sha256": "2c40527b2a931833fb78b4f00d1b089b501664472209ab76940a9c02c4b61008",
+      "bytes": 10656
+    },
+    {
+      "date": "2025-12-19",
+      "issue": 112,
+      "material_id": "240074",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=240074",
+      "sha256": "209e62d2b91461e6d5d4dde6e49452b763e1d57643dc4ca6afa6f12ba960fad7",
+      "bytes": 12430
+    },
+    {
+      "date": "2025-12-16",
+      "issue": 109,
+      "material_id": "239949",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239949",
+      "sha256": "ada92d87d36a65a453a12b21f1ad6733030819aba57f9fa3ed9d85473b48a6c2",
+      "bytes": 8789
+    },
+    {
+      "date": "2025-12-16",
+      "issue": 109,
+      "material_id": "239950",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239950",
+      "sha256": "0ea80dfb4ae321151c0c4ece5355c8dae623d5314de42695f4cdc13db9f45707",
+      "bytes": 8009
+    },
+    {
+      "date": "2025-12-16",
+      "issue": 109,
+      "material_id": "239951",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239951",
+      "sha256": "cd490d0651a330c0c97e3904c5ddd23e24333e6e5095994cad06543186c6cfe4",
+      "bytes": 7941
+    },
+    {
+      "date": "2025-12-16",
+      "issue": 109,
+      "material_id": "239652",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239652",
+      "sha256": "247e96140cf1d103ba2bb0bb7adbbabae7825e5f7f236d5f60a5a2e22ecfff1c",
+      "bytes": 41502
+    },
+    {
+      "date": "2025-12-12",
+      "issue": 107,
+      "material_id": "239606",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239606",
+      "sha256": "2ea728bf69c84af09e37224f263ed816359c2ed0a80675a22155787ebb674dd0",
+      "bytes": 48474
+    },
+    {
+      "date": "2025-12-12",
+      "issue": 107,
+      "material_id": "239607",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239607",
+      "sha256": "a17a89705a208a06c4f7b987177e6b68018971589056d929ba5e303cf88dd3b7",
+      "bytes": 50407
+    },
+    {
+      "date": "2025-12-09",
+      "issue": 106,
+      "material_id": "239296",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239296",
+      "sha256": "81bac5444bf69cc0164fb3fafc8bc0ed0e048d49ba9091e62a8f16d9cd27ee9d",
+      "bytes": 23261
+    },
+    {
+      "date": "2025-12-09",
+      "issue": 106,
+      "material_id": "239325",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239325",
+      "sha256": "6054bbc9cdfdab80051cd55aa3042a739d51c9e4fac74333c2cfd8686f62e615",
+      "bytes": 12239
+    },
+    {
+      "date": "2025-12-09",
+      "issue": 106,
+      "material_id": "239326",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239326",
+      "sha256": "248459f0d1a7a274d22f41b793e7d29f93571989d41245585201d8896358d9b1",
+      "bytes": 11045
+    },
+    {
+      "date": "2025-12-09",
+      "issue": 106,
+      "material_id": "239715",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239715",
+      "sha256": "5677e3b9377ef3f87de50c739594fe7213fe0a7c34d571ea65b58d6f240dec16",
+      "bytes": 8143
+    },
+    {
+      "date": "2025-12-09",
+      "issue": 106,
+      "material_id": "239612",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239612",
+      "sha256": "d5642b501f22e8821e6fd138d7f968f6a06f051d5a5f89c1e55dde2948e2afdf",
+      "bytes": 134139
+    },
+    {
+      "date": "2025-12-05",
+      "issue": 104,
+      "material_id": "239293",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239293",
+      "sha256": "a719a2036b7cdd650c975c9643449698d5d2a7f4a45c9bf4131758fbfad30157",
+      "bytes": 11634
+    },
+    {
+      "date": "2025-12-05",
+      "issue": 104,
+      "material_id": "239630",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239630",
+      "sha256": "b78c3c4ce3c7eef82ea2c00fc07044a9718732573935f8ff56524ee7397d6b6d",
+      "bytes": 8111
+    },
+    {
+      "date": "2025-12-05",
+      "issue": 104,
+      "material_id": "239631",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239631",
+      "sha256": "9a7b170802f151739ee8d788a1d35ff654ac09aa5130da5bb1184b74f1abd55e",
+      "bytes": 7393
+    },
+    {
+      "date": "2025-12-05",
+      "issue": 104,
+      "material_id": "239611",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239611",
+      "sha256": "0f1222b0af8f276ba62c0e7c8c9f78f6c872e93d2dd152e03f81df7bfac73708",
+      "bytes": 82858
+    },
+    {
+      "date": "2025-11-28",
+      "issue": 102,
+      "material_id": "239072",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239072",
+      "sha256": "0131e9a8f7f9e43e16be55f60ce46d43c5085229aeaa2ae66765ea5ba30c18a9",
+      "bytes": 11456
+    },
+    {
+      "date": "2025-11-28",
+      "issue": 102,
+      "material_id": "239073",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239073",
+      "sha256": "fb5d65637eca0d88bb085b289f0caf8a1a2db553c51bfa1ec0c5a0f1fc8237d6",
+      "bytes": 10319
+    },
+    {
+      "date": "2025-11-28",
+      "issue": 102,
+      "material_id": "239104",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239104",
+      "sha256": "71a837fb70ad98047bfd2a8a8598862fc450236e4f14ebaf4d923c9930ab30df",
+      "bytes": 10580
+    },
+    {
+      "date": "2025-11-28",
+      "issue": 102,
+      "material_id": "239150",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239150",
+      "sha256": "98eb0ad0630d7410d058dd34c5b165646960da2c3470979b4213d4d9304a8561",
+      "bytes": 203003
+    },
+    {
+      "date": "2025-11-27",
+      "issue": 101,
+      "material_id": "239248",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239248",
+      "sha256": "a289b82549122850e8a17743bc22f8ff555820c7a9e6df67853944aaed86e88b",
+      "bytes": 6458
+    },
+    {
+      "date": "2025-11-25",
+      "issue": 100,
+      "material_id": "239105",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239105",
+      "sha256": "a5cfa93dee9d8b42badade11e5c65308f2c5eb9113b66bdbeca76482fb9d180f",
+      "bytes": 152739
+    },
+    {
+      "date": "2025-11-25",
+      "issue": 100,
+      "material_id": "239071",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=239071",
+      "sha256": "92e2642c07fc45a6297bab6eb9f4c9eea91164d77428c682404d9c82ae19319c",
+      "bytes": 43428
+    },
+    {
+      "date": "2025-11-21",
+      "issue": 99,
+      "material_id": "238813",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238813",
+      "sha256": "55d47ce14fa0dc29b48c5bfb3ce37836e969be043d8c5177c72c26d2e4e4b4ed",
+      "bytes": 11279
+    },
+    {
+      "date": "2025-11-21",
+      "issue": 99,
+      "material_id": "238811",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238811",
+      "sha256": "bf4fee1488e447a0cde9a455935420942c6da9e64b7da99b970d36f615687624",
+      "bytes": 171450
+    },
+    {
+      "date": "2025-11-21",
+      "issue": 99,
+      "material_id": "238810",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238810",
+      "sha256": "72fad5b094847ef8dbd906ff036757d75429fde400f57ecbc85923997ff576c5",
+      "bytes": 12151
+    },
+    {
+      "date": "2025-11-21",
+      "issue": 99,
+      "material_id": "238812",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238812",
+      "sha256": "a4ffb7947f4ed2e1fe17f543d79a6aa0623ffe0c28e592c80bb425f01f0afd7e",
+      "bytes": 138246
+    },
+    {
+      "date": "2025-11-14",
+      "issue": 97,
+      "material_id": "238595",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238595",
+      "sha256": "6a8ab084ea77fbbc5f3eee121f547c1852948ace1e4e60ae1d540685784c3e34",
+      "bytes": 11874
+    },
+    {
+      "date": "2025-11-14",
+      "issue": 97,
+      "material_id": "238910",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238910",
+      "sha256": "ba7b471ff9e2b947c31961c053d32ab27f2af942f56feb751713b9524061652e",
+      "bytes": 13282
+    },
+    {
+      "date": "2025-11-14",
+      "issue": 97,
+      "material_id": "238909",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238909",
+      "sha256": "b2326b50cb652da567c6a02be2c9e2ee8c44b3ef3590a7f4aae08fdf0f5912e7",
+      "bytes": 94590
+    },
+    {
+      "date": "2025-11-14",
+      "issue": 97,
+      "material_id": "238911",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238911",
+      "sha256": "a9649a9aa8f71225608bd48f98e1acb803530190c29aeee629fbd1bc2015f233",
+      "bytes": 31755
+    },
+    {
+      "date": "2025-11-14",
+      "issue": 97,
+      "material_id": "238932",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238932",
+      "sha256": "96bab3c47baae7af15aad036c49a65a26d0a51850479f3a3f5fe3866f38b8c70",
+      "bytes": 27640
+    },
+    {
+      "date": "2025-11-14",
+      "issue": 97,
+      "material_id": "238788",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238788",
+      "sha256": "9a315a67637b94b2acbff0912a3abdf6775bd0dba15f76173cdac2f0adfcf172",
+      "bytes": 259960
+    },
+    {
+      "date": "2025-11-14",
+      "issue": 97,
+      "material_id": "238718",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238718",
+      "sha256": "6ee836b396a070c485f034dd42069010b90bc8486ab7b4d16d5229a3d4408555",
+      "bytes": 7704
+    },
+    {
+      "date": "2025-11-14",
+      "issue": 97,
+      "material_id": "238851",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238851",
+      "sha256": "db85bf4a36b30394e2040e1f18683351a166c650dfcb869f3e9a97f73e65c47e",
+      "bytes": 40931
+    },
+    {
+      "date": "2025-11-14",
+      "issue": 97,
+      "material_id": "238852",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238852",
+      "sha256": "296ffe8d81a5373cf3630b596bffae1d3edc645113b5f554336e1c2f9ffa7ab9",
+      "bytes": 43905
+    },
+    {
+      "date": "2025-11-14",
+      "issue": 97,
+      "material_id": "238656",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238656",
+      "sha256": "8743a5ac038b3fbc69ec28c695a50ac3a2cf058efa57959bf98c0681567c62da",
+      "bytes": 64769
+    },
+    {
+      "date": "2025-11-14",
+      "issue": 97,
+      "material_id": "238657",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238657",
+      "sha256": "8062a78c38b98c65c44ddd9045a5120f55f8e415799d91ba1aef44e01dfd9d7f",
+      "bytes": 63756
+    },
+    {
+      "date": "2025-11-11",
+      "issue": 96,
+      "material_id": "238518",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238518",
+      "sha256": "89dc47282cf46bedea28d16b2c2e492e348a331c5b064086039f2c43bd87792e",
+      "bytes": 10568
+    },
+    {
+      "date": "2025-11-11",
+      "issue": 96,
+      "material_id": "238739",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238739",
+      "sha256": "877c9d78d5b728c42f496cbebffeba66aad50467191fef8b37403df7c072df52",
+      "bytes": 14541
+    },
+    {
+      "date": "2025-11-11",
+      "issue": 96,
+      "material_id": "238790",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238790",
+      "sha256": "48507c771e961905aa63dfa03ff7f61f205949d8febdaa33f57320019660509f",
+      "bytes": 71728
+    },
+    {
+      "date": "2025-11-11",
+      "issue": 96,
+      "material_id": "238785",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238785",
+      "sha256": "77e6c4a2d89f10766c2a49b4634ca522352c18eec2c1e4f379106bac42e4d0ae",
+      "bytes": 276767
+    },
+    {
+      "date": "2025-11-07",
+      "issue": 95,
+      "material_id": "238447",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238447",
+      "sha256": "d9207d6287a4acfc6ad44495bc18d64a4f43e419fcbff98efca087ae4b0fdf69",
+      "bytes": 79416
+    },
+    {
+      "date": "2025-11-07",
+      "issue": 95,
+      "material_id": "238448",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238448",
+      "sha256": "0eb743e3430a30e606093a3950ff42e7fa1830180fdc11ca6483827386c8e478",
+      "bytes": 133056
+    },
+    {
+      "date": "2025-11-07",
+      "issue": 95,
+      "material_id": "238453",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238453",
+      "sha256": "41e785ef8dc735d8407b43a5eb98fbe8f1dc5fbdd1c42dc703f572ea297b1b13",
+      "bytes": 11307
+    },
+    {
+      "date": "2025-11-07",
+      "issue": 95,
+      "material_id": "238710",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238710",
+      "sha256": "2f951afb381a236d53a31bd21c4be032319940e6105e59e8b901e9d2593c58f7",
+      "bytes": 18652
+    },
+    {
+      "date": "2025-11-04",
+      "issue": 94,
+      "material_id": "238573",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238573",
+      "sha256": "e11737d97cb1a2f4290bbad6015bb5c8370ff7ee45d8fa2e9cd9e70ab5d8b656",
+      "bytes": 19399
+    },
+    {
+      "date": "2025-11-04",
+      "issue": 94,
+      "material_id": "238572",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238572",
+      "sha256": "a37c9533e4d2202c8e4c5464a86ab66761bdb05fa4a2136bded790245f1a5ba4",
+      "bytes": 13229
+    },
+    {
+      "date": "2025-11-01",
+      "issue": 93,
+      "material_id": "238594",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238594",
+      "sha256": "e196d05f0b02cf3ac4e209a739c26dec2c2ace143941f2895ada240472050194",
+      "bytes": 64595
+    },
+    {
+      "date": "2025-11-01",
+      "issue": 93,
+      "material_id": "238596",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238596",
+      "sha256": "a60751ccd658a455308eccc4d0738786f40d4cc8f6b36eb395b3cdbd7347de50",
+      "bytes": 15404
+    },
+    {
+      "date": "2025-11-01",
+      "issue": 93,
+      "material_id": "238473",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238473",
+      "sha256": "bc294f2eb7acc67b1624b45d133b298041a03513958ec848826229608eb95f75",
+      "bytes": 36654
+    },
+    {
+      "date": "2025-10-31",
+      "issue": 92,
+      "material_id": "238558",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238558",
+      "sha256": "7d93f4a250bcb6ed00afbef3cb2afa584ac5b886e1f8e436ed07f9d06c6f89e8",
+      "bytes": 7849
+    },
+    {
+      "date": "2025-10-31",
+      "issue": 92,
+      "material_id": "238435",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238435",
+      "sha256": "d67776a7cbb09e1d2a1e3ace00cbe5774ef6385c49d8eefc5926481ee8d02a60",
+      "bytes": 19823
+    },
+    {
+      "date": "2025-10-30",
+      "issue": 91,
+      "material_id": "238482",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238482",
+      "sha256": "8b89efb28d00ff4303c346dcf4691e0116409b50a35b5cd4565bd86ddd661f08",
+      "bytes": 7318
+    },
+    {
+      "date": "2025-10-30",
+      "issue": 91,
+      "material_id": "238483",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238483",
+      "sha256": "8461824d386338a0be102aae83cd03b07396671b5aaa1e98ac98834e699ad992",
+      "bytes": 7354
+    },
+    {
+      "date": "2025-10-30",
+      "issue": 91,
+      "material_id": "238512",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238512",
+      "sha256": "caf120f88f57febb2a86598fb7694a51ecd8b27fa571ceb74814509e90a6c662",
+      "bytes": 9475
+    },
+    {
+      "date": "2025-10-30",
+      "issue": 91,
+      "material_id": "238513",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238513",
+      "sha256": "bdd55be130a53f2469873f15a978454bc653f81ef7692ac02786796137b3cc4a",
+      "bytes": 7546
+    },
+    {
+      "date": "2025-10-28",
+      "issue": 90,
+      "material_id": "238416",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238416",
+      "sha256": "edd1ea63f09aeb6720a8578180db36aad6002282fcf11bb52c1eb8d63f33547e",
+      "bytes": 12862
+    },
+    {
+      "date": "2025-10-24",
+      "issue": 89,
+      "material_id": "238389",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238389",
+      "sha256": "49a4fb30f8b393378e4adb1e8ccf72dc0dba889b84e7117ef228a6f00094beee",
+      "bytes": 13090
+    },
+    {
+      "date": "2025-10-17",
+      "issue": 87,
+      "material_id": "237772",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237772",
+      "sha256": "52954ce5a6b40058adf4acc304851782bba6c185a4c22f22b854f70aa39fae9a",
+      "bytes": 91890
+    },
+    {
+      "date": "2025-10-17",
+      "issue": 87,
+      "material_id": "237771",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237771",
+      "sha256": "0540de531453588b5bb153bb8bae2200fb6b1adbc699795810bbf15349086d4b",
+      "bytes": 53015
+    },
+    {
+      "date": "2025-10-17",
+      "issue": 87,
+      "material_id": "237808",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237808",
+      "sha256": "5ba737f9ddcd2014abe5a83481df9447618c1b6c37f49c89abed52dbdca7fb4e",
+      "bytes": 9792
+    },
+    {
+      "date": "2025-10-17",
+      "issue": 87,
+      "material_id": "238064",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238064",
+      "sha256": "f37389af352ed73e68ca745a460434cc00d2e6bff32615f65c0a283b4c598552",
+      "bytes": 54802
+    },
+    {
+      "date": "2025-10-17",
+      "issue": 87,
+      "material_id": "238068",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=238068",
+      "sha256": "e039e12391350be951939e8b26157659885ace4861f7f023e09eb0fe484eea1b",
+      "bytes": 12589
+    },
+    {
+      "date": "2025-10-16",
+      "issue": 86,
+      "material_id": "237849",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237849",
+      "sha256": "9f422354b6aadd16a594a2ab7efce4af0e04f1df25c62c7b155c0ec511f7fc1a",
+      "bytes": 21582
+    },
+    {
+      "date": "2025-10-09",
+      "issue": 83,
+      "material_id": "237738",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237738",
+      "sha256": "6dc85e46478c6e9dabdb37fdcb4d0c98ff8da357fe061bb08daf1c20d5ca9f0d",
+      "bytes": 8139183
+    },
+    {
+      "date": "2025-10-07",
+      "issue": 82,
+      "material_id": "237770",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237770",
+      "sha256": "3c7d17cdcc34c3ec5f20535c6a737942c3b26d2f4fe7acc7c8bf852bbecc63c6",
+      "bytes": 8598
+    },
+    {
+      "date": "2025-10-07",
+      "issue": 82,
+      "material_id": "237596",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237596",
+      "sha256": "2739df7248ec87836a6a11dc467fd75f6045aa65f50013ad72927ce3fd6a64a3",
+      "bytes": 13912
+    },
+    {
+      "date": "2025-10-03",
+      "issue": 81,
+      "material_id": "237459",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237459",
+      "sha256": "256058e7774ff995b38e99c5b7c4977d20a26718023bf052f862247b2c007e1a",
+      "bytes": 16038
+    },
+    {
+      "date": "2025-10-03",
+      "issue": 81,
+      "material_id": "237460",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237460",
+      "sha256": "80c87fe4d2316fef6c57e8c2df2fa8c964587be9ee378d5300b04b17acf386e0",
+      "bytes": 32317
+    },
+    {
+      "date": "2025-10-03",
+      "issue": 81,
+      "material_id": "237501",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237501",
+      "sha256": "de617054427405528f9b05e0d11010576d410812382eca3bb6921c40e0fd2e4a",
+      "bytes": 344502
+    },
+    {
+      "date": "2025-09-30",
+      "issue": 80,
+      "material_id": "237490",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237490",
+      "sha256": "4a1a60fd5fe85367b55311892f9b0b219a1c96776bab98f33fa728314e4dbcd1",
+      "bytes": 26164
+    },
+    {
+      "date": "2025-09-30",
+      "issue": 80,
+      "material_id": "237497",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237497",
+      "sha256": "107a2a005179c3a0c65416e0269cd097afd7d0ea30e35eb98c3f71c476f27708",
+      "bytes": 11201
+    },
+    {
+      "date": "2025-09-30",
+      "issue": 80,
+      "material_id": "237500",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237500",
+      "sha256": "ea07e9856675101d926c85def47c9dbe951d0e370c416e717583b74419ad8ff6",
+      "bytes": 12841
+    },
+    {
+      "date": "2025-09-23",
+      "issue": 78,
+      "material_id": "237341",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237341",
+      "sha256": "aeb6c52a64ba892dec6349f3bfb3f7eb3e12ca01f06c20557aafb629e620b3d7",
+      "bytes": 35253
+    },
+    {
+      "date": "2025-09-23",
+      "issue": 78,
+      "material_id": "237340",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237340",
+      "sha256": "a9e3aefde99643ec1efe09db7c97df0eb3c590e90cd39bc8320f269ffb78a97d",
+      "bytes": 76544
+    },
+    {
+      "date": "2025-09-23",
+      "issue": 78,
+      "material_id": "237376",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237376",
+      "sha256": "7d060a18b507822922c6fdb39947e854bc99f8942eb07edd673585466f9150a9",
+      "bytes": 12262
+    },
+    {
+      "date": "2025-09-23",
+      "issue": 78,
+      "material_id": "237392",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237392",
+      "sha256": "8d0b589cd298cd25d50acfdf09f733c7b7efd8035758b4ad4beca0c398b57821",
+      "bytes": 15691
+    },
+    {
+      "date": "2025-09-23",
+      "issue": 78,
+      "material_id": "237502",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237502",
+      "sha256": "8a04d538813543875d67b655ff3f69682da73ef4c2d12b9feb8bb6e83ae9dce2",
+      "bytes": 8058
+    },
+    {
+      "date": "2025-09-23",
+      "issue": 78,
+      "material_id": "237421",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237421",
+      "sha256": "ee4e90b06e7b53063e573a7aecdcbc2d5516301ba69c87adc2a60289d26e16ed",
+      "bytes": 29666
+    },
+    {
+      "date": "2025-09-19",
+      "issue": 77,
+      "material_id": "237375",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237375",
+      "sha256": "9c8f0df3c1641888a84c896aeebc0af76ea68222a0b35ae08d064917c44140e5",
+      "bytes": 11359
+    },
+    {
+      "date": "2025-09-19",
+      "issue": 77,
+      "material_id": "237374",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237374",
+      "sha256": "2d4a969d4c6732363465bb2c60422dcdc5cb46e33940b8001c8d3eed4bad9ab0",
+      "bytes": 13946
+    },
+    {
+      "date": "2025-09-12",
+      "issue": 75,
+      "material_id": "237293",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237293",
+      "sha256": "c967db560ff7662eed7e380c7c106f5f4b3a5d167244b47e19bbb45194f32030",
+      "bytes": 7595
+    },
+    {
+      "date": "2025-09-12",
+      "issue": 75,
+      "material_id": "237270",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237270",
+      "sha256": "642a6b9319df81737d89d1053c09684467f3510693d9ddffd153b110201bd56e",
+      "bytes": 27544
+    },
+    {
+      "date": "2025-09-12",
+      "issue": 75,
+      "material_id": "237271",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237271",
+      "sha256": "5ddfbe32a5dbff66c3d0adb9a4e1109b0e2a53ddb4c3e82ae3685812e68a1aaa",
+      "bytes": 21505
+    },
+    {
+      "date": "2025-09-09",
+      "issue": 74,
+      "material_id": "237242",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237242",
+      "sha256": "aa0af21ff30a23824050fc156ac7ac8c1cfa222cb7d899801b03aae5f0f083a1",
+      "bytes": 39885
+    },
+    {
+      "date": "2025-09-09",
+      "issue": 74,
+      "material_id": "237262",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237262",
+      "sha256": "e17c64c5c580b243f6bcae512396b27d7c465922cde4b5bffc4d79ad6805ddd0",
+      "bytes": 46630
+    },
+    {
+      "date": "2025-09-09",
+      "issue": 74,
+      "material_id": "237260",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237260",
+      "sha256": "a51862482824006a52c3232d4c0bf8fac0d8fea8867f39060774a06f38d84927",
+      "bytes": 9398
+    },
+    {
+      "date": "2025-09-09",
+      "issue": 74,
+      "material_id": "237261",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237261",
+      "sha256": "048836e4cce0a03843fec095041675e418725f5f4a0723ea16efa5d3813d37c5",
+      "bytes": 13106
+    },
+    {
+      "date": "2025-09-05",
+      "issue": 73,
+      "material_id": "237213",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237213",
+      "sha256": "b5a6ca539fc12d6a62a1eb5533e0c25fdb30e2baa11a20cbbb3e9665657c5a0a",
+      "bytes": 8100
+    },
+    {
+      "date": "2025-09-05",
+      "issue": 73,
+      "material_id": "237215",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=237215",
+      "sha256": "fe586b074273c08f378e0d78ec2c882922cc93d7a2bb9385ba5af5238f51aa06",
+      "bytes": 16397
+    },
+    {
+      "date": "2025-08-29",
+      "issue": 71,
+      "material_id": "236970",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236970",
+      "sha256": "379783ef354fc159bdd209c6443e11dc9d4d174789be153ce46c1e41ed583819",
+      "bytes": 1343662
+    },
+    {
+      "date": "2025-08-19",
+      "issue": 68,
+      "material_id": "236727",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236727",
+      "sha256": "e6bdf582deb20a229ebdd6cb38422b30164c0fc29675f42e7628ca98575d6d79",
+      "bytes": 22783
+    },
+    {
+      "date": "2025-08-19",
+      "issue": 68,
+      "material_id": "236728",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236728",
+      "sha256": "8efc078f92d534d18b4b17eeb576c0554fa872278e73efb0944bffd39ee63199",
+      "bytes": 14114
+    },
+    {
+      "date": "2025-08-19",
+      "issue": 68,
+      "material_id": "236735",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236735",
+      "sha256": "a61dc82223cd2eee83d8d5acd47ec0811652c92fb5c2d8e9c9f8ae5869b9b881",
+      "bytes": 30241
+    },
+    {
+      "date": "2025-08-19",
+      "issue": 68,
+      "material_id": "236736",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236736",
+      "sha256": "717f7cee718f3ffb87dc841c663f8794dc37f2bf444400825c52df7ccf0ca0f8",
+      "bytes": 75594
+    },
+    {
+      "date": "2025-08-19",
+      "issue": 68,
+      "material_id": "236804",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236804",
+      "sha256": "cb607fd17f923ecbced2920aaa8b0e5690766eccb533ec584d54cceb01f91361",
+      "bytes": 40828
+    },
+    {
+      "date": "2025-08-19",
+      "issue": 68,
+      "material_id": "236805",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236805",
+      "sha256": "1ce4c22dd839933d57e0ecc8ccd44d876ac47afdadb566a4f6df95cdd7709849",
+      "bytes": 25893
+    },
+    {
+      "date": "2025-08-19",
+      "issue": 68,
+      "material_id": "236806",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236806",
+      "sha256": "189d6516d8b5081f6f0ea893fd56c0f39e362722e5f65f714dedf7ce42e230fc",
+      "bytes": 52046
+    },
+    {
+      "date": "2025-08-15",
+      "issue": 67,
+      "material_id": "236530",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236530",
+      "sha256": "f3f06847bd1b68e37fed8957fa1cf5dace9ef47b076950de4c9a9f22470fada6",
+      "bytes": 74301
+    },
+    {
+      "date": "2025-08-15",
+      "issue": 67,
+      "material_id": "236529",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236529",
+      "sha256": "2275e56e6f43904550ed636a146c10d4396ae9528b918eb788a8e5166c5c354c",
+      "bytes": 85942
+    },
+    {
+      "date": "2025-08-15",
+      "issue": 67,
+      "material_id": "236531",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236531",
+      "sha256": "830a91100e44403c6ee1566359a873f6a02cc194c3b1becab0f8e17ee4c8199d",
+      "bytes": 51260
+    },
+    {
+      "date": "2025-08-15",
+      "issue": 67,
+      "material_id": "236532",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236532",
+      "sha256": "23069fce66038a32f392967a0cfb7df3e4748e0ef741f1a2f8f9b76e84eb0491",
+      "bytes": 19067
+    },
+    {
+      "date": "2025-08-08",
+      "issue": 65,
+      "material_id": "236503",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236503",
+      "sha256": "392f2ca2e6d98da08501a8d682f767783630c6cf49e80e405ce3b62b2b462ad9",
+      "bytes": 47518
+    },
+    {
+      "date": "2025-08-08",
+      "issue": 65,
+      "material_id": "236504",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236504",
+      "sha256": "b102821575ff240753c547eab5aacccdb596f2a4739d3efd53a9589c3913e990",
+      "bytes": 26807
+    },
+    {
+      "date": "2025-08-08",
+      "issue": 65,
+      "material_id": "236508",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236508",
+      "sha256": "2a85dc1d07eaaa2cc0672786165569d5fe5c3d8b87a42ac4c8830c434a6cd374",
+      "bytes": 35837
+    },
+    {
+      "date": "2025-08-08",
+      "issue": 65,
+      "material_id": "236528",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236528",
+      "sha256": "1ae34f9ad1641d7ee87ce041d3ff266dcc24baa5f603d6c6220e524b9354b768",
+      "bytes": 50703
+    },
+    {
+      "date": "2025-08-08",
+      "issue": 65,
+      "material_id": "236509",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236509",
+      "sha256": "eabf425a8290b5454d0db83fd17d282a4d16a999b20b7831ee20095ec1995a60",
+      "bytes": 31403
+    },
+    {
+      "date": "2025-08-05",
+      "issue": 64,
+      "material_id": "236379",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236379",
+      "sha256": "6f70b7b95d91b385f81ca8ea1545d33794b96007de673e688f801404bbaa9409",
+      "bytes": 105695
+    },
+    {
+      "date": "2025-08-05",
+      "issue": 64,
+      "material_id": "236376",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236376",
+      "sha256": "4ebfef54de027028a700a083d1aa82b9d16140b380a5a757525028cb30796b81",
+      "bytes": 53264
+    },
+    {
+      "date": "2025-08-05",
+      "issue": 64,
+      "material_id": "236331",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236331",
+      "sha256": "d609a6d8b5b07adc604c4bec84ce0176397d5df300d590b881e8ac460ef270af",
+      "bytes": 390149
+    },
+    {
+      "date": "2025-08-05",
+      "issue": 64,
+      "material_id": "236527",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236527",
+      "sha256": "439b262eb70daf87eafdea0fbdbc55e8aa198e71da8cad1130fed803fd538637",
+      "bytes": 23760
+    },
+    {
+      "date": "2025-08-05",
+      "issue": 64,
+      "material_id": "236375",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236375",
+      "sha256": "2524c12b1fb9fd01e82dc77535e37051f6736f7b689d95e9f1d39e7acc518b0e",
+      "bytes": 223281
+    },
+    {
+      "date": "2025-08-01",
+      "issue": 63,
+      "material_id": "236332",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236332",
+      "sha256": "dda65b28d2dde4267b36e4ae5857181262d7b92965e992d56d5a3582e8d4138a",
+      "bytes": 15552
+    },
+    {
+      "date": "2025-08-01",
+      "issue": 63,
+      "material_id": "236330",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236330",
+      "sha256": "8cc7c7f5db603fa45e02d426dc61b01218c919428f5c647e8d75b2a6ed3b4388",
+      "bytes": 102617
+    },
+    {
+      "date": "2025-08-01",
+      "issue": 63,
+      "material_id": "236329",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236329",
+      "sha256": "cc3c91d42ee876095c998d915f61b7f76cc196629390c675b428339a76ace2a0",
+      "bytes": 296390
+    },
+    {
+      "date": "2025-08-01",
+      "issue": 63,
+      "material_id": "236368",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236368",
+      "sha256": "2b4a08916ff44d2a94e0a6ad8c46987e52ead86a359ffcacc0358ca9ff5ca1bc",
+      "bytes": 10511
+    },
+    {
+      "date": "2025-08-01",
+      "issue": 63,
+      "material_id": "236377",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236377",
+      "sha256": "e3dd2313d36376deca5d044d321fdfdc4413eb216c036e950380c45b544e7807",
+      "bytes": 108654
+    },
+    {
+      "date": "2025-08-01",
+      "issue": 63,
+      "material_id": "236378",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236378",
+      "sha256": "ab190ec7d63e7ada5155fd4b0fd5f5324c7c7be8d5762e0b9bc9e26a516c601b",
+      "bytes": 89599
+    },
+    {
+      "date": "2025-08-01",
+      "issue": 63,
+      "material_id": "236380",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236380",
+      "sha256": "8964fa8dd1dae3fd6f382c92f6321e2f218d0c7a4bcaa6c19c9252d186cb035d",
+      "bytes": 72453
+    },
+    {
+      "date": "2025-08-01",
+      "issue": 63,
+      "material_id": "236334",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236334",
+      "sha256": "dc1b69fb4a3d4ec4c0706fab235b7522c03d44a0d1450bd6770cfa8578182f87",
+      "bytes": 60500
+    },
+    {
+      "date": "2025-08-01",
+      "issue": 63,
+      "material_id": "236335",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236335",
+      "sha256": "ecdd6efa9876645aac1cd44b49f3d1074ca118251cf33431fd07bfc4ebabce27",
+      "bytes": 59086
+    },
+    {
+      "date": "2025-07-30",
+      "issue": 62,
+      "material_id": "236436",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236436",
+      "sha256": "99f0e6344d19cf9746b484243430edcc0fe55da03f400b58915c6daee1c6f26a",
+      "bytes": 48146
+    },
+    {
+      "date": "2025-07-30",
+      "issue": 62,
+      "material_id": "236437",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236437",
+      "sha256": "b1c6cf625314603ce2299485abbbb8f66f2efa80cc446b266f753a5fd93dacd2",
+      "bytes": 7607
+    },
+    {
+      "date": "2025-07-30",
+      "issue": 62,
+      "material_id": "236438",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236438",
+      "sha256": "980dfe55ab34ad0ed892a822414256a69ad301d106b42dc960806116f10877f9",
+      "bytes": 7444
+    },
+    {
+      "date": "2025-07-30",
+      "issue": 62,
+      "material_id": "236439",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236439",
+      "sha256": "bd5b4277a47a07227f9fce3859a4cb9f8fe18e4d089f8fbc8601109fedc1ae68",
+      "bytes": 7500
+    },
+    {
+      "date": "2025-07-30",
+      "issue": 62,
+      "material_id": "236440",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236440",
+      "sha256": "27765e94447eec7c095c227e104cad256b71ed31a9767d5a840bab0e4a52e971",
+      "bytes": 7438
+    },
+    {
+      "date": "2025-07-29",
+      "issue": 61,
+      "material_id": "236208",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236208",
+      "sha256": "0199d0eba7855fa59ebbd13891ca561986c7d2cc1941995368deaa41a0e16621",
+      "bytes": 9987
+    },
+    {
+      "date": "2025-07-29",
+      "issue": 61,
+      "material_id": "236209",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236209",
+      "sha256": "58fda75e30353785333f9bb579bf709581356308b52832102726a62a4c5e6ea9",
+      "bytes": 302877
+    },
+    {
+      "date": "2025-07-29",
+      "issue": 61,
+      "material_id": "236305",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236305",
+      "sha256": "cfcd5ecc60c4a96fa3af0bbe66c93bfecf1573caedbb4515d577b3ce8f9307cc",
+      "bytes": 8391252
+    },
+    {
+      "date": "2025-07-29",
+      "issue": 61,
+      "material_id": "236325",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236325",
+      "sha256": "8bbda800373e04979c5107dbbf2900b1204cb0ca2de0d83d49ae219d75817b01",
+      "bytes": 8330
+    },
+    {
+      "date": "2025-07-29",
+      "issue": 61,
+      "material_id": "236369",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236369",
+      "sha256": "d2db895dbaf9cf2f6d87db9a9a29b9dbcefe652614da7c48f1161c700a77025a",
+      "bytes": 6602
+    },
+    {
+      "date": "2025-07-29",
+      "issue": 61,
+      "material_id": "236370",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236370",
+      "sha256": "270aa1581b86078aecaa5d8a1ad901b109c0262ded298fe90452d6df8635722f",
+      "bytes": 8135
+    },
+    {
+      "date": "2025-07-29",
+      "issue": 61,
+      "material_id": "236341",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236341",
+      "sha256": "5d5e4824607ce5c99dd5d32f529deacdd73107dec7f5f721f54bfcb6d0e62a64",
+      "bytes": 20466
+    },
+    {
+      "date": "2025-07-29",
+      "issue": 61,
+      "material_id": "236189",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236189",
+      "sha256": "48998fd4359dc4cb9033a46209bc56d1e4d1f55d97fe31a9cdc0587d12000d99",
+      "bytes": 38151
+    },
+    {
+      "date": "2025-07-29",
+      "issue": 61,
+      "material_id": "236190",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236190",
+      "sha256": "863525e464630016ea755cfefa9023f858045e7a7d3f7fe229cd234c02009b30",
+      "bytes": 42217
+    },
+    {
+      "date": "2025-07-25",
+      "issue": 60,
+      "material_id": "236152",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236152",
+      "sha256": "20b9ce0a5e10e14d8ea3e1a60e7318668aeafa883878b6f73900f83b53d3cb1a",
+      "bytes": 151254
+    },
+    {
+      "date": "2025-07-22",
+      "issue": 59,
+      "material_id": "236083",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236083",
+      "sha256": "a45a39a28ffbabcb39c83f514794eae15fd6de472fb3a3a8e4506fb327306032",
+      "bytes": 8464
+    },
+    {
+      "date": "2025-07-22",
+      "issue": 59,
+      "material_id": "236173",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236173",
+      "sha256": "b7bd422b539b7a917231db3e9ad704713d16fea2191ed96552bff407ea817404",
+      "bytes": 7897
+    },
+    {
+      "date": "2025-07-22",
+      "issue": 59,
+      "material_id": "236174",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236174",
+      "sha256": "de0eb6fe2404877658e3b7ef769696ef853c9be45adb9e0bc56119d24a0a7856",
+      "bytes": 8156
+    },
+    {
+      "date": "2025-07-22",
+      "issue": 59,
+      "material_id": "236175",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236175",
+      "sha256": "cddd8facfb539b4232a891d594a2a2242bbe8caa6e911b29a858280acc26b98c",
+      "bytes": 8013
+    },
+    {
+      "date": "2025-07-22",
+      "issue": 59,
+      "material_id": "236176",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236176",
+      "sha256": "bdcc044f9d1435be768fe5b7cc07727fa58dc063f6c033618abde83531776400",
+      "bytes": 7890
+    },
+    {
+      "date": "2025-07-22",
+      "issue": 59,
+      "material_id": "236177",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236177",
+      "sha256": "8ef82a2148f8439607d1ea4be714ba886673025f134bd966d7b1542e530aea45",
+      "bytes": 8445
+    },
+    {
+      "date": "2025-07-22",
+      "issue": 59,
+      "material_id": "236120",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236120",
+      "sha256": "966dcedb57757d37653fe5ecf196f2369de82674c1e1240fa311ffe0ea429043",
+      "bytes": 8304
+    },
+    {
+      "date": "2025-07-18",
+      "issue": 58,
+      "material_id": "236042",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236042",
+      "sha256": "6f0b53f56a271fe6be3057c507ff752144d71ce77a8768d0104942a9908bb50a",
+      "bytes": 7684
+    },
+    {
+      "date": "2025-07-18",
+      "issue": 58,
+      "material_id": "236052",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=236052",
+      "sha256": "c605f0beabd621d2b59860fe334faabb667cbf9592952588ae5d7baef9114460",
+      "bytes": 71453
+    },
+    {
+      "date": "2025-07-15",
+      "issue": 57,
+      "material_id": "235986",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235986",
+      "sha256": "032a870f12ddcd6af9e975866358327f4e5f5a7dac10bf8053e7683b66092b77",
+      "bytes": 13188
+    },
+    {
+      "date": "2025-07-08",
+      "issue": 55,
+      "material_id": "235736",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235736",
+      "sha256": "4d10e3e609e438f5f9913d0d5dd2ed4f7491c519408e93fcafcbce2c53227a4b",
+      "bytes": 74817
+    },
+    {
+      "date": "2025-07-08",
+      "issue": 55,
+      "material_id": "235861",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235861",
+      "sha256": "f3bcac0dc1578d0a102332c6b2755e51018dac463ab3a7fc0516960989f91b82",
+      "bytes": 7669
+    },
+    {
+      "date": "2025-07-08",
+      "issue": 55,
+      "material_id": "235728",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235728",
+      "sha256": "bd492bcbbce8c80eb4d94d3e9eaabb7596d3afbd3ede9b174c1e992660b5dc20",
+      "bytes": 48866
+    },
+    {
+      "date": "2025-07-04",
+      "issue": 54,
+      "material_id": "235619",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235619",
+      "sha256": "de2c65247dacfc02e6b2718d32d4b7fa4b531e558b450faed8658e49fb5d25f7",
+      "bytes": 256813
+    },
+    {
+      "date": "2025-07-04",
+      "issue": 54,
+      "material_id": "235620",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235620",
+      "sha256": "7eab3c1aeea51e703430d18828cda3505dc87e8cdb0f30f24f9513b35a3c4389",
+      "bytes": 93133
+    },
+    {
+      "date": "2025-07-04",
+      "issue": 54,
+      "material_id": "235621",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235621",
+      "sha256": "264e274b2d574acb358bbe5a9b9f98f396ec76aabc5396f987b3fbc1f0c885eb",
+      "bytes": 544180
+    },
+    {
+      "date": "2025-07-04",
+      "issue": 54,
+      "material_id": "235699",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235699",
+      "sha256": "abe4fede65d3221852ad871cb2a5eb33012f97f9d5af61d5f945a4590210906c",
+      "bytes": 28995
+    },
+    {
+      "date": "2025-07-04",
+      "issue": 54,
+      "material_id": "235703",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235703",
+      "sha256": "6e1b906ffb2c0d58a8b0f9a916debafc1c2760698ed6ff754e3f8d0386957612",
+      "bytes": 10223
+    },
+    {
+      "date": "2025-07-04",
+      "issue": 54,
+      "material_id": "235829",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235829",
+      "sha256": "acff0affbe456f643ef8b9c02e56bf2b5e2b9700229e67a2ddfcc53fd2ef80a9",
+      "bytes": 7390
+    },
+    {
+      "date": "2025-07-01",
+      "issue": 53,
+      "material_id": "235750",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235750",
+      "sha256": "eacd926997add3eb49da338019d77b91703aad2c29bdd741a5e6006df3e80689",
+      "bytes": 36320
+    },
+    {
+      "date": "2025-06-27",
+      "issue": 52,
+      "material_id": "235575",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235575",
+      "sha256": "a37ea8043ace473ddbcf7d44b05c1a752631151bee4702b5874f93e2c2c9266b",
+      "bytes": 252003
+    },
+    {
+      "date": "2025-06-24",
+      "issue": 51,
+      "material_id": "235467",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235467",
+      "sha256": "eb52be0b71fb2f0ca8d3c7e07d4b23929d2e1bced84df081a3138459cfd2c131",
+      "bytes": 14067
+    },
+    {
+      "date": "2025-06-20",
+      "issue": 50,
+      "material_id": "235337",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235337",
+      "sha256": "f5de82c5fbce50dd811a9b262efbc54c66f08ca186efa4ef49cae488aa50b05d",
+      "bytes": 367482
+    },
+    {
+      "date": "2025-06-20",
+      "issue": 50,
+      "material_id": "235581",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235581",
+      "sha256": "18b8b61e00988a1cb04f4ef00959994429b60507ae7088c5bb8d18095bd3fb6b",
+      "bytes": 50370
+    },
+    {
+      "date": "2025-06-20",
+      "issue": 50,
+      "material_id": "235580",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235580",
+      "sha256": "0e8509a7b83e7d71ca9730400a8ac698ac3e8017407d9d35989e0a4eb6e10ccb",
+      "bytes": 11460
+    },
+    {
+      "date": "2025-06-20",
+      "issue": 50,
+      "material_id": "235485",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235485",
+      "sha256": "1242186997ac13ad8ed65a02598428970e6be05f1750e617de268a17afd8ddd7",
+      "bytes": 73541
+    },
+    {
+      "date": "2025-06-20",
+      "issue": 50,
+      "material_id": "235504",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235504",
+      "sha256": "73e7e9c8be983f411609273280ae87108628f2a9404210082dac870bdac55c7c",
+      "bytes": 49311
+    },
+    {
+      "date": "2025-06-17",
+      "issue": 49,
+      "material_id": "235308",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235308",
+      "sha256": "6e65cf742b270141606aeb54d0ea206652cd0e9724c54d9c2f6cc7c5fbacce98",
+      "bytes": 192206
+    },
+    {
+      "date": "2025-06-17",
+      "issue": 49,
+      "material_id": "235335",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235335",
+      "sha256": "404ada1c7fa9cc9548e3cf12feede8d7bbb875dd6b26ee2ca3f236527652f3c5",
+      "bytes": 11191
+    },
+    {
+      "date": "2025-06-17",
+      "issue": 49,
+      "material_id": "235334",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235334",
+      "sha256": "c82fd883836159c9f4870652b387775615855171ab63b18fd939bff8754fe497",
+      "bytes": 11122
+    },
+    {
+      "date": "2025-06-17",
+      "issue": 49,
+      "material_id": "235496",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235496",
+      "sha256": "8cb97fd1a817900966e17f6310d5bad7500ea5d3c2408444816c5430035fc987",
+      "bytes": 48595
+    },
+    {
+      "date": "2025-06-17",
+      "issue": 49,
+      "material_id": "235428",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235428",
+      "sha256": "54220f8ad352a8217aa9409ec4202d975a15e2321d8081283abe3ebc1602e3e4",
+      "bytes": 128411
+    },
+    {
+      "date": "2025-06-13",
+      "issue": 48,
+      "material_id": "235426",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235426",
+      "sha256": "55e0e7f4a242b4606017d25d1d5b4ac649d4e4138eb08bbe78ea84d38a33ed15",
+      "bytes": 8505
+    },
+    {
+      "date": "2025-06-13",
+      "issue": 48,
+      "material_id": "235427",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235427",
+      "sha256": "5f1e88bcd67ad4f988c52f872e7e83224e7bca279dc9f1af7492f78ed4fc135b",
+      "bytes": 9365
+    },
+    {
+      "date": "2025-06-13",
+      "issue": 48,
+      "material_id": "235455",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235455",
+      "sha256": "9339cebce97d99e403723d9d564470f60c5c6014eac6a2cfb44c28105d442eff",
+      "bytes": 8498
+    },
+    {
+      "date": "2025-06-13",
+      "issue": 48,
+      "material_id": "235456",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235456",
+      "sha256": "4b6371112bca5c6a02156ac59b3e2ebba0ba2b4c866080234056794feefb9396",
+      "bytes": 8118
+    },
+    {
+      "date": "2025-06-13",
+      "issue": 48,
+      "material_id": "235457",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235457",
+      "sha256": "e6787102b0fcdb85e51fa9c340404f0fc0e8c898bf373af742b5c625bb5d8438",
+      "bytes": 8164
+    },
+    {
+      "date": "2025-06-13",
+      "issue": 48,
+      "material_id": "235418",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235418",
+      "sha256": "13a5395361f500f6b625aebf3f46d53b7779cd05420af5e348a7168a9a32a001",
+      "bytes": 11397
+    },
+    {
+      "date": "2025-06-13",
+      "issue": 48,
+      "material_id": "235320",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235320",
+      "sha256": "79e93b138458a189c8cf048f455581fff5a227da717e1e2c59af42fb2f53355f",
+      "bytes": 40119
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235166",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235166",
+      "sha256": "c86ba3f48b47ed3703f6d54082ca19cded6ee719c5fd64ed01cdfbcb7b97d275",
+      "bytes": 11816
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235177",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235177",
+      "sha256": "bf7943ae970a253e4c1eb6887520906a370f400ca86179c6ce8ca50b37ce4cc1",
+      "bytes": 11122
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235176",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235176",
+      "sha256": "8aa437abf911b9e073af4045295f8922b4e5beb312808ea1da86e8d21e327249",
+      "bytes": 11092
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235299",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235299",
+      "sha256": "9abfac5ecb0641b2d26d9e32efa0c18509f42ae804fed526b02f6da56e9c90c0",
+      "bytes": 111696
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235321",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235321",
+      "sha256": "d85f03640efd2d54915548a7c921138924d69d9fc3282018c1c909c72b50c9e1",
+      "bytes": 8105
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235322",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235322",
+      "sha256": "5067d4f4a0ee6abec5d9740621ed4b8f6b30cef9ac8a40d2c748468224bbd7a3",
+      "bytes": 8541
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235323",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235323",
+      "sha256": "697c017493b46e98ad8417d2691dbe80891b994e247e003f03c87aba70c937dd",
+      "bytes": 8838
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235324",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235324",
+      "sha256": "18de68aed1e7e1a6b78f1869ba3503bb931ae82fb2eab5a5fae76dd82ee9efc2",
+      "bytes": 8792
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235325",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235325",
+      "sha256": "dfcff9f98d941baca7388b43810d02bb590bd9bee56904ff3401f71780d81b1a",
+      "bytes": 9693
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235326",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235326",
+      "sha256": "8bc5df923f9a1a0b127398c27bb9682ef8c90a551b509df911444cafc33debd4",
+      "bytes": 8314
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235327",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235327",
+      "sha256": "3e0c719b4985785f237a75a72107fde511fac0fa78f12ec705ca9bc0d7c172e2",
+      "bytes": 7492
+    },
+    {
+      "date": "2025-06-10",
+      "issue": 47,
+      "material_id": "235346",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235346",
+      "sha256": "3719e13f13f4f10188b89d538dd5766786edfd103922f1d2a04e280d47805c3d",
+      "bytes": 14220
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235009",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235009",
+      "sha256": "8699475e4ac8470438a98413a78de935834274379e41abd07b5751844c8bc5b4",
+      "bytes": 10488
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235010",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235010",
+      "sha256": "2b8bdde9c398559765983ee9a68f60efd0e9dc1bd29031412f103fd70518797f",
+      "bytes": 12833
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235039",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235039",
+      "sha256": "1933843d01d565313589ca45f2d8ef27980d679a47f5cf4252156cbed126ff0d",
+      "bytes": 15422
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235144",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235144",
+      "sha256": "f9b0b23b4b30c005d702d5ad54798239284dc738fa516d9b4e13bc5ad3d80e38",
+      "bytes": 9133
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235158",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235158",
+      "sha256": "71f26bebfd2b0b0db565866aedc8279b3385f861681ee5fe830eb66162ea61d1",
+      "bytes": 9174
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235159",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235159",
+      "sha256": "732a630b08d1e734a9e6bf5cfaf4a930537fd27f6bd2929d3f4b47475c6864fb",
+      "bytes": 9110
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235160",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235160",
+      "sha256": "93a406fa9de4a35fba71a42d0fd9e1c1dae4cebbe041383db0525ed2ba06106b",
+      "bytes": 9110
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235161",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235161",
+      "sha256": "10497efd40abd6ee50df014e3844bf68440d083d872d1c90ba4a0f895b0456ff",
+      "bytes": 9108
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235162",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235162",
+      "sha256": "eba6c637320a78a34ba6683ee6e7fa8233808efa2aeef448d8c64b3e472acf8d",
+      "bytes": 9100
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235163",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235163",
+      "sha256": "259dc8dba69592e56fb101effeb30b5028f71cc4cf150a7a2028c4cffae95b42",
+      "bytes": 9114
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235164",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235164",
+      "sha256": "ccfe89b68bb5042cd538f5d66a08c16471154e96fb3811579c2c43d11176faf1",
+      "bytes": 9110
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235165",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235165",
+      "sha256": "cacf9b84cf607d68d0cb53c0bccad0b4d8ea7ebf7b5f73cf879a40afabf95557",
+      "bytes": 9144
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235195",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235195",
+      "sha256": "57aee201bca5bd1e4bf3dfc018ad96ada087959c6b52f16485b69aceddffbed4",
+      "bytes": 19980
+    },
+    {
+      "date": "2025-06-03",
+      "issue": 45,
+      "material_id": "235196",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235196",
+      "sha256": "3e62c0289c07e2b149b50333e2da48a98558a7eca82918694828e4963cb73847",
+      "bytes": 7610
+    },
+    {
+      "date": "2025-05-30",
+      "issue": 44,
+      "material_id": "235129",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235129",
+      "sha256": "81b71fd1f734ce7239b1d0d717061fe3b946ab6c74490750d1f6b8ec3a4147e9",
+      "bytes": 9939
+    },
+    {
+      "date": "2025-05-30",
+      "issue": 44,
+      "material_id": "235130",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235130",
+      "sha256": "101224cf6dfc287761bd42dc4179462f99d43b0a4f2470696a9b5bd871af8add",
+      "bytes": 53182
+    },
+    {
+      "date": "2025-05-30",
+      "issue": 44,
+      "material_id": "235092",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235092",
+      "sha256": "4746689846e46038c6f437f765cefd932585964227ca0181b3bcef59f48a0011",
+      "bytes": 8075
+    },
+    {
+      "date": "2025-05-30",
+      "issue": 44,
+      "material_id": "235093",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235093",
+      "sha256": "122ecf0e680e3694aa9aa70612bdf20fd3017caed14ea78e9742a367e819ccd5",
+      "bytes": 8128
+    },
+    {
+      "date": "2025-05-30",
+      "issue": 44,
+      "material_id": "235094",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235094",
+      "sha256": "2d680b8efb61acbcd88849efa4105b397184cb66d0a2b9848939930d2adba7e0",
+      "bytes": 8032
+    },
+    {
+      "date": "2025-05-30",
+      "issue": 44,
+      "material_id": "235095",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235095",
+      "sha256": "0567a84f651d298cb24ef4113a876cb089671fe48f2a0a4b13e881d767901f9e",
+      "bytes": 8032
+    },
+    {
+      "date": "2025-05-30",
+      "issue": 44,
+      "material_id": "235096",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235096",
+      "sha256": "9d93565f542dce509c71d057d1a32d6b070d7e246fbe1d9a24863f4174b28890",
+      "bytes": 8028
+    },
+    {
+      "date": "2025-05-30",
+      "issue": 44,
+      "material_id": "235097",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235097",
+      "sha256": "2bc8e2c6cdddb18fa97c0065f545c72af2a4ff6df2d6d9c9a72ffb4bfd16ef5a",
+      "bytes": 8024
+    },
+    {
+      "date": "2025-05-30",
+      "issue": 44,
+      "material_id": "235098",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235098",
+      "sha256": "d76e5f6435e85060c7a5b6142d555ba0dfd519ef435da341c6b558866f800208",
+      "bytes": 8046
+    },
+    {
+      "date": "2025-05-27",
+      "issue": 43,
+      "material_id": "234848",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234848",
+      "sha256": "84b9ef046ce5029cdb3bcb09d1a344198c13b1f186a845b41c4a96f7085bb859",
+      "bytes": 96624
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234916",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234916",
+      "sha256": "122a08d31fca1db4c8746e459b7bda55bf890c65d1378ea14e6af19238470e89",
+      "bytes": 8453
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234917",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234917",
+      "sha256": "69865409b9f2b3b66e0b6ea134149a1a91fab153648297265566f5fb02c7300d",
+      "bytes": 8377
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234918",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234918",
+      "sha256": "8e5fc69c1517bdfe2d572a3e53006839da33590cf0f2d4a01b860bb674b2b514",
+      "bytes": 8736
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234919",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234919",
+      "sha256": "f12ec689b66c004d30bda63b688f0b59017190474d3436afc118704df16be35a",
+      "bytes": 8470
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234920",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234920",
+      "sha256": "adcba0f89a95dced7444e4067d43ff23c60286715878f80cc2c34d49cf8b89de",
+      "bytes": 8485
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234921",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234921",
+      "sha256": "7e10327a410c9714004b49da2984a1a5231bd020817768595a606f35e9c37ccb",
+      "bytes": 8562
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234922",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234922",
+      "sha256": "5102c4d4ecf3c2fb4a7d6f238b6b37c049e9f13214f1a8656d6809398223c0c9",
+      "bytes": 16531
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234923",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234923",
+      "sha256": "f991276692557c1674da1b5a6037b5ba0fb6236ebbd570498e8f5cff7cf5558d",
+      "bytes": 10932
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234924",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234924",
+      "sha256": "88dafac9f0863178da396c01664cb29b2e8686d841c64db6d98d889dc28ad160",
+      "bytes": 11569
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234925",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234925",
+      "sha256": "a4e4d677d560b2989cc5e9f0589ea31267c80c36f9216752e58652b58d7f7cda",
+      "bytes": 15808
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234926",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234926",
+      "sha256": "2348254868c3057c43ff04f2bcbd4bce4cc87d01af19bbbbc6b636e382ad2cec",
+      "bytes": 11908
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234927",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234927",
+      "sha256": "a35e7fdef79b10005b83289b91105b1536986376c775be83886b1f0e5d04bf56",
+      "bytes": 12350
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234928",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234928",
+      "sha256": "31dcec8b4a247373f39c08723546f1848d6e7b85a3972c9b0e7b605eb516265d",
+      "bytes": 13655
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234929",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234929",
+      "sha256": "c4935dfcdf7160b998d842820ddd9cdec40cf0637c20b68498f06d409302f8d1",
+      "bytes": 12080
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234930",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234930",
+      "sha256": "bd9c938c3bce7bd85d79a3b3e8a05d098df6aecc5d722c400ffdc2b3526dfa85",
+      "bytes": 12904
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "234931",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=234931",
+      "sha256": "07934958091ca93f109abe7165a11453a30d63f32371e627995b3e8f11d7c3af",
+      "bytes": 13994
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "235001",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235001",
+      "sha256": "251bc377ae9c166d3c854d6c89fa7fcc34f87ed593185d50d31da99251b3277d",
+      "bytes": 8684
+    },
+    {
+      "date": "2025-05-23",
+      "issue": 42,
+      "material_id": "235038",
+      "url": "https://dv.parliament.bg/DVWeb/showMaterialDV.jsp?idMat=235038",
+      "sha256": "3561a09d88020543bd89e3bdf96186ba929b80b3d73a884aa0201928cbaa5a5d",
+      "bytes": 287390
+    }
+  ]
+}

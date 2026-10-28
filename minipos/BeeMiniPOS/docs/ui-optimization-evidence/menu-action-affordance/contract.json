@@ -1,0 +1,20 @@
+{
+  "ticket": "03-001",
+  "status": "IN_PROGRESS",
+  "scope": "Genuine Paper Menu retained; each language/theme action genuine Paper List.Item with theme outline frame/min48/full wrapping title. No custom clickable leaf.",
+  "baseline": "6 failures missing action frame",
+  "final": "29 selected regression tests PASS; enhanced6 menu tests PASS:150 language choices plus18 theme choices, CSS text2x/min48/frame/no label clipping/Enter activation and actual email translated accessible name for every locale. Types/ui/web export PASS.",
+  "screenshots": "Six captures after theme choices finish at dark; filename records starting media scheme and final dark. xs capture inspected.",
+  "open": [
+    "Numeric contrast and strict Axe AA",
+    "Arrow/HomeEnd/Escape/Tab focus and return semantics",
+    "Selection persistence/reload",
+    "Native/screen readers/true zoom",
+    "All other controls/pages and whole11 criteria"
+  ],
+  "hashes": {
+    "App.tsx": "ee75e8f0ea10af17f288966b40c196da9211b8a7c5c7ee55e7923fa86aa86bdc",
+    "e2e/menu-affordance.spec.ts": "b8daf87cee3b8b62a71dce31930801570b2e87a54381a360f445f6972b1c3ce0"
+  },
+  "evidence": "docs/ui-optimization-evidence/menu-action-affordance"
+}

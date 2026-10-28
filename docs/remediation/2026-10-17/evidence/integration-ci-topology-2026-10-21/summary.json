@@ -1,0 +1,61 @@
+{
+  "base_head": "32ce5c0fe3b1e351ecf1d2c3bf75cd68b155a80d",
+  "scope": "read-only source review + actual rendered Compose RED/GREEN; no local Docker stack execution or remote fixed-run PASS claimed",
+  "ci_runs": [
+    {
+      "id": 39556086939,
+      "head": "19cb7d0cf70e5016a93332cb20f4b883de51259f",
+      "conclusion": "failure",
+      "failed_step": "Wait for Fiscal",
+      "observed": "all services UP; postgres healthy; PORTS blank including caddy/postgres"
+    },
+    {
+      "id": 39556143915,
+      "head": "9e08fb223c60fe1f5a4e74cb84cf033f5e3fcffb",
+      "conclusion": "failure",
+      "failed_step": "Wait for Fiscal",
+      "observed": "all services UP; postgres healthy; PORTS blank including caddy/postgres"
+    }
+  ],
+  "checks": [
+    {
+      "case": "original-internal-only",
+      "compose_render_exit": 0,
+      "validator_exit": 1,
+      "expected_exit": 1,
+      "result": "PASS"
+    },
+    {
+      "case": "ci-overlay",
+      "compose_render_exit": 0,
+      "validator_exit": 0,
+      "expected_exit": 0,
+      "result": "PASS"
+    }
+  ],
+  "unit_tests": {
+    "cases": 11,
+    "result": "PASS"
+  },
+  "workflow_yaml_parse": "PASS",
+  "fixture_namespace": "prepare-fiscal-pg-fixture.py explicitly ALTER DATABASE SET search_path=fiscal,public; unqualified e2e SQL is consistent",
+  "raw_logs_and_rendered_env_not_published": true,
+  "files": [
+    {
+      "path": ".github/workflows/integration-contract.yml",
+      "sha256": "5b30fd78db06b47cf6500642f17c4857e841ad49ef6c6cf8e8b72bb9c5fff2fb"
+    },
+    {
+      "path": "compose.fiscalisation.integration-ci.yaml",
+      "sha256": "97cd454e821ab791c8245f8110fbee86013c5319289fb441ec8d4acebafa4a22"
+    },
+    {
+      "path": "scripts/verify-integration-ci-topology.py",
+      "sha256": "947a61cde699e47af291fa44491838a54cb2eee4ba077522c96b557bda11c4af"
+    },
+    {
+      "path": "scripts/tests/test_integration_ci_topology.py",
+      "sha256": "ec3e3bb5e91b691b21f57ac150f8c72035c580e432c5c52f26becb5796cb9e73"
+    }
+  ]
+}

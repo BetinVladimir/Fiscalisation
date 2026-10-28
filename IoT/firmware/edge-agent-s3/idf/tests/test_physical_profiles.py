@@ -17,25 +17,26 @@ class PhysicalProfiles(unittest.TestCase):
   executor=(MAIN/"profile_executor.cpp").read_text()
   uart=(MAIN/"uart_runtime.cpp").read_text()
   for token in ("buildDatecsOpenReceipt","buildDatecsSaleItem","buildDatecsPayment",
-                "buildDaisyOpenReceipt","buildDaisySaleItem","buildDaisyPayment",
-                "DatecsCodec::decode","DaisyCodec::decode"):
+                "buildDaisyOpenReceipt","buildDaisySaleItem","buildDaisyPayment"):
    self.assertIn(token,executor)
+  # Actual serial codec/correlation/error semantics are run by run_native_serial.sh.
   for token in ("uart_baud","uart_parity","uart_tx_pin","uart_rx_pin"):
    self.assertIn(token,uart)
  def test_unknown_after_send_is_not_blindly_retried(self):
   executor=(MAIN/"profile_executor.cpp").read_text()
   self.assertNotIn("for(int retry",executor)
   self.assertIn("FISCAL_CLOSE_UNKNOWN",executor)
- def test_recovery_proves_exact_unp_before_committing(self):
-  executor=(MAIN/"profile_executor.cpp").read_text()
-  for token in ("datecs_document_has_unp","daisy_document_has_unp","canonical_unp","FISCAL_DOCUMENT_NOT_PROVEN"):
-   self.assertIn(token,executor)
+ # Receipt-proof semantics are exercised by actual receipt_host/run.py, not helper-name tokens.
  def test_bluepad_is_a_real_binding_derived_central_not_a_readiness_stub(self):
   executor=(MAIN/"profile_executor.cpp").read_text();central=(MAIN/"bluepad_ble_central.cpp").read_text();cmake=(MAIN/"CMakeLists.txt").read_text()
   self.assertNotIn("payment_ready(){/*",executor);self.assertIn("bluepad_ble_ready",executor)
-  for token in ("BLE_GAP_EVENT_CONNECT","BLE_GAP_EVENT_DISCONNECT","ble_gattc_disc_svc_by_uuid",
-                "PURCHASE","GET_REPORT_BY_STAN","VOID_PURCHASE"):
+  for token in ("BLE_GAP_EVENT_CONNECT","BLE_GAP_EVENT_DISCONNECT","ble_gattc_disc_svc_by_uuid"):
    self.assertIn(token,central)
   self.assertIn("bluepad_ble_central.cpp",cmake)
+  # Purchase correlation, receipt tags and asynchronous failures execute the
+  # production central in mandatory bluepad_host/run.py; helper names are not
+  # evidence that unverified lookup/reversal commands are supported.
+  make=(ROOT.parents[3]/"Makefile").read_text()
+  self.assertIn("tests/bluepad_host/run.py",make)
 
 if __name__=="__main__":unittest.main()

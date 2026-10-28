@@ -12,6 +12,7 @@ import (
 	"fmt"
 	"net/mail"
 	"net/smtp"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -49,6 +50,7 @@ type Onboarding struct {
 	Address       string `json:"address"`
 	TaxIdentifier string `json:"tax_identifier"`
 	FullName      string `json:"full_name"`
+	AcceptedTermsVersion string `json:"accepted_terms_version"`
 }
 
 func New(ctx context.Context, databaseURL, signingKey, issuer string, app *domain.Service) (*Service, error) {
@@ -192,6 +194,16 @@ func randomUUID() (string, error) {
 	return fmt.Sprintf("%08x-%04x-%04x-%04x-%012x", b[0:4], b[4:6], b[6:8], b[8:10], b[10:16]), nil
 }
 
+func demoEmailOTPEnabled() bool {
+	return os.Getenv("ENVIRONMENT") == "demo" && os.Getenv("PRODUCTION") != "true"
+}
+func emailOTPCode(numeric string) string {
+	if demoEmailOTPEnabled() {
+		return "demo"
+	}
+	return numeric
+}
+
 func (s *Service) RequestCode(ctx context.Context, email, language string) error {
 	email, err := normalizeEmail(email)
 	if err != nil {
@@ -209,6 +221,7 @@ func (s *Service) RequestCode(ctx context.Context, email, language string) error
 		return err
 	}
 	code := fmt.Sprintf("%06d", (uint32(b[0])<<24|uint32(b[1])<<16|uint32(b[2])<<8|uint32(b[3]))%1000000)
+	code = emailOTPCode(code)
 	challenge, err := randomUUID()
 	if err != nil {
 		return err
@@ -234,6 +247,9 @@ func (s *Service) RequestCode(ctx context.Context, email, language string) error
 }
 
 func (s *Service) VerifyCode(ctx context.Context, email, code string) (VerifyResult, error) {
+	if strings.TrimSpace(code) == "demo" && !demoEmailOTPEnabled() {
+		return VerifyResult{}, errors.New("invalid or expired code")
+	}
 	email, err := normalizeEmail(email)
 	if err != nil {
 		return VerifyResult{}, err
@@ -278,6 +294,9 @@ func splitName(full string) (string, string, error) {
 }
 
 func (s *Service) Onboard(ctx context.Context, token string, input Onboarding) (Tokens, error) {
+	if input.AcceptedTermsVersion != "b2b-2026-09-28" {
+		return Tokens{}, errors.New("current business terms must be accepted")
+	}
 	first, last, err := splitName(input.FullName)
 	if err != nil {
 		return Tokens{}, err
@@ -306,6 +325,9 @@ func (s *Service) Onboard(ctx context.Context, token string, input Onboarding) (
 		return Tokens{}, err
 	}
 	if _, err = tx.Exec(ctx, `insert into minipos.minipos_auth_accounts(email,organization_id,employee_id,roles) values($1,$2,$3,array['ADMIN'])`, email, tenant, employee.ID); err != nil {
+		return Tokens{}, err
+	}
+	if _, err = tx.Exec(ctx, `insert into minipos.minipos_legal_acceptance(organization_id,terms_version,email,source) values($1,$2,$3,'minipos-onboarding')`, tenant, input.AcceptedTermsVersion, email); err != nil {
 		return Tokens{}, err
 	}
 	if _, err = tx.Exec(ctx, `update minipos.minipos_auth_onboarding set consumed_at=now() where token_hash=$1`, digest(token)); err != nil {

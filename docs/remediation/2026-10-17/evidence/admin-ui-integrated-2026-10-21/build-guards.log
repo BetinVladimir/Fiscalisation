@@ -1,0 +1,128 @@
+PYTHONDONTWRITEBYTECODE=1 python3 -m unittest discover -s BeeFiscalApp/scripts -p 'test_build_device_data_presentation.py' -v
+test_failed_export_preserves_previous_output (test_build_device_data_presentation.PresentationBuildTests.test_failed_export_preserves_previous_output) ... ok
+test_isolated_export_manifest_and_replacement (test_build_device_data_presentation.PresentationBuildTests.test_isolated_export_manifest_and_replacement) ... ok
+test_missing_index_and_symlinked_artifact_are_rejected (test_build_device_data_presentation.PresentationBuildTests.test_missing_index_and_symlinked_artifact_are_rejected) ... ok
+test_output_guard_and_missing_input (test_build_device_data_presentation.PresentationBuildTests.test_output_guard_and_missing_input) ... ok
+test_publish_failure_restores_previous_output (test_build_device_data_presentation.PresentationBuildTests.test_publish_failure_restores_previous_output) ... ok
+test_shared_source_drift_preserves_previous_export (test_build_device_data_presentation.PresentationBuildTests.test_shared_source_drift_preserves_previous_export) ... ok
+
+----------------------------------------------------------------------
+Ran 6 tests in 0.116s
+
+OK
+cd BeeFiscalApp && node --experimental-strip-types --test e2e/presentation-build-guard.test.mjs e2e/verify-device-data-readable.test.mjs
+TAP version 13
+# (node:97294) ExperimentalWarning: Type Stripping is an experimental feature and might change at any time
+# (Use `node --trace-warnings ...` to show where the warning was created)
+# (node:97294) [MODULE_TYPELESS_PACKAGE_JSON] Warning: Module type of file:///Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/e2e/presentation-build-guard.ts is not specified and it doesn't parse as CommonJS.
+# Reparsing as ES module because module syntax was detected. This incurs a performance overhead.
+# To eliminate this warning, add "type": "module" to /Users/freelancer/Documents/Beeloy/Fiscalisation/BeeFiscalApp/package.json.
+# Subtest: exact synthetic export is accepted
+ok 1 - exact synthetic export is accepted
+  ---
+  duration_ms: 2.657791
+  ...
+# Subtest: presentation guard rejects ordinary
+ok 2 - presentation guard rejects ordinary
+  ---
+  duration_ms: 1.411958
+  ...
+# Subtest: presentation guard rejects changed
+ok 3 - presentation guard rejects changed
+  ---
+  duration_ms: 1.106
+  ...
+# Subtest: presentation guard rejects extra
+ok 4 - presentation guard rejects extra
+  ---
+  duration_ms: 1.128125
+  ...
+# Subtest: presentation guard rejects missing
+ok 5 - presentation guard rejects missing
+  ---
+  duration_ms: 1.338375
+  ...
+# Subtest: presentation guard rejects symlink
+ok 6 - presentation guard rejects symlink
+  ---
+  duration_ms: 1.105
+  ...
+# Subtest: presentation guard rejects source
+ok 7 - presentation guard rejects source
+  ---
+  duration_ms: 1.096042
+  ...
+# Subtest: exact two critical cases require18 raw stage scans and retain scope limits
+ok 8 - exact two critical cases require18 raw stage scans and retain scope limits
+  ---
+  duration_ms: 2.374625
+  ...
+# Subtest: missing section fails closed
+ok 9 - missing section fails closed
+  ---
+  duration_ms: 0.850417
+  ...
+# Subtest: duplicate section fails closed
+ok 10 - duplicate section fails closed
+  ---
+  duration_ms: 0.183334
+  ...
+# Subtest: violation fails closed
+ok 11 - violation fails closed
+  ---
+  duration_ms: 0.38425
+  ...
+# Subtest: incomplete fails closed
+ok 12 - incomplete fails closed
+  ---
+  duration_ms: 0.278458
+  ...
+# Subtest: wrong locale fails closed
+ok 13 - wrong locale fails closed
+  ---
+  duration_ms: 0.105375
+  ...
+# Subtest: missing tag fails closed
+ok 14 - missing tag fails closed
+  ---
+  duration_ms: 0.328417
+  ...
+# Subtest: invented workflow acceptance fails closed
+ok 15 - invented workflow acceptance fails closed
+  ---
+  duration_ms: 0.09025
+  ...
+# Subtest: old scan fails closed
+ok 16 - old scan fails closed
+  ---
+  duration_ms: 15.192083
+  ...
+# Subtest: retried case fails closed
+ok 17 - retried case fails closed
+  ---
+  duration_ms: 1.215458
+  ...
+# Subtest: missing case fails closed
+ok 18 - missing case fails closed
+  ---
+  duration_ms: 0.62775
+  ...
+# Subtest: wrong route fails closed
+ok 19 - wrong route fails closed
+  ---
+  duration_ms: 0.169042
+  ...
+# Subtest: duplicate case fails closed
+ok 20 - duplicate case fails closed
+  ---
+  duration_ms: 0.460791
+  ...
+1..20
+# tests 20
+# suites 0
+# pass 20
+# fail 0
+# cancelled 0
+# skipped 0
+# todo 0
+# duration_ms 119.173417

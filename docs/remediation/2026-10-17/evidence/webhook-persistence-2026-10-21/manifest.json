@@ -1,0 +1,40 @@
+{
+  "base_commit": "f169f1e",
+  "source_sha256": {
+    "minipos/beeminipos-backend/internal/domain/service.go": "19c56e9a8e1bfb5871a947e3902d5e6779bd1704ca4903cf22aec7c200c39874",
+    "minipos/beeminipos-backend/internal/domain/webhook_persistence_boundary_test.go": "fd97455ca8af29e304093529cd0f7b761db23aa8697e3b75e0e6000a576173c1"
+  },
+  "logs": {
+    "root-backend": {
+      "raw_sha256": "6ea0fd47e83a5469887fef357195d84d0061c26e44c90f01a7ee5d939ccbab84",
+      "expected_failure": false
+    },
+    "root-race": {
+      "raw_sha256": "9c956d97d1471f925917e12e848454294aa56baece39ad03539b53969629cb50",
+      "expected_failure": false
+    },
+    "root-focused": {
+      "raw_sha256": "a4bc6a011cb380ec8860a469e0261610893b836a93204932955e192c8208d209",
+      "expected_failure": false
+    },
+    "save-load-red": {
+      "raw_sha256": "8d2ace55fffefb987582ee6ed0d4b1b6c3b78a83df8c3ca378f532edf641b627",
+      "expected_failure": true
+    },
+    "ambiguous-commit-red": {
+      "raw_sha256": "d684b11977b3b5861b2a792cbd6be0bc50b6531e000f589178797d30b0c21a30",
+      "expected_failure": true
+    },
+    "initial-empty-red": {
+      "raw_sha256": "48781e39a42feb5b7b231296d672cb65265f5da92b7603ab8105132d946d458c",
+      "expected_failure": true
+    },
+    "root-postgres": {
+      "raw_sha256": "61c37a946f4cd65f322f219116c247ca855c512360623ba707fe3637105cd689",
+      "exit_code": 0
+    }
+  },
+  "scope": "Store fault injection at three webhook save stages; root full backend and domain/API race PASS. No real PostgreSQL network outage injection.",
+  "followup_open": "Structural snapshot validation: JSON null or missing mandatory collections currently decodes as empty. Independent followup required; generic Store authoritative-read contract still applies.",
+  "postgres_scope": "make postgres-integration PASS: disposable typed projection, fixture preparation, Fiscal persistence/integration, MiniPOS persistence. Not real PostgreSQL network-outage injection."
+}

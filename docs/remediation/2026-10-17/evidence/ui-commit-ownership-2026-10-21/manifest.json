@@ -1,0 +1,101 @@
+{
+  "base_commit": "4e7b971",
+  "source_sha256": {
+    "BeeFiscalApp/jest.ui.config.cjs": "61cf505ec7cc95dc6cd81e9ca3497ad395d868c8636c746987c4ae9f60bfd6f3",
+    "minipos/BeeMiniPOS/jest.ui.config.cjs": "61cf505ec7cc95dc6cd81e9ca3497ad395d868c8636c746987c4ae9f60bfd6f3",
+    "BeeFiscalApp/src/ui/app-button.tsx": "d29866622e2dd860755a7bfe1a86963afac0bbe0de1b16035b70a973eb773467",
+    "BeeFiscalApp/src/ui/app-pressable.tsx": "2efac7dc886851b54bf80714e9c3db3ae753e0800c8b010fab3b48d9c1f86c55",
+    "BeeFiscalApp/src/ui/use-current-action.ts": "a98e5af874b26dc77ab3c4e89d63a2d2c446f87e29b5fe4abe9ed7db3afaf9fd",
+    "minipos/BeeMiniPOS/src/ui/app-button.tsx": "d29866622e2dd860755a7bfe1a86963afac0bbe0de1b16035b70a973eb773467",
+    "minipos/BeeMiniPOS/src/ui/app-pressable.tsx": "2efac7dc886851b54bf80714e9c3db3ae753e0800c8b010fab3b48d9c1f86c55",
+    "BeeFiscalApp/src/ui/__tests__/language-controls-current.test.tsx": "cfa705de670fede201dd4c4390b4f533718ea2bee64f6950c32050259aff518a",
+    "BeeFiscalApp/__tests__/ui-action-commit-current.test.tsx": "a94667b9b6e1b4b94c2323fa0fbfa533942bbec6e43df6d308a108ab4b7c6b02",
+    "minipos/BeeMiniPOS/__tests__/ui-action-commit-current.test.tsx": "43f7cf92410b58f0476d0d324411dca5cab10f3404376bac5e56d005ba65514c"
+  },
+  "logs": {
+    "fiscal-ui": {
+      "file": "fiscal-ui.log.gz",
+      "raw_sha256": "dfa48445366b13fb6727a0025f4cdfa0dd7c977b3bf118be02bf2e85e5911ca5",
+      "gzip_sha256": "72d70db1f33da5396b00f79b06e7b7f3622595435f76d0dbe9dce171375e5f4b",
+      "exit_code": 0
+    },
+    "mini-ui": {
+      "file": "mini-ui.log.gz",
+      "raw_sha256": "95f1a60f99386e040b837b73820542c587462049c85da0a3afcd0d6a0d8a8493",
+      "gzip_sha256": "0b52f8d0a0852550b9a9ffbc5b7d4773836fa1eef5f2a2b87ebe9559f1d0c374",
+      "exit_code": 0
+    },
+    "fiscal-ts": {
+      "file": "fiscal-ts.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "exit_code": 0
+    },
+    "mini-ts": {
+      "file": "mini-ts.log.gz",
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "9ceffb7310338057cfe71a4ae1e2c98d2c485d81cdef906532a801f457a38d64",
+      "exit_code": 0
+    },
+    "red-fiscal-commit": {
+      "file": "red-fiscal-commit.log.gz",
+      "raw_sha256": "d3ee63dfb5aee4b1af7b327ea3dc829af2b2b53c9b2e67c941ca46787e8671c3",
+      "gzip_sha256": "3b47ac39aff04631ffc309e340a0ffc7fad18147bb31f938cb775338d9d144ad",
+      "exit_code": 1
+    },
+    "red-mini-commit": {
+      "file": "red-mini-commit.log.gz",
+      "raw_sha256": "ebde858122d10724a37420ed30d1cd9b1c7ddf25cd4ca7a78eff21584b73e780",
+      "gzip_sha256": "22a775b460ed6373d92547f28ccd3667eb28a7b8486ccfa724dd461cdcdcc406",
+      "exit_code": 1
+    },
+    "red-hidden-suite-discovery": {
+      "file": "red-hidden-suite-discovery.log.gz",
+      "raw_sha256": "f053fe421d9b98eb2d484c615296e7addcf197907177e0c7a58c839791012188",
+      "gzip_sha256": "3acb5bf7ae9c5021527b63c8b4f3a7955e987ef772a71e59103b93ee106f1bde",
+      "exit_code": 1
+    },
+    "browser-harness": {
+      "file": "browser-harness.mjs.gz",
+      "raw_sha256": "0a60b018812ea112fe7e76f84a87f45b7e0801aa87b669562e2eeeeabbae499b",
+      "gzip_sha256": "c360f4c61106478c9cac3426fbde5858fd9336b1937ed961de2820283d96d9d2"
+    },
+    "browser-header-fixture": {
+      "file": "browser-header-fixture.mjs.gz",
+      "raw_sha256": "3c23f93a6baf162952c3907aacd39a3d3ff1243d020453eb5329939d2b286823",
+      "gzip_sha256": "b4058e6c0a4b20d44dc6748c6bea954bc6ab06f9e640a50590df928d33080afb"
+    }
+  },
+  "scope": {
+    "Fiscal_UI": 112,
+    "MiniPOS_UI": 157,
+    "both_TypeScript": "PASS",
+    "fresh_actual_browser_cases": 6,
+    "financial_browser_writes": 0,
+    "native_hardware": "OPEN",
+    "full_UI_acceptance": "OPEN"
+  },
+  "browser_evidence": {
+    "status": "PASS",
+    "cases": 6,
+    "fresh_exports": "both .ui-e2e-prod-web-r5",
+    "source_files": 451,
+    "export_files": 45,
+    "financial_writes": 0,
+    "open_scopes": [
+      "Fiscal stale old401 after new OTP",
+      "MiniPOS current401 after theme change"
+    ],
+    "artifact_sha256": {
+      "source-comparison-r5.json": "a8ed929988e0c23d9b92fa15a814a1b031486356ab3c86a6cdd9a3ff94edd710",
+      "source-sha256-r5.json": "78aa4497d90c6e502ab674e0a61decfdeaaa1f0b191f2f73713ccd8f72fbe87e",
+      "export-sha256-r5.json": "d0c78d9ef3e381338984ebc38dd4edf3c9e8f02f4355ce89f3c7a3b9a0b23121",
+      "build-env-fiscal-r5.json": "6175c43b1a975ac37e9b46a90ade4db6035726d6b047a0d26d740ca774a68c33",
+      "build-env-mini-r5.json": "34336d0f5bdc118fd59a1063869088a0ad244dd062c0b88f0c0ff55cbf038230",
+      "fiscal-build-r5.log": "ce64f537a99d4ff2b88a8379470472e3f5f09cf30a2c55a3e1e2f67167006875",
+      "mini-build-r5.log": "01a6092544a0cf368d82783b768b9938d01ac353345033ea53b9a1594f5b54a1",
+      "browser-r5-confirmed-six.log": "6a07c3a280498cd7866987d4307b079f7b90d2c8c78bb0ba32424cc4abd4d533",
+      "browser-results-r5.json": "81605b0da9cbde15fd8c3105591d2b41573502a1363868617b9f8bd902dd009f"
+    }
+  }
+}

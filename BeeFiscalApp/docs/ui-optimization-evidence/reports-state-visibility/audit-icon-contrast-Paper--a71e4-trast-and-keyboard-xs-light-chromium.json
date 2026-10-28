@@ -1,0 +1,22 @@
+{
+  "size": "xs",
+  "mode": "light",
+  "contrast": {
+    "insideRatio": 8.86894808172468,
+    "outsideRatio": 8.86894808172468,
+    "border": "rgb(72, 67, 77)",
+    "inside": [
+      247,
+      245,
+      249,
+      1
+    ],
+    "outside": [
+      247,
+      245,
+      249,
+      1
+    ]
+  },
+  "scope": "Computed graphic contrast and real keyboard/hidden decorative icon semantics; not complete WCAG adjudication."
+}

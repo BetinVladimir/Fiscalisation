@@ -1,0 +1,10 @@
+{
+  "status": "PASS_SYNTHETIC_PAPER_PRESENTATION_ONLY",
+  "selection": "full",
+  "cases": 36,
+  "sections": 9,
+  "rawAA": 324,
+  "apiWorkflowAcceptance": "OPEN",
+  "nativeAcceptance": "OPEN",
+  "fullApplicationAcceptance": "OPEN"
+}

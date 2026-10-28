@@ -1,0 +1,12 @@
+{
+  "source": "src/screens/AuditScreen.tsx",
+  "sourceSha256": "7d1a15926e8a6dec54af29050ec1d257e2f81d9a78289dda7ba8b223681583da",
+  "baseline": "6FAIL PaperButton expandedmissing;firstPaperAccordion56PASS/6FAIL becauseinstalledRNWebignoresaccessibilityState.expanded",
+  "change": "ActualPaperList.Accordion controlledbyexistinglocalexpanded,sameonPress/labels/fields/hash. AccordionnativeaccessibilityState forwarded byinstalledPaper source. Web-onlyeffectsetsaria-expandedon own headerrolebutton via structuralViewref;noPaperfork/nativecustomcontrol. Headeroutlined/min48/unlimitedtitlelines.",
+  "verified": "62functionalPASS;6xs/md/lg-lightdark:ariafalse/true/false,Enterexpand,Spacecollapse,samehash/footerbounds,frame48. Typecheck/uiPASS. No realaudit/fiscalwrites.",
+  "open": [
+    "NativeVoiceOver/TalkBack/manual/theme-change whileexpanded/200%/all25copy",
+    "StrictAA/text/nontext/focuscontrast must refresh onnewsource",
+    "OtherBeeFiscal/app11criteria"
+  ]
+}

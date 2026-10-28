@@ -3,7 +3,7 @@ import { useEffect, useRef, useState } from 'react';
 import { FormField as TextInput } from './ui/form-field';
 import { AppButton as Button } from './ui/app-button';
 import { Card, Divider, Text } from "react-native-paper";
-import { View } from "react-native";
+import { Platform, View } from "react-native";
 import type { Product } from "./api/client";
 import { translations } from "./ui/workTranslations.generated";
 import type { Language } from "./ui/PreferenceControls";
@@ -30,11 +30,12 @@ export function ProductGrid({ products, onAdd, language, busy = false }: { busy?
   </Card>;
 }
 
-export function PaymentPanel({ cart, total, cardAmount, busy, lastOrderId, language, onUpdate, onCardAmount, onCheckout, onReverse }: {
+export function PaymentPanel({ cart, total, cardAmount, busy, blocked=false, lastOrderId, language, onUpdate, onCardAmount, onCheckout, onReverse }: {
   cart: CartLine[];
   total: number;
   cardAmount: number;
   busy: boolean;
+  blocked?: boolean;
   lastOrderId: string;
   language: Language;
   onUpdate: (id: string, key: "quantity" | "discount", value: number) => void;
@@ -42,9 +43,9 @@ export function PaymentPanel({ cart, total, cardAmount, busy, lastOrderId, langu
   onCheckout: () => void;
   onReverse: () => void;
 }) {
-  const mounted=useRef(false),latestBusy=useRef(busy);latestBusy.current=busy;
+  const mounted=useRef(false),latestBusy=useRef(busy),latestBlocked=useRef(blocked);latestBusy.current=busy;latestBlocked.current=blocked;
   useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;};},[]);
-  const actionable=()=>mounted.current&&!latestBusy.current;
+  const actionable=()=>mounted.current&&!latestBusy.current&&!latestBlocked.current;
   const t = translations[language];
   const [drafts,setDrafts]=useState<Record<string,{text:string;value:number}>>({});
   const values:Record<string,number>={card:cardAmount};
@@ -70,15 +71,15 @@ export function PaymentPanel({ cart, total, cardAmount, busy, lastOrderId, langu
       {cart.length === 0 ? <Text variant="bodyMedium">{t.chooseProduct}</Text> : cart.map(line => <View key={line.product.id} style={{ gap: 10, paddingVertical: 12 }}>
         <Text variant="titleMedium">{line.product.name}</Text>
         <View style={{ flexDirection: "row", flexWrap: "wrap", gap: 12 }}>
-          <TextInput editable={!busy} mode="outlined" label={t.quantity} accessibilityLabel={t.quantity} keyboardType="number-pad" value={draft(`quantity:${line.product.id}`)} errorMessage={!quantityValid(line)?`${t.quantity}: ≥ 1 (1.000)`:undefined} onChangeText={value => { if(cart.includes(line))changeNumber(`quantity:${line.product.id}`,value,3,n=>n>=1,n=>onUpdate(line.product.id,'quantity',n)); }} containerStyle={{ flexGrow: 1, flexBasis: 150, minWidth: 0 }} testID={`sale-quantity-${line.product.id}`} />
-          <TextInput editable={!busy} mode="outlined" label={t.discountEur} accessibilityLabel={t.discountEur} keyboardType="decimal-pad" value={draft(`discount:${line.product.id}`)} errorMessage={!discountValid(line)?`${t.discountEur}: 0–${(Number(line.product.price.amount)*line.quantity).toFixed(2)} EUR`:undefined} onChangeText={value => { if(cart.includes(line))changeNumber(`discount:${line.product.id}`,value,2,n=>n<=Number(line.product.price.amount)*line.quantity,n=>onUpdate(line.product.id,'discount',n)); }} containerStyle={{ flexGrow: 1, flexBasis: 150, minWidth: 0 }} testID={`sale-discount-${line.product.id}`} />
+          <TextInput editable={!busy&&!blocked} mode="outlined" label={t.quantity} accessibilityLabel={t.quantity} keyboardType="number-pad" value={draft(`quantity:${line.product.id}`)} errorMessage={!quantityValid(line)?`${t.quantity}: ≥ 1 (1.000)`:undefined} onChangeText={value => { if(cart.includes(line))changeNumber(`quantity:${line.product.id}`,value,3,n=>n>=1,n=>onUpdate(line.product.id,'quantity',n)); }} containerStyle={{ flexGrow: 1, flexBasis: 150, minWidth: 0 }} testID={`sale-quantity-${line.product.id}`} />
+          <TextInput editable={!busy&&!blocked} mode="outlined" label={`${t.discountEur} ${line.product.name}`} accessibilityLabel={`${t.discountEur} ${line.product.name}`} keyboardType="decimal-pad" value={draft(`discount:${line.product.id}`)} errorMessage={!discountValid(line)?`${t.discountEur}: 0–${(Number(line.product.price.amount)*line.quantity).toFixed(2)} EUR`:undefined} onChangeText={value => { if(cart.includes(line))changeNumber(`discount:${line.product.id}`,value,2,n=>n<=Number(line.product.price.amount)*line.quantity,n=>onUpdate(line.product.id,'discount',n)); }} containerStyle={{ flexGrow: 1, flexBasis: 150, minWidth: 0 }} testID={`sale-discount-${line.product.id}`} />
         </View>
         <Divider testID={`sale-line-divider-${line.product.id}`}/>
       </View>)}
-      <div className="total"><Text variant="titleLarge" testID="sale-total">{t.total}: {total.toFixed(2)} EUR</Text></div>
-      <TextInput editable={!busy} mode="outlined" label={t.cardRemainder} accessibilityLabel={t.cardRemainder} keyboardType="decimal-pad" value={draft('card')} errorMessage={!cardValid?`${t.cardRemainder}: 0–${Number.isFinite(total)?total.toFixed(2):'—'} EUR`:undefined} onChangeText={value => changeNumber('card',value,2,n=>n<=total,onCardAmount)} testID="sale-card-amount" />
-      <Button mode="contained" contentStyle={{ minHeight: 56 }} loading={busy} disabled={busy || !validPayment} onPress={() => { if(actionable()&&validPayment)onCheckout(); }} testID="sale-checkout">{t.checkoutFiscal}</Button>
-      {lastOrderId ? <Button mode="outlined" disabled={busy} onPress={() => { if(actionable()&&lastOrderId)onReverse(); }} testID="sale-reverse">{t.reverseLastSale}</Button> : null}
+      <View testID="sale-total-container" style={{marginVertical:8,minWidth:0,maxWidth:"100%"}}><Text variant="titleLarge" testID="sale-total" style={{display:"flex",minWidth:0,maxWidth:"100%",flexShrink:1,flexWrap:"wrap",...(Platform.OS==="web"?{overflowWrap:"anywhere"} as any:{})}}>{t.total}: {total.toFixed(2)} EUR</Text></View>
+      <TextInput editable={!busy&&!blocked} mode="outlined" label={t.cardRemainder} accessibilityLabel={t.cardRemainder} keyboardType="decimal-pad" value={draft('card')} errorMessage={!cardValid?`${t.cardRemainder}: 0–${Number.isFinite(total)?total.toFixed(2):'—'} EUR`:undefined} onChangeText={value => changeNumber('card',value,2,n=>n<=total,onCardAmount)} testID="sale-card-amount" />
+      <Button mode="contained" contentStyle={{ minHeight: 56 }} loading={busy} disabled={busy || blocked || !validPayment} onPress={() => { if(actionable()&&validPayment)onCheckout(); }} testID="sale-checkout">{t.checkoutFiscal}</Button>
+      {lastOrderId ? <Button mode="outlined" disabled={busy||blocked} onPress={() => { if(actionable()&&lastOrderId)onReverse(); }} testID="sale-reverse">{t.reverseLastSale}</Button> : null}
     </Card.Content>
   </Card>;
 }

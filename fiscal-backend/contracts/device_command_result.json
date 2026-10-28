@@ -1,0 +1,21 @@
+{
+  "DEVICE_TIME": {
+    "description": "Result of BC-50 cmd62 (read device clock). device_time is mandatory; drift_seconds is signed (positive = device ahead of host).",
+    "fields": {
+      "operation_id": {
+        "type": "string",
+        "description": "Correlation ID matching the originating command request."
+      },
+      "device_time": {
+        "type": "string",
+        "format": "RFC3339",
+        "description": "Fiscal device clock time as reported by cmd62. Never substituted with host clock."
+      },
+      "drift_seconds": {
+        "type": "integer",
+        "description": "Signed drift: device_time minus host_time in seconds. Positive = device ahead."
+      }
+    },
+    "required": ["operation_id", "device_time", "drift_seconds"]
+  }
+}

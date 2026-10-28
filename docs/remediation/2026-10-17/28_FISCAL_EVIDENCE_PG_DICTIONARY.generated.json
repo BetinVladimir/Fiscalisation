@@ -1,0 +1,1955 @@
+{
+  "format": "beefiscal-evidence-pg-schema-v1",
+  "schema": "fiscal",
+  "tables": [
+    {
+      "evidence_rules": {
+        "composite_binding": {
+          "type": "object",
+          "fields": {
+            "activated_at": {
+              "type": "string"
+            },
+            "adapter_device_id": {
+              "type": "string"
+            },
+            "bound_at": {
+              "type": "string"
+            },
+            "fiscal_device_id": {
+              "type": "string"
+            },
+            "generation": {
+              "type": "integer"
+            },
+            "location_id": {
+              "type": "string"
+            },
+            "payload_sha256": {
+              "type": "string"
+            },
+            "payment_device_id": {
+              "type": "string"
+            },
+            "profile": {
+              "type": "string"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "revoked_at": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          }
+        },
+        "delegated_sale_request": {
+          "type": "object",
+          "fields": {
+            "operator_id": {
+              "type": "string"
+            },
+            "plan_sha256": {
+              "type": "string"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "source_shift_id": {
+              "type": "string"
+            },
+            "system_id": {
+              "type": "string"
+            }
+          }
+        },
+        "delegated_shift": {
+          "type": "object",
+          "fields": {
+            "fiscal_shift_id": {
+              "type": "string"
+            },
+            "operator_id": {
+              "type": "string"
+            },
+            "physical_verified": {
+              "type": "boolean"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "source_assertion": {
+              "type": "string"
+            },
+            "source_shift_id": {
+              "type": "string"
+            },
+            "system_id": {
+              "type": "string"
+            }
+          }
+        },
+        "device": {
+          "type": "object",
+          "fields": {
+            "binding_version": {
+              "type": "integer"
+            },
+            "credential_id": {
+              "type": "string"
+            },
+            "device_key_thumbprint": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string"
+            },
+            "firmware": {
+              "type": "string"
+            },
+            "fiscal_device_number": {
+              "type": "string"
+            },
+            "fiscal_memory_number": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "serial": {
+              "type": "string"
+            },
+            "simulated": {
+              "type": "boolean"
+            },
+            "status": {
+              "type": "string"
+            },
+            "transaction_signing_kid": {
+              "type": "string"
+            },
+            "unp_prefix": {
+              "type": "string"
+            },
+            "unp_range_end": {
+              "type": "integer"
+            },
+            "unp_range_start": {
+              "type": "integer"
+            },
+            "vendor": {
+              "type": "string"
+            }
+          }
+        },
+        "execution_authorization": {
+          "type": "object",
+          "fields": {
+            "envelope": {
+              "type": "object",
+              "fields": {
+                "algorithm": {
+                  "type": "string"
+                },
+                "key_id": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "type": "string"
+                }
+              }
+            },
+            "issuance_operation_id": {
+              "type": "string"
+            },
+            "issuance_operation_version": {
+              "type": "integer"
+            },
+            "issuance_sale_id": {
+              "type": "string"
+            },
+            "issuance_sale_version": {
+              "type": "integer"
+            },
+            "issued_binding_sha256": {
+              "type": "string"
+            }
+          }
+        },
+        "execution_authorization_revocation": {
+          "type": "object",
+          "fields": {
+            "actor_id": {
+              "type": "string"
+            },
+            "effective_at": {
+              "type": "string"
+            },
+            "reason_code": {
+              "type": "string"
+            },
+            "revoked_at": {
+              "type": "string"
+            }
+          }
+        },
+        "issued_binding": {
+          "type": "object",
+          "fields": {
+            "canonical_payload": {
+              "type": "object",
+              "fields": {
+                "edge_device_id": {
+                  "type": "string"
+                },
+                "fiscal_endpoint": {
+                  "type": "object",
+                  "fields": {
+                    "device_id": {
+                      "type": "string"
+                    },
+                    "firmware": {
+                      "type": "string"
+                    },
+                    "fiscal_device_number": {
+                      "type": "string"
+                    },
+                    "fiscal_memory_number": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "protocol_profile": {
+                      "type": "string"
+                    },
+                    "vendor": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "generation": {
+                  "type": "integer"
+                },
+                "location_id": {
+                  "type": "string"
+                },
+                "operational_authority": {
+                  "type": "object",
+                  "fields": {
+                    "transaction_signing_kid": {
+                      "type": "string"
+                    },
+                    "unp_prefix": {
+                      "type": "string"
+                    },
+                    "unp_range_end": {
+                      "type": "integer"
+                    },
+                    "unp_range_start": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "register_id": {
+                  "type": "string"
+                },
+                "schema_version": {
+                  "type": "integer"
+                },
+                "tenant_id": {
+                  "type": "string"
+                }
+              }
+            },
+            "issued_at": {
+              "type": "string"
+            },
+            "key_id": {
+              "type": "string"
+            },
+            "payload_sha256": {
+              "type": "string"
+            }
+          }
+        },
+        "location": {
+          "type": "object",
+          "fields": {
+            "address": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          }
+        },
+        "operation": {
+          "type": "object",
+          "fields": {
+            "client_operation_id": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "error_code": {
+              "type": "string"
+            },
+            "fiscal_reference": {
+              "type": "string"
+            },
+            "operation_id": {
+              "type": "string"
+            },
+            "original_document_at": {
+              "type": "string"
+            },
+            "original_document_number": {
+              "type": "integer"
+            },
+            "original_fiscal_reference": {
+              "type": "string"
+            },
+            "reason_code": {
+              "type": "string"
+            },
+            "receipt_session_id": {
+              "type": "string"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "sale_id": {
+              "type": "string"
+            },
+            "simulated": {
+              "type": "boolean"
+            },
+            "state": {
+              "type": "string"
+            },
+            "tenant_id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "updated_at": {
+              "type": "string"
+            },
+            "version": {
+              "type": "integer"
+            }
+          }
+        },
+        "operator": {
+          "type": "object",
+          "fields": {
+            "active_from": {
+              "type": "string"
+            },
+            "active_to": {
+              "type": "string"
+            },
+            "actor_subject": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "roles": {
+              "type": "array",
+              "items": {
+                "type": "role"
+              }
+            }
+          }
+        },
+        "organization": {
+          "type": "object",
+          "fields": {
+            "country": {
+              "type": "string"
+            },
+            "eik": {
+              "type": "string"
+            },
+            "legal_name": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          }
+        },
+        "payment_reconciliation": {
+          "type": "object",
+          "fields": {
+            "event": {
+              "type": "object",
+              "fields": {
+                "device_id": {
+                  "type": "string"
+                },
+                "event_hash": {
+                  "type": "string"
+                },
+                "event_id": {
+                  "type": "string"
+                },
+                "event_type": {
+                  "type": "string"
+                },
+                "journal_seq": {
+                  "type": "integer"
+                },
+                "occurred_at": {
+                  "type": "string"
+                },
+                "operation_id": {
+                  "type": "string"
+                },
+                "payload": {
+                  "type": "object",
+                  "fields": {
+                    "actor_id": {
+                      "type": "string"
+                    },
+                    "amount_minor": {
+                      "type": "string"
+                    },
+                    "auth_code": {
+                      "type": "string"
+                    },
+                    "authorization_sha256": {
+                      "type": "string"
+                    },
+                    "evidence_reference": {
+                      "type": "string"
+                    },
+                    "evidence_sha256": {
+                      "type": "string"
+                    },
+                    "new_state": {
+                      "type": "string"
+                    },
+                    "old_state": {
+                      "type": "string"
+                    },
+                    "operation_id": {
+                      "type": "string"
+                    },
+                    "payment_id": {
+                      "type": "string"
+                    },
+                    "reconciliation_id": {
+                      "type": "string"
+                    },
+                    "reversal_auth_code": {
+                      "type": "string"
+                    },
+                    "reversal_reference": {
+                      "type": "string"
+                    },
+                    "reversal_rrn": {
+                      "type": "string"
+                    },
+                    "rrn": {
+                      "type": "string"
+                    },
+                    "terminal_id": {
+                      "type": "string"
+                    },
+                    "terminal_reference": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "grant_sha256": {
+              "type": "string"
+            },
+            "issuance_pending_digest": {
+              "type": "string"
+            },
+            "issued_resource_digest": {
+              "type": "string"
+            },
+            "original_operation_id": {
+              "type": "string"
+            }
+          }
+        },
+        "payment_reconciliation_authorization": {
+          "type": "object",
+          "fields": {
+            "envelope": {
+              "type": "object",
+              "fields": {
+                "algorithm": {
+                  "type": "string"
+                },
+                "key_id": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "type": "string"
+                }
+              }
+            },
+            "issuance_binding_id": {
+              "type": "string"
+            },
+            "issuance_binding_version": {
+              "type": "integer"
+            },
+            "issuance_operation_id": {
+              "type": "string"
+            },
+            "issuance_pending_digest": {
+              "type": "string"
+            }
+          }
+        },
+        "register": {
+          "type": "object",
+          "fields": {
+            "code": {
+              "type": "string"
+            },
+            "composite_binding_id": {
+              "type": "string"
+            },
+            "fiscal_device_active_from": {
+              "type": "string"
+            },
+            "fiscal_device_id": {
+              "type": "string"
+            },
+            "location_id": {
+              "type": "string"
+            },
+            "payment_terminal_active_from": {
+              "type": "string"
+            },
+            "payment_terminal_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          }
+        },
+        "report": {
+          "type": "object",
+          "fields": {
+            "artifacts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "fields": {
+                  "artifact_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "string"
+                  },
+                  "media_type": {
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "completed_at": {
+              "type": "string"
+            },
+            "official_currency": {
+              "type": "string"
+            },
+            "policy_version": {
+              "type": "string"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "requested_at": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        "sale": {
+          "type": "object",
+          "fields": {
+            "binding_generation": {
+              "type": "integer"
+            },
+            "binding_sha256": {
+              "type": "string"
+            },
+            "cancelled_at": {
+              "type": "string"
+            },
+            "client_sale_surrogate_id": {
+              "type": "string"
+            },
+            "command_type": {
+              "type": "string"
+            },
+            "completed_at": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "edge_id": {
+              "type": "string"
+            },
+            "external_id": {
+              "type": "string"
+            },
+            "fiscal_device": {
+              "type": "object",
+              "fields": {
+                "adapter_device_id": {
+                  "type": "string"
+                },
+                "binding_generation": {
+                  "type": "integer"
+                },
+                "binding_version": {
+                  "type": "integer"
+                },
+                "device_id": {
+                  "type": "string"
+                },
+                "firmware": {
+                  "type": "string"
+                },
+                "fiscal_device_number": {
+                  "type": "string"
+                },
+                "fiscal_memory_number": {
+                  "type": "string"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "serial": {
+                  "type": "string"
+                },
+                "vendor": {
+                  "type": "string"
+                }
+              }
+            },
+            "fiscal_operation_id": {
+              "type": "string"
+            },
+            "lines": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "fields": {
+                  "discount": {
+                    "type": "object",
+                    "fields": {
+                      "amount": {
+                        "type": "string"
+                      },
+                      "currency": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "line_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "product_code": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "string"
+                  },
+                  "tax_group": {
+                    "type": "string"
+                  },
+                  "unit_price": {
+                    "type": "object",
+                    "fields": {
+                      "amount": {
+                        "type": "string"
+                      },
+                      "currency": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "location_code": {
+              "type": "string"
+            },
+            "location_id": {
+              "type": "string"
+            },
+            "location_name": {
+              "type": "string"
+            },
+            "operation_id": {
+              "type": "string"
+            },
+            "operator_code": {
+              "type": "string"
+            },
+            "operator_id": {
+              "type": "string"
+            },
+            "operator_name": {
+              "type": "string"
+            },
+            "payload_sha256": {
+              "type": "string"
+            },
+            "payments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "fields": {
+                  "amount": {
+                    "type": "object",
+                    "fields": {
+                      "amount": {
+                        "type": "string"
+                      },
+                      "currency": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "created_at": {
+                    "type": "string"
+                  },
+                  "fiscal_reference": {
+                    "type": "string"
+                  },
+                  "payment_id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "receipt_artifact_id": {
+              "type": "string"
+            },
+            "receipt_session_id": {
+              "type": "string"
+            },
+            "register_code": {
+              "type": "string"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "reversed_at": {
+              "type": "string"
+            },
+            "sale_id": {
+              "type": "string"
+            },
+            "server_sale_id": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "tenant_id": {
+              "type": "string"
+            },
+            "totals": {
+              "type": "object",
+              "fields": {
+                "total": {
+                  "type": "object",
+                  "fields": {
+                    "amount": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "unp": {
+              "type": "string"
+            },
+            "updated_at": {
+              "type": "string"
+            },
+            "version": {
+              "type": "integer"
+            }
+          }
+        },
+        "unp_serial_identity": {
+          "type": "object",
+          "fields": {
+            "fiscal_device_number": {
+              "type": "string"
+            },
+            "fiscal_memory_number": {
+              "type": "string"
+            }
+          }
+        },
+        "workstation_session": {
+          "type": "object",
+          "fields": {
+            "actor_subject": {
+              "type": "string"
+            },
+            "app_instance_id": {
+              "type": "string"
+            },
+            "expires_at": {
+              "type": "string"
+            },
+            "location_id": {
+              "type": "string"
+            },
+            "operator_code": {
+              "type": "string"
+            },
+            "operator_id": {
+              "type": "string"
+            },
+            "revoked_at": {
+              "type": "string"
+            },
+            "session_id": {
+              "type": "string"
+            },
+            "started_at": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "tenant_id": {
+              "type": "string"
+            },
+            "workstation_id": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "excluded_kinds": [
+        "provisioning_session",
+        "provisioning_delivery",
+        "device_command_outbox",
+        "webhook_endpoint"
+      ],
+      "name": "fiscal_runtime_audit",
+      "export_columns": [
+        "event_id",
+        "tenant_id",
+        "actor_id",
+        "action",
+        "object_type",
+        "object_id",
+        "occurred_at",
+        "event_hash",
+        "previous_hash",
+        "payload"
+      ],
+      "columns": [
+        {
+          "name": "event_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "tenant_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "actor_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "action",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "object_type",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "object_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "occurred_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "event_hash",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "previous_hash",
+          "type": "text",
+          "nullable": true,
+          "default": "COALESCE(NULLIF((payload -\u003e\u003e 'previous_hash'::text), ''::text), NULLIF((payload -\u003e\u003e 'prev_hash'::text), ''::text), ''::text)"
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "tenant_boundary:*:true:public:(tenant_id = app_tenant_key()):(tenant_id = app_tenant_key())"
+      ],
+      "constraints": [
+        "fiscal_audit_predecessor_consistent:CHECK (((NULLIF((payload -\u003e\u003e 'previous_hash'::text), ''::text) IS NULL) OR (NULLIF((payload -\u003e\u003e 'prev_hash'::text), ''::text) IS NULL) OR ((payload -\u003e\u003e 'previous_hash'::text) = (payload -\u003e\u003e 'prev_hash'::text))))",
+        "fiscal_runtime_audit_payload_check:CHECK ((jsonb_typeof(payload) = 'object'::text))",
+        "fiscal_runtime_audit_pkey:PRIMARY KEY (event_id)"
+      ],
+      "indexes": [
+        "fiscal_runtime_audit_pkey:CREATE UNIQUE INDEX fiscal_runtime_audit_pkey ON fiscal.fiscal_runtime_audit USING btree (event_id)",
+        "fiscal_runtime_audit_tenant_chain:CREATE INDEX fiscal_runtime_audit_tenant_chain ON fiscal.fiscal_runtime_audit USING btree (tenant_id, occurred_at, event_id, previous_hash, event_hash)",
+        "fiscal_runtime_audit_tenant_time:CREATE INDEX fiscal_runtime_audit_tenant_time ON fiscal.fiscal_runtime_audit USING btree (tenant_id, occurred_at, event_id)"
+      ]
+    },
+    {
+      "evidence_rules": {
+        "composite_binding": {
+          "type": "object",
+          "fields": {
+            "activated_at": {
+              "type": "string"
+            },
+            "adapter_device_id": {
+              "type": "string"
+            },
+            "bound_at": {
+              "type": "string"
+            },
+            "fiscal_device_id": {
+              "type": "string"
+            },
+            "generation": {
+              "type": "integer"
+            },
+            "location_id": {
+              "type": "string"
+            },
+            "payload_sha256": {
+              "type": "string"
+            },
+            "payment_device_id": {
+              "type": "string"
+            },
+            "profile": {
+              "type": "string"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "revoked_at": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          }
+        },
+        "delegated_sale_request": {
+          "type": "object",
+          "fields": {
+            "operator_id": {
+              "type": "string"
+            },
+            "plan_sha256": {
+              "type": "string"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "source_shift_id": {
+              "type": "string"
+            },
+            "system_id": {
+              "type": "string"
+            }
+          }
+        },
+        "delegated_shift": {
+          "type": "object",
+          "fields": {
+            "fiscal_shift_id": {
+              "type": "string"
+            },
+            "operator_id": {
+              "type": "string"
+            },
+            "physical_verified": {
+              "type": "boolean"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "source_assertion": {
+              "type": "string"
+            },
+            "source_shift_id": {
+              "type": "string"
+            },
+            "system_id": {
+              "type": "string"
+            }
+          }
+        },
+        "device": {
+          "type": "object",
+          "fields": {
+            "binding_version": {
+              "type": "integer"
+            },
+            "credential_id": {
+              "type": "string"
+            },
+            "device_key_thumbprint": {
+              "type": "string"
+            },
+            "environment": {
+              "type": "string"
+            },
+            "firmware": {
+              "type": "string"
+            },
+            "fiscal_device_number": {
+              "type": "string"
+            },
+            "fiscal_memory_number": {
+              "type": "string"
+            },
+            "kind": {
+              "type": "string"
+            },
+            "model": {
+              "type": "string"
+            },
+            "serial": {
+              "type": "string"
+            },
+            "simulated": {
+              "type": "boolean"
+            },
+            "status": {
+              "type": "string"
+            },
+            "transaction_signing_kid": {
+              "type": "string"
+            },
+            "unp_prefix": {
+              "type": "string"
+            },
+            "unp_range_end": {
+              "type": "integer"
+            },
+            "unp_range_start": {
+              "type": "integer"
+            },
+            "vendor": {
+              "type": "string"
+            }
+          }
+        },
+        "execution_authorization": {
+          "type": "object",
+          "fields": {
+            "envelope": {
+              "type": "object",
+              "fields": {
+                "algorithm": {
+                  "type": "string"
+                },
+                "key_id": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "type": "string"
+                }
+              }
+            },
+            "issuance_operation_id": {
+              "type": "string"
+            },
+            "issuance_operation_version": {
+              "type": "integer"
+            },
+            "issuance_sale_id": {
+              "type": "string"
+            },
+            "issuance_sale_version": {
+              "type": "integer"
+            },
+            "issued_binding_sha256": {
+              "type": "string"
+            }
+          }
+        },
+        "execution_authorization_revocation": {
+          "type": "object",
+          "fields": {
+            "actor_id": {
+              "type": "string"
+            },
+            "effective_at": {
+              "type": "string"
+            },
+            "reason_code": {
+              "type": "string"
+            },
+            "revoked_at": {
+              "type": "string"
+            }
+          }
+        },
+        "issued_binding": {
+          "type": "object",
+          "fields": {
+            "canonical_payload": {
+              "type": "object",
+              "fields": {
+                "edge_device_id": {
+                  "type": "string"
+                },
+                "fiscal_endpoint": {
+                  "type": "object",
+                  "fields": {
+                    "device_id": {
+                      "type": "string"
+                    },
+                    "firmware": {
+                      "type": "string"
+                    },
+                    "fiscal_device_number": {
+                      "type": "string"
+                    },
+                    "fiscal_memory_number": {
+                      "type": "string"
+                    },
+                    "model": {
+                      "type": "string"
+                    },
+                    "protocol_profile": {
+                      "type": "string"
+                    },
+                    "vendor": {
+                      "type": "string"
+                    }
+                  }
+                },
+                "generation": {
+                  "type": "integer"
+                },
+                "location_id": {
+                  "type": "string"
+                },
+                "operational_authority": {
+                  "type": "object",
+                  "fields": {
+                    "transaction_signing_kid": {
+                      "type": "string"
+                    },
+                    "unp_prefix": {
+                      "type": "string"
+                    },
+                    "unp_range_end": {
+                      "type": "integer"
+                    },
+                    "unp_range_start": {
+                      "type": "integer"
+                    }
+                  }
+                },
+                "profile": {
+                  "type": "string"
+                },
+                "register_id": {
+                  "type": "string"
+                },
+                "schema_version": {
+                  "type": "integer"
+                },
+                "tenant_id": {
+                  "type": "string"
+                }
+              }
+            },
+            "issued_at": {
+              "type": "string"
+            },
+            "key_id": {
+              "type": "string"
+            },
+            "payload_sha256": {
+              "type": "string"
+            }
+          }
+        },
+        "location": {
+          "type": "object",
+          "fields": {
+            "address": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "name": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          }
+        },
+        "operation": {
+          "type": "object",
+          "fields": {
+            "client_operation_id": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "error_code": {
+              "type": "string"
+            },
+            "fiscal_reference": {
+              "type": "string"
+            },
+            "operation_id": {
+              "type": "string"
+            },
+            "original_document_at": {
+              "type": "string"
+            },
+            "original_document_number": {
+              "type": "integer"
+            },
+            "original_fiscal_reference": {
+              "type": "string"
+            },
+            "reason_code": {
+              "type": "string"
+            },
+            "receipt_session_id": {
+              "type": "string"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "sale_id": {
+              "type": "string"
+            },
+            "simulated": {
+              "type": "boolean"
+            },
+            "state": {
+              "type": "string"
+            },
+            "tenant_id": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "updated_at": {
+              "type": "string"
+            },
+            "version": {
+              "type": "integer"
+            }
+          }
+        },
+        "operator": {
+          "type": "object",
+          "fields": {
+            "active_from": {
+              "type": "string"
+            },
+            "active_to": {
+              "type": "string"
+            },
+            "actor_subject": {
+              "type": "string"
+            },
+            "code": {
+              "type": "string"
+            },
+            "first_name": {
+              "type": "string"
+            },
+            "last_name": {
+              "type": "string"
+            },
+            "roles": {
+              "type": "array",
+              "items": {
+                "type": "role"
+              }
+            }
+          }
+        },
+        "organization": {
+          "type": "object",
+          "fields": {
+            "country": {
+              "type": "string"
+            },
+            "eik": {
+              "type": "string"
+            },
+            "legal_name": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          }
+        },
+        "payment_reconciliation": {
+          "type": "object",
+          "fields": {
+            "event": {
+              "type": "object",
+              "fields": {
+                "device_id": {
+                  "type": "string"
+                },
+                "event_hash": {
+                  "type": "string"
+                },
+                "event_id": {
+                  "type": "string"
+                },
+                "event_type": {
+                  "type": "string"
+                },
+                "journal_seq": {
+                  "type": "integer"
+                },
+                "occurred_at": {
+                  "type": "string"
+                },
+                "operation_id": {
+                  "type": "string"
+                },
+                "payload": {
+                  "type": "object",
+                  "fields": {
+                    "actor_id": {
+                      "type": "string"
+                    },
+                    "amount_minor": {
+                      "type": "string"
+                    },
+                    "auth_code": {
+                      "type": "string"
+                    },
+                    "authorization_sha256": {
+                      "type": "string"
+                    },
+                    "evidence_reference": {
+                      "type": "string"
+                    },
+                    "evidence_sha256": {
+                      "type": "string"
+                    },
+                    "new_state": {
+                      "type": "string"
+                    },
+                    "old_state": {
+                      "type": "string"
+                    },
+                    "operation_id": {
+                      "type": "string"
+                    },
+                    "payment_id": {
+                      "type": "string"
+                    },
+                    "reconciliation_id": {
+                      "type": "string"
+                    },
+                    "reversal_auth_code": {
+                      "type": "string"
+                    },
+                    "reversal_reference": {
+                      "type": "string"
+                    },
+                    "reversal_rrn": {
+                      "type": "string"
+                    },
+                    "rrn": {
+                      "type": "string"
+                    },
+                    "terminal_id": {
+                      "type": "string"
+                    },
+                    "terminal_reference": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "grant_sha256": {
+              "type": "string"
+            },
+            "issuance_pending_digest": {
+              "type": "string"
+            },
+            "issued_resource_digest": {
+              "type": "string"
+            },
+            "original_operation_id": {
+              "type": "string"
+            }
+          }
+        },
+        "payment_reconciliation_authorization": {
+          "type": "object",
+          "fields": {
+            "envelope": {
+              "type": "object",
+              "fields": {
+                "algorithm": {
+                  "type": "string"
+                },
+                "key_id": {
+                  "type": "string"
+                },
+                "sha256": {
+                  "type": "string"
+                }
+              }
+            },
+            "issuance_binding_id": {
+              "type": "string"
+            },
+            "issuance_binding_version": {
+              "type": "integer"
+            },
+            "issuance_operation_id": {
+              "type": "string"
+            },
+            "issuance_pending_digest": {
+              "type": "string"
+            }
+          }
+        },
+        "register": {
+          "type": "object",
+          "fields": {
+            "code": {
+              "type": "string"
+            },
+            "composite_binding_id": {
+              "type": "string"
+            },
+            "fiscal_device_active_from": {
+              "type": "string"
+            },
+            "fiscal_device_id": {
+              "type": "string"
+            },
+            "location_id": {
+              "type": "string"
+            },
+            "payment_terminal_active_from": {
+              "type": "string"
+            },
+            "payment_terminal_id": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            }
+          }
+        },
+        "report": {
+          "type": "object",
+          "fields": {
+            "artifacts": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "fields": {
+                  "artifact_id": {
+                    "type": "string"
+                  },
+                  "created_at": {
+                    "type": "string"
+                  },
+                  "media_type": {
+                    "type": "string"
+                  },
+                  "sha256": {
+                    "type": "string"
+                  },
+                  "size": {
+                    "type": "integer"
+                  }
+                }
+              }
+            },
+            "completed_at": {
+              "type": "string"
+            },
+            "official_currency": {
+              "type": "string"
+            },
+            "policy_version": {
+              "type": "string"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "requested_at": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            }
+          }
+        },
+        "sale": {
+          "type": "object",
+          "fields": {
+            "binding_generation": {
+              "type": "integer"
+            },
+            "binding_sha256": {
+              "type": "string"
+            },
+            "cancelled_at": {
+              "type": "string"
+            },
+            "client_sale_surrogate_id": {
+              "type": "string"
+            },
+            "command_type": {
+              "type": "string"
+            },
+            "completed_at": {
+              "type": "string"
+            },
+            "created_at": {
+              "type": "string"
+            },
+            "edge_id": {
+              "type": "string"
+            },
+            "external_id": {
+              "type": "string"
+            },
+            "fiscal_device": {
+              "type": "object",
+              "fields": {
+                "adapter_device_id": {
+                  "type": "string"
+                },
+                "binding_generation": {
+                  "type": "integer"
+                },
+                "binding_version": {
+                  "type": "integer"
+                },
+                "device_id": {
+                  "type": "string"
+                },
+                "firmware": {
+                  "type": "string"
+                },
+                "fiscal_device_number": {
+                  "type": "string"
+                },
+                "fiscal_memory_number": {
+                  "type": "string"
+                },
+                "model": {
+                  "type": "string"
+                },
+                "serial": {
+                  "type": "string"
+                },
+                "vendor": {
+                  "type": "string"
+                }
+              }
+            },
+            "fiscal_operation_id": {
+              "type": "string"
+            },
+            "lines": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "fields": {
+                  "discount": {
+                    "type": "object",
+                    "fields": {
+                      "amount": {
+                        "type": "string"
+                      },
+                      "currency": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "line_id": {
+                    "type": "string"
+                  },
+                  "name": {
+                    "type": "string"
+                  },
+                  "product_code": {
+                    "type": "string"
+                  },
+                  "quantity": {
+                    "type": "string"
+                  },
+                  "tax_group": {
+                    "type": "string"
+                  },
+                  "unit_price": {
+                    "type": "object",
+                    "fields": {
+                      "amount": {
+                        "type": "string"
+                      },
+                      "currency": {
+                        "type": "string"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "location_code": {
+              "type": "string"
+            },
+            "location_id": {
+              "type": "string"
+            },
+            "location_name": {
+              "type": "string"
+            },
+            "operation_id": {
+              "type": "string"
+            },
+            "operator_code": {
+              "type": "string"
+            },
+            "operator_id": {
+              "type": "string"
+            },
+            "operator_name": {
+              "type": "string"
+            },
+            "payload_sha256": {
+              "type": "string"
+            },
+            "payments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "fields": {
+                  "amount": {
+                    "type": "object",
+                    "fields": {
+                      "amount": {
+                        "type": "string"
+                      },
+                      "currency": {
+                        "type": "string"
+                      }
+                    }
+                  },
+                  "created_at": {
+                    "type": "string"
+                  },
+                  "fiscal_reference": {
+                    "type": "string"
+                  },
+                  "payment_id": {
+                    "type": "string"
+                  },
+                  "type": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "receipt_artifact_id": {
+              "type": "string"
+            },
+            "receipt_session_id": {
+              "type": "string"
+            },
+            "register_code": {
+              "type": "string"
+            },
+            "register_id": {
+              "type": "string"
+            },
+            "reversed_at": {
+              "type": "string"
+            },
+            "sale_id": {
+              "type": "string"
+            },
+            "server_sale_id": {
+              "type": "string"
+            },
+            "state": {
+              "type": "string"
+            },
+            "tenant_id": {
+              "type": "string"
+            },
+            "totals": {
+              "type": "object",
+              "fields": {
+                "total": {
+                  "type": "object",
+                  "fields": {
+                    "amount": {
+                      "type": "string"
+                    },
+                    "currency": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            },
+            "unp": {
+              "type": "string"
+            },
+            "updated_at": {
+              "type": "string"
+            },
+            "version": {
+              "type": "integer"
+            }
+          }
+        },
+        "unp_serial_identity": {
+          "type": "object",
+          "fields": {
+            "fiscal_device_number": {
+              "type": "string"
+            },
+            "fiscal_memory_number": {
+              "type": "string"
+            }
+          }
+        },
+        "workstation_session": {
+          "type": "object",
+          "fields": {
+            "actor_subject": {
+              "type": "string"
+            },
+            "app_instance_id": {
+              "type": "string"
+            },
+            "expires_at": {
+              "type": "string"
+            },
+            "location_id": {
+              "type": "string"
+            },
+            "operator_code": {
+              "type": "string"
+            },
+            "operator_id": {
+              "type": "string"
+            },
+            "revoked_at": {
+              "type": "string"
+            },
+            "session_id": {
+              "type": "string"
+            },
+            "started_at": {
+              "type": "string"
+            },
+            "status": {
+              "type": "string"
+            },
+            "tenant_id": {
+              "type": "string"
+            },
+            "workstation_id": {
+              "type": "string"
+            }
+          }
+        }
+      },
+      "excluded_kinds": [
+        "provisioning_session",
+        "provisioning_delivery",
+        "device_command_outbox",
+        "webhook_endpoint"
+      ],
+      "name": "fiscal_runtime_resources",
+      "export_columns": [
+        "kind",
+        "id",
+        "tenant_id",
+        "version",
+        "data",
+        "created_at",
+        "updated_at"
+      ],
+      "columns": [
+        {
+          "name": "kind",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "tenant_id",
+          "type": "text",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "version",
+          "type": "bigint",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "data",
+          "type": "jsonb",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "created_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "updated_at",
+          "type": "timestamp with time zone",
+          "nullable": false,
+          "default": null
+        },
+        {
+          "name": "payload",
+          "type": "jsonb",
+          "nullable": true,
+          "default": null
+        }
+      ],
+      "rls": true,
+      "force_rls": true,
+      "policies": [
+        "tenant_boundary:*:true:public:(tenant_id = app_tenant_key()):(tenant_id = app_tenant_key())"
+      ],
+      "constraints": [
+        "fiscal_runtime_resources_data_check:CHECK ((jsonb_typeof(data) = 'object'::text))",
+        "fiscal_runtime_resources_pkey:PRIMARY KEY (kind, id)",
+        "fiscal_runtime_resources_version_check:CHECK ((version \u003e 0))"
+      ],
+      "indexes": [
+        "fiscal_runtime_device_serial_per_tenant:CREATE UNIQUE INDEX fiscal_runtime_device_serial_per_tenant ON fiscal.fiscal_runtime_resources USING btree (tenant_id, lower((data -\u003e\u003e 'serial'::text))) WHERE (kind = 'device'::text)",
+        "fiscal_runtime_one_organization_per_tenant:CREATE UNIQUE INDEX fiscal_runtime_one_organization_per_tenant ON fiscal.fiscal_runtime_resources USING btree (tenant_id) WHERE (kind = 'organization'::text)",
+        "fiscal_runtime_resource_code_per_tenant_kind:CREATE UNIQUE INDEX fiscal_runtime_resource_code_per_tenant_kind ON fiscal.fiscal_runtime_resources USING btree (tenant_id, kind, lower((data -\u003e\u003e 'code'::text))) WHERE (kind = ANY (ARRAY['location'::text, 'register'::text, 'operator'::text]))",
+        "fiscal_runtime_resources_pkey:CREATE UNIQUE INDEX fiscal_runtime_resources_pkey ON fiscal.fiscal_runtime_resources USING btree (kind, id)",
+        "fiscal_runtime_resources_tenant_kind:CREATE INDEX fiscal_runtime_resources_tenant_kind ON fiscal.fiscal_runtime_resources USING btree (tenant_id, kind, updated_at)"
+      ]
+    }
+  ]
+}

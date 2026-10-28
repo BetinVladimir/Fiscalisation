@@ -1,0 +1,3 @@
+import {defineConfig,devices} from '@playwright/test';
+if(!process.env.MINIPOS_PRIMARY_URL||!process.env.MINIPOS_PRIMARY_OUTPUT)throw Error('Frozen production server/output required');
+export default defineConfig({testDir:'.',testMatch:['primary-mvp.spec.ts','primary-uncertain.spec.ts','primary-shift-close.spec.ts'],fullyParallel:false,workers:1,retries:0,outputDir:process.env.MINIPOS_PRIMARY_OUTPUT+'/test-results',reporter:[['list'],['json',{outputFile:process.env.MINIPOS_PRIMARY_OUTPUT+'/report.json'}]],use:{...devices['Desktop Chrome'],baseURL:process.env.MINIPOS_PRIMARY_URL,headless:true,trace:'retain-on-failure',screenshot:'only-on-failure'}});

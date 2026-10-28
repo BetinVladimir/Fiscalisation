@@ -1,0 +1,2 @@
+Assertion failed: (receive_command(1,0,&access,nullptr)!=0&&sink_count==0), function main, file ble_runtime_native.cpp, line 69.
+IoT/firmware/edge-agent-s3/idf/tests/run_native_ble.sh: line 8: 46709 Abort trap: 6           "$OUT"

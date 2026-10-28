@@ -32,49 +32,6 @@ data class BlueCashMqttConfig(
   val tillNumber: Int
 )
 
-object CanonicalJson {
-  fun encode(value: Any?): String =
-    when (value) {
-      null,
-      JSONObject.NULL -> "null"
-      is JSONObject ->
-        value.keys().asSequence().toList().sorted().joinToString(",", "{", "}") {
-          quote(it) + ":" + encode(value.get(it))
-        }
-      is JSONArray -> (0 until value.length()).joinToString(",", "[", "]") { encode(value.get(it)) }
-      is String -> quote(value)
-      is Boolean,
-      is Number -> value.toString()
-      else -> quote(value.toString())
-    }
-  private fun quote(v: String) = JSONObject.quote(v)
-}
-
-/** Exact encoding used by Go's encoding/json for SyncAck before its signature is set. */
-object BlueCashSyncWire {
-  fun verifyAck(ack: JSONObject, expectedDeviceId: String, key: ByteArray): Boolean {
-    if (ack.optString("edge_id") != expectedDeviceId) return false
-    val supplied =
-      runCatching { Base64.getUrlDecoder().decode(ack.getString("signature")) }.getOrNull()
-        ?: return false
-    val results = ack.optJSONArray("operation_results") ?: JSONArray()
-    val resultWire =
-      (0 until results.length()).joinToString(",") { i ->
-        val v = results.getJSONObject(i)
-        "{\"operation_id\":${JSONObject.quote(v.getString("operation_id"))},\"state\":${JSONObject.quote(v.getString("state"))},\"version\":${v.getLong("version")}}"
-      }
-    val rejected = ack.optJSONArray("rejected") ?: JSONArray()
-    val raw =
-      "{\"ack_id\":${JSONObject.quote(ack.getString("ack_id"))},\"edge_id\":${JSONObject.quote(ack.getString("edge_id"))},\"committed_through_seq\":${ack.getLong("committed_through_seq")},\"committed_event_hash\":${JSONObject.quote(ack.getString("committed_event_hash"))},\"committed_at\":${JSONObject.quote(ack.getString("committed_at"))},\"operation_results\":[${resultWire}],\"rejected\":${CanonicalJson.encode(rejected)},\"signature\":\"\"}"
-    val expected =
-      Mac.getInstance("HmacSHA256").run {
-        init(SecretKeySpec(key, "HmacSHA256"))
-        doFinal(raw.toByteArray(StandardCharsets.UTF_8))
-      }
-    return MessageDigest.isEqual(expected, supplied)
-  }
-}
-
 /** MQTT QoS1 adapter; command semantics, deduplication and recovery remain in the processor. */
 class BlueCashMqttRuntime(
   private val config: BlueCashMqttConfig,
@@ -356,8 +313,8 @@ class BlueCashMqttRuntime(
     payload: JSONObject,
     previous: String?
   ): String {
-    val raw =
-      "{\"event_id\":${JSONObject.quote(id)},\"operation_id\":${JSONObject.quote(r.operationId)},\"device_id\":${JSONObject.quote(config.deviceId)},\"journal_seq\":${r.sequence},\"event_type\":${JSONObject.quote(r.type)},\"occurred_at\":${JSONObject.quote(r.occurredAt)},\"payload\":${CanonicalJson.encode(payload)},\"prev_hash\":${previous?.let{JSONObject.quote(it)}?:"null"},\"event_hash\":\"\",\"signature\":null}"
+    val raw = BlueCashSyncWire.eventWire(id, r.operationId, config.deviceId, r.sequence,
+      r.type, r.occurredAt, payload, previous)
     return sha(raw.toByteArray())
   }
   private fun goEventWire(
@@ -368,10 +325,13 @@ class BlueCashMqttRuntime(
     hash: String,
     signature: String
   ) =
-    "{\"event_id\":${JSONObject.quote(id)},\"operation_id\":${JSONObject.quote(r.operationId)},\"device_id\":${JSONObject.quote(config.deviceId)},\"journal_seq\":${r.sequence},\"event_type\":${JSONObject.quote(r.type)},\"occurred_at\":${JSONObject.quote(r.occurredAt)},\"payload\":${CanonicalJson.encode(payload)},\"prev_hash\":${previous?.let{JSONObject.quote(it)}?:"null"},\"event_hash\":${JSONObject.quote(hash)},\"signature\":${JSONObject.quote(signature)}}"
+    BlueCashSyncWire.eventWire(id, r.operationId, config.deviceId, r.sequence,
+      r.type, r.occurredAt, payload, previous, hash, signature)
   private fun goBatchHash(batch: JSONObject, eventWire: List<String>): String {
-    val raw =
-      "{\"edge_id\":${JSONObject.quote(config.deviceId)},\"schema_version\":\"2026-08-07\",\"first_seq\":${batch.getLong("first_seq")},\"last_seq\":${batch.getLong("last_seq")},\"previous_acknowledged_hash\":${journal.checkpoint().second?.let{JSONObject.quote(it)}?:"null"},\"events\":[${eventWire.joinToString(",")}],\"batch_sha256\":\"\",\"signature\":\"\"}"
+    val previous = if (batch.isNull("previous_acknowledged_hash")) null
+      else batch.getString("previous_acknowledged_hash")
+    val raw = BlueCashSyncWire.batchWire(config.deviceId, batch.getLong("first_seq"),
+      batch.getLong("last_seq"), previous, eventWire)
     return sha(raw.toByteArray())
   }
   private fun sha(v: ByteArray) =

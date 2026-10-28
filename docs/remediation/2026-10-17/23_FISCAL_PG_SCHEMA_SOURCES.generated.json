@@ -1,0 +1,34 @@
+{
+  "scope": "Original migration inputs for disposable PostgreSQL16.10 fiscal namespace fixture; pre-022 DDL mapped only by reviewed fixture preparer; not external BeeloyDB migration acceptance",
+  "sha256": {
+    "database/fiscal/001_init.sql": "92ef16c29fca29bcc31fff0c7960b62d2ce1315d37de9cd09a3991ff027b46f0",
+    "database/fiscal/002_tenant_rls.sql": "c5960ab96596ab2ad8cbe0875d8b458690feacf5fe99e9d6d78c7d32ba0cd739",
+    "database/fiscal/003_runtime_typed.sql": "1b082ffcb8d737591db34080aca05eaead21d303b64e1de035700ea536eeacbe",
+    "database/fiscal/004_ble_actor_subject.sql": "bd5e2fa27fe76a661399fb5626606d9c5079322496741db6c78acf014895ec3b",
+    "database/fiscal/004_runtime_login.sh": "0a28f6369c087d4c1ade61b6b7cac09c131aaf566296bfc9ec88e855fa305b07",
+    "database/fiscal/005_ble_client_public_key.sql": "43cdfbd1ae7a1e1bd707972ba8b46f6934814c74cf4bf45a6c791f40d07f8c60",
+    "database/fiscal/005_typed_only_runtime.sql": "6106ad0622813f91297dc1cfe5b561e245c04f6c4597c24484adf248433df27a",
+    "database/fiscal/006_operation_register_and_shift_guard.sql": "7a4b51a0fbcd75f75ad0099080854f5049dcfc7e6d3fed289b0a8052b897a37c",
+    "database/fiscal/007_api_idempotency_claim.sql": "7cfad5b86356a665bb1986d08047f0e610dcef9188323304c1a75e4666cfab5c",
+    "database/fiscal/008_resource_business_uniqueness.sql": "653b392aad649d65c7484af6631f9f7ec5dd8ee7aabbc131bf56eef0a1c7f07e",
+    "database/fiscal/009_sale_line_discount.sql": "2bf571c241bafb31504a8b92d10ea563fe79f75e2b23d6efd8696890ccfeb565",
+    "database/fiscal/010_sale_device_snapshot.sql": "6971aa4b9dc7db9ba56a509bd02e43f806aca0d63da8358656eee9827c01460a",
+    "database/fiscal/011_sale_location_snapshot.sql": "44e5f85b9a7c8e5f4859200952967a0d5ce1a7bb327c0bff191673db0215d4e7",
+    "database/fiscal/012_ble_authority_identity.sql": "7c1d808dfb56351feecb65adddba86bcff5d9a5a3fde52ba4c17cdb37c5358fe",
+    "database/fiscal/012_smart_device_activation.sql": "65c45bbb3866f6691b91014060e61b99bb1c903e67f195219cc4762c75d33246",
+    "database/fiscal/013_supto_identifier_foundation.sql": "57e9bf0bb6411b3d8641bdebfa8416b733d91b43ff379195d452f9104dba885f",
+    "database/fiscal/014_mvp1_receipt_saga.sql": "763a2bff58fc257f8ab315592aa1c73bd7a66a6889350183a71933685b279b2f",
+    "database/fiscal/015_composite_device_binding.sql": "30711c673deb5ac24d030683e8dfd3a39a76cb9433e87029599fdf10fb473179",
+    "database/fiscal/016_runtime_composite_bindings.sql": "6992bc83c9044d44e3dc9c28672eda7659103dc1c25ddd2ece7c5bf54f09764a",
+    "database/fiscal/017_supto_full_event_model.sql": "9f73205fb0e023dd70bc08ad7b806f49a8b667fa1cc2638e4aa7a61eabf5f1ba",
+    "database/fiscal/018_outbound_email_messages.sql": "ff81759ad108f0dad6eb79b656e6f015649ee536cdc6176c90a77426e37cc7b2",
+    "database/fiscal/019_audit_immutability.sql": "88ceb3f6e6c1bd3adb30eaa38219cb80fdfb683b1849262fbdcfffd3e6b128a2",
+    "database/fiscal/020_supto_reporting_catalogs.sql": "5d35f469414c360a388a5b46f18554680c75be4578ff2638a8aefd02a6a9efe2",
+    "database/fiscal/021_audit_predecessor_compatibility.sql": "e440721b5d9ef594aff9b3e802b2e3ec2d60ea7d27f807ea5ac84637eec68d85",
+    "database/fiscal/022_runtime_typed_projection.sql": "5422a429c7ce11cde64d3a83e554b77eb968d5fc258b07a9552cde94b1572b68"
+  },
+  "fixture_preparer": {
+    "path": "scripts/prepare-fiscal-pg-fixture.py",
+    "sha256": "d144b6cab337676e95e71ffdc982ee27c7b263e5bcd440b0725dab84f94bc330"
+  }
+}

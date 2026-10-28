@@ -1,0 +1,11 @@
+# SMS-02.4 · P0 · ARCH_17_MVP_GOAL_PATHS_GAPS.md
+
+Dependencies: W0-1, BUG-072, BUG-032
+Notes: общий Android-рантайм из bluecash-app
+
+Цель: POS + MiniPOS, MQTT и BLE, BlueCash, Datecs/S3/COM, BluePay/S3/BLE, Daisy Compact/S3/USB, Smart S/Android/HTTP. D-1…D-20: последние подтверждённые решения DECISIONS §5 приоритетнее старых карточек. Транзакции до HIL. Деньги: целые центы, half-up; golden 1200+167=1367, CASH 500/CARD 867. UNKNOWN после записи: только lookup, никаких повторных денежных команд/автовозврата. Сторно до refund; crash/timeout refund сохраняет отдельное durable состояние. Compact: CARD/split запрещены до I/O. Smart S: только LAB без номера; PROD UNKNOWN, не синтетический номер. E-чек выключен: проверять отказ, не реализовывать отправку. BC-50: сторно cmd43, внешний терминал; часы читать cmd62, WARN >5мин/BLOCK >2ч, business_date Europe/Sofia; валютный режим 2/3. Datecs SEQ 0x20..0x7f, Daisy 0x20..0xff, CP1251. Статусы исторического трекера не доказывают готовность. Никогда не менять status.json и не записывать HIL PASS по эмулятору.
+
+Вынести journal/locking/processor strategy в vendor-neutral shared-runtime; BC50 специфичные payload/port остаются адаптерами. Характеристические тесты фиксируют порядок I/O и durable states до выноса; после выноса те же результаты. Тесты не меняют source tree: временные БД/fixtures в tempfile, отчёты/raw evidence в os.environ["MVP1_ARTIFACT_DIR"] (отдельный каталог каждого из трёх прогонов); не писать generated evidence в git checkout. Контроллер сначала проверяет реальный assertion FAIL, затем green без изменения red-тестов. Для test-only работы разрешена временная мутация scoped production файла: контроллер восстановит его исходные байты перед green. Native subprocess обязан захватывать stdout/stderr и выдавать реальные ненулевые test counts (Go JSON, JUnit XML, unittest, pytest, TAP, GTest/Jest/CTest); python --version/echo/import без вызова продукта не являются runtime evidence.
+
+Source: ARCH_17_MVP_GOAL_PATHS_GAPS.md
+Task: SMS-02  Unit: SMS-02.4

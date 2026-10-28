@@ -1,0 +1,42 @@
+[WebServer] (node:98581) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+[WebServer] (Use `node --trace-warnings ...` to show where the warning was created)
+
+Running 27 tests using 2 workers
+
+(node:98582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98582) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+(node:98583) Warning: The 'NO_COLOR' env is ignored due to the 'FORCE_COLOR' env being set.
+(Use `node --trace-warnings ...` to show where the warning was created)
+  ✓   1 [chromium] › e2e/auth-ownership.spec.ts:7:9 › Auth rejects malformed challenge and retains editable email xs/light (617ms)
+  ✓   2 [chromium] › e2e/auth-paper.spec.ts:8:7 › Paper auth locale smoke en on xs (666ms)
+  ✓   3 [chromium] › e2e/auth-ownership.spec.ts:34:9 › Auth pending request excludes edits and duplicate submit xs/light (286ms)
+  ✓   4 [chromium] › e2e/auth-paper.spec.ts:8:7 › Paper auth locale smoke bg on xs (325ms)
+  ✓   5 [chromium] › e2e/auth-ownership.spec.ts:7:9 › Auth rejects malformed challenge and retains editable email xs/dark (323ms)
+  ✓   6 [chromium] › e2e/auth-paper.spec.ts:8:7 › Paper auth locale smoke ru on xs (338ms)
+  ✓   7 [chromium] › e2e/auth-ownership.spec.ts:34:9 › Auth pending request excludes edits and duplicate submit xs/dark (293ms)
+  ✓   8 [chromium] › e2e/auth-paper.spec.ts:8:7 › Paper auth locale smoke de on xs (320ms)
+  ✓   9 [chromium] › e2e/auth-ownership.spec.ts:7:9 › Auth rejects malformed challenge and retains editable email md/light (332ms)
+  ✓  10 [chromium] › e2e/auth-paper.spec.ts:8:7 › Paper auth locale smoke fr on xs (335ms)
+  ✓  11 [chromium] › e2e/auth-ownership.spec.ts:34:9 › Auth pending request excludes edits and duplicate submit md/light (278ms)
+  ✓  13 [chromium] › e2e/auth-ownership.spec.ts:7:9 › Auth rejects malformed challenge and retains editable email md/dark (337ms)
+  ✓  12 [chromium] › e2e/auth-paper.spec.ts:33:5 › Paper language menu scrolls through 25 locales and theme/language persist (510ms)
+  ✓  14 [chromium] › e2e/auth-ownership.spec.ts:34:9 › Auth pending request excludes edits and duplicate submit md/dark (287ms)
+  ✓  15 [chromium] › e2e/auth-paper.spec.ts:62:5 › production Paper auth retains input after errors and selects a company (590ms)
+  ✓  16 [chromium] › e2e/auth-ownership.spec.ts:7:9 › Auth rejects malformed challenge and retains editable email lg/light (383ms)
+  ✓  18 [chromium] › e2e/auth-ownership.spec.ts:34:9 › Auth pending request excludes edits and duplicate submit lg/light (312ms)
+  ✓  19 [chromium] › e2e/auth-ownership.spec.ts:7:9 › Auth rejects malformed challenge and retains editable email lg/dark (343ms)
+  ✓  17 [chromium] › e2e/auth-paper.spec.ts:123:5 › Privacy Paper action keeps a visible frame on xs md lg in both system themes (800ms)
+  ✓  20 [chromium] › e2e/auth-ownership.spec.ts:34:9 › Auth pending request excludes edits and duplicate submit lg/dark (312ms)
+  ✓  21 [chromium] › e2e/auth-paper.spec.ts:138:9 › Paper auth field labels CSS200 xs/light (378ms)
+  ✓  23 [chromium] › e2e/auth-paper.spec.ts:138:9 › Paper auth field labels CSS200 xs/dark (388ms)
+  ✓  22 [chromium] › e2e/mvp-auth-shell-en.spec.ts:6:5 › EN MVP auth retry, tenant, device navigation and logout hide raw server JSON (675ms)
+  ✓  24 [chromium] › e2e/auth-paper.spec.ts:138:9 › Paper auth field labels CSS200 md/light (348ms)
+  ✓  25 [chromium] › e2e/auth-paper.spec.ts:138:9 › Paper auth field labels CSS200 md/dark (336ms)
+  ✓  26 [chromium] › e2e/auth-paper.spec.ts:138:9 › Paper auth field labels CSS200 lg/light (361ms)
+  ✓  27 [chromium] › e2e/auth-paper.spec.ts:138:9 › Paper auth field labels CSS200 lg/dark (362ms)
+
+  27 passed (6.9s)

@@ -1,0 +1,21 @@
+
+> @beeloy/miniposweb@0.1.0 build
+> tsc --noEmit && vite build
+
+vite v6.1.0 building for production...
+transforming...
+✓ 583 modules transformed.
+rendering chunks...
+computing gzip size...
+dist/index.html                               0.60 kB │ gzip:   0.38 kB
+dist/assets/Roboto_700Bold-BKtbn9Wi.ttf     167.34 kB
+dist/assets/Roboto_400Regular-BHeBnKzs.ttf  168.26 kB
+dist/assets/Roboto_500Medium-CFKDKRMh.ttf   168.64 kB
+dist/assets/index-Bw1sPtsr.css                9.09 kB │ gzip:   1.67 kB
+dist/assets/index-BOom2K6U.js               858.63 kB │ gzip: 280.01 kB
+
+(!) Some chunks are larger than 500 kB after minification. Consider:
+- Using dynamic import() to code-split the application
+- Use build.rollupOptions.output.manualChunks to improve chunking: https://rollupjs.org/configuration-options/#output-manualchunks
+- Adjust chunk size limit for this warning via build.chunkSizeWarningLimit.
+✓ built in 1.34s

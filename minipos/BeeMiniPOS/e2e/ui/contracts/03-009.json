@@ -1,0 +1,22 @@
+{
+  "ticket": "03-009",
+  "status": "IN_PROGRESS",
+  "source": "src/ui/form-field.tsx",
+  "scope": "Shared genuine Paper TextInput retains input props; separate wrapping Paper Text label. Email/OTP gain existing translated descriptive labels. Tested Bulgarian onboarding tax label CSS text200 xs/md/lg light/dark and existing auth/legal flows.",
+  "baseline": "2 xs FAIL (scrollWidth409/clientWidth304),4 md/lg PASS",
+  "final": "17 PASS:6 field CSS200,6 legal affordance,5 auth; types/ui/web export PASS",
+  "open": [
+    "All shared field consumers/states/locales",
+    "Native DynamicType/screen readers",
+    "Actual browser zoom",
+    "Strict WCAG AA/manual contrast/focus review",
+    "Whole app criteria"
+  ],
+  "hashes": {
+    "App.tsx": "130c1df2901f6c2f088ad728c5b8979c20022620119169ca4f08eeaafe9dd7dd",
+    "src/ui/form-field.tsx": "d8d635a0dee3a6fab37253c9020601b10685313082cfe74f3caa00daa6091724",
+    "e2e/form-field-text200.spec.ts": "7847ef508f76d2963dce8f100f59877c20f61ab09e26defa0a22b4e9889cb33e",
+    "e2e/text-scale.ts": "8ffce0ef6329c744a032ad0a9577a938e6f7d5e66d6d9e3619349f401b08b08d"
+  },
+  "evidence": "docs/ui-optimization-evidence/form-field-text200"
+}

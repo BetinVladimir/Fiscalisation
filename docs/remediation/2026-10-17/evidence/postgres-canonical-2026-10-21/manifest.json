@@ -1,0 +1,79 @@
+{
+  "scope": "Disposable synthetic PostgreSQL16.10 canonical fiscal/minipos namespaces; not external BeeloyDB rollout, hardware or legal acceptance",
+  "base_commit": "3211ef802e2e6617cd8a831c95c3565091f0df39",
+  "logs": {
+    "typed-projection": {
+      "file": "typed-projection.log.gz",
+      "raw_sha256": "bbc634dbd30cf9a44fe905c405a0f85da0b8913f6f0e24d7485d57811def2aaf",
+      "gzip_sha256": "4724ddb7f04ab751326773f6ad16d7e5169e1ce39f825f3341bd5292194fc795",
+      "terminal_exit_code": 0
+    },
+    "fiscal-profile": {
+      "file": "fiscal-profile.log.gz",
+      "raw_sha256": "3acfdbe71b6ee7ea05206787fb93ce0979eaa711c42a3fbc44efb7a66bbb87ce",
+      "gzip_sha256": "bc3f926c73d9aa5c4a423c04f40b75e33f9be4d223c3067788b743c7eee3b946",
+      "terminal_exit_code": 0
+    },
+    "fiscal-evidence-profile": {
+      "file": "fiscal-evidence-profile.log.gz",
+      "raw_sha256": "bfc4709926eb6d003a5baba7bdf6d8cfe258a49c09efcdedceeab8052f2e165a",
+      "gzip_sha256": "1d575b224866d86267d640743f267a53f535261ce48eba140d034f51c9f4c414",
+      "terminal_exit_code": 0
+    },
+    "minipos-profile": {
+      "file": "minipos-profile.log.gz",
+      "raw_sha256": "0f8be5b828b50aa84b327d2628d8dd13e8fd9ae09cb3615712f133dd46049529",
+      "gzip_sha256": "b178435c52901f64245d0196518e01756d11a7a450f1bcd471a3d4a87e1a0e5a",
+      "terminal_exit_code": 0
+    },
+    "persistence": {
+      "file": "persistence.log.gz",
+      "raw_sha256": "1ff0f7a73eedbd4f080b5d313dc859cfc3c3f7ab811224c643d78a84092ab76f",
+      "gzip_sha256": "08df739d6abd6d281e4bacee2e5fe42ac2a1da0d309ef68173ca203d3507a77a",
+      "terminal_exit_code": 0
+    },
+    "backend-go": {
+      "file": "backend-go.log.gz",
+      "raw_sha256": "cb01b456d016853ecebe6255600b01fdb8753cc1d87c2dabcdd401e23dbd28e7",
+      "gzip_sha256": "cd39c8946f61a0e32a18e7856dcacdd745391d19aaf12dc6c33b5e26eddce9d3",
+      "terminal_exit_code": 0
+    },
+    "two-compose": {
+      "file": "two-compose.log.gz",
+      "raw_sha256": "5bb7c9364ff6d88ce818bab0cc537fd438d57d9bc5dbef6f7019b71cd0f60201",
+      "gzip_sha256": "2b9331662d97b5af2e70cbba6075080251505cecc6815563d12a4a034fc0933c",
+      "terminal_exit_code": 0,
+      "source_commit": "4775200"
+    }
+  },
+  "source_sha256": {
+    "Makefile": "f26144a13be8d50d3e42f8d9a6e1839cc11d273ffb2f9189af8ba412c1f5b8a2",
+    "compose.fiscalisation.e2e.yaml": "e752471be7771e86855664e2d4032f21e64358472b043cee80fbecfdab32fbf7",
+    "compose.minipos.e2e.yaml": "5183f380a8063832cc205f264020e75b54f60faaf28e0b892403cec30d1149f2",
+    "database/fiscal/022_runtime_typed_projection.sql": "5422a429c7ce11cde64d3a83e554b77eb968d5fc258b07a9552cde94b1572b68",
+    "docs/remediation/2026-10-17/22_FISCAL_PG_DICTIONARY.generated.json": "18a97577eb13c35dcab6a05c4cdd6bf10da71abffcde8ab8452cb64e28621c90",
+    "docs/remediation/2026-10-17/23_FISCAL_PG_SCHEMA_SOURCES.generated.json": "eac75cb54ed42c5d6ebf672a2644fdebc2e84cbab2d858213fd929b2bc354b9b",
+    "docs/remediation/2026-10-17/25_MINIPOS_PG_DICTIONARY.generated.json": "65bcf33d0feb49cf37cafd443f94abc70f68a9969d89b5eec6e479e942a6660c",
+    "docs/remediation/2026-10-17/26_MINIPOS_PG_SCHEMA_SOURCES.generated.json": "7265e0f98496cf75eb86ad74bbabf7a497a389efed8589708382ed8cec424f86",
+    "docs/remediation/2026-10-17/28_FISCAL_EVIDENCE_PG_DICTIONARY.generated.json": "c8135f5285350a43a6f2a1d5cb7684bdde679f1d31253f990e02a876828fff3b",
+    "fiscal-backend/integration/typed_projection/post.sql": "b3eba0d3d650db835269fb222d8afe7fb672b85387e9228811204270b95a1332",
+    "fiscal-backend/integration/typed_projection/pre.sql": "47cbb9eee834262833d024ad3001967944a7b682738632a3139d47d206c8732b",
+    "fiscal-backend/internal/domain/typed_projection_fixture_test.go": "9c225468cbf521492fbc2a5d2c02ed308781d8575f3bc7e72bd96d787b4aa44e",
+    "fiscal-backend/internal/dossier/audit_predecessor_test.go": "ffe8199aaac033eb34149b9aa3dad59cd0ea1512675fd10ee53f689a7b419d78",
+    "fiscal-backend/internal/dossier/evidence_test.go": "64143cb518b00c67f36ad3a9d0691116d73956ebc4fd739d2faf217610811709",
+    "fiscal-backend/internal/dossier/export_test.go": "1d9f10e26fb6b401a3bf8e4f06fae994039d4a18621d43c8d4d7a978818d9c10",
+    "fiscal-backend/internal/dossier/minipos_test.go": "67ee6b206835ee64bedeb076f1315b41769a7fb9257f22d631e40a89bd83202e",
+    "fiscal-backend/internal/persistence/postgres_fixture_test.go": "9138cb7038233a80b76a0558bf2da8c6687f77cd60260a190d4a94a8f2b46bd1",
+    "fiscal-backend/internal/persistence/postgres_test.go": "486eeb81ec88f9695862764ae543bab93583ee942131d9404343aae4ba8d86d8",
+    "scripts/dossier-evidence-postgres-integration.sh": "c09fdede974c5b544c8daf8dfa7d7de33eb1563a8f868119a132a1b109a040b6",
+    "scripts/dossier-minipos-postgres-integration.sh": "145d0b4f2f15e4a27f120d7a237fb5062e9505190ed49408417ff89655a8a453",
+    "scripts/dossier-postgres-integration.sh": "d93c8be5a70902818a24e16707a84df831aeb2c42da1972b109ca5fe5bbbaf21",
+    "scripts/e2e-two-compose.sh": "4df5e20f7973cab319408c72953a1b832268b2793ee180c7715f75c25dd55dfa",
+    "scripts/postgres-integration.sh": "4b2f9c257eed1b753c7a4f12797b9d82b9dc0d6057e281f7b81b696ead021179",
+    "scripts/prepare-fiscal-pg-fixture.py": "d144b6cab337676e95e71ffdc982ee27c7b263e5bcd440b0725dab84f94bc330",
+    "scripts/test_prepare_fiscal_pg_fixture.py": "04d5c46901e4eb526213b8b7da47ec5b86fc5787aa536cb7c4116401adaadfaf",
+    "scripts/tests/product_boundary_fixture_test.rb": "c7c0f454e8cf37837642cf049afd8785e785a7fe220514cf3df1a72c3a566a65",
+    "scripts/typed-projection-postgres-integration.sh": "1ece8d8d6c3dc9b087a555f5d1353dffd3e1eb74e9dd6b75ed5807d0f0784ae9",
+    "scripts/verify_product_boundary.rb": "b6464147263c7e1609296151aad17a6751aa80da93a8ce1d1556b3ba47ae3358"
+  }
+}

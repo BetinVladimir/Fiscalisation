@@ -1,0 +1,9 @@
+# Typed CBOR encoder host gates
+
+`make iot-cbor-encoder-test` compiles actual encoder, typed decoder, Go JSON/wire and cJSON against independent hexadecimal vectors. `SANITIZE=1` enables ASan+UBSan. It also runs as part of `make iot-test`.
+
+`make iot-cbor-encoder-interop-test` requires installed pinned dependencies in both MiniPOS applications, Go and Node. It generates fresh synthetic Go issuer fixtures, exercises the actual queue/processor/SQLite/BLE publisher in the live origin scenario, and tests twelve persisted transport-only result vectors with exact wide integers through the independent Go decoder, actual MiniPOS result waiters and both actual browser transport/projection classes. Temporary fixtures are deleted. The wide/negative amount vectors test representation; they do not assert valid monetary operations or real device execution.
+
+Use `CC`, `CXX`, `CJSON_SOURCE_DIR` (or `CJSON_SOURCE` directory), `MBEDTLS_SOURCE_DIR`, optional prebuilt `MBEDTLS_CRYPTO_LIBRARY`, `GO`, `NODE`, isolated `GOCACHE`/`GOMODCACHE`. New runners bound subprocesses180s; fake actual worker waits are bounded by the existing origin harness. Installed npm dependencies are required for interop; no implicit installation or production fallback occurs. The TS tests skip these extra producer fixtures during ordinary standalone application suites, but the interop gate requires/generated them and asserts exactly12 rows. Firmware-only C++ gate does not claim client interop.
+
+Old cJSON input cannot reveal numeric lexical provenance or bytes after its string terminator. Compatibility conversion checks visible UTF8 and finite integral safe53 numbers, while production result delivery uses strict original JSON bytes before any cJSON projection. Raw Value::Number nodes are never encodable. Strict Unicode parsing is opt-in; existing Go-compatible JSON repair semantics remain unchanged.

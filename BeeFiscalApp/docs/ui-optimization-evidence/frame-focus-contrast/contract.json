@@ -1,0 +1,25 @@
+{
+  "status": "IN_PROGRESS",
+  "productionCommit": "e9c051a",
+  "contexts": 6,
+  "actionsPerContext": 3,
+  "frameComparisons": 36,
+  "focusComparisons": 18,
+  "minFrameRatio": 4.959729578789477,
+  "minFocusRatio": 3.1109458559692036,
+  "checks": "7 PASS including frame negative control; genuine reference/Choices/Drawer actual rendered computed styles; bounds48, visible focus outline, keyboard Enter/Space, no API mutation",
+  "method": "sRGB contrast on composed RGBA ancestor backgrounds, rejects unsupported opacity/images/filters/blend; waits opening animation fully opaque. No rendered pixel/occlusion adjudication. UA auto outline color from Chromium computed styles only.",
+  "initial": "xs sample during Modal opacity animation rejected; wait added. Focus xs used mouse opening; changed to keyboard Enter. Negative control outside background slightly differs from fill so threshold<3, inside exactly1; no production change.",
+  "sourceHashes": {
+    "e2e/action-affordance.spec.ts": "b5f523612ea0d744e4b3e104f7dbed760ea80d37124ddc9eb4be265ae991a5a7",
+    "e2e/affordance-contrast.ts": "f8bcaf47e58dcfbb933cd8386c58790a15b7c2a90b8ccc1599274d17ef570d22"
+  },
+  "open": [
+    "Full strictAA1718 incomplete nodes",
+    "All other app actions/screens",
+    "Actual outline painting/occlusion/manual",
+    "Native/other browsers",
+    "200%/all25/full11 criteria"
+  ],
+  "fullFunctional": "69 PASS"
+}

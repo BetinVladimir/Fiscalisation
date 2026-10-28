@@ -1,0 +1,14 @@
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+ok  	fiscalisation/fiscal-backend/internal/provisioningseal	0.554s
+Go issuer -> actual mbedTLS/device identity decrypt; subject/signature/GCM/device/replay guards + ordered framed transfer PASS
+ok  	fiscalisation/fiscal-backend/internal/domain	0.943s
+Actual issuer -> mbedTLS signed schema3 + encrypted NVS transaction / commit failure / lost-ACK reload / replay / subject and secret rejection PASS
+ok  	fiscalisation/fiscal-backend/internal/domain	1.520s

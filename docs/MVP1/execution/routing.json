@@ -1,0 +1,1258 @@
+{
+ "AA-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "AA-02": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: App.tsx"
+ },
+ "AA-03": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: App.tsx"
+ },
+ "AA-04": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "ARCH-001": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: repository.go"
+ },
+ "ARCH-002": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: service.go"
+ },
+ "ARCH-003": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: handler.go"
+ },
+ "ARCH-004": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "ARCH-005": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "ARCH-006": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: service.go"
+ },
+ "ARCH-007": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "ARCH-008": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "ARCH-009": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BF-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BF-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BP-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BP-02": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: DatecsPay.cpp"
+ },
+ "BP-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BP-04": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: транзакц"
+ },
+ "BP-05": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: DatecsPay.cpp"
+ },
+ "BP-06": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "BUG-001": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: saga"
+ },
+ "BUG-002": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: service.go"
+ },
+ "BUG-003": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: service.go"
+ },
+ "BUG-004": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: service.go"
+ },
+ "BUG-005": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: service.go"
+ },
+ "BUG-006": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-008": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: service.go"
+ },
+ "BUG-009": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: cas"
+ },
+ "BUG-010": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: handler.go"
+ },
+ "BUG-011": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-012": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: handler.go,repository.go"
+ },
+ "BUG-020": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: cas"
+ },
+ "BUG-021": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: cas"
+ },
+ "BUG-022": {
+  "route": "codex-first",
+  "why": ">4 файлов кода"
+ },
+ "BUG-023": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-024": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-025": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-026": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: cas"
+ },
+ "BUG-027": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-028": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: cas"
+ },
+ "BUG-029": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: cas"
+ },
+ "BUG-030": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-031": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-032": {
+  "route": "codex-first",
+  "why": ">4 файлов кода"
+ },
+ "BUG-040": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-041": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: CAS"
+ },
+ "BUG-042": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-043": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-044": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-050": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-051": {
+  "route": "codex-first",
+  "why": ">4 файлов кода"
+ },
+ "BUG-052": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-053": {
+  "route": "codex-first",
+  "why": ">4 файлов кода"
+ },
+ "BUG-054": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-055": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: CAS"
+ },
+ "BUG-056": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-057": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-058": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-059": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-060": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: keystore"
+ },
+ "BUG-061": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-062": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-063": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-064": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-065": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-066": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-067": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-068": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-069": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-070": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-071": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "BUG-072": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: Cas"
+ },
+ "CL-01": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "CL-02": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "CODE-001": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "CODE-002": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "CODE-003": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "CODE-004": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "CODE-005": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "CODE-006": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "CODE-007": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "DOC-001": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-002": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-003": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-004": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-005": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-006": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-V1": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-V2": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-V3": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-V4": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-V4B": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-V5": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-V6": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DOC-V7": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "DSY-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "DSY-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "DSY-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "DSY-04": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "DSY-05": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: cas"
+ },
+ "DSY-06": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "DSY-07": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "DSY-08": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EC-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EC-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EC-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EC-04": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EC-05": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EC-06": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EC-07": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EMU-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EMU-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EMU-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EMU-04": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EMU-05": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "EMU-06": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "GATE-01": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "HILMX-01": {
+  "route": "hil",
+  "why": "HIL"
+ },
+ "MC-01": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "MP-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "MP-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "MP-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "MP-04": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "MP-05": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "MP-06": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "MP-07": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: service.go"
+ },
+ "MQ-01": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: Cas"
+ },
+ "MQ-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "MQ-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-04": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-05": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-06": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-07": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-08": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-09": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-10": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-11": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-12": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-13": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-14": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-15": {
+  "route": "codex-first",
+  "why": ">4 файлов кода"
+ },
+ "NAP-16": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-17": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-18": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-19": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-20": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-21": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-22": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-23": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-N0": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "NAP-P-01": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: Cas"
+ },
+ "NORM-01": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-02": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-03": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-04": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-05": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-06": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-07": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-08": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-09": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-10": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-11": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-12": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-13": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-14": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-15": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "NORM-16": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "PA-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "PA-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "PA-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "PIPE-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "PIPE-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "PIPE-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-04": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-05": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-06": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-07": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-08": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-09": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-10": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-11": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-12": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-13": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-14": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-15": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-BLE-01": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: Cas"
+ },
+ "POS-BLE-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "POS-BLE-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "PRB-01": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "PRB-02": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "PRB-03": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "PRB-04": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "PRB-05": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "S3D-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "S3D-02": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: cas"
+ },
+ "S3D-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "SCOPE-01": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "SCOPE-02": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "SCOPE-03": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "SCOPE-04": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "SCOPE-05": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "SCOPE-06": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "SCR-36": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "SCR-37": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "SCR-39": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "SCR-40": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "SEQ-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "SMS-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "SMS-02": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: cas"
+ },
+ "SMS-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "SMS-04": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: атомарн"
+ },
+ "SMS-05": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: CAS"
+ },
+ "SMS-06": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "SMS-07": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "SMS-08": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "SMS-09": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "STYLE-001": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "STYLE-002": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "STYLE-003": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "TG-001": {
+  "route": "codex-first",
+  "why": ">4 файлов кода"
+ },
+ "TG-002": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-003": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: service.go"
+ },
+ "TG-004": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-005": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: питани"
+ },
+ "TG-006": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-007": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-008": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-009": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-010": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-011": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-012": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-013": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-014": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-015": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-016": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TG-017": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-CRIT-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-04": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-05": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-06": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-07": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-08": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-09": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-10": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-11": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-12": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-13": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-DEEP-14": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-04": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-05": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-06": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-07": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-08": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-09": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-10": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-11": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-12": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-13": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-14": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-15": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-16": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-17": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-18": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-19": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-20": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-21": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-22": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-23": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-24": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: атомарн"
+ },
+ "TST-E2E-25": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-E2E-26": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-GATE-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-META-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-NAP-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "TST-NAP-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-01": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-02": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-03": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-04": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-05": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-06": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-07": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: openapi-runtime-v1.yaml"
+ },
+ "VG-08": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-09": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: service.go"
+ },
+ "VG-10": {
+  "route": "codex-first",
+  "why": "файл >10k токенов: openapi-runtime-v1.yaml"
+ },
+ "VG-11": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-12": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-13": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-14": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-15": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-16": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-17": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-18": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-19": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-20": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-21": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-22": {
+  "route": "qwen",
+  "why": "по умолчанию"
+ },
+ "VG-23": {
+  "route": "codex-first",
+  "why": "P0 + критичная область: CAS"
+ },
+ "W0-1": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "W0-2": {
+  "route": "human",
+  "why": "нет кода"
+ },
+ "W0-3": {
+  "route": "human",
+  "why": "нет кода"
+ }
+}

@@ -1,0 +1,28 @@
+// Exact existing25 translated main-menu names; provenance in header-navigation-copy-provenance.json.
+export const headerNavigationCopy={
+  "bg": "Отворете главното меню",
+  "hr": "Otvori glavni izbornik",
+  "cs": "Otevřít hlavní menu",
+  "da": "Åbn hovedmenu",
+  "nl": "Hoofdmenu openen",
+  "en": "Open main menu",
+  "et": "Ava peamenüü",
+  "fi": "Avaa päävalikko",
+  "fr": "Ouvrir le menu principal",
+  "de": "Hauptmenü öffnen",
+  "el": "Άνοιγμα κύριου μενού",
+  "hu": "Menü megnyitása",
+  "ga": "Oscail an mhéar thuaidh",
+  "it": "Apri menu",
+  "lv": "Atvērt galveno izvēlni",
+  "lt": "Atidaryti pagrindinį meniu",
+  "mt": "Iftaħ il-menu ewlieni",
+  "pl": "Otwórz menu główne",
+  "pt": "Abrir menu principal",
+  "ro": "Deschide meniul principal",
+  "sk": "Otvoriť hlavné menu",
+  "sl": "Odpri glavno menijsko vrstico",
+  "es": "Abrir menú principal",
+  "sv": "Öppna huvudmenyn",
+  "ru": "Открыть основное меню"
+} as const;

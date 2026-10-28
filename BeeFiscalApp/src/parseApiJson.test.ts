@@ -1,0 +1,11 @@
+import {test} from 'node:test';import assert from 'node:assert/strict';import{parseApiJson}from'./parseApiJson.ts';
+test('actual unquoted signed int64 wire tokens remain exact through nested telemetry',()=>{
+ const data=parseApiJson('{"sequence":9223372036854775807,"binding_generation":-9223372036854775808,"unknown":[9007199254740992,{"id":18446744073709551615}]}');
+ assert.deepEqual(data,{sequence:'9223372036854775807',binding_generation:'-9223372036854775808',unknown:['9007199254740992',{id:'18446744073709551615'}]});
+});
+test('safe integer boundaries and provisioning generation remain numbers',()=>{assert.deepEqual(parseApiJson('[9007199254740991,-9007199254740991,2147483647,0,42]'),[9007199254740991,-9007199254740991,2147483647,0,42]);assert(Object.is(parseApiJson('-0'),-0));});
+test('quoted digits, escapes, escaped quotes and Unicode remain ordinary strings',()=>{const value={text:'9223372036854775807 "quoted" \\ path',unicode:'Русский',literal:'\\u0031',digits:'9007199254740993'};assert.deepEqual(parseApiJson(JSON.stringify(value)),value);assert.equal(parseApiJson('"\\u0031"'),'1');});
+test('decimals and exponent notation preserve existing native JSON semantics',()=>{const source='[1.25,-0.5,1e3,1E+3,-1e-3,9.007199254740993e15]';assert.deepEqual(parseApiJson(source),JSON.parse(source));});
+test('empty collections, false, null and dangerous own keys preserved without prototype mutation',()=>{const d=parseApiJson('{"__proto__":{"n":9223372036854775807},"constructor":false,"empty":{},"list":[],"nil":null}');assert(Object.hasOwn(d,'__proto__'));assert.equal(d.__proto__.n,'9223372036854775807');assert.equal(Object.getPrototypeOf(d),Object.prototype);assert.equal(d.constructor,false);assert.equal(d.nil,null);});
+test('invalid JSON is never repaired by integer handling',()=>{for(const source of ['','00','01','[01]','[1,]','{"x":}','{"x":9223372036854775807,}','"unfinished','[+9007199254740992]','[--9007199254740992]','NaN','undefined','1.','1e'])assert.throws(()=>parseApiJson(source),SyntaxError,source);});
+test('multiple roots and unquoted property names still rejected',()=>{for(const source of ['9007199254740992 1','{9007199254740992:1}','true9007199254740992'])assert.throws(()=>parseApiJson(source),SyntaxError);});

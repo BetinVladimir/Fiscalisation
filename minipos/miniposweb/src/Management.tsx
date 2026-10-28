@@ -1,32 +1,39 @@
+import type {HeaderDraft} from './ui/useHeaderLeaveGuard';
 import { AppButton as Button } from './ui/app-button';
 import { FormField as TextInput } from './ui/form-field';
-import { useEffect, useId, useMemo, useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useId, useMemo, useRef, useState } from "react";
 import { Card, HelperText, List, Text } from "react-native-paper";
 import { View } from "react-native";
 import { MiniPosClient, type Employee, type Product } from "./api/client";
 import { translations } from "./ui/workTranslations.generated";
 import type { Language } from "./ui/PreferenceControls";
 
-export function Management({kind,products,employees,api,onProducts,onEmployees,language}:{kind:"products"|"employees";products:Product[];employees:Employee[];api:MiniPosClient;onProducts:(v:Product[])=>void;onEmployees:(v:Employee[])=>void;language:Language}) {
+const noHeaderPendingReport=(_pending:boolean)=>{};
+const noHeaderDraftRegistration=(_source:HeaderDraft)=>()=>{};
+export function Management({kind,products,employees,api,onProducts,onEmployees,language,registerHeaderDraft=noHeaderDraftRegistration,reportHeaderPending=noHeaderPendingReport,canEditHeader=()=>true}:{canEditHeader?:()=>boolean;reportHeaderPending?:(pending:boolean)=>void;registerHeaderDraft?:(source:HeaderDraft)=>()=>void;kind:"products"|"employees";products:Product[];employees:Employee[];api:MiniPosClient;onProducts:(v:Product[])=>void;onEmployees:(v:Employee[])=>void;language:Language}) {
   const t = translations[language];
   const errorId = `miniposweb-management-${useId().replace(/:/g,'')}`;
   const pending = useRef<{owner:object;ticket:object}|null>(null), mounted = useRef(false);
-  const owner = useMemo(()=>({api,kind}),[api,kind]), latestOwner = useRef(owner);latestOwner.current=owner;
-  useEffect(()=>{mounted.current=true;return()=>{mounted.current=false;pending.current=null;};},[]);
+  const owner = useMemo(()=>({api,kind}),[api,kind]), latestOwner = useRef<object|null>(null);
+  useLayoutEffect(()=>{latestOwner.current=owner;return()=>{if(latestOwner.current===owner)latestOwner.current=null;};},[owner]);
+  useLayoutEffect(()=>{mounted.current=true;return()=>{mounted.current=false;pending.current=null;};},[]);
   const [adding,setAdding]=useState(false), [name,setName]=useState(""), [price,setPrice]=useState(""), [first,setFirst]=useState(""), [last,setLast]=useState(""), [code,setCode]=useState("");
   const [busy,setBusy]=useState(false), [error,setError]=useState("");
   useEffect(()=>{pending.current=null;setBusy(false);setError('');setAdding(false);},[owner]);
-  const lists=useRef({products,employees,onProducts,onEmployees});lists.current={products,employees,onProducts,onEmployees};
+  const lists=useRef({products,employees,onProducts,onEmployees});useLayoutEffect(()=>{lists.current={products,employees,onProducts,onEmployees};});
   const current=()=>mounted.current&&latestOwner.current===owner;
-  const editable=()=>current()&&!busy&&pending.current?.owner!==owner;
-  const edit=(setter:(value:string)=>void)=>(value:string)=>{if(editable()&&adding)setter(value);};
+  const editable=()=>current()&&canEditHeader()&&!busy&&pending.current?.owner!==owner;
+  const draft=useRef({name,price,first,last,code});
+  useLayoutEffect(()=>{draft.current={name,price,first,last,code};});
+  useLayoutEffect(()=>registerHeaderDraft({dirty:()=>adding&&Object.values(draft.current).some(Boolean),pending:()=>pending.current?.owner===owner,discard:()=>{setAdding(false);setError('');setName('');setPrice('');setFirst('');setLast('');setCode('');draft.current={name:'',price:'',first:'',last:'',code:''};}}),[registerHeaderDraft,owner,adding]);
+  const edit=(setter:(value:string)=>void)=>(value:string)=>{if(editable()&&adding){const key=setter===setName?'name':setter===setPrice?'price':setter===setFirst?'first':setter===setLast?'last':'code';draft.current[key]=value;setter(value);}};
   const validPrice=/^(?:0|[1-9]\d*)(?:[.,]\d{1,2})?$/.test(price.trim())&&Number(price.trim().replace(',','.'))>0&&Number.isSafeInteger(Math.round(Number(price.trim().replace(',','.'))*100));
   const valid=kind==='products'?Boolean(name.trim()&&validPrice):Boolean(first.trim()&&last.trim()&&code.trim());
   const openForm=()=>{if(!editable()||adding)return;setError("");setName("");setPrice("");setFirst("");setLast("");setCode("");setAdding(true);};
   const cancel=()=>{if(!editable()||!adding)return;setAdding(false);setError("");};
   async function save(){
     if(!editable()||!adding||!valid)return;const ticket={};pending.current={owner,ticket};
-    setBusy(true);setError("");
+    reportHeaderPending(true);setBusy(true);setError("");
     try {
       if(kind==="products"){
         const created=await api.createProduct({name:name.trim(),sku:crypto.randomUUID().slice(0,8),unit:"pcs",price:{amount:Number(price.trim().replace(',','.')).toFixed(2),currency:"EUR"},tax_group:"B",status:"ACTIVE"});
@@ -39,7 +46,7 @@ export function Management({kind,products,employees,api,onProducts,onEmployees,l
       }
       setAdding(false);
     } catch {if(mounted.current&&latestOwner.current===owner)setError('SAVE_FAILED');}
-    finally {if(pending.current?.ticket===ticket){pending.current=null;if(current())setBusy(false);}}
+    finally {if(pending.current?.ticket===ticket){pending.current=null;if(current()){setBusy(false);reportHeaderPending(false);}}}
   }
   return <Card mode="outlined" style={{marginVertical:16}}><Card.Content style={{gap:16}}>
     <View style={{flexDirection:"row",flexWrap:"wrap",alignItems:"center",justifyContent:"space-between",gap:8}}>

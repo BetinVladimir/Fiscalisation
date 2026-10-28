@@ -1,9 +1,12 @@
+import {assertDirtyOperatorLogout} from './header-logout.mjs';
+import {assertOperationalHeader} from './operational-header.mjs';
 import assert from "node:assert/strict";
 import { createServer } from "node:http";
-import { readFile, readdir, stat } from "node:fs/promises";
+import { mkdir, readFile, readdir, stat, writeFile } from "node:fs/promises";
 import { existsSync } from "node:fs";
 import { extname, join, normalize } from "node:path";
-import { chromium } from "@playwright/test";
+import { chromium, expect } from "@playwright/test";
+import AxeBuilder from "@axe-core/playwright";
 
 const root = new URL("../", import.meta.url).pathname;
 const fiscalRoot = new URL("../../../BeeFiscalApp/", import.meta.url).pathname;
@@ -49,7 +52,8 @@ const json = (route, body, status = 200) => route.fulfill({ status, contentType:
 const pathOf = (route) => new URL(route.request().url()).pathname;
 
 async function miniPosJourney(browser, appUrl) {
-  const page = await browser.newPage({ viewport: { width: 1440, height: 1000 } });
+  const context = await browser.newContext({ viewport: { width: 1440, height: 1000 } });
+  const page = await context.newPage();
   page.on("pageerror", error => console.error("[MiniPOS pageerror]", error.message));
   page.on("requestfailed", request => console.error("[MiniPOS requestfailed]", request.method(), request.url(), request.failure()?.errorText));
   page.on("response", response => { if (response.status() >= 400) console.error("[MiniPOS response]", response.status(), response.request().method(), response.url()); });
@@ -87,7 +91,10 @@ async function miniPosJourney(browser, appUrl) {
   });
   await page.route("http://fiscal-api.test/**", (route) => {
     const path = pathOf(route), method = route.request().method();
-    if (path.endsWith("/registers") && method === "GET") return json(route, { items: [{ id: "00000000-0000-4000-8000-000000000001", code: "R01", name: "Каса 01", status: "ACTIVE" }] });
+    if (path.endsWith("/registers") && method === "GET") return json(route, { items: [
+      { id: "00000000-0000-4000-8000-000000000001", code: "R01", name: "Каса 01", status: "ACTIVE" },
+      { id: "00000000-0000-4000-8000-000000000002", code: "R02", name: "Каса 02", status: "ACTIVE" },
+    ] });
     if (path.endsWith("/clock-sync") && method === "POST") return json(route, { state: "VERIFIED" });
     if (path.endsWith("/readiness:refresh") && method === "POST") return json(route, { ready: true });
     if (path.endsWith("/sessions") && method === "POST") return json(route, { session_id: "00000000-0000-4000-8000-000000000020", workstation_id: "00000000-0000-4000-8000-000000000001", operator_code: "0001", expires_at: "2099-08-09T12:00:00Z" }, 201);
@@ -110,7 +117,7 @@ async function miniPosJourney(browser, appUrl) {
     }
     if (/\/sales\/sale-\d+$/.test(path) && method === "GET") return json(route,fiscalSale);
     if (/\/operations\/fiscal-\d+$/.test(path) && method === "GET") return json(route,{operation_id:`fiscal-${fiscalOperationNumber}`,state:checkoutMode==="unknown"?"UNKNOWN":"FISCALIZED"});
-    if (/\/operations\/fiscal-\d+:reconcile$/.test(path) && method === "POST") {checkoutMode="success";fiscalSale={...fiscalSale,state:"COMPLETED",version:fiscalSale.version+1};return json(route,{operation_id:`fiscal-${fiscalOperationNumber}`,state:"FISCALIZED"},202)}
+    if (/\/operations\/fiscal-\d+\/reconcile$/.test(path) && method === "POST") {checkoutMode="success";fiscalSale={...fiscalSale,state:"COMPLETED",version:fiscalSale.version+1};return json(route,{operation_id:`fiscal-${fiscalOperationNumber}`,state:"FISCALIZED"},202)}
     return json(route, { code: "UNMOCKED", path, method }, 500);
   });
 
@@ -121,24 +128,138 @@ async function miniPosJourney(browser, appUrl) {
     console.error("[MiniPOS initial body]", (await page.locator("body").innerText()).slice(0, 2000));
     throw error;
   }
+  const colors = () => page.evaluate(() => ["app-root", "app-header"].map(id => getComputedStyle(document.querySelector(`[data-testid="${id}"]`)).backgroundColor));
+  const axeReports = [];
+  const screenshots = join(root, "docs", "ui-screenshots");
+  await mkdir(screenshots, { recursive: true });
+  const recordAxe = (screen, size, mode, result) => {
+    const findings = items => items.map(item => ({ id: item.id, impact: item.impact, nodes: item.nodes.map(node => ({ target: node.target, html: node.html })) }));
+    axeReports.push({ screen, viewport: size, theme: mode, violations: findings(result.violations), incomplete: findings(result.incomplete) });
+    console.log(`[MiniPOS Axe] ${screen} ${size}/${mode}: ${result.violations.length} violations, ${result.incomplete.length} incomplete`);
+    if (result.violations.length) console.error(JSON.stringify(findings(result.violations), null, 2));
+    assert.equal(result.violations.length, 0, `${screen} ${size}/${mode}: ${result.violations.map(item => item.id).join(", ")}`);
+  };
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-light").click();
+  const lightColors = await colors();
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-dark").click();
+  await page.waitForFunction(previous => ["app-root", "app-header"].every((id, index) => getComputedStyle(document.querySelector(`[data-testid="${id}"]`)).backgroundColor !== previous[index]), lightColors);
+  const darkColors = await colors();
+  await page.reload();
+  await page.getByTestId("app-header").waitFor();
+  for(const width of [320,768,1440])for(const zoom of [1,2]){
+    await page.setViewportSize({width,height:1000});await page.evaluate(value=>{document.documentElement.style.zoom=String(value)},zoom);
+    await assertOperationalHeader(page,{id:"app.header",languageId:"language-menu-open",themeId:"theme-menu-open",allowMenu:true,menuId:"admin-toggle"});
+    const raw=await new AxeBuilder({page}).withTags(["wcag2a","wcag2aa","wcag21a","wcag21aa","wcag22aa"]).analyze();
+    await writeFile(join(screenshots,`header-${width}-${zoom}-raw.json`),JSON.stringify(raw));await page.screenshot({path:join(screenshots,`header-${width}-${zoom}.png`)});
+    assert.deepEqual(raw.violations,[],"header journey raw AA violations");assert.deepEqual(raw.incomplete,[],"header journey raw AA incomplete");
+  }
+  await page.evaluate(()=>{document.documentElement.style.zoom=""});await page.setViewportSize({width:1440,height:1000});
+  assert.deepEqual(await colors(), darkColors, "selected Paper theme must survive reload for root and header");
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-light").click();
+  for (const [width, height, size] of [[360, 800, "xs"], [960, 900, "md"], [1440, 1000, "lg"]]) {
+    await page.setViewportSize({ width, height });
+    for (const mode of ["light", "dark"]) {
+      await page.getByTestId("theme-menu-open").click();
+      await page.getByTestId(`theme-${mode}`).click();
+      await page.getByTestId("product-coffee").waitFor();
+      const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+      recordAxe("catalog", size, mode, result);
+      await page.screenshot({ path: join(screenshots, `catalog-${size}-${mode}.png`), fullPage: true });
+      if (size === "xs") {
+        await page.getByTestId("mobile-view-cart").click();
+        const cartResult = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+        recordAxe("cart", size, mode, cartResult);
+        await page.screenshot({ path: join(screenshots, `cart-${size}-${mode}.png`), fullPage: true });
+        await page.getByTestId("mobile-view-catalog").click();
+      }
+    }
+  }
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-light").click();
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.getByTestId("mobile-view-cart").click();
+  assert.equal(await page.getByTestId("product-coffee").count(), 0, "xs cart segment must switch away from catalog");
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, "xs Paper segments must not overflow horizontally");
+  await page.getByTestId("mobile-view-catalog").click();
+  await page.getByTestId("product-coffee").waitFor();
+  await page.setViewportSize({ width: 1440, height: 1000 });
   await page.getByTestId("product-coffee").click();
   await page.getByTestId("status-transport").getByText(/няма .*отворена смяна/).waitFor();
 
   await page.getByTestId("admin-toggle").click();
+  await page.getByTestId("admin-editors").waitFor();
+  const scanManagement = async (screen, expectedTestId) => {
+    await page.getByTestId(expectedTestId).waitFor();
+    for (const [width, height, size] of [[360, 800, "xs"], [960, 900, "md"], [1440, 1000, "lg"]]) {
+      await page.setViewportSize({ width, height });
+      for (const mode of ["light", "dark"]) {
+        await page.getByTestId("theme-menu-open").click();
+        await page.getByTestId(`theme-${mode}`).click();
+        await page.getByTestId(expectedTestId).waitFor();
+        const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+        recordAxe(screen, size, mode, result);
+        await page.screenshot({ path: join(screenshots, `${screen}-${size}-${mode}.png`), fullPage: true });
+      }
+    }
+  };
+  await scanManagement("management-home", "admin-editors");
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-light").click();
   await page.getByTestId("config-location-name").fill("Магазин София");
+  await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000002").click();
+  await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000002").getByText("R02 • Избрано").waitFor();
+  await page.getByTestId("register-choice-00000000-0000-4000-8000-000000000001").click();
   await page.getByTestId("config-save").click();
   await page.getByTestId("status-transport").getByText(/кас[оа]вото място са записани/).waitFor();
   await page.getByTestId("admin-products").click();
+  await scanManagement("management-products", "product-add");
   await page.getByTestId("product-add").click();
+  await scanManagement("management-product-new", "product-name");
+  await page.getByTestId("product-name").fill("Unsaved product");
+  await page.getByTestId("admin-toggle").click();
+  await page.getByTestId("header.leave.dialog").waitFor();
+  await page.getByTestId("header.leave.stay").click();
+  await expect(page.getByTestId("product-name")).toHaveValue("Unsaved product");
+  await page.getByTestId("admin-toggle").click();
+  await page.getByTestId("header.leave.discard").click();
+  await page.getByTestId("app-header").waitFor();
+  await page.getByTestId("admin-toggle").click();
+  await page.getByTestId("admin-products").click();
+  await page.getByTestId("product-add").click();
+  await expect(page.getByTestId("product-name")).toHaveValue("");
   await page.getByTestId("product-name").fill("Чай");
   await page.getByTestId("product-barcode").fill("380000000002");
   await page.getByTestId("product-price").fill("3.20");
-  await page.getByTestId("product-create").click();
+  let releaseHeaderWrite;
+  const headerWriteHeld=new Promise(resolve=>{releaseHeaderWrite=resolve});let headerWriteCalls=0;
+  const holdHeaderWrite=async route=>{const request=route.request();if(request.method()!=="POST"||!new URL(request.url()).pathname.endsWith("/products"))return route.fallback();headerWriteCalls++;await headerWriteHeld;return route.fallback();};
+  await page.route("http://minipos-api.test/**",holdHeaderWrite);
+  try{
+    await page.getByTestId("product-create").click();
+    await expect.poll(()=>headerWriteCalls).toBe(1);
+    await expect(page.getByTestId("admin-toggle")).toBeDisabled();
+    await expect(page.getByTestId("product-create")).toBeDisabled();
+    await expect(page.getByTestId("product-name")).not.toBeEditable();
+    await expect(page.getByTestId("header.leave.dialog")).toHaveCount(0);
+  }finally{releaseHeaderWrite();}
+
   await page.getByText("Продукти").waitFor();
   await page.getByText("Чай").waitFor();
+  await page.unroute("http://minipos-api.test/**",holdHeaderWrite);
+  assert.equal(headerWriteCalls,1,"header navigation must not replay a product write");
+  await page.getByTestId("admin-catalog-back").click();
+  await page.getByTestId("admin-tax-groups").click();
+  await scanManagement("management-tax-groups", "tax-group-add");
+  await page.getByTestId("tax-group-add").click();
+  await scanManagement("management-tax-group-new", "tax-group-code");
   await page.getByTestId("admin-catalog-back").click();
   await page.getByTestId("admin-employees").click();
+  await scanManagement("management-employees", "employee-add");
   await page.getByTestId("employee-add").click();
+  await scanManagement("management-employee-new", "employee-first-name");
   await page.getByTestId("employee-first-name").fill("Мария");
   await page.getByTestId("employee-last-name").fill("Иванова");
   await page.getByTestId("employee-code").fill("0002");
@@ -153,6 +274,7 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("admin-toggle").click();
   await page.getByTestId("shift-toggle").click();
   await page.getByTestId("status-transport").getByText(/Смяната е отворена/).waitFor();
+  await page.setViewportSize({ width: 900, height: 800 });
   await page.reload();
   await page.getByTestId("status-transport").getByText(/Отворената смяна е възстановена/).waitFor();
   await page.getByTestId("product-search").fill("380000000001");
@@ -160,6 +282,36 @@ async function miniPosJourney(browser, appUrl) {
   await page.getByTestId("product-search").getAttribute("value").then((value)=>assert.equal(value,""));
   await page.getByTestId("quantity-inc-coffee").click();
   await page.getByTestId("sale-total").getByText("€ 5.00").waitFor();
+  await page.setViewportSize({ width: 360, height: 800 });
+  await page.getByTestId("mobile-view-cart").click();
+  for (const mode of ["light", "dark"]) {
+    await page.getByTestId("theme-menu-open").click();
+    await page.getByTestId(`theme-${mode}`).click();
+    await page.getByTestId("cart-line-coffee").waitFor();
+    const result = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa", "wcag22aa"]).analyze();
+    recordAxe("cart-populated", "xs", mode, result);
+    const totalBeforeScroll = await page.getByTestId("cart-sticky-total").boundingBox();
+    await page.getByTestId("quantity-inc-coffee").scrollIntoViewIfNeeded();
+    const quantityTarget = await page.getByTestId("quantity-inc-coffee").boundingBox();
+    assert.ok(quantityTarget && quantityTarget.width >= 48 && quantityTarget.height >= 48, `xs ${mode} quantity control must have a 48px target: ${JSON.stringify(quantityTarget)}`);
+    await page.screenshot({ path: join(screenshots, `cart-populated-xs-${mode}.png`), fullPage: true });
+    await page.getByTestId("payment-split").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: join(screenshots, `cart-payment-xs-${mode}.png`), fullPage: true });
+    await page.getByTestId("sale-pay").scrollIntoViewIfNeeded();
+    await page.screenshot({ path: join(screenshots, `cart-actions-xs-${mode}.png`), fullPage: true });
+    const totalAfterScroll = await page.getByTestId("cart-sticky-total").boundingBox();
+    const footer = await page.getByTestId("status-transport").boundingBox();
+    assert.ok(totalBeforeScroll && totalAfterScroll && footer && Math.abs(totalBeforeScroll.y - totalAfterScroll.y) <= 1 && totalAfterScroll.y + totalAfterScroll.height <= footer.y + 1, `xs ${mode} total must remain fixed above status while cart scrolls`);
+    assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, `xs ${mode} cart must not overflow horizontally`);
+  }
+  await writeFile(join(root, "docs", "ui-optimization-axe-catalog.json"), `${JSON.stringify({ fixture: ".ui-e2e-web", scans: axeReports }, null, 2)}\n`);
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-light").click();
+  await page.setViewportSize({ width: 320, height: 800 });
+  await page.getByTestId("sale-pay").scrollIntoViewIfNeeded();
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > innerWidth + 1), false, "320px cart must not overflow horizontally");
+  await page.screenshot({ path: join(screenshots, "cart-actions-320-light.png"), fullPage: true });
+  await page.setViewportSize({ width: 900, height: 800 });
   await page.getByTestId("quantity-dec-coffee").click();
   await page.getByTestId("sale-pay").click();
   await page.getByTestId("status-transport").getByText(/Успешен фискален бон/).waitFor();
@@ -202,19 +354,86 @@ async function miniPosJourney(browser, appUrl) {
   await page.reload();
   await page.getByTestId("status-transport").getByText(/Настройте POS преди първата продажба/).waitFor();
   assert.equal(shiftRecoveryCalls, recoveryCallsBeforeMissingConfiguration, "missing register configuration must not recover a shift across every register");
-  await page.close();
+  await context.close();
 }
 
 async function miniPosProductionLoginFailClosed(browser, appUrl) {
-  const page = await browser.newPage({ viewport: { width: 900, height: 700 } });
+  let page = await browser.newPage({ viewport: { width: 900, height: 700 } });
   let apiCalls = 0;
   await page.route("http://minipos-api.test/**", route => { apiCalls += 1; return json(route, { code: "STATIC_TOKEN_MUST_NOT_BE_USED" }, 500); });
   await page.goto(appUrl);
   await page.getByTestId("operator-login").getByText(/Вход с имейл/).waitFor();
+  for (const [width, expected] of [[360, 328], [960, 480], [1200, 400]]) {
+    await page.setViewportSize({ width, height: 800 });
+    await page.waitForFunction(expectedWidth => {
+      const form = document.querySelector('[data-testid="operator-login"]');
+      return form && Math.abs(form.getBoundingClientRect().width - expectedWidth) <= 1;
+    }, expected);
+    const bounds = await page.getByTestId("operator-login").boundingBox();
+    assert.ok(bounds && Math.abs(bounds.width - expected) <= 1, `auth width at ${width}px must be ${expected}px`);
+  }
+  await page.close();
+  page = await browser.newPage({ viewport: { width: 900, height: 800 } });
+  await page.route("http://minipos-api.test/**", route => { apiCalls += 1; return json(route, { code: "STATIC_TOKEN_MUST_NOT_BE_USED" }, 500); });
+  await page.goto(appUrl);
+  await page.getByTestId("operator-login").waitFor();
+  await page.getByTestId("theme-menu-open").click();
+  await page.getByTestId("theme-dark").waitFor({ state: "visible" });
+  await page.getByTestId("theme-dark").click();
+  assert.equal(await page.evaluate(() => localStorage.getItem("beeminipos.theme.preference")), "dark", "auth theme choice must persist");
+  await page.getByTestId("language-menu-open").click();
+  await page.getByTestId("language-ru").click();
+  await page.getByTestId("operator-login").getByText(/Вход/).waitFor();
   assert.equal(await page.getByTestId("operator-login-start").isDisabled(), true, "PROD login must stay disabled without a personal email");
   assert.equal(apiCalls, 0, "PROD login must not request OTP without a personal email");
   assert.equal(await page.getByTestId("shift-toggle").count(), 0, "PROD must not expose sales before an authenticated bound operator session");
   assert.equal(apiCalls, 0, "EXPO_PUBLIC static token must be ignored in PROD");
+  await page.close();
+}
+
+async function miniPosOnboarding(browser, appUrl) {
+  const page = await browser.newPage({ viewport: { width: 360, height: 640 } });
+  let submitted = null;
+  await page.route("http://minipos-api.test/**", route => {
+    const path = pathOf(route);
+    if (path.endsWith("/auth/request-code")) return json(route, {});
+    if (path.endsWith("/auth/verify-code")) return json(route, { onboarding_required: true, onboarding_token: "ui-onboarding-token" });
+    if (path.endsWith("/auth/onboarding")) {
+      submitted = route.request().postDataJSON();
+      return json(route, { detail: "test server rejected onboarding" }, 500);
+    }
+    return json(route, { detail: "unexpected request" }, 404);
+  });
+  await page.goto(appUrl);
+  await page.getByPlaceholder("email@example.com").fill("operator@example.test");
+  await page.getByTestId("operator-login-start").click();
+  await page.getByPlaceholder("000000").fill("123456");
+  await page.getByTestId("operator-login-verify").click();
+  await page.getByTestId("onboarding-company-name").waitFor();
+  await page.getByTestId("language-menu-open").click();
+  await page.getByTestId("language-fr").click();
+  await page.getByTestId("onboarding-legal-consent").getByText(/Je suis autorisé/).waitFor();
+  const create = page.getByTestId("operator-onboarding-create");
+  assert.equal(await create.isDisabled(), true, "onboarding must require all fields and legal consent");
+  await page.getByTestId("onboarding-company-name").fill("Test company");
+  await page.getByTestId("onboarding-address").fill("Test address");
+  await page.getByTestId("onboarding-tax-id").fill("TEST-123");
+  await page.getByTestId("onboarding-full-name").fill("Test Operator");
+  assert.equal(await create.isDisabled(), true, "onboarding must still require legal consent");
+  await page.getByTestId("onboarding-legal-consent").click();
+  assert.equal(await create.isDisabled(), false, "legal consent must enable valid onboarding");
+  await create.click();
+  await page.getByTestId("operator-login-error").waitFor();
+  assert.deepEqual(submitted, {
+    onboarding_token: "ui-onboarding-token",
+    company_name: "Test company",
+    address: "Test address",
+    tax_identifier: "TEST-123",
+    full_name: "Test Operator",
+    accepted_terms_version: "b2b-2026-09-28",
+  }, "Paper onboarding must preserve the server contract");
+  assert.equal(await page.getByTestId("onboarding-company-name").inputValue(), "Test company", "server error must preserve input");
+  assert.equal(await page.evaluate(() => document.documentElement.scrollWidth > window.innerWidth), false, "xs onboarding must not overflow horizontally");
   await page.close();
 }
 
@@ -250,7 +469,7 @@ async function fiscalJourney(browser, appUrl) {
     if (path.endsWith("/country-policy")) return json(route, { country: "BG", currency: "EUR" });
     if (path.endsWith("/tax-groups")) return json(route, { items: [{ code: "B", rate: "20.00" }] });
     if (path.endsWith("/locations")) return json(route, { items: [location] });
-    if (path.endsWith("/registers")) return json(route, { items: [{ id: "00000000-0000-4000-8000-000000000001", code: "R01", location_id: "location-1", version: 1 }] });
+    if (path.endsWith("/registers")) return json(route, { items: [{ id: "00000000-0000-4000-8000-000000000001", code: "R01", location_id: "location-1", fiscal_device_id: device.id, version: 1 }] });
     if (path.endsWith("/operators")) return json(route, { items: [{ id: "operator-1", code: "0001", first_name: "Ivan", last_name: "Petrov", roles: ["CASHIER"], version: 1 }] });
     if (/\/registers\/[^/]+\/composite-bindings$/.test(path)&&method==="GET")return json(route,{items:[]});
     if (/\/registers\/[^/]+\/composite-bindings$/.test(path)&&method==="POST"){compositeCalls+=1;return json(route,{binding_id:`00000000-0000-4000-8000-00000000010${compositeCalls}`,status:"PENDING",generation:2+compositeCalls,version:1},201)}
@@ -262,7 +481,9 @@ async function fiscalJourney(browser, appUrl) {
   await page.goto(appUrl);
   await page.getByTestId("status-fiscal-device").getByText("CORE READY").waitFor();
   await page.getByTestId("readiness-probe").click();
-  await page.getByTestId("status-transport").getByText(/Cloud READY.*Edge READY.*Driver READY.*ФУ READY/).waitFor();
+  await page.getByTestId("status-transport").getByText(/Cloud READY.*Edge READY.*Driver READY.*ФУ READY/).waitFor({ timeout: 10000 }).catch(async error => {
+    throw new Error(`BeeFiscal readiness probe failed: ${await page.getByTestId("status-transport").innerText()}`, { cause: error });
+  });
   await page.getByTestId("transport-metrics").waitFor();
   await page.getByTestId("fiscal-device-metrics").waitFor();
   await page.getByTestId("device-diagnostics").click();
@@ -287,6 +508,7 @@ async function fiscalJourney(browser, appUrl) {
   await page.getByTestId("tab-Одит").click();
   await page.getByTestId("audit-events").waitFor();
   await page.getByTestId("audit-event-audit-1").getByText(/DEVICE_ACTIVATED.*device/).waitFor();
+  await page.getByTestId("audit.details.audit-1").click();
   await page.getByText(/Hash: a{64}/).waitFor();
   await page.getByTestId("tab-Администриране").click();
   await page.getByTestId("admin-editors").waitFor();
@@ -308,7 +530,7 @@ async function fiscalJourney(browser, appUrl) {
   await page.getByTestId("composite-binding-awaiting-adapter").waitFor();
   assert.deepEqual({compositeCalls,compositeDisableCalls},{compositeCalls:2,compositeDisableCalls:1},"UI must complete create disable and rebind lifecycle");
   await page.getByTestId("tab-Настройки").click();
-  await page.getByText(/"country": "BG"/).waitFor();
+  await page.getByTestId("settings.policy").getByText("Държава: BG").waitFor();
   await page.close();
 }
 
@@ -326,9 +548,11 @@ const browser = await chromium.launch({ headless: true, executablePath });
 try {
   await miniPosJourney(browser, mini.url);
   await miniPosProductionLoginFailClosed(browser, miniProd.url);
+  await miniPosOnboarding(browser, miniProd.url);
+  await assertDirtyOperatorLogout(browser, miniProd.url);
   await fiscalJourney(browser, fiscal.url);
   await fiscalProductionLoginFailClosed(browser, fiscalProd.url);
-console.log("UI interaction E2E OK: MiniPOS sale/UNKNOWN/admin + both PROD OIDC fail-closed + BeeFiscal readiness/provisioning/BLE/diagnostics/audit/reports/admin");
+console.log("UI interaction E2E OK: MiniPOS sale/UNKNOWN/admin/onboarding + both PROD OIDC fail-closed + BeeFiscal readiness/provisioning/BLE/diagnostics/audit/reports/admin");
 } finally {
   await browser.close();
   mini.server.close();

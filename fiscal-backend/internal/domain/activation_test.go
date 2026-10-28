@@ -29,7 +29,7 @@ func TestProofBoundTenantlessActivationLifecycle(t *testing.T) {
 	private, _ := ecdsa.GenerateKey(elliptic.P256(), rand.Reader)
 	enc := func(v *big.Int) string { return base64.RawURLEncoding.EncodeToString(v.FillBytes(make([]byte, 32))) }
 	jwk := map[string]any{"kty": "EC", "crv": "P-256", "x": enc(private.X), "y": enc(private.Y)}
-	input := CreateDeviceActivationInput{ChallengeID: challenge["challenge_id"].(string), Challenge: challenge["challenge"].(string), DeviceInstanceID: deviceID, PublicKeyJWK: jwk, Vendor: "DATECS", Model: "BLUECASH_50", Serial: "BC501234", FMIN: "12345678", Firmware: "1.0", CapabilityDigest: "a" + strings.Repeat("0", 63), RequestedRoles: []string{"PAYMENT_TERMINAL", "FISCAL_DEVICE"}}
+	input := CreateDeviceActivationInput{ChallengeID: challenge["challenge_id"].(string), Challenge: challenge["challenge"].(string), DeviceInstanceID: deviceID, PublicKeyJWK: jwk, Vendor: "DATECS", Model: "EDGE_AGENT_S3", Serial: "BOARD001", FMIN: "12345678", Firmware: "1.0", CapabilityDigest: "a" + strings.Repeat("0", 63), RequestedRoles: []string{"PAYMENT_TERMINAL", "FISCAL_DEVICE"}}
 	canonicalJWK, _, _, _ := activationPublicKey(jwk)
 	sig, _ := signP1363(private, sha256Bytes(activationProof(input, canonicalJWK)))
 	input.Signature = base64.RawURLEncoding.EncodeToString(sig)
@@ -58,6 +58,18 @@ func TestProofBoundTenantlessActivationLifecycle(t *testing.T) {
 	if err = repo.PutResource(ResourceRecord{Kind: "register", TenantID: "tenant-1", ID: "register-1", Version: 1, Data: map[string]any{"location_id": "location-1", "status": "ACTIVE"}, CreatedAt: now, UpdatedAt: now}); err != nil {
 		t.Fatal(err)
 	}
+	if err = repo.PutResource(ResourceRecord{Kind: "device", ID: "physical-fiscal", TenantID: "tenant-1", Version: 1, Data: map[string]any{"kind": "FISCAL_DEVICE", "status": "ACTIVE", "vendor": "DATECS", "model": "DP-150 MX", "fiscal_device_number": "DT000001", "fiscal_memory_number": "12345678"}}); err != nil {
+		t.Fatal(err)
+	}
+	reg, _ := repo.Resource("register", "register-1")
+	reg.Data["fiscal_device_id"] = "physical-fiscal"
+	reg.Version++
+	if err = repo.PutResource(reg); err != nil {
+		t.Fatal(err)
+	}
+	if err = repo.PutResource(ResourceRecord{Kind: "platform_device", ID: "factory-1", TenantID: platformDeviceTenant, Version: 1, Data: map[string]any{"serial": "BOARD001", "tenant_id": "tenant-1", "state": "ASSIGNED", "device_public_key_jwk": canonicalJWK}}); err != nil {
+		t.Fatal(err)
+	}
 	if _, err = svc.ConfirmDeviceActivation(id, ConfirmDeviceActivationInput{UserCode: "WRONG-CODE", LocationID: "location-1", RegisterID: "register-1", Roles: []string{"FISCAL_DEVICE"}, ActorSubject: "admin-1"}, "tenant-1"); err == nil {
 		t.Fatal("wrong user code accepted")
 	}
@@ -83,7 +95,7 @@ func TestProofBoundTenantlessActivationLifecycle(t *testing.T) {
 	}
 	svc.SetDeviceCredentialIssuer(activationIssuer{})
 	credential, err := svc.IssueDeviceActivationCredential(id, secret, "nonce-1", encoded)
-	if err != nil || credential.CredentialID != "credential-1" {
+	if err != nil || credential.CredentialID != "credential-1" || credential.UNPPrefix != "DT000001" || credential.UNPPrefix == input.Serial || credential.UNPPrefix == input.FMIN {
 		t.Fatal(credential, err)
 	}
 	issued, _ := repo.ActivationRequest(id)
@@ -106,8 +118,8 @@ func TestProofBoundTenantlessActivationLifecycle(t *testing.T) {
 		t.Fatal("operational activation authority was not persisted for composite provisioning", device.Data)
 	}
 	bound, _ := repo.Resource("register", "register-1")
-	if stringField(bound.Data, "fiscal_device_id") != deviceID || stringField(bound.Data, "payment_terminal_id") != deviceID {
-		t.Fatal("register roles not atomically bound", bound)
+	if stringField(bound.Data, "fiscal_device_id") != "physical-fiscal" || stringField(bound.Data, "payment_terminal_id") != "" {
+		t.Fatal("adapter activation changed physical routes before signed apply", bound)
 	}
 	revoked, err := svc.DisconnectSmartDevice(deviceID, "tenant-1", "admin-1")
 	if err != nil || revoked["state"] != "REVOKED" || revoked["binding_version"] != int64(2) {
@@ -115,7 +127,7 @@ func TestProofBoundTenantlessActivationLifecycle(t *testing.T) {
 	}
 	device, _ = repo.Resource("device", deviceID)
 	bound, _ = repo.Resource("register", "register-1")
-	if stringField(device.Data, "status") != "REVOKED" || stringField(bound.Data, "fiscal_device_id") != "" || stringField(bound.Data, "payment_terminal_id") != "" {
+	if stringField(device.Data, "status") != "REVOKED" || stringField(bound.Data, "fiscal_device_id") != "physical-fiscal" || stringField(bound.Data, "payment_terminal_id") != "" {
 		t.Fatal("device bindings were not revoked atomically", device, bound)
 	}
 	if again, againErr := svc.DisconnectSmartDevice(deviceID, "tenant-1", "admin-1"); againErr != nil || again["state"] != "REVOKED" {

@@ -19,3 +19,23 @@ c++ -std=c++17 -Wall -Wextra -Werror \
   "$HERE/tests/ProtocolFacadeTest.cpp" -o "$OUT"
 "$OUT"
 echo "protocol-abstraction tests: OK"
+
+# Exercise the codec linked by IDF, independently of facade/common-module tests.
+CODEC_OUT="$(mktemp "${TMPDIR:-/tmp}/beefiscal-runtime-codec.XXXXXX")"
+trap 'rm -f "$CODEC_OUT"' EXIT
+c++ -std=c++17 -Wall -Wextra -Werror \
+  -I"$HERE/include" "$HERE/src/FrameCodec.cpp" \
+  "$HERE/tests/RuntimeCodecVendorTest.cpp" -o "$CODEC_OUT"
+"$CODEC_OUT"
+
+# VG-17.3: DaisyTaxGroupUsesCyrillicCp1251 and DaisySynEvery100ms
+CP1251_OUT="$(mktemp "${TMPDIR:-/tmp}/beefiscal-cp1251-syn.XXXXXX")"
+trap 'rm -f "$CODEC_OUT" "$CP1251_OUT"' EXIT
+c++ -std=c++17 -Wall -Wextra -Werror \
+  -I"$HERE/tests" \
+  -I"$HERE/include" -I"$HERE/src" \
+  -I"$COMMON/daisy" \
+  "$HERE/src/CommandPayload.cpp" \
+  "$HERE/src/FrameCodec.cpp" \
+  "$HERE/tests/DaisyCp1251AndSynTest.cpp" -o "$CP1251_OUT"
+"$CP1251_OUT"

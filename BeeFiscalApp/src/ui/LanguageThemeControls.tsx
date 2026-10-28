@@ -1,26 +1,30 @@
-import { AppButton } from './app-button';
+import {headerNavigationCopy} from './header-navigation-copy';
+import {headerIcons} from './header-icons';
+import {PaperOperationalHeader,useHeaderMetrics,type HeaderAction} from './PaperOperationalHeader';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useLayoutEffect, useRef, useState } from 'react';
 import { Platform, ScrollView, View, useWindowDimensions } from 'react-native';
-import { Card, Menu, useTheme } from 'react-native-paper';
+import { Card, IconButton, Menu, useTheme } from 'react-native-paper';
 import { authCopy } from './auth-copy.generated';
 import { languageOptions, useUiPreferences, type ThemeMode } from './preferences';
 
-export function LanguageThemeControls({ testPrefix = 'auth' }: { testPrefix?: string }) {
+export function LanguageThemeControls({ testPrefix = 'auth', title, menu }: { testPrefix?: string; title?:string; menu?:Omit<HeaderAction,'label'> }) {
   const { language, themeMode, setLanguage, setThemeMode } = useUiPreferences();
   const theme = useTheme();
-  const { height } = useWindowDimensions();
+  const {height}=useHeaderMetrics();
   const insets = useContext(SafeAreaInsetsContext) ?? { top: 0, bottom: 0, left: 0, right: 0 };
   const [menuTop, setMenuTop] = useState(160);
   const menuHeight = Math.max(0, Math.min(224, height - menuTop - insets.bottom - 16));
   const mounted = useRef(false);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  useLayoutEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
   const controlsRef = useRef<View>(null);
   const menuRef = useRef<View>(null);
   const [languageOpen, setLanguageOpen] = useState(false);
   const snapshot = { language, themeMode, languageOpen };
   const consumed = useRef<object | null>(null);
-  const current = () => mounted.current;
+  const committed=useRef<object|null>(null);
+  useLayoutEffect(()=>{committed.current=snapshot;return()=>{if(committed.current===snapshot)committed.current=null;};});
+  const current = () => mounted.current&&committed.current===snapshot;
   const copy = authCopy[language];
   const modes: ThemeMode[] = ['system', 'light', 'dark'];
   const nextMode = modes[(modes.indexOf(themeMode) + 1) % modes.length];
@@ -86,11 +90,11 @@ export function LanguageThemeControls({ testPrefix = 'auth' }: { testPrefix?: st
     return () => { root.removeEventListener('keydown', onKey); document.removeEventListener('keydown', escapeOutside); };
   });
 
-  return <View style={{ paddingHorizontal: 16, paddingTop: 8, gap: 8 }}>
-    <View ref={controlsRef} style={{ flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'flex-end', gap: 8 }}>
-      <AppButton testID={`${testPrefix}.language.open`} mode="outlined" contentStyle={{ minHeight: 48 }} accessibilityLabel={`${copy.language}: ${language.toUpperCase()}`} accessibilityState={{ expanded: languageOpen }} onPress={() => { if (current()) setLanguageOpen(open => !open); }}>{language.toUpperCase()}</AppButton>
-      <AppButton testID={`${testPrefix}.theme.toggle`} mode="outlined" contentStyle={{ minHeight: 48 }} accessibilityLabel={`${copy.theme}: ${modeLabel}`} onPress={() => { if (current() && consumed.current !== snapshot) { consumed.current = snapshot; setThemeMode(nextMode); } }}>{modeLabel}</AppButton>
-    </View>
+  return <View style={{minWidth:0}}>
+    <PaperOperationalHeader testID={`${testPrefix}.header`} title={title??copy.title} menu={menu?{...menu,label:headerNavigationCopy[language]}:undefined} preferences={target=><View ref={controlsRef} style={{flexDirection:'row',flexWrap:'nowrap',gap:2}}>
+      <IconButton testID={`${testPrefix}.language.open`} mode="outlined" icon={headerIcons.translate} size={20} style={{width:target,height:target,margin:0}} accessibilityLabel={`${copy.language}: ${language.toUpperCase()}`} accessibilityState={{expanded:languageOpen}} onPress={()=>{if(current())setLanguageOpen(open=>!open);}}/>
+      <IconButton testID={`${testPrefix}.theme.toggle`} mode="outlined" icon={headerIcons[themeMode==='dark'?'weather-night':'weather-sunny']} size={20} style={{width:target,height:target,margin:0}} accessibilityLabel={`${copy.theme}: ${modeLabel}`} onPress={()=>{if(current()&&consumed.current!==snapshot){consumed.current=snapshot;setThemeMode(nextMode);}}}/>
+    </View>}/>
     {languageOpen ? <Card mode="contained" style={{ overflow: 'hidden', borderWidth: 1, borderColor: theme.colors.outline, backgroundColor: theme.colors.surface, width: '100%', maxWidth: 320, alignSelf: 'flex-end' }}>
       <View ref={menuRef} {...(Platform.OS === 'web' ? { id: `${testPrefix}-language-menu` } : { nativeID: `${testPrefix}-language-menu` })} onLayout={() => { menuRef.current?.measureInWindow((_x, y) => { if (current() && languageOpen) setMenuTop(y); }); }}><ScrollView testID={`${testPrefix}.language.list`} accessibilityRole="menu" style={{ maxHeight: menuHeight, flexShrink: 1 }} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
         {languageOptions.map(([code, name]) => <Menu.Item

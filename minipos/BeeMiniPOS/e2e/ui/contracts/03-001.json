@@ -1,0 +1,206 @@
+{
+  "ticket": "03-001",
+  "status": "IN_PROGRESS",
+  "source": "App.tsx",
+  "partialVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Two existing App.tsx onboarding legal actions only, genuine outlined Paper Button with link role/min56/wrap. StructuralView owns web leaf href/target/rel and Enter click compatibility; same original Linking.openURL URLs/locale, no duplicateEnter activation. Native path Paper onPress unchanged but not device-tested.",
+    "baseline": "6size/theme tests FAIL border0. role-only/href-only intermediate keyboard failed; retained. Installed RNWeb rolelink considered nativeinteractive although Paper host is View; Enter compatibility invokes normal Paper click.",
+    "final": "11PASS (6xs360x800/md960x900/lg1440x1000 light/dark legal frame/height/role/href/Enter+pointer/oneURL each plus5existingauth),types/uiPASS",
+    "testFixture": "No real email/signup/fiscal operations. Mock verify/onboarding, legal window.open stub + abort externallegal requests. Old auth lacked required consent; fixedtest only. Trace404 GET/public/v1/registers blocked startup, missing fake endpoint added; no bypass of prodguards.",
+    "checker": "Generated playwright-report/test-results excluded from static source scan; actualappsource rules retained",
+    "hashes": {
+      "App.tsx": "69f7a3b1b133520845648923da1c99e1e955d0854b05a05d1785710beea9e039",
+      "e2e/onboarding-affordance.spec.ts": "4b9b54e30755ba36cb28e771079ca46d27f0f1fbb5a6cdb065b85f706bed1212",
+      "e2e/auth.spec.ts": "a13a11786383ca862eed0ccc5bd8ba0fa256600b34b74f94b1d7f563146ed683",
+      "e2e/helpers.ts": "f93807ed984229be9339734e778a8db0d89b64e6886b7cff032dd48875fc0d1b",
+      "scripts/check-ui-guideline.mjs": "12d5337ded96f87d3d5e6dfd3fadeb206f05cc0b70a51ae1bb3ad6ca12ad5d1a"
+    },
+    "open": [
+      "WholeApp migration/fullcriteria",
+      "Text/nontext/focuscontrast/strictAA",
+      "CSS200/all25legal labels",
+      "Native/manual/VoiceOverTalkBack",
+      "Other app screens/tests"
+    ]
+  },
+  "evidence": "docs/ui-optimization-evidence/onboarding-legal-affordance",
+  "partialActionAffordanceVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "App admin back Paper Button outlined/min48; tax group interactive genuine Paper List.Item frame/theme outline/min48/wrapping/button role/name retains status. Shared confirmation cancel and Feedback Dialog actions outlined/min48; confirmation primary min48.",
+    "baseline": "6 tests FAIL unframed back; first harness stopped because fake operator role lacked admin permission.",
+    "final": "23 PASS:6 admin frames/min48/Enter edit/prefilled values/Enter back +17 auth/onboarding/legal regressions; types/ui/web export PASS",
+    "testFixture": "Actual mocked email OTP flow, fake operator-session ADMIN only; production role guards unchanged. No real API mutations.",
+    "open": [
+      "Shared dialog runtime/native/focus/large text validation",
+      "All admin states/locales and other actions incl menus/snackbar",
+      "Numeric frame/text/focus contrast and strict WCAG AA",
+      "Whole app/all11 criteria"
+    ],
+    "hashes": {
+      "App.tsx": "e906ecfb5cc22a9134d8a4bed92c0fcd28d7421939c92b054a4f9da8a6d1a81c",
+      "src/ui/confirm-dialog.tsx": "f2085e3f6ce50505c5f82569318ec959cddfb1b5478149492f5d23fefe5e71dd",
+      "src/ui/feedback.tsx": "62d3a2c1d16ff53902bda7ac14768917130b1ac005e48fb7d1c42cadc78fe477",
+      "e2e/admin-affordance.spec.ts": "ce26eeb0a9e741099b70baef67ef186c510dd21af15ca8195566058db3ba1f8d"
+    },
+    "evidence": "docs/ui-optimization-evidence/admin-action-affordance"
+  },
+  "partialMenuVerification": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Genuine Paper Menu retained; each language/theme action genuine Paper List.Item with theme outline frame/min48/full wrapping title. No custom clickable leaf.",
+    "baseline": "6 failures missing action frame",
+    "final": "29 selected regression tests PASS; enhanced6 menu tests PASS:150 language choices plus18 theme choices, CSS text2x/min48/frame/no label clipping/Enter activation and actual email translated accessible name for every locale. Types/ui/web export PASS.",
+    "screenshots": "Six captures after theme choices finish at dark; filename records starting media scheme and final dark. xs capture inspected.",
+    "open": [
+      "Numeric contrast and strict Axe AA",
+      "Arrow/HomeEnd/Escape/Tab focus and return semantics",
+      "Selection persistence/reload",
+      "Native/screen readers/true zoom",
+      "All other controls/pages and whole11 criteria"
+    ],
+    "hashes": {
+      "App.tsx": "ee75e8f0ea10af17f288966b40c196da9211b8a7c5c7ee55e7923fa86aa86bdc",
+      "e2e/menu-affordance.spec.ts": "b8daf87cee3b8b62a71dce31930801570b2e87a54381a360f445f6972b1c3ce0"
+    },
+    "evidence": "docs/ui-optimization-evidence/menu-action-affordance"
+  },
+  "partialMenuKeyboardVerification": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Own web keyboard effect on genuine Paper menuitems, active menu only; arrows wrap/Home/End focus and scrollIntoView nearest. Cleanup removes listener. Native unchanged. Paper manages initial focus/Escape/trigger return.",
+    "baseline": "6 FAIL ArrowDown leaves first item focused",
+    "final": "35 selected regression tests PASS; enhanced6 keyboard tests PASS xs/md/lg light/dark both language and theme; arrows/HomeEnd/Escape/return. Types/UI/export PASS.",
+    "open": [
+      "Roving tab/Tab/ShiftTab containment",
+      "Expanded/selected ARIA semantics",
+      "Numeric contrast/strict AA",
+      "Native/manual/realzoom/full11 criteria"
+    ],
+    "hashes": {
+      "App.tsx": "15f14a9331586d9a6d23e34188f6b2b2484b2b0e04be9c81aa67a8c57534e509",
+      "e2e/menu-keyboard.spec.ts": "30d134a84986f6d4b5384eef91e464222245ba85f20becfdee0800e04272a547"
+    },
+    "evidence": "docs/ui-optimization-evidence/menu-keyboard"
+  },
+  "partialMenuStateVerification": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Web genuine Paper menuitem leaves receive role menuitemradio/aria-checked from current language/theme, trigger gets expanded+haspopup. Child mount observer and keyboard listener are cleaned on close. Native unchanged.",
+    "baseline": "6 FAIL missing aria-checked",
+    "final": "35 selected E2E PASS; six keyboard contexts assert Bulgarian checked/Hrvatski unchecked, radio role, trigger expanded true/false and system theme checked, existing arrow/Escape/return;150 language selections and other regressions retained. Types/UI/export PASS.",
+    "open": [
+      "Tab/ShiftTab/roving focus",
+      "Complete ARIA/strict Axe including needsReview",
+      "State change/reload persistence/native screen reader validation",
+      "Numeric contrast/truezoom/manual/full11 criteria"
+    ],
+    "hashes": {
+      "App.tsx": "9d405da5b0d54fbf013a21eb36b15b86633e1179622ff5fcd9089109ffa51ebb",
+      "e2e/menu-keyboard.spec.ts": "8362a46f297e924be6a6ad86bf56022d35f47478eb89279bf393abe90399124d"
+    },
+    "evidence": "docs/ui-optimization-evidence/menu-selected-state"
+  },
+  "partialStrictMenuAA": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Strict WCAG2/2.1 A+AA tags on login/open language/open theme, xs/md/lg light/dark. Genuine Paper leaves retained; structural theme View/language ScrollView now accessibilityRole menu.",
+    "baseline": "18 scans:12 aria-required-parent violations with168 menuitem nodes,18 color-contrast incomplete with108 nodes",
+    "final": "18 scans:0 automatic violations;18 color-contrast incomplete with108 nodes. Strict6 tests FAIL/INCOMPLETE retained; no waiver. Functional35 PASS,types/ui/export PASS.",
+    "open": [
+      "Resolve108 incomplete contrast nodes",
+      "Tab/roving/full ARIA/native/manual",
+      "All pages/states/all11 fullcriteria"
+    ],
+    "hashes": {
+      "App.tsx": "248e216d38d1e43974af01a1025c97b1bdedba2b93c376e44819843723b2483c",
+      "e2e/auth-menu-wcag.spec.ts": "fe1557bf9fee52ee48c623862fd5272d0d906378f58b2666438e7aabefa71411"
+    },
+    "evidence": "docs/ui-optimization-evidence/auth-menu-strict-aa"
+  },
+  "partialMenuBackgroundVerification": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Web background app-root inert while actual Paper portal menu/backdrop is open; lock count preserves pre-existing inert state and cleanup restores on close/unmount. Genuine Paper leaves untouched, native unchanged.",
+    "baseline": "6 background inert assertions FAIL",
+    "final": "35 functional PASS including attempted programmatic background email focus blocked, initial menu focus retained, Escape closes/inert removed/trigger focus returned; all25 CSS200 menu regressions. Types/ui/export PASS.",
+    "strictAA": {
+      "scans": 18,
+      "violations": 0,
+      "incomplete": 6,
+      "incompleteNodes": 36,
+      "menuScans": 12
+    },
+    "strictResult": "12 open-menu scans0VI0incomplete;6 login scans0VI6 color-contrast incomplete36nodes. Strict6 tests stillFAIL/INCOMPLETE; no full AA claim.",
+    "open": [
+      "Login contrast incomplete cause/resolution",
+      "Tab/roving/native/manual/truezoom/full11 criteria"
+    ],
+    "hashes": {
+      "App.tsx": "50f95409eba283031428319abf49bad2f5c92b064cd331a6de46a377e6e7a268",
+      "e2e/menu-keyboard.spec.ts": "3b9d7b8cf9bc178717b6a425bff7b7c732c1e924a6f44a90ceb1ea67398b4603"
+    },
+    "evidence": "docs/ui-optimization-evidence/menu-background-inert"
+  },
+  "partialMenuTabVerification": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Genuine modal Paper menu: one tabbable current menuitem, arrows update roving tabindex; Tab/ShiftTab cycle item and Paper close-backdrop action, preserving inert background. Overlay accessible label uses existing25-locale back translation. Native unchanged.",
+    "baseline": "6FAIL25 tabbable language items instead of1",
+    "final": "35 regression PASS; enhanced6 keyboard tests PASS both menus xs/md/lg light/dark, one item Tab-stop, Tab/ShiftTab to close and back, arrows/Escape/return/background inert retained. Types/UI/export PASS.",
+    "strictAA": "18scans0VI;12open-menu scans0incomplete;6login scans color-contrast incomplete36nodes, strict6FAIL retained",
+    "open": [
+      "Login contrast diagnosis/resolution",
+      "Native/manual/truezoom/full11 criteria",
+      "Screen-reader announcement/interaction validation"
+    ],
+    "hashes": {
+      "App.tsx": "d33ad01ecb7b74b127c0545e70db76cc11dc03d5669a285970d25c42e4faf2af",
+      "e2e/menu-keyboard.spec.ts": "ce61463fbf5fd23275874f17b26435a6877faff71f726e3719234b3d094d2d6e"
+    },
+    "evidence": "docs/ui-optimization-evidence/menu-tab-navigation"
+  },
+  "partialPreferencesPersistenceVerification": {
+    "ticket": "03-001",
+    "status": "IN_PROGRESS",
+    "scope": "Real web UI preference selection, real browser storage and150 reloads, no storage seed/mock. All25 locales in6 xs/md/lg light/dark contexts; choose opposite theme from system scheme.",
+    "final": "6 tests PASS in51.5s. Every reload translated email accessible name retained, root computed theme bg retained, reopened language/theme selected checked true/focus on selected leaf, exactlyone checked language and background inert cleared afterEscape. TypeScript PASS. Production source unchanged.",
+    "counts": {
+      "contexts": 6,
+      "localesPerContext": 25,
+      "reloads": 150,
+      "languageReopenChecks": 150,
+      "themeReopenChecks": 150
+    },
+    "open": [
+      "Other app dictionaries/copy/states",
+      "Native persistence/screens readers/manual/truezoom",
+      "Login contrast incomplete/fullAA/all11 criteria"
+    ],
+    "hashes": {
+      "App.tsx": "d33ad01ecb7b74b127c0545e70db76cc11dc03d5669a285970d25c42e4faf2af",
+      "src/languageStore.ts": "2eebaabc039aeddba4ac048f59193522db5527607ed333646b73785733bec2fe",
+      "src/ui/provider.tsx": "d53edd0ee2be16b9483a1753c55f303bb0e87186586b86a9ccad4a3c184d06ce",
+      "e2e/preferences-persistence.spec.ts": "1bd079e303422690d52caf2c4e14517b12d6f5cb639d5f30eb0bcf0aafee2866"
+    },
+    "evidence": "docs/ui-optimization-evidence/preferences-persistence"
+  },
+  "partialEmptyPortalVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "FeedbackProvider mounts genuine Paper Dialog Portal only for active alert; ConfirmDialog returnsnull whileclosed. Fix real empty modal Portal overlay, no fake components/no Axe waiver. Active dialog callbacks unchanged; closing unmounts portal.",
+    "baseline": "Separate diagnostic check captured actual Axe virtual stacks with same unrelated empty absolute Portal layer above theme label/sign-in heading/email label. Previous strict18 scans login6incomplete36nodes.",
+    "final": "Strict6 tests PASS:18 scans0violations0incomplete at xs/md/lg light/dark for email login/language-menu/theme-menu. Functional41PASS incl all25 preferences150reloads; separate1virtualstack regressionPASS with targettopmost. Types/UI/exportPASS.",
+    "diagnosticRule": "Separate debug-only rule returns true to collect stack; assertion on captured data verifies no overlay. Not part of/used to weaken standard WCAG rules.",
+    "open": [
+      "Active shared dialog runtime/focus/native/manual behavior",
+      "Other auth stages and operational screens/other locales full AA",
+      "Full11 criteria/native/manual/truezoom"
+    ],
+    "hashes": {
+      "src/ui/feedback.tsx": "02e7719e35ddda058919412722b73ae66469415b236828afaa0c05817a07a5b8",
+      "src/ui/confirm-dialog.tsx": "7fb4cac2246222795ad52f3ca9258d27ee3b48dcc260986c9ba34f117c857476",
+      "e2e/contrast-stack-diagnostic.spec.ts": "36de5889ef5f75a3a196e7630b29804a91623a2dfc93f40c94dbe421e4c10419"
+    },
+    "evidence": "docs/ui-optimization-evidence/empty-dialog-portal"
+  }
+}

@@ -1,5 +1,18 @@
 # MVP implementation blockers and formal exclusions
 
+## Проверка контуров и статусы — 2026-10-21
+
+[Текущий срез, протоколы и112 критериев unit-тестов](docs/fiscal-contour-review-20261021/README.md). На этом срезе contract-lock **VERIFIED_FAIL**: runtime OpenAPI расходится с lock/script; остальные прежние PASS требуют source/scope сверки и здесь не перезапускались. MiniPOS iOS native dependencies расходятся с package.json; полный demo/native/device цикл не принят. Это дополнение к подробному remediation, не отмена его требований. Исторические сводные количества endpoint/tests и blanket readiness ниже не переносить на текущую версию без повторного gate.
+
+
+## Software blockers reopened — 2026-10-17
+
+The current working-tree audit found software gaps before the intended physical
+MiniPOS/S3/BlueCash acceptance. See the [open gap register and remediation plan](docs/remediation/2026-10-17/README.md).
+All GAP-001…GAP-034 are open; some are explicit validation risks/external gates,
+not reproduced defects. Earlier software-complete statements are historical.
+
+
 This document records decisions that cannot be implemented safely from the locked contracts or without external vendor/hardware evidence. A blocker is not counted as implemented and must not be replaced with a simulator PASS.
 
 ## P0-AUTH-001 — MiniPOS passwordless operator session contract

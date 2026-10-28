@@ -1,0 +1,2 @@
+2e0748b8582c03f6d536a918a641b1cefa8e55eab32d7eaf4ec598969cdb50c3  IoT/firmware/edge-agent-s3/idf/main/ble_runtime.cpp
+dfc1ff6d4571b63e3d9cc5fbc1663765ec110941972bfb620937f6dab47cfd66  IoT/firmware/edge-agent-s3/idf/tests/ble_runtime_native.cpp

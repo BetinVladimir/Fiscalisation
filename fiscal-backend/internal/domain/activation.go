@@ -37,6 +37,7 @@ type DeviceActivationRequest struct {
 	Model              string     `json:"model"`
 	Serial             string     `json:"serial"`
 	FMIN               string     `json:"fmin"`
+	FiscalDeviceID     string     `json:"verified_fiscal_device_id,omitempty"`
 	Firmware           string     `json:"firmware,omitempty"`
 	CapabilityDigest   string     `json:"capability_digest"`
 	State              string     `json:"state"`
@@ -81,6 +82,7 @@ type ConfirmDeviceActivationInput struct {
 	Roles        []string `json:"roles"`
 }
 type DeviceCredential struct {
+	FiscalDeviceID                  string   `json:"-"`
 	CredentialID                    string   `json:"credential_id"`
 	ClientCertificatePEM            string   `json:"client_certificate_pem"`
 	CAChainPEM                      string   `json:"ca_chain_pem"`
@@ -281,6 +283,10 @@ func (s *Service) IssueDeviceActivationCredential(id, requestSecret, nonce, sign
 	if s.deviceCredentialIssuer == nil {
 		return DeviceCredential{}, errors.New("device credential issuer unavailable")
 	}
+	fiscal, e := s.activationFiscalIdentity(v)
+	if e != nil {
+		return DeviceCredential{}, e
+	}
 	credential, e := s.deviceCredentialIssuer.Issue(v)
 	if e != nil {
 		return DeviceCredential{}, e
@@ -294,8 +300,9 @@ func (s *Service) IssueDeviceActivationCredential(id, requestSecret, nonce, sign
 	credential.SPADeploymentDescriptorURL = s.spaDeploymentDescriptorURL
 	credential.SPADeploymentSigningKID = s.spaDeploymentSigningKID
 	credential.SPADeploymentPublicKeyDERBase64 = s.spaDeploymentPublicKeyDERBase64
-	credential.UNPPrefix = v.FMIN
-	credential.UNPRangeStart, credential.UNPRangeEnd, e = s.repo.ReserveUNPRange(v.ClaimedTenantID, v.FMIN, 1000)
+	credential.FiscalDeviceID = fiscal.ID
+	credential.UNPPrefix = stringField(fiscal.Data, "fiscal_device_number")
+	credential.UNPRangeStart, credential.UNPRangeEnd, e = s.repo.ReserveFiscalUNPRange(v.ClaimedTenantID, credential.UNPPrefix, stringField(fiscal.Data, "fiscal_memory_number"), 1000)
 	if e != nil {
 		return DeviceCredential{}, e
 	}
@@ -394,6 +401,9 @@ var uuidPattern = regexp.MustCompile(`^[0-9a-f]{8}-[0-9a-f]{4}-[1-5][0-9a-f]{3}-
 func (r *MemoryRepository) PutActivationChallenge(v DeviceActivationChallenge) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return err
+	}
 	if _, ok := r.activationChallenges[v.ID]; ok {
 		return errors.New("activation challenge conflict")
 	}
@@ -403,6 +413,9 @@ func (r *MemoryRepository) PutActivationChallenge(v DeviceActivationChallenge) e
 func (r *MemoryRepository) ConsumeChallengeAndCreateActivation(challengeID, nonceHash string, v DeviceActivationRequest) error {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return err
+	}
 	c, ok := r.activationChallenges[challengeID]
 	if !ok || c.ConsumedAt != nil || time.Now().UTC().After(c.ExpiresAt) || c.DeviceInstanceID != v.DeviceInstanceID || !hmac.Equal([]byte(c.NonceHash), []byte(nonceHash)) {
 		return errors.New("activation challenge invalid")
@@ -419,8 +432,14 @@ func (r *MemoryRepository) ConsumeChallengeAndCreateActivation(challengeID, nonc
 	return r.persistLocked()
 }
 func (r *MemoryRepository) ActivationRequest(id string) (DeviceActivationRequest, error) {
+	if err := r.ensurePersistenceReady(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
+	if err := r.persistenceReadableLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	v, ok := r.activationRequests[id]
 	if !ok {
 		return DeviceActivationRequest{}, ErrNotFound
@@ -428,8 +447,14 @@ func (r *MemoryRepository) ActivationRequest(id string) (DeviceActivationRequest
 	return v, nil
 }
 func (r *MemoryRepository) ActivationRequestByCode(hash string) (DeviceActivationRequest, error) {
+	if err := r.ensurePersistenceReady(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	r.mu.RLock()
 	defer r.mu.RUnlock()
+	if err := r.persistenceReadableLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	for _, v := range r.activationRequests {
 		if hmac.Equal([]byte(v.UserCodeHash), []byte(hash)) {
 			return v, nil
@@ -440,6 +465,9 @@ func (r *MemoryRepository) ActivationRequestByCode(hash string) (DeviceActivatio
 func (r *MemoryRepository) ConfirmActivationRequest(id, codeHash, tenant, location, register string, roles []string, actor string, now time.Time) (DeviceActivationRequest, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	v, ok := r.activationRequests[id]
 	if !ok {
 		return DeviceActivationRequest{}, ErrNotFound
@@ -473,6 +501,9 @@ func (r *MemoryRepository) ConfirmActivationRequest(id, codeHash, tenant, locati
 func (r *MemoryRepository) MarkActivationCredentialIssued(id string, credential DeviceCredential, now time.Time) (DeviceActivationRequest, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	v, ok := r.activationRequests[id]
 	if !ok {
 		return DeviceActivationRequest{}, ErrNotFound
@@ -484,6 +515,7 @@ func (r *MemoryRepository) MarkActivationCredentialIssued(id string, credential 
 	v.CredentialID = credential.CredentialID
 	v.MQTTTLSURI = credential.MQTTTLSURI
 	v.MQTTClientID = v.DeviceInstanceID
+	v.FiscalDeviceID = credential.FiscalDeviceID
 	v.UNPPrefix = credential.UNPPrefix
 	v.UNPRangeStart = credential.UNPRangeStart
 	v.UNPRangeEnd = credential.UNPRangeEnd
@@ -495,6 +527,9 @@ func (r *MemoryRepository) MarkActivationCredentialIssued(id string, credential 
 func (r *MemoryRepository) ActivateDeviceRequest(id, credential string, now time.Time) (DeviceActivationRequest, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	v, ok := r.activationRequests[id]
 	if !ok {
 		return DeviceActivationRequest{}, ErrNotFound
@@ -509,6 +544,30 @@ func (r *MemoryRepository) ActivateDeviceRequest(id, credential string, now time
 	if register.ID == "" || register.TenantID != v.ClaimedTenantID || stringField(register.Data, "location_id") != v.ClaimedLocationID {
 		return DeviceActivationRequest{}, errors.New("activation register binding lost")
 	}
+	if v.Model != "EDGE_AGENT_S3" || v.FiscalDeviceID == "" {
+		return DeviceActivationRequest{}, ErrFiscalIdentityProofRequired
+	}
+	if now.After(v.ExpiresAt) {
+		return DeviceActivationRequest{}, errors.New("activation expired")
+	}
+	enrolledMatches := 0
+	for _, record := range r.resources {
+		if record.Kind != "platform_device" || record.TenantID != platformDeviceTenant || stringField(record.Data, "serial") != v.Serial || stringField(record.Data, "tenant_id") != v.ClaimedTenantID || !oneOf(stringField(record.Data, "state"), "ASSIGNED", "DEPLOYED") {
+			continue
+		}
+		canonical, _, _, err := activationPublicKeyJSON(stringField(record.Data, "device_public_key_jwk"))
+		if err != nil || canonical != v.PublicKeyJWK {
+			return DeviceActivationRequest{}, ErrFiscalIdentityProofRequired
+		}
+		enrolledMatches++
+	}
+	if enrolledMatches != 1 {
+		return DeviceActivationRequest{}, ErrFiscalIdentityProofRequired
+	}
+	fiscal := r.resources[resourceKey("device", v.FiscalDeviceID)]
+	if fiscal.TenantID != v.ClaimedTenantID || stringField(fiscal.Data, "kind") != "FISCAL_DEVICE" || stringField(fiscal.Data, "status") != "ACTIVE" || stringField(register.Data, "fiscal_device_id") != fiscal.ID || stringField(fiscal.Data, "fiscal_device_number") != v.UNPPrefix || stringField(fiscal.Data, "fiscal_memory_number") != v.FMIN {
+		return DeviceActivationRequest{}, ErrFiscalIdentityProofRequired
+	}
 	_, transactionKey, _, keyErr := activationPublicKeyJSON(v.PublicKeyJWK)
 	if keyErr != nil {
 		return DeviceActivationRequest{}, keyErr
@@ -517,15 +576,11 @@ func (r *MemoryRepository) ActivateDeviceRequest(id, credential string, now time
 	if keyErr != nil {
 		return DeviceActivationRequest{}, keyErr
 	}
-	device := ResourceRecord{Kind: "device", TenantID: v.ClaimedTenantID, ID: v.DeviceInstanceID, Version: 1, Data: map[string]any{"kind": "SMART_DEVICE", "vendor": v.Vendor, "model": v.Model, "serial": v.Serial, "fiscal_memory_number": v.FMIN, "firmware": v.Firmware, "status": "ACTIVE", "environment": "PROD", "device_key_thumbprint": v.KeyThumbprint, "credential_id": credential, "transaction_signing_public_key": base64.RawURLEncoding.EncodeToString(transactionDER), "transaction_signing_kid": v.KeyThumbprint, "capabilities": v.RequestedRoles, "binding_version": v.BindingVersion, "mqtt_uri": v.MQTTTLSURI, "mqtt_client_id": v.MQTTClientID, "ble_advertising_identity": v.DeviceInstanceID, "unp_prefix": v.UNPPrefix, "unp_range_start": v.UNPRangeStart, "unp_range_end": v.UNPRangeEnd}, CreatedAt: now, UpdatedAt: now}
-	register.Data["fiscal_device_id"] = device.ID
-	register.Data["fiscal_device_active_from"] = now.Format(time.RFC3339Nano)
-	if contains(v.ClaimedRoles, "PAYMENT_TERMINAL") {
-		register.Data["payment_terminal_id"] = device.ID
-		register.Data["payment_terminal_active_from"] = now.Format(time.RFC3339Nano)
-	}
-	register.Version++
-	register.UpdatedAt = now
+	encodedPublic := base64.RawURLEncoding.EncodeToString(transactionDER)
+	kidHash := sha256.Sum256([]byte(encodedPublic))
+	deviceKID := "esp32-p256-" + base64.RawURLEncoding.EncodeToString(kidHash[:12])
+	device := ResourceRecord{Kind: "device", TenantID: v.ClaimedTenantID, ID: v.DeviceInstanceID, Version: 1, Data: map[string]any{"kind": "SMART_DEVICE", "vendor": v.Vendor, "model": v.Model, "serial": v.Serial, "fiscal_memory_number": v.FMIN, "firmware": v.Firmware, "status": "ACTIVE", "environment": "PROD", "device_key_thumbprint": v.KeyThumbprint, "credential_id": credential, "transaction_signing_public_key": base64.RawURLEncoding.EncodeToString(transactionDER), "transaction_signing_kid": deviceKID, "capabilities": v.RequestedRoles, "binding_version": v.BindingVersion, "mqtt_uri": v.MQTTTLSURI, "mqtt_client_id": v.MQTTClientID, "ble_advertising_identity": "BeeFiscal-" + base64.RawURLEncoding.EncodeToString(kidHash[:9]), "unp_prefix": v.UNPPrefix, "unp_range_start": v.UNPRangeStart, "unp_range_end": v.UNPRangeEnd}, CreatedAt: now, UpdatedAt: now}
+	// Route activation belongs exclusively to a device-signed composite apply.
 	r.resources[resourceKey("device", device.ID)] = device
 	r.resources[key] = register
 	v.State = "ACTIVE"
@@ -538,6 +593,9 @@ func (r *MemoryRepository) ActivateDeviceRequest(id, credential string, now time
 func (r *MemoryRepository) RevokeActivatedDevice(deviceID, tenant, actor string, now time.Time) (DeviceActivationRequest, error) {
 	r.mu.Lock()
 	defer r.mu.Unlock()
+	if err := r.persistenceReadyLocked(); err != nil {
+		return *new(DeviceActivationRequest), err
+	}
 	var id string
 	var v DeviceActivationRequest
 	for candidateID, candidate := range r.activationRequests {
@@ -560,23 +618,59 @@ func (r *MemoryRepository) RevokeActivatedDevice(deviceID, tenant, actor string,
 	if !ok || device.TenantID != tenant {
 		return DeviceActivationRequest{}, ErrNotFound
 	}
-	registerKey := resourceKey("register", v.ClaimedRegisterID)
-	register, ok := r.resources[registerKey]
-	if ok && register.TenantID == tenant {
-		if stringField(register.Data, "fiscal_device_id") == deviceID {
-			delete(register.Data, "fiscal_device_id")
-			delete(register.Data, "fiscal_device_active_from")
+	// Revoke every tenant route that still depends on this device, including
+	// adapter and payment references. Issued binding evidence remains immutable.
+	revokedBindings := map[string]bool{}
+	for key, binding := range r.resources {
+		if binding.Kind != "composite_binding" || binding.TenantID != tenant || !oneOf(stringField(binding.Data, "status"), "ACTIVE", "PENDING") {
+			continue
 		}
-		if stringField(register.Data, "payment_terminal_id") == deviceID {
-			delete(register.Data, "payment_terminal_id")
-			delete(register.Data, "payment_terminal_active_from")
+		if stringField(binding.Data, "adapter_device_id") != deviceID && stringField(binding.Data, "fiscal_device_id") != deviceID && stringField(binding.Data, "payment_device_id") != deviceID {
+			continue
+		}
+		binding.Data = cloneMap(binding.Data)
+		binding.Data["status"] = "REVOKED"
+		binding.Data["revoked_at"] = now.Format(time.RFC3339Nano)
+		binding.Data["updated_at"] = now.Format(time.RFC3339Nano)
+		binding.Version++
+		binding.UpdatedAt = now
+		r.resources[key] = binding
+		revokedBindings[binding.ID] = true
+	}
+	affectedRegisters := map[string]bool{}
+	for key, register := range r.resources {
+		if register.Kind != "register" || register.TenantID != tenant {
+			continue
+		}
+		composite := revokedBindings[stringField(register.Data, "composite_binding_id")]
+		adapter := stringField(register.Data, "adapter_device_id") == deviceID
+		fiscal := stringField(register.Data, "fiscal_device_id") == deviceID
+		payment := stringField(register.Data, "payment_terminal_id") == deviceID
+		if !composite && !adapter && !fiscal && !payment {
+			continue
+		}
+		register.Data = cloneMap(register.Data)
+		if composite || adapter {
+			for _, field := range []string{"composite_binding_id", "device_profile", "adapter_device_id", "fiscal_device_id", "fiscal_device_active_from", "payment_terminal_id", "payment_terminal_active_from"} {
+				delete(register.Data, field)
+			}
+		} else {
+			if fiscal {
+				delete(register.Data, "fiscal_device_id")
+				delete(register.Data, "fiscal_device_active_from")
+			}
+			if payment {
+				delete(register.Data, "payment_terminal_id")
+				delete(register.Data, "payment_terminal_active_from")
+			}
 		}
 		register.Version++
 		register.UpdatedAt = now
-		r.resources[registerKey] = register
+		r.resources[key] = register
+		affectedRegisters[register.ID] = true
 	}
 	for sessionID, session := range r.bleSessions {
-		if session.TenantID == tenant && session.FiscalDeviceID == deviceID && !session.Revoked {
+		if session.TenantID == tenant && (session.DeviceID == deviceID || session.FiscalDeviceID == deviceID || affectedRegisters[session.RegisterID]) && !session.Revoked {
 			session.Revoked = true
 			r.bleSessions[sessionID] = session
 		}

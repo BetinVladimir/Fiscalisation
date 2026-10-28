@@ -1,0 +1,722 @@
+[
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d0000010002",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "00",
+  "xor_verified": true,
+  "subcmd": "00"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "response",
+  "frame_hex": "3e000000003e",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d000002010a0a",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "010a",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d000002010e0e",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "010e",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d000002010f0f",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "010f",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "response",
+  "frame_hex": "3e0008000036",
+  "cmd_or_event": "00",
+  "status": "08",
+  "data_hex": "",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d00000303000003",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "030000",
+  "xor_verified": true,
+  "subcmd": "03"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d0000010604",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "06",
+  "xor_verified": true,
+  "subcmd": "06"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d0000010705",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "07",
+  "xor_verified": true,
+  "subcmd": "07"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e400000030202007d",
+  "cmd_or_event": "40",
+  "status": "00",
+  "data_hex": "020200",
+  "xor_verified": true,
+  "subcmd": "02"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e40000001037c",
+  "cmd_or_event": "40",
+  "status": "00",
+  "data_hex": "03",
+  "xor_verified": true,
+  "subcmd": "03"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "response",
+  "frame_hex": "3e00000002040038",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "0400",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "event",
+  "frame_hex": "3e0e00001c01df050400000000df0604000000008104000000009f41040000036715",
+  "cmd_or_event": "0E",
+  "status": "00",
+  "data_hex": "01df050400000000df0604000000008104000000009f410400000367",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "event",
+  "frame_hex": "3e0f00002601010155ff80c44eed001edf5006626f72696361df5300df5400df6c0458cbef2edf6d024eee2a",
+  "cmd_or_event": "0F",
+  "status": "00",
+  "data_hex": "01010155ff80c44eed001edf5006626f72696361df5300df5400df6c0458cbef2edf6d024eee",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "event",
+  "frame_hex": "3e0f000002020130",
+  "cmd_or_event": "0F",
+  "status": "00",
+  "data_hex": "0201",
+  "xor_verified": true,
+  "subcmd": "02"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d00000d010e9a031903269f21031511021f",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "010e9a031903269f2103151102",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e4000000502010004007c",
+  "cmd_or_event": "40",
+  "status": "00",
+  "data_hex": "0201000400",
+  "xor_verified": true,
+  "subcmd": "02"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "event",
+  "frame_hex": "3e0f0000c0030100bc600333000008002038000000c00015910000000367151131032639333830303133303939393339303030303130303030300079000338303000043831012200123832426c75655061642d35300004393100000004393200000004393300000004393400000004393500000004393600000004393700000004393800000004393900000048942d02e36f16090c6d9fb3c76c4c83036111031d2af5ff16a27fbcab6b5ce83e4b6851fd77aea4efef8a754cb3a4e6db5834241a0000000036",
+  "cmd_or_event": "0F",
+  "status": "00",
+  "data_hex": "030100bc600333000008002038000000c00015910000000367151131032639333830303133303939393339303030303130303030300079000338303000043831012200123832426c75655061642d35300004393100000004393200000004393300000004393400000004393500000004393600000004393700000004393800000004393900000048942d02e36f16090c6d9fb3c76c4c83036111031d2af5ff16a27fbcab6b5ce83e4b6851fd77aea4efef8a754cb3a4e6db5834241a00000000",
+  "xor_verified": true,
+  "subcmd": "03"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e400000030203007c",
+  "cmd_or_event": "40",
+  "status": "00",
+  "data_hex": "020300",
+  "xor_verified": true,
+  "subcmd": "02"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e4000007001006d600000033308102038000002c000059100000003671511520326303039333830303133303939393339303030303130303030300048942d02e36f16090c6d9fb3c76c4c83036111031d2af5ff16a27fbcab6b5ce83e4b6851fd77aea4efef8a754cb3a4e6dbf57de1c300000000b9",
+  "cmd_or_event": "40",
+  "status": "00",
+  "data_hex": "01006d600000033308102038000002c000059100000003671511520326303039333830303133303939393339303030303130303030300048942d02e36f16090c6d9fb3c76c4c83036111031d2af5ff16a27fbcab6b5ce83e4b6851fd77aea4efef8a754cb3a4e6dbf57de1c300000000",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d00005b02819f049a9f219f069f269f1c9f165f2a9f415f20df00df01df02df03df04df05df06df07df08df09df0adf0bdf10df12df19df23df25df24df26df27df28df29df2adf2bdf2cdf2ddf2edf2fdf30df31df60df61df62df63df6418",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "02819f049a9f219f069f269f1c9f165f2a9f415f20df00df01df02df03df04df05df06df07df08df09df0adf0bdf10df12df19df23df25df24df26df27df28df29df2adf2bdf2cdf2ddf2edf2fdf30df31df60df61df62df63df64",
+  "xor_verified": true,
+  "subcmd": "02"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "response",
+  "frame_hex": "3e0000014281040000001e9a031903209f21031822229f0607a00000000320109f26085d5840b4e251ee9b9f1c0839333830303133309f160f3939393339303030303130303030305f2a0209759f4104000003655f201058585858585858202058585858585858df000d5669736120456c656374726f6edf04040000000fdf050400000000df060400000000df070c303030303036363931313335df0806393639333634df090400000000df0a102a2a2a2a2a2a2a2a2a2a2a2a37383938df100101df12020000df23020000df25020001df26020a02df270342474edf280739373032363130df290431303030df2a0454455354df2e06444154454353df2f1942554c2e545a41524947524144534b4f205348414f53534545df3005534f464941df310454455354df600400000003df61020027df62024331df63040000000adf640400000005cc",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "81040000001e9a031903209f21031822229f0607a00000000320109f26085d5840b4e251ee9b9f1c0839333830303133309f160f3939393339303030303130303030305f2a0209759f4104000003655f201058585858585858202058585858585858df000d5669736120456c656374726f6edf04040000000fdf050400000000df060400000000df070c303030303036363931313335df0806393639333634df090400000000df0a102a2a2a2a2a2a2a2a2a2a2a2a37383938df100101df12020000df23020000df25020001df26020a02df270342474edf280739373032363130df290431303030df2a0454455354df2e06444154454353df2f1942554c2e545a41524947524144534b4f205348414f53534545df3005534f464941df310454455354df600400000003df61020027df62024331df63040000000adf640400000005",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d0000010301",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "03",
+  "xor_verified": true,
+  "subcmd": "03"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d00005020df800309303132333433323130df510e38352e3235352e3132382e313936df52024eeddf7b0e3139332e34312e3139302e313730df7c024eeedf650e3139332e34312e3139302e313639df66021f4059",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "20df800309303132333433323130df510e38352e3235352e3132382e313936df52024eeddf7b0e3139332e34312e3139302e313730df7c024eeedf650e3139332e34312e3139302e313639df66021f40",
+  "xor_verified": true,
+  "subcmd": "20"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d000002210121",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "2101",
+  "xor_verified": true,
+  "subcmd": "21"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "request",
+  "frame_hex": "3e3d0000011d1f",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "1d",
+  "xor_verified": true,
+  "subcmd": "1D"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v3 (2025)",
+  "kind": "response",
+  "frame_hex": "3e360000010c05",
+  "cmd_or_event": "36",
+  "status": "00",
+  "data_hex": "0c",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000080101810400000032bc",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0101810400000032",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00000f010181040000001edf63040000000a25",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "010181040000001edf63040000000a",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00000f01028104000000329f04040000001433",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "01028104000000329f040400000014",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000150103810400000064df030a3132333435363738393022",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0103810400000064df030a31323334353637383930",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000080104810400000064ef",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0104810400000064",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000080105810400000064ee",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0105810400000064",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00001b0106810400000064df010736363830363335df0206393230323132ce",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0106810400000064df010736363830363335df0206393230323132",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00001b0107810400000064df010736363830363335df0206393230323132cf",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0107810400000064df010736363830363335df0206393230323132",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000220107810400000064df63040000000adf010736363830363335df020639323032313244",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0107810400000064df63040000000adf010736363830363335df0206393230323132",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00002201078104000000329f040400000014df010736363830363335df02063932303231322b",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "01078104000000329f040400000014df010736363830363335df0206393230323132",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00001b0108810400000064df010736363830363335df0206393230323132c0",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0108810400000064df010736363830363335df0206393230323132",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00001b0109810400000064df010736363830363335df0206393230323132c1",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0109810400000064df010736363830363335df0206393230323132",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d000008010b81040000000084",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "010b810400000000",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d000008010c81040000003cbf",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "010c81040000003c",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00001b010d81040000003cdf010736393830353638df02063932303231359e",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "010d81040000003cdf010736393830353638df0206393230323135",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000040281df104b",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0281df10",
+  "xor_verified": true,
+  "subcmd": "02"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000040400018183",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "04000181",
+  "xor_verified": true,
+  "subcmd": "04"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e00000006810400000064d9",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "810400000064",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000010507",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "05",
+  "xor_verified": true,
+  "subcmd": "05"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e00000002016b56",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "016b",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e0000002b426c75655061642d353000000000000000000000303930313930303030310101170039333830303133330745",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "426c75655061642d3530000000000000000000003039303139303030303101011700393338303031333307",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e0000000613031409302c29",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "13031409302c",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000070813031409302c1d",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0813031409302c",
+  "xor_verified": true,
+  "subcmd": "08"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00000a0b30313233343332313036",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0b303132333433323130",
+  "xor_verified": true,
+  "subcmd": "0B"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00000a0c30313233343332313031",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "0c303132333433323130",
+  "xor_verified": true,
+  "subcmd": "0C"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000011a18",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "1a",
+  "xor_verified": true,
+  "subcmd": "1A"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e0000000200003c",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "0000",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e0000007b3039323039303030303439333830303431383939393339303030303130303030300001011c004a616e2032372032303231000000000031313a35343a353000003139332e34312e3139302e31373000004eee3139332e34312e3139302e31373000004eee3139332e34312e3139302e31363900001f4003330621027b",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "3039323039303030303439333830303431383939393339303030303130303030300001011c004a616e2032372032303231000000000031313a35343a353000003139332e34312e3139302e31373000004eee3139332e34312e3139302e31373000004eee3139332e34312e3139302e31363900001f400333062102",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000011e1c",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "1e",
+  "xor_verified": true,
+  "subcmd": "1E"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000011f1d",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "1f",
+  "xor_verified": true,
+  "subcmd": "1F"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e0000006453595354454d204b454b3a20203537443545370a53595354454d204d41433a20204533444242430a4d41535445522050494e3a20204343313546340a4d4153544552204d41433a20203833443644390a4d415354455220444154413a203535423433460a75",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "53595354454d204b454b3a20203537443545370a53595354454d204d41433a20204533444242430a4d41535445522050494e3a20204343313546340a4d4153544552204d41433a20203833443644390a4d415354455220444154413a203535423433460a",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00003a20df800309303132333433323130df510e3139332e34312e3139302e313730df52024eeedf7b0e3139332e34312e3139302e313730df7c024eee7c",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "20df800309303132333433323130df510e3139332e34312e3139302e313730df52024eeedf7b0e3139332e34312e3139302e313730df7c024eee",
+  "xor_verified": true,
+  "subcmd": "20"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00000623013130303026",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "230131303030",
+  "xor_verified": true,
+  "subcmd": "23"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e001500002b",
+  "cmd_or_event": "00",
+  "status": "15",
+  "data_hex": "",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d00000c2400000146df05df25df608172",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "2400000146df05df25df6081",
+  "xor_verified": true,
+  "subcmd": "24"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e00000019df050400000000df25020001df60040000000381040000006459",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "df050400000000df25020001df600400000003810400000064",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d000002250024",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "2500",
+  "xor_verified": true,
+  "subcmd": "25"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d0000012624",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "26",
+  "xor_verified": true,
+  "subcmd": "26"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e00000001013e",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "01",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e3d000005279f1edf324d",
+  "cmd_or_event": "3D",
+  "status": "00",
+  "data_hex": "279f1edf32",
+  "xor_verified": true,
+  "subcmd": "27"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e000000129f1e0a31393031393030303131df320200642c",
+  "cmd_or_event": "00",
+  "status": "00",
+  "data_hex": "9f1e0a31393031393030303131df32020064",
+  "xor_verified": true,
+  "subcmd": null
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "request",
+  "frame_hex": "3e4000003c01140301000101160301003017d384b3f7df9920a6dfe2596d993b5c0515d7d951a66979d9375c409286673b19700db36924cfb77fe6e935347aa1e9a0",
+  "cmd_or_event": "40",
+  "status": "00",
+  "data_hex": "01140301000101160301003017d384b3f7df9920a6dfe2596d993b5c0515d7d951a66979d9375c409286673b19700db36924cfb77fe6e935347aa1e9",
+  "xor_verified": true,
+  "subcmd": "01"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "event",
+  "frame_hex": "3e0e0000213fdfc1010c436f6d626f30312076312031dfc1010c436f6d626f303120763120312e",
+  "cmd_or_event": "0E",
+  "status": "00",
+  "data_hex": "3fdfc1010c436f6d626f30312076312031dfc1010c436f6d626f30312076312031",
+  "xor_verified": true,
+  "subcmd": "3F"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "event",
+  "frame_hex": "3e0f00003703011603010030a91cc0833e7495d5843bbe6ed206deb2b4651e75ce4360dc6e2645eec7b17c2d1ea1e3ed9ba17f18bd3024309fc1757268",
+  "cmd_or_event": "0F",
+  "status": "00",
+  "data_hex": "03011603010030a91cc0833e7495d5843bbe6ed206deb2b4651e75ce4360dc6e2645eec7b17c2d1ea1e3ed9ba17f18bd3024309fc17572",
+  "xor_verified": true,
+  "subcmd": "03"
+ },
+ {
+  "source": "DatecsPay Pinpad Commands v1.9 (2020)",
+  "kind": "response",
+  "frame_hex": "3e0b0000068200c10200f082",
+  "cmd_or_event": "0B",
+  "status": "00",
+  "data_hex": "8200c10200f0",
+  "xor_verified": true,
+  "subcmd": null
+ }
+]

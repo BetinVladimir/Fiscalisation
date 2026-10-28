@@ -1,5 +1,18 @@
 # BeeFiscal / BeeMiniPOS MVP
 
+## Проверка контуров и статусы — 2026-10-21
+
+[Текущий срез, протоколы и112 критериев unit-тестов](docs/fiscal-contour-review-20261021/README.md). На этом срезе contract-lock **VERIFIED_FAIL**: runtime OpenAPI расходится с lock/script; остальные прежние PASS требуют source/scope сверки и здесь не перезапускались. MiniPOS iOS native dependencies расходятся с package.json; полный demo/native/device цикл не принят. Это дополнение к подробному remediation, не отмена его требований. Исторические сводные количества endpoint/tests и blanket readiness ниже не переносить на текущую версию без повторного gate.
+
+
+## Readiness update — 2026-10-17
+
+Current target MiniPOS/S3/BlueCash readiness: **SOFTWARE_GAPS_OPEN**.
+The [runtime audit, remediation tasks and acceptance tests](docs/remediation/2026-10-17/README.md)
+supersede earlier blanket software-complete claims. Hardware, vendor and
+production gates remain separate; this audit changed documentation only.
+
+
 Исполняемая реализация двух изолированных продуктов: BeeFiscal и автономного BeeMiniPOS. Точка входа в актуальную документацию реализации — [`docs/README.md`](docs/README.md). Canonical regulatory documentation, public OpenAPI, roadmap и Н-18 traceability находятся в [`../BeeloyBackend/docs/Fiscal`](../BeeloyBackend/docs/Fiscal/README.md); их контрольные SHA-256 закреплены в [`contracts/CONTRACT_LOCK.md`](contracts/CONTRACT_LOCK.md).
 
 Android-приложения для встроенных smart-касс, включая отдельные Daisy SMART и Datecs BlueCash tracks, описаны в [`SmartDevices/README.md`](SmartDevices/README.md). Key-bound QR/code activation, привязка к tenant/location/register, mTLS и отключение: [`docs/BLUECASH_POS_INTEGRATION.md`](docs/BLUECASH_POS_INTEGRATION.md). Сквозная трассировка REST → MQTT/BLE → BlueCash → Datecs → sync/WebHook, включая signed SQLite journal и retention: [`docs/BLUECASH_END_TO_END_TRACEABILITY.md`](docs/BLUECASH_END_TO_END_TRACEABILITY.md).
@@ -81,7 +94,6 @@ European standard layer for fiscal device integration with cloud ERP.
 ├── SmartDevices/
 │   ├── apps/
 │   └── shared-sdk/
-├── edge-agent/
 ├── cloud-core/
 │   ├── mqtt-router/
 │   ├── transaction-engine/
@@ -102,7 +114,7 @@ European standard layer for fiscal device integration with cloud ERP.
 - `IoT` — PlatformIO/Arduino C++-проекты: общие модули, конечные firmware и `IoT/protocol-abstraction`.
 - `SmartDevices` — Android-приложения под разные кассовые аппараты.
 - `protocol-abstraction` — часть `IoT` (`IoT/protocol-abstraction`): C++ Arduino-слой унификации протоколов (Epson/Datecs/Tremol...) с выбором целевого протокола при сборке прошивки через конфигурацию препроцессора.
-- `edge-agent` — локальный слой подключения, буферизации и offline-first синхронизации.
+- `IoT/firmware/edge-agent-s3/idf` — ESP32-S3 runtime подключения устройств, локального журнала и синхронизации. Отдельный Go-модуль удалён.
 - `cloud-core` — облачное event-driven ядро платформы.
 - `fiscal-backend` — Go backend для фискального контура.
 - `database/dbmigrate` — PostgreSQL-миграции.

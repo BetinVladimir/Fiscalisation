@@ -1,0 +1,5 @@
+63cf823416319ea40661d0314907ef11ee244c727a5828e9ee4dd73527d93055  minipos/miniposweb/src/fiscal/paymentReconciliation.ts
+9c44a9ba436fcd73685619735cc73c4bbf6fc368a82734810e9e68283b09c8eb  minipos/miniposweb/tests/payment-reconciliation.test.ts
+8a28aed4578823fa1a98cf3dd2ad5e87e49c9b2f6ba6a8c2ffe56cf3c0550223  minipos/miniposweb/tests/fiscal-operation-app-checkout-current.test.tsx
+350ae166c8c42741f67beb9d972be1bd9a356498cc9510195145d0d0b579edf7  minipos/miniposweb/src/App.tsx
+4e95c4b54957ff469f1f43f08033d44b9c189dbec2bd43b58e722eac3d66e191  minipos/miniposweb/tests/browser/reconciliation-http-pipeline.spec.mjs

@@ -1,10 +1,26 @@
+import {AppLogout} from './ui/AppLogout';
+import {ShiftClosePanel} from './ShiftClosePanel';
+import {provenClosedShift,shiftCloseAction} from './ui/shift-close-state';
+import {useHeaderLeaveGuard,HeaderLeaveDialog} from './ui/useHeaderLeaveGuard';
+import {headerLeaveCopy} from './ui/header-leave-copy';
+import {PaperOperationalHeader} from './ui/PaperOperationalHeader';
+import {reconciliationCopyFor} from './ui/reconciliation-copy';
+import {PaymentReconciliationPanel} from './PaymentReconciliationPanel';
+import {revokeReconciliationScope,type ReconciliationRoute,type ReconciliationScope} from './fiscal/paymentReconciliation';
+import {OperationOutcome} from './ui/OperationOutcome';
+import {FiscalOperationResult} from './ui/FiscalOperationResult';
 import {AppFrame} from './ui/app-frame';
 import {operationMessage} from './ui/operation-message';
+import {unresolvedSale as findUnresolvedSale} from './storage/unresolvedSale';
+import {isProvenTerminal} from './storage/outbox';
 import { belongsToOutboxScope } from './storage/outboxScope';
 import { referenceScope } from './storage/referenceScope';
 import { persistAuthTokens } from './storage/authTokens';
 import { AppButton as PaperButton } from './ui/app-button';
 import { useEffect, useMemo, useRef, useState } from "react";
+import { refreshCloudOutbox } from "./fiscal/cloudRecovery";
+import {ExecutionAuthorizationManager} from "./fiscal/executionManager";
+import type {AuthorizedContext} from "./fiscal/executionAuthorization";
 import { buildIntent } from "./fiscal/intentBuilder";
 import {
   ApiError,
@@ -71,7 +87,7 @@ export default function App() {
   const [configuration, setConfiguration] = useState<PosConfiguration>();
   const [products, setProducts] = useState<Product[]>([]);
   const [employees, setEmployees] = useState<Employee[]>([]);
-  const [view, setView] = useState<"sale" | "products" | "employees" | "outbox">("sale");
+  const [view, setView] = useState<"sale" | "products" | "employees" | "outbox" | "reconciliation">("sale");
   const [outboxRows, setOutboxRows] = useState<OutboxRow[]>([]);
   const [outboxLoading, setOutboxLoading] = useState(false);
   const [outboxError, setOutboxError] = useState(false);
@@ -85,6 +101,8 @@ export default function App() {
     sessionStorage.getItem("minipos-local-token") ?? "",
   );
   const [result, setResult] = useState<FiscalOperation>();
+  const [saleRecovery,setSaleRecovery]=useState<{scope:object;row:OutboxRow}|null>(null);
+  const [executionContext,setExecutionContext]=useState<AuthorizedContext>();
   const [lastOrderId, setLastOrderId] = useState("");
   const [message, setMessage] = useState("");
   const [busy, setBusy] = useState(false);
@@ -102,12 +120,25 @@ export default function App() {
   const operationScope=useMemo(()=>({owner,employee:session?.employee.id,configuration,shift:shift?.id}),[owner,session?.employee.id,configuration,shift?.id]);
   const latestOperationScope=useRef(operationScope);latestOperationScope.current=operationScope;
   const syncPending=useRef<{scope:object;ticket:object}|null>(null);
+  const [syncActivity,setSyncActivity]=useState<{scope:object;ticket:object}|null>(null);
   const operationCurrent=()=>current()&&latestOperationScope.current===operationScope;
-  const outboxScope={tenant:tenantFrom(accessToken),location:configuration?.location_id??'',register:configuration?.fiscal_register_id??'',operator:session?.employee.operator_code??''};
+  const executionManager=useMemo(()=>session?.session_id&&shift ? new ExecutionAuthorizationManager(api,{tenant:tenantFrom(accessToken),employee:session.employee.id,sessionID:session.session_id,shiftID:shift.id}):undefined,[api,session?.session_id,session?.employee.id,shift?.id]);
+  const previousExecutionManager=useRef<ExecutionAuthorizationManager|undefined>(undefined);
+  useEffect(()=>{const previous=previousExecutionManager.current;previousExecutionManager.current=executionManager;setExecutionContext(undefined);if(previous&&previous!==executionManager)void previous.revoke();if(!executionManager)return;let active=true;void (async()=>{try{const cached=await executionManager.restore();if(active&&cached)setExecutionContext(cached);const fresh=await executionManager.issue();if(active)setExecutionContext(fresh.context);}catch(error){if(active&&!(error instanceof ApiError&&error.status>=500)&&navigator.onLine)setMessage(error instanceof Error?error.message:String(error));}})();return()=>{active=false;};},[executionManager]);
+  const outboxScope={tenant:executionContext?.claims.tenant_id??'',location:executionContext?.claims.location_id??'',register:executionContext?.claims.register_id??'',operator:executionContext?.claims.operator_code??''};
+  const saleLocked=Boolean(shift&&shift.state!=='OPEN')||saleRecovery?.scope===operationScope||!Object.values(outboxScope).every(Boolean);
+  function acceptSaleRows(rows:OutboxRow[]){
+    if(!operationCurrent())return;
+    const pending=findUnresolvedSale(rows,outboxScope);
+    if(pending){setSaleRecovery({scope:operationScope,row:pending});setResult(pending.result??{operation_id:pending.intent.client_operation_id,state:'UNKNOWN',certainty:'UNKNOWN',updated_at:pending.updatedAt});return;}
+    if(saleRecovery?.scope===operationScope){const recovered=rows.find(row=>row.intent.client_operation_id===saleRecovery.row.intent.client_operation_id);if(recovered?.result&&isProvenTerminal(recovered.result)){setResult(recovered.result);if(['COMMITTED','FISCALIZED'].includes(recovered.result.state)&&recovered.result.certainty==='PROVEN_SUCCESS'){setCart([]);setCardAmount(0);}}}
+    if(saleRecovery!==null)setSaleRecovery(null);
+  }
+  useEffect(()=>{let active=true;if(Object.values(outboxScope).every(Boolean))void listOutbox().then(rows=>{if(active&&operationCurrent())acceptSaleRows(rows);}).catch(()=>{});return()=>{active=false;};},[operationScope,outboxScope.tenant,outboxScope.location,outboxScope.register,outboxScope.operator]);
   const commandPending=useRef<object|null>(null);
   const beginCommand=()=>{
     if(!admitted()||!operationCurrent()||busy||commandPending.current)return null;
-    const ticket={};commandPending.current=ticket;setBusy(true);
+    const ticket={};commandPending.current=ticket;setResult(undefined);setBusy(true);
     return {live:()=>operationCurrent()&&commandPending.current===ticket,finish:()=>{if(commandPending.current===ticket){commandPending.current=null;if(current())setBusy(false);}}};
   };
   const cacheScope=referenceScope(backend,accessToken);
@@ -192,13 +223,13 @@ export default function App() {
       setProducts(refs.items.filter((item) => item.status === "ACTIVE"));
       await Promise.all([cfg ? writeReference("configuration", cfg) : Promise.resolve(), writeReference("products", refs.items)]);
       if(!live())return;
-      const shifts = await api.shifts(active.employee.id);
+      const shifts = await api.shifts(active.employee.id, "");
       if(!live())return;
-      if (!shifts.items[0]) throw new Error("NO_OPEN_SHIFT");
-      setShift(shifts.items[0]);
+      const activeShift=shifts.items.find(item=>item.employee_id===active.employee.id&&item.register_id===cfg?.fiscal_register_id&&["OPEN","CLOSING","BLOCKED_RECONCILIATION"].includes(item.state));
+      setShift(activeShift);
       await Promise.all([
         writeReference("operator-session", active),
-        writeReference("active-shift", shifts.items[0]),
+        writeReference("active-shift", activeShift),
       ]);
       if(!live())return;
       localStorage.setItem("minipos-access-token", accessToken);
@@ -224,7 +255,7 @@ export default function App() {
           new Date(cachedSession.value.expires_at) > new Date()
         )
           setSession(cachedSession.value);
-        if (cachedShift?.value.state === "OPEN") setShift(cachedShift.value);
+        if (cachedShift?.value&&["OPEN","CLOSING","BLOCKED_RECONCILIATION"].includes(cachedShift.value.state)) setShift(cachedShift.value);
         setMessage(
           "OFFLINE_REFERENCE",
         );
@@ -260,7 +291,7 @@ export default function App() {
     managementRequest.current++;
     setView('outbox');setOutboxLoading(true);setOutboxError(false);
     const live=()=>operationCurrent()&&request===outboxRequest.current;
-    try { const rows=await listOutbox();if(live()&&operationCurrent())setOutboxRows(rows.filter(row=>belongsToOutboxScope(row,outboxScope))); }
+    try { const rows=await refreshCloudOutbox(api,outboxScope,live);if(live()){setOutboxRows(rows);acceptSaleRows(rows);} }
     catch { if(live())setOutboxError(true); }
     finally { if(live())setOutboxLoading(false); }
   }
@@ -281,6 +312,29 @@ export default function App() {
     } finally {
       command.finish();
     }
+  }
+  const shiftCloseKey=useRef<{scope:object;action:string;key:string}|null>(null);
+  async function closeCurrentShift(){
+    if(!shift||cart.length||saleRecovery?.scope===operationScope)return;
+    const action=shiftCloseAction(shift);if(!action)return;
+    const command=beginCommand();if(!command)return;
+    const previous=shift;
+    if(shiftCloseKey.current?.scope!==operationScope||shiftCloseKey.current.action!==action)shiftCloseKey.current={scope:operationScope,action,key:crypto.randomUUID()};
+    try{
+      const rows=await listOutbox();if(!command.live())return;
+      if(findUnresolvedSale(rows,outboxScope)){acceptSaleRows(rows);return;}
+      const updated=await api.closeShift(previous.id,shiftCloseKey.current.key,action==='reconcile');
+      if(!command.live())return;
+      if(updated.id!==previous.id||updated.register_id!==previous.register_id||updated.employee_id!==previous.employee_id)throw Error('SHIFT_IDENTITY_MISMATCH');
+      if(provenClosedShift(previous,updated)){
+        await writeReference('active-shift',updated);if(!command.live())return;
+        setResult({operation_id:updated.z_operation_id!,state:'FISCALIZED',certainty:'PROVEN_SUCCESS',fiscal_reference:updated.z_fiscal_reference!,updated_at:new Date().toISOString()});setShift(undefined);setCart([]);setCardAmount(0);setLastOrderId('');setMessage('');
+      }else{
+        const pending={...updated,state:updated.state==='BLOCKED_RECONCILIATION'?'BLOCKED_RECONCILIATION':'CLOSING'};
+        await writeReference('active-shift',pending);if(command.live()){setShift(pending);setMessage('SHIFT_CLOSE_PENDING');}
+      }
+    }catch{if(command.live()){const pending={...previous,state:'CLOSING'};setShift(pending);setMessage('SHIFT_CLOSE_PENDING');await writeReference('active-shift',pending).catch(()=>{});}}
+    finally{command.finish();}
   }
   function add(product: Product) {
     if(!admitted()||busy||commandPending.current||!products.includes(product))return;
@@ -326,7 +380,7 @@ export default function App() {
   }
   async function syncOfflineOrders() {
     if (!navigator.onLine||!operationCurrent()||!configuration||!session||syncPending.current?.scope===operationScope) return;
-    const ticket={};syncPending.current={scope:operationScope,ticket};
+    const ticket={};const activity={scope:operationScope,ticket};syncPending.current=activity;setSyncActivity(activity);
     const live=()=>operationCurrent()&&syncPending.current?.ticket===ticket;
     try {
     const pending = (await listOutbox()).filter(
@@ -361,7 +415,7 @@ export default function App() {
         updatedAt: new Date().toISOString(),
       });
     }
-    } finally {if(syncPending.current?.ticket===ticket)syncPending.current=null;}
+    } finally {if(syncPending.current?.ticket===ticket){syncPending.current=null;setSyncActivity(null);}}
   }
   async function prepareOrder(items: SaleItem[], live:()=>boolean) {
     if (!shift) throw new Error("SHIFT_REQUIRED");
@@ -396,12 +450,15 @@ export default function App() {
     const command=beginCommand();if(!command)return;
     setMessage("");
     try {
+      if(!Object.values(outboxScope).every(Boolean))throw new Error("POS_CONTEXT_INCOMPLETE");
+      const durableRows=await listOutbox();if(!command.live())return;
+      if(findUnresolvedSale(durableRows,outboxScope)){acceptSaleRows(durableRows);return;}
       const items: SaleItem[] = cart.map((line) => ({
         item_id: crypto.randomUUID(),
         name: line.product.name,
         quantity: line.quantity.toFixed(3),
         unit_price: line.product.price,
-        discount: line.discount > 0 ? money(line.discount) : undefined,
+        ...(line.discount > 0 ? {discount: money(line.discount)} : {}),
         tax_group: line.product.tax_group,
       }));
       const safeCard = Math.min(Math.max(cardAmount, 0), total),
@@ -436,15 +493,24 @@ export default function App() {
           "CLOUD_PREPARE_UNAVAILABLE",
         );
       }
+      if(!executionManager)throw new Error('AUTHENTICATED_SESSION_REQUIRED');
+      // Preparation failure may use a valid offline lease only before any fiscal attempt.
+      // A server-prepared order must retain its exact authority, payload and operation.
+      const prepared=order?await executionManager.issue({id:order.id,payments}):undefined;
+      const context=prepared?.context??await executionManager.restore();
+      if(!context)throw new Error('OFFLINE_EXECUTION_AUTHORIZATION_REQUIRED');
+      if(!command.live())return;
+      const claims=context.claims;
       const surrogateId = order?.external_id ?? crypto.randomUUID();
       const intent = await buildIntent({
-        tenantId: tenantFrom(accessToken),
-        locationId: configuration.location_id,
-        registerId: configuration.fiscal_register_id,
-        edgeDeviceId: configuration.fiscal_adapter_id,
-        bindingGeneration: configuration.binding_generation,
-        operatorCode: session.employee.operator_code,
-        saleId: order?.id,
+        execution:context,serverPreparedPayload:prepared?.canonicalPayload,
+        tenantId: claims.tenant_id,
+        locationId: claims.location_id,
+        registerId: claims.register_id,
+        edgeDeviceId: claims.edge_device_id,
+        bindingGeneration: claims.binding_generation,
+        operatorCode: claims.operator_code,
+        saleId: claims.unp_authority?.server_sale_id,
         surrogateId,
         command: "SALE_FINALIZE",
         items,
@@ -474,7 +540,7 @@ export default function App() {
         });
       }
       if(!command.live())return;
-      const executionToken = localToken || (await adapterToken());
+      const executionToken = context.transportToken??"";
       if(!command.live())return;
       const local = new LocalFiscalClient(
         configuration.adapter_base_url,
@@ -485,11 +551,9 @@ export default function App() {
         routes.push({
           kind: "CLOUD",
           probe: (signal) => api.fiscalRouteHealth(signal).then(() => true),
-          lookup: async () => {
-            throw new Error("CLOUD_LOOKUP_NOT_FOUND");
-          },
+          lookup: (id, signal) => api.operation(order!.id, id, signal),
           submit: (value, signal) =>
-            api.checkout(order!.id, payments, value, signal),
+            api.dispatchExecution(order!.id, value, signal),
         });
       routes.push({
         kind: "LOCAL_HTTP",
@@ -516,7 +580,7 @@ export default function App() {
       setResult(executed);
       if (order) setLastOrderId(order.id);
       if (!order) void syncOfflineOrders().catch(() => undefined);
-      if (["COMMITTED", "FISCALIZED"].includes(executed.state)) {
+      if (["COMMITTED", "FISCALIZED"].includes(executed.state) && executed.certainty === "PROVEN_SUCCESS") {
         setCart([]);
         setCardAmount(0);
       }
@@ -524,6 +588,7 @@ export default function App() {
       if(!command.live())return;
       setMessage(error instanceof Error ? error.message : String(error));
     } finally {
+      try{const rows=await listOutbox();if(command.live())acceptSaleRows(rows);}catch{if(command.live())setMessage('FISCAL_SUBMISSION_UNCERTAIN');}
       command.finish();
     }
   }
@@ -541,8 +606,7 @@ export default function App() {
       setResult({
         operation_id: String(reversed.operation_id ?? operationId),
         state: String(reversed.state ?? "UNKNOWN"),
-        certainty:
-          reversed.state === "FISCALIZED" ? "PROVEN_SUCCESS" : "UNKNOWN",
+        certainty: typeof reversed.certainty === "string" ? reversed.certainty : "UNKNOWN",
         fiscal_reference: reversed.fiscal_reference
           ? String(reversed.fiscal_reference)
           : undefined,
@@ -582,54 +646,70 @@ export default function App() {
       command.finish();
     }
   }
+  const reconciliationScope:ReconciliationScope|undefined=executionContext?{tenant_id:executionContext.claims.tenant_id,actor_id:executionContext.claims.actor_subject,register_id:executionContext.claims.register_id,edge_device_id:executionContext.claims.edge_device_id,binding_sha256:executionContext.claims.binding_sha256,binding_generation:executionContext.claims.binding_generation,source_session_id:executionContext.scope.sessionID,app_instance_id:executionContext.scope.appInstance}:undefined;
+  const reconciliationRoutes:ReconciliationRoute[]=[];
+  if(configuration&&executionContext?.transportToken){const local=new LocalFiscalClient(configuration.adapter_base_url,()=>executionContext.transportToken);reconciliationRoutes.push({kind:'LOCAL_HTTP',probe:signal=>local.health(signal).then(()=>true),submit:(value,signal)=>local.submitReconciliation(value,signal),lookup:(id,signal)=>local.operation(id,signal)});
+   if(configuration.ble_advertising_identity&&configuration.ble_service_uuid&&configuration.ble_command_uuid&&configuration.ble_event_uuid){const ble=new WebBleRoute({advertisingIdentity:configuration.ble_advertising_identity,serviceUUID:configuration.ble_service_uuid,commandUUID:configuration.ble_command_uuid,eventUUID:configuration.ble_event_uuid});reconciliationRoutes.push({kind:'BLE',probe:signal=>ble.probe(),submit:(value,signal)=>ble.submitCommand(value,signal),lookup:(id,signal)=>local.operation(id,signal)});}}
+  const assertReconciliationAdministrator=async()=>{if(!operationCurrent()||!executionManager||!session?.employee.roles.some(role=>role.toUpperCase()==='ADMIN'))throw new Error('ADMIN_SESSION_REQUIRED');const active=await api.session();if(!operationCurrent()||active.session_id!==session.session_id||active.employee.id!==session.employee.id||!(active.employee.roles??[]).some(role=>role.toUpperCase()==='ADMIN')||!await executionManager.restore())throw new Error('ADMIN_SESSION_CHANGED');};
+  const [headerChildPending,setHeaderChildPending]=useState<{scope:typeof operationScope;pending:boolean}|null>(null);
+  const headerPending=headerChildPending?.scope===operationScope&&headerChildPending.pending;
+  const headerLeave=useHeaderLeaveGuard(operationScope,()=>!admitted()||busy||Boolean(commandPending.current));
+  const logoutBlocked=(Boolean(session)&&busy)||Boolean(commandPending.current)||Boolean(headerPending)||saleRecovery?.scope===operationScope||syncActivity?.scope===operationScope;
+  function logout(){
+    if(!admitted()||logoutBlocked||commandPending.current||syncPending.current?.scope===operationScope)return;
+    // Revoke the render owner synchronously before any asynchronous work can publish state.
+    latestOwner.current={api};
+    void executionManager?.revoke().catch(()=>{});
+    if(reconciliationScope)void revokeReconciliationScope(reconciliationScope).catch(()=>{});
+    managementRequest.current++;outboxRequest.current++;loginPending.current=null;
+    localStorage.removeItem('minipos-access-token');localStorage.removeItem('minipos-refresh-token');
+    sessionStorage.removeItem('minipos-local-token');sessionStorage.removeItem('minipos-local-token-expires');
+    setBusy(false);setAccessToken('');setSession(undefined);setConfiguration(undefined);setShift(undefined);setExecutionContext(undefined);setCart([]);setCardAmount(0);setResult(undefined);setSaleRecovery(null);setLocalToken('');setLastOrderId('');setMessage('');setView('sale');setSettings(false);
+  }
   if (!accessToken) return <AuthFlow backend={backend} onAuthenticated={(tokens)=>setAccessToken(tokens.access_token)} />;
-  if (!session) return <AppFrame testID="minipos.session.surface"><main><Card mode="outlined" testID="session-recovery" style={{ width: "100%", maxWidth: 480, alignSelf: "center", marginTop: 40 }}><Card.Content style={{ gap: 12 }}>
+  if (!session) return <AppFrame testID="minipos.session.surface"><main><PaperOperationalHeader testID="session.header" title={busy ? t.loading : "Bee MiniPOS Web"} preferences={target=><PreferenceControls target={target} language={language} onLanguageChange={setLanguage} testIdPrefix="session"/>}/><Card mode="outlined" testID="session-recovery" style={{ width: "100%", maxWidth: 480, alignSelf: "center", marginTop: 40 }}><Card.Content style={{ gap: 12 }}>
     <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
-    <View style={{position:'relative',zIndex:10}}><PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="session" /></View>
     <PaperText variant="bodyMedium" accessibilityLiveRegion="polite" testID="session-status">{message === "OFFLINE_REFERENCE" ? t.offlineReference : message === "CLOUD_PREPARE_UNAVAILABLE" ? t.cloudPrepareUnavailable : message ? t.sessionUnavailable : t.loading}</PaperText>
     {busy ? <ActivityIndicator accessibilityLabel={t.loading} testID="session-loading-indicator" /> : null}
     <PaperButton mode="contained" disabled={busy} onPress={()=>void login()} testID="session-retry">{t.retry}</PaperButton>
-    <PaperButton mode="outlined" onPress={()=>{localStorage.removeItem("minipos-access-token");localStorage.removeItem("minipos-refresh-token");setAccessToken("");}} testID="session-logout">{t.logout}</PaperButton>
+    <PaperButton mode="outlined" disabled={logoutBlocked} onPress={logout} testID="session-logout">{t.logout}</PaperButton>
   </Card.Content></Card></main></AppFrame>;
   return (
-    <AppFrame testID="minipos.work.surface"><main>
+    <AppFrame testID="minipos.work.surface"><main><HeaderLeaveDialog guard={headerLeave} copy={headerLeaveCopy[language]}/>
       <Surface elevation={1} style={{ position: 'relative', zIndex: 10, padding: 12, borderRadius: 12, backgroundColor: paperTheme.colors.surface }}>
-        <header>
-          <div>
-            <PaperText variant="headlineSmall" accessibilityRole="header">Bee MiniPOS Web</PaperText>
-            <PaperText variant="bodySmall">
-              {session.employee.first_name} {session.employee.last_name} ·{" "}
-              {navigator.onLine ? t.online : t.offline}
-            </PaperText>
-          </div>
-          <PaperButton mode={settings ? "contained-tonal" : "outlined"} onPress={() => setSettings(!settings)} testID="app-settings">{t.settings}</PaperButton>
-          <PaperButton mode={view === "sale" ? "contained-tonal" : "outlined"} onPress={() => { if(!admitted())return;managementRequest.current++;outboxRequest.current++; setView("sale"); }} testID="app-sales">{t.sales}</PaperButton>
-          <PaperButton mode={view === "products" ? "contained-tonal" : "outlined"} onPress={() => void openManagement("products")} testID="app-products">{t.products}</PaperButton>
-          <PaperButton mode={view === "employees" ? "contained-tonal" : "outlined"} onPress={() => void openManagement("employees")} testID="app-employees">{t.employees}</PaperButton>
-          <PaperButton mode={view === "outbox" ? "contained-tonal" : "outlined"} onPress={() => void openOutbox()} testID="app-outbox">{t.outboxTitle}</PaperButton>
-          <PreferenceControls language={language} onLanguageChange={setLanguage} testIdPrefix="app" />
-        </header>
+        <PaperOperationalHeader testID="app.header" title={view==='sale'?t.sales:view==='products'?t.products:view==='employees'?t.employees:view==='reconciliation'?reconciliationCopyFor(language).navTitle:t.outboxTitle} back={view!=='sale'?{label:t.sales,disabled:busy||headerPending,onPress:()=>headerLeave.request(()=>{managementRequest.current++;outboxRequest.current++;setView('sale');})}:undefined} preferences={target=><PreferenceControls target={target} language={language} onLanguageChange={setLanguage} testIdPrefix="app"/>}/>
+        <PaperText variant="bodySmall">{session.employee.first_name} {session.employee.last_name} · {navigator.onLine?t.online:t.offline}</PaperText>
+        <View style={{minWidth:0,flexDirection:'row',flexWrap:'wrap',gap:8}}>
+          <PaperButton disabled={busy||headerPending} mode={settings ? "contained-tonal" : "outlined"} onPress={() => {if(!headerLeave.isBlocked())setSettings(!settings);}} testID="app-settings">{t.settings}</PaperButton>
+          <PaperButton disabled={busy||headerPending} mode={view === "products" ? "contained-tonal" : "outlined"} onPress={() => headerLeave.request(()=>void openManagement("products"))} testID="app-products">{t.products}</PaperButton>
+          <PaperButton disabled={busy||headerPending} mode={view === "employees" ? "contained-tonal" : "outlined"} onPress={() => headerLeave.request(()=>void openManagement("employees"))} testID="app-employees">{t.employees}</PaperButton>
+          {(session.employee.roles??[]).some(role=>role.toUpperCase()==='ADMIN')?<PaperButton disabled={busy||headerPending} mode={view==='reconciliation'?'contained-tonal':'outlined'} onPress={()=>headerLeave.request(()=>setView('reconciliation'))} testID="app-reconciliation">{reconciliationCopyFor(language).navTitle}</PaperButton>:null}
+          <PaperButton disabled={busy||headerPending} mode={view === "outbox" ? "contained-tonal" : "outlined"} onPress={() => headerLeave.request(()=>void openOutbox())} testID="app-outbox">{t.outboxTitle}</PaperButton>
+          <AppLogout owner={operationScope} blocked={logoutBlocked} dirty={cart.length>0} label={t.logout} copy={headerLeaveCopy[language]} onLogout={()=>headerLeave.request(logout)}/>
+        </View>
       </Surface>
+      {result&&!busy?<OperationOutcome value={result} language={language}/>:null}
       {settings && <Card mode="outlined" style={{ marginTop: 16 }} testID="sale-diagnostics"><Card.Content style={{ gap: 12 }}>
         <PaperText variant="titleLarge" accessibilityRole="header">{t.diagnostics}</PaperText>
         <PaperText variant="bodyMedium">{t.adapter}: {configuration?.fiscal_adapter_id}{"\n"}{t.register}: {configuration?.fiscal_register_id}{"\n"}{t.generation}: {configuration?.binding_generation}{"\n"}{t.localUrl}: {configuration?.adapter_base_url}</PaperText>
-        <PaperButton mode="outlined" disabled={busy || !shift} onPress={printer}>{t.printerTest}</PaperButton>
-        {result ? <PaperText variant="bodySmall" selectable style={{ fontFamily: "monospace" }} testID="sale-result">{JSON.stringify(result, null, 2)}</PaperText> : null}
+        <PaperButton mode="outlined" disabled={busy || headerPending || !shift} onPress={()=>{if(!headerLeave.isBlocked())void printer();}}>{t.printerTest}</PaperButton>
+        {result ? <FiscalOperationResult value={result} language={language} ownerKey={operationScope} testID="sale-result"/> : null}
       </Card.Content></Card>}
-      {view === "outbox" ? <OutboxPanel rows={outboxRows} loading={outboxLoading} error={outboxError} language={language} onRefresh={() => void openOutbox()} /> : view !== "sale" ? managementLoading ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-loading"><Card.Content style={{ gap: 12 }}>
+      {shift?<ShiftClosePanel shift={shift} language={language} busy={busy} blocked={cart.length>0||saleRecovery?.scope===operationScope||headerPending===true} owner={operationScope} onSubmit={()=>void closeCurrentShift()} onRefresh={()=>void login()}/>:null}
+      {view === "reconciliation" ? reconciliationScope&&shift ? <PaymentReconciliationPanel language={language} key={operationScope.employee+':'+shift.id} administrator={(session.employee.roles??[]).some(role=>role.toUpperCase()==='ADMIN')} scope={reconciliationScope} authorize={(decision,key)=>api.authorizePaymentReconciliation(shift.id,decision,key)} routes={reconciliationRoutes} assertActive={assertReconciliationAdministrator} canEditHeader={headerLeave.canEdit} registerHeaderDraft={headerLeave.register} reportHeaderPending={pending=>setHeaderChildPending({scope:operationScope,pending})}/> : <HelperText type="error" visible>{reconciliationCopyFor(language).contextRequired}</HelperText> : view === "outbox" ? <OutboxPanel rows={outboxRows} loading={outboxLoading} error={outboxError} language={language} onRefresh={() => void openOutbox()} /> : view !== "sale" ? managementLoading ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-loading"><Card.Content style={{ gap: 12 }}>
         <ActivityIndicator accessibilityLabel={t.loading} /><PaperText variant="bodyMedium">{t.loading}</PaperText>
       </Card.Content></Card> : managementError ? <Card mode="outlined" style={{ marginTop: 16 }} testID="management-load-error"><Card.Content style={{ gap: 12 }}>
         <HelperText accessibilityRole="alert" accessibilityLiveRegion="polite" type="error" visible>{t.loadFailed}</HelperText>
         <PaperButton mode="contained" onPress={() => void openManagement(view)} testID="management-retry">{t.retry}</PaperButton>
-      </Card.Content></Card> : <Management kind={view} products={products} employees={employees} api={api} onProducts={setProducts} onEmployees={setEmployees} language={language} /> : !shift ? (
+      </Card.Content></Card> : <Management canEditHeader={headerLeave.canEdit} reportHeaderPending={pending=>setHeaderChildPending({scope:operationScope,pending})} registerHeaderDraft={headerLeave.register} kind={view} products={products} employees={employees} api={api} onProducts={setProducts} onEmployees={setEmployees} language={language} /> : !shift ? (
         <Card mode="outlined" style={{ marginTop: 16 }} testID="shift-open"><Card.Content style={{ gap: 12 }}>
           <PaperText variant="titleLarge" accessibilityRole="header">{t.shiftTitle}</PaperText>
           <PaperButton mode="contained" loading={busy} disabled={busy || !configuration} onPress={openShift}>{t.openShift}</PaperButton>
         </Card.Content></Card>
       ) : (
         <>
-          <ProductGrid busy={busy} products={products} onAdd={add} language={language} />
-          <PaymentPanel cart={cart} total={total} cardAmount={cardAmount} busy={busy} lastOrderId={lastOrderId} language={language} onUpdate={update} onCardAmount={value=>{if(admitted()&&!busy&&!commandPending.current&&Number.isFinite(value))setCardAmount(value);}} onCheckout={checkout} onReverse={reverseLastOrder} />
+          <ProductGrid busy={busy||saleLocked} products={products} onAdd={add} language={language} />
+          <PaymentPanel cart={cart} total={total} cardAmount={cardAmount} busy={busy} blocked={saleLocked} lastOrderId={lastOrderId} language={language} onUpdate={update} onCardAmount={value=>{if(admitted()&&!busy&&!commandPending.current&&Number.isFinite(value))setCardAmount(value);}} onCheckout={checkout} onReverse={reverseLastOrder} />
         </>
       )}
       {message ? <div className="error"><HelperText accessibilityRole="alert" accessibilityLiveRegion="polite" type="error" visible testID="sale-message">{operationMessage(language,message)}</HelperText></div> : null}

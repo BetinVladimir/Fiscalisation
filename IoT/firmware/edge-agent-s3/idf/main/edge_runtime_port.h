@@ -5,7 +5,12 @@
 
 namespace beefiscal::idf {
 enum class Ingress : uint8_t { Mqtt, Ble, Http };
-struct CommandView { const uint8_t* data; size_t size; Ingress ingress; };
+// Ephemeral reply routing only: never payload authority or durable state.
+struct BleReplyOwner {
+  uint16_t connection{UINT16_MAX};uint32_t generation{0};
+  constexpr bool valid()const{return connection!=UINT16_MAX&&generation!=0;}
+};
+struct CommandView { const uint8_t* data; size_t size; Ingress ingress; BleReplyOwner ble_reply{}; };
 using CommandSink = esp_err_t (*)(const CommandView&, void*);
 using ProvisioningSink = esp_err_t (*)(const uint8_t*, size_t, void*);
 
@@ -23,8 +28,10 @@ int mqtt_publish_binding_applied(const char*tenant,const char*device,const char*
 int mqtt_publish_status(const char*tenant,const char*device,const char*payload,bool retained=true);
 struct BleConfig { const char* advertising_name; };
 esp_err_t ble_runtime_start(const BleConfig&, CommandSink, void*);
-esp_err_t ble_publish_event(const char* message_uuid,const uint8_t*,size_t);
-esp_err_t ble_provisioning_start(const BleConfig&, ProvisioningSink, void*);
+esp_err_t ble_publish_event(BleReplyOwner,const char* message_uuid,const uint8_t*,size_t);
+using ProvisioningReadSource = esp_err_t (*)(char*,size_t*,void*);
+void ble_provisioning_sources(ProvisioningReadSource,ProvisioningReadSource,void*);
+esp_err_t ble_provisioning_start(const BleConfig&, ProvisioningSink, void*,ProvisioningReadSource=nullptr,ProvisioningReadSource=nullptr);
 struct UsbCdcIdentity { uint16_t vid; uint16_t pid; uint8_t interface_index; };
 esp_err_t usb_cdc_runtime_start(const UsbCdcIdentity&);
 bool usb_cdc_ready();

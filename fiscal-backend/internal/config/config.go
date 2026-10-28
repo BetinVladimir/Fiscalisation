@@ -2,6 +2,7 @@ package config
 
 import (
 	"errors"
+	"fmt"
 	"net/url"
 	"os"
 	"strconv"
@@ -32,61 +33,82 @@ func Load() Config {
 		LocalTokenIssuer: os.Getenv("LOCAL_FISCAL_TOKEN_ISSUER"), LocalTokenSigningKID: os.Getenv("LOCAL_FISCAL_TOKEN_SIGNING_KID"), LocalTokenPublicKeyDERBase64: os.Getenv("LOCAL_FISCAL_TOKEN_PUBLIC_KEY_DER_BASE64"),
 		SPADeploymentDescriptorURL: os.Getenv("SPA_DEPLOYMENT_DESCRIPTOR_URL"), SPADeploymentSigningKID: os.Getenv("SPA_DEPLOYMENT_SIGNING_KID"), SPADeploymentPublicKeyDERBase64: os.Getenv("SPA_DEPLOYMENT_PUBLIC_KEY_DER_BASE64"),
 		IntegrationSecretPepper: os.Getenv("INTEGRATION_SECRET_PEPPER"), IntegrationEncryptionKeyBase64: os.Getenv("INTEGRATION_ENCRYPTION_KEY_BASE64"),
-		AllowStubAdapters: strings.EqualFold(getenv("ALLOW_STUB_ADAPTERS", "true"), "true"), SimulatorCardTerminalAvailable: strings.EqualFold(getenv("SIMULATOR_CARD_TERMINAL_AVAILABLE", "false"), "true"),
+		AllowStubAdapters: strings.EqualFold(getenv("ALLOW_STUB_ADAPTERS", "false"), "true"), SimulatorCardTerminalAvailable: strings.EqualFold(getenv("SIMULATOR_CARD_TERMINAL_AVAILABLE", "false"), "true"),
 	}
 }
 func (c Config) Validate() error {
-	if c.AppEnv == "prod" && c.AllowStubAdapters {
-		return errors.New("ALLOW_STUB_ADAPTERS must be false in PROD")
+	switch c.AppEnv {
+	case "dev", "test", "prod", "staging":
+		// allowed
+	default:
+		return errors.New("APP_ENV must be one of: dev, test, staging, prod")
 	}
-	if c.AppEnv == "prod" && c.SimulatorCardTerminalAvailable {
-		return errors.New("SIMULATOR_CARD_TERMINAL_AVAILABLE must be false in PROD")
+
+	// Staging inherits all prod checks.
+	if c.AppEnv == "prod" || c.AppEnv == "staging" {
+		envLabel := "PROD"
+		if c.AppEnv == "staging" {
+			envLabel = "STAGING"
+		}
+		prefix := fmt.Sprintf("ALLOW_STUB_ADAPTERS must be false in %s", envLabel)
+		if c.AllowStubAdapters {
+			return errors.New(prefix)
+		}
+		if c.SimulatorCardTerminalAvailable {
+			return fmt.Errorf("SIMULATOR_CARD_TERMINAL_AVAILABLE must be false in %s", envLabel)
+		}
+		if !httpsURL(c.PublicBaseURL) {
+			return fmt.Errorf("PUBLIC_BASE_URL must use HTTPS in %s", envLabel)
+		}
+		if c.CORSAllowedOrigins == "*" || !secureOrigins(c.CORSAllowedOrigins) {
+			return fmt.Errorf("CORS_ALLOWED_ORIGINS must be an explicit HTTPS origin list in %s", envLabel)
+		}
+		if c.DatabaseURL == "" {
+			return fmt.Errorf("DATABASE_URL required in %s", envLabel)
+		}
+		if c.RLSDatabaseURL == "" {
+			return fmt.Errorf("RLS_DATABASE_URL required in %s", envLabel)
+		}
+		if strings.Contains(c.DatabaseURL, "sslmode=disable") || strings.Contains(c.RLSDatabaseURL, "sslmode=disable") {
+			return fmt.Errorf("sslmode=disable is not permitted in %s — use sslmode=require or verify-full", envLabel)
+		}
+		if !separateDatabaseUsers(c.DatabaseURL, c.RLSDatabaseURL) {
+			return fmt.Errorf("DATABASE_URL and RLS_DATABASE_URL must use separate database users in %s", envLabel)
+		}
+		if c.OIDCIssuer == "" || c.OIDCAudience == "" || c.OIDCJWKSURL == "" {
+			return fmt.Errorf("OIDC_ISSUER, OIDC_AUDIENCE and OIDC_JWKS_URL required in %s", envLabel)
+		}
+		if !httpsURL(c.OIDCIssuer) || !httpsURL(c.OIDCJWKSURL) {
+			return fmt.Errorf("OIDC issuer and JWKS URL must use HTTPS in %s", envLabel)
+		}
+		if c.RabbitMQURL == "" || c.SMTPHost == "" || c.SMTPUser == "" || c.SMTPPassword == "" || c.SMTPFrom == "" || c.SMTPPort < 1 {
+			return fmt.Errorf("RabbitMQ and SMTP configuration required in %s", envLabel)
+		}
+		if len(c.IntegrationSecretPepper) < 32 || strings.Contains(c.IntegrationSecretPepper, "dev-") || c.IntegrationEncryptionKeyBase64 == "" {
+			return fmt.Errorf("strong integration pepper and encryption key required in %s", envLabel)
+		}
+		if len(c.AuthHMACKey) < 32 || strings.Contains(c.AuthHMACKey, "dev-") {
+			return fmt.Errorf("strong AUTH_HMAC_KEY required in %s for BeeMiniPOS tokens", envLabel)
+		}
+		if len(c.BLESigningKey) < 32 || strings.Contains(c.BLESigningKey, "dev-") {
+			return fmt.Errorf("strong BLE_SIGNING_KEY required in %s", envLabel)
+		}
+		if c.DeviceCACertFile == "" || c.DeviceCAKeyFile == "" || !strings.HasPrefix(c.DeviceMQTTTLSURI, "ssl://") {
+			return fmt.Errorf("DEVICE_CA_CERT_FILE, DEVICE_CA_KEY_FILE and ssl:// DEVICE_MQTT_TLS_URI required in %s", envLabel)
+		}
+		if c.LocalTokenIssuer == "" || c.LocalTokenSigningKID == "" || c.LocalTokenPublicKeyDERBase64 == "" {
+			return fmt.Errorf("local fiscal token verifier trust required in %s", envLabel)
+		}
+		if !httpsURL(c.SPADeploymentDescriptorURL) || c.SPADeploymentSigningKID == "" || c.SPADeploymentPublicKeyDERBase64 == "" {
+			return fmt.Errorf("signed HTTPS SPA deployment trust required in %s", envLabel)
+		}
 	}
-	if c.AppEnv == "prod" && !httpsURL(c.PublicBaseURL) {
-		return errors.New("PUBLIC_BASE_URL must use HTTPS in PROD")
+
+	// EMQX broker + stub adapters is unsafe.
+	if c.EMQXBroker != "" && c.AllowStubAdapters {
+		return errors.New("EMQX_BROKER and ALLOW_STUB_ADAPTERS cannot be both configured — stub adapters are not compatible with a real MQTT broker")
 	}
-	if c.AppEnv == "prod" && (c.CORSAllowedOrigins == "*" || !secureOrigins(c.CORSAllowedOrigins)) {
-		return errors.New("CORS_ALLOWED_ORIGINS must be an explicit HTTPS origin list in PROD")
-	}
-	if c.AppEnv == "prod" && c.DatabaseURL == "" {
-		return errors.New("DATABASE_URL required in PROD")
-	}
-	if c.AppEnv == "prod" && c.RLSDatabaseURL == "" {
-		return errors.New("RLS_DATABASE_URL required in PROD")
-	}
-	if c.AppEnv == "prod" && (strings.Contains(c.DatabaseURL, "sslmode=disable") || strings.Contains(c.RLSDatabaseURL, "sslmode=disable")) {
-		return errors.New("sslmode=disable is not permitted in PROD — use sslmode=require or verify-full")
-	}
-	if c.AppEnv == "prod" && !separateDatabaseUsers(c.DatabaseURL, c.RLSDatabaseURL) {
-		return errors.New("DATABASE_URL and RLS_DATABASE_URL must use separate database users in PROD")
-	}
-	if c.AppEnv == "prod" && (c.OIDCIssuer == "" || c.OIDCAudience == "" || c.OIDCJWKSURL == "") {
-		return errors.New("OIDC_ISSUER, OIDC_AUDIENCE and OIDC_JWKS_URL required in PROD")
-	}
-	if c.AppEnv == "prod" && (!httpsURL(c.OIDCIssuer) || !httpsURL(c.OIDCJWKSURL)) {
-		return errors.New("OIDC issuer and JWKS URL must use HTTPS in PROD")
-	}
-	if c.AppEnv == "prod" && (c.RabbitMQURL == "" || c.SMTPHost == "" || c.SMTPUser == "" || c.SMTPPassword == "" || c.SMTPFrom == "" || c.SMTPPort < 1) {
-		return errors.New("RabbitMQ and SMTP configuration required in PROD")
-	}
-	if c.AppEnv == "prod" && (len(c.IntegrationSecretPepper) < 32 || strings.Contains(c.IntegrationSecretPepper, "dev-") || c.IntegrationEncryptionKeyBase64 == "") {
-		return errors.New("strong integration pepper and encryption key required in PROD")
-	}
-	if c.AppEnv == "prod" && (len(c.AuthHMACKey) < 32 || strings.Contains(c.AuthHMACKey, "dev-")) {
-		return errors.New("strong AUTH_HMAC_KEY required in PROD for BeeMiniPOS tokens")
-	}
-	if c.AppEnv == "prod" && (len(c.BLESigningKey) < 32 || strings.Contains(c.BLESigningKey, "dev-")) {
-		return errors.New("strong BLE_SIGNING_KEY required in PROD")
-	}
-	if c.AppEnv == "prod" && (c.DeviceCACertFile == "" || c.DeviceCAKeyFile == "" || !strings.HasPrefix(c.DeviceMQTTTLSURI, "ssl://")) {
-		return errors.New("DEVICE_CA_CERT_FILE, DEVICE_CA_KEY_FILE and ssl:// DEVICE_MQTT_TLS_URI required in PROD")
-	}
-	if c.AppEnv == "prod" && (c.LocalTokenIssuer == "" || c.LocalTokenSigningKID == "" || c.LocalTokenPublicKeyDERBase64 == "") {
-		return errors.New("local fiscal token verifier trust required in PROD")
-	}
-	if c.AppEnv == "prod" && (!httpsURL(c.SPADeploymentDescriptorURL) || c.SPADeploymentSigningKID == "" || c.SPADeploymentPublicKeyDERBase64 == "") {
-		return errors.New("signed HTTPS SPA deployment trust required in PROD")
-	}
+
 	return nil
 }
 func httpsURL(raw string) bool {

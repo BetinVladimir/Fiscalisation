@@ -1,0 +1,602 @@
+{
+  "version": 1,
+  "description": "5 hw paths x POS/MiniPOS x MQTT/BLE = 20 routes; S1..S8 per capabilities",
+  "routes": [
+    {
+      "route_id": "DatecsBC50/POS/MQTT",
+      "hw": "DatecsBC50",
+      "interface": "COM",
+      "vendor": "Datecs",
+      "client": "POS",
+      "transport": "MQTT",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    },
+    {
+      "route_id": "DatecsBC50/POS/BLE",
+      "hw": "DatecsBC50",
+      "interface": "COM",
+      "vendor": "Datecs",
+      "client": "POS",
+      "transport": "BLE",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    },
+    {
+      "route_id": "DatecsBC50/MiniPOS/MQTT",
+      "hw": "DatecsBC50",
+      "interface": "COM",
+      "vendor": "Datecs",
+      "client": "MiniPOS",
+      "transport": "MQTT",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    },
+    {
+      "route_id": "DatecsBC50/MiniPOS/BLE",
+      "hw": "DatecsBC50",
+      "interface": "COM",
+      "vendor": "Datecs",
+      "client": "MiniPOS",
+      "transport": "BLE",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    },
+    {
+      "route_id": "BluePay/POS/MQTT",
+      "hw": "BluePay",
+      "interface": "BLE",
+      "vendor": "BluePay",
+      "client": "POS",
+      "transport": "MQTT",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    },
+    {
+      "route_id": "BluePay/POS/BLE",
+      "hw": "BluePay",
+      "interface": "BLE",
+      "vendor": "BluePay",
+      "client": "POS",
+      "transport": "BLE",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    },
+    {
+      "route_id": "BluePay/MiniPOS/MQTT",
+      "hw": "BluePay",
+      "interface": "BLE",
+      "vendor": "BluePay",
+      "client": "MiniPOS",
+      "transport": "MQTT",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    },
+    {
+      "route_id": "BluePay/MiniPOS/BLE",
+      "hw": "BluePay",
+      "interface": "BLE",
+      "vendor": "BluePay",
+      "client": "MiniPOS",
+      "transport": "BLE",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    },
+    {
+      "route_id": "DaisyCompact/POS/MQTT",
+      "hw": "DaisyCompact",
+      "interface": "USB",
+      "vendor": "Daisy",
+      "client": "POS",
+      "transport": "MQTT",
+      "capabilities": [
+        "CASH",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [
+        {
+          "scenario": "CARD_before_io",
+          "expect": "PAYMENT_TYPE_UNSUPPORTED"
+        },
+        {
+          "scenario": "SPLIT_before_io",
+          "expect": "PAYMENT_TYPE_UNSUPPORTED"
+        }
+      ],
+      "supto": true
+    },
+    {
+      "route_id": "DaisyCompact/POS/BLE",
+      "hw": "DaisyCompact",
+      "interface": "USB",
+      "vendor": "Daisy",
+      "client": "POS",
+      "transport": "BLE",
+      "capabilities": [
+        "CASH",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [
+        {
+          "scenario": "CARD_before_io",
+          "expect": "PAYMENT_TYPE_UNSUPPORTED"
+        },
+        {
+          "scenario": "SPLIT_before_io",
+          "expect": "PAYMENT_TYPE_UNSUPPORTED"
+        }
+      ],
+      "supto": true
+    },
+    {
+      "route_id": "DaisyCompact/MiniPOS/MQTT",
+      "hw": "DaisyCompact",
+      "interface": "USB",
+      "vendor": "Daisy",
+      "client": "MiniPOS",
+      "transport": "MQTT",
+      "capabilities": [
+        "CASH",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [
+        {
+          "scenario": "CARD_before_io",
+          "expect": "PAYMENT_TYPE_UNSUPPORTED"
+        },
+        {
+          "scenario": "SPLIT_before_io",
+          "expect": "PAYMENT_TYPE_UNSUPPORTED"
+        }
+      ],
+      "supto": true
+    },
+    {
+      "route_id": "DaisyCompact/MiniPOS/BLE",
+      "hw": "DaisyCompact",
+      "interface": "USB",
+      "vendor": "Daisy",
+      "client": "MiniPOS",
+      "transport": "BLE",
+      "capabilities": [
+        "CASH",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [
+        {
+          "scenario": "CARD_before_io",
+          "expect": "PAYMENT_TYPE_UNSUPPORTED"
+        },
+        {
+          "scenario": "SPLIT_before_io",
+          "expect": "PAYMENT_TYPE_UNSUPPORTED"
+        }
+      ],
+      "supto": true
+    },
+    {
+      "route_id": "SmartS/POS/MQTT",
+      "hw": "SmartS",
+      "interface": "HTTP",
+      "vendor": "Smart",
+      "client": "POS",
+      "transport": "MQTT",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": true,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [
+        {
+          "scenario": "prod_no_doc_number",
+          "expect": "UNKNOWN"
+        },
+        {
+          "scenario": "lab_no_doc_number",
+          "expect": "COMMITTED_NO_REFERENCE"
+        }
+      ],
+      "supto": true
+    },
+    {
+      "route_id": "SmartS/POS/BLE",
+      "hw": "SmartS",
+      "interface": "HTTP",
+      "vendor": "Smart",
+      "client": "POS",
+      "transport": "BLE",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": true,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [
+        {
+          "scenario": "prod_no_doc_number",
+          "expect": "UNKNOWN"
+        },
+        {
+          "scenario": "lab_no_doc_number",
+          "expect": "COMMITTED_NO_REFERENCE"
+        }
+      ],
+      "supto": true
+    },
+    {
+      "route_id": "SmartS/MiniPOS/MQTT",
+      "hw": "SmartS",
+      "interface": "HTTP",
+      "vendor": "Smart",
+      "client": "MiniPOS",
+      "transport": "MQTT",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": true,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [
+        {
+          "scenario": "prod_no_doc_number",
+          "expect": "UNKNOWN"
+        },
+        {
+          "scenario": "lab_no_doc_number",
+          "expect": "COMMITTED_NO_REFERENCE"
+        }
+      ],
+      "supto": true
+    },
+    {
+      "route_id": "SmartS/MiniPOS/BLE",
+      "hw": "SmartS",
+      "interface": "HTTP",
+      "vendor": "Smart",
+      "client": "MiniPOS",
+      "transport": "BLE",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": true,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [
+        {
+          "scenario": "prod_no_doc_number",
+          "expect": "UNKNOWN"
+        },
+        {
+          "scenario": "lab_no_doc_number",
+          "expect": "COMMITTED_NO_REFERENCE"
+        }
+      ],
+      "supto": true
+    },
+    {
+      "route_id": "BlueCash/POS/MQTT",
+      "hw": "BlueCash",
+      "interface": "COM",
+      "vendor": "BlueCash",
+      "client": "POS",
+      "transport": "MQTT",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    },
+    {
+      "route_id": "BlueCash/POS/BLE",
+      "hw": "BlueCash",
+      "interface": "COM",
+      "vendor": "BlueCash",
+      "client": "POS",
+      "transport": "BLE",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    },
+    {
+      "route_id": "BlueCash/MiniPOS/MQTT",
+      "hw": "BlueCash",
+      "interface": "COM",
+      "vendor": "BlueCash",
+      "client": "MiniPOS",
+      "transport": "MQTT",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    },
+    {
+      "route_id": "BlueCash/MiniPOS/BLE",
+      "hw": "BlueCash",
+      "interface": "COM",
+      "vendor": "BlueCash",
+      "client": "MiniPOS",
+      "transport": "BLE",
+      "capabilities": [
+        "CASH",
+        "CARD",
+        "SPLIT",
+        "SUPTO"
+      ],
+      "lab_only": false,
+      "scenarios": [
+        "S1_sale_cash",
+        "S2_sale_card",
+        "S3_split_payment",
+        "S4_storno",
+        "S5_timeout_unknown",
+        "S6_duplicate_key",
+        "S7_supto",
+        "S8_restart"
+      ],
+      "negative": [],
+      "supto": true
+    }
+  ]
+}

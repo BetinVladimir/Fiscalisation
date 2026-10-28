@@ -1,0 +1,298 @@
+python3 IoT/firmware/edge-agent-s3/idf/tests/execution_auth_host/run.py
+valid PASS
+expired PASS
+future PASS
+long-ttl PASS
+wrong-tenant PASS
+wrong-binding PASS
+wrong-range PASS
+wrong-device-number PASS
+wrong-memory-number PASS
+wrong-operator PASS
+wrong-command PASS
+wrong-client PASS
+tampered-issuer PASS
+tampered-proof PASS
+tampered-payload PASS
+foreign-alias PASS
+noncanonical PASS
+online-valid PASS
+online-wrong-unp PASS
+online-wrong-server PASS
+online-wrong-serial PASS
+online-wrong-operator PASS
+online-missing-authority PASS
+online-wrong-source PASS
+offline-caller-unp PASS
+online-wrong-hash PASS
+online-wrong-operation PASS
+online-wrong-receipt PASS
+online-altered-lines PASS
+python3 IoT/firmware/edge-agent-s3/idf/tests/authority_host/run.py
+format actual SQLite authority PASS
+configuration actual SQLite authority PASS
+boundary actual SQLite authority PASS
+atomic actual SQLite authority PASS
+policy actual SQLite authority PASS
+operators actual SQLite authority PASS
+assigned actual SQLite authority PASS
+concurrent-assigned actual SQLite authority PASS
+valid actual issuer→IntentProcessor→SQLite PASS
+missing actual issuer→IntentProcessor→SQLite PASS
+signature actual issuer→IntentProcessor→SQLite PASS
+binding actual issuer→IntentProcessor→SQLite PASS
+expired actual issuer→IntentProcessor→SQLite PASS
+payload actual issuer→IntentProcessor→SQLite PASS
+valid actual issuer→IntentProcessor→SQLite PASS
+missing actual issuer→IntentProcessor→SQLite PASS
+signature actual issuer→IntentProcessor→SQLite PASS
+binding actual issuer→IntentProcessor→SQLite PASS
+expired actual issuer→IntentProcessor→SQLite PASS
+payload actual issuer→IntentProcessor→SQLite PASS
+bash IoT/firmware/edge-agent-s3/idf/tests/run_provisioning_host.sh
+CMake Deprecation Warning at CMakeLists.txt:21 (cmake_minimum_required):
+  Compatibility with CMake < 3.10 will be removed from a future version of
+  CMake.
+
+  Update the VERSION argument <min> value.  Or, use the <min>...<max> syntax
+  to tell CMake that the project requires at least <min> but has been updated
+  to work with policies introduced by <max> or earlier.
+
+
+ok  	fiscalisation/fiscal-backend/internal/provisioningseal	0.264s
+Go issuer -> actual mbedTLS/device identity decrypt; subject/signature/GCM/device/replay guards + ordered framed transfer PASS
+ok  	fiscalisation/fiscal-backend/internal/domain	0.319s
+Actual issuer -> mbedTLS signed schema3 + encrypted NVS transaction / commit failure / lost-ACK reload / replay / subject and secret rejection PASS
+ok  	fiscalisation/fiscal-backend/internal/domain	0.267s
+python3 IoT/firmware/edge-agent-s3/idf/tests/go_json_host/run.py
+existing cJSON serialization mismatches=3
+Go oracle corpus PASS 2055 cases
+python3 IoT/firmware/edge-agent-s3/idf/tests/go_wire_host/run.py
+actual Go signed command/payload accepted with reordered keys; malformed and unsafeinteger ingress rejected
+mqtt-valid actual issuer→IntentProcessor→SQLite PASS
+actual Go domain verifies firmware event/batch hashes; signed typed ACK emitted
+actual Go ACK HMAC accepted and durable cursor committed 1
+actual Go domain verifies firmware event/batch hashes; signed typed ACK emitted
+actual Go ACK HMAC accepted and durable cursor committed 9223372036854775806
+FROZEN_SYNC_CANONICAL_MISMATCH: retain signed batch 01020304-0506-4708-890a-0b0c0d0e0f10 for operator reconciliation; automatic rewrite forbidden
+legacy incompatible frozen batch blocked unchanged
+python3 IoT/firmware/edge-agent-s3/idf/tests/reversal_host/run.py
+datecs actual reversal vendor sequence PASS OPERATOR_ERROR
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+datecs actual reversal vendor sequence PASS CUSTOMER_RETURN
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+datecs actual reversal vendor sequence PASS CUSTOMER_COMPLAINT
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+datecs actual reversal vendor sequence PASS TAX_BASE_REDUCTION
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+daisy actual reversal vendor sequence PASS OPERATOR_ERROR
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+daisy actual reversal vendor sequence PASS CUSTOMER_RETURN
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+daisy actual reversal vendor sequence PASS CUSTOMER_COMPLAINT
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+daisy actual reversal vendor sequence PASS TAX_BASE_REDUCTION
+actual backend projects CANCELLED / REVERSAL FISCALIZED + webhook; actual Go verifies accepted REVERSAL + REVERSED result with internal/external IDs
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+actual reversal decode rc=258
+python3 IoT/firmware/edge-agent-s3/idf/tests/receipt_host/run.py
+datecs sale valid receipt proof PASS
+datecs sale bad-close receipt proof PASS
+datecs sale wrong-number receipt proof PASS
+datecs sale wrong-unp receipt proof PASS
+datecs sale substring receipt proof PASS
+datecs sale wrong-type receipt proof PASS
+datecs sale bad-date receipt proof PASS
+datecs sale wrong-serial receipt proof PASS
+datecs reversal valid receipt proof PASS
+datecs reversal bad-close receipt proof PASS
+datecs reversal wrong-number receipt proof PASS
+datecs reversal wrong-unp receipt proof PASS
+datecs reversal substring receipt proof PASS
+datecs reversal wrong-type receipt proof PASS
+datecs reversal bad-date receipt proof PASS
+datecs reversal wrong-serial receipt proof PASS
+datecs recover-sale valid receipt proof PASS
+datecs recover-sale wrong-number receipt proof PASS
+datecs recover-sale wrong-unp receipt proof PASS
+datecs recover-sale substring receipt proof PASS
+datecs recover-sale wrong-type receipt proof PASS
+datecs recover-sale bad-date receipt proof PASS
+datecs recover-sale wrong-serial receipt proof PASS
+daisy sale valid receipt proof PASS
+daisy sale bad-close receipt proof PASS
+daisy sale wrong-number receipt proof PASS
+daisy sale wrong-unp receipt proof PASS
+daisy sale substring receipt proof PASS
+daisy sale wrong-type receipt proof PASS
+daisy sale bad-date receipt proof PASS
+daisy sale wrong-serial receipt proof PASS
+daisy reversal valid receipt proof PASS
+daisy reversal bad-close receipt proof PASS
+daisy reversal wrong-number receipt proof PASS
+daisy reversal wrong-unp receipt proof PASS
+daisy reversal substring receipt proof PASS
+daisy reversal wrong-type receipt proof PASS
+daisy reversal bad-date receipt proof PASS
+daisy reversal wrong-serial receipt proof PASS
+daisy recover-sale valid receipt proof PASS
+daisy recover-sale wrong-number receipt proof PASS
+daisy recover-sale wrong-unp receipt proof PASS
+daisy recover-sale substring receipt proof PASS
+daisy recover-sale wrong-type receipt proof PASS
+daisy recover-sale bad-date receipt proof PASS
+daisy recover-sale wrong-serial receipt proof PASS
+datecs sale line-limit receipt proof PASS
+daisy sale not-ejt receipt proof PASS
+daisy reversal not-ejt receipt proof PASS
+daisy reversal wrong-link receipt proof PASS
+daisy reversal wrong-fm receipt proof PASS
+python3 -m unittest discover -s IoT/firmware/edge-agent-s3/idf/tests -p 'test_*.py'
+.............................
+----------------------------------------------------------------------
+Ran 29 tests in 0.057s
+
+OK
+IoT/firmware/edge-agent-s3/idf/tests/run_native_saga.sh
+receipt saga native fault matrix PASS
+bash IoT/firmware/edge-agent-s3/idf/tests/run_native_mqtt.sh
+actual MQTT runtime host tests: OK
+bash IoT/firmware/edge-agent-s3/idf/tests/run_native_serial.sh
+actual serial runtime tests: OK
+bash IoT/firmware/edge-agent-s3/idf/tests/run_native_ble.sh
+actual BLE runtime host tests: OK
+sh IoT/firmware/edge-agent-s3/idf/tests/run_storage_host.sh
+validity-issued-boundary actual HMAC+IntentProcessor+SQLite PASS
+validity-fraction actual HMAC+IntentProcessor+SQLite PASS
+validity-nano-expired actual HMAC+IntentProcessor+SQLite PASS
+validity-nano-future actual HMAC+IntentProcessor+SQLite PASS
+validity-expired actual HMAC+IntentProcessor+SQLite PASS
+validity-future actual HMAC+IntentProcessor+SQLite PASS
+validity-missing-issued actual HMAC+IntentProcessor+SQLite PASS
+validity-missing-expires actual HMAC+IntentProcessor+SQLite PASS
+validity-reversed actual HMAC+IntentProcessor+SQLite PASS
+validity-equal actual HMAC+IntentProcessor+SQLite PASS
+validity-calendar actual HMAC+IntentProcessor+SQLite PASS
+validity-overflow actual HMAC+IntentProcessor+SQLite PASS
+validity-offset actual HMAC+IntentProcessor+SQLite PASS
+validity-leap-second actual HMAC+IntentProcessor+SQLite PASS
+validity-clock-zero actual HMAC+IntentProcessor+SQLite PASS
+validity-clock-failed actual HMAC+IntentProcessor+SQLite PASS
+validity-clock-nanos actual HMAC+IntentProcessor+SQLite PASS
+validity-reservation-expired actual HMAC+IntentProcessor+SQLite PASS
+validity-transaction-expired actual HMAC+IntentProcessor+SQLite PASS
+validity-admitted-expired actual HMAC+IntentProcessor+SQLite PASS
+validity-before-io-expired actual HMAC+IntentProcessor+SQLite PASS
+expired signed command rejected before IO/reservation
+preassigned PASS (actual IntentProcessor + SQLite, reopened)
+preassigned-negative PASS eight authenticated negativecommands beforeI/O
+currency-validation PASS (actual decoder, no reservation/executor)
+recovery-json PASS (actual recovery + SQLite, reopened)
+json-result PASS (actual IntentProcessor + SQLite, reopened)
+checkpoint PASS (actual IntentProcessor + SQLite, reopened)
+outbox PASS (actual IntentProcessor + SQLite, reopened)
+receipt PASS (actual IntentProcessor + SQLite, reopened)
+payment PASS (actual IntentProcessor + SQLite, reopened)
+collision PASS (actual IntentProcessor + SQLite, reopened)
+normal PASS (actual IntentProcessor + SQLite, reopened)
+cards PASS (actual IntentProcessor + SQLite, reopened)
+recovery-outbox PASS (actual recovery + SQLite, reopened)
+recovery-receipt PASS (actual recovery + SQLite, reopened)
+recovery-normal PASS (actual recovery + SQLite, reopened)
+recovery-progress PASS (actual recovery + SQLite, reopened)
+recovery-preserve-cards PASS (actual recovery + SQLite, reopened)
+recovery-storage-error PASS (closed SQLite fails explicitly)
+recovery-missing-receipt PASS (legacy incomplete context fails closed)
+sh IoT/firmware/edge-agent-s3/idf/tests/run_sync_host.sh
+normal PASS (actual sync runtime, durable SQLite restart)
+duplicate PASS (actual sync runtime, durable SQLite restart)
+interleaving PASS (writer queued while ACK holds storage mutex)
+large-sequence PASS
+concurrent-append PASS (concurrent actual SQLite writer/ACK)
+publish-failure PASS (actual sync runtime, durable SQLite restart)
+changed-row PASS (actual sync runtime, durable SQLite restart)
+ack-fault PASS (actual sync runtime, durable SQLite restart)
+delete-fault PASS (actual sync runtime, durable SQLite restart)
+freeze-fault PASS
+sh IoT/firmware/edge-agent-s3/idf/tests/run_money_host.sh
+In file included from /Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/money_host/money_native.cpp:1:
+In file included from /Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.h:4:
+/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/serial_exchange.h:18:18: warning: private field 'next_sequence_' is not used [-Wunused-private-field]
+   18 |  private:uint8_t next_sequence_{0x20};
+      |                  ^
+1 warning generated.
+actual profile execution vendor bytes / fixed money / fail-before-POS / secure-store path PASS
+sh IoT/firmware/edge-agent-s3/idf/tests/run_saga_storage_host.sh
+all-approved PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+decline-compensated PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+second-not-sent PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+second-unknown PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+first-declined PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+unverified PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+reversal-unknown PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+fiscal-unknown PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+fiscal-rejected PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+refund-no-original PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+begin-table PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+begin-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+intent-payment PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+intent-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+outcome-payment PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+outcome-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+fiscal-phase PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+fiscal-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-intent-payment PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-intent-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-outcome-payment PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-outcome-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-final-phase PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-final-operation PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+begin-member PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+cas-ownership PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+comp-outcome-member PASS (actual SQLite checkpoints, power-cycle, no duplicate payment/reversal)
+sh IoT/firmware/edge-agent-s3/idf/tests/run_tender_recovery_host.sh
+compensated PASS (actual SQLite per-tender recovery)
+declined PASS (actual SQLite per-tender recovery)
+reserved PASS (actual SQLite per-tender recovery)
+second-unknown-resolved PASS (actual SQLite per-tender recovery)
+partial-reversed-resume PASS (actual SQLite per-tender recovery)
+query-race PASS (actual SQLite per-tender recovery)
+query-approved PASS (actual SQLite per-tender recovery)
+query-declined PASS (actual SQLite per-tender recovery)
+query-unknown PASS (actual SQLite per-tender recovery)
+foreign-query PASS (actual SQLite per-tender recovery)
+conflict-query PASS (actual SQLite per-tender recovery)
+query-fault PASS (actual SQLite per-tender recovery)
+operation-fault PASS (actual SQLite per-tender recovery)
+reversal-query PASS (actual SQLite per-tender recovery)
+reversal-unknown PASS (actual SQLite per-tender recovery)
+reversal-fault PASS (actual SQLite per-tender recovery)
+comp-resume PASS (actual SQLite per-tender recovery)
+comp-unknown PASS (actual SQLite per-tender recovery)
+comp-unverified PASS (actual SQLite per-tender recovery)
+comp-intent-fault PASS (actual SQLite per-tender recovery)
+comp-outcome-fault PASS (actual SQLite per-tender recovery)
+fiscal-proven PASS (actual SQLite per-tender recovery)
+fiscal-unproven PASS (actual SQLite per-tender recovery)
+fiscal-conflict PASS (actual SQLite per-tender recovery)
+legacy-card PASS (actual SQLite per-tender recovery)
+terminal-owner PASS (actual SQLite per-tender recovery)
+stale-cas PASS (actual SQLite per-tender recovery)
+snapshot-fault PASS (actual SQLite per-tender recovery)
+IoT/common-modules/daisy/run-tests.sh
+Daisy protocol tests passed
+IoT/common-modules/datecs/run-tests.sh
+Datecs protocol tests passed
+IoT/common-modules/datecspay/run-tests.sh
+Datecs Pay protocol tests passed
+IoT/protocol-abstraction/run-tests.sh
+protocol-abstraction tests: OK
+runtime vendor codec tests: OK

@@ -1,0 +1,32 @@
+{
+  "reason": "Reviewed domain terminology; preserve raw model responses separately",
+  "overrides": {
+    "bg": {
+      "showMore": "Покажи още",
+      "section.activationRequest": "Заявка за активиране на устройство",
+      "field.fmin": "Номер на фискалното устройство",
+      "field.hops": "Преходи на транспорта",
+      "field.adapter_device_id": "Идентификатор на адаптерното устройство",
+      "field.register_id": "Идентификатор на касовото място",
+      "field.binding_generation": "Поколение на обвързването",
+      "field.adapter_state": "Състояние на адаптера",
+      "field.redactions_applied": "Приложено скриване на чувствителни данни",
+      "field.binding_id": "Идентификатор на обвързването",
+      "field.binding_sha256": "SHA-256 на обвързването",
+      "field.generation": "Поколение",
+      "field.tenant_id": "Идентификатор на организацията",
+      "field.claimed_tenant_id": "Заявен идентификатор на организацията",
+      "field.binding_version": "Версия на обвързването"
+    },
+    "ru": {
+      "emptyText": "Пустой текст",
+      "section.activationRequest": "Запрос на активацию устройства",
+      "field.capability_digest": "Контрольная сумма возможностей",
+      "field.hops": "Переходы транспорта",
+      "field.register_id": "ID кассового места",
+      "field.redactions_applied": "Применено скрытие чувствительных данных",
+      "field.tenant_id": "ID организации",
+      "field.claimed_tenant_id": "Заявленный ID организации"
+    }
+  }
+}

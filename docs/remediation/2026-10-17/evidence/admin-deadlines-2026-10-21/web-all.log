@@ -1,0 +1,278 @@
+
+> @beeloy/miniposweb@0.1.0 test
+> vitest run
+
+
+ RUN  v3.0.7 /Users/freelancer/Documents/Beeloy/Fiscalisation/minipos/miniposweb
+
+ ✓ tests/header-leave-guard-current.test.tsx (8 tests) 90ms
+ ✓ tests/app-logout-current.test.tsx (4 tests) 98ms
+ ✓ tests/operational-header-current.test.tsx (2 tests) 114ms
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > actual draft registers Stay/Discard and synchronous pending prevents Sales before commit, preserves failed draft
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > retired actual field/save callbacks cannot write after owner ABA
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > late failed old-owner save cannot unlock or overwrite current owner state
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > live leave intent synchronously rejects retained edit/save/cancel; Stay restores editing
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > live leave intent synchronously rejects retained edit/save/cancel; Stay restores editing
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > live leave intent synchronously rejects retained edit/save/cancel; Stay restores editing
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > live leave intent synchronously rejects retained edit/save/cancel; Stay restores editing
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+The current testing environment is not configured to support act(...)
+
+stderr | tests/management-header-current.test.tsx > live leave intent synchronously rejects retained edit/save/cancel; Stay restores editing
+The current testing environment is not configured to support act(...)
+
+ ✓ tests/management-header-current.test.tsx (4 tests) 432ms
+ ✓ tests/shift-close-panel-current.test.tsx (5 tests) 492ms
+ ✓ tests/provider-startup-current.test.tsx (28 tests) 806ms
+ ✓ tests/fiscal-operation-result-current.test.tsx (5 tests) 1416ms
+   ✓ en actualcopy, completevalues, noJSON, genuinePaper wrap/48 andstaleowner 499ms
+   ✓ ru actualcopy, completevalues, noJSON, genuinePaper wrap/48 andstaleowner 625ms
+ ✓ tests/app-logout-lifecycle-current.test.tsx (3 tests) 894ms
+   ✓ working signout clears credentials and local authority before leaving the app 533ms
+ ✓ tests/preference-controls-current.test.tsx (15 tests) 2181ms
+   ✓ width 320 uses one language menu with all supported choices and bounded scrolling 607ms
+ ✓ tests/form-field-composition-current.test.tsx (3 tests) 86ms
+stderr | tests/fiscal-operation-app-checkout-current.test.tsx > actual App checkout discount undefined prepares root authority and signs exact money intent then reverses
+An update to App inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ tests/auth-surface-current.test.tsx (5 tests) 370ms
+ ✓ tests/system-media-current.test.tsx (3 tests) 260ms
+ ✓ tests/app-button-composition-current.test.tsx (10 tests) 242ms
+stderr | tests/payment-reconciliation-panel.test.tsx > requires explicit review and confirmation of actual root signed expected/observed state before sending
+An update to PaymentReconciliationPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+stderr | tests/payment-reconciliation-panel.test.tsx > requires explicit review and confirmation of actual root signed expected/observed state before sending
+An update to PaymentReconciliationPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to PaymentReconciliationPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ tests/header-metrics-current.test.tsx (10 tests) 142ms
+ ✓ tests/shift-dialog-accessibility-current.test.tsx (2 tests) 265ms
+stderr | tests/payment-reconciliation-panel.test.tsx > requires explicit review and confirmation of actual root signed expected/observed state before sending
+An update to PaymentReconciliationPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+An update to PaymentReconciliationPanel inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ tests/fiscal-operation-total-layout-current.test.tsx (5 tests) 224ms
+ ✓ tests/payment-reconciliation-panel.test.tsx (5 tests) 5059ms
+   ✓ requires explicit review and confirmation of actual root signed expected/observed state before sending 715ms
+ ✓ tests/routeController.test.ts (21 tests) 52ms
+ ✓ tests/fiscal-operation-real-action-current.test.tsx (2 tests) 239ms
+ ✓ tests/fiscal-operation-authoring-contract.test.ts (6 tests) 9ms
+ ✓ tests/cloudRecovery.test.ts (14 tests) 61ms
+ ✓ tests/outbox-proof-ui.test.ts (6 tests) 180ms
+ ✓ tests/fiscal-operation-catalogues.test.ts (2 tests) 38ms
+ ✓ tests/fiscal-operation-rows.test.ts (9 tests) 16ms
+ ✓ tests/operation-outcome-catalogues-current.test.ts (2 tests) 24ms
+ ✓ tests/shift-close-current.test.ts (4 tests) 45ms
+ ✓ tests/authTokens.test.ts (12 tests) 9ms
+ ✓ tests/unresolved-sale-current.test.ts (6 tests) 3ms
+ ✓ tests/reference-recovery.test.ts (2 tests) 22ms
+ ✓ tests/sale-divider-current.test.tsx (1 test) 128ms
+ ✓ tests/form-field-paper-surface.test.tsx (1 test) 8ms
+ ✓ tests/intentBuilder.test.ts (3 tests) 9ms
+ ✓ tests/outbox-recovery.test.ts (2 tests) 13ms
+ ✓ tests/operation-outcome-render-current.test.tsx (3 tests) 15ms
+ ✓ tests/referenceScope.test.ts (8 tests) 6ms
+ ✓ tests/outboxScope.test.ts (10 tests) 4ms
+ ✓ tests/workTranslations.test.ts (1 test) 30ms
+ ✓ tests/operation-outcome-current.test.ts (9 tests) 3ms
+ ✓ tests/payment-reconciliation.test.ts (7 tests) 1196ms
+ ✓ tests/operation-message-current.test.ts (25 tests) 8ms
+ ✓ tests/api-client-version.test.ts (1 test) 17ms
+ ✓ tests/saleNumber.test.ts (16 tests) 3ms
+stderr | tests/fiscal-operation-app-checkout-current.test.tsx > actual App checkout discount 0 prepares root authority and signs exact money intent then reverses
+An update to App inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ tests/executionAuthorization.test.ts (1 test) 2ms
+ ✓ tests/authTranslations.test.ts (1 test) 21ms
+ ✓ tests/header-layout-current.test.ts (1 test) 2ms
+ ✓ tests/goCanonical.test.ts (2 tests) 795ms
+   ✓ Go canonical wire bytes > matches actual encoding/json for fiscal payloads and Unicode keys 792ms
+stderr | tests/fiscal-operation-app-checkout-current.test.tsx > actual App checkout discount 0.2 prepares root authority and signs exact money intent then reverses
+An update to App inside a test was not wrapped in act(...).
+
+When testing, code that causes React state updates should be wrapped into act(...):
+
+act(() => {
+  /* fire events that update state */
+});
+/* assert on the output */
+
+This ensures that you're testing the behavior the user would see in the browser. Learn more at https://react.dev/link/wrap-tests-with-act
+
+ ✓ tests/fiscal-operation-app-checkout-current.test.tsx (3 tests) 8899ms
+   ✓ actual App checkout discount undefined prepares root authority and signs exact money intent then reverses 5539ms
+   ✓ actual App checkout discount 0 prepares root authority and signs exact money intent then reverses 2230ms
+   ✓ actual App checkout discount 0.2 prepares root authority and signs exact money intent then reverses 1129ms
+
+ Test Files  47 passed (47)
+      Tests  298 passed (298)
+   Start at  03:14:15
+   Duration  14.61s (transform 6.17s, setup 0ms, collect 19.19s, tests 25.03s, environment 52.85s, prepare 15.48s)
+

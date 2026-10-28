@@ -1,0 +1,3 @@
+# Commit-owned UI actions
+
+Full configured React suites and TypeScript PASS. RED logs contain actual assertions for speculative render authority, stale wrapper retargeting and the newly discovered stale Paper mock; they are not acceptance PASS. Fresh r5 production-mode bundles passed six scoped auth/dirty-logout cases with synthetic HTTP and zero financial writes. Browser source includes unrelated working-tree AppFrame/header changes, recorded separately in source-comparison-r5.json; this does not accept those changes. Fiscal stale401 and MiniPOS theme-menu cases remain OPEN. Hardware/native/full financial UI and NAP acceptance remain OPEN. No credentials or generated private key assets are included.

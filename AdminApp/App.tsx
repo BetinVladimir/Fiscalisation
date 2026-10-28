@@ -9,6 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import { StyleSheet, View } from "react-native";
 import { usePlatformOidc } from "./src/usePlatformOidc";
 import Constants from "expo-constants";
+import { randomUUID } from 'expo-crypto';
 import { BeeloyAppProvider } from "./src/ui/provider";
 type Device = {
   id: string;
@@ -128,7 +129,7 @@ function AppContent() {
     try {
       const result = await api("/platform/v1/external-systems", {
         method: "POST",
-        headers: { "Idempotency-Key": crypto.randomUUID() },
+        headers: { "Idempotency-Key": randomUUID() },
         body: JSON.stringify({
           code: systemCode,
           display_name: systemName,
@@ -144,15 +145,15 @@ function AppContent() {
   const systemAction = async (system: ExternalSystem, action: "rotate-key" | "suspend" | "resume") => {
     setBusy(true);
     try {
-      const result = await api(`/platform/v1/external-systems/${system.id}:${action}`, { method: "POST", headers: { "Idempotency-Key": crypto.randomUUID() } });
+      const result = await api(`/platform/v1/external-systems/${system.id}:${action}`, { method: "POST", headers: { "Idempotency-Key": randomUUID() } });
       if (result.bootstrap_token) setRevealedToken(result.bootstrap_token);
       await loadSystems();
     } catch (e) { setMessage(String(e)); } finally { setBusy(false); }
   };
   const loadSystemJournal=async(system:ExternalSystem)=>{setSelectedSystem(system);setBusy(true);try{const [audit,bindings,deliveries]=await Promise.all([api(`/platform/v1/external-systems/${system.id}/audit-events`),api(`/platform/v1/external-systems/${system.id}/tenant-bindings`),api(`/platform/v1/external-systems/${system.id}/webhook-deliveries`)]);setSystemAudit(audit.items||[]);setSystemBindings(bindings.items||[]);setSystemDeliveries(deliveries.items||[])}catch(e){setMessage(String(e))}finally{setBusy(false)}};
-  const editSystem=async()=>{if(!selectedSystem)return;setBusy(true);try{await api(`/platform/v1/external-systems/${selectedSystem.id}`,{method:"PATCH",headers:{"Idempotency-Key":crypto.randomUUID(),"If-Match":String(selectedSystem.version)},body:JSON.stringify({display_name:systemName||selectedSystem.display_name,webhook_url:webhookUrl||selectedSystem.webhook_url,webhook_events:selectedSystem.webhook_events,version:selectedSystem.version})});setSelectedSystem(null);setSystemName("");setWebhookUrl("");await loadSystems()}catch(e){setMessage(String(e))}finally{setBusy(false)}};
-  const requeue=async(id:string)=>{setBusy(true);try{await api(`/platform/v1/webhook-deliveries/${id}:requeue`,{method:"POST",headers:{"Idempotency-Key":crypto.randomUUID()}});if(selectedSystem)await loadSystemJournal(selectedSystem)}catch(e){setMessage(String(e))}finally{setBusy(false)}};
-  const resolveConflict=async(id:string,decision:"KEEP_EXISTING"|"REPLACE_EXISTING")=>{if(!conflictReason.trim())return;setBusy(true);try{await api(`/platform/v1/enrollment-conflicts/${id}:resolve`,{method:"POST",headers:{"Idempotency-Key":crypto.randomUUID()},body:JSON.stringify({decision,reason:conflictReason})});setConflictReason("");await loadSystems()}catch(e){setMessage(String(e))}finally{setBusy(false)}};
+  const editSystem=async()=>{if(!selectedSystem)return;setBusy(true);try{await api(`/platform/v1/external-systems/${selectedSystem.id}`,{method:"PATCH",headers:{"Idempotency-Key":randomUUID(),"If-Match":String(selectedSystem.version)},body:JSON.stringify({display_name:systemName||selectedSystem.display_name,webhook_url:webhookUrl||selectedSystem.webhook_url,webhook_events:selectedSystem.webhook_events,version:selectedSystem.version})});setSelectedSystem(null);setSystemName("");setWebhookUrl("");await loadSystems()}catch(e){setMessage(String(e))}finally{setBusy(false)}};
+  const requeue=async(id:string)=>{setBusy(true);try{await api(`/platform/v1/webhook-deliveries/${id}:requeue`,{method:"POST",headers:{"Idempotency-Key":randomUUID()}});if(selectedSystem)await loadSystemJournal(selectedSystem)}catch(e){setMessage(String(e))}finally{setBusy(false)}};
+  const resolveConflict=async(id:string,decision:"KEEP_EXISTING"|"REPLACE_EXISTING")=>{if(!conflictReason.trim())return;setBusy(true);try{await api(`/platform/v1/enrollment-conflicts/${id}:resolve`,{method:"POST",headers:{"Idempotency-Key":randomUUID()},body:JSON.stringify({decision,reason:conflictReason})});setConflictReason("");await loadSystems()}catch(e){setMessage(String(e))}finally{setBusy(false)}};
   const transition = async (action: string) => {
     if (!selected) return;
     setBusy(true);
@@ -161,7 +162,7 @@ function AppContent() {
         `/platform/v1/devices/${selected.id}:${action}`,
         {
           method: "POST",
-          headers: { "Idempotency-Key": crypto.randomUUID() },
+          headers: { "Idempotency-Key": randomUUID() },
           body: JSON.stringify({
             version: selected.version,
             ...(tenant ? { tenant_id: tenant } : {}),

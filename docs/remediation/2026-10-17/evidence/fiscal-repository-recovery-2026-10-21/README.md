@@ -1,0 +1,3 @@
+# Fiscal recovery integration evidence
+
+Full backend, domain/API race and actual PostgreSQL integration PASS on the source hashes in manifest.json. Raw logs are gzip-compressed without normalization. RED logs show assertion failures in preceding API iterations, not passing acceptance. Fault injection covers plain/versioned/delta Save outcomes and recovery reads; ordinary PostgreSQL integration does not prove real failover/commit-timeout behavior. Two-repository healthy generation refresh must execute/cache once; stale unavailable observations must become retryable 503 before replay finalization. No hardware writes, private keys or production credentials are included.

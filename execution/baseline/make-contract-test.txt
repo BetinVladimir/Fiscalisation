@@ -1,0 +1,3 @@
+./scripts/verify-contract-lock.sh
+contract drift: /Users/freelancer/Documents/Beeloy/Fiscalisation/contracts/openapi-runtime-v1.yaml
+make: *** [contract-test] Error 1

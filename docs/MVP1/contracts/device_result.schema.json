@@ -1,0 +1,20 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "device_result",
+  "title": "DeviceResult",
+  "description": "Outcome of a fiscal device operation. UNKNOWN must never be treated as FAILED — no retry write and no automatic card refund after a timeout.",
+  "type": "object",
+  "required": ["status"],
+  "properties": {
+    "status": {
+      "type": "string",
+      "enum": ["COMMITTED", "NOT_COMMITTED", "UNKNOWN"],
+      "description": "COMMITTED: document confirmed recorded. NOT_COMMITTED: definitively not recorded. UNKNOWN: recording status cannot be determined (e.g. timeout after command sent)."
+    },
+    "evidence": {
+      "type": "string",
+      "description": "Opaque evidence string from the device (document number, raw response, etc.). May be absent."
+    }
+  },
+  "additionalProperties": false
+}

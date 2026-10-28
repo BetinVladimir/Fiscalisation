@@ -1,0 +1,16 @@
+{
+  "run_url": "https://github.com/BetinVladimir/Fiscalisation/actions/runs/39551226330",
+  "commit": "9f987416e30fb4bd7c56e21901632b6e9245d8e7",
+  "conclusion": "success",
+  "compiler": "Ubuntu GCC13.3.0-6ubuntu2~24.04.1",
+  "verified_suites": [
+    "Daisy",
+    "Datecs",
+    "DatecsPay",
+    "protocol facade",
+    "runtime vendor codec"
+  ],
+  "log_sha256": "c922cebfb61a9a02fa18204f8494f756dd63152329dda3aba2edf9261e8af3ea",
+  "raw_log": "Retained locally; not published",
+  "scope": "Common protocol gate only; full firmware/runtime/HIL remain separate"
+}

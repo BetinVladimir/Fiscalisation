@@ -1,8 +1,10 @@
+import { demoEmailOtpEnabled, normalizeEmailOtp, validEmailOtp } from './emailOtpCode';
 import { useEffect, useMemo, useRef, useState } from "react";
 import * as Crypto from "expo-crypto";
 import * as SecureStore from "expo-secure-store";
 import { Platform } from "react-native";
 import { useUiPreferences } from './ui/preferences';
+import { ApiError } from './apiError';
 
 type Tenant = { tenant_id: string; display_name: string; roles: string[] };
 type Session = { access_token: string; refresh_token: string; expires_in: number; tenant: Tenant };
@@ -18,7 +20,18 @@ export function useEmailOtpAuth() {
   const [temporary,setTemporary]=useState(""); const [selection,setSelection]=useState("");
   const [tenants,setTenants]=useState<Tenant[]>([]); const [session,setSession]=useState<Session|null>(null);
   const [error,setError]=useState(""); const [busy,setBusy]=useState(false),[booting,setBooting]=useState(true),[instanceId,setInstanceId]=useState("");
-  const call=async(path:string,body:unknown,token="")=>{const r=await fetch(apiRoot+path,{method:"POST",headers:{"Content-Type":"application/json",...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify(body)});const text=await r.text();if(!r.ok)throw new Error(text||`HTTP ${r.status}`);return text?JSON.parse(text):{}};
+  const call=async(path:string,body:unknown,token="")=>{
+    let r:Response;
+    try{r=await fetch(apiRoot+path,{method:"POST",headers:{"Content-Type":"application/json",...(token?{Authorization:`Bearer ${token}`}:{})},body:JSON.stringify(body)});}
+    catch(e){const msg=e instanceof Error?e.message:String(e);throw new ApiError(0,"NETWORK_ERROR",true,msg);}
+    const text=await r.text();
+    if(!r.ok){const s=r.status,retryable=s>=500;let code=`HTTP_${s}`,msg=`HTTP ${s}`;
+      try{const b=text?JSON.parse(text):{};if(typeof b.error==='string')code=b.error;else if(typeof b.type==='string')code=b.type;
+        if(typeof b.title==='string')msg=b.title;else if(typeof b.message==='string')msg=b.message;else if(text)msg=text;}
+      catch{if(text)msg=text;}
+      throw new ApiError(s,code,retryable,msg);}
+    return text?JSON.parse(text):{};
+  };
   // Authority survives renders, but is revoked synchronously by logout/unmount.
   const mounted=useRef(false),epoch=useRef(0),pending=useRef<object|null>(null);
   const expiresAt=useRef(0);
@@ -69,7 +82,7 @@ export function useEmailOtpAuth() {
     });
   };
   const verifyCode=async()=>{
-    if(!temporary||session||selection||!/^\d{6}$/.test(code))return;
+    if(!temporary||session||selection||!validEmailOtp(code,demoEmailOtpEnabled()))return;
     await run(async owner=>{const out=await call("/public/v1/app-auth/challenges:verify",{code,app_instance_id:instanceId},temporary);
       if(out.session)await keepSession(out.session,owner);
       else{if(typeof out.tenant_selection_token!=='string'||!out.tenant_selection_token.trim()||!validTenants(out.tenants)||!out.tenants.length)throw new Error('INVALID_TENANT_SELECTION');
@@ -99,7 +112,17 @@ export function useEmailOtpAuth() {
     if(!session)return;
     await run(async owner=>{
       try{await keepSession(await call("/public/v1/app-auth/refresh",{refresh_token:session.refresh_token,app_instance_id:instanceId}),owner)}
-      catch(e){if(live(owner)){epoch.current++;pending.current=null;setBusy(false);setSession(null);setTenants([]);setTemporary('');setSelection('');setCode('');setError(e instanceof Error?e.message:String(e));await serializeStorage(()=>removeStored(sessionKey))}}
+      catch(e){if(!live(owner))return;
+        const retryable=e instanceof ApiError?e.retryable:true;
+        if(retryable){
+          // network / 5xx → keep session, show error, retry via next timer
+          setError(e instanceof Error?e.message:String(e));
+        }else{
+          // 4xx (e.g. 401 invalid_grant) → clear session
+          epoch.current++;pending.current=null;setBusy(false);setSession(null);setTenants([]);setTemporary('');setSelection('');setCode('');setError(e instanceof Error?e.message:String(e));
+          await serializeStorage(()=>removeStored(sessionKey));
+        }
+      }
     });
   };
   const refreshRef=useRef(refresh);refreshRef.current=refresh;
@@ -120,11 +143,11 @@ export function useEmailOtpAuth() {
     if(!session||!instanceId)return;
     // Re-schedule when another command releases the gate; refresh is never concurrent.
     if(busy)return;
-    const timer=setTimeout(()=>{void refreshRef.current()},Math.max(1000,expiresAt.current-Date.now()-60000));
+    const timer=setTimeout(()=>{void refreshRef.current()},Math.max(30_000,expiresAt.current-Date.now()-60_000));
     return()=>clearTimeout(timer);
   },[session,instanceId,busy]);
   const editEmail=(value:string)=>{if(current()&&!booting&&!pending.current&&!temporary&&!session){setEmail(value);setError('')}};
-  const editCode=(value:string)=>{if(current()&&!booting&&!pending.current&&temporary&&!selection&&!session){setCode(value.replace(/\D/g,'').slice(0,6));setError('')}};
+  const editCode=(value:string)=>{if(current()&&!booting&&!pending.current&&temporary&&!selection&&!session){setCode(normalizeEmailOtp(value,demoEmailOtpEnabled()));setError('')}};
   const roles=useMemo(()=>session?.tenant.roles||[],[session]);
   return {configured:true,ready:!busy&&!booting,accessToken:session?.access_token||"",roles,error,email,setEmail:editEmail,code,setCode:editCode,temporary,tenants,currentTenant:session?.tenant,requestCode,verifyCode,selectTenant,switchTenant,logout};
 }

@@ -21,4 +21,8 @@ describe("canonical fiscal intent", () => {
     expect(intent.payload_sha256).toMatch(/^[0-9a-f]{64}$/);
     expect(canonical({ b: 1, a: 2 })).toBe('{"a":2,"b":1}');
   });
+
+  it.each([undefined,"backend-sale"])("requires root authority before building sale %s",async saleId=>{
+    await expect(buildIntent({tenantId:"tenant",locationId:"location",registerId:"register",edgeDeviceId:"edge",operatorCode:"A001",bindingGeneration:1,command:"SALE_FINALIZE",saleId,surrogateId:"external-sale"})).rejects.toThrow("EXECUTION_AUTHORIZATION_REQUIRED");
+  });
 });

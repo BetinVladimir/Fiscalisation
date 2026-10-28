@@ -1,0 +1,20 @@
+{
+  "ticket": "02-010",
+  "status": "IN_PROGRESS",
+  "partialReducedMotionVerification": {
+    "status": "IN_PROGRESS",
+    "scope": "Single genuine PaperProvider listens to web prefers-reduced-motion changes and native AccessibilityInfo query/event, cleans subscriptions; official settings rippleEffectEnabled false and theme.animation.scale0 when reduced. Standard ripple restored when preference off. Colors/inputs/handlers retained.",
+    "prior": "13 strict testsPASS11incomplete97nodes; separate actual Axe OTP stack identified transient Paper ripple span above input.",
+    "final": "18 strictPASS6 language-menu FAIL/incomplete;24scans0VI/12incomplete78nodes (72color+6aria).14auth functionalPASS,6 live reduced-motion testsPASS xs/md/lg light/dark real mouse down/up with ripple present->absent->present and cleanup counts. Types/UI/exportPASS.",
+    "open": [
+      "Language-menu72color+6aria incomplete resolution",
+      "Native event/device/manual/screen-reader verification",
+      "All operational screens/all11 fullcriteria"
+    ],
+    "hashes": {
+      "src/ui/provider.tsx": "08f977bc1d2100f93327d1e6aaf76148d60068adaa27baac9913c241605afd08",
+      "e2e/reduced-motion.spec.ts": "8cea66e5c50fc609974ed208d26b3e0b1fd5ef58b04522a8032b7e2b3a7d445c"
+    },
+    "evidence": "docs/ui-optimization-evidence/reduced-motion"
+  }
+}

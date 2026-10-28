@@ -1,0 +1,7 @@
+In file included from /Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/tests/money_host/money_native.cpp:1:
+In file included from /Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/profile_executor.h:4:
+/Users/freelancer/Documents/Beeloy/Fiscalisation/IoT/firmware/edge-agent-s3/idf/main/serial_exchange.h:18:18: warning: private field 'next_sequence_' is not used [-Wunused-private-field]
+   18 |  private:uint8_t next_sequence_{0x20};
+      |                  ^
+1 warning generated.
+actual profile execution vendor bytes / fixed money / fail-before-POS / secure-store path PASS

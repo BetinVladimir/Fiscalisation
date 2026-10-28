@@ -6,7 +6,15 @@
   "scripts": {
     "test": "node --experimental-strip-types --test src/*.test.ts",
     "test:e2e": "npm run build:e2e && playwright test",
-    "build:e2e": "EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
+    "test:e2e:auth": "npm run build:e2e:auth && playwright test --config playwright.auth.config.ts",
+    "test:e2e:auth-wcag": "npm run build:e2e:auth && playwright test --config playwright.auth-wcag.config.ts",
+    "test:e2e:operations-wcag": "npm run build:e2e && playwright test --config playwright.operations-wcag.config.ts",
+    "test:e2e:reports-wcag": "npm run build:e2e && playwright test --config playwright.reports-wcag.config.ts",
+    "test:e2e:audit-wcag": "npm run build:e2e && playwright test --config playwright.audit-wcag.config.ts",
+    "test:e2e:settings-wcag": "npm run build:e2e && playwright test --config playwright.settings-wcag.config.ts",
+    "test:e2e:devices-admin-wcag": "npm run build:e2e && playwright test --config playwright.devices-admin-wcag.config.ts",
+    "build:e2e": "EXPO_PUBLIC_APP_ENV=demo EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
+    "build:e2e:auth": "EXPO_PUBLIC_APP_ENV=prod EXPO_PUBLIC_FISCAL_API_URL=http://fiscal-admin.test/public/v1 expo export --clear --platform web --output-dir .playwright-e2e-web",
     "start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
@@ -35,11 +43,18 @@
     "build:web:demo": "node scripts/build-web.mjs demo",
     "deploy:web": "npm run build:web:production && wrangler deploy --env=\"\"",
     "deploy:web-demo": "npm run build:web:demo && wrangler deploy --env demo",
-    "ui:check": "node scripts/check-ui-guideline.mjs && node scripts/check-contrast.mjs",
+    "ui:check": "node scripts/check-ui-guideline.mjs && node scripts/check-contrast.mjs && node scripts/check-auth-copy.mjs",
     "ui:contrast": "node scripts/check-contrast.mjs",
-    "e2e:wcag": "node e2e/wcag-aa.mjs"
+    "e2e:wcag": "node e2e/wcag-aa.mjs",
+    "test:e2e:language-text200": "EXPO_PUBLIC_APP_ENV=demo npm run build:e2e && playwright test e2e/language-text200.spec.ts",
+    "test:e2e:reduced-motion": "npm run build:e2e:auth && playwright test --config playwright.reduced-motion.config.ts",
+    "test:e2e:contrast-stack": "npm run build:e2e:auth && playwright test --config playwright.contrast-stack.config.ts",
+    "postinstall": "node ../../BeeloyBackend/mobile/shared-ui/scripts/install-paper-patches.mjs",
+    "test:ui": "jest --config jest.ui.config.cjs",
+    "test:paper-menu-patch": "node --test ../../BeeloyBackend/mobile/shared-ui/scripts/patch-paper-menu-lines.test.mjs"
   },
   "dependencies": {
+    "@beeloy/design-tokens": "file:../../BeeloyBackend/mobile/design-tokens",
     "@expo-google-fonts/roboto": "^0.2.3",
     "@expo/metro-runtime": "~6.1.2",
     "expo": "~54.0.37",
@@ -60,12 +75,18 @@
     "react-native-web": "~0.21.0"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.11.0",
     "@playwright/test": "^1.62.1",
+    "@types/jest": "29.5.14",
     "@types/react": "~19.1.10",
+    "@types/react-test-renderer": "19.1.0",
     "babel-preset-expo": "~54.0.10",
+    "jest": "29.7.0",
+    "react-test-renderer": "19.1.0",
+    "sharp": "^0.35.4",
+    "ts-jest": "29.4.12",
     "typescript": "~5.9.2",
-    "wrangler": "4.131.1",
-    "@axe-core/playwright": "^4.11.0"
+    "wrangler": "4.131.1"
   },
   "overrides": {
     "postcss": "$postcss"

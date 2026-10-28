@@ -1,0 +1,11 @@
+{
+  "status": "IN_PROGRESS",
+  "sourceHash": "edefcc5adc7035bead179905eec72816cfa5a50b0c04e241ddb73141fc6c0d2d",
+  "scope": "Current restored production-source export. Browser text Range rectangles (input boundingbox), actual elementsFromPoint stack/colors/opacity/zindex for all108 incomplete occurrences across18 scans.",
+  "result": "Strict AA still6FAIL,0VI/18incomplete108nodes. Login sample targets topmost; open-menu samples covered by genuine menu/backdrop. No false-positive waiver; full shape/contrast/manual verification remains open.",
+  "next": [
+    "Make background interaction/accessibility consistent with open-menu overlay",
+    "Investigate login virtual-stack vs browser-stack cause",
+    "Verify real text/background contrast, all11 criteria"
+  ]
+}

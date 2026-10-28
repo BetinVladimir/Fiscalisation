@@ -1,0 +1,25 @@
+COMMAND ['git', '-C', '/Users/freelancer/.codex/visualizations/2026/10/17/01a149d0-dba6-76c2-ab67-03b360c7aaf3/.tmp-fiscal-idf556-20261021/esp-idf-v5.5.6', 'rev-parse', 'HEAD']
+880a203ae603d08a94d06aa01e0d6761958e5e9e
+
+COMMAND ['git', '-C', '/Users/freelancer/.codex/visualizations/2026/10/17/01a149d0-dba6-76c2-ab67-03b360c7aaf3/.tmp-fiscal-idf556-20261021/esp-idf-v5.5.6/components/mbedtls/mbedtls', 'rev-parse', 'HEAD']
+2b96dd8eebe880f304c69976b3c2fa0c5100cbb6
+
+CORRECTION (vendor framework is tracked tree, not standalone repository)
+COMMAND ['git', '-C', 'vendor-mbedtls@2b96dd8e', 'ls-tree', 'HEAD', 'framework']
+040000 tree 50e13842aeec74b4164df86fdfcfe4827aff6b13	framework
+
+COMMAND ['/private/tmp/fiscal-tls-spike-20261021/idf-tools/tools/xtensa-esp-elf/esp-14.2.0_20260121/xtensa-esp-elf/bin/xtensa-esp32s3-elf-gcc', '--version']
+xtensa-esp-elf-gcc (crosstool-NG esp-14.2.0_20260121) 14.2.0
+Copyright (C) 2024 Free Software Foundation, Inc.
+This is free software; see the source for copying conditions.  There is NO
+warranty; not even for MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+
+
+COMMAND ['/private/tmp/fiscal-tls-spike-20261021/cmake-py/cmake/data/bin/cmake', '--version']
+cmake version 3.31.10
+
+CMake suite maintained and supported by Kitware (kitware.com/cmake).
+
+COMMAND ['/Users/freelancer/.platformio/packages/tool-ninja/ninja', '--version']
+1.13.2
+

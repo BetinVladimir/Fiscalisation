@@ -1,0 +1,1 @@
+2026-10-21: rg exact proposed7b6f1000..1003 UUIDs in original IoT and minipos sources returned no matches (exit1); no service registration changed. This reserves a proposed namespace, not proof of global Bluetooth UUID registry ownership.

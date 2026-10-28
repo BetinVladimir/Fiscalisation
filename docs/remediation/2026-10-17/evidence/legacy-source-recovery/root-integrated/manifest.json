@@ -1,0 +1,33 @@
+{
+  "scope": "legacy recovery and export owner gates only; no devices",
+  "logs": {
+    "ui.log.gz": {
+      "raw_sha256": "2007a27b96647b34a26341043a91bf1b1d248bdddaf4a1af26fb34bd687f4adc",
+      "gzip_sha256": "c435ba0b99540a8fab12139c2859e251ede024504f4c6c200ca8fa283163326c"
+    },
+    "node.log.gz": {
+      "raw_sha256": "d14260e6cd2a1510d667954a47ff5793b4f0cabb99de5ce2c4b4d5848d836963",
+      "gzip_sha256": "06d55b4956dc8fbfb4a7151b71084c869b4edd576edbe0b838f3a5988f631fff"
+    },
+    "ts.log.gz": {
+      "raw_sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "gzip_sha256": "f1b651238a58fe290baec6c5e32f3bdb1943dd2bd582f02569231f7a757c7837"
+    }
+  },
+  "staged_source_sha256": {
+    "minipos/BeeMiniPOS/App.tsx": "555cad1cb983fe44c0d98262a05aea7c1864bcb9523410fc653c5ad735c6988c",
+    "minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx": "4cb2dffed35e1894b2f10b1c92c06326c1a7aca9a4a7137b79fe94aae0291e02",
+    "minipos/BeeMiniPOS/src/checkoutJournal.ts": "805c8bb015f58cf64a51c381773ea2e009bef6681b790cbe68dc8d83e60186dd",
+    "minipos/BeeMiniPOS/src/cloudCheckoutApp.test.ts": "c25d97a9edcc15c27bb5827d05a03f367c987637a24bd5565d699f2aebb8209b",
+    "minipos/BeeMiniPOS/src/legacyCheckoutRecovery.test.ts": "9f658c0549dce412e41d79c4022639fefd354454ce766d9b49dcea97b4cbdeb6",
+    "minipos/BeeMiniPOS/src/legacyCheckoutRecovery.ts": "da13da2beeeb546ab03794e9023e9b4e7ceb1dea851cb32488ddde89c0b6cb4d"
+  },
+  "working_source_sha256": {
+    "minipos/BeeMiniPOS/App.tsx": "7d98f5fd60a562df47c342dbc754161eda6740a9dcd6eb82aadaf495f85ac473",
+    "minipos/BeeMiniPOS/__tests__/management-access-current.test.tsx": "4cb2dffed35e1894b2f10b1c92c06326c1a7aca9a4a7137b79fe94aae0291e02",
+    "minipos/BeeMiniPOS/src/checkoutJournal.ts": "805c8bb015f58cf64a51c381773ea2e009bef6681b790cbe68dc8d83e60186dd",
+    "minipos/BeeMiniPOS/src/cloudCheckoutApp.test.ts": "c25d97a9edcc15c27bb5827d05a03f367c987637a24bd5565d699f2aebb8209b",
+    "minipos/BeeMiniPOS/src/legacyCheckoutRecovery.test.ts": "9f658c0549dce412e41d79c4022639fefd354454ce766d9b49dcea97b4cbdeb6",
+    "minipos/BeeMiniPOS/src/legacyCheckoutRecovery.ts": "da13da2beeeb546ab03794e9023e9b4e7ceb1dea851cb32488ddde89c0b6cb4d"
+  }
+}

@@ -464,7 +464,11 @@ func (p *Postgres) LoadTenantEntity(collection, tenant, id string) ([]byte, erro
 	case "shifts":
 		e = tx.QueryRow(`select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'register_id',register_id,'employee_id',employee_id,'state',state,'version',version,'opened_at',opened_at,'closed_at',closed_at,'z_operation_id',z_operation_id,'z_fiscal_reference',z_fiscal_reference,'close_error',close_error,'created_at',created_at,'updated_at',updated_at)) from minipos.minipos_runtime_shifts where id=$1`, id).Scan(&raw)
 	case "orders":
-		e = tx.QueryRow(`select jsonb_build_object('id',id,'tenant_id',organization_id,'external_id',external_id,'shift_id',shift_id,'register_id',register_id,'operator_code',operator_code,'state',state,'total',jsonb_build_object('amount',total::text,'currency',currency),'lines',lines,'fiscal_sale_id',coalesce(fiscal_sale_id,''),'fiscal_operation_id',coalesce(fiscal_operation_id,''),'receipt_reference',coalesce(fiscal_reference,''),'reversal_operation_id',coalesce(reversal_operation_id,''),'reversal_fiscal_reference',coalesce(reversal_fiscal_reference,''),'reversal_reason_code',coalesce(reversal_reason_code,''),'fiscal_version',coalesce(fiscal_version,0),'version',version,'created_at',created_at,'updated_at',updated_at) from minipos.minipos_runtime_orders where id=$1`, id).Scan(&raw)
+		var payload []byte
+		e = tx.QueryRow(typedOrderSelect+` where id=$1`, id).Scan(&raw, &payload)
+		if e == nil {
+			raw, e = projectedOrder(raw, payload)
+		}
 	case "configurations":
 		e = tx.QueryRow(`select payload from minipos.minipos_runtime_configurations where id=$1`, id).Scan(&raw)
 	case "api_replays":
@@ -512,7 +516,7 @@ func (p *Postgres) LoadTenantEntities(collection, tenant string) ([][]byte, erro
 	case "shifts":
 		query = `select jsonb_strip_nulls(jsonb_build_object('id',id,'tenant_id',organization_id,'register_id',register_id,'employee_id',employee_id,'state',state,'version',version,'opened_at',opened_at,'closed_at',closed_at,'z_operation_id',z_operation_id,'z_fiscal_reference',z_fiscal_reference,'close_error',close_error,'created_at',created_at,'updated_at',updated_at)) from minipos.minipos_runtime_shifts order by opened_at,id`
 	case "orders":
-		query = `select jsonb_build_object('id',id,'tenant_id',organization_id,'external_id',external_id,'shift_id',shift_id,'register_id',register_id,'operator_code',operator_code,'state',state,'total',jsonb_build_object('amount',total::text,'currency',currency),'lines',lines,'payments',payments,'fiscal_sale_id',coalesce(fiscal_sale_id,''),'fiscal_operation_id',coalesce(fiscal_operation_id,''),'receipt_reference',coalesce(fiscal_reference,''),'reversal_operation_id',coalesce(reversal_operation_id,''),'reversal_fiscal_reference',coalesce(reversal_fiscal_reference,''),'reversal_reason_code',coalesce(reversal_reason_code,''),'fiscal_version',coalesce(fiscal_version,0),'version',version,'created_at',created_at,'updated_at',updated_at) from minipos.minipos_runtime_orders order by created_at,id`
+		query = typedOrderSelect + ` order by created_at,id`
 	case "configurations":
 		query = `select payload from minipos.minipos_runtime_configurations order by id`
 	default:
@@ -525,8 +529,16 @@ func (p *Postgres) LoadTenantEntities(collection, tenant string) ([][]byte, erro
 	defer rows.Close()
 	out := make([][]byte, 0)
 	for rows.Next() {
-		var raw []byte
-		if e = rows.Scan(&raw); e != nil {
+		var raw, payload []byte
+		if collection == "orders" {
+			e = rows.Scan(&raw, &payload)
+			if e == nil {
+				raw, e = projectedOrder(raw, payload)
+			}
+		} else {
+			e = rows.Scan(&raw)
+		}
+		if e != nil {
 			return nil, e
 		}
 		out = append(out, raw)

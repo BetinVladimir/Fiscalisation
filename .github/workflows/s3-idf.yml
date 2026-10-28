@@ -1,0 +1,138 @@
+name: ESP32-S3 official IDF build
+on:
+  pull_request:
+    paths:
+      - 'IoT/**'
+      - 'Makefile'
+      - '.github/workflows/s3-idf.yml'
+      - 'tests/ble-transport/**'
+      - 'fiscal-backend/**'
+      - 'minipos/BeeMiniPOS/package.json'
+      - 'minipos/BeeMiniPOS/package-lock.json'
+      - 'minipos/miniposweb/package.json'
+      - 'minipos/miniposweb/package-lock.json'
+      - 'minipos/BeeMiniPOS/src/*.ts'
+      - 'minipos/miniposweb/src/fiscal/**'
+      - 'minipos/miniposweb/tests/webBleLifecycle.test.ts'
+  push:
+    paths:
+      - 'IoT/**'
+      - 'Makefile'
+      - '.github/workflows/s3-idf.yml'
+      - 'tests/ble-transport/**'
+      - 'fiscal-backend/**'
+      - 'minipos/BeeMiniPOS/package.json'
+      - 'minipos/BeeMiniPOS/package-lock.json'
+      - 'minipos/miniposweb/package.json'
+      - 'minipos/miniposweb/package-lock.json'
+      - 'minipos/BeeMiniPOS/src/*.ts'
+      - 'minipos/miniposweb/src/fiscal/**'
+      - 'minipos/miniposweb/tests/webBleLifecycle.test.ts'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  firmware:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Isolated SDK and build locations
+        run: |
+          echo "IDF_PATH=$RUNNER_TEMP/esp-idf-5.5.6" >> "$GITHUB_ENV"
+          echo "IDF_TOOLS_PATH=$RUNNER_TEMP/idf-tools" >> "$GITHUB_ENV"
+          echo "IDF_PYTHON_ENV_PATH=$RUNNER_TEMP/idf-python" >> "$GITHUB_ENV"
+          echo "IDF_COMPONENT_CACHE_PATH=$RUNNER_TEMP/idf-component-cache" >> "$GITHUB_ENV"
+          echo "S3_BUILD_DIR=$RUNNER_TEMP/s3-idf556-build" >> "$GITHUB_ENV"
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4.2.2
+      - uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5.6.0
+        with:
+          python-version: '3.11'
+      - uses: actions/setup-go@d35c59abb061a4a6fb18e82ac0862c26744d6ab5 # v5.5.0
+        with:
+          go-version-file: fiscal-backend/go.mod
+          cache-dependency-path: fiscal-backend/go.sum
+      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4.4.0
+        with:
+          node-version: '22.14.0'
+      - name: Host regression dependencies
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev libssl-dev pkg-config
+      - name: Fetch exact official SDK and submodules
+        run: |
+          git clone --branch v5.5.6 --depth 1 --no-checkout https://github.com/espressif/esp-idf.git "$IDF_PATH"
+          git -C "$IDF_PATH" checkout --detach 880a203ae603d08a94d06aa01e0d6761958e5e9e
+          git -C "$IDF_PATH" submodule update --init --recursive --depth 1
+      - name: Install isolated official tools and constrained Python environment
+        run: |
+          mkdir -p "$IDF_TOOLS_PATH"
+          cp IoT/firmware/edge-agent-s3/idf/tools/espidf.constraints.v5.5.txt "$IDF_TOOLS_PATH/espidf.constraints.v5.5.txt"
+          python -m venv "$IDF_PYTHON_ENV_PATH"
+          "$IDF_PYTHON_ENV_PATH/bin/python" -m pip install -r "$IDF_PATH/tools/requirements/requirements.core.txt" -c "$IDF_TOOLS_PATH/espidf.constraints.v5.5.txt" -r IoT/firmware/edge-agent-s3/idf/tools/requirements.build.txt
+          "$IDF_PYTHON_ENV_PATH/bin/python" "$IDF_PATH/tools/idf_tools.py" install xtensa-esp-elf ninja
+          echo "$IDF_PYTHON_ENV_PATH/bin" >> "$GITHUB_PATH"
+          echo "$IDF_TOOLS_PATH/tools/xtensa-esp-elf/esp-14.2.0_20260121/xtensa-esp-elf/bin" >> "$GITHUB_PATH"
+          echo "$IDF_TOOLS_PATH/tools/ninja/1.12.1" >> "$GITHUB_PATH"
+      - name: Test fail-closed build and provenance gates
+        run: make iot-build-script-test
+      - name: Compile and verify full firmware (no flash)
+        id: firmware-build
+        run: |
+          make iot-build
+          make iot-build-verify
+          git diff --exit-code -- IoT/firmware/edge-agent-s3/idf/dependencies.lock
+      - name: Native regression with the exact firmware crypto/JSON sources
+        env:
+          MBEDTLS_SOURCE: ${{ env.IDF_PATH }}/components/mbedtls/mbedtls
+          MBEDTLS_SOURCE_DIR: ${{ env.IDF_PATH }}/components/mbedtls/mbedtls
+          CJSON_SOURCE: ${{ env.IDF_PATH }}/components/json/cJSON
+          CJSON_SOURCE_DIR: ${{ env.IDF_PATH }}/components/json/cJSON
+          OPENSSL_PREFIX: /usr
+        shell: bash
+        run: |
+          set -euo pipefail
+          make iot-test 2>&1 | tee "$RUNNER_TEMP/s3-iot-host.log"
+      - name: Self-contained actual BLE transport interop
+        timeout-minutes: 10
+        env:
+          MBEDTLS_SOURCE_DIR: ${{ env.IDF_PATH }}/components/mbedtls/mbedtls
+          CJSON_SOURCE_DIR: ${{ env.IDF_PATH }}/components/json/cJSON
+          OPENSSL_PREFIX: /usr
+          BLE_TRANSPORT_EVIDENCE_DIR: ${{ runner.temp }}/ble-transport-evidence
+        run: |
+          python3 -m unittest discover -s tests/ble-transport -p 'test_*.py' -v
+          make iot-cbor-encoder-interop-test
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: actual-ble-transport-interop-evidence
+          if-no-files-found: warn
+          # Explicit safe reports only: no raw native issuer logs or fixture rows.
+          path: |
+            ${{ runner.temp }}/ble-transport-evidence/manifest.json
+            ${{ runner.temp }}/ble-transport-evidence/vitest.json
+            ${{ runner.temp }}/ble-transport-evidence/dependency-summary.json
+      - name: Verify final artifact provenance after regressions
+        run: make iot-build-verify
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: ${{ always() && steps.firmware-build.outcome == 'success' }}
+        with:
+          name: s3-idf556-software-candidate
+          if-no-files-found: error
+          path: |
+            ${{ env.S3_BUILD_DIR }}/provenance.json
+            ${{ env.S3_BUILD_DIR }}/build.log
+            ${{ env.S3_BUILD_DIR }}/sdkconfig
+            ${{ env.S3_BUILD_DIR }}/compile_commands.json
+            ${{ env.S3_BUILD_DIR }}/toolchain/cxxflags
+            ${{ env.S3_BUILD_DIR }}/beefiscal_edge_agent_s3.bin
+            ${{ env.S3_BUILD_DIR }}/beefiscal_edge_agent_s3.elf
+            ${{ env.S3_BUILD_DIR }}/bootloader/bootloader.bin
+            ${{ env.S3_BUILD_DIR }}/partition_table/partition-table.bin
+      - uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4.6.2
+        if: always()
+        with:
+          name: s3-idf556-diagnostics
+          if-no-files-found: warn
+          path: |
+            ${{ runner.temp }}/s3-iot-host.log
+            ${{ env.S3_BUILD_DIR }}/build.log
+            ${{ env.S3_BUILD_DIR }}/provenance.json

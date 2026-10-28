@@ -1,0 +1,224 @@
+[
+  {
+    "size": "xs",
+    "theme": "light",
+    "searchMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 296,
+      "scroll": 296,
+      "height": 80,
+      "scrollHeight": 80,
+      "left": 32,
+      "right": 328,
+      "viewport": 360
+    },
+    "fieldMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 268,
+      "scroll": 268,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 48,
+      "right": 316,
+      "viewport": 360
+    },
+    "longMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 264,
+      "scroll": 264,
+      "height": 80,
+      "scrollHeight": 80,
+      "left": 48,
+      "right": 312,
+      "viewport": 360
+    }
+  },
+  {
+    "size": "md",
+    "theme": "light",
+    "searchMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 320,
+      "scroll": 320,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 242,
+      "right": 562,
+      "viewport": 960
+    },
+    "fieldMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 294,
+      "scroll": 294,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 258,
+      "right": 552,
+      "viewport": 960
+    },
+    "longMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 634,
+      "scroll": 634,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 258,
+      "right": 892,
+      "viewport": 960
+    }
+  },
+  {
+    "size": "xs",
+    "theme": "dark",
+    "searchMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 296,
+      "scroll": 296,
+      "height": 80,
+      "scrollHeight": 80,
+      "left": 32,
+      "right": 328,
+      "viewport": 360
+    },
+    "fieldMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 268,
+      "scroll": 268,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 48,
+      "right": 316,
+      "viewport": 360
+    },
+    "longMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 264,
+      "scroll": 264,
+      "height": 80,
+      "scrollHeight": 80,
+      "left": 48,
+      "right": 312,
+      "viewport": 360
+    }
+  },
+  {
+    "size": "lg",
+    "theme": "light",
+    "searchMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 320,
+      "scroll": 320,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 242,
+      "right": 562,
+      "viewport": 1440
+    },
+    "fieldMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 341,
+      "scroll": 341,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 258,
+      "right": 598.65625,
+      "viewport": 1440
+    },
+    "longMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 1114,
+      "scroll": 1114,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 258,
+      "right": 1372,
+      "viewport": 1440
+    }
+  },
+  {
+    "size": "md",
+    "theme": "dark",
+    "searchMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 320,
+      "scroll": 320,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 242,
+      "right": 562,
+      "viewport": 960
+    },
+    "fieldMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 294,
+      "scroll": 294,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 258,
+      "right": 552,
+      "viewport": 960
+    },
+    "longMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 634,
+      "scroll": 634,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 258,
+      "right": 892,
+      "viewport": 960
+    }
+  },
+  {
+    "size": "lg",
+    "theme": "dark",
+    "searchMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 320,
+      "scroll": 320,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 242,
+      "right": 562,
+      "viewport": 1440
+    },
+    "fieldMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 341,
+      "scroll": 341,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 258,
+      "right": 598.65625,
+      "viewport": 1440
+    },
+    "longMetrics": {
+      "original": 14,
+      "size": 28,
+      "width": 1114,
+      "scroll": 1114,
+      "height": 40,
+      "scrollHeight": 40,
+      "left": 258,
+      "right": 1372,
+      "viewport": 1440
+    }
+  }
+]

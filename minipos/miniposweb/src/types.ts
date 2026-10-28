@@ -21,13 +21,15 @@ export type FiscalCommand =
   | "CASH_OUT"
   | "PRINTER_TEST";
 export type FiscalIntent = {
+  execution_authorization?:import("./fiscal/executionAuthorization").AuthorizationEnvelope;
+  client_proof?:{algorithm:"ES256_DER";signature:string};
   protocol_version: "1.0";
   intent_id: string;
   action: FiscalCommand;
   client_operation_id: string;
   receipt_session_id: string;
   client_sale_surrogate_id: string;
-  server_sale_id: string;
+  server_sale_id: string | null;
   operator_code: string;
   tenant_id: string;
   location_id: string;

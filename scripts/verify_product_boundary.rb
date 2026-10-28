@@ -3,12 +3,20 @@ root = File.expand_path("..", __dir__)
 fiscal = File.read(File.join(root, "compose.fiscalisation.yaml"))
 minipos = File.read(File.join(root, "compose.minipos.yaml"))
 minipos_prod = File.read(File.join(root, "compose.minipos.prod.yaml"))
+fiscal_e2e = File.read(File.join(root, "compose.fiscalisation.e2e.yaml"))
+minipos_e2e = File.read(File.join(root, "compose.minipos.e2e.yaml"))
 
 abort "Compose product names must be independent" unless fiscal.include?("name: beefiscal-") && minipos.include?("name: beeminipos-")
 abort "MiniPOS Compose crossed into Fiscal private services" if minipos.match?(/^\s{2}fiscal-backend:/) || minipos.include?("database/fiscal")
 abort "Fiscal Compose crossed into MiniPOS private services" if fiscal.match?(/^\s{2}beeminipos-backend:/) || fiscal.include?("database/minipos")
-abort "MiniPOS database ownership drift" unless minipos.include?("/minipos?sslmode=disable") && minipos.include?("./database/minipos:")
-abort "Fiscal database ownership drift" unless fiscal.include?("/fiscal?sslmode=disable") && fiscal.include?("./database/fiscal:")
+abort "MiniPOS database ownership drift" unless minipos.include?("/minipos?sslmode=disable") && minipos_e2e.include?("${MINIPOS_E2E_INIT_DIR:?run scripts/e2e-two-compose.sh}:/docker-entrypoint-initdb.d:ro")
+abort "Fiscal database ownership drift" unless fiscal.include?("/fiscal?sslmode=disable") && fiscal_e2e.include?("${FISCAL_E2E_INIT_DIR:?run scripts/e2e-two-compose.sh}:/docker-entrypoint-initdb.d:ro")
+# Base environments use externally managed canonical schemas. Only isolated E2E
+# PostgreSQL instances bootstrap this repository's compatibility fixtures.
+abort "MiniPOS E2E crossed into Fiscal schema" if minipos_e2e.include?("database/fiscal")
+abort "Fiscal E2E crossed into MiniPOS schema" if fiscal_e2e.include?("database/minipos")
+abort "MiniPOS tenant reader role drift" unless minipos.include?("RLS_DATABASE_URL: \"postgres://beeminipos_tenant:")
+abort "Fiscal tenant reader role drift" unless fiscal.include?("RLS_DATABASE_URL: \"postgres://beefiscal_tenant:")
 abort "MiniPOS must receive only FISCAL_PUBLIC_BASE_URL" unless minipos.include?('FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:-http://host.docker.internal:8080/public/v1}"')
 abort "MiniPOS PROD must require FISCAL_PUBLIC_BASE_URL" unless minipos_prod.include?('FISCAL_PUBLIC_BASE_URL: "${FISCAL_PUBLIC_BASE_URL:?required}"')
 

@@ -1,0 +1,46 @@
+package persistence
+
+import (
+	"errors"
+	"github.com/jackc/pgx/v5/pgconn"
+	"strings"
+	"testing"
+)
+
+func TestMVP1SchemaFresh(t *testing.T) {
+	f := mvpNewSchemaFixture(t, 22)
+	for _, name := range []string{"fiscal.fiscal_operations", "fiscal.client_operation", "fiscal.receipt_session", "fiscal.unp_allocations", "fiscal.fiscal_runtime_replays", "fiscal.fiscal_runtime_outbox"} {
+		var present bool
+		if err := f.DB.QueryRow("SELECT to_regclass($1) IS NOT NULL", name).Scan(&present); err != nil || !present {
+			t.Fatalf("missing table %s: %v", name, err)
+		}
+	}
+	mustExec := func(query string, args ...any) {
+		t.Helper()
+		if _, err := f.DB.Exec(query, args...); err != nil {
+			t.Fatal(err)
+		}
+	}
+	duplicate := func(constraint, query string, args ...any) {
+		t.Helper()
+		_, err := f.DB.Exec(query, args...)
+		var pg *pgconn.PgError
+		if !errors.As(err, &pg) || pg.Code != "23505" || pg.ConstraintName != constraint {
+			t.Fatalf("expected 23505/%s; got %v", constraint, err)
+		}
+	}
+	tenant := "10000000-0000-4000-8000-000000000001"
+	other := "10000000-0000-4000-8000-000000000002"
+	alloc1 := "a0000000-0000-4000-8000-000000000001"
+	alloc2 := "a0000000-0000-4000-8000-000000000002"
+	unp := "AB123456-A001-0000001"
+	insertUNP := `INSERT INTO fiscal.unp_allocations(tenant_id,allocation_id,fiscal_device_number,operator_code,unp_sequence,unp,status) VALUES($1,$2,'AB123456','A001',$3,$4,'ALLOCATED')`
+	mustExec(insertUNP, tenant, alloc1, 1, unp)
+	duplicate("unp_allocations_tenant_id_unp_key", insertUNP, tenant, alloc2, 2, unp)
+	mustExec(insertUNP, other, alloc2, 1, unp)
+	op := "b0000000-0000-4000-8000-000000000001"
+	insertOp := `INSERT INTO fiscal.client_operation(tenant_id,client_operation_id,operation_type,payload_sha256,state) VALUES($1,$2,'SALE',$3,'RESERVED')`
+	mustExec(insertOp, tenant, op, strings.Repeat("0", 64))
+	duplicate("client_operation_pkey", insertOp, tenant, op, strings.Repeat("0", 64))
+	mustExec(insertOp, other, op, strings.Repeat("0", 64))
+}

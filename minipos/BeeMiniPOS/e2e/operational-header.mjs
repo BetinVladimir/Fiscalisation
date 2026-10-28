@@ -1,0 +1,8 @@
+import assert from 'node:assert/strict';
+export async function assertOperationalHeader(page,{id,title,languageId,themeId,allowBack=false,allowMenu=false,backId=id+'.back',menuId=id+'.menu'}){
+ const header=page.getByTestId(id);await header.waitFor({state:'visible'});const heading=page.getByTestId(id+'.title');await heading.waitFor();if(title)assert.equal(await heading.getAttribute('aria-label'),title);
+ const metrics=await header.evaluate(node=>{const r=node.getBoundingClientRect();const controls=[...node.querySelectorAll('[role="button"]')].map(x=>({label:x.getAttribute('aria-label'),text:x.textContent,rect:x.getBoundingClientRect().toJSON()}));return{zoom:Number.parseFloat(getComputedStyle(document.documentElement).zoom)||1,width:r.width,left:r.left,right:r.right,viewport:innerWidth,controls,title:node.querySelector('[role="heading"]')?.getBoundingClientRect().toJSON()}});
+ assert(metrics.left>=-1&&metrics.right<=metrics.viewport+1,'Header must fit actual viewport');assert.equal(metrics.controls.length,2+Number(allowBack)+Number(allowMenu),'exact real header controls');for(const control of metrics.controls){assert(control.label?.trim(),'Icon control requires actual accessible name');assert(control.rect.width/metrics.zoom>=24&&control.rect.height/metrics.zoom>=24);assert(control.rect.y>=metrics.title.y-48&&control.rect.y<=metrics.title.y+48,'Header actions must remain in one row');}
+ await page.getByTestId(languageId).click();await page.keyboard.press('Escape');await page.getByTestId(themeId).click();await page.keyboard.press('Escape');
+ assert.equal(await page.getByTestId(backId).count(),Number(allowBack));assert.equal(await page.getByTestId(menuId).count(),Number(allowMenu));
+}

@@ -13,4 +13,4 @@ dependencyResolutionManagement {
     }
 }
 rootProject.name = "BeeFiscalSmartDevices"
-include(":shared", ":daisy-smart-app", ":bluecash-app")
+include(":shared", ":shared-runtime", ":daisy-smart-app", ":bluecash-app")

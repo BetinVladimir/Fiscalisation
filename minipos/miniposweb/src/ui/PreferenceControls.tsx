@@ -1,8 +1,10 @@
-import { AppButton as Button } from './app-button';
+import {headerIcons} from './header-icons';
+import {useHeaderMetrics} from './PaperOperationalHeader';
+import {Icon,IconButton} from 'react-native-paper';
 import { SafeAreaInsetsContext } from 'react-native-safe-area-context';
-import { useContext, useEffect, useRef, useState } from "react";
-import { List, Surface, useTheme } from "react-native-paper";
-import { ScrollView, View, useWindowDimensions } from "react-native";
+import { useContext, useEffect, useLayoutEffect, useRef, useState } from "react";
+import { List, Menu, useTheme } from "react-native-paper";
+import { Platform, ScrollView, View, useWindowDimensions } from "react-native";
 import { supportedLanguages, translations } from "./authTranslations.generated";
 import { useThemePreference } from "./theme";
 
@@ -20,23 +22,24 @@ export function readLanguage(): Language {
   catch { return "bg"; }
 }
 
-export function PreferenceControls({ language, onLanguageChange, testIdPrefix }: {
+export function PreferenceControls({ language, onLanguageChange, testIdPrefix, target=48 }: {
+  target?:number;
   language: Language;
   onLanguageChange: (value: Language) => void;
   testIdPrefix: string;
 }) {
   const theme = useTheme();
-  const {width,height} = useWindowDimensions();
+  const {width,height}=useHeaderMetrics();
   const insets = useContext(SafeAreaInsetsContext) ?? {top:0,bottom:0,left:0,right:0};
   const menuHeight = Math.max(0,Math.min(224,height-insets.top-insets.bottom-64));
-  const menuWidth = Math.max(0,Math.min(320,width-insets.left-insets.right-32));
+  const menuWidth = Math.max(0,Math.min(320,width-insets.left-insets.right-96));
   const [languageOpen, setLanguageOpen] = useState(false);
   const [themeOpen, setThemeOpen] = useState(false);
   const { preference, setPreference } = useThemePreference();
   const t = translations[language];
-  const mounted = useRef(false), snapshot = { language, preference, languageOpen, themeOpen, onLanguageChange, setPreference }, consumed = useRef<object | null>(null);
-  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  const current = () => mounted.current;
+  const mounted = useRef(false), snapshot = { language, preference, languageOpen, themeOpen, onLanguageChange, setPreference }, consumed = useRef<object | null>(null), committed = useRef<object | null>(null);
+  useLayoutEffect(() => { mounted.current = true; committed.current = snapshot; return () => { mounted.current = false; if(committed.current===snapshot)committed.current=null; }; });
+  const current = () => mounted.current && committed.current === snapshot;
   const openLanguage = () => { if (!current()) return; setThemeOpen(false); setLanguageOpen(true); };
   const openTheme = () => { if (!current()) return; setLanguageOpen(false); setThemeOpen(true); };
   const dismissLanguage = () => { if (current()) setLanguageOpen(false); };
@@ -49,16 +52,22 @@ export function PreferenceControls({ language, onLanguageChange, testIdPrefix }:
     const kind=languageOpen?'language':themeOpen?'theme':null;
     if(!kind||typeof document==='undefined')return;
     const prefix=`${testIdPrefix}-${kind}-`,selected=kind==='language'?language:preference;
-    let focused=false;
+    let focused=false,focusFrame:number|undefined;
+    const ensureSelectedVisible=()=>{const chosen=items().find(node=>node.dataset.testid===prefix+selected);if(chosen===document.activeElement)chosen?.scrollIntoView?.({block:"nearest"});};
+    const resize=typeof ResizeObserver==='function'?new ResizeObserver(ensureSelectedVisible):null;
+    let observedScroll:Element|null=null;
     const choices=kind==='language'?supportedLanguages:['system','light','dark'];
     const items=()=>Array.from(document.querySelectorAll<HTMLElement>('[data-testid]')).filter(node=>choices.some(value=>node.dataset.testid===prefix+value));
     const configure=()=>{
+      const scroll=document.querySelector(`[data-testid="${testIdPrefix}-${kind}-scroll"]`);if(scroll&&scroll!==observedScroll){resize?.disconnect();resize?.observe(scroll);observedScroll=scroll;}
       const nodes=items(),active=nodes.find(node=>node===document.activeElement||node.contains(document.activeElement));for(const node of nodes){node.setAttribute('role','menuitemradio');node.setAttribute('aria-checked',String(node.dataset.testid===prefix+selected));node.tabIndex=active?node===active?0:-1:node.dataset.testid===prefix+selected?0:-1;}
-      if(!focused&&nodes.length){focused=true;(nodes.find(node=>node.tabIndex===0)??nodes[0]).focus();}
+      if(!focused&&nodes.length){focused=true;const chosen=nodes.find(node=>node.tabIndex===0)??nodes[0];chosen.focus();chosen.scrollIntoView?.({block:'nearest'});}
+      ensureSelectedVisible();
     };
-    configure();const observer=typeof MutationObserver==='function'?new MutationObserver(configure):null;observer?.observe(document.body,{childList:true,subtree:true});
+    configure();const observer=typeof MutationObserver==='function'?new MutationObserver(configure):null;observer?.observe(document.body,{childList:true,subtree:true,attributes:true,attributeFilter:['style']});
     const keydown=(event:KeyboardEvent)=>{const nodes=items(),index=nodes.indexOf(document.activeElement as HTMLElement);if(index<0)return;let next=index;if(event.key==='Home')next=0;else if(event.key==='End')next=nodes.length-1;else if(event.key==='ArrowDown')next=(index+1)%nodes.length;else if(event.key==='ArrowUp')next=(index-1+nodes.length)%nodes.length;else return;event.preventDefault();nodes.forEach((node,i)=>node.tabIndex=i===next?0:-1);nodes[next].focus();nodes[next].scrollIntoView?.({block:'nearest'});};
-    document.addEventListener('keydown',keydown);return()=>{observer?.disconnect();document.removeEventListener('keydown',keydown);};
+    const focusSelected=(event:FocusEvent)=>{const scroll=document.querySelector(`[data-testid="${testIdPrefix}-${kind}-scroll"]`);if(event.target===scroll){const chosen=items().find(node=>node.dataset.testid===prefix+selected);chosen?.focus();chosen?.scrollIntoView?.({block:'nearest'});if(typeof requestAnimationFrame==='function'){if(focusFrame!==undefined)cancelAnimationFrame(focusFrame);focusFrame=requestAnimationFrame(ensureSelectedVisible);}}};
+    document.addEventListener('focusin',focusSelected);document.addEventListener('keydown',keydown);return()=>{observer?.disconnect();resize?.disconnect();if(focusFrame!==undefined)cancelAnimationFrame(focusFrame);document.removeEventListener('focusin',focusSelected);document.removeEventListener('keydown',keydown);};
   },[languageOpen,themeOpen,language,preference,testIdPrefix]);
   useEffect(() => {
     if (!languageOpen && !themeOpen) return;
@@ -72,6 +81,27 @@ export function PreferenceControls({ language, onLanguageChange, testIdPrefix }:
     document.addEventListener('keydown', closeOnEscape);
     return () => document.removeEventListener('keydown', closeOnEscape);
   }, [languageOpen, themeOpen, testIdPrefix]);
+  // Paper Menu is portalled and blocks pointer interaction outside its overlay.
+  // Match that modal interaction for keyboard/assistive technology as well.
+  useEffect(()=>{
+    const kind=languageOpen?'language':themeOpen?'theme':null;
+    if(!kind||typeof document==='undefined')return;
+    const originals=new Map<HTMLElement,{inert:boolean;hidden:string|null}>();
+    const isolate=()=>{
+      const menu=document.querySelector<HTMLElement>(`[data-testid="${testIdPrefix}-${kind}-menu-view"]`);
+      // Keep the Paper dismiss overlay in the same portal interactive.
+      for(let branch:HTMLElement|null=menu?.parentElement??null;branch?.parentElement;branch=branch.parentElement){
+        for(const sibling of Array.from(branch.parentElement.children)){
+          if(sibling===branch||!(sibling instanceof HTMLElement)||/^(SCRIPT|STYLE|LINK)$/.test(sibling.tagName))continue;
+          if(!originals.has(sibling))originals.set(sibling,{inert:sibling.inert,hidden:sibling.getAttribute('aria-hidden')});
+          sibling.inert=true;sibling.setAttribute('aria-hidden','true');
+        }
+        if(branch.parentElement===document.body)break;
+      }
+    };
+    isolate();const observer=new MutationObserver(isolate);observer.observe(document.body,{childList:true,subtree:true});
+    return()=>{observer.disconnect();for(const[node,value]of originals){node.inert=value.inert;if(value.hidden===null)node.removeAttribute('aria-hidden');else node.setAttribute('aria-hidden',value.hidden);}};
+  },[languageOpen,themeOpen,testIdPrefix]);
   const chooseLanguage = (value: Language) => {
     if (!current() || !languageOpen || consumed.current === snapshot || !supportedLanguages.includes(value)) return;
     consumed.current = snapshot;
@@ -79,24 +109,26 @@ export function PreferenceControls({ language, onLanguageChange, testIdPrefix }:
     setLanguageOpen(false);
     try { localStorage.setItem("minipos-language", value); } catch { /* private browsing */ }
   };
-  return <View style={{ width: "100%", minWidth: 0, flexDirection: "row", flexWrap: "wrap", justifyContent: "flex-end", gap: 8 }}>
-    <View style={{position:'relative',zIndex:themeOpen?2:0}}>
-      <Button mode="outlined" onPress={themeOpen?dismissTheme:openTheme} testID={`${testIdPrefix}-theme-open`} accessibilityState={{expanded:themeOpen}}>{t.theme}: {preference === "system" ? t.systemTheme : preference === "dark" ? t.darkTheme : t.lightTheme}</Button>
-      {themeOpen && <Surface elevation={3} style={{position:'absolute',top:'100%',right:0,zIndex:3,width:menuWidth,maxHeight:menuHeight,backgroundColor:theme.colors.elevation.level3}}>
-      <ScrollView accessibilityRole="menu" testID={`${testIdPrefix}-theme-scroll`} style={{maxHeight:menuHeight}} nestedScrollEnabled keyboardShouldPersistTaps="handled">
-        {(["system", "light", "dark"] as const).map(value => <List.Item titleNumberOfLines={0} accessibilityRole={'menuitemradio' as never} style={{minHeight:48,borderWidth:1,borderColor:theme.colors.outline,borderRadius:theme.roundness,margin:4}} key={value} accessibilityState={{checked:preference===value}} testID={`${testIdPrefix}-theme-${value}`} title={`${value === "system" ? t.systemTheme : value === "dark" ? t.darkTheme : t.lightTheme}${preference === value ? " ✓" : ""}`} onPress={() => chooseTheme(value)}/>) }
-      </ScrollView>
-      </Surface>}
-    </View>
-    <View style={{position:'relative',zIndex:languageOpen?2:0}}>
-      <Button mode="outlined" onPress={languageOpen?dismissLanguage:openLanguage} testID={`${testIdPrefix}-language-open`} accessibilityState={{expanded:languageOpen}}>{t.language}: {languageLabels[language]}</Button>
-      {languageOpen && <Surface elevation={3} style={{position:'absolute',top:'100%',right:0,zIndex:3,width:menuWidth,maxHeight:menuHeight,backgroundColor:theme.colors.elevation.level3}}>
+  return <View style={{ minWidth: 0, flexDirection: "row", flexWrap: "nowrap", gap: 2 }}>
+    <View testID={`${testIdPrefix}-language-anchor`} style={{minWidth:0,maxWidth:'100%',flexShrink:1}}>
+      <Menu testID={`${testIdPrefix}-language-menu`} visible={languageOpen} onDismiss={dismissLanguage} anchorPosition="bottom" contentStyle={{width:menuWidth,paddingVertical:0,backgroundColor:theme.colors.elevation.level3}} anchor={<IconButton mode="outlined" icon={({size,color})=><View aria-hidden={true} accessible={false}><Icon source={headerIcons.translate} size={size} color={color}/></View>} size={20} style={{width:target,height:target,margin:0}} accessibilityLabel={`${t.language}: ${languageLabels[language]}`} onPress={languageOpen?dismissLanguage:openLanguage} testID={`${testIdPrefix}-language-open`} accessibilityState={{expanded:languageOpen}}/>}>
+
+
       <ScrollView testID={`${testIdPrefix}-language-scroll`} style={{ maxHeight: menuHeight }} nestedScrollEnabled showsVerticalScrollIndicator keyboardShouldPersistTaps="handled">
         <View accessibilityRole="menu">
           {supportedLanguages.map(value => <List.Item titleNumberOfLines={0} accessibilityRole={'menuitemradio' as never} style={{minHeight:48,borderWidth:1,borderColor:theme.colors.outline,borderRadius:theme.roundness,margin:4}} key={value} accessibilityState={{checked:language===value}} testID={`${testIdPrefix}-language-${value}`} title={`${languageLabels[value]}${language === value ? " ✓" : ""}`} onPress={() => chooseLanguage(value)} />)}
         </View>
       </ScrollView>
-      </Surface>}
+      </Menu>
+    </View>    <View testID={`${testIdPrefix}-theme-anchor`} style={{minWidth:0,maxWidth:'100%',flexShrink:1}}>
+      <Menu testID={`${testIdPrefix}-theme-menu`} visible={themeOpen} onDismiss={dismissTheme} anchorPosition="bottom" contentStyle={{width:menuWidth,paddingVertical:0,backgroundColor:theme.colors.elevation.level3}} anchor={<IconButton mode="outlined" icon={({size,color})=><View aria-hidden={true} accessible={false}><Icon source={headerIcons[preference==='dark'?'weather-night':'weather-sunny']} size={size} color={color}/></View>} size={20} style={{width:target,height:target,margin:0}} accessibilityLabel={`${t.theme}: ${preference === "system" ? t.systemTheme : preference === "dark" ? t.darkTheme : t.lightTheme}`} onPress={themeOpen?dismissTheme:openTheme} testID={`${testIdPrefix}-theme-open`} accessibilityState={{expanded:themeOpen}}/>}>
+
+
+      <ScrollView accessibilityRole="menu" testID={`${testIdPrefix}-theme-scroll`} style={{maxHeight:menuHeight}} nestedScrollEnabled keyboardShouldPersistTaps="handled">
+        {(["system", "light", "dark"] as const).map(value => <List.Item titleNumberOfLines={0} accessibilityRole={'menuitemradio' as never} style={{minHeight:48,borderWidth:1,borderColor:theme.colors.outline,borderRadius:theme.roundness,margin:4}} key={value} accessibilityState={{checked:preference===value}} testID={`${testIdPrefix}-theme-${value}`} title={`${value === "system" ? t.systemTheme : value === "dark" ? t.darkTheme : t.lightTheme}${preference === value ? " ✓" : ""}`} onPress={() => chooseTheme(value)}/>) }
+      </ScrollView>
+      </Menu>
     </View>
+
   </View>;
 }
