@@ -1,0 +1,2085 @@
+{
+  "size": "lg",
+  "theme": "light",
+  "scans": [
+    {
+      "state": "login",
+      "violations": [],
+      "incomplete": [],
+      "layout": {
+        "ancestors": [
+          {
+            "tag": "DIV",
+            "testid": "app-root",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "testid": "app-paper-surface",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgb(247, 245, 249)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "testid": "surface",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgb(247, 245, 249)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "testid": "beeminipos-feedback-background",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "static",
+            "zIndex": "auto",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "BODY",
+            "width": 1440,
+            "height": 1000,
+            "position": "static",
+            "zIndex": "auto",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "0 1 auto"
+          },
+          {
+            "tag": "HTML",
+            "width": 1440,
+            "height": 1000,
+            "position": "static",
+            "zIndex": "auto",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "0 1 auto"
+          }
+        ],
+        "stack": [
+          {
+            "tag": "DIV",
+            "testid": "operator-login-email.label",
+            "role": null,
+            "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" id=\"beeminipos-field-«r1»\" data-testid=\"operator-login-email.label\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14px; color: rgb(29, 26, 32); flex-shrink: 1;\">Имейл</div>"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx\" style=\"gap: 4px; min-width: 0px;\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" id=\"beeminipos-field-«r1»\" data-testid=\"operator-login-email.label\" style=\"direction: ltr; font-family: Roboto_400Regular; letter-spacing: 0.25px; font-weight: 400; line-height: 20px; font-size: 14"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-3pj75a r-w7s2jr r-f4gmv6 r-d23pfw\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-size: 22px;\">BeeMiniPOS</div><h1 dir=\"auto\" role=\"hea"
+          },
+          {
+            "tag": "DIV",
+            "testid": "card",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a r-w7s2jr r-f4gmv6 r-d23pfw\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7\" style=\"direction: ltr; color: rgb(29, 26, 32); font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; line-height: 28px; font-"
+          },
+          {
+            "tag": "DIV",
+            "testid": "card-container",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-1867qdf r-105ug2t\" data-testid=\"card-container\" style=\"box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px; background-color: rgb(244, 240, 248);\"><div class=\"css-g5y9jx r-1wbh5a2\" data-testid=\"card\"><div class=\"css-g5y9jx r-3pj75a r-w7s2jr r-f4gmv6 r-d23pfw\"><div dir=\"auto\" class=\"c"
+          },
+          {
+            "tag": "DIV",
+            "testid": "operator-login",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-10fj5tc r-105ug2t\" data-testid=\"operator-login\" style=\"background-color: rgba(0, 0, 0, 0); width: 480px; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-1867qdf r-105ug2t\" data-testid=\"card-container\" style=\"box-shadow: rgba(0, 0, 0, 0.3) 0px 1px 3px; backgrou"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx\" style=\"width: 100%;\"><div class=\"css-g5y9jx r-10fj5tc r-105ug2t\" data-testid=\"operator-login\" style=\"background-color: rgba(0, 0, 0, 0); width: 480px; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-1867qdf r-105ug2t\" data-testid=\"card-container\" style=\"box-sha"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-1awozwy r-11rk87y\"><div class=\"css-g5y9jx\" style=\"width: 100%;\"><div class=\"css-g5y9jx r-10fj5tc r-105ug2t\" data-testid=\"operator-login\" style=\"background-color: rgba(0, 0, 0, 0); width: 480px; max-width: 100%; align-self: center;\"><div class=\"css-g5y9jx r-1867qdf r-105ug2t\""
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx r-13awgt0 r-13qz1uu\"><div class=\"css-g5y9jx r-1awozwy r-11rk87y\"><div class=\"css-g5y9jx\" style=\"width: 100%;\"><div class=\"css-g5y9jx r-10fj5tc r-105ug2t\" data-testid=\"operator-login\" style=\"background-color: r"
+          },
+          {
+            "tag": "IMG",
+            "testid": null,
+            "role": null,
+            "html": "<img alt=\"\" draggable=\"false\" class=\"css-9pa8cd\" src=\"/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png\">"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-13awgt0 r-17s6mgv\" style=\"border-radius: 0px; height: 941px; width: 1672px;\"><div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&qu"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-l26x2w r-1udh08x r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\" style=\"border-radius: 0px; opacity: 0.7;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x r-417010 r-13awgt0 r-17s6mgv\" style=\"border-radius: 0px; height: 941px; width: 1672px;\"><div class=\"css-g5"
+          },
+          {
+            "tag": "DIV",
+            "testid": "app-root",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"padding: 0px;\"><div class=\"css-g5y9jx r-l26x2w r-1udh08x r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\" style=\"border-radius: 0px; opacity: 0.7;\"><div class=\"css-g5y9jx r-1mlwlqe r-1udh08x"
+          },
+          {
+            "tag": "DIV",
+            "testid": "app-paper-surface",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"padding: 0px;\"><div class=\"css-g5y9jx r-l26x2w r-1udh08x r-1p0dtai r-1pi2tsx r-1d2"
+          },
+          {
+            "tag": "DIV",
+            "testid": "surface",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy"
+          },
+          {
+            "tag": "DIV",
+            "testid": "beeminipos-feedback-background",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\""
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; back"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-w"
+          },
+          {
+            "tag": "BODY",
+            "testid": null,
+            "role": null,
+            "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g"
+          },
+          {
+            "tag": "HTML",
+            "testid": null,
+            "role": null,
+            "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeMiniPOS</title>\n    <!-- The `react-native-w"
+          }
+        ]
+      },
+      "textStacks": []
+    },
+    {
+      "state": "language-menu",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgImage",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+                      "target": [
+                        ".r-4gszlv"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background image"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Български • Избрано</div>",
+              "target": [
+                "div[data-testid=\"language-bg-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgImage",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+                      "target": [
+                        ".r-4gszlv"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background image"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Hrvatski</div>",
+              "target": [
+                "div[data-testid=\"language-hr-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgImage",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+                      "target": [
+                        ".r-4gszlv"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background image"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Čeština</div>",
+              "target": [
+                "div[data-testid=\"language-cs-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgImage",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+                      "target": [
+                        ".r-4gszlv"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background image"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Dansk</div>",
+              "target": [
+                "div[data-testid=\"language-da-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgImage",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+                      "target": [
+                        ".r-4gszlv"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background image"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Nederlands</div>",
+              "target": [
+                "div[data-testid=\"language-nl-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgImage",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+                      "target": [
+                        ".r-4gszlv"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background image"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">English</div>",
+              "target": [
+                "div[data-testid=\"language-en-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgImage",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+                      "target": [
+                        ".r-4gszlv"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background image"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Eesti</div>",
+              "target": [
+                "div[data-testid=\"language-et-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgImage",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+                      "target": [
+                        ".r-4gszlv"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background image"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Suomi</div>",
+              "target": [
+                "div[data-testid=\"language-fi-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+            }
+          ]
+        }
+      ],
+      "layout": {
+        "ancestors": [
+          {
+            "tag": "DIV",
+            "testid": "app-root",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "testid": "app-paper-surface",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgb(247, 245, 249)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "testid": "surface",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgb(247, 245, 249)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "testid": "beeminipos-feedback-background",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "static",
+            "zIndex": "auto",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "BODY",
+            "width": 1440,
+            "height": 1000,
+            "position": "static",
+            "zIndex": "auto",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "0 1 auto"
+          },
+          {
+            "tag": "HTML",
+            "width": 1440,
+            "height": 1000,
+            "position": "static",
+            "zIndex": "auto",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "0 1 auto"
+          }
+        ],
+        "stack": [
+          {
+            "tag": "BUTTON",
+            "testid": null,
+            "role": null,
+            "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div style=\"position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 1000;\"><button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-ima"
+          },
+          {
+            "tag": "DIV",
+            "testid": "app-paper-surface",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"padding: 0px;\" inert=\"\"><div class=\"css-g5y9jx r-l26x2w r-1udh08x r-1p0dtai r-1pi2"
+          },
+          {
+            "tag": "DIV",
+            "testid": "surface",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy"
+          },
+          {
+            "tag": "DIV",
+            "testid": "beeminipos-feedback-background",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\""
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; back"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-w"
+          },
+          {
+            "tag": "BODY",
+            "testid": null,
+            "role": null,
+            "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g"
+          },
+          {
+            "tag": "HTML",
+            "testid": null,
+            "role": null,
+            "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeMiniPOS</title>\n    <!-- The `react-native-w"
+          }
+        ]
+      },
+      "textStacks": [
+        {
+          "selector": "div[data-testid=\"language-bg-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
+          "rects": [
+            {
+              "x": 1141,
+              "y": 19,
+              "width": 157.5,
+              "height": 19,
+              "stack": [
+                {
+                  "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Български • Избрано</div>",
+                  "isTarget": true,
+                  "insideTarget": true,
+                  "containsTarget": true,
+                  "color": "rgb(29, 26, 32)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "auto"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-bg-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Български • Избрано</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-18u37iz r-ws14 r-13qz1uu\"><div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-bg-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Български • Избрано",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-bg\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><div class=\"css-g5y9jx r-18",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-bg\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div data-testid=\"menu-view\" style=\"position: absolute; top: 0px; right: 0px; z-index: 1; overflow: hidden; display: flex; flex-direction: column; width: 320px; max-height: 420px;\"><div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "1"
+                },
+                {
+                  "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "auto"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "selector": "div[data-testid=\"language-hr-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
+          "rects": [
+            {
+              "x": 1141,
+              "y": 76,
+              "width": 58.765625,
+              "height": 19,
+              "stack": [
+                {
+                  "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Hrvatski</div>",
+                  "isTarget": true,
+                  "insideTarget": true,
+                  "containsTarget": true,
+                  "color": "rgb(29, 26, 32)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "auto"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-hr-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Hrvatski</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-18u37iz r-ws14 r-13qz1uu\"><div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-hr-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Hrvatski</div></div",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div aria-label=\"Hrvatski\" role=\"menuitemradio\" tabindex=\"-1\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-hr\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"false\"><div class=\"css-g5y9jx r-18u37iz r-w",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-bg\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div data-testid=\"menu-view\" style=\"position: absolute; top: 0px; right: 0px; z-index: 1; overflow: hidden; display: flex; flex-direction: column; width: 320px; max-height: 420px;\"><div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "1"
+                },
+                {
+                  "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "auto"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "selector": "div[data-testid=\"language-cs-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
+          "rects": [
+            {
+              "x": 1141,
+              "y": 133,
+              "width": 53.78125,
+              "height": 19,
+              "stack": [
+                {
+                  "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Čeština</div>",
+                  "isTarget": true,
+                  "insideTarget": true,
+                  "containsTarget": true,
+                  "color": "rgb(29, 26, 32)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "auto"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-cs-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Čeština</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-18u37iz r-ws14 r-13qz1uu\"><div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-cs-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Čeština</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div aria-label=\"Čeština\" role=\"menuitemradio\" tabindex=\"-1\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-cs\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"false\"><div class=\"css-g5y9jx r-18u37iz r-ws",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-bg\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div data-testid=\"menu-view\" style=\"position: absolute; top: 0px; right: 0px; z-index: 1; overflow: hidden; display: flex; flex-direction: column; width: 320px; max-height: 420px;\"><div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "1"
+                },
+                {
+                  "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "auto"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "selector": "div[data-testid=\"language-da-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
+          "rects": [
+            {
+              "x": 1141,
+              "y": 190,
+              "width": 44.390625,
+              "height": 19,
+              "stack": [
+                {
+                  "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Dansk</div>",
+                  "isTarget": true,
+                  "insideTarget": true,
+                  "containsTarget": true,
+                  "color": "rgb(29, 26, 32)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "auto"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-da-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Dansk</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-18u37iz r-ws14 r-13qz1uu\"><div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-da-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Dansk</div></div></",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div aria-label=\"Dansk\" role=\"menuitemradio\" tabindex=\"-1\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-da\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"false\"><div class=\"css-g5y9jx r-18u37iz r-ws14",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-bg\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div data-testid=\"menu-view\" style=\"position: absolute; top: 0px; right: 0px; z-index: 1; overflow: hidden; display: flex; flex-direction: column; width: 320px; max-height: 420px;\"><div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "1"
+                },
+                {
+                  "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "auto"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "selector": "div[data-testid=\"language-nl-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
+          "rects": [
+            {
+              "x": 1141,
+              "y": 247,
+              "width": 81.484375,
+              "height": 19,
+              "stack": [
+                {
+                  "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Nederlands</div>",
+                  "isTarget": true,
+                  "insideTarget": true,
+                  "containsTarget": true,
+                  "color": "rgb(29, 26, 32)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "auto"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-nl-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Nederlands</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-18u37iz r-ws14 r-13qz1uu\"><div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-nl-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Nederlands</div></d",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div aria-label=\"Nederlands\" role=\"menuitemradio\" tabindex=\"-1\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-nl\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"false\"><div class=\"css-g5y9jx r-18u37iz r",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-bg\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div data-testid=\"menu-view\" style=\"position: absolute; top: 0px; right: 0px; z-index: 1; overflow: hidden; display: flex; flex-direction: column; width: 320px; max-height: 420px;\"><div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "1"
+                },
+                {
+                  "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "auto"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "selector": "div[data-testid=\"language-en-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
+          "rects": [
+            {
+              "x": 1141,
+              "y": 304,
+              "width": 51.734375,
+              "height": 19,
+              "stack": [
+                {
+                  "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">English</div>",
+                  "isTarget": true,
+                  "insideTarget": true,
+                  "containsTarget": true,
+                  "color": "rgb(29, 26, 32)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "auto"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-en-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">English</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-18u37iz r-ws14 r-13qz1uu\"><div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-en-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">English</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div aria-label=\"English\" role=\"menuitemradio\" tabindex=\"-1\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-en\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"false\"><div class=\"css-g5y9jx r-18u37iz r-ws",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-bg\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div data-testid=\"menu-view\" style=\"position: absolute; top: 0px; right: 0px; z-index: 1; overflow: hidden; display: flex; flex-direction: column; width: 320px; max-height: 420px;\"><div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "1"
+                },
+                {
+                  "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "auto"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "selector": "div[data-testid=\"language-et-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
+          "rects": [
+            {
+              "x": 1141,
+              "y": 361,
+              "width": 34.78125,
+              "height": 19,
+              "stack": [
+                {
+                  "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Eesti</div>",
+                  "isTarget": true,
+                  "insideTarget": true,
+                  "containsTarget": true,
+                  "color": "rgb(29, 26, 32)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "auto"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-et-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Eesti</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-18u37iz r-ws14 r-13qz1uu\"><div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"language-et-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Eesti</div></div></",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div aria-label=\"Eesti\" role=\"menuitemradio\" tabindex=\"-1\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-et\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"false\"><div class=\"css-g5y9jx r-18u37iz r-ws14",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"language-bg\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><div class=\"css-g5y9jx\"><div aria-label=\"Български • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div data-testid=\"menu-view\" style=\"position: absolute; top: 0px; right: 0px; z-index: 1; overflow: hidden; display: flex; flex-direction: column; width: 320px; max-height: 420px;\"><div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"language-menu-scroll\" style=\"max-height: 420px;\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "1"
+                },
+                {
+                  "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "auto"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "selector": "div[data-testid=\"language-fi-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
+          "rects": [
+            {
+              "x": 1141,
+              "y": 418,
+              "width": 45.34375,
+              "height": 19,
+              "stack": [
+                {
+                  "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "auto"
+                },
+                {
+                  "html": "<div style=\"position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 1000;\"><button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "fixed",
+                  "zIndex": "1000"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"padding: 0px;\" inert=\"\"><div class=\"css-g5y9jx r-l26x2w r-1udh08x r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu\"",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgb(247, 245, 249)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgb(247, 245, 249)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249);\"><",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"ap",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\"><div class=\"css",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\">",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "static",
+                  "zIndex": "auto"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "state": "theme-menu",
+      "violations": [],
+      "incomplete": [
+        {
+          "id": "color-contrast",
+          "impact": "serious",
+          "tags": [
+            "cat.color",
+            "wcag2aa",
+            "wcag143",
+            "TTv5",
+            "TT13.c",
+            "EN-301-549",
+            "EN-9.1.4.3",
+            "ACT",
+            "RGAAv4",
+            "RGAA-3.2.1"
+          ],
+          "description": "Ensure the contrast between foreground and background colors meets WCAG 2 AA minimum contrast ratio thresholds",
+          "help": "Elements must meet minimum color contrast ratio thresholds",
+          "helpUrl": "https://dequeuniversity.com/rules/axe/4.13/color-contrast?application=playwright",
+          "nodes": [
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgImage",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+                      "target": [
+                        ".r-4gszlv"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background image"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Системна • Избрано</div>",
+              "target": [
+                "div[data-testid=\"theme-system-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgImage",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+                      "target": [
+                        ".r-4gszlv"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background image"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Светла</div>",
+              "target": [
+                "div[data-testid=\"theme-light-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+            },
+            {
+              "any": [
+                {
+                  "id": "color-contrast",
+                  "data": {
+                    "contrastRatio": 0,
+                    "fontSize": "12.0pt (16px)",
+                    "fontWeight": "normal",
+                    "messageKey": "bgImage",
+                    "expectedContrastRatio": "4.5:1"
+                  },
+                  "relatedNodes": [
+                    {
+                      "html": "<div class=\"css-g5y9jx r-1niwhzg r-vvn4in r-u6sd8q r-1p0dtai r-1pi2tsx r-1d2f490 r-u8s1d r-zchlnj r-ipm5af r-13qz1uu r-1wyyakw r-4gszlv\" style=\"background-image: url(&quot;/assets/_imgs/background.fb29d87cdd43f315e2b346bbe4052c9a.png&quot;);\"></div>",
+                      "target": [
+                        ".r-4gszlv"
+                      ]
+                    }
+                  ],
+                  "impact": "serious",
+                  "message": "Element's background color could not be determined due to a background image"
+                }
+              ],
+              "all": [],
+              "none": [],
+              "impact": "serious",
+              "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Тъмна</div>",
+              "target": [
+                "div[data-testid=\"theme-dark-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7"
+              ],
+              "failureSummary": "Fix any of the following:\n  Element's background color could not be determined due to a background image"
+            }
+          ]
+        }
+      ],
+      "layout": {
+        "ancestors": [
+          {
+            "tag": "DIV",
+            "testid": "app-root",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "testid": "app-paper-surface",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgb(247, 245, 249)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "testid": "surface",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgb(247, 245, 249)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "testid": "beeminipos-feedback-background",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "relative",
+            "zIndex": "0",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "DIV",
+            "width": 1440,
+            "height": 1000,
+            "position": "static",
+            "zIndex": "auto",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "1 1 0%"
+          },
+          {
+            "tag": "BODY",
+            "width": 1440,
+            "height": 1000,
+            "position": "static",
+            "zIndex": "auto",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "0 1 auto"
+          },
+          {
+            "tag": "HTML",
+            "width": 1440,
+            "height": 1000,
+            "position": "static",
+            "zIndex": "auto",
+            "background": "rgba(0, 0, 0, 0)",
+            "flex": "0 1 auto"
+          }
+        ],
+        "stack": [
+          {
+            "tag": "BUTTON",
+            "testid": null,
+            "role": null,
+            "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div style=\"position: fixed; top: 0px; left: 0px; width: 100%; height: 100%; z-index: 1000;\"><button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-ima"
+          },
+          {
+            "tag": "DIV",
+            "testid": "app-paper-surface",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy r-2llsf r-13qz1uu\" data-testid=\"app-root\" style=\"padding: 0px;\" inert=\"\"><div class=\"css-g5y9jx r-l26x2w r-1udh08x r-1p0dtai r-1pi2"
+          },
+          {
+            "tag": "DIV",
+            "testid": "surface",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex: 1 1 0%; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-13awgt0 r-1awozwy"
+          },
+          {
+            "tag": "DIV",
+            "testid": "beeminipos-feedback-background",
+            "role": null,
+            "html": "<div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"app-paper-surface\" style=\"flex"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; background-color: rgb(247, 245, 249);\""
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-width: 0px; back"
+          },
+          {
+            "tag": "DIV",
+            "testid": null,
+            "role": null,
+            "html": "<div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g5y9jx r-13awgt0 r-12vffkv\"><div class=\"css-g5y9jx\" data-testid=\"beeminipos-feedback-background\" style=\"flex: 1 1 0%;\"><div class=\"css-g5y9jx r-105ug2t\" data-testid=\"surface\" style=\"flex: 1 1 0%; min-w"
+          },
+          {
+            "tag": "BODY",
+            "testid": null,
+            "role": null,
+            "html": "<body>\n    <!-- Use static rendering with Expo Router to support running without JavaScript. -->\n    <noscript>\n      You need to enable JavaScript to run this app.\n    </noscript>\n    <!-- The root element for your Expo app. -->\n    <div id=\"root\"><div class=\"css-g5y9jx r-13awgt0\"><div class=\"css-g"
+          },
+          {
+            "tag": "HTML",
+            "testid": null,
+            "role": null,
+            "html": "<html lang=\"en\"><head><style id=\"react-native-stylesheet\"></style>\n    <meta charset=\"utf-8\">\n    <meta httpequiv=\"X-UA-Compatible\" content=\"IE=edge\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1, shrink-to-fit=no\">\n    <title>BeeMiniPOS</title>\n    <!-- The `react-native-w"
+          }
+        ]
+      },
+      "textStacks": [
+        {
+          "selector": "div[data-testid=\"theme-system-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
+          "rects": [
+            {
+              "x": 1141,
+              "y": 19,
+              "width": 150.953125,
+              "height": 19,
+              "stack": [
+                {
+                  "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Системна • Избрано</div>",
+                  "isTarget": true,
+                  "insideTarget": true,
+                  "containsTarget": true,
+                  "color": "rgb(29, 26, 32)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "auto"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"theme-system-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Системна • Избрано</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-18u37iz r-ws14 r-13qz1uu\"><div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"theme-system-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Системна • Избрано",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div aria-label=\"Системна • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"theme-system\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><div class=\"css-g5y9jx r-18",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx\"><div aria-label=\"Системна • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"theme-system\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"theme-menu-scroll\" style=\"max-height: 420px;\"><div class=\"css-g5y9jx\"><div aria-label=\"Системна • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"th",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div data-testid=\"menu-view\" style=\"position: absolute; top: 0px; right: 0px; z-index: 1; overflow: hidden; display: flex; flex-direction: column; width: 320px; max-height: 420px;\"><div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"theme-menu-scroll\" style=\"max-height: 420px;\"><div c",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "1"
+                },
+                {
+                  "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "auto"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "selector": "div[data-testid=\"theme-light-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
+          "rects": [
+            {
+              "x": 1141,
+              "y": 76,
+              "width": 52.953125,
+              "height": 19,
+              "stack": [
+                {
+                  "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Светла</div>",
+                  "isTarget": true,
+                  "insideTarget": true,
+                  "containsTarget": true,
+                  "color": "rgb(29, 26, 32)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "auto"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"theme-light-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Светла</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-18u37iz r-ws14 r-13qz1uu\"><div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"theme-light-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Светла</div></div><",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div aria-label=\"Светла\" role=\"menuitemradio\" tabindex=\"-1\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"theme-light\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"false\"><div class=\"css-g5y9jx r-18u37iz r-ws1",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx\"><div aria-label=\"Системна • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"theme-system\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"theme-menu-scroll\" style=\"max-height: 420px;\"><div class=\"css-g5y9jx\"><div aria-label=\"Системна • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"th",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div data-testid=\"menu-view\" style=\"position: absolute; top: 0px; right: 0px; z-index: 1; overflow: hidden; display: flex; flex-direction: column; width: 320px; max-height: 420px;\"><div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"theme-menu-scroll\" style=\"max-height: 420px;\"><div c",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "1"
+                },
+                {
+                  "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "auto"
+                }
+              ]
+            }
+          ]
+        },
+        {
+          "selector": "div[data-testid=\"theme-dark-content\"] > .r-ubezar.r-lrvibr.r-fdjqy7",
+          "rects": [
+            {
+              "x": 1141,
+              "y": 133,
+              "width": 49.28125,
+              "height": 19,
+              "stack": [
+                {
+                  "html": "<div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Тъмна</div>",
+                  "isTarget": true,
+                  "insideTarget": true,
+                  "containsTarget": true,
+                  "color": "rgb(29, 26, 32)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "auto"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"theme-dark-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Тъмна</div></div>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx r-18u37iz r-ws14 r-13qz1uu\"><div class=\"css-g5y9jx r-1qhn6m8 r-16y2uox r-1wbh5a2 r-1777fci\" data-testid=\"theme-dark-content\"><div dir=\"auto\" class=\"css-146c3p1 r-fdjqy7 r-ubezar r-lrvibr\" style=\"font-family: Roboto_400Regular; letter-spacing: 0px; font-weight: 400; direction: ltr; color: rgb(29, 26, 32);\">Тъмна</div></div></d",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div aria-label=\"Тъмна\" role=\"menuitemradio\" tabindex=\"-1\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"theme-dark\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"false\"><div class=\"css-g5y9jx r-18u37iz r-ws14 ",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div class=\"css-g5y9jx\"><div aria-label=\"Системна • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"theme-system\" style=\"min-height: 48px; min-width: 0px; margin: 4px; border-width: 1px; border-color: rgb(111, 104, 116); border-radius: 4px;\" aria-checked=\"true\"><di",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"theme-menu-scroll\" style=\"max-height: 420px;\"><div class=\"css-g5y9jx\"><div aria-label=\"Системна • Избрано\" role=\"menuitemradio\" tabindex=\"0\" class=\"css-g5y9jx r-1otgn73 r-1loqt21 r-bnwqim r-ctqt5z r-11f147o r-11g3r6m\" data-testid=\"th",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "relative",
+                  "zIndex": "0"
+                },
+                {
+                  "html": "<div data-testid=\"menu-view\" style=\"position: absolute; top: 0px; right: 0px; z-index: 1; overflow: hidden; display: flex; flex-direction: column; width: 320px; max-height: 420px;\"><div role=\"menu\" class=\"css-g5y9jx r-150rngu r-eqz5dr r-16y2uox r-1wbh5a2 r-11yh6sk r-1rnoaur r-agouwx\" data-testid=\"theme-menu-scroll\" style=\"max-height: 420px;\"><div c",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": true,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "1"
+                },
+                {
+                  "html": "<button aria-label=\"Назад\" style=\"position: absolute; top: 0px; left: 0px; width: 100%; height: 100%; background: transparent; border-width: medium; border-style: none; border-color: currentcolor; border-image: none; cursor: default; padding: 0px; margin: 0px;\"></button>",
+                  "isTarget": false,
+                  "insideTarget": false,
+                  "containsTarget": false,
+                  "color": "rgb(0, 0, 0)",
+                  "background": "rgba(0, 0, 0, 0)",
+                  "opacity": "1",
+                  "position": "absolute",
+                  "zIndex": "auto"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
