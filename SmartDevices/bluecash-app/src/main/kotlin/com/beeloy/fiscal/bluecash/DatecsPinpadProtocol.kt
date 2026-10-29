@@ -116,6 +116,7 @@ data class OriginalCardTransaction(
 interface CardTransactionStore {
   fun prepare(operationId: String, amountMinor: Long)
   fun approve(value: OriginalCardTransaction)
+  fun beginReversal(operationId: String)
   fun original(operationId: String): OriginalCardTransaction?
   fun markReversed(operationId: String)
 }
@@ -124,14 +125,20 @@ class MemoryCardTransactionStore : CardTransactionStore {
   private val rows = mutableMapOf<String, OriginalCardTransaction>()
   override fun prepare(operationId: String, amountMinor: Long) {
     val old = rows[operationId]
-    require(old == null || (old.amountMinor == amountMinor && old.state == "PREPARED")) {
-      "PAYMENT_ID_CONFLICT"
+    require(old == null) {
+      if (old?.state == "PREPARED") "PAYMENT_IN_PROGRESS" else "PAYMENT_ID_CONFLICT"
     }
-    if (old == null)
-      rows[operationId] = OriginalCardTransaction(operationId, amountMinor, "", "", "PREPARED")
+    rows[operationId] = OriginalCardTransaction(operationId, amountMinor, "", "", "PREPARED")
   }
   override fun approve(value: OriginalCardTransaction) {
     rows[value.operationId] = value.copy(state = "APPROVED")
+  }
+  override fun beginReversal(operationId: String) {
+    val old = rows[operationId] ?: error("DATECS_ORIGINAL_PAYMENT_REQUIRED")
+    require(old.state == "APPROVED") {
+      if (old.state == "REVERSAL_SENDING") "REVERSAL_IN_PROGRESS" else "DATECS_ORIGINAL_PAYMENT_REQUIRED"
+    }
+    rows[operationId] = old.copy(state = "REVERSAL_SENDING")
   }
   override fun original(operationId: String) = rows[operationId]
   override fun markReversed(operationId: String) {
@@ -186,16 +193,20 @@ class BoricaPinpadCodec(
     input: InputStream,
     output: OutputStream
   ): Map<String, String> {
-    val old =
-      store.original(operationId)?.takeIf { it.state == "APPROVED" }
-        ?: error("DATECS_ORIGINAL_PAYMENT_REQUIRED")
+    val existing = store.original(operationId) ?: error("DATECS_ORIGINAL_PAYMENT_REQUIRED")
+    when (existing.state) {
+      "APPROVED" -> {}
+      "REVERSAL_SENDING" -> error("REVERSAL_IN_PROGRESS")
+      else -> error("DATECS_ORIGINAL_PAYMENT_REQUIRED")
+    }
+    store.beginReversal(operationId)
     val wire = DatecsPinpadWire(input, output)
     wire.command(61, 3)
     val tags =
       listOf(
-        BerTlv(0x81, be4(old.amountMinor)),
-        BerTlv(0xDF01, old.rrn.toByteArray(Charsets.US_ASCII)),
-        BerTlv(0xDF02, old.authorizationCode.toByteArray(Charsets.US_ASCII))
+        BerTlv(0x81, be4(existing.amountMinor)),
+        BerTlv(0xDF01, existing.rrn.toByteArray(Charsets.US_ASCII)),
+        BerTlv(0xDF02, existing.authorizationCode.toByteArray(Charsets.US_ASCII))
       )
     wire.command(61, 1, byteArrayOf(7) + DatecsBerTlv.encode(tags))
     return parseResult(wire.event(14)).also {

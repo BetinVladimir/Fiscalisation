@@ -226,12 +226,13 @@ class AndroidTransactionJournal(
     db.beginTransaction()
     try {
       val old = original(operationId)
-      require(old == null || old.amountMinor == amountMinor) { "PAYMENT_ID_CONFLICT" }
-      if (old == null)
-        db.execSQL(
-          "INSERT INTO payment_transaction(operation_id,amount_minor,state,updated_at) VALUES(?,?,?,?)",
-          arrayOf(operationId, amountMinor, "PREPARED", clock().toString())
-        )
+      require(old == null) {
+        if (old?.state == "PREPARED") "PAYMENT_IN_PROGRESS" else "PAYMENT_ID_CONFLICT"
+      }
+      db.execSQL(
+        "INSERT INTO payment_transaction(operation_id,amount_minor,state,updated_at) VALUES(?,?,?,?)",
+        arrayOf(operationId, amountMinor, "PREPARED", clock().toString())
+      )
       db.setTransactionSuccessful()
     } finally {
       db.endTransaction()
@@ -266,9 +267,26 @@ class AndroidTransactionJournal(
             it.getString(3)
           )
       }
+  override fun beginReversal(operationId: String) {
+    val db = writableDatabase
+    db.beginTransaction()
+    try {
+      val old = original(operationId) ?: error("DATECS_ORIGINAL_PAYMENT_REQUIRED")
+      require(old.state == "APPROVED") {
+        if (old.state == "REVERSAL_SENDING") "REVERSAL_IN_PROGRESS" else "DATECS_ORIGINAL_PAYMENT_REQUIRED"
+      }
+      db.execSQL(
+        "UPDATE payment_transaction SET state='REVERSAL_SENDING',updated_at=? WHERE operation_id=? AND state='APPROVED'",
+        arrayOf(clock().toString(), operationId)
+      )
+      db.setTransactionSuccessful()
+    } finally {
+      db.endTransaction()
+    }
+  }
   override fun markReversed(operationId: String) {
     writableDatabase.execSQL(
-      "UPDATE payment_transaction SET state='REVERSED',updated_at=? WHERE operation_id=? AND state='APPROVED'",
+      "UPDATE payment_transaction SET state='REVERSED',updated_at=? WHERE operation_id=? AND state='REVERSAL_SENDING'",
       arrayOf(clock().toString(), operationId)
     )
   }

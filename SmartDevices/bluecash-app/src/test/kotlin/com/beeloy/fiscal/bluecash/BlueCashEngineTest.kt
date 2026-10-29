@@ -567,4 +567,28 @@ class BlueCashEngineTest {
     assertEquals("FISCAL_REFERENCE_UNPARSEABLE", result["error_code"])
     assertNull(result["fiscal_reference"])
   }
+
+  // FISCAL-CANCEL-CONFIRMATION-001
+  @Test
+  fun `cancel nonzero response is treated as failure — RECEIPT_CANCEL_FAILED not COMPENSATED`() {
+    val fiscal = object : DatecsFiscalPort {
+      override fun reachable() = true
+      override fun execute(command: Int, payload: ByteArray): DatecsResponse =
+        DatecsResponse(32, command,
+          when (command) {
+            DatecsPayloads.CMD_CANCEL_RECEIPT -> "5\tCANCEL_REJECTED".toByteArray() // nonzero = failure
+            49 -> "5\tLINE_FAIL".toByteArray()
+            else -> "0\t".toByteArray()
+          },
+          byteArrayOf())
+    }
+    val c = Card()
+    val j = SignedMemoryJournal(Signer())
+    val result = BlueCashCommandProcessor(fiscal, c, j).sale(sale())
+    // Bug: runCatching { fiscal.execute(CMD_CANCEL) }.isSuccess ignores nonzero → COMPENSATED
+    // Fix: runCatching { ok(fiscal.execute(CMD_CANCEL)) }.isSuccess → nonzero throws → RECOVERY_REQUIRED
+    assertEquals("RECOVERY_REQUIRED", result["state"])
+    assertEquals("RECEIPT_CANCEL_FAILED", result["error_code"])
+    assertEquals("card reversal must not run when cancel is unconfirmed", 0, c.reversals)
+  }
 }

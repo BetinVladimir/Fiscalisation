@@ -294,7 +294,7 @@ class BlueCashCommandProcessor(
     } catch (e: Throwable) {
       val unknown = classified(e) == Outcome.UNKNOWN
       if (receiptOpened && !unknown) {
-        val closeOk = runCatching { fiscal.execute(39) }.isSuccess
+        val closeOk = runCatching { ok(fiscal.execute(39)) }.isSuccess
         if (closeOk) {
           journal.append(operationId, "RECEIPT_CANCELLED", "state=RECEIPT_CANCELLED")
         } else {
@@ -383,7 +383,7 @@ class BlueCashCommandProcessor(
     } catch (e: Throwable) {
       val unknown = classified(e) == Outcome.UNKNOWN
       if (receiptOpened && !unknown) {
-        val cancelOk = runCatching { fiscal.execute(DatecsPayloads.CMD_CANCEL_RECEIPT) }.isSuccess
+        val cancelOk = runCatching { ok(fiscal.execute(DatecsPayloads.CMD_CANCEL_RECEIPT)) }.isSuccess
         if (cancelOk) {
           journal.append(command.operationId, "RECEIPT_CANCELLED", "state=RECEIPT_CANCELLED")
         } else {
@@ -509,7 +509,7 @@ class BlueCashCommandProcessor(
     } catch (e: Throwable) {
       val unknown = classified(e) == Outcome.UNKNOWN
       if (receiptOpened && !unknown) {
-        val cancelOk = runCatching { fiscal.execute(DatecsPayloads.CMD_CANCEL_RECEIPT) }.isSuccess
+        val cancelOk = runCatching { ok(fiscal.execute(DatecsPayloads.CMD_CANCEL_RECEIPT)) }.isSuccess
         if (cancelOk) {
           journal.append(command.operationId, "RECEIPT_CANCELLED", "state=RECEIPT_CANCELLED")
         } else {

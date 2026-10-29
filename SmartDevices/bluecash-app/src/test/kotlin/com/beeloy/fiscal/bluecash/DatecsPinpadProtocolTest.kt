@@ -101,4 +101,93 @@ class DatecsPinpadProtocolTest {
       DatecsPinpadWire(ByteArrayInputStream(bytes), ByteArrayOutputStream()).command(61, 3)
     }
   }
+
+  // FISCAL-PINPAD-REPLAY-001 + FISCAL-PINPAD-APPROVAL-STORAGE-001
+  @Test
+  fun `prepare rejects reentry when state is PREPARED`() {
+    val store = MemoryCardTransactionStore()
+    store.prepare("op-r", 100)
+    val ex = assertThrows(IllegalArgumentException::class.java) { store.prepare("op-r", 100) }
+    assertEquals("PAYMENT_IN_PROGRESS", ex.message)
+  }
+
+  @Test
+  fun `approval storage failure blocks wire replay via PREPARED state`() {
+    val delegate = MemoryCardTransactionStore()
+    val throwOnApprove = object : CardTransactionStore {
+      override fun prepare(operationId: String, amountMinor: Long) = delegate.prepare(operationId, amountMinor)
+      override fun approve(value: OriginalCardTransaction): Unit = throw java.io.IOException("storage failure")
+      override fun beginReversal(operationId: String) = delegate.beginReversal(operationId)
+      override fun original(operationId: String) = delegate.original(operationId)
+      override fun markReversed(operationId: String) = delegate.markReversed(operationId)
+    }
+    val tlv = DatecsBerTlv.encode(listOf(
+      BerTlv(0xDF05, byteArrayOf(0)), BerTlv(0xDF06, byteArrayOf(0)), BerTlv(0xDF09, byteArrayOf(0)),
+      BerTlv(0xDF07, "RRN1".toByteArray()), BerTlv(0xDF08, "AUTH".toByteArray())
+    ))
+    val approvedPayload = byteArrayOf(1) + tlv
+    // First call: device approves but store.approve() throws — leaves state PREPARED
+    runCatching {
+      BoricaPinpadCodec({ LocalDate.of(2026, 8, 11) }, throwOnApprove).purchase(
+        265, "op-r2",
+        ByteArrayInputStream(
+          packet(0, 0, byteArrayOf()) + packet(0, 0, byteArrayOf()) +
+            packet(0, 0, byteArrayOf()) + packet(14, 0, approvedPayload)
+        ),
+        ByteArrayOutputStream()
+      )
+    }
+    // Second call: must throw PAYMENT_IN_PROGRESS before any wire command
+    val out2 = ByteArrayOutputStream()
+    val ex = assertThrows(IllegalArgumentException::class.java) {
+      BoricaPinpadCodec({ LocalDate.of(2026, 8, 11) }, throwOnApprove).purchase(
+        265, "op-r2",
+        ByteArrayInputStream(
+          packet(0, 0, byteArrayOf()) + packet(0, 0, byteArrayOf()) +
+            packet(0, 0, byteArrayOf()) + packet(14, 0, approvedPayload)
+        ),
+        out2
+      )
+    }
+    assertEquals("PAYMENT_IN_PROGRESS", ex.message)
+    assertEquals("no wire output must be produced on replay rejection", 0, out2.size())
+  }
+
+  // FISCAL-PINPAD-REVERSAL-STORAGE-001
+  @Test
+  fun `reversal in progress state prevents second reversal wire command`() {
+    val delegate = MemoryCardTransactionStore()
+    val throwOnMarkReversed = object : CardTransactionStore {
+      override fun prepare(operationId: String, amountMinor: Long) = delegate.prepare(operationId, amountMinor)
+      override fun approve(value: OriginalCardTransaction) = delegate.approve(value)
+      override fun beginReversal(operationId: String) = delegate.beginReversal(operationId)
+      override fun original(operationId: String) = delegate.original(operationId)
+      override fun markReversed(operationId: String): Unit = throw java.io.IOException("storage failure")
+    }
+    // Seed: approved original
+    delegate.prepare("op-r3", 265)
+    delegate.approve(OriginalCardTransaction("op-r3", 265, "RRN1", "AUTH", "APPROVED"))
+    val tlv = DatecsBerTlv.encode(listOf(
+      BerTlv(0xDF05, byteArrayOf(0)), BerTlv(0xDF06, byteArrayOf(0)), BerTlv(0xDF09, byteArrayOf(0))
+    ))
+    val approvedReverse = byteArrayOf(1) + tlv
+    // First reverse: device approves but markReversed() throws
+    runCatching {
+      BoricaPinpadCodec({ LocalDate.of(2026, 8, 12) }, throwOnMarkReversed).reverse(
+        "op-r3",
+        ByteArrayInputStream(packet(0, 0, byteArrayOf()) + packet(0, 0, byteArrayOf()) + packet(14, 0, approvedReverse)),
+        ByteArrayOutputStream()
+      )
+    }
+    // Second reverse: must fail before any wire command
+    val out2 = ByteArrayOutputStream()
+    assertThrows(IllegalStateException::class.java) {
+      BoricaPinpadCodec({ LocalDate.of(2026, 8, 12) }, throwOnMarkReversed).reverse(
+        "op-r3",
+        ByteArrayInputStream(packet(0, 0, byteArrayOf()) + packet(0, 0, byteArrayOf()) + packet(14, 0, approvedReverse)),
+        out2
+      )
+    }
+    assertEquals("no wire output on second reversal attempt", 0, out2.size())
+  }
 }
