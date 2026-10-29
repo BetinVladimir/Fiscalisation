@@ -8,6 +8,9 @@ import type {ThemePreference} from './provider';
 import {useTranslation,type Translation,type Language} from '../languageStore';
 import {supportedLanguages} from '../translations.generated';
 const menuBackgroundLocks = new WeakMap<HTMLElement, { count: number; originallyInert: boolean }>();
+// createPortal is only available on web (react-dom); null on native so it is never called there.
+const createPortal: ((children: React.ReactNode, container: Element) => React.ReactPortal) | null =
+  typeof document !== 'undefined' ? (require('react-dom') as typeof import('react-dom')).createPortal : null;
 
 function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", selected: string) {
   useEffect(() => {
@@ -16,8 +19,8 @@ function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", se
     trigger?.setAttribute("aria-expanded", String(visible));
     trigger?.setAttribute("aria-haspopup", "menu");
     if (!visible) return;
-    // Paper's portal menu/backdrop is outside app-root. Match blocked pointer
-    // interaction with blocked background keyboard and assistive-tech access.
+    // Menu portal is outside app-root. Match blocked pointer interaction with
+    // blocked background keyboard and assistive-tech access.
     const background = document.querySelector<HTMLElement>('[data-testid="app-root"]');
     if (background) {
       const lock = menuBackgroundLocks.get(background) || { count: 0, originallyInert: background.hasAttribute("inert") };
@@ -33,6 +36,12 @@ function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", se
         item.setAttribute("aria-checked", String(item.dataset.testid === `${prefix}-${selected}`));
         item.tabIndex = active ? item === active ? 0 : -1 : item.dataset.testid === `${prefix}-${selected}` ? 0 : -1;
       });
+      // Focus the selected item once items appear in the portal
+      if (!active && items.length > 0) {
+        const chosen = items.find(item => item.tabIndex === 0) || items[0];
+        chosen.focus();
+        chosen.scrollIntoView?.({ block: 'nearest' });
+      }
     };
     configure();
     const observer = new MutationObserver(configure);
@@ -63,6 +72,7 @@ function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", se
     document.addEventListener("keydown", onKeyDown);
     return () => {
       observer.disconnect(); document.removeEventListener("keydown", onKeyDown);
+      // Remove inert before focusing trigger — trigger is inside app-root which is inert
       if (background) {
         const lock = menuBackgroundLocks.get(background);
         if (lock && --lock.count === 0) {
@@ -70,22 +80,66 @@ function usePaperMenuKeyboard(visible: boolean, prefix: "language" | "theme", se
           menuBackgroundLocks.delete(background);
         }
       }
+      trigger?.focus();
     };
   }, [visible, prefix, selected]);
 }
 
+/** On web, Paper's Menu.show() hangs because measureMenuLayout() returns a
+ * never-resolving Promise when menuRef is null at the time useEffect fires
+ * (PortalManager setState is async in React 19). Bypass with createPortal. */
+function WebPreferenceMenu({anchor, children, visible, onDismiss, overlayAccessibilityLabel, testID, contentStyle}: {
+  anchor: React.ReactNode;
+  children: React.ReactNode;
+  visible: boolean;
+  onDismiss?: (() => void) | undefined;
+  overlayAccessibilityLabel?: string;
+  testID: string;
+  contentStyle?: React.ComponentProps<typeof PaperMenu>['contentStyle'];
+}) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => { setMounted(visible); }, [visible]);
+
+  useEffect(() => {
+    if (!visible) return;
+    const h = (e: KeyboardEvent) => { if (e.key === 'Escape') { e.preventDefault(); onDismiss?.(); } };
+    document.addEventListener('keyup', h);
+    return () => document.removeEventListener('keyup', h);
+  }, [visible, onDismiss]);
+
+  const cs = ((contentStyle ?? {}) as {width?: number; maxHeight?: number});
+  const portal = mounted && createPortal ? createPortal(
+    <div style={{position:'fixed',top:0,left:0,width:'100%',height:'100%',zIndex:1000}}>
+      <button
+        aria-label={overlayAccessibilityLabel}
+        onClick={() => onDismiss?.()}
+        style={{position:'absolute',top:0,left:0,width:'100%',height:'100%',background:'transparent',border:'none',cursor:'default',padding:0,margin:0}}
+      />
+      <div
+        data-testid={`${testID}-view`}
+        style={{position:'absolute',top:0,right:0,zIndex:1,overflow:'hidden',display:'flex',flexDirection:'column',...(cs.width != null ? {width:cs.width} : {}), ...(cs.maxHeight != null ? {maxHeight:cs.maxHeight} : {})}}
+      >
+        {children}
+      </div>
+    </div>,
+    document.body
+  ) : null;
+
+  return <>{anchor}{portal}</>;
+}
+
 /** Native Paper menu mounts open with a stable coordinate anchor. This avoids
  * measuring an Appbar child and prevents an old hide callback racing a new open. */
-function PreferenceMenu({anchor,children,...props}:React.ComponentProps<typeof PaperMenu>){
+function PreferenceMenu({anchor,children,visible,onDismiss,overlayAccessibilityLabel,testID='menu',contentStyle,...rest}:React.ComponentProps<typeof PaperMenu>){
  const [point,setPoint]=useState({x:0,y:0});
- if(Platform.OS==='web')return <PaperMenu {...props} anchor={anchor}>{children}</PaperMenu>;
+ if(Platform.OS==='web') return <WebPreferenceMenu anchor={anchor} visible={visible} onDismiss={onDismiss} overlayAccessibilityLabel={overlayAccessibilityLabel} testID={testID} contentStyle={contentStyle}>{children}</WebPreferenceMenu>;
  const element=anchor as React.ReactElement<{onPress?:(event:GestureResponderEvent)=>void}>;
  const trigger=React.cloneElement(element,{onPress:(event:GestureResponderEvent)=>{
   const x=event?.nativeEvent?.pageX,y=event?.nativeEvent?.pageY;
   if(Number.isFinite(x)&&Number.isFinite(y))setPoint({x:Math.max(0,x-24),y:y+24});
   element.props.onPress?.(event);
  }});
- return <>{trigger}{props.visible?<PaperMenu {...props} anchor={point}>{children}</PaperMenu>:null}</>;
+ return <>{trigger}{visible?<PaperMenu {...rest} visible={visible} onDismiss={onDismiss} overlayAccessibilityLabel={overlayAccessibilityLabel} testID={testID} contentStyle={contentStyle} anchor={point}>{children}</PaperMenu>:null}</>;
 }
 
 function PaperMenuChoice({ testID, title, onPress }: { testID: string; title: string; onPress: () => void }) {

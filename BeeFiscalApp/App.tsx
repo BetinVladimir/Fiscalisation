@@ -56,6 +56,7 @@ const devAuthToken = prodMode
   : process.env.EXPO_PUBLIC_FISCAL_AUTH_TOKEN || "";
 let runtimeAuthToken = devAuthToken;
 const requestAuthFence=new RequestAuthFence();
+const key = () => ExpoCrypto.randomUUID();
 type Item = Record<string, unknown>;
 type AdminLists = {
   locations: Item[];
@@ -72,7 +73,7 @@ async function call(path: string, init: RequestInit = {}, requestToken = runtime
   const headers=new Headers({
     "Content-Type":"application/json",
     "X-Api-Version":version,
-    ...(mutation?{"Idempotency-Key":ExpoCrypto.randomUUID()}:{}),
+    ...(mutation?{"Idempotency-Key":key()}:{}),
     ...(requestToken?{Authorization:`Bearer ${requestToken}`}:{})
   });
   new Headers(init.headers).forEach((value,name)=>headers.set(name,value));

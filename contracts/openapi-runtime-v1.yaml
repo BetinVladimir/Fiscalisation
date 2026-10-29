@@ -1841,6 +1841,7 @@ components:
         reason_code: {type: string}
         original_document_number: {type: integer, minimum: 1}
         original_document_at: {type: string, format: date-time}
+        fiscal_document_at: {type: string, format: date-time}
         simulated: {type: boolean}
         error_code: {type: string}
         allowed_actions: {type: array, items: {type: string}}
