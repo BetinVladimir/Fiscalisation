@@ -11,7 +11,7 @@ export function usePlatformOidc() {
   );
   const clientId = process.env.EXPO_PUBLIC_PLATFORM_OIDC_CLIENT_ID || "";
   const configured = issuer.startsWith("https://") && !!clientId;
-  const discovery = AuthSession.useAutoDiscovery(configured ? issuer : "");
+  const discovery = AuthSession.useAutoDiscovery(configured ? issuer : null);
   const redirectUri = useMemo(
     () =>
       AuthSession.makeRedirectUri({
