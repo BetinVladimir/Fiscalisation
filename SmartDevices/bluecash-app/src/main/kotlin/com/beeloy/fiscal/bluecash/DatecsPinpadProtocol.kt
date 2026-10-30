@@ -89,7 +89,7 @@ class DatecsPinpadWire(private val input: InputStream, private val output: Outpu
   private fun readPacket(): Packet {
     while (true) {
       val first = input.read()
-      if (first < 0) error("DATECS_PINPAD_EOF")
+      if (first < 0) throw DatecsFailure.Unknown("DATECS_PINPAD_EOF")
       if (first != 0x3e) continue
       val event = read()
       val error = read()
@@ -103,7 +103,7 @@ class DatecsPinpadWire(private val input: InputStream, private val output: Outpu
       return Packet(event, error, payload)
     }
   }
-  private fun read(): Int = input.read().also { if (it < 0) error("DATECS_PINPAD_EOF") }
+  private fun read(): Int = input.read().also { if (it < 0) throw DatecsFailure.Unknown("DATECS_PINPAD_EOF") }
 }
 
 data class OriginalCardTransaction(

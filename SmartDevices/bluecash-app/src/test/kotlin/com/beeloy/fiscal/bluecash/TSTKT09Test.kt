@@ -4,12 +4,13 @@ import org.junit.Assert.*
 import org.junit.Test
 
 /**
- * TST-KT-09: Any transport error after the write is UNKNOWN (BUG-028).
+ * TST-KT-09: Post-send response anomalies and write-phase errors are UNKNOWN (BUG-028).
  *
  * G: exceptions: IOException, SocketTimeoutException, DATECS_LENGTH, DATECS_SEPARATOR,
  *    DATECS_FRAME_TOO_LARGE, DATECS_HEX, EOF.
- * T: after write (cmd56) → Unknown; before write (cmd49) → NotSent=FAILED;
- *    parsed response with code != 0 → Rejected(code).
+ * T: BadFrame/BccError/FrameTooLarge/NotSent(write) → UNKNOWN;
+ *    NotSent(encode) → FAILED; parsed response code != 0 → Rejected → FAILED.
+ * Ref: FISCAL-PROVIDER-UNKNOWN-001, FISCAL-TRANSPORT-SEND-AMBIGUITY-001.
  */
 class TSTKT09Test {
 
@@ -68,16 +69,16 @@ class TSTKT09Test {
         assertNotEquals("FISCALIZED", result["state"])
     }
 
-    // DatecsFailure.BadFrame → FAILED (not UNKNOWN per BUG-028.4)
-    @Test fun badFrameIsFailed() {
+    // DatecsFailure.BadFrame at cmd56 → UNKNOWN (post-send response anomaly)
+    @Test fun badFrameIsUnknown() {
         val result = runSale(56, DatecsFailure.BadFrame("bad"), "op-09-bad")
-        assertEquals("BadFrame must be FAILED, not UNKNOWN", "FAILED", result["state"])
+        assertEquals("BadFrame must be UNKNOWN", "UNKNOWN", result["state"])
     }
 
-    // DatecsFailure.BccError → FAILED
-    @Test fun bccErrorIsFailed() {
+    // DatecsFailure.BccError at cmd56 → UNKNOWN
+    @Test fun bccErrorIsUnknown() {
         val result = runSale(56, DatecsFailure.BccError("bcc"), "op-09-bcc")
-        assertEquals("BccError must be FAILED, not UNKNOWN", "FAILED", result["state"])
+        assertEquals("BccError must be UNKNOWN", "UNKNOWN", result["state"])
     }
 
     // DatecsFailure.Rejected → FAILED
@@ -86,15 +87,21 @@ class TSTKT09Test {
         assertEquals("Rejected must be FAILED, not UNKNOWN", "FAILED", result["state"])
     }
 
-    // DatecsFailure.NotSent → FAILED
-    @Test fun notSentIsFailed() {
+    // DatecsFailure.NotSent write phase → UNKNOWN (bytes may have been accepted)
+    @Test fun notSentWritePhaseIsUnknown() {
         val result = runSale(49, DatecsFailure.NotSent("write", "IO error"), "op-09-ns")
-        assertEquals("NotSent must be FAILED", "FAILED", result["state"])
+        assertEquals("NotSent(write) must be UNKNOWN", "UNKNOWN", result["state"])
     }
 
-    // DatecsFailure.FrameTooLarge → FAILED
-    @Test fun frameTooLargeIsFailed() {
+    // DatecsFailure.NotSent encode phase → FAILED (no bytes sent)
+    @Test fun notSentEncodePhaseIsFailed() {
+        val result = runSale(49, DatecsFailure.NotSent("encode", "DATECS_TEXT_UNMAPPABLE"), "op-09-enc")
+        assertEquals("NotSent(encode) must be FAILED", "FAILED", result["state"])
+    }
+
+    // DatecsFailure.FrameTooLarge → UNKNOWN (response anomaly; device may have processed)
+    @Test fun frameTooLargeIsUnknown() {
         val result = runSale(49, DatecsFailure.FrameTooLarge("too large"), "op-09-ftl")
-        assertEquals("FrameTooLarge must be FAILED", "FAILED", result["state"])
+        assertEquals("FrameTooLarge must be UNKNOWN", "UNKNOWN", result["state"])
     }
 }

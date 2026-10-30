@@ -7,7 +7,9 @@ import org.junit.Test
 /**
  * BUG-028 tests: error classification uses typed DatecsFailure hierarchy, not text matching.
  *
- * Invariant: only true communication loss → UNKNOWN; all protocol errors → FAILED.
+ * Invariant: post-send response anomalies (BadFrame, BccError, CorrelationError, FrameTooLarge)
+ * and write-phase NotSent → UNKNOWN (device may have processed command). Encode-phase NotSent
+ * and Rejected → FAILED. See FISCAL-PROVIDER-UNKNOWN-001, FISCAL-TRANSPORT-SEND-AMBIGUITY-001.
  */
 class BlueCashEngineUnknownTest {
 
@@ -52,34 +54,34 @@ class BlueCashEngineUnknownTest {
       payments = listOf(SalePayment("p-card-1", "CARD", "13.67"))
   )
 
-  // ── BUG-028.4: BAD_FRAME → FAILED (not UNKNOWN) ────────────────────────────
+  // ── BAD_FRAME → UNKNOWN (post-send anomaly: device may have processed) ──────
 
-  @Test fun `badFrame must NOT be UNKNOWN`() {
+  @Test fun `badFrame must be UNKNOWN`() {
     val fiscal = MockFiscalPort(DatecsFailure.BadFrame("BAD FRAME"))
     val processor = makeProcessor(fiscal)
     val result = processor.sale(testSale)
-    assertEquals("FAILED", result["state"])
-    assertNotEquals("UNKNOWN", result["state"])
+    assertEquals("UNKNOWN", result["state"])
+    assertNotEquals("FAILED", result["state"])
   }
 
-  // ── BUG-028.4: BCC_ERROR → FAILED ──────────────────────────────────────────
+  // ── BCC_ERROR → UNKNOWN ─────────────────────────────────────────────────────
 
-  @Test fun `bccError must NOT be UNKNOWN`() {
+  @Test fun `bccError must be UNKNOWN`() {
     val fiscal = MockFiscalPort(DatecsFailure.BccError("BCC mismatch"))
     val processor = makeProcessor(fiscal)
     val result = processor.sale(testSale)
-    assertEquals("FAILED", result["state"])
-    assertNotEquals("UNKNOWN", result["state"])
+    assertEquals("UNKNOWN", result["state"])
+    assertNotEquals("FAILED", result["state"])
   }
 
-  // ── BUG-028.4: CORRELATION_ERROR → FAILED ──────────────────────────────────
+  // ── CORRELATION_ERROR → UNKNOWN ─────────────────────────────────────────────
 
-  @Test fun `correlationError must NOT be UNKNOWN`() {
+  @Test fun `correlationError must be UNKNOWN`() {
     val fiscal = MockFiscalPort(DatecsFailure.CorrelationError("seq mismatch"))
     val processor = makeProcessor(fiscal)
     val result = processor.sale(testSale)
-    assertEquals("FAILED", result["state"])
-    assertNotEquals("UNKNOWN", result["state"])
+    assertEquals("UNKNOWN", result["state"])
+    assertNotEquals("FAILED", result["state"])
   }
 
   // ── BUG-028.4: Unknown → UNKNOWN ───────────────────────────────────────────
@@ -100,28 +102,37 @@ class BlueCashEngineUnknownTest {
     assertEquals("FAILED", result["state"])
   }
 
-  // ── BUG-028.4: NotSent → FAILED ────────────────────────────────────────────
+  // ── NotSent write phase → UNKNOWN (bytes may have been accepted by device) ──
 
-  @Test fun `notSent must NOT be UNKNOWN`() {
+  @Test fun `notSentWritePhase must be UNKNOWN`() {
     val fiscal = MockFiscalPort(DatecsFailure.NotSent("write", "IO error"))
+    val processor = makeProcessor(fiscal)
+    val result = processor.sale(testSale)
+    assertEquals("UNKNOWN", result["state"])
+  }
+
+  // ── NotSent encode phase → FAILED (serialization error; no bytes sent) ─────
+
+  @Test fun `notSentEncodePhase must be FAILED`() {
+    val fiscal = MockFiscalPort(DatecsFailure.NotSent("encode", "DATECS_TEXT_UNMAPPABLE"))
     val processor = makeProcessor(fiscal)
     val result = processor.sale(testSale)
     assertEquals("FAILED", result["state"])
   }
 
-  // ── BUG-028.4: reverse path also uses typed classification ─────────────────
+  // ── reverse path: BadFrame → UNKNOWN ────────────────────────────────────────
 
-  @Test fun `reversePath_badFrame_isNotUnknown`() {
+  @Test fun `reversePath_badFrame_isUnknown`() {
     val fiscal = MockFiscalPort(DatecsFailure.BadFrame("bad"))
     val processor = makeProcessor(fiscal)
     val result = processor.reverse(testReversal)
-    assertEquals("FAILED", result["state"])
-    assertNotEquals("UNKNOWN", result["state"])
+    assertEquals("UNKNOWN", result["state"])
+    assertNotEquals("FAILED", result["state"])
   }
 
-  // ── BUG-028.4: printerTest uses typed classification ───────────────────────
+  // ── printerTest: BadFrame → UNKNOWN ──────────────────────────────────────────
 
-  @Test fun `printerTest_badFrame_isNotUnknown`() {
+  @Test fun `printerTest_badFrame_isUnknown`() {
     val fiscal = MockFiscalPort(DatecsFailure.BadFrame("bad"))
     val signer = object : TransactionSigner {
       override val keyId: String = "k"
@@ -130,16 +141,16 @@ class BlueCashEngineUnknownTest {
     val journal = SignedMemoryJournal(signer, { java.time.Instant.now() })
     val processor = BlueCashCommandProcessor(fiscal, MockPaymentPort(), journal)
     val result = processor.printerTest("pt-001")
-    assertEquals("FAILED", result["state"])
-    assertNotEquals("UNKNOWN", result["state"])
+    assertEquals("UNKNOWN", result["state"])
+    assertNotEquals("FAILED", result["state"])
   }
 
-  // ── BUG-028.4: administrative path ─────────────────────────────────────────
+  // ── administrative path: BadFrame → UNKNOWN ─────────────────────────────────
 
-  @Test fun `adminPath_badFrame_isNotUnknown`() {
+  @Test fun `adminPath_badFrame_isUnknown`() {
     val fiscal = MockFiscalPort(DatecsFailure.BadFrame("bad"))
     val result = makeProcessor(fiscal).administrative("admin-001", 69, byteArrayOf())
-    assertEquals("FAILED", result["state"])
+    assertEquals("UNKNOWN", result["state"])
   }
 
   // ── BUG-028.4: unknown IS UNKNOWN for administrative ───────────────────────
