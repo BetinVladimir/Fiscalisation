@@ -1,5 +1,6 @@
 package com.beeloy.fiscal.bluecash
 
+import java.io.IOException
 import java.io.InputStream
 import java.io.OutputStream
 import java.time.LocalDate
@@ -177,15 +178,21 @@ class BoricaPinpadCodec(
     )
     val result = parseResult(wire.event(14))
     if (result["approved"] == "true")
-      store.approve(
-        OriginalCardTransaction(
-          operationId,
-          amountMinor,
-          result["rrn"].orEmpty(),
-          result["authorization_code"].orEmpty(),
-          "APPROVED"
+      try {
+        store.approve(
+          OriginalCardTransaction(
+            operationId,
+            amountMinor,
+            result["rrn"].orEmpty(),
+            result["authorization_code"].orEmpty(),
+            "APPROVED"
+          )
         )
-      )
+      } catch (ex: IOException) {
+        // Storage failure after approval received: rethrow as Unknown so classified()
+        // maps to UNKNOWN rather than FAILED, preventing premature cancel/reverse.
+        throw DatecsFailure.Unknown("APPROVED_EVIDENCE_STORAGE_FAILED:${ex.message}")
+      }
     return result
   }
   override fun reverse(

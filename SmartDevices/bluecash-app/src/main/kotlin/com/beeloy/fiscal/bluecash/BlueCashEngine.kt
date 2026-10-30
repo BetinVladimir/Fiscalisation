@@ -1,5 +1,6 @@
 package com.beeloy.fiscal.bluecash
 
+import java.io.IOException
 import java.security.MessageDigest
 import java.time.Instant
 import java.util.concurrent.locks.ReentrantLock
@@ -549,14 +550,20 @@ class BlueCashCommandProcessor(
     }
   /** BUG-028: typed error classification — replaces text-based checks with `when(e)`. */
   private fun classified(e: Throwable): Outcome =
-    when (e) {
-      is DatecsFailure.Unknown -> Outcome.UNKNOWN
-      is DatecsFailure.Rejected -> Outcome.FAILED
-      is DatecsFailure.NotSent -> Outcome.FAILED
-      is DatecsFailure.CorrelationError -> Outcome.FAILED
-      is DatecsFailure.BadFrame -> Outcome.FAILED
-      is DatecsFailure.BccError -> Outcome.FAILED
-      is DatecsFailure.FrameTooLarge -> Outcome.FAILED
+    when {
+      e is DatecsFailure.Unknown -> Outcome.UNKNOWN
+      e is DatecsFailure.Rejected -> Outcome.FAILED
+      // encode phase = serialization failure before any bytes leave → safe FAILED
+      e is DatecsFailure.NotSent && e.phase == "encode" -> Outcome.FAILED
+      // write phase = bytes may have been accepted by device → outcome unknown
+      e is DatecsFailure.NotSent -> Outcome.UNKNOWN
+      // post-send response anomalies: device may have processed the command
+      e is DatecsFailure.CorrelationError -> Outcome.UNKNOWN
+      e is DatecsFailure.BadFrame -> Outcome.UNKNOWN
+      e is DatecsFailure.BccError -> Outcome.UNKNOWN
+      e is DatecsFailure.FrameTooLarge -> Outcome.UNKNOWN
+      // raw I/O failure (card port, journal storage) after a fiscal attempt
+      e is IOException -> Outcome.UNKNOWN
       else -> Outcome.FAILED
     }
 }

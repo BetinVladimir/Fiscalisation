@@ -549,11 +549,17 @@ class DatecsSocketProtocol(
     }
     try {
       output.write(encodedFrame)
-      output.flush()
     } catch (e: IOException) {
-      throw DatecsFailure.NotSent("write", e.message ?: "DATECS_WRITE_ERROR")
+      // Bytes may have been partially accepted by the OS — outcome is ambiguous.
+      throw DatecsFailure.Unknown("DATECS_WRITE_AMBIGUOUS: ${e.message ?: "IO_ERROR"}")
     } catch (e: SecurityException) {
       throw DatecsFailure.NotSent("write", "DATECS_WRITE_DENIED")
+    }
+    try {
+      output.flush()
+    } catch (e: IOException) {
+      // Write succeeded; flush failed — bytes were queued, device may have received them.
+      throw DatecsFailure.Unknown("DATECS_FLUSH_UNKNOWN: ${e.message ?: "IO_ERROR"}")
     }
     val timeoutMs = timeoutFor(command)
     var retransmits = 0
