@@ -3,7 +3,7 @@
   "name": "BeeFiscal Admin",
   "version": "1.0.0",
   "projectId": "e6c6f7fb-3560-4ed5-ad3b-df44db50b875",
-  "owner": "vladimir.betin",
+  "owner": "beeloy",
   "apple": {
     "production": {
       "ascAppId": "6814689414"

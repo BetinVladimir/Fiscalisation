@@ -3,7 +3,7 @@
   "name": "BeeMiniPOS",
   "version": "1.0.0",
   "projectId": "7a68a6c7-8b90-4760-9d6a-45e415fca405",
-  "owner": "vladimir.betin",
+  "owner": "beeloy",
   "apple": {
     "production": {
       "ascAppId": "6814689857"
